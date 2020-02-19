@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace TodoListService.AuthorizationPolicies
     /// </summary>
     public class ScopesRequirement : AuthorizationHandler<ScopesRequirement>, IAuthorizationRequirement
     {
-        string[] _acceptedScopes;
+        readonly string[] _acceptedScopes;
 
         public ScopesRequirement(params string[] acceptedScopes)
         {

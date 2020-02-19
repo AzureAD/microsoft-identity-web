@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Threading.Tasks;
@@ -48,7 +51,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            Todo todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {
@@ -70,7 +73,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            Todo todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {

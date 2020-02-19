@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Diagnostics;
@@ -9,11 +12,11 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ITokenAcquisition tokenAcquisition;
+        private readonly ITokenAcquisition _tokenAcquisition;
 
         public HomeController(ITokenAcquisition tokenAcquisition)
         {
-            this.tokenAcquisition = tokenAcquisition;
+            _tokenAcquisition = tokenAcquisition;
         }
 
         public IActionResult Index()
