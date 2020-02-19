@@ -11,9 +11,9 @@ namespace Microsoft.Identity.Web.Test
         public const string ProductionPrefNetworkUSEnvironment = "login.microsoftonline.us";
         public const string ProductionNotPrefEnvironmentAlias = "sts.windows.net";
 
-        public const string LocalHost = "https://localhost";
+        public const string HttpLocalHost = "https://localhost";
         
-        public const string ApiAudience = "api://1EE5A092-0DFD-42B6-88E5-C517C0141321";
+        public const string ApiAudience = "api://" + ApiClientId;
         public const string ApiClientId = "1EE5A092-0DFD-42B6-88E5-C517C0141321";
 
         public const string TenantId = "some-tenant-id";
@@ -50,10 +50,10 @@ namespace Microsoft.Identity.Web.Test
         public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";       
         public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";        
 
-        //Claims
-        public const string Tid = "tid";
-        public const string Iss = "iss";
-        public const string Tfp = "tfp"; //Trust Framework Policy for B2C (aka userflow/policy)
+        // Claims
+        public const string ClaimNameTid = "tid";
+        public const string ClaimNameIss = "iss";
+        public const string ClaimNameTfp = "tfp"; //Trust Framework Policy for B2C (aka userflow/policy)
 
         public static readonly IEnumerable<string> s_aliases = new[]
         {

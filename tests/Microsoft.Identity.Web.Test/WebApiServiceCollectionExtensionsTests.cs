@@ -73,10 +73,10 @@ namespace Microsoft.Identity.Web.Test
             MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions() { ClientId = Guid.NewGuid().ToString() };
 
             // Act and Assert
-            options.Audience = TestConstants.LocalHost;
+            options.Audience = TestConstants.HttpLocalHost;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
             Assert.True(options.TokenValidationParameters.ValidAudiences.Count() == 1);
-            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == TestConstants.LocalHost);
+            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == TestConstants.HttpLocalHost);
 
             options.Audience = TestConstants.ApiAudience;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);

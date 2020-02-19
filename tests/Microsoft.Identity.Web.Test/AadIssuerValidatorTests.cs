@@ -23,8 +23,8 @@ namespace Microsoft.Identity.Web.Test
             // Act and Assert
             Assert.Throws<ArgumentNullException>(() => validator.Validate(null, jwtSecurityToken, validationParams));
             Assert.Throws<ArgumentNullException>(() => validator.Validate(string.Empty, jwtSecurityToken, validationParams));
-            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.Iss, null, validationParams));
-            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.Iss, jwtSecurityToken, null));
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.ClaimNameIss, null, validationParams));
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.ClaimNameIss, jwtSecurityToken, null));
         }
 
         [Fact]
@@ -32,8 +32,8 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
-            Claim tidClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim issClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
@@ -47,8 +47,8 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
-            Claim tidClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim issClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
 
             JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim });
 
@@ -75,8 +75,8 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
-            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.B2CTenantAsGuid);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.B2CTenantAsGuid);
 
             JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
@@ -93,8 +93,8 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
-            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
 
             JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
@@ -119,8 +119,8 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             string iss = $"https://badissuer/{TestConstants.TenantIdAsGuid}/v2.0";
             AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
-            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
 
             JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
@@ -136,8 +136,8 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromB2CAuthority_WithNoTidClaim_ValidateSuccessfully()
         {
             //Arrange
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer);
-            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CIssuer);
+            Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSuSiUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim });
 
             //Act
@@ -157,9 +157,9 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromB2CAuthority_WithTidClaim_ValidateSuccessfully()
         {
             //Arrange
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer);
-            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
-            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.B2CTenantAsGuid);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CIssuer);
+            Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSuSiUserFlow);
+            Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.B2CTenantAsGuid);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim, tidClaim });
 
             //Act
@@ -179,8 +179,8 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromB2CAuthority_InvalidIssuer_Fails()
         {
             //Arrange
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer2);
-            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CIssuer2);
+            Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSuSiUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer2, claims: new[] { issClaim, tfpClaim });
 
             //Act
@@ -203,8 +203,8 @@ namespace Microsoft.Identity.Web.Test
         {
             //Arrange
             string issuerWithInvalidTid = TestConstants.B2CInstance + "/" + TestConstants.TenantIdAsGuid + "/v2.0";
-            Claim issClaim = new Claim(TestConstants.Iss, issuerWithInvalidTid);
-            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, issuerWithInvalidTid);
+            Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSuSiUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuerWithInvalidTid, claims: new[] { issClaim, tfpClaim });
 
             //Act
@@ -226,8 +226,8 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromCustomB2CAuthority_ValidateSuccessfully()
         {
             //Arrange
-            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CCustomDomainIssuer);
-            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CCustomDomainIssuer);
+            Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSuSiUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CCustomDomainIssuer, claims: new[] { issClaim, tfpClaim });
 
             //Act
