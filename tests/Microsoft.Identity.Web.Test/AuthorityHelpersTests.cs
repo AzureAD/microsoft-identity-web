@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -12,10 +12,9 @@ namespace Microsoft.Identity.Web.Test
         {
             //Arrange
             string authority = string.Empty;
-            bool? result = null;
 
             //Act
-            result = AuthorityHelpers.IsV2Authority(authority);
+            bool? result = AuthorityHelpers.IsV2Authority(authority);
 
             //Assert
             Assert.False(result);
@@ -26,10 +25,9 @@ namespace Microsoft.Identity.Web.Test
         {
             //Arrange
             string authority = null;
-            bool? result = null;
 
             //Act
-            result = AuthorityHelpers.IsV2Authority(authority);
+            bool? result = AuthorityHelpers.IsV2Authority(authority);
 
             //Assert
             Assert.False(result);
@@ -39,11 +37,10 @@ namespace Microsoft.Identity.Web.Test
         public void IsV2Authority_EndsWithV2_ReturnsTrue()
         {
             //Arrange
-            string authority = "https://login.microsoftonline.com/tenantId/v2.0";
-            bool? result = null;
+            string authority = TestConstants.AuthorityWithTenantSpecifiedWithV2;
 
             //Act
-            result = AuthorityHelpers.IsV2Authority(authority);
+            bool? result = AuthorityHelpers.IsV2Authority(authority);
 
             //Assert
             Assert.True(result);
@@ -53,11 +50,10 @@ namespace Microsoft.Identity.Web.Test
         public void IsV2Authority_DoesntEndWithV2_ReturnsFalse()
         {
             //Arrange
-            string authority = "https://login.microsoftonline.com/tenantId";
-            bool? result = null;
+            string authority = TestConstants.AuthorityWithTenantSpecified;
 
             //Act
-            result = AuthorityHelpers.IsV2Authority(authority);
+            bool? result = AuthorityHelpers.IsV2Authority(authority);
 
             //Assert
             Assert.False(result);
@@ -68,27 +64,26 @@ namespace Microsoft.Identity.Web.Test
         {
             //Arrange
             MicrosoftIdentityOptions options = null;
-            string result = null;
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.Null(result);
-
         }
 
         [Fact]
         public void BuildAuthority_EmptyInstance_ReturnsNull()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.Domain = "contoso.onmicrosoft.com";
-            options.Instance = "";
-            string result = null;
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Domain = TestConstants.Domain,
+                Instance = string.Empty
+            };
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.Null(result);
@@ -98,14 +93,15 @@ namespace Microsoft.Identity.Web.Test
         public void BuildAuthority_B2CEmptyDomain_ReturnsNull()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.Domain = "";
-            options.Instance = "https://login.microsoftonline.com/";
-            options.SignUpSignInPolicyId = "b2c_1_susi";
-            string result = null;
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Domain = string.Empty,
+                Instance = TestConstants.B2CInstance,
+                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+            };
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.Null(result);
@@ -115,13 +111,14 @@ namespace Microsoft.Identity.Web.Test
         public void BuildAuthority_AADEmptyTenantId_ReturnsNull()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.TenantId = "";
-            options.Instance = "https://login.microsoftonline.com/";
-            string result = null;
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = string.Empty,
+                Instance = TestConstants.AadInstance
+            };
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.Null(result);
@@ -131,14 +128,15 @@ namespace Microsoft.Identity.Web.Test
         public void BuildAuthority_AadInstanceAndTenantId_BuildAadAuthority()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.TenantId = "da41245a5-11b3-996c-00a8-4d99re19f292";
-            options.Instance = "https://login.microsoftonline.com";
-            string result = null;
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance
+            };
             string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0";
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.NotNull(result);
@@ -146,17 +144,18 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void BuildAuthority_OptionsInstaceWithTrailing_BuildAadAuthorityWithoutExtraTrailing()
+        public void BuildAuthority_OptionsInstanceWithTrailing_BuildAadAuthorityWithoutExtraTrailing()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.TenantId = "da41245a5-11b3-996c-00a8-4d99re19f292";
-            options.Instance = "https://login.microsoftonline.com/";
-            string result = null;
-            string expectedResult = $"https://login.microsoftonline.com/{options.TenantId}/v2.0";
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance + "/"
+            };
+            string expectedResult = $"{TestConstants.AadInstance}/{options.TenantId}/v2.0";
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.NotNull(result);
@@ -167,16 +166,16 @@ namespace Microsoft.Identity.Web.Test
         public void BuildAuthority_B2CInstanceDomainAndPolicy_BuildB2CAuthority()
         {
             //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions();
-            options.Domain = "fabrikamb2c.onmicrosoft.com";
-            options.Instance = "https://fabrikamb2c.b2clogin.com";
-            options.SignUpSignInPolicyId = "b2c_1_susi";
-
-            string result = null;
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Domain = TestConstants.B2CTenant,
+                Instance = TestConstants.B2CInstance,
+                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+            };
             string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
 
             //Act
-            result = AuthorityHelpers.BuildAuthority(options);
+            string result = AuthorityHelpers.BuildAuthority(options);
 
             //Assert
             Assert.NotNull(result);

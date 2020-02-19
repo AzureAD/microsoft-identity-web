@@ -3,8 +3,6 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using System.Linq;
 
@@ -16,30 +14,56 @@ namespace Microsoft.Identity.Web.Test
         public void TestAuthority()
         {
             // Arrange
-            JwtBearerOptions options = new JwtBearerOptions();
+            JwtBearerOptions options = new JwtBearerOptions
+            {
+                Authority = TestConstants.AuthorityCommonTenant
+            };
 
             // Act and Assert
-            options.Authority = "https://login.microsoftonline.com/common";
             WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
-            Assert.Equal("https://login.microsoftonline.com/common/v2.0", options.Authority);
+            Assert.Equal(TestConstants.AuthorityCommonTenantWithV2, options.Authority);
 
-            options.Authority = "https://login.microsoftonline.us/organizations";
+            options.Authority = TestConstants.AuthorityOrganizationsUSTenant;
             WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
-            Assert.Equal("https://login.microsoftonline.us/organizations/v2.0", options.Authority);
+            Assert.Equal(TestConstants.AuthorityOrganizationsUSWithV2, options.Authority);
 
-            options.Authority = "https://login.microsoftonline.com/common/";
+            options.Authority = TestConstants.AadInstance + "/common/";
             WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
-            Assert.Equal("https://login.microsoftonline.com/common/v2.0", options.Authority);
+            Assert.Equal(TestConstants.AuthorityCommonTenantWithV2, options.Authority);
 
-            options.Authority = "https://login.microsoftonline.com/common/v2.0";
+            options.Authority = TestConstants.AuthorityCommonTenantWithV2;
             WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
-            Assert.Equal("https://login.microsoftonline.com/common/v2.0", options.Authority);
+            Assert.Equal(TestConstants.AuthorityCommonTenantWithV2, options.Authority);
 
-
-            options.Authority = "https://login.microsoftonline.com/common/v2.0";
+            options.Authority = TestConstants.AuthorityCommonTenantWithV2 + "/";
             WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
-            Assert.Equal("https://login.microsoftonline.com/common/v2.0", options.Authority);
+            Assert.Equal(TestConstants.AuthorityCommonTenantWithV2, options.Authority);
+        }
 
+        [Fact]
+        public void TestB2CAuthority()
+        {
+            // Arrange
+            JwtBearerOptions options = new JwtBearerOptions
+            {
+                Authority = TestConstants.B2CAuthorityWithV2
+            };
+
+            // Act and Assert
+            WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
+            Assert.Equal(TestConstants.B2CAuthorityWithV2, options.Authority);
+
+            options.Authority = TestConstants.B2CCustomDomainAuthorityWithV2;
+            WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
+            Assert.Equal(TestConstants.B2CCustomDomainAuthorityWithV2, options.Authority);
+
+            options.Authority = TestConstants.B2CCustomDomainAuthority;
+            WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
+            Assert.Equal(TestConstants.B2CCustomDomainAuthorityWithV2, options.Authority);
+
+            options.Authority = TestConstants.B2CAuthority;
+            WebApiServiceCollectionExtensions.EnsureAuthorityIsV2_0(options);
+            Assert.Equal(TestConstants.B2CAuthorityWithV2, options.Authority);
         }
 
         [Fact]
@@ -49,21 +73,21 @@ namespace Microsoft.Identity.Web.Test
             MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions() { ClientId = Guid.NewGuid().ToString() };
 
             // Act and Assert
-            options.Audience = "https://localhost";
+            options.Audience = TestConstants.LocalHost;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
             Assert.True(options.TokenValidationParameters.ValidAudiences.Count() == 1);
-            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == "https://localhost");
+            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == TestConstants.LocalHost);
 
-            options.Audience = "api://1EE5A092-0DFD-42B6-88E5-C517C0141321";
+            options.Audience = TestConstants.ApiAudience;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
             Assert.True(options.TokenValidationParameters.ValidAudiences.Count() == 1);
-            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == "api://1EE5A092-0DFD-42B6-88E5-C517C0141321");
+            Assert.True(options.TokenValidationParameters.ValidAudiences.First() == TestConstants.ApiAudience);
 
-            options.Audience = "1EE5A092-0DFD-42B6-88E5-C517C0141321";
+            options.Audience = TestConstants.ApiClientId;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
             Assert.True(options.TokenValidationParameters.ValidAudiences.Count() == 2);
-            Assert.Contains("api://1EE5A092-0DFD-42B6-88E5-C517C0141321", options.TokenValidationParameters.ValidAudiences);
-            Assert.Contains("1EE5A092-0DFD-42B6-88E5-C517C0141321", options.TokenValidationParameters.ValidAudiences);
+            Assert.True(options.TokenValidationParameters.ValidAudiences.ElementAt(1) == TestConstants.ApiAudience);
+            Assert.True(options.TokenValidationParameters.ValidAudiences.ElementAt(0) == TestConstants.ApiClientId);
 
             options.Audience = null;
             WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
@@ -71,6 +95,11 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains($"api://{microsoftIdentityOptions.ClientId}", options.TokenValidationParameters.ValidAudiences);
             Assert.Contains($"{microsoftIdentityOptions.ClientId}", options.TokenValidationParameters.ValidAudiences);
 
+            options.Audience = string.Empty;
+            WebApiServiceCollectionExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
+            Assert.True(options.TokenValidationParameters.ValidAudiences.Count() == 2);
+            Assert.Contains($"api://{microsoftIdentityOptions.ClientId}", options.TokenValidationParameters.ValidAudiences);
+            Assert.Contains($"{microsoftIdentityOptions.ClientId}", options.TokenValidationParameters.ValidAudiences);
         }
     }
 }

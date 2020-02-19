@@ -4,7 +4,6 @@
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Xunit;
@@ -13,37 +12,33 @@ namespace Microsoft.Identity.Web.Test
 {
     public class AadIssuerValidatorTests
     {
-        private const string Tid = "9188040d-6c67-4c5b-b112-36a304b66dad";
-        private static readonly string Iss = $"https://login.microsoftonline.com/{Tid}/v2.0";
-        private static readonly IEnumerable<string> s_aliases = new[] { "login.microsoftonline.com", "sts.windows.net" };
-
         [Fact]
         public void NullArg()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
             var jwtSecurityToken = new JwtSecurityToken();
             var validationParams = new TokenValidationParameters();
 
             // Act and Assert
             Assert.Throws<ArgumentNullException>(() => validator.Validate(null, jwtSecurityToken, validationParams));
-            Assert.Throws<ArgumentNullException>(() => validator.Validate("", jwtSecurityToken, validationParams));
-            Assert.Throws<ArgumentNullException>(() => validator.Validate(Iss, null, validationParams));
-            Assert.Throws<ArgumentNullException>(() => validator.Validate(Iss, jwtSecurityToken, null));
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(string.Empty, jwtSecurityToken, validationParams));
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.Iss, null, validationParams));
+            Assert.Throws<ArgumentNullException>(() => validator.Validate(TestConstants.Iss, jwtSecurityToken, null));
         }
 
         [Fact]
         public void PassingValidation()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("tid", Tid);
-            Claim tidClaim = new Claim("iss", Iss);
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim, tidClaim });
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
+            Claim tidClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
-            validator.Validate(Iss, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuers = new[] { "https://login.microsoftonline.com/{tenantid}/v2.0" } });
+            validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
+                new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } });
         }
 
 
@@ -51,65 +46,62 @@ namespace Microsoft.Identity.Web.Test
         public void TokenValidationParameters_ValidIssuer()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("tid", Tid);
-            Claim tidClaim = new Claim("iss", Iss);
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim, tidClaim });
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
+            Claim tidClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
-            validator.Validate(Iss, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuer = "https://login.microsoftonline.com/{tenantid}/v2.0" });
+            validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
+                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
         }
 
         [Fact]
-        public void ValidationFails_NoTidClaimInJwt()
+        public void ValidationSucceeds_NoTidClaimInJwt_TidCreatedFromIssuerInstead()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("iss", Iss);
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
 
-            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim });
+            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim });
 
             // Act & Assert
-            Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(
-                    Iss,
-                    noTidJwt,
-                    new TokenValidationParameters() { ValidIssuers = new[] { "https://login.microsoftonline.com/{tenantid}/v2.0" } }));
+            validator.Validate(TestConstants.AadIssuer, noTidJwt,
+                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
         }
 
         [Fact]
         public void ValidationFails_BadTidClaimInJwt()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("iss", Iss);
-            Claim tidClaim = new Claim("tid", "9188040d-0000-4c5b-b112-36a304b66dad");
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.B2CTenantAsGuid);
 
-            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim, tidClaim });
+            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
-                    Iss,
+                    TestConstants.AadIssuer,
                     noTidJwt,
-                    new TokenValidationParameters() { ValidIssuers = new[] { "https://login.microsoftonline.com/{tenantid}/v2.0" } }));
+                    new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
         }
 
         [Fact]
         public void MultipleIssuers_NoneMatch()
         {
             // Arrange
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("iss", Iss);
-            Claim tidClaim = new Claim("tid", Tid);
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
 
-            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim, tidClaim });
+            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
-                    Iss,
+                    TestConstants.AadIssuer,
                     noTidJwt,
                     new TokenValidationParameters()
                     {
@@ -125,41 +117,39 @@ namespace Microsoft.Identity.Web.Test
         public void ValidationFails_BadIssuerClaimInJwt()
         {
             // Arrange
-            string iss = $"https://badissuer/{Tid}/v2.0";
-            AadIssuerValidator validator = new AadIssuerValidator(s_aliases);
-            Claim issClaim = new Claim("iss", iss);
-            Claim tidClaim = new Claim("tid", Tid);
+            string iss = $"https://badissuer/{TestConstants.TenantIdAsGuid}/v2.0";
+            AadIssuerValidator validator = new AadIssuerValidator(TestConstants.s_aliases);
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.AadIssuer);
+            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.TenantIdAsGuid);
 
-            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: Iss, claims: new[] { issClaim, tidClaim });
+            JwtSecurityToken noTidJwt = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
             // Act & Assert
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
                     iss,
                     noTidJwt,
-                    new TokenValidationParameters() { ValidIssuers = new[] { "https://login.microsoftonline.com/{tenantid}/v2.0" } }));
+                    new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
         }
 
         [Fact]
         public void Validate_FromB2CAuthority_WithNoTidClaim_ValidateSuccessfully()
         {
             //Arrange
-            string b2cAuthority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi/v2.0";
-            string issuer = "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/";
-            Claim issClaim = new Claim("iss", issuer);
-            Claim tfpClaim = new Claim("tfp", "b2c_1_susi");
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuer, claims: new[] { issClaim, tfpClaim });
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer);
+            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim });
 
             //Act
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(b2cAuthority);
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             //Assert
             validator.Validate(
-                issuer,
+                TestConstants.B2CIssuer,
                 jwtSecurityToken,
                 new TokenValidationParameters()
                 {
-                    ValidIssuers = new[] { "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/" }
+                    ValidIssuers = new[] { TestConstants.B2CIssuer }
                 });
         }
 
@@ -167,47 +157,43 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromB2CAuthority_WithTidClaim_ValidateSuccessfully()
         {
             //Arrange
-            string b2cAuthority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi/v2.0";
-            string issuer = "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/";
-            Claim issClaim = new Claim("iss", issuer);
-            Claim tidClaim = new Claim("tid", "775527ff-9a37-4307-8b3d-cc311f58d925");
-            Claim tfpClaim = new Claim("tfp", "b2c_1_susi");
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuer, claims: new[] { issClaim, tfpClaim, tidClaim });
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer);
+            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            Claim tidClaim = new Claim(TestConstants.Tid, TestConstants.B2CTenantAsGuid);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim, tidClaim });
 
             //Act
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(b2cAuthority);
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             //Assert
             validator.Validate(
-                issuer,
+                TestConstants.B2CIssuer,
                 jwtSecurityToken,
                 new TokenValidationParameters()
                 {
-                    ValidIssuers = new[] { "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/" }
+                    ValidIssuers = new[] { TestConstants.B2CIssuer }
                 });
         }
 
         [Fact]
-        public void Validate_FromB2CAuthority_InvalidIssuer_Fails ()
+        public void Validate_FromB2CAuthority_InvalidIssuer_Fails()
         {
             //Arrange
-            string b2cAuthority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi/v2.0";
-            string badIssuer = "https://badIssuer.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/";
-            Claim issClaim = new Claim("iss", badIssuer);
-            Claim tfpClaim = new Claim("tfp", "b2c_1_susi");
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: badIssuer, claims: new[] { issClaim, tfpClaim });
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CIssuer2);
+            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer2, claims: new[] { issClaim, tfpClaim });
 
             //Act
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(b2cAuthority);
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             //Assert
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
-                    badIssuer,
+                    TestConstants.B2CIssuer2,
                     jwtSecurityToken,
                     new TokenValidationParameters()
                     {
-                        ValidIssuers = new[] { "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/" }
+                        ValidIssuers = new[] { TestConstants.B2CIssuer }
                     })
                 );
         }
@@ -216,24 +202,22 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromB2CAuthority_InvalidIssuerTid_Fails()
         {
             //Arrange
-            string wrongTid = "9188040d-6c67-4c5b-b112-36a304b66dad";
-            string b2cAuthority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi/v2.0";
-            string badIssuer = $"https://fabrikamb2c.b2clogin.com/{wrongTid}/v2.0/";
-            Claim issClaim = new Claim("iss", badIssuer);
-            Claim tfpClaim = new Claim("tfp", "b2c_1_susi");
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: badIssuer, claims: new[] { issClaim, tfpClaim });
+            string issuerWithInvalidTid = TestConstants.B2CInstance + "/" + TestConstants.TenantIdAsGuid + "/v2.0";
+            Claim issClaim = new Claim(TestConstants.Iss, issuerWithInvalidTid);
+            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuerWithInvalidTid, claims: new[] { issClaim, tfpClaim });
 
             //Act
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(b2cAuthority);
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             //Assert
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
-                    badIssuer,
+                    issuerWithInvalidTid,
                     jwtSecurityToken,
                     new TokenValidationParameters()
                     {
-                        ValidIssuers = new[] { "https://fabrikamb2c.b2clogin.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/" }
+                        ValidIssuers = new[] { TestConstants.B2CIssuer }
                     })
                 );
         }
@@ -242,22 +226,20 @@ namespace Microsoft.Identity.Web.Test
         public void Validate_FromCustomB2CAuthority_ValidateSuccessfully()
         {
             //Arrange
-            string b2cAuthority = "https://myCustomDomain.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi/v2.0";
-            string issuer = "https://myCustomDomain.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/";
-            Claim issClaim = new Claim("iss", issuer);
-            Claim tfpClaim = new Claim("tfp", "b2c_1_susi");
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuer, claims: new[] { issClaim, tfpClaim });
+            Claim issClaim = new Claim(TestConstants.Iss, TestConstants.B2CCustomDomainIssuer);
+            Claim tfpClaim = new Claim(TestConstants.Tfp, TestConstants.B2CSuSiUserFlow);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CCustomDomainIssuer, claims: new[] { issClaim, tfpClaim });
 
             //Act
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(b2cAuthority);
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CCustomDomainAuthorityWithV2);
 
             //Assert
             validator.Validate(
-                issuer,
+                TestConstants.B2CCustomDomainIssuer,
                 jwtSecurityToken,
                 new TokenValidationParameters()
                 {
-                    ValidIssuers = new[] { "https://myCustomDomain.com/775527ff-9a37-4307-8b3d-cc311f58d925/v2.0/" }
+                    ValidIssuers = new[] { TestConstants.B2CCustomDomainIssuer }
                 });
         }
     }
