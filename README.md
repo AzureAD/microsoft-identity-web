@@ -12,10 +12,13 @@ to enable them to work with the Microsoft identity platform (formerly named Azur
 
  ## Breaking changes
 
- If you've been using Microsoft.Identity.Web in your project you might want to know that, on 12/05/2019, a number of APIs are renamed to be consistent:
-.AddMicrosoftIdentityPlatformAuthentication => AddSignIn
-.AddMsal => .AddWebAppCallsProtectedWebApi
-.AddProtectedWebApiCallsWebAPis => AddProtectedWebApiCallsProtectedWebAPi
+ If you've been using Microsoft.Identity.Web in your project you might want to know that, on 02/18/2020, a number of APIs are renamed to be consistent:
+ 
+- `.AddMicrosoftIdentityPlatformAuthentication` => `AddSignIn`
+- `.AddMsal` => `.AddWebAppCallsProtectedWebApi`
+- `.AddProtectedWebApiCallsWebAPis` => `AddProtectedWebApiCallsProtectedWebAPi`
+
+Obsolete attributes were added to make it easier to migrate.
 
 ## Web apps
 
