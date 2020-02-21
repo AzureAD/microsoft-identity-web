@@ -1,6 +1,6 @@
 # Microsoft Identity Web
 
-[![Build status](https://identitydivision.visualstudio.com/IDDP/_apis/build/status/AAD%20Samples/.NET%20client%20samples/ASP.NET%20Core%20Web%20App%20tutorial)](https://identitydivision.visualstudio.com/IDDP/_build/latest?definitionId=819)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FAzureAD%2Fmicrosoft-identity-web%2Fbadge&style=flat)](https://actions-badge.atrox.dev/AzureAD/microsoft-identity-web/goto)
 
 This library contains a set of reusable classes useful in ASP.NET Core:
 
