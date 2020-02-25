@@ -45,8 +45,7 @@ namespace Microsoft.Identity.Web.Resource
         /// preserving the previous handlers (which are called)
         /// </summary>
         /// <param name="events">Events to subscribe to</param>
-        public JwtBearerEvents Subscribe(
-            JwtBearerEvents events)
+        public JwtBearerEvents Subscribe(JwtBearerEvents events)
         {
             if (events == null)
             {
