@@ -4,11 +4,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -16,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
 {
@@ -223,6 +219,7 @@ namespace Microsoft.Identity.Web
             var microsoftIdentityOptions = configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
             var b2COidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
+            builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme);
             builder.AddOpenIdConnect(openIdConnectScheme, options =>
             {
@@ -302,7 +299,9 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
                 {
-                    OpenIdConnectMiddlewareDiagnostics.Subscribe(options.Events);
+                    var diags = builder.Services.BuildServiceProvider().GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+
+                    diags.Subscribe(options.Events);
                 }
             });
 

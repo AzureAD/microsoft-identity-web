@@ -157,6 +157,7 @@ namespace Microsoft.Identity.Web
             builder.Services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.AddJwtBearer(jwtBearerScheme, options =>
@@ -209,7 +210,9 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                 {
-                    options.Events = JwtBearerMiddlewareDiagnostics.Subscribe(options.Events);
+                    var diags = builder.Services.BuildServiceProvider().GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
+
+                    diags.Subscribe(options.Events);
                 }
             });
 
