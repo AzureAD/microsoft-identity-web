@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
@@ -11,7 +12,6 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -33,6 +33,7 @@ namespace Microsoft.Identity.Web
         private IConfidentialClientApplication application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -46,12 +47,14 @@ namespace Microsoft.Identity.Web
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-            IOptions<ConfidentialClientApplicationOptions> applicationOptions)
+            IOptions<ConfidentialClientApplicationOptions> applicationOptions,
+            ILogger<TokenAcquisition> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _microsoftIdentityOptions = microsoftIdentityOptions.Value;
             _applicationOptions = applicationOptions.Value;
             _tokenCacheProvider = tokenCacheProvider;
+            _logger = logger;
         }
 
         /// <summary>
@@ -107,7 +110,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(scopes));
             }
-
+            
             try
             {
                 // As AcquireTokenByAuthorizationCodeAsync is asynchronous we want to tell ASP.NET core that we are handing the code
@@ -135,8 +138,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalException ex)
             {
-                // brentsch - todo, write to a log
-                Debug.WriteLine(ex.Message);
+                _logger.LogInformation(ex.Message);
                 throw;
             }
         }
@@ -205,7 +207,7 @@ namespace Microsoft.Identity.Web
             catch (MsalUiRequiredException ex)
             {
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a Web App or a Web API
-                Debug.WriteLine(ex.Message);
+                _logger.LogInformation(ex.Message);
 
                 // to get a token for a Web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
                 // flow as this one only applies to Web APIs.

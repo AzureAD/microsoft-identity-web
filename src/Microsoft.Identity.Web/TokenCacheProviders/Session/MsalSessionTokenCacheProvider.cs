@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -31,11 +29,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IMsalTokenCacheProvider
     {
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
+        private ILogger _logger;
 
-        public MsalSessionTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-            IHttpContextAccessor httpContextAccessor) : 
+        public MsalSessionTokenCacheProvider(
+            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<MsalSessionTokenCacheProvider> logger) : 
             base(microsoftIdentityOptions, httpContextAccessor)
         {
+            _logger = logger;
         }
 
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
@@ -47,11 +49,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 if (CurrentHttpContext.Session.TryGetValue(cacheKey, out byte[] blob))
                 {
-                    Debug.WriteLine($"INFO: Deserializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                    _logger.LogInformation($"Deserializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
                 }
                 else
                 {
-                    Debug.WriteLine($"INFO: cacheId {cacheKey} not found in session {CurrentHttpContext.Session.Id}");
+                    _logger.LogInformation($"CacheId {cacheKey} not found in session {CurrentHttpContext.Session.Id}");
                 }
                 return blob;
             }
@@ -66,7 +68,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             s_sessionLock.EnterWriteLock();
             try
             {
-                Debug.WriteLine($"INFO: Serializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation($"Serializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
                 CurrentHttpContext.Session.Set(cacheKey, bytes);
@@ -83,7 +85,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             s_sessionLock.EnterWriteLock();
             try
             {
-                Debug.WriteLine($"INFO: Clearing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation($"Clearing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
                 CurrentHttpContext.Session.Remove(cacheKey);
@@ -96,6 +98,5 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         }
 
         private static readonly ReaderWriterLockSlim s_sessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-
     }
 }
