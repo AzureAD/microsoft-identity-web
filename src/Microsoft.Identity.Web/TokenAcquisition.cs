@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(scopes));
             }
-            
+
             try
             {
                 // As AcquireTokenByAuthorizationCodeAsync is asynchronous we want to tell ASP.NET core that we are handing the code
@@ -239,6 +239,32 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Acquires a token from the authority configured in the app, for the confidential client itself (in the name of no user)
+        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// </summary>
+        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+        /// in the portal, and cannot be overriden in the application.</param>
+        /// <returns>An access token for the app itself, based on its scopes</returns>
+        public async Task<string> AcquireTokenForAppAsync(IEnumerable<string> scopes)
+        {
+            if (scopes == null)
+            {
+                throw new ArgumentNullException(nameof(scopes));
+            }
+
+            // Use MSAL to get the right token to call the API
+            var application = GetOrBuildConfidentialClientApplication();
+            string accessToken;
+
+            accessToken = await GetAccessTokenFromApplicationCacheAsync(application, scopes)
+                    .ConfigureAwait(false);
+
+            return accessToken;
+        }
+
+        /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache
         /// </summary>
         /// <param name="context">RedirectContext passed-in to a <see cref="OnRedirectToIdentityProviderForSignOut"/>
@@ -303,6 +329,7 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         private IConfidentialClientApplication BuildConfidentialClientApplication()
         {
+            string instance;
             var request = CurrentHttpContext.Request;
             var microsoftIdentityOptions = _microsoftIdentityOptions;
             var applicationOptions = _applicationOptions;
@@ -312,36 +339,56 @@ namespace Microsoft.Identity.Web
                 request.PathBase,
                 microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
 
-            if (!applicationOptions.Instance.EndsWith("/"))
-                applicationOptions.Instance += "/";
-
-            string authority ;
-            IConfidentialClientApplication app = null;
-
-            if (microsoftIdentityOptions.IsB2C)
+           if (string.IsNullOrEmpty(applicationOptions.Instance) &&
+                !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
             {
-                authority = $"{applicationOptions.Instance}tfp/{microsoftIdentityOptions.Domain}/{microsoftIdentityOptions.DefaultUserFlow}";
-                app = ConfidentialClientApplicationBuilder
-                    .CreateWithApplicationOptions(applicationOptions)
-                    .WithRedirectUri(currentUri)
-                    .WithB2CAuthority(authority)
-                    .Build();
+                if (!microsoftIdentityOptions.Instance.EndsWith("/"))
+                    microsoftIdentityOptions.Instance += "/";
+                instance = microsoftIdentityOptions.Instance;
             }
             else
             {
-                authority = $"{applicationOptions.Instance}{applicationOptions.TenantId}/";
-                app = ConfidentialClientApplicationBuilder
-                    .CreateWithApplicationOptions(applicationOptions)
-                    .WithRedirectUri(currentUri)
-                    .WithAuthority(authority)
-                    .Build();
+                if (!applicationOptions.Instance.EndsWith("/"))
+                    applicationOptions.Instance += "/";
+                instance = applicationOptions.Instance;
             }
 
-            // Initialize token cache providers
-            _tokenCacheProvider?.InitializeAsync(app.AppTokenCache);
-            _tokenCacheProvider?.InitializeAsync(app.UserTokenCache);
+            string authority;
+            IConfidentialClientApplication app;
 
-            return app;
+            try
+            {
+                if (microsoftIdentityOptions.IsB2C)
+                {
+                    authority = $"{instance}tfp/{microsoftIdentityOptions.Domain}/{microsoftIdentityOptions.DefaultUserFlow}";
+                    app = ConfidentialClientApplicationBuilder
+                        .CreateWithApplicationOptions(applicationOptions)
+                        .WithRedirectUri(currentUri)
+                        .WithB2CAuthority(authority)
+                        .Build();
+                }
+                else
+                {
+                    authority = $"{instance}{applicationOptions.TenantId}/";
+
+                    app = ConfidentialClientApplicationBuilder
+                        .CreateWithApplicationOptions(applicationOptions)
+                        //.WithRedirectUri(currentUri)
+                        .WithAuthority(authority)
+                        .Build();
+                }
+
+                // Initialize token cache providers
+                _tokenCacheProvider?.InitializeAsync(app.AppTokenCache);
+                _tokenCacheProvider?.InitializeAsync(app.UserTokenCache);
+                return app;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -444,6 +491,19 @@ namespace Microsoft.Identity.Web
                    .ConfigureAwait(false);
                 return result.AccessToken;
             }
+        }
+
+        private async Task<string> GetAccessTokenFromApplicationCacheAsync(
+            IConfidentialClientApplication application,
+            IEnumerable<string> scopes)
+        {
+            AuthenticationResult result;
+            result = await application
+                   .AcquireTokenForClient(scopes.Except(_scopesRequestedByMsal))
+                   .ExecuteAsync()
+                   .ConfigureAwait(false);
+
+            return result.AccessToken;
         }
 
         /// <summary>

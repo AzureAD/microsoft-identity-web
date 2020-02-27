@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Xunit;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace Microsoft.Identity.Web.Test
 {

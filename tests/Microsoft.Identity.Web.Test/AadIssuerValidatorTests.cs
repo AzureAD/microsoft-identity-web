@@ -7,6 +7,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Xunit;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace Microsoft.Identity.Web.Test
 {

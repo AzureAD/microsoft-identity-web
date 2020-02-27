@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Identity.Web.Test
+namespace Microsoft.Identity.Web.Test.Common
 {
-    internal static class TestConstants
+    public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
         public const string ProductionPrefNetworkUSEnvironment = "login.microsoftonline.us";
@@ -60,5 +60,13 @@ namespace Microsoft.Identity.Web.Test
             ProductionPrefNetworkEnvironment,
             ProductionNotPrefEnvironmentAlias
         };
-    }
+
+        public static readonly IEnumerable<string> s_scopesForApp = new[]
+        {
+            "https://graph.microsoft.com/.default"
+        };
+
+        public const string InvalidScopeError = "The scope user.read is not valid.";
+        public const string InvalidScopeErrorcode = "AADSTS70011"
+;    }
 }
