@@ -1,0 +1,56 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+ 
+trigger: none
+pr: none
+ 
+# Create a daily midnight build for release builds on master to ensure our release builds function
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - master
+ 
+pool:
+  vmImage: 'windows-latest'
+  demands:
+  - msbuild
+  - visualstudio
+ 
+variables:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'Release'
+ 
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .Net Core sdk 3.1.101'
+  inputs:
+    version: 3.1.101
+ 
+# Run pre-build code analysis (policheck, credscan, etc)
+- template: template-prebuild-code-analysis.yaml
+ 
+# Bootstrap the build
+- template: template-bootstrap-build.yaml
+ 
+# Nuget Restore and Build Microsoft.Identity.Web.sln
+- template: template-restore-build-MSIdentityWeb.yaml
+  parameters:
+    BuildPlatform: '$(BuildPlatform)'
+    BuildConfiguration: '$(BuildConfiguration)'
+    MsIdentityWebSemVer: $(MsIdentityWebSemVer)
+ 
+# Run Post-build code analysis (e.g. Roslyn)
+- template: template-postbuild-code-analysis.yaml
+ 
+# Pack and sign all of the nuget packages
+- template: template-pack-and-sign-all-nugets.yaml
+ 
+# Publish nuget packages and symbols to VSTS package manager.
+- template: template-publish-packages-and-symbols.yaml
+ 
+# Publish analysis and cleanup
+- template: template-publish-analysis-and-cleanup.yaml

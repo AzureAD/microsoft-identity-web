@@ -1,0 +1,31 @@
+# template-restore-build-MSIdentityWeb.yaml
+# Performs Nuget Restore and Build of MicrosoftIdentityWeb.sln based on BuildConfiguration
+
+parameters:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'debug'
+  MsIdentityWebSemVer: '1.0.0-devopsbuild'
+
+steps:
+- task: VSBuild@1
+  displayName: 'NuGet restore Microsoft.Identity.Web.sln'
+  inputs:
+    solution: Microsoft.Identity.Web.sln
+    vsVersion: '16.0'
+    msbuildArgs: '/t:restore'
+    platform: ${{ parameters.BuildPlatform }}
+    configuration: ${{ parameters.BuildConfiguration }}
+
+- task: VSBuild@1
+  displayName: 'Build solution Microsoft.Identity.Web.sln'
+  inputs:
+    solution: Microsoft.Identity.Web.sln
+    vsVersion: '16.0'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
+    platform: ${{ parameters.BuildPlatform }}
+    configuration: ${{ parameters.BuildConfiguration }}
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  inputs:
+    failOnAlert: true
