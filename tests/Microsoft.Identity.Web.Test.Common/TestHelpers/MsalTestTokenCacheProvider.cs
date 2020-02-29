@@ -12,9 +12,9 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     public class MsalTestTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
-        public IMemoryCache MemoryCache { get; set; }
+        public IMemoryCache MemoryCache { get; }
         private readonly MsalMemoryTokenCacheOptions _cacheOptions;
-        public int Count { get; set; }
+        public int Count { get; internal set; }
 
         public MsalTestTokenCacheProvider(
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,

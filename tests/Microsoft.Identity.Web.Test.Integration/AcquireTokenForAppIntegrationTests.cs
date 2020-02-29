@@ -1,20 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using NSubstitute;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using IHttpContextAccessor = Microsoft.AspNetCore.Http.IHttpContextAccessor;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -46,7 +49,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Need to set up keyvault w/pipeline")]
         public async Task GetAccessTokenForApp_ReturnsAccessTokenAsync()
         {
             // Arrange
@@ -64,7 +67,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
         }
 
-        [Fact]
+        [Fact(Skip = "Need to set up keyvault w/pipeline")]
         public async Task GetAccessTokenForApp_WithUserScope_MsalServiceExceptionThrownAsync()
         {
              // Arrange
@@ -74,10 +77,11 @@ namespace Microsoft.Identity.Web.Test.Integration
             async Task result() =>
                 await _tokenAcquisition.AcquireTokenForAppAsync(TestConstants.s_scopesForUser).ConfigureAwait(false);
 
-            Exception ex = await Assert.ThrowsAsync<MsalServiceException>(result);
+            MsalServiceException ex = await Assert.ThrowsAsync<MsalServiceException>(result);
 
-            Assert.StartsWith(TestConstants.InvalidScopeErrorcode, ex.Message);
             Assert.Contains(TestConstants.InvalidScopeError, ex.Message);
+            Assert.Equal(TestConstants.InvalidScope, ex.ErrorCode);
+            Assert.StartsWith(TestConstants.InvalidScopeErrorcode, ex.Message);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
@@ -88,18 +92,31 @@ namespace Microsoft.Identity.Web.Test.Integration
             IOptions<ConfidentialClientApplicationOptions> ccOptions = _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>();
             ILogger<TokenAcquisition> logger = _provider.GetService<ILogger<TokenAcquisition>>();
 
+            IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
+
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                 microsoftIdentityOptions,
-                new MockHttpContextAccessor(),
+                 httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);
 
             _tokenAcquisition = new TokenAcquisition(
                 _msalTestTokenCacheProvider,
-                new MockHttpContextAccessor(),
+                 httpContextAccessor,
                 microsoftIdentityOptions,
                 ccOptions,
                 logger);
+        }
+
+        private IHttpContextAccessor CreateMockHttpContextAccessor()
+        {
+            var mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
+            mockHttpContextAccessor.HttpContext = new DefaultHttpContext();
+            mockHttpContextAccessor.HttpContext.Request.Scheme = "https";
+            mockHttpContextAccessor.HttpContext.Request.Host = new HostString("IdentityDotNetSDKAutomation");
+            mockHttpContextAccessor.HttpContext.Request.PathBase = "/";
+
+            return mockHttpContextAccessor;
         }
 
         private void BuildTheRequiredServices()
@@ -109,10 +126,9 @@ namespace Microsoft.Identity.Web.Test.Integration
             services.AddTransient(
                 _provider => Options.Create(new MicrosoftIdentityOptions
                 {
-                    Instance = TestConstants.AadInstance,
-                    TenantId = TestConstants.ConfidentialClientLabTenant,
+                    Authority = TestConstants.AuthorityCommonTenant,
                     ClientId = TestConstants.ConfidentialClientId,
-                    Authority = TestConstants.AuthorityCommonTenant
+                    CallbackPath = ""
                 }));
             services.AddTransient(
                 _provider => Options.Create(new ConfidentialClientApplicationOptions

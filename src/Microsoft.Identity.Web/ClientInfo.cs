@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
             {
                 return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 throw new ArgumentException($"Failed to parse the returned client info. ", nameof(clientInfo));
             }
@@ -42,9 +42,9 @@ namespace Microsoft.Identity.Web
                 return default;
             }
 
-            using (var stream = new MemoryStream(jsonByteArray))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
-                return (T)JsonSerializer.Create().Deserialize(reader, typeof(T));
+            using var stream = new MemoryStream(jsonByteArray);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return (T)JsonSerializer.Create().Deserialize(reader, typeof(T));
         }
     }
 }

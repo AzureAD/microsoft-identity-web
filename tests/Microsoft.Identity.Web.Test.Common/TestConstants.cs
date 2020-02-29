@@ -73,6 +73,7 @@ namespace Microsoft.Identity.Web.Test.Common
 
         public const string InvalidScopeError = "The scope user.read is not valid.";
         public const string InvalidScopeErrorcode = "AADSTS70011";
+        public const string InvalidScope = "invalid_scope";
 
         // Constants for the lab
         public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";

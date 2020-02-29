@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
             MsalUiRequiredException msalSeviceException);
 
         /// <summary>
-        /// Acquires a token from the authority configured in the app, for the confidential client itself (in the name of no user)
+        /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
