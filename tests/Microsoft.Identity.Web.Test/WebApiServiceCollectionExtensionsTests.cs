@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
 using Xunit;
 using System.Linq;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace Microsoft.Identity.Web.Test
 {

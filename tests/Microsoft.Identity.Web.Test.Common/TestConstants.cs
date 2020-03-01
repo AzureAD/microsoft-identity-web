@@ -3,16 +3,16 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Identity.Web.Test
+namespace Microsoft.Identity.Web.Test.Common
 {
-    internal static class TestConstants
+    public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
         public const string ProductionPrefNetworkUSEnvironment = "login.microsoftonline.us";
         public const string ProductionNotPrefEnvironmentAlias = "sts.windows.net";
 
         public const string HttpLocalHost = "https://localhost";
-        
+
         public const string ApiAudience = "api://" + ApiClientId;
         public const string ApiClientId = "1EE5A092-0DFD-42B6-88E5-C517C0141321";
 
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.Test
         public const string AuthorityOrganizationsUSWithV2 = AuthorityOrganizationsUSTenant + "/v2.0";
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantId + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
-        
+
         // B2C
         public const string B2CSuSiUserFlow = "b2c_1_susi";
         public const string B2CTenant = "fabrikamb2c.onmicrosoft.com";
@@ -46,9 +46,9 @@ namespace Microsoft.Identity.Web.Test
         public const string B2CCustomDomainAuthority = B2CCustomDomainInstance + "/" + B2CTenant + "/" + B2CSuSiUserFlow;
         public const string B2CCustomDomainAuthorityWithV2 = B2CCustomDomainAuthority + "/v2.0";
 
-        public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";       
-        public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";       
-        public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";        
+        public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";
+        public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";
+        public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";
 
         // Claims
         public const string ClaimNameTid = "tid";
@@ -60,5 +60,24 @@ namespace Microsoft.Identity.Web.Test
             ProductionPrefNetworkEnvironment,
             ProductionNotPrefEnvironmentAlias
         };
+
+        public static readonly IEnumerable<string> s_scopesForApp = new[]
+        {
+            "https://graph.microsoft.com/.default"
+        };
+
+        public static readonly IEnumerable<string> s_scopesForUser = new[]
+        {
+            "user.read"
+        };
+
+        public const string InvalidScopeError = "The scope user.read is not valid.";
+        public const string InvalidScopeErrorcode = "AADSTS70011";
+        public const string InvalidScope = "invalid_scope";
+
+        // Constants for the lab
+        public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
+        public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
+        public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
     }
 }

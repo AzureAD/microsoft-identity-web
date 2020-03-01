@@ -25,14 +25,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(clientInfo), $"client info returned from the server is null");
             }
 
-            try
-            {
-                return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
-            }
-            catch (Exception exc)
-            {
-                throw new ArgumentException($"Failed to parse the returned client info. ", nameof(clientInfo));
-            }
+            return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
         }
 
         internal static T DeserializeFromJson<T>(byte[] jsonByteArray)
@@ -42,9 +35,9 @@ namespace Microsoft.Identity.Web
                 return default;
             }
 
-            using (var stream = new MemoryStream(jsonByteArray))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
-                return (T)JsonSerializer.Create().Deserialize(reader, typeof(T));
+            using var stream = new MemoryStream(jsonByteArray);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return (T)JsonSerializer.Create().Deserialize(reader, typeof(T));
         }
     }
 }
