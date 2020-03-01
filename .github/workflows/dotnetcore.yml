@@ -6,9 +6,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    env:
-      FROM_GITHUB_ACTION: true
     
     steps:
     - uses: actions/checkout@v2
@@ -17,4 +14,4 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build with dotnet
-      run: dotnet test --configuration Release src/Microsoft.Identity.Web/Microsoft.Identity.Web.sln
+      run: dotnet test -p:FROM_GITHUB_ACTION=true --configuration Release src/Microsoft.Identity.Web/Microsoft.Identity.Web.sln
