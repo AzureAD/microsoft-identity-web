@@ -7,6 +7,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      FROM_GITHUB_ACTION: true
+    
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
