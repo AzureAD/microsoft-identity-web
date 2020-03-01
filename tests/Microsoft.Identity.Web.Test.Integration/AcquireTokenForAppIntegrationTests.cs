@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
         }
 
-        [Fact(Skip = "Need to set up keyvault w/pipeline")]
+        [Fact]
         public async Task GetAccessTokenForApp_ReturnsAccessTokenAsync()
         {
             // Arrange
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
         }
 
-        [Fact(Skip = "Need to set up keyvault w/pipeline")]
+        [Fact]
         public async Task GetAccessTokenForApp_WithUserScope_MsalServiceExceptionThrownAsync()
         {
              // Arrange

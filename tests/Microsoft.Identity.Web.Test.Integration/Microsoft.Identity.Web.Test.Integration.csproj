@@ -6,6 +6,10 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
+    <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
