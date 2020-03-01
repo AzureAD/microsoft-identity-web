@@ -25,14 +25,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(clientInfo), $"client info returned from the server is null");
             }
 
-            try
-            {
-                return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
-            }
-            catch (Exception)
-            {
-                throw new ArgumentException($"Failed to parse the returned client info. ", nameof(clientInfo));
-            }
+            return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
         }
 
         internal static T DeserializeFromJson<T>(byte[] jsonByteArray)

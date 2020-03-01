@@ -52,6 +52,10 @@
     <CodeAnalysisRuleSet>Microsoft.Identity.Web.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
+    <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.1" />

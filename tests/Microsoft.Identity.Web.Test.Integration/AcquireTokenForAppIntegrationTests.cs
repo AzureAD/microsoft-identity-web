@@ -21,6 +21,7 @@ using IHttpContextAccessor = Microsoft.AspNetCore.Http.IHttpContextAccessor;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
+#if !FROM_GITHUB_ACTION
     public class AcquireTokenForAppIntegrationTests
     {
         TokenAcquisition _tokenAcquisition;
@@ -151,4 +152,5 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(tokenCount, _msalTestTokenCacheProvider.Count);
         }
     }
+#endif //FROM_GITHUB_ACTION
 }

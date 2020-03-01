@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalException ex)
             {
-                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex, "Exception occured while adding an account to the cache from the auth code. ");
                 throw;
             }
         }
@@ -372,7 +372,7 @@ namespace Microsoft.Identity.Web
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex.Message);
+                _logger.LogInformation(ex, "Exception acquiring token for a confidential client. ");
                 throw;
             }
         }
