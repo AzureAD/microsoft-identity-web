@@ -60,7 +60,8 @@ public class Startup
   public void ConfigureServices(IServiceCollection services)
   {
    ...
-   services.AddSignIn(Configuration);
+      services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddSignIn("AzureAd", Configuration, options => Configuration.Bind("AzureAd", options));
    ...
   }
   ...
