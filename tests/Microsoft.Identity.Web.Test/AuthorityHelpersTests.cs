@@ -9,91 +9,62 @@ namespace Microsoft.Identity.Web.Test
     public class AuthorityHelpersTests
     {
         [Fact]
-        public void IsV2Authority_EmptyParam_ReturnsFalse()
+        public void IsV2Authority_EmptyAuthority_ReturnsFalse()
         {
-            //Arrange
-            string authority = string.Empty;
+            bool result = AuthorityHelpers.IsV2Authority(string.Empty);
 
-            //Act
-            bool? result = AuthorityHelpers.IsV2Authority(authority);
-
-            //Assert
             Assert.False(result);
         }
 
         [Fact]
-        public void IsV2Authority_NullParam_ReturnsFalse()
+        public void IsV2Authority_NullAuthority_ReturnsFalse()
         {
-            //Arrange
-            string authority = null;
+            bool result = AuthorityHelpers.IsV2Authority(null);
 
-            //Act
-            bool? result = AuthorityHelpers.IsV2Authority(authority);
-
-            //Assert
             Assert.False(result);
         }
 
         [Fact]
-        public void IsV2Authority_EndsWithV2_ReturnsTrue()
+        public void IsV2Authority_AuthorityEndsWithV2_ReturnsTrue()
         {
-            //Arrange
-            string authority = TestConstants.AuthorityWithTenantSpecifiedWithV2;
+            bool result = AuthorityHelpers.IsV2Authority(TestConstants.AuthorityWithTenantSpecifiedWithV2);
 
-            //Act
-            bool? result = AuthorityHelpers.IsV2Authority(authority);
-
-            //Assert
             Assert.True(result);
         }
 
         [Fact]
-        public void IsV2Authority_DoesntEndWithV2_ReturnsFalse()
+        public void IsV2Authority_AuthorityDoesntEndWithV2_ReturnsFalse()
         {
-            //Arrange
-            string authority = TestConstants.AuthorityWithTenantSpecified;
+            bool result = AuthorityHelpers.IsV2Authority(TestConstants.AuthorityWithTenantSpecified);
 
-            //Act
-            bool? result = AuthorityHelpers.IsV2Authority(authority);
-
-            //Assert
             Assert.False(result);
         }
 
         [Fact]
         public void BuildAuthority_NullOptions_ReturnsNull()
         {
-            //Arrange
-            MicrosoftIdentityOptions options = null;
+            string result = AuthorityHelpers.BuildAuthority(null);
 
-            //Act
-            string result = AuthorityHelpers.BuildAuthority(options);
-
-            //Assert
             Assert.Null(result);
         }
 
         [Fact]
         public void BuildAuthority_EmptyInstance_ReturnsNull()
         {
-            //Arrange
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 Domain = TestConstants.Domain,
                 Instance = string.Empty
             };
 
-            //Act
             string result = AuthorityHelpers.BuildAuthority(options);
 
-            //Assert
             Assert.Null(result);
         }
 
         [Fact]
         public void BuildAuthority_B2CEmptyDomain_ReturnsNull()
         {
-            //Arrange
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 Domain = string.Empty,
@@ -101,34 +72,45 @@ namespace Microsoft.Identity.Web.Test
                 SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
             };
 
-            //Act
             string result = AuthorityHelpers.BuildAuthority(options);
 
-            //Assert
             Assert.Null(result);
         }
 
         [Fact]
-        public void BuildAuthority_AADEmptyTenantId_ReturnsNull()
+        public void BuildAuthority_B2CValidOptions_ReturnsValidB2CAuthority()
         {
-            //Arrange
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Domain = TestConstants.B2CTenant,
+                Instance = TestConstants.B2CInstance,
+                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+            };
+            string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
+
+            string result = AuthorityHelpers.BuildAuthority(options);
+
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void BuildAuthority_AadEmptyTenantId_ReturnsNull()
+        {
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 TenantId = string.Empty,
                 Instance = TestConstants.AadInstance
             };
 
-            //Act
             string result = AuthorityHelpers.BuildAuthority(options);
 
-            //Assert
             Assert.Null(result);
         }
 
         [Fact]
-        public void BuildAuthority_AadInstanceAndTenantId_BuildAadAuthority()
+        public void BuildAuthority_AadValidOptions_ReturnsValidAadAuthority()
         {
-            //Arrange
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 TenantId = TestConstants.TenantIdAsGuid,
@@ -136,16 +118,14 @@ namespace Microsoft.Identity.Web.Test
             };
             string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0";
 
-            //Act
             string result = AuthorityHelpers.BuildAuthority(options);
 
-            //Assert
             Assert.NotNull(result);
-            Assert.Equal(result, expectedResult);
+            Assert.Equal(expectedResult, result);
         }
 
         [Fact]
-        public void BuildAuthority_OptionsInstanceWithTrailing_BuildAadAuthorityWithoutExtraTrailing()
+        public void BuildAuthority_AadInstanceWithTrailingSlash_ReturnsValidAadAuthority()
         {
             //Arrange
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
@@ -160,27 +140,7 @@ namespace Microsoft.Identity.Web.Test
 
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(result, expectedResult);
-        }
-
-        [Fact]
-        public void BuildAuthority_B2CInstanceDomainAndPolicy_BuildB2CAuthority()
-        {
-            //Arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
-            {
-                Domain = TestConstants.B2CTenant,
-                Instance = TestConstants.B2CInstance,
-                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
-            };
-            string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
-
-            //Act
-            string result = AuthorityHelpers.BuildAuthority(options);
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.Equal(result, expectedResult);
+            Assert.Equal(expectedResult, result);
         }
     }
 }

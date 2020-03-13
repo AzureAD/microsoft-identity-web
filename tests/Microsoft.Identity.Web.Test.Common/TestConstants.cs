@@ -32,6 +32,9 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantId + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
 
+        public const string Uid = "my-uid";
+        public const string Utid = "my-utid";
+
         // B2C
         public const string B2CSuSiUserFlow = "b2c_1_susi";
         public const string B2CTenant = "fabrikamb2c.onmicrosoft.com";
