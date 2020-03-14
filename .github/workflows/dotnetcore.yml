@@ -14,4 +14,4 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build with dotnet
-      run: dotnet test -p:FROM_GITHUB_ACTION=true --configuration Release src/Microsoft.Identity.Web/Microsoft.Identity.Web.sln
+      run: dotnet test -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
