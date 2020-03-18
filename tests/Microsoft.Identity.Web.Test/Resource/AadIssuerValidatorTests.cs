@@ -11,7 +11,7 @@ using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
 using NSubstitute;
 
-namespace Microsoft.Identity.Web.Test
+namespace Microsoft.Identity.Web.Test.Resource
 {
     public class AadIssuerValidatorTests
     {
