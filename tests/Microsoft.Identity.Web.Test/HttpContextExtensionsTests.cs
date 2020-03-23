@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -16,7 +14,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void StoreTokenUsedToCallWebAPI()
         {
-            var httpContext = MakeHttpContext();
+            var httpContext = HttpContextUtilities.CreateHttpContext();
             var token = new JwtSecurityToken();
 
             httpContext.StoreTokenUsedToCallWebAPI(token);
@@ -27,7 +25,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void GetTokenUsedToCallWebAPI()
         {
-            var httpContext = MakeHttpContext();
+            var httpContext = HttpContextUtilities.CreateHttpContext();
             var token = new JwtSecurityToken();
 
             Assert.Null(httpContext.GetTokenUsedToCallWebAPI());
@@ -35,17 +33,6 @@ namespace Microsoft.Identity.Web.Test
             httpContext.StoreTokenUsedToCallWebAPI(token);
 
             Assert.Same(token, httpContext.GetTokenUsedToCallWebAPI());
-        }
-
-        private HttpContext MakeHttpContext()
-        {
-            var services = new ServiceCollection()
-                .AddOptions()
-                .AddHttpContextAccessor()
-                .BuildServiceProvider();
-            var contextFactory = new DefaultHttpContextFactory(services);
-
-            return contextFactory.Create(new FeatureCollection());
         }
     }
 }
