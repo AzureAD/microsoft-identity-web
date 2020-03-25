@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Microsoft",
+  "classifications": [ "Web", "ASP.NET" ],
+  "identity": "MicrosoftIdentity.WebAppCallsWebApi.CSharp",
+  "name": "Web app that signs in users with Microsoft identity platform",
+  "shortName": "webappv2",
+  "preferNameDirectory": true
+}
