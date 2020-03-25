@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using System.Collections.Generic;
 using System.Linq;
 using TodoListService.Models;
@@ -14,6 +15,9 @@ namespace TodoListService.Controllers
     [Route("api/[controller]")]
     public class TodoListController : Controller
     {
+        // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
+        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
+
         // In-memory TodoList
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
 
@@ -35,6 +39,7 @@ namespace TodoListService.Controllers
         [HttpGet]
         public IEnumerable<Todo> Get()
         {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             string owner = User.Identity.Name;
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
@@ -43,12 +48,14 @@ namespace TodoListService.Controllers
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             return TodoStore.Values.FirstOrDefault(t => t.Id == id);
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             TodoStore.Remove(id);
         }
 
@@ -56,6 +63,7 @@ namespace TodoListService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
             Todo todonew = new Todo() { Id = id, Owner = HttpContext.User.Identity.Name, Title = todo.Title };
             TodoStore.Add(id, todonew);
@@ -67,6 +75,7 @@ namespace TodoListService.Controllers
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, [FromBody] Todo todo)
         {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             if (id != todo.Id)
             {
                 return NotFound();
