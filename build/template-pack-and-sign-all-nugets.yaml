@@ -58,3 +58,16 @@ steps:
     SessionTimeout: 20
     VerboseLogin: true
   timeoutInMinutes: 5
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@3
+  displayName: 'Run BinSkim ${{ parameters.Pattern }}'
+  inputs:
+    InputType: Basic
+    AnalyzeTarget: ${{ parameters.Pattern }}
+    AnalyzeVerbose: true
+    AnalyzeHashes: true
+ 
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+  displayName: 'Check BinSkim Results'
+  inputs:
+    BinSkim: true

@@ -32,6 +32,17 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantId + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
 
+        public const string Uid = "uid-value";
+        public const string Utid = "utid-value";
+        public const string Tfp = "tfp-value";
+        public const string Userflow = "userflow-value";
+        public const string Oid = "oid-value";
+        public const string ObjectId = "objectId-value";
+        public const string Tid = "tid-value";
+        public const string PreferredUsername = "preferred_username-value";
+        public const string NameV1 = "name_V1-value";
+        public const string Name = "name-value";
+
         // B2C
         public const string B2CSuSiUserFlow = "b2c_1_susi";
         public const string B2CTenant = "fabrikamb2c.onmicrosoft.com";

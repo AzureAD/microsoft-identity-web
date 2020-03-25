@@ -1,5 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
 
+    <!--This should be passed from the VSTS build-->
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">0.1.0-localbuild</ClientSemVer>
+    <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
+    <Version>$(ClientSemVer)</Version>
+
+    <DefineConstants>$(DefineConstants);WEB</DefineConstants>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft</Company>
+    <Description>This package enables UI for ASP.NET Core Web apps that use Microsoft.Identity.Web.</Description>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
+    <PackageTags>Microsoft identity web ui .NET ASP.NET Core</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Source Link">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
