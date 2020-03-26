@@ -27,7 +27,7 @@ steps:
          "parameters": [
          {
            "parameterName": "OpusName",
-           "parameterValue": "TestSign"
+           "parameterValue": "Microsoft.Identity.Web"
          },
          {
            "parameterName": "OpusInfo",
