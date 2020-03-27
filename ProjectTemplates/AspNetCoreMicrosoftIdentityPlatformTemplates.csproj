@@ -8,7 +8,7 @@
     <Authors>Microsoft</Authors>
     <Description>
       Templates to use when creating a web app that signs in users or a protected Web API
-      with the Microsoft Identity platform (and call downstream APIs)</Description>
+      with the Microsoft identity platform (and call downstream APIs)</Description>
     <PackageTags>dotnet-new;templates;Microsoft</PackageTags>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
