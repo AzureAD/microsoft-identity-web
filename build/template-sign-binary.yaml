@@ -27,7 +27,7 @@ steps:
          "parameters": [
          {
            "parameterName": "OpusName",
-           "parameterValue": "TestSign"
+           "parameterValue": "Microsoft.Identity.Web"
          },
          {
            "parameterName": "OpusInfo",
@@ -61,15 +61,15 @@ steps:
     VerboseLogin: true
   timeoutInMinutes: 10
 
-#- task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@3
-#  displayName: 'Run BinSkim ${{ parameters.Pattern }}'
-#  inputs:
-#    InputType: Basic
-#   AnalyzeTarget: ${{ parameters.Pattern }}
-#   AnalyzeVerbose: true
-#   AnalyzeHashes: true
-
-#- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
-#  displayName: 'Check BinSkim Results'
-#  inputs:
-#    BinSkim: true
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@3
+  displayName: 'Run BinSkim ${{ parameters.Pattern }}'
+  inputs:
+    InputType: Basic
+    AnalyzeTarget: ${{ parameters.Pattern }}
+    AnalyzeVerbose: true
+    AnalyzeHashes: true
+ 
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+  displayName: 'Check BinSkim Results'
+  inputs:
+    BinSkim: true

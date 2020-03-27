@@ -19,7 +19,7 @@ steps:
 - template: template-sign-binary.yaml
   parameters:
     FolderPath: '${{ parameters.ProjectRootPath }}'
-    Pattern: 'bin\**\${{ parameters.AssemblyName }}.dll'
+    Pattern: '**\bin\**\**\${{ parameters.AssemblyName }}.dll'
 
 - template: template-nuget-pack.yaml
   parameters:
