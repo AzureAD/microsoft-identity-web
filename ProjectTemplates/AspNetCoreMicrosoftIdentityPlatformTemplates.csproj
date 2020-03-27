@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageVersion>0.1.0</PackageVersion>
+    <PackageId>Microsoft.IdentityPlatform.Templates</PackageId>
+    <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
+    <Authors>Microsoft</Authors>
+    <Description>
+      Templates to use when creating a web app that signs in users or a protected Web API
+      with the Microsoft identity platform (and call downstream APIs)</Description>
+    <PackageTags>dotnet-new;templates;Microsoft</PackageTags>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>
