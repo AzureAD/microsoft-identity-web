@@ -17,11 +17,10 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
         public int Count { get; internal set; }
 
         public MsalTestTokenCacheProvider(
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions) :
-            base(microsoftIdentityOptions, httpContextAccessor)
+            base(httpContextAccessor)
         {
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;

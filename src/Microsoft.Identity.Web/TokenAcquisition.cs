@@ -287,7 +287,7 @@ namespace Microsoft.Identity.Web
                     await app.RemoveAsync(b2cAccount).ConfigureAwait(false);
                 }
 
-                _tokenCacheProvider?.ClearAsync().ConfigureAwait(false);
+                _tokenCacheProvider?.ClearAsync(_microsoftIdentityOptions.ClientId).ConfigureAwait(false);
             }
 
             else
@@ -304,7 +304,7 @@ namespace Microsoft.Identity.Web
                 if (account != null)
                 {
                     await app.RemoveAsync(account).ConfigureAwait(false);
-                    _tokenCacheProvider?.ClearAsync().ConfigureAwait(false);
+                    _tokenCacheProvider?.ClearAsync(_microsoftIdentityOptions.ClientId).ConfigureAwait(false);
                 }
             }
         }

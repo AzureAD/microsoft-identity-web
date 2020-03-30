@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
@@ -15,11 +13,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
         /// <summary>
-        /// Azure AD options
-        /// </summary>
-        protected readonly IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
-
-        /// <summary>
         /// Http accessor
         /// </summary>
         protected readonly IHttpContextAccessor _httpContextAccessor;
@@ -29,9 +22,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="azureAdOptions"></param>
         /// <param name="httpContextAccessor"></param>
-        protected MsalAbstractTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions, IHttpContextAccessor httpContextAccessor)
+        protected MsalAbstractTokenCacheProvider(IHttpContextAccessor httpContextAccessor)
         {
-            _microsoftIdentityOptions = microsoftIdentityOptions;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -52,11 +44,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Cache key
         /// </summary>
-        private string GetCacheKey(bool isAppTokenCache)
+        private string GetCacheKey(bool isAppTokenCache, string clientId)
         {
             if (isAppTokenCache)
             {
-                return $"{_microsoftIdentityOptions.Value.ClientId}_AppTokenCache";
+                return $"{clientId}_AppTokenCache";
             }
             else
             {
@@ -81,7 +73,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             // if the access operation resulted in a cache update
             if (args.HasStateChanged)
             {
-                string cacheKey = GetCacheKey(args.IsApplicationCache);
+                string cacheKey = GetCacheKey(args.IsApplicationCache, args.ClientId);
                 if (!string.IsNullOrWhiteSpace(cacheKey))
                 {
                     await WriteCacheBytesAsync(cacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
@@ -91,7 +83,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            string cacheKey = GetCacheKey(args.IsApplicationCache);
+            string cacheKey = GetCacheKey(args.IsApplicationCache, args.ClientId);
 
             if (!string.IsNullOrEmpty(cacheKey))
             {
@@ -106,10 +98,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return Task.CompletedTask;
         }
 
-        public async Task ClearAsync()
+        public async Task ClearAsync(string clientId)
         {
             // This is a user token cache
-            await RemoveKeyAsync(GetCacheKey(false)).ConfigureAwait(false);
+            await RemoveKeyAsync(GetCacheKey(false, clientId)).ConfigureAwait(false);
 
             // TODO: Clear the cookie session if any. Get inspiration from
             // https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/240

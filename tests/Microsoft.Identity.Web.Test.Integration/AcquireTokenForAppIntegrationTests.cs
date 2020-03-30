@@ -96,7 +96,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                microsoftIdentityOptions,
                  httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);

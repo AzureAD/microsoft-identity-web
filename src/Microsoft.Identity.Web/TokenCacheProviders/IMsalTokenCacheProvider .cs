@@ -22,6 +22,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Clear the cache
         /// </summary>
         /// <returns></returns>
-        Task ClearAsync();
+        Task ClearAsync(string clientId);
     }
 }
