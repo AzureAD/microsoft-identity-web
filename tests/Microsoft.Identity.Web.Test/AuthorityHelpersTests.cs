@@ -125,6 +125,22 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public void BuildAuthority_AadValidOptionsWithDomain_ReturnsValidAadAuthority()
+        {
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Domain = TestConstants.Domain,
+                Instance = TestConstants.AadInstance
+            };
+            string expectedResult = $"{options.Instance}/{options.Domain}/v2.0";
+
+            string result = AuthorityHelpers.BuildAuthority(options);
+
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
         public void BuildAuthority_AadInstanceWithTrailingSlash_ReturnsValidAadAuthority()
         {
             //Arrange

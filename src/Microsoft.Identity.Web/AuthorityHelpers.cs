@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
 
             var baseUri = new Uri(options.Instance);
             var pathBase = baseUri.PathAndQuery.TrimEnd('/');
-            var domain = options.Domain;
+            var domain = options.Domain ?? options.TenantId;
             var tenantId = options.TenantId;
 
             // If there are user flows, then it must build a B2C authority 
@@ -44,10 +44,10 @@ namespace Microsoft.Identity.Web
             else
             {
                 // Cannot build AAD authority without tenant id
-                if (string.IsNullOrWhiteSpace(tenantId))
+                if (string.IsNullOrWhiteSpace(domain))
                     return null;
 
-                return new Uri(baseUri, new PathString($"{pathBase}/{tenantId}/v2.0")).ToString();
+                return new Uri(baseUri, new PathString($"{pathBase}/{domain}/v2.0")).ToString();
             }
         }
     }
