@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 {
@@ -32,11 +31,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <param name="httpContextAccessor"></param>
         /// <param name="memoryCache"></param>
         /// <param name="cacheOptions"></param>
-        public MsalMemoryTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-                                            IHttpContextAccessor httpContextAccessor,
+        public MsalMemoryTokenCacheProvider(IHttpContextAccessor httpContextAccessor,
                                             IMemoryCache memoryCache,
                                             IOptions<MsalMemoryTokenCacheOptions> cacheOptions) :
-            base(microsoftIdentityOptions, httpContextAccessor)
+            base(httpContextAccessor)
         {
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;

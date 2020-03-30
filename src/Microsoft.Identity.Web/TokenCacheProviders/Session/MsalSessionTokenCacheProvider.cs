@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -32,10 +31,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         private ILogger _logger;
 
         public MsalSessionTokenCacheProvider(
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
             ILogger<MsalSessionTokenCacheProvider> logger) : 
-            base(microsoftIdentityOptions, httpContextAccessor)
+            base(httpContextAccessor)
         {
             _logger = logger;
         }
