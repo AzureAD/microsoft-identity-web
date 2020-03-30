@@ -32,7 +32,7 @@ namespace TodoListService
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddProtectedWebApi("AzureAd", Configuration, options => Configuration.Bind("AzureAD", options));
+                .AddProtectedWebApi(Configuration, "AzureAd");
 
             services.AddControllers();
         }
