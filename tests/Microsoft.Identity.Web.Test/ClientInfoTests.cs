@@ -3,26 +3,28 @@
 
 using System;
 using System.Text;
-using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
     public class ClientInfoTests
     {
+        private const string Uid = "uid-value";
+        private const string Utid = "utid-value";
+        private string _decodedJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"}}";
+        private string _decodedEmptyJson = "{}";
+        private string _invalidJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"";
+
         [Fact]
         public void CreateFromJson_ValidJson_ReturnsClientInfo()
         {
-            var decodedJson = $"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}";
-            var clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(decodedJson));
+            var clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedJson));
 
             Assert.NotNull(clientInfoResult);
-            Assert.Equal(TestConstants.Uid, clientInfoResult.UniqueObjectIdentifier);
-            Assert.Equal(TestConstants.Utid, clientInfoResult.UniqueTenantIdentifier);
+            Assert.Equal(Uid, clientInfoResult.UniqueObjectIdentifier);
+            Assert.Equal(Utid, clientInfoResult.UniqueTenantIdentifier);
 
-            var decodedEmptyJson = "{}";
-
-            clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(decodedEmptyJson));
+            clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedEmptyJson));
             Assert.NotNull(clientInfoResult);
             Assert.Null(clientInfoResult.UniqueObjectIdentifier);
             Assert.Null(clientInfoResult.UniqueTenantIdentifier);
@@ -43,26 +45,21 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void CreateFromJson_InvalidString_ThrowsException()
         {
-            var invalidJson = $"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"";
+            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_invalidJson)));
 
-            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(invalidJson)));
-
-            Assert.Throws<FormatException>(() => ClientInfo.CreateFromJson(invalidJson));
+            Assert.Throws<FormatException>(() => ClientInfo.CreateFromJson(_invalidJson));
         }
 
         [Fact]
         public void DeserializeFromJson_ValidByteArray_ReturnsClientInfo()
         {
-            var decodedJson = $"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}";
-            var clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(decodedJson));
+            var clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_decodedJson));
 
             Assert.NotNull(clientInfoResult);
-            Assert.Equal(TestConstants.Uid, clientInfoResult.UniqueObjectIdentifier);
-            Assert.Equal(TestConstants.Utid, clientInfoResult.UniqueTenantIdentifier);
+            Assert.Equal(Uid, clientInfoResult.UniqueObjectIdentifier);
+            Assert.Equal(Utid, clientInfoResult.UniqueTenantIdentifier);
 
-            var decodedEmptyJson = "{}";
-
-            clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(decodedEmptyJson));
+            clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_decodedEmptyJson));
             Assert.NotNull(clientInfoResult);
             Assert.Null(clientInfoResult.UniqueObjectIdentifier);
             Assert.Null(clientInfoResult.UniqueTenantIdentifier);
@@ -83,9 +80,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DeserializeFromJson_InvalidJsonByteArray_ReturnsNull()
         {
-            var invalidJson = $"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"";
-
-            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(invalidJson)));
+            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_invalidJson)));
         }
     }
 }

@@ -8,36 +8,16 @@ namespace Microsoft.Identity.Web.Test
 {
     public class AuthorityHelpersTests
     {
-        [Fact]
-        public void IsV2Authority_EmptyAuthority_ReturnsFalse()
+        [Theory]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        [InlineData(TestConstants.AuthorityWithTenantSpecified, false)]
+        [InlineData(TestConstants.AuthorityWithTenantSpecifiedWithV2, true)]
+        public void IsV2Authority(string authority, bool expectedResult)
         {
-            bool result = AuthorityHelpers.IsV2Authority(string.Empty);
+            bool result = AuthorityHelpers.IsV2Authority(authority);
 
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void IsV2Authority_NullAuthority_ReturnsFalse()
-        {
-            bool result = AuthorityHelpers.IsV2Authority(null);
-
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void IsV2Authority_AuthorityEndsWithV2_ReturnsTrue()
-        {
-            bool result = AuthorityHelpers.IsV2Authority(TestConstants.AuthorityWithTenantSpecifiedWithV2);
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void IsV2Authority_AuthorityDoesntEndWithV2_ReturnsFalse()
-        {
-            bool result = AuthorityHelpers.IsV2Authority(TestConstants.AuthorityWithTenantSpecified);
-
-            Assert.False(result);
+            Assert.Equal(expectedResult, result);
         }
 
         [Fact]
@@ -69,7 +49,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 Domain = string.Empty,
                 Instance = TestConstants.B2CInstance,
-                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow
             };
 
             string result = AuthorityHelpers.BuildAuthority(options);
@@ -84,7 +64,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 Domain = TestConstants.B2CTenant,
                 Instance = TestConstants.B2CInstance,
-                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow
             };
             string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
 
@@ -127,7 +107,6 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void BuildAuthority_AadInstanceWithTrailingSlash_ReturnsValidAadAuthority()
         {
-            //Arrange
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 TenantId = TestConstants.TenantIdAsGuid,
@@ -135,10 +114,8 @@ namespace Microsoft.Identity.Web.Test
             };
             string expectedResult = $"{TestConstants.AadInstance}/{options.TenantId}/v2.0";
 
-            //Act
             string result = AuthorityHelpers.BuildAuthority(options);
 
-            //Assert
             Assert.NotNull(result);
             Assert.Equal(expectedResult, result);
         }

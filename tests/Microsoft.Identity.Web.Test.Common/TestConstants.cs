@@ -32,19 +32,10 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantId + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
 
-        public const string Uid = "uid-value";
-        public const string Utid = "utid-value";
-        public const string Tfp = "tfp-value";
-        public const string Userflow = "userflow-value";
-        public const string Oid = "oid-value";
-        public const string ObjectId = "objectId-value";
-        public const string Tid = "tid-value";
-        public const string PreferredUsername = "preferred_username-value";
-        public const string NameV1 = "name_V1-value";
-        public const string Name = "name-value";
-
         // B2C
-        public const string B2CSuSiUserFlow = "b2c_1_susi";
+        public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
+        public const string B2CEditProfileUserFlow = "b2c_1_edit_profile";
+        public const string B2CResetPasswordUserFlow = "b2c_1_reset";
         public const string B2CTenant = "fabrikamb2c.onmicrosoft.com";
         public const string B2CTenantAsGuid = "775527ff-9a37-4307-8b3d-cc311f58d925";
         public const string B2CHost = "fabrikamb2c.b2clogin.com";
@@ -52,9 +43,9 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CInstance2 = "https://catb2c.b2clogin.com";
         public const string B2CCustomDomainInstance = "https://catsAreAmazing.com";
 
-        public const string B2CAuthority = B2CInstance + "/" + B2CTenant + "/" + B2CSuSiUserFlow;
+        public const string B2CAuthority = B2CInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;
         public const string B2CAuthorityWithV2 = B2CAuthority + "/v2.0";
-        public const string B2CCustomDomainAuthority = B2CCustomDomainInstance + "/" + B2CTenant + "/" + B2CSuSiUserFlow;
+        public const string B2CCustomDomainAuthority = B2CCustomDomainInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;
         public const string B2CCustomDomainAuthorityWithV2 = B2CCustomDomainAuthority + "/v2.0";
 
         public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";
