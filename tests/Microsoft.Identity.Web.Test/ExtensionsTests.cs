@@ -7,28 +7,30 @@ namespace Microsoft.Identity.Web.Test
 {
     public class ExtensionsTests
     {
-        [Fact]
-        public void ContainsAny_CollectionContainsInput_ReturnsTrue()
+        [Theory]
+        [InlineData("", "")]
+        [InlineData("search", "")]
+        [InlineData("search", "search")]
+        [InlineData("searchString", "search")]
+        [InlineData("search string", "string")]
+        [InlineData("search string", "ch str")]
+        [InlineData("search search string", "search")]
+        [InlineData("search string", "string", "search")]
+        [InlineData("search string", "string", "alsoString")]
+        public void ContainsAny_CollectionContainsInput_ReturnsTrue(string str, params string[] stringCollection)
         {
-            Assert.True(string.Empty.ContainsAny(string.Empty));
-            Assert.True("search".ContainsAny(string.Empty));
-            Assert.True("search".ContainsAny("search"));
-            Assert.True("searchString".ContainsAny("search"));
-            Assert.True("search string".ContainsAny("string"));
-            Assert.True("search string".ContainsAny("ch str"));
-            Assert.True("search search string".ContainsAny("search"));
-            Assert.True("search string".ContainsAny("string", "search"));
-            Assert.True("search string".ContainsAny("string", "alsoString"));
+            Assert.True(str.ContainsAny(stringCollection));
         }
 
-        [Fact]
-        public void ContainsAny_CollectionDoesntContainInput_ReturnsFalse()
+        [Theory]
+        [InlineData("", "s")]
+        [InlineData("search", "string")]
+        [InlineData("searchString", "notSearch")]
+        [InlineData("search string", "  ")]
+        [InlineData("search string", "notIncludedString", "alsoString")]
+        public void ContainsAny_CollectionDoesntContainInput_ReturnsFalse(string str, params string[] stringCollection)
         {
-            Assert.False(string.Empty.ContainsAny("s"));
-            Assert.False("search".ContainsAny("string"));
-            Assert.False("searchString".ContainsAny("notSearch"));
-            Assert.False("search string".ContainsAny("  "));
-            Assert.False("search string".ContainsAny("notIncludedString", "alsoString"));
+            Assert.False(str.ContainsAny(stringCollection));
         }
     }
 }

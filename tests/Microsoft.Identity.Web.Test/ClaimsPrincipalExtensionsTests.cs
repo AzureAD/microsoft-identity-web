@@ -9,6 +9,16 @@ namespace Microsoft.Identity.Web.Test
 {
     public class ClaimsPrincipalExtensionsTests
     {
+        private const string Name = "name-value";
+        private const string NameV1 = "name_V1-value";
+        private const string ObjectId = "objectId-value";
+        private const string Oid = "oid-value";
+        private const string PreferredUsername = "preferred_username-value";
+        private const string TenantId = "some-tenant-id";
+        private const string Tfp = "tfp-value";
+        private const string Tid = "tid-value";
+        private const string Userflow = "userflow-value";
+        private const string Utid = "utid-value";
 
         [Fact]
         public void GetNameIdentifierId_WithUtidClaim_ReturnsNameId()
@@ -16,11 +26,11 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithUtid = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.UniqueObjectIdentifier, TestConstants.Utid)
+                    new Claim(ClaimConstants.UniqueObjectIdentifier, Utid)
                 })
             );
 
-            Assert.Equal(TestConstants.Utid, claimsPrincipalWithUtid.GetNameIdentifierId());
+            Assert.Equal(Utid, claimsPrincipalWithUtid.GetNameIdentifierId());
         }
 
         [Fact]
@@ -38,26 +48,26 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithTfp = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Tfp, TestConstants.Tfp)
+                    new Claim(ClaimConstants.Tfp, Tfp)
                 })
             );
             var claimsPrincipalWithUserFlow = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.UserFlow, TestConstants.Userflow)
+                    new Claim(ClaimConstants.UserFlow, Userflow)
                 })
             );
             var claimsPrincipalWithTfpAndUserFlow = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Tfp, TestConstants.Tfp),
-                    new Claim(ClaimConstants.UserFlow, TestConstants.Userflow)
+                    new Claim(ClaimConstants.Tfp, Tfp),
+                    new Claim(ClaimConstants.UserFlow, Userflow)
                 })
             );
 
-            Assert.Equal(TestConstants.Tfp, claimsPrincipalWithTfp.GetUserFlowId());
-            Assert.Equal(TestConstants.Userflow, claimsPrincipalWithUserFlow.GetUserFlowId());
-            Assert.Equal(TestConstants.Tfp, claimsPrincipalWithTfpAndUserFlow.GetUserFlowId());
+            Assert.Equal(Tfp, claimsPrincipalWithTfp.GetUserFlowId());
+            Assert.Equal(Userflow, claimsPrincipalWithUserFlow.GetUserFlowId());
+            Assert.Equal(Tfp, claimsPrincipalWithTfpAndUserFlow.GetUserFlowId());
         }
 
         [Fact]
@@ -74,26 +84,26 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithOid = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Oid, TestConstants.Oid)
+                    new Claim(ClaimConstants.Oid, Oid)
                 })
             );
             var claimsPrincipalWithObjectId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.ObjectId, TestConstants.ObjectId)
+                    new Claim(ClaimConstants.ObjectId, ObjectId)
                 })
             );
             var claimsPrincipalWithOidAndObjectId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Oid, TestConstants.Oid),
-                    new Claim(ClaimConstants.ObjectId, TestConstants.ObjectId)
+                    new Claim(ClaimConstants.Oid, Oid),
+                    new Claim(ClaimConstants.ObjectId, ObjectId)
                 })
             );
 
-            Assert.Equal(TestConstants.Oid, claimsPrincipalWithOid.GetObjectId());
-            Assert.Equal(TestConstants.ObjectId, claimsPrincipalWithObjectId.GetObjectId());
-            Assert.Equal(TestConstants.Oid, claimsPrincipalWithOidAndObjectId.GetObjectId());
+            Assert.Equal(Oid, claimsPrincipalWithOid.GetObjectId());
+            Assert.Equal(ObjectId, claimsPrincipalWithObjectId.GetObjectId());
+            Assert.Equal(Oid, claimsPrincipalWithOidAndObjectId.GetObjectId());
         }
 
         [Fact]
@@ -110,26 +120,26 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithTid = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Tid, TestConstants.Tid)
+                    new Claim(ClaimConstants.Tid, Tid)
                 })
             );
             var claimsPrincipalWithTenantId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.TenantId, TestConstants.TenantId)
+                    new Claim(ClaimConstants.TenantId, TenantId)
                 })
             );
             var claimsPrincipalWithTidAndTenantId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Tid, TestConstants.Tid),
-                    new Claim(ClaimConstants.TenantId, TestConstants.TenantId)
+                    new Claim(ClaimConstants.Tid, Tid),
+                    new Claim(ClaimConstants.TenantId, TenantId)
                 })
             );
 
-            Assert.Equal(TestConstants.Tid, claimsPrincipalWithTid.GetTenantId());
-            Assert.Equal(TestConstants.TenantId, claimsPrincipalWithTenantId.GetTenantId());
-            Assert.Equal(TestConstants.Tid, claimsPrincipalWithTidAndTenantId.GetTenantId());
+            Assert.Equal(Tid, claimsPrincipalWithTid.GetTenantId());
+            Assert.Equal(TenantId, claimsPrincipalWithTenantId.GetTenantId());
+            Assert.Equal(Tid, claimsPrincipalWithTidAndTenantId.GetTenantId());
         }
 
         [Fact]
@@ -146,42 +156,42 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithPreferredUsername = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername)
+                    new Claim(ClaimConstants.PreferredUserName, PreferredUsername)
                 })
             );
             var claimsPrincipalWithNameV1 = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
             var claimsPrincipalWithName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name)
+                    new Claim(ClaimConstants.Name, Name)
                 })
             );
             var claimsPrincipalWithNameV1AndName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name),
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimConstants.Name, Name),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
             var claimsPrincipalWithPreferredUsernameAndNameV1AndName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name),
-                    new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimConstants.Name, Name),
+                    new Claim(ClaimConstants.PreferredUserName, PreferredUsername),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
 
-            Assert.Equal(TestConstants.PreferredUsername, claimsPrincipalWithPreferredUsername.GetDisplayName());
-            Assert.Equal(TestConstants.NameV1, claimsPrincipalWithNameV1.GetDisplayName());
-            Assert.Equal(TestConstants.Name, claimsPrincipalWithName.GetDisplayName());
-            Assert.Equal(TestConstants.NameV1, claimsPrincipalWithNameV1AndName.GetDisplayName());
-            Assert.Equal(TestConstants.PreferredUsername, claimsPrincipalWithPreferredUsernameAndNameV1AndName.GetDisplayName());
+            Assert.Equal(PreferredUsername, claimsPrincipalWithPreferredUsername.GetDisplayName());
+            Assert.Equal(NameV1, claimsPrincipalWithNameV1.GetDisplayName());
+            Assert.Equal(Name, claimsPrincipalWithName.GetDisplayName());
+            Assert.Equal(NameV1, claimsPrincipalWithNameV1AndName.GetDisplayName());
+            Assert.Equal(PreferredUsername, claimsPrincipalWithPreferredUsernameAndNameV1AndName.GetDisplayName());
         }
 
         [Fact]
@@ -229,42 +239,42 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithPreferredUsername = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername)
+                    new Claim(ClaimConstants.PreferredUserName, PreferredUsername)
                 })
             );
             var claimsPrincipalWithNameV1 = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
             var claimsPrincipalWithName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name)
+                    new Claim(ClaimConstants.Name, Name)
                 })
             );
             var claimsPrincipalWithNameV1AndName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name),
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimConstants.Name, Name),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
             var claimsPrincipalWithPreferredUsernameAndNameV1AndName = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Name, TestConstants.Name),
-                    new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, TestConstants.NameV1)
+                    new Claim(ClaimConstants.Name, Name),
+                    new Claim(ClaimConstants.PreferredUserName, PreferredUsername),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1)
                 })
             );
 
-            Assert.Equal(TestConstants.PreferredUsername, claimsPrincipalWithPreferredUsername.GetLoginHint());
-            Assert.Equal(TestConstants.NameV1, claimsPrincipalWithNameV1.GetLoginHint());
-            Assert.Equal(TestConstants.Name, claimsPrincipalWithName.GetLoginHint());
-            Assert.Equal(TestConstants.NameV1, claimsPrincipalWithNameV1AndName.GetLoginHint());
-            Assert.Equal(TestConstants.PreferredUsername, claimsPrincipalWithPreferredUsernameAndNameV1AndName.GetLoginHint());
+            Assert.Equal(PreferredUsername, claimsPrincipalWithPreferredUsername.GetLoginHint());
+            Assert.Equal(NameV1, claimsPrincipalWithNameV1.GetLoginHint());
+            Assert.Equal(Name, claimsPrincipalWithName.GetLoginHint());
+            Assert.Equal(NameV1, claimsPrincipalWithNameV1AndName.GetLoginHint());
+            Assert.Equal(PreferredUsername, claimsPrincipalWithPreferredUsernameAndNameV1AndName.GetLoginHint());
         }
 
         [Fact]
@@ -278,24 +288,24 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void GetMsalAccountId_WithNeededClaims_ReturnsFormattedMsalId()
         {
-            var b2cPattern = $"{TestConstants.Utid}.{TestConstants.Tid}";
-            var aadPattern = $"{TestConstants.Oid}.{TestConstants.Tid}";
+            var b2cPattern = $"{Utid}.{Tid}";
+            var aadPattern = $"{Oid}.{Tid}";
 
             var claimsPrincipalForB2c = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Oid, TestConstants.Oid),
-                    new Claim(ClaimConstants.UniqueObjectIdentifier, TestConstants.Utid),
-                    new Claim(ClaimConstants.TenantId, TestConstants.Tid),
-                    new Claim(ClaimConstants.Tfp, TestConstants.Userflow)
+                    new Claim(ClaimConstants.Oid, Oid),
+                    new Claim(ClaimConstants.UniqueObjectIdentifier, Utid),
+                    new Claim(ClaimConstants.TenantId, Tid),
+                    new Claim(ClaimConstants.Tfp, Userflow)
                 })
             );
             var claimsPrincipalForAad = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                                new Claim(ClaimConstants.Oid, TestConstants.Oid),
-                                new Claim(ClaimConstants.PreferredUserName, TestConstants.Utid),
-                                new Claim(ClaimConstants.TenantId, TestConstants.Tid)
+                                new Claim(ClaimConstants.Oid, Oid),
+                                new Claim(ClaimConstants.PreferredUserName, Utid),
+                                new Claim(ClaimConstants.TenantId, Tid)
                 })
             );
 

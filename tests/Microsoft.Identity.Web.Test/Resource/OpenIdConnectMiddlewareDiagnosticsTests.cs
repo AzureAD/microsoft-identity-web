@@ -16,6 +16,9 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
+    /// <remarks>
+    /// See the class level comments in <see cref="Microsoft.Identity.Web.Test.Common.Mocks.LoggerMock"/> for more information.
+    /// </remarks>
     public class OpenIdConnectMiddlewareDiagnosticsTests
     {
         private bool _customEventWasRaised;

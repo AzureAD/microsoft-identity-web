@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var options = new MicrosoftIdentityOptions()
             {
-                SignUpSignInPolicyId = TestConstants.B2CSuSiUserFlow
+                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow
             };
 
             Assert.True(options.IsB2C);
