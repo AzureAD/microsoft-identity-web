@@ -69,13 +69,12 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
-
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
             var microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
-            var b2COidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
+            var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme);
@@ -135,7 +134,7 @@ namespace Microsoft.Identity.Web
                         context.ProtocolMessage.SetParameter("client_info", "1");
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                        await b2COidcHandlers.OnRedirectToIdentityProvider(context);
+                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context);
                     }
 
                     await redirectToIdpHandler(context).ConfigureAwait(false);
@@ -149,7 +148,7 @@ namespace Microsoft.Identity.Web
                         // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
                         // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page 
                         // because password reset is not supported by a "sign-up or sign-in user flow".
-                        await b2COidcHandlers.OnRemoteFailure(context);
+                        await b2cOidcHandlers.OnRemoteFailure(context);
 
                         await remoteFailureHandler(context).ConfigureAwait(false);
                     };
@@ -210,7 +209,6 @@ namespace Microsoft.Identity.Web
 
             services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
             {
-                // Response type
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
                 // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
