@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
@@ -23,110 +22,31 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class WebApiServiceCollectionExtensions
     {
-        #region Compatibility
-        /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This supposes that the configuration files have a section named configSectionName (typically "AzureAD")
-        /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="configuration">Configuration</param>
-        /// <returns></returns>
-        public static IServiceCollection AddProtectedApiCallsWebApis(
-            this IServiceCollection services,
-            IConfiguration configuration,
-            string configSectionName = "AzureAd")
-        {
-            return AddProtectedWebApiCallsProtectedWebApi(services,
-                                                          configuration,
-                                                          configSectionName);
-        }
-        #endregion
-
-        /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This method expects the configuration file will have a section named "AzureAd" with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="services">Service collection to which to add this authentication scheme</param>
-        /// <param name="configuration">The Configuration object</param>
-        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the JwtBearer events.
-        /// </param>
-        /// <returns></returns>
-        public static IServiceCollection AddProtectedWebApi(
-            this IServiceCollection services,
-            IConfiguration configuration,
-            X509Certificate2 tokenDecryptionCertificate = null,
-            string configSectionName = "AzureAd",
-            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
-        {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddProtectedWebApi(
-                    configSectionName,
-                    configuration,
-                    options => configuration.Bind(configSectionName, options),
-                    tokenDecryptionCertificate,
-                    subscribeToJwtBearerMiddlewareDiagnosticsEvents);
-
-            return services;
-        }
-
         /// <summary>
         /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configuration">The Configuration object</param>
-        /// <param name="configureOptions">An action to configure JwtBearerOptions</param>
-        /// <param name="tokenDecryptionCertificate">Token decryption certificate</param>
-        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the JwtBearer events.
-        /// </param>
-        /// <returns></returns>
-        public static AuthenticationBuilder AddProtectedWebApi(
-            this AuthenticationBuilder builder,
-            IConfiguration configuration,
-            Action<JwtBearerOptions> configureOptions,
-            X509Certificate2 tokenDecryptionCertificate = null,
-            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
-        {
-            return AddProtectedWebApi(
-                builder,
-                "AzureAd",
-                configuration,
-                JwtBearerDefaults.AuthenticationScheme,
-                configureOptions,
-                tokenDecryptionCertificate,
-                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
-        }
-
-        /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The Configuration object</param>
-        /// <param name="configureOptions">An action to configure JwtBearerOptions</param>
-        /// <param name="tokenDecryptionCertificate">Token decryption certificate</param>
+        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
+        /// <param name="tokenDecryptionCertificate">Token decryption certificate (null by default)</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns></returns>
         public static AuthenticationBuilder AddProtectedWebApi(
             this AuthenticationBuilder builder,
-            string configSectionName,
             IConfiguration configuration,
-            Action<JwtBearerOptions> configureOptions,
+            string configSectionName = "AzureAd",
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            return AddProtectedWebApi(
-                builder,
-                configSectionName,
-                configuration,
-                JwtBearerDefaults.AuthenticationScheme,
-                configureOptions,
+            return builder.AddProtectedWebApi(options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
+                jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
 
@@ -138,23 +58,22 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
         /// <param name="configuration">The Configuration object</param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
-        /// <param name="configureOptions">An action to configure JwtBearerOptions</param>
+        /// <param name="configureJwtBearerOptions">An action to configure JwtBearerOptions</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns></returns>
         public static AuthenticationBuilder AddProtectedWebApi(
-            this AuthenticationBuilder builder,
-            string configSectionName,
-            IConfiguration configuration,
-            string jwtBearerScheme,
-            Action<JwtBearerOptions> configureOptions,
+        this AuthenticationBuilder builder,
+            Action<JwtBearerOptions> configureJwtBearerOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             X509Certificate2 tokenDecryptionCertificate = null,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            builder.Services.Configure(jwtBearerScheme, configureOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
+            builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
+            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
@@ -162,7 +81,10 @@ namespace Microsoft.Identity.Web
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.AddJwtBearer(jwtBearerScheme, options =>
             {
-                var microsoftIdentityOptions = configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
+                // TODO:
+                // Suspect. Why not get the IOption<MicrosoftIdentityOptions>?
+                var microsoftIdentityOptions = new MicrosoftIdentityOptions();// configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
+                configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
                     options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
@@ -225,6 +147,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">Service collection to which to add authentication</param>
         /// <param name="configuration">Configuration</param>
+        /// <param name="configSectionName">Section name in the config file (by default "AzureAD")</param>
+        /// <param name="jwtBearerScheme">Scheme for the JwtBearer token</param>
         /// <returns></returns>
         public static IServiceCollection AddProtectedWebApiCallsProtectedWebApi(
             this IServiceCollection services,
@@ -232,10 +156,28 @@ namespace Microsoft.Identity.Web
             string configSectionName = "AzureAd",
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
         {
+            return services.AddProtectedWebApiCallsProtectedWebApi(
+                options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
+                jwtBearerScheme);
+        }
+        /// <summary>
+        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+        /// This supposes that the configuration files have a section named configSectionName (typically "AzureAD")
+        /// </summary>
+        /// <param name="services">Service collection to which to add authentication</param>
+        /// <param name="configuration">Configuration</param>
+        /// <returns></returns>
+        public static IServiceCollection AddProtectedWebApiCallsProtectedWebApi(
+            this IServiceCollection services,
+            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
+        {
             services.AddTokenAcquisition();
             services.AddHttpContextAccessor();
-            services.Configure<ConfidentialClientApplicationOptions>(options => configuration.Bind(configSectionName, options));
-            services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
+            services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
+            services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
             services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
             {

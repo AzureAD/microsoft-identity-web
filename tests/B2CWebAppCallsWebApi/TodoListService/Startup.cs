@@ -26,6 +26,8 @@ namespace TodoListService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            const string sectionName = "AzureAdB2C";
+
             // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
             // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
             // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
@@ -34,12 +36,12 @@ namespace TodoListService
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddProtectedWebApi("AzureAdB2C", Configuration, options =>
-                {
-                    Configuration.Bind("AzureAdB2C", options);
-
-                    options.TokenValidationParameters.NameClaimType = "name";
-                });
+                    .AddProtectedWebApi(options =>
+                                        {
+                                            Configuration.Bind(sectionName, options);
+                                            options.TokenValidationParameters.NameClaimType = "name";
+                                        },
+                                        options => Configuration.Bind(sectionName, options));
 
             services.AddControllers();
             services.AddAuthorization(options =>
