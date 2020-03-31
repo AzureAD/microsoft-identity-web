@@ -21,147 +21,29 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class WebAppServiceCollectionExtensions
     {
-        #region
-        [Obsolete("This method has been deprecated, please use the AddSignIn() method instead.")]
-        public static IServiceCollection AddMicrosoftIdentityPlatform(
-                this IServiceCollection services,
-                IConfiguration configuration,
-                string configSectionName = "AzureAd",
-                bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
-        {
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddSignIn(configSectionName,
-                    configuration,
-                    options => configuration.Bind(configSectionName, options),
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-
-            return services;
-        }
-
-        [Obsolete("This method has been deprecated, please use the AddWebAppCallsProtectedWebApi() method instead.")]
-        public static IServiceCollection AddMsal(this IServiceCollection services,
-                                                               IConfiguration configuration,
-                                                               IEnumerable<string> initialScopes,
-                                                               string configSectionName = "AzureAd")
-        {
-            return AddWebAppCallsProtectedWebApi(services,
-                                                 configuration,
-                                                 initialScopes,
-                                                 configSectionName);
-        }
-        #endregion
-
         /// <summary>
-        /// Add MSAL support to the Web App or Web API
+        /// Add authentication with Microsoft identity platform.
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
+        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
+        /// <param name="configuration">The IConfiguration object</param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
+        /// </param>
         /// <returns></returns>
-        public static IServiceCollection AddWebAppCallsProtectedWebApi(
-            this IServiceCollection services,
+        public static AuthenticationBuilder AddSignIn(
+            this AuthenticationBuilder builder,
             IConfiguration configuration,
-            IEnumerable<string> initialScopes,
             string configSectionName = "AzureAd",
-            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
-        {
-            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
-            // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure<ConfidentialClientApplicationOptions>(options => configuration.Bind(configSectionName, options));
-            services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
-            services.AddHttpContextAccessor();
-            services.AddTokenAcquisition();
-
-            services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
-            {
-                // Response type
-                options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-
-                // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
-                // It's required by MSAL.NET and automatically provided when users sign-in with work or school accounts
-                options.Scope.Add(OidcConstants.ScopeOfflineAccess);
-                if (initialScopes != null)
-                {
-                    foreach (string scope in initialScopes)
-                    {
-                        if (!options.Scope.Contains(scope))
-                        {
-                            options.Scope.Add(scope);
-                        }
-                    }
-                }
-
-                // Handling the auth redemption by MSAL.NET so that a token is available in the token cache
-                // where it will be usable from Controllers later (through the TokenAcquisition service)
-                var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
-                options.Events.OnAuthorizationCodeReceived = async context =>
-                {
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
-                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
-                    await codeReceivedHandler(context).ConfigureAwait(false);
-                };
-
-                // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
-                var onTokenValidatedHandler = options.Events.OnTokenValidated;
-                options.Events.OnTokenValidated = async context =>
-                {
-                    if (!context.Principal.HasClaim(c => c.Type == ClaimConstants.Tid || c.Type == ClaimConstants.TenantId))
-                    {
-                        ClientInfo clientInfoFromServer;
-                        if (context.Request.Form.ContainsKey(ClaimConstants.ClientInfo))
-                        {
-                            context.Request.Form.TryGetValue(ClaimConstants.ClientInfo, out Microsoft.Extensions.Primitives.StringValues value);
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                clientInfoFromServer = ClientInfo.CreateFromJson(value);
-
-                                if (clientInfoFromServer != null)
-                                {
-                                    context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.Tid, clientInfoFromServer.UniqueTenantIdentifier));
-                                    context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                                }
-                            }
-                        }
-                    }                   
-
-                    await onTokenValidatedHandler(context).ConfigureAwait(false);
-                };
-
-                // Handling the sign-out: removing the account from MSAL.NET cache
-                var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
-                options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
-                {
-                    // Remove the account from MSAL.NET token cache
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
-                    await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                    await signOutHandler(context).ConfigureAwait(false);
-                };
-            });
-            return services;
-        }
-
-        /// <summary>
-        /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
-        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
-        /// </param>
-        /// <returns></returns>
-        public static AuthenticationBuilder AddSignIn(
-            this AuthenticationBuilder builder,
-            IConfiguration configuration,
-            Action<OpenIdConnectOptions> configureOptions,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
                 builder.AddSignIn(
-                    "AzureAd",
-                    configuration,
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    configureOptions,
+                    options => configuration.Bind(configSectionName, options),
+                    options => configuration.Bind(configSectionName, options),
+                    openIdConnectScheme,
+                    cookieScheme,
                     subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
 
         /// <summary>
@@ -171,33 +53,7 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
         /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
-        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
-        /// </param>
-        /// <returns></returns>
-        public static AuthenticationBuilder AddSignIn(
-            this AuthenticationBuilder builder,
-            string configSectionName,
-            IConfiguration configuration,
-            Action<OpenIdConnectOptions> configureOptions,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
-                builder.AddSignIn(
-                    configSectionName,
-                    configuration,
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    configureOptions,
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-
-        /// <summary>
-        /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
+        /// <param name="configureOpenIdConnectOptions">An action to configure OpenIdConnectOptions</param>
         /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
         /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
@@ -206,18 +62,19 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
-            string configSectionName,
-            IConfiguration configuration,
-            string openIdConnectScheme,
-            string cookieScheme,
-            Action<OpenIdConnectOptions> configureOptions,
+            Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
-            builder.Services.Configure(openIdConnectScheme, configureOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
+            builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
+            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
-            var microsoftIdentityOptions = configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
-            var b2COidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
+            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
+            var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme);
@@ -277,7 +134,7 @@ namespace Microsoft.Identity.Web
                         context.ProtocolMessage.SetParameter("client_info", "1");
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                        await b2COidcHandlers.OnRedirectToIdentityProvider(context);
+                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context);
                     }
 
                     await redirectToIdpHandler(context).ConfigureAwait(false);
@@ -291,7 +148,7 @@ namespace Microsoft.Identity.Web
                         // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
                         // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page 
                         // because password reset is not supported by a "sign-up or sign-in user flow".
-                        await b2COidcHandlers.OnRemoteFailure(context);
+                        await b2cOidcHandlers.OnRemoteFailure(context);
 
                         await remoteFailureHandler(context).ConfigureAwait(false);
                     };
@@ -306,6 +163,116 @@ namespace Microsoft.Identity.Web
             });
 
             return builder;
+        }
+
+        /// <summary>
+        /// Add MSAL support to the Web App or Web API
+        /// </summary>
+        /// <param name="services">Service collection to which to add authentication</param>
+        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
+        /// <returns></returns>
+        public static IServiceCollection AddWebAppCallsProtectedWebApi(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            IEnumerable<string> initialScopes,
+            string configSectionName = "AzureAd",
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
+        {
+            return AddWebAppCallsProtectedWebApi(
+                services,
+                initialScopes,
+                options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
+                openIdConnectScheme);
+        }
+
+        /// <summary>
+        /// Add MSAL support to the Web App or Web API
+        /// </summary>
+        /// <param name="services">Service collection to which to add authentication</param>
+        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
+        /// <returns></returns>
+        public static IServiceCollection AddWebAppCallsProtectedWebApi(
+            this IServiceCollection services,
+            IEnumerable<string> initialScopes,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
+        {
+            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
+            // (encapsulating MSAL.NET) are available through dependency injection
+            services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
+
+            services.AddHttpContextAccessor();
+            services.AddTokenAcquisition();
+
+            services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
+            {
+                options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+
+                // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
+                // It's required by MSAL.NET and automatically provided when users sign-in with work or school accounts
+                options.Scope.Add(OidcConstants.ScopeOfflineAccess);
+                if (initialScopes != null)
+                {
+                    foreach (string scope in initialScopes)
+                    {
+                        if (!options.Scope.Contains(scope))
+                        {
+                            options.Scope.Add(scope);
+                        }
+                    }
+                }
+
+                // Handling the auth redemption by MSAL.NET so that a token is available in the token cache
+                // where it will be usable from Controllers later (through the TokenAcquisition service)
+                var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
+                options.Events.OnAuthorizationCodeReceived = async context =>
+                {
+                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
+                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
+                    await codeReceivedHandler(context).ConfigureAwait(false);
+                };
+
+                // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
+                var onTokenValidatedHandler = options.Events.OnTokenValidated;
+                options.Events.OnTokenValidated = async context =>
+                {
+                    if (!context.Principal.HasClaim(c => c.Type == ClaimConstants.Tid || c.Type == ClaimConstants.TenantId))
+                    {
+                        ClientInfo clientInfoFromServer;
+                        if (context.Request.Form.ContainsKey(ClaimConstants.ClientInfo))
+                        {
+                            context.Request.Form.TryGetValue(ClaimConstants.ClientInfo, out Microsoft.Extensions.Primitives.StringValues value);
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                clientInfoFromServer = ClientInfo.CreateFromJson(value);
+
+                                if (clientInfoFromServer != null)
+                                {
+                                    context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.Tid, clientInfoFromServer.UniqueTenantIdentifier));
+                                    context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                }
+                            }
+                        }
+                    }
+
+                    await onTokenValidatedHandler(context).ConfigureAwait(false);
+                };
+
+                // Handling the sign-out: removing the account from MSAL.NET cache
+                var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
+                options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
+                {
+                    // Remove the account from MSAL.NET token cache
+                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
+                    await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                    await signOutHandler(context).ConfigureAwait(false);
+                };
+            });
+            return services;
         }
     }
 }
