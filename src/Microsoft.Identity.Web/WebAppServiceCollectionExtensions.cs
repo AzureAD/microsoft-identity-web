@@ -27,47 +27,23 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
-        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
-        /// </param>
-        /// <returns></returns>
-        public static AuthenticationBuilder AddSignIn(
-            this AuthenticationBuilder builder,
-            IConfiguration configuration,
-            Action<OpenIdConnectOptions> configureOptions,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
-                builder.AddSignIn(
-                    null,
-                    configuration,
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    configureOptions,
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-
-        /// <summary>
-        /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns></returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
-            string configSectionName,
             IConfiguration configuration,
+            string configSectionName = "AzureAd",
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
                 builder.AddSignIn(
-                    configSectionName,
-                    configuration,
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    CookieAuthenticationDefaults.AuthenticationScheme,
                     options => configuration.Bind(configSectionName, options),
+                    options => configuration.Bind(configSectionName, options),
+                    openIdConnectScheme,
+                    cookieScheme,
                     subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
 
         /// <summary>
@@ -77,7 +53,7 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
         /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
+        /// <param name="configureOpenIdConnectOptions">An action to configure OpenIdConnectOptions</param>
         /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
         /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
@@ -86,18 +62,19 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
-            string configSectionName,
-            IConfiguration configuration,
-            string openIdConnectScheme,
-            string cookieScheme,
-            Action<OpenIdConnectOptions> configureOptions,
+            Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
-            builder.Services.Configure(openIdConnectScheme, configureOptions);
+            builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
 
-            builder.Services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
+            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
-            var microsoftIdentityOptions = configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
+            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
             var b2COidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
@@ -202,10 +179,32 @@ namespace Microsoft.Identity.Web
             string configSectionName = "AzureAd",
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
+            return AddWebAppCallsProtectedWebApi(
+                services,
+                initialScopes,
+                options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
+                openIdConnectScheme);
+        }
+
+        /// <summary>
+        /// Add MSAL support to the Web App or Web API
+        /// </summary>
+        /// <param name="services">Service collection to which to add authentication</param>
+        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
+        /// <returns></returns>
+        public static IServiceCollection AddWebAppCallsProtectedWebApi(
+            this IServiceCollection services,
+            IEnumerable<string> initialScopes,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
+        {
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure<ConfidentialClientApplicationOptions>(options => configuration.Bind(configSectionName, options));
-            services.Configure<MicrosoftIdentityOptions>(options => configuration.Bind(configSectionName, options));
+            services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
+
             services.AddHttpContextAccessor();
             services.AddTokenAcquisition();
 
@@ -277,63 +276,5 @@ namespace Microsoft.Identity.Web
             });
             return services;
         }
-
-        #region Obsolete methods
-        [Obsolete("This method has been deprecated, please use the AddSignIn(IConfiguration configuration, Action<OpenIdConnectOptions>configureOptions) or " +
-            "AddSignIn(string configSectionName, IConfiguration configuration) methods instead.")]
-        /// <summary>
-        /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOptions">An action to configure OpenIdConnectOptions</param>
-        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
-        /// </param>
-        /// <returns></returns>
-        public static AuthenticationBuilder AddSignIn(
-            this AuthenticationBuilder builder,
-            string configSectionName,
-            IConfiguration configuration,
-            Action<OpenIdConnectOptions> configureOptions,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
-                builder.AddSignIn(
-                    configSectionName,
-                    configuration,
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    configureOptions,
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-
-        [Obsolete("This method has been deprecated, please use the AddSignIn() method instead.")]
-        public static IServiceCollection AddMicrosoftIdentityPlatform(
-                this IServiceCollection services,
-                IConfiguration configuration,
-                string configSectionName = "AzureAd",
-                bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
-        {
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddSignIn(configSectionName,
-                    configuration,
-                    options => configuration.Bind(configSectionName, options),
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-
-            return services;
-        }
-
-        [Obsolete("This method has been deprecated, please use the AddWebAppCallsProtectedWebApi() method instead.")]
-        public static IServiceCollection AddMsal(this IServiceCollection services,
-                                                               IConfiguration configuration,
-                                                               IEnumerable<string> initialScopes,
-                                                               string configSectionName = "AzureAd")
-        {
-            return AddWebAppCallsProtectedWebApi(services,
-                                                 configuration,
-                                                 initialScopes,
-                                                 configSectionName);
-        }
-        #endregion
     }
 }
