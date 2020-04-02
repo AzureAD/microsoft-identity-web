@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("TokenCache.Tests.Core")]
 
 namespace Microsoft.Identity.Web
 {

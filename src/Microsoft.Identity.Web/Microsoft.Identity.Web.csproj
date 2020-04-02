@@ -8,14 +8,20 @@
 
     <DefineConstants>$(DefineConstants);WEB</DefineConstants>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <!-- Copyright needs to be in the form of © not (c) to be compliant -->
+    <Title>Microsoft Identity Web</Title>
     <Authors>Microsoft</Authors>
-    <Company>Microsoft</Company>
-    <Description>This package enables ASP.NET Core Web apps and Web APIs to use the Microsoft identity platform (formerly Azure AD v2.0). When they call Web APIs, MSAL.NET is used to acquire tokens</Description>
+    <Company>Microsoft Corporation</Company>
+    <Product>Microsoft Identity Web</Product>
+    <Description>
+      This package enables ASP.NET Core Web apps and Web APIs to use the Microsoft identity platform (formerly Azure AD v2.0). 
+      This package is specifically used for web applications, which sign-in users, and protected web APIs, which optionally call downstream web APIs.
+    </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
-    <PackageTags>Microsoft identity web .NET ASP.NET Core</PackageTags>
+    <PackageTags>Microsoft identity web .NET ASP.NET Core Web App Web API B2C</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Label="Source Link">
@@ -40,13 +46,18 @@
   
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  
+  <PropertyGroup>
+    <!-- The MSAL.snk has both private and public keys -->
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <CodeAnalysisRuleSet>Microsoft.Identity.Web.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <CodeAnalysisRuleSet>Microsoft.Identity.Web.ruleset</CodeAnalysisRuleSet>
@@ -57,6 +68,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.8.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.10.0" />
   </ItemGroup>
 </Project>

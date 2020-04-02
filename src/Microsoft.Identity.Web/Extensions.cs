@@ -6,7 +6,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension methods
     /// </summary>
-    public static class Extensions
+    internal static class Extensions
     {
         /// <summary>Determines whether the specified string collection contains any.</summary>
         /// <param name="searchFor">The search for.</param>
