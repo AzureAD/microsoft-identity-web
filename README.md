@@ -89,8 +89,8 @@ public class Startup
   public void ConfigureServices(IServiceCollection services)
   {
    ...
-   services.AddSignIn(Configuration)
-           .AddWebAppCallsProtectedWebApi(new string[] { scopesToRequest })
+   services.AddSignIn(Configuration);
+   services.AddWebAppCallsProtectedWebApi(Configuration, new string[] { scopesToRequest })
            .AddInMemoryTokenCaches();
    ...
   }
@@ -290,8 +290,8 @@ Examples of possible distributed cache:
 
 ```CSharp
 // or use a distributed Token Cache by adding
-    services.AddSignIn(Configuration)
-            .AddWebAppCallsProtectedWebApi(new string[] { scopesToRequest })
+    services.AddSignIn(Configuration);
+    services.AddWebAppCallsProtectedWebApi(Configuration, new string[] { scopesToRequest })
             .AddDistributedTokenCaches();
 
 // and then choose your implementation
