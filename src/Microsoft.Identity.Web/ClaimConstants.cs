@@ -6,7 +6,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Constants for claim types.
     /// </summary>
-    public static class ClaimConstants
+    internal static class ClaimConstants
     {
         public const string Name = "name";
         public const string ObjectId = "http://schemas.microsoft.com/identity/claims/objectidentifier";

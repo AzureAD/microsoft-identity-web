@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service
     /// </summary>
-    public class TokenAcquisition : ITokenAcquisition
+    internal class TokenAcquisition : ITokenAcquisition
     {
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly ConfidentialClientApplicationOptions _applicationOptions;

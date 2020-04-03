@@ -6,7 +6,7 @@ using System;
 
 namespace Microsoft.Identity.Web
 {
-    public static class AuthorityHelpers
+    internal static class AuthorityHelpers
     {
         internal static bool IsV2Authority(string authority)
         {

@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web.Resource
     /// <summary>
     /// Generic class that validates token issuer from the provided Azure AD authority. Use the <see cref="AadIssuerValidatorFactory"/> to create instances of this class.
     /// </summary>
-    public class AadIssuerValidator
+    internal class AadIssuerValidator
     {
         private const string AzureADIssuerMetadataUrl = "https://login.microsoftonline.com/common/discovery/instance?authorization_endpoint=https://login.microsoftonline.com/common/oauth2/v2.0/authorize&api-version=1.1";
         private const string FallbackAuthority = "https://login.microsoftonline.com/";
