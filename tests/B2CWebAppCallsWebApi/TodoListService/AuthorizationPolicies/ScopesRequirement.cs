@@ -31,8 +31,8 @@ namespace TodoListService.AuthorizationPolicies
             string scope = "http://schemas.microsoft.com/identity/claims/scope";
             string scp = "scp";
             // If there are no scopes, do not process
-            if (!context.User.Claims.Any(x => x.Type == scope)
-               && !context.User.Claims.Any(y => y.Type == scp))
+            if (!context.User.Claims.Any(x => string.Equals(x.Type, scope))
+               && !context.User.Claims.Any(y => string.Equals(y.Type, scp)))
             {
                 return Task.CompletedTask;
             }
