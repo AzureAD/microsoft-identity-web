@@ -230,7 +230,7 @@ namespace Microsoft.Identity.Web
                 var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
                 options.Events.OnAuthorizationCodeReceived = async context =>
                 {
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
+                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
                     await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
                     await codeReceivedHandler(context).ConfigureAwait(false);
                 };
@@ -267,7 +267,7 @@ namespace Microsoft.Identity.Web
                 options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
                 {
                     // Remove the account from MSAL.NET token cache
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
+                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
                     await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
                     await signOutHandler(context).ConfigureAwait(false);
                 };
