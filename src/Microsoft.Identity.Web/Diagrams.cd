@@ -14,7 +14,7 @@
       <Field Name="s_issuerValidators" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAAAgEQAAECAAAAAAACAAAAAAAAAQAAAAAACAAAAAgA=</HashCode>
+      <HashCode>EAAAgEQAAFCAAAAAAACAAAAAAAAAQAAAAAACAAAAAgA=</HashCode>
       <FileName>Resource\AadIssuerValidator.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -34,28 +34,29 @@
       <Field Name="s_onUserInformationReceived" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAACAAAAgAAAwgAAAAAAEABEgACAgAAAMDAIIhKAAA=</HashCode>
+      <HashCode>AAAACAAAAgAAAwgAAAAAAEABMgACAgAAAMDAIIhKAAA=</HashCode>
       <FileName>Resource\OpenIdConnectMiddlewareDiagnostics.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Microsoft.Identity.Web.ClaimsPrincipalExtensions">
     <Position X="5" Y="9.5" Width="4.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAkAAAAAAAAABAAAAAAAAAAAAAAAAAAIAAEACAAA=</HashCode>
+      <HashCode>AAAAAkABAAAAAAABAAAAAAAAAAAAAAAAAAIAAEACAEA=</HashCode>
       <FileName>ClaimsPrincipalExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microsoft.Identity.Web.WebAppServiceCollectionExtensions">
     <Position X="0.5" Y="0.5" Width="13.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAABCAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WebAppServiceCollectionExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Microsoft.Identity.Web.WebApiServiceCollectionExtensions">
     <Position X="0.5" Y="2" Width="14.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAACAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WebApiServiceCollectionExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -63,10 +64,9 @@
     <Position X="0.5" Y="5.75" Width="3.5" />
     <Members>
       <Method Name="BuildAuthenticationPropertiesForIncrementalConsent" Hidden="true" />
-      <Method Name="CanBeSolvedByReSignInUser" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAACAAAAAAIAAAAAAAAAAAAAAAAgAIAIA=</HashCode>
+      <HashCode>AAAAAAAAAAAAACAAAAAAIAAABAAAAAAAAAAAAgAAAIA=</HashCode>
       <FileName>AuthorizeForScopesAttribute.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -100,14 +100,33 @@
       <Field Name="s_onTokenValidated" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAgABAAgAAAAAAAABAgACAAABAAAAIABAAAA=</HashCode>
+      <HashCode>AAAAAAAAAgABAAgAAAAAAAABIgACAAABAAAAIABAAAA=</HashCode>
       <FileName>Resource\JwtBearerMiddlewareDiagnostics.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions">
+    <Position X="1" Y="3.75" Width="25.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WebAppAuthenticationBuilderExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions">
+    <Position X="0.75" Y="5.25" Width="23" />
+    <Members>
+      <Method Name="EnsureAuthorityIsV2_0" Hidden="true" />
+      <Method Name="EnsureValidAudiencesContainsApiGuidIfGuidProvided" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAACAAAQQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WebApiAuthenticationBuilderExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Interface Name="Microsoft.Identity.Web.ITokenAcquisition">
     <Position X="0.5" Y="3.5" Width="8.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAIAAAAAAAQAAAAAAAAACABAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAIAAAAARAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ITokenAcquisition.cs</FileName>
     </TypeIdentifier>
   </Interface>
