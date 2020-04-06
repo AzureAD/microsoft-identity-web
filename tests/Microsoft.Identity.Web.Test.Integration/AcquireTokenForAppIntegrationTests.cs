@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act
             string token =
-                await _tokenAcquisition.AcquireTokenForAppAsync(TestConstants.s_scopesForApp).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopesForApp).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(token);
@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task result() =>
-                await _tokenAcquisition.AcquireTokenForAppAsync(TestConstants.s_scopesForUser).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopesForUser).ConfigureAwait(false);
 
             MsalServiceException ex = await Assert.ThrowsAsync<MsalServiceException>(result);
 

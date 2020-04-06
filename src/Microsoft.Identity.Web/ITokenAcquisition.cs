@@ -16,49 +16,6 @@ namespace Microsoft.Identity.Web
     public interface ITokenAcquisition
     {
         /// <summary>
-        /// In a Web App, adds, to the MSAL.NET cache, the account of the user authenticating to the Web App, when the authorization code is received (after the user
-        /// signed-in and consented)
-        /// An On-behalf-of token contained in the <see cref="AuthorizationCodeReceivedContext"/> is added to the cache, so that it can then be used to acquire another token on-behalf-of the 
-        /// same user in order to call to downstream APIs.
-        /// </summary>
-        /// <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
-        /// <param name="scopes">Scopes to request</param>
-        /// <example>
-        /// From the configuration of the Authentication of the ASP.NET Core Web API: 
-        /// <code>OpenIdConnectOptions options;</code>
-        /// 
-        /// Subscribe to the authorization code received event:
-        /// <code>
-        ///  options.Events = new OpenIdConnectEvents();
-        ///  options.Events.OnAuthorizationCodeReceived = OnAuthorizationCodeReceived;
-        /// }
-        /// </code>
-        /// 
-        /// And then in the OnAuthorizationCodeRecieved method, call <see cref="AddAccountToCacheFromAuthorizationCode"/>:
-        /// <code>
-        /// private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
-        /// {
-        ///   var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService&lt;ITokenAcquisition&gt;();
-        ///    await _tokenAcquisition.AddAccountToCacheFromAuthorizationCode(context, new string[] { "user.read" });
-        /// }
-        /// </code>
-        /// </example>
-        Task AddAccountToCacheFromAuthorizationCodeAsync(AuthorizationCodeReceivedContext context, IEnumerable<string> scopes);
-
-        /// <summary>
-        /// Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token 
-        /// for a downstream API on behalf of the user account in which claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the <paramref name="context"/> parameter
-        /// </summary>
-        /// <param name="context">HttpContext associated with the Controller or auth operation</param>
-        /// <param name="scopes">Scopes to request for the downstream API to call</param>
-        /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the 
-        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant</param>
-        /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes</returns>
-        [Obsolete("Renamed to GetAccessTokenForUserAsync")]
-        Task<string> GetAccessTokenOnBehalfOfUserAsync(IEnumerable<string> scopes, string tenantId = null);
-
-        /// <summary>
         /// Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token 
         /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
         /// member of the <paramref name="context"/> parameter
@@ -71,12 +28,15 @@ namespace Microsoft.Identity.Web
         Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string tenantId = null);
 
         /// <summary>
-        /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache
+        /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
-        /// <param name="context">RedirectContext passed-in to a <see cref="OnRedirectToIdentityProviderForSignOut"/> 
-        /// Openidconnect event</param>
-        /// <returns></returns>
-        Task RemoveAccountAsync(RedirectContext context);
+        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+        /// in the portal, and cannot be overriden in the application.</param>
+        /// <returns>An access token for the app itself, based on its scopes</returns>
+        Task<string> GetAccessTokenForAppAsync(IEnumerable<string> scopes);
 
         /// <summary>
         /// Used in Web APIs (which therefore cannot have an interaction with the user). 
@@ -88,16 +48,5 @@ namespace Microsoft.Identity.Web
         void ReplyForbiddenWithWwwAuthenticateHeader(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalSeviceException);
-
-        /// <summary>
-        /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
-        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
-        /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
-        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
-        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, and cannot be overriden in the application.</param>
-        /// <returns>An access token for the app itself, based on its scopes</returns>
-        Task<string> AcquireTokenForAppAsync(IEnumerable<string> scopes);
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service
     /// </summary>
-    internal class TokenAcquisition : ITokenAcquisition
+    internal class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
     {
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
@@ -246,7 +246,7 @@ namespace Microsoft.Identity.Web
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, and cannot be overriden in the application.</param>
         /// <returns>An access token for the app itself, based on its scopes</returns>
-        public async Task<string> AcquireTokenForAppAsync(IEnumerable<string> scopes)
+        public async Task<string> GetAccessTokenForAppAsync(IEnumerable<string> scopes)
         {
             if (scopes == null)
             {
