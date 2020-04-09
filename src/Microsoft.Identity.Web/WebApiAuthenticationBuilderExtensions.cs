@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
-        /// <returns></returns>
+        /// <returns>The authentication builder to chain</returns>
         public static AuthenticationBuilder AddProtectedWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -52,15 +52,15 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The Configuration object</param>
+        /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/></param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="configureMicrosoftIdentityOptions"/></param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
         /// <param name="configureJwtBearerOptions">An action to configure JwtBearerOptions</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
-        /// <returns></returns>
+        /// <returns>The authentication builder to chain</returns>
         public static AuthenticationBuilder AddProtectedWebApi(
         this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,

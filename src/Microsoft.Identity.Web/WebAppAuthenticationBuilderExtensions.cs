@@ -24,10 +24,12 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configuration">The IConfiguration object</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
+        /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
+        /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns></returns>
+        /// <returns>The authentication builder for chaining</returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -47,15 +49,14 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configureOpenIdConnectOptions">An action to configure OpenIdConnectOptions</param>
+        /// <param name="configureOpenIdConnectOptions">The IConfiguration object</param>
+        /// <param name="configureMicrosoftIdentityOptions">The configuration section with the necessary settings to initialize authentication options</param>
         /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
         /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns></returns>
+        /// <returns>The authentication builder for chaining</returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
