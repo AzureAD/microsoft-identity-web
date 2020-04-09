@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain</returns>
-        public static AuthenticationBuilder AddProtectedWebApi(
+        public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = "AzureAd",
@@ -40,11 +40,12 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            return builder.AddProtectedWebApi(options => configuration.Bind(configSectionName, options),
+            builder.AddProtectedWebApi(options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+            return services;
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain</returns>
-        public static AuthenticationBuilder AddProtectedWebApi(
+        public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -69,12 +70,13 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            return builder.AddProtectedWebApi(
+            builder.AddProtectedWebApi(
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
                 tokenDecryptionCertificate,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+            return services;
         }
 
         /// <summary>
