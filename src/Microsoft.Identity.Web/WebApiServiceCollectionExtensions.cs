@@ -99,6 +99,7 @@ namespace Microsoft.Identity.Web
                 options => configuration.Bind(configSectionName, options),
                 jwtBearerScheme);
         }
+
         /// <summary>
         /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
         /// This supposes that the configuration files have a section named configSectionName (typically "AzureAD")
@@ -121,6 +122,8 @@ namespace Microsoft.Identity.Web
 
             services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
             {
+                options.Events ??= new JwtBearerEvents();
+
                 options.Events.OnTokenValidated = async context =>
                 {
                     context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
