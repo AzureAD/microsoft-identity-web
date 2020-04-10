@@ -19,7 +19,7 @@ steps:
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI'
-    AssemblyName: 'Microsoft.Identity.Web.UI'
+    AssemblyName: 'Microsoft.Identity.Web.UI*'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
