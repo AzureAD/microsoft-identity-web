@@ -40,7 +40,6 @@ namespace Microsoft.Identity.Web
                 var userFlow = options.DefaultUserFlow;
                 return new Uri(baseUri, new PathString($"{pathBase}/{domain}/{userFlow}/v2.0")).ToString();
             }
-
             else
             {
                 // Cannot build AAD authority without tenant id

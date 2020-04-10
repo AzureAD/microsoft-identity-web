@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             httpContext.User = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("http://schemas.microsoft.com/identity/claims/scope", string.Join(' ', userScopes))
+                    new Claim(ClaimConstants.Scope, string.Join(' ', userScopes))
                 })
             );
 
