@@ -1,0 +1,3 @@
+0.1.0-preview
+============
+This is the first preview NuGet package for [Microsoft Identity Web](https://github.com/AzureAD/microsoft-identity-web/wiki).
