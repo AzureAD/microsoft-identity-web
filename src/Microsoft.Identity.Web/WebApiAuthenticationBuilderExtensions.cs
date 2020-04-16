@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web
                 if (string.IsNullOrWhiteSpace(options.Authority))
                     options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
 
-                // This is an Microsoft identity platform Web API
+                // This is a Microsoft identity platform Web API
                 EnsureAuthorityIsV2_0(options);
 
                 // The valid audience could be given as Client Id or as Uri. 
@@ -142,7 +142,7 @@ namespace Microsoft.Identity.Web
         /// Ensures that the authority is a v2.0 authority
         /// </summary>
         /// <param name="options">Jwt bearer options read from the config file
-        /// or set by the developper, for which we want to ensure the authority
+        /// or set by the developer, for which we want to ensure the authority
         /// is a v2.0 authority</param>
         internal static void EnsureAuthorityIsV2_0(JwtBearerOptions options)
         {
