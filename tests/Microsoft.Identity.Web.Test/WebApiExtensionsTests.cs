@@ -363,7 +363,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = initialAuthority
             };
 
-            WebApiAuthenticationBuilderExtensions.EnsureAuthorityIsV2_0(options);
+            options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
             Assert.Equal(expectedAuthority, options.Authority);
         }
 
