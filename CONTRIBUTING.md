@@ -8,7 +8,7 @@ Agreement.  You only need to do that once. We can not look at your code until yo
 
 ### Setup, Building and Testing
 
-Please see the [Build & Run](build-and-run) wiki page.
+Please see the [Build & Run](https://github.com/AzureAD/microsoft-identity-web/wiki/build-and-test) wiki page.
 
 ### Decide on which branch to create
 
