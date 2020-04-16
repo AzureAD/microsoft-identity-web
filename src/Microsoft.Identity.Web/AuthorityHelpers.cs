@@ -49,5 +49,13 @@ namespace Microsoft.Identity.Web
                 return new Uri(baseUri, new PathString($"{pathBase}/{tenantId}/v2.0")).ToString();
             }
         }
+
+        internal static string EnsureAuthorityIsV2(string authority)
+        {
+            authority = authority.Trim().TrimEnd('/');
+            if (!authority.EndsWith("v2.0"))
+                authority += "/v2.0";
+            return authority;
+        }
     }
 }

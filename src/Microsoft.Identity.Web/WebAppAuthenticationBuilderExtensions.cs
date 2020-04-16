@@ -82,8 +82,8 @@ namespace Microsoft.Identity.Web
                 if (string.IsNullOrWhiteSpace(options.Authority))
                     options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
 
-                // This is a Microsoft identity platform Web APP
-                EnsureAuthorityIsV2_0(options);
+                // This is a Microsoft identity platform Web app
+                options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.IsB2C)
@@ -160,20 +160,6 @@ namespace Microsoft.Identity.Web
             });
 
             return builder;
-        }
-
-        /// <summary>
-        /// Ensures that the authority is a v2.0 authority
-        /// </summary>
-        /// <param name="options">OpenIdConnect options read from the config file
-        /// or set by the developer, for which we want to ensure the authority
-        /// is a v2.0 authority</param>
-        internal static void EnsureAuthorityIsV2_0(OpenIdConnectOptions options)
-        {
-            var authority = options.Authority.Trim().TrimEnd('/');
-            if (!authority.EndsWith("v2.0"))
-                authority += "/v2.0";
-            options.Authority = authority;
         }
     }
 }
