@@ -20,6 +20,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
 using NSubstitute.Extensions;
 using Xunit;
@@ -30,7 +31,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private const string _configSectionName = "AzureAd-Custom";
         private const string _jwtBearerScheme = "Bearer-Custom";
-        private readonly X509Certificate2 _certificate = new X509Certificate2(Convert.FromBase64String(TestConstants.certificateX5c));
+        private readonly X509Certificate2 _certificate = new X509Certificate2(Convert.FromBase64String(TestConstants.CertificateX5c));
         private readonly IConfigurationSection _configSection;
         private readonly Action<ConfidentialClientApplicationOptions> _configureAppOptions = (options) => { };
         private readonly Action<JwtBearerOptions> _configureJwtOptions = (options) => { };
@@ -368,16 +369,25 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.HttpLocalHost, new string[] { TestConstants.HttpLocalHost })]
-        [InlineData(TestConstants.ApiAudience, new string[] { TestConstants.ApiAudience })]
-        [InlineData(TestConstants.ApiClientId, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData("", new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        public void EnsureValidAudiencesContainsApiGuidIfGuidProvided(string initialAudience, string[] expectedAudiences)
+        [InlineData(TestConstants.HttpLocalHost, null, new string[] { TestConstants.HttpLocalHost })]
+        [InlineData(TestConstants.ApiAudience, null, new string[] { TestConstants.ApiAudience })]
+        [InlineData(TestConstants.ApiClientId, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
+        [InlineData("", null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
+        [InlineData(null, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
+        [InlineData(null, new string[] { TestConstants.ApiAudience }, new string[] { TestConstants.ApiAudience, TestConstants.ApiAudience, TestConstants.ApiClientId })]
+        [InlineData(null, new string[] { TestConstants.ApiClientId }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.ApiClientId })]
+        [InlineData(TestConstants.HttpLocalHost, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.HttpLocalHost, TestConstants.B2CCustomDomainInstance })]
+        [InlineData(TestConstants.ApiAudience, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.B2CCustomDomainInstance })]
+        [InlineData(TestConstants.ApiClientId, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.B2CCustomDomainInstance })]
+        public void EnsureValidAudiencesContainsApiGuidIfGuidProvided(string initialAudience, string[] initialAudiences, string[] expectedAudiences)
         {
             JwtBearerOptions jwtOptions = new JwtBearerOptions()
             {
-                Audience = initialAudience
+                Audience = initialAudience,
+                TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidAudiences = initialAudiences
+                }
             };
             MicrosoftIdentityOptions msIdentityOptions = new MicrosoftIdentityOptions()
             {

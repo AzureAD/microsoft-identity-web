@@ -143,11 +143,12 @@ namespace Microsoft.Identity.Web
         /// as a valid audience (this is the default App ID URL in the app registration
         /// portal)
         /// </summary>
-        /// <param name="options">Jwt bearer options for which to ensure that
+        /// <param name="options"><see cref="JwtBearerOptions"/> for which to ensure that
         /// api://GUID is a valid audience</param>
         internal static void EnsureValidAudiencesContainsApiGuidIfGuidProvided(JwtBearerOptions options, MicrosoftIdentityOptions msIdentityOptions)
         {
-            var validAudiences = new List<string>();
+            options.TokenValidationParameters.ValidAudiences ??= new List<string>();
+            var validAudiences = new List<string>(options.TokenValidationParameters.ValidAudiences);
             if (!string.IsNullOrWhiteSpace(options.Audience))
             {
                 validAudiences.Add(options.Audience);
