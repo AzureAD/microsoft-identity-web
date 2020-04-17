@@ -1,0 +1,5 @@
+# NOTE: Requires **VS2019 16.3** or later
+
+# Code files
+[*.{cs,vb}]
+

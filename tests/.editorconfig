@@ -1,0 +1,7 @@
+# NOTE: Requires **VS2019 16.3** or later
+
+# Code files
+[*.{cs,vb}]
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
