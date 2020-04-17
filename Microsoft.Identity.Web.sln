@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{AE164522-E929-4284-883E-511CB46712A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{79310504-1334-4F14-93C4-1240913224BA}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.editorconfig = tests\.editorconfig
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAppCallsWebApiCallsGraph", "WebAppCallsWebApiCallsGraph", "{DA125992-5622-4D9D-B7AB-79CDC45A66B0}"
 EndProject
@@ -27,11 +30,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test.Common", "tests\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj", "{F37646FF-C346-4FF5-A111-2269952AB376}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Test.LabInfrastructure", "tests\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj", "{A9F4539F-51AB-4D98-9204-D76B336E0BE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test.LabInfrastructure", "tests\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj", "{A9F4539F-51AB-4D98-9204-D76B336E0BE8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DotNet Core Templates", "DotNet Core Templates", "{D845507B-00E8-4506-954E-519CBC0B9F83}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCoreMicrosoftIdentityPlatformTemplates", "ProjectTemplates\AspNetCoreMicrosoftIdentityPlatformTemplates.csproj", "{257F7E59-326F-4749-9019-4384DDEBCD3A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B919DEC-2539-4357-8E89-8C0CC9889FB4}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
