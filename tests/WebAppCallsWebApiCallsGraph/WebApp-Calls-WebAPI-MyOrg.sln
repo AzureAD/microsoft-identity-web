@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoListService", "TodoList
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoListClient", "Client\TodoListClient.csproj", "{79AF134C-0F4A-43F8-8C47-75039ED87CE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "..\..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{2AED6B80-C6DF-4AA3-98F0-77338CC1449A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{F7EA441F-CFB3-42C2-89BD-A9C5CA37AEBB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "..\..\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{A2B0D2D4-6799-4B6F-AC51-F0F0A6CA1E89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{D50C9C1E-396F-4063-8F21-A70DF3DCE88C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,14 @@ Global
 		{79AF134C-0F4A-43F8-8C47-75039ED87CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79AF134C-0F4A-43F8-8C47-75039ED87CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79AF134C-0F4A-43F8-8C47-75039ED87CE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AED6B80-C6DF-4AA3-98F0-77338CC1449A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AED6B80-C6DF-4AA3-98F0-77338CC1449A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AED6B80-C6DF-4AA3-98F0-77338CC1449A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AED6B80-C6DF-4AA3-98F0-77338CC1449A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A2B0D2D4-6799-4B6F-AC51-F0F0A6CA1E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2B0D2D4-6799-4B6F-AC51-F0F0A6CA1E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2B0D2D4-6799-4B6F-AC51-F0F0A6CA1E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2B0D2D4-6799-4B6F-AC51-F0F0A6CA1E89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7EA441F-CFB3-42C2-89BD-A9C5CA37AEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7EA441F-CFB3-42C2-89BD-A9C5CA37AEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7EA441F-CFB3-42C2-89BD-A9C5CA37AEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7EA441F-CFB3-42C2-89BD-A9C5CA37AEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D50C9C1E-396F-4063-8F21-A70DF3DCE88C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D50C9C1E-396F-4063-8F21-A70DF3DCE88C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D50C9C1E-396F-4063-8F21-A70DF3DCE88C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D50C9C1E-396F-4063-8F21-A70DF3DCE88C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
