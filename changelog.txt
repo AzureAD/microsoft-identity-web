@@ -5,7 +5,7 @@ New Features:
 
 Bug Fixes:
 **`AddSignIn()` now provides a more robust processing of authorities accepting them to end in `/` or not**. [See issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/19)
-**Setting the `ValidAudiences` in `AddProtectedWebApi()` now accepts `api://<guid>` or `https://<tenantDomain>`**. [See issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/52)
+**Setting the `ValidAudiences` in `AddProtectedWebApi()` now accepts any custom audience (any string)**. [See issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/52)
 
 0.1.0-preview
 ============
