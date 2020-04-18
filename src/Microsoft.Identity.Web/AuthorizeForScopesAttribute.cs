@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     /// Filter used on a controller action to trigger incremental consent.
     /// </summary>
     /// <example>
-    /// The following controller action will trigger
+    /// The following controller action will trigger.
     /// <code>
     /// [AuthorizeForScopes(Scopes = new[] {"Mail.Send"})]
     /// public async Task&lt;IActionResult&gt; SendEmail()
@@ -30,23 +30,23 @@ namespace Microsoft.Identity.Web
     public class AuthorizeForScopesAttribute : ExceptionFilterAttribute
     {
         /// <summary>
-        /// Scopes to request
+        /// Scopes to request.
         /// </summary>
         public string[] Scopes { get; set; }
 
         /// <summary>
-        /// Key section on the configuration file that holds the scope value
+        /// Key section on the configuration file that holds the scope value.
         /// </summary>
         public string ScopeKeySection { get; set; }
 
         /// <summary>
-        /// Handles the MsalUiRequiredException
+        /// Handles the MsalUiRequiredException.
         /// </summary>
-        /// <param name="context">Context provided by ASP.NET Core</param>
+        /// <param name="context">Context provided by ASP.NET Core.</param>
         public override void OnException(ExceptionContext context)
         {
             // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
-            string[] incrementalConsentScopes = new string[] { };
+            string[] incrementalConsentScopes = Array.Empty<string>();
             MsalUiRequiredException msalUiRequiredException = context.Exception as MsalUiRequiredException;
 
             if (msalUiRequiredException == null)
@@ -76,14 +76,16 @@ namespace Microsoft.Identity.Web
                         }
 
                         incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
-                        
+
                         if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes != null && incrementalConsentScopes.Length > 0)
                         {
-                           throw new InvalidOperationException("no scopes provided in scopes...");
+                            throw new InvalidOperationException("no scopes provided in scopes...");
                         }
                     }
                     else
+                    {
                         incrementalConsentScopes = Scopes;
+                    }
 
                     var properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
                     context.Result = new ChallengeResult(properties);
@@ -107,10 +109,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Build Authentication properties needed for incremental consent.
         /// </summary>
-        /// <param name="scopes">Scopes to request</param>
-        /// <param name="ex">MsalUiRequiredException instance</param>
-        /// <param name="context">current http context in the pipeline</param>
-        /// <returns>AuthenticationProperties</returns>
+        /// <param name="scopes">Scopes to request.</param>
+        /// <param name="ex">MsalUiRequiredException instance.</param>
+        /// <param name="context">current http context in the pipeline.</param>
+        /// <returns>AuthenticationProperties.</returns>
         private AuthenticationProperties BuildAuthenticationPropertiesForIncrementalConsent(
             string[] scopes,
             MsalUiRequiredException ex,
@@ -120,9 +122,12 @@ namespace Microsoft.Identity.Web
 
             // Set the scopes, including the scopes that ADAL.NET / MSAL.NET need for the token cache
             string[] additionalBuiltInScopes =
-                {OidcConstants.ScopeOpenId,
-                OidcConstants.ScopeOfflineAccess,
-                OidcConstants.ScopeProfile};
+            {
+                 OidcConstants.ScopeOpenId,
+                 OidcConstants.ScopeOfflineAccess,
+                 OidcConstants.ScopeProfile,
+            };
+
             properties.SetParameter<ICollection<string>>(OpenIdConnectParameterNames.Scope,
                                                          scopes.Union(additionalBuiltInScopes).ToList());
 

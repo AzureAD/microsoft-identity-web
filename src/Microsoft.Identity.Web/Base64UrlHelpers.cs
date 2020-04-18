@@ -16,16 +16,13 @@ namespace Microsoft.Identity.Web
         private const char Base64UrlCharacter63 = '_';
         private static readonly Encoding TextEncoding = Encoding.UTF8;
 
-        private static readonly string DoubleBase64PadCharacter = string.Format(CultureInfo.InvariantCulture, "{0}{0}",
-            Base64PadCharacter);
+        private static readonly string DoubleBase64PadCharacter = string.Format(CultureInfo.InvariantCulture, "{0}{0}", Base64PadCharacter);
 
-        //
         // The following functions perform base64url encoding which differs from regular base64 encoding as follows
         // * padding is skipped so the pad character '=' doesn't have to be percent encoded
         // * the 62nd and 63rd regular base64 encoding characters ('+' and '/') are replace with ('-' and '_')
         // The changes make the encoding alphabet file and URL safe
         // See RFC4648, section 5 for more info
-        //
         public static string Encode(string arg)
         {
             if (arg == null)

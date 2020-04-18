@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
     /// <summary>
-    /// Wrapper for lab service API
+    /// Wrapper for lab service API.
     /// </summary>
     public class LabServiceApi : ILabService
     {
@@ -39,9 +39,20 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             return response;
         }
 
+        public async Task<string> GetUserSecretAsync(string lab)
+        {
+            IDictionary<string, string> queryDict = new Dictionary<string, string>
+            {
+                { "secret", lab },
+            };
+
+            string result = await SendLabRequestAsync(LabApiConstants.LabUserCredentialEndpoint, queryDict).ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<LabCredentialResponse>(result).Secret;
+        }
+
         private async Task<LabResponse> GetLabResponseFromApiAsync(UserQuery query)
         {
-            //Fetch user
+            // Fetch user
             string result = await RunQueryAsync(query).ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(result))
@@ -71,7 +82,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             {
                 User = user,
                 App = labApps[0],
-                Lab = labs[0]
+                Lab = labs[0],
             };
         }
 
@@ -79,8 +90,8 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         {
             IDictionary<string, string> queryDict = new Dictionary<string, string>();
 
-            //Building user query
-            //Required parameters will be set to default if not supplied by the test code
+            // Building user query
+            // Required parameters will be set to default if not supplied by the test code
             queryDict.Add(LabApiConstants.MultiFactorAuthentication, query.MFA != null ? query.MFA.ToString() : MFA.None.ToString());
             queryDict.Add(LabApiConstants.ProtectionPolicy, query.ProtectionPolicy != null ? query.ProtectionPolicy.ToString() : ProtectionPolicy.None.ToString());
 
@@ -126,7 +137,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         {
             UriBuilder uriBuilder = new UriBuilder(requestUrl)
             {
-                Query = string.Join("&", queryDict.Select(x => x.Key + "=" + x.Value.ToString()))
+                Query = string.Join("&", queryDict.Select(x => x.Key + "=" + x.Value.ToString())),
             };
 
             return await GetLabResponseAsync(uriBuilder.ToString()).ConfigureAwait(false);
@@ -135,24 +146,15 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         private async Task<string> GetLabResponseAsync(string address)
         {
             if (string.IsNullOrWhiteSpace(_labApiAccessToken))
+            {
                 _labApiAccessToken = await LabAuthenticationHelper.GetAccessTokenForLabAPIAsync(_labAccessAppId, _labAccessClientSecret).ConfigureAwait(false);
+            }
 
             using (HttpClient httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", string.Format(CultureInfo.InvariantCulture, "bearer {0}", _labApiAccessToken));
                 return await httpClient.GetStringAsync(address).ConfigureAwait(false);
             }
-        }
-
-        public async Task<string> GetUserSecretAsync(string lab)
-        {
-            IDictionary<string, string> queryDict = new Dictionary<string, string>
-            {
-                { "secret", lab }
-            };
-
-            string result = await SendLabRequestAsync(LabApiConstants.LabUserCredentialEndpoint, queryDict).ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<LabCredentialResponse>(result).Secret;
         }
     }
 }

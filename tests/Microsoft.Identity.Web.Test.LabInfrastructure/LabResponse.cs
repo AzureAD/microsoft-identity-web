@@ -32,7 +32,6 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         // TODO: this is a list, but lab sends a string. Not used today, discuss with lab to return a list
         [JsonProperty("authority")]
         public string Authority { get; set; }
-
     }
 
     public class Lab

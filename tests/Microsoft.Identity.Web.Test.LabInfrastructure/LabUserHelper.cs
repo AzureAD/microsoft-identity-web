@@ -10,17 +10,17 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
     public static class LabUserHelper
     {
-        private static readonly LabServiceApi s_labService;
-        private static readonly IDictionary<UserQuery, LabResponse> s_userCache =
-            new Dictionary<UserQuery, LabResponse>();
-
-        public static KeyVaultSecretsProvider KeyVaultSecretsProvider { get; }
-
         static LabUserHelper()
         {
             KeyVaultSecretsProvider = new KeyVaultSecretsProvider();
             s_labService = new LabServiceApi();
         }
+
+        private static readonly LabServiceApi s_labService;
+        private static readonly IDictionary<UserQuery, LabResponse> s_userCache =
+            new Dictionary<UserQuery, LabResponse>();
+
+        public static KeyVaultSecretsProvider KeyVaultSecretsProvider { get; }
 
         public static async Task<LabResponse> GetLabUserDataAsync(UserQuery query)
         {
@@ -75,13 +75,15 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             {
                 response.User.HomeUPN = response.User.Upn;
             }
+
             return response;
         }
 
         public static Task<LabResponse> GetSpecificUserAsync(string upn)
         {
             var query = new UserQuery();
-            //query.Upn = upn;
+
+            // query.Upn = upn;
             return GetLabUserDataAsync(query);
         }
 

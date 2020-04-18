@@ -8,7 +8,7 @@ using System.Linq;
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
     /// <summary>
-    /// Extension class to add a session token cache serializer to MSAL
+    /// Extension class to add a session token cache serializer to MSAL.
     /// </summary>
     public static class SessionTokenCacheProviderExtension
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
         /// services.AddSession(option =>
         /// {
-        ///	    option.Cookie.IsEssential = true;
+        ///     option.Cookie.IsEssential = true;
         /// });
         ///
         /// In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
         /// services.AddSession(option =>
         /// {
-        ///	    option.Cookie.IsEssential = true;
+        ///     option.Cookie.IsEssential = true;
         /// });
         ///
         /// In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
         /// services.AddSession(option =>
         /// {
-        ///	    option.Cookie.IsEssential = true;
+        ///     option.Cookie.IsEssential = true;
         /// });
         ///
         /// In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
@@ -99,8 +99,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         {
             services.AddHttpContextAccessor();
             services.AddSession(option =>
-            { option.Cookie.IsEssential = true; }
-            );
+                {
+                    option.Cookie.IsEssential = true;
+                });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
             return services;
         }

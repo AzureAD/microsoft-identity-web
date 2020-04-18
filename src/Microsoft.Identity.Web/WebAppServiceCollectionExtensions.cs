@@ -22,22 +22,22 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to 
+        /// This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
         /// initialize the authentication options.
         /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="configuration">The IConfiguration object</param>
+        /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="configuration">The IConfiguration object.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
-        /// settings to initialize authentication options</param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+        /// settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
-        /// <param name="cookieScheme">Optional name for the acookie uthentication scheme 
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme) </param>
+        /// <param name="cookieScheme">Optional name for the acookie uthentication scheme
+        /// (by default OpenIdConnectDefaults.AuthenticationScheme). </param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>The service collection for chaining</returns>
+        /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -60,18 +60,18 @@ namespace Microsoft.Identity.Web
         /// Add authentication with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/></param>
-        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/></param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+        /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
-        /// <param name="cookieScheme">Optional name for the acookie uthentication scheme 
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme) </param>
+        /// <param name="cookieScheme">Optional name for the acookie uthentication scheme
+        /// (by default OpenIdConnectDefaults.AuthenticationScheme). </param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>Yhe service collection for chaining</returns>
+        /// <returns>Yhe service collection for chaining.</returns>
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
@@ -91,16 +91,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API
+        /// Add MSAL support to the Web App or Web API.
         /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
+        /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
-        /// settings to initialize authentication options</param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+        /// settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
-        /// <returns>Yhe service collection for chaining</returns>
+        /// <returns>Yhe service collection for chaining.</returns>
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -117,16 +117,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API
+        /// Add MSAL support to the Web App or Web API.
         /// </summary>
-        /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="initialScopes">Initial scopes to request at sign-in</param>
-        /// <param name="configureMicrosoftIdentityOptions">The action to set the <see cref="MicrosoftIdentityOptions"/></param>
-        /// <param name="configureConfidentialClientApplicationOptions">The action to set the <see cref="ConfidentialClientApplicationOptions"/></param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+        /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to set the <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="configureConfidentialClientApplicationOptions">The action to set the <see cref="ConfidentialClientApplicationOptions"/>.</param>
+        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
-        /// <returns>The service collection for chaining</returns>
+        /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IEnumerable<string> initialScopes,

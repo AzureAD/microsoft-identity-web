@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         Shibboleth,
         ADFSv2019,
         B2C,
-        Ping
+        Ping,
     }
 
     public enum B2CIdentityProvider
@@ -26,12 +26,12 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         MSA,
         Amazon,
         Microsoft,
-        Twitter
+        Twitter,
     }
 
     public enum UserType
     {
-        Member, //V1 lab api only
+        Member, // V1 lab api only
         Guest,
         B2C,
         Cloud,
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
     {
         None,
         MfaOnAll,
-        AutoMfaOnAll
+        AutoMfaOnAll,
     }
 
     public enum ProtectionPolicy
@@ -56,18 +56,18 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         MDM,
         MDMCA,
         MAMCA,
-        MAMSPO
+        MAMSPO,
     }
 
-    public enum HomeDomain //Must add ".com" to end for lab queury
+    public enum HomeDomain // Must add ".com" to end for lab queury
     {
         None,
         MsidLab2,
         MsidLab3,
-        MsidLab4
+        MsidLab4,
     }
 
-    public enum HomeUPN //Must replace "_" with "@" add ".com" to end for lab queury
+    public enum HomeUPN // Must replace "_" with "@" add ".com" to end for lab queury
     {
         None,
         GidLab_Msidlab2,
@@ -82,13 +82,13 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         azurechinacloud,
         azuregermanycloud,
         azureppe,
-        azureusgovernment
+        azureusgovernment,
     }
 
     public enum SignInAudience
     {
         AzureAdMyOrg,
         AzureAdMultipleOrgs,
-        AzureAdAndPersonalMicrosoftAccount
+        AzureAdAndPersonalMicrosoftAccount,
     }
 }

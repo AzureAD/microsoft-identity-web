@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var expectedErrorMessage = "client info returned from the server is null (Parameter 'clientInfo')";
 
-            var exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(""));
+            var exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(string.Empty));
             Assert.Equal(expectedErrorMessage, exception.Message);
 
             exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(null));
@@ -68,12 +68,12 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DeserializeFromJson_NullOrEmptyJsonByteArray_ReturnsNull()
         {
-            var actualClientInfo = ClientInfo.DeserializeFromJson<ClientInfo>(new byte[0]);
+            var actualClientInfo = ClientInfo.DeserializeFromJson<ClientInfo>(Array.Empty<byte>());
 
             Assert.Null(actualClientInfo);
 
             actualClientInfo = ClientInfo.DeserializeFromJson<ClientInfo>(null);
-            
+
             Assert.Null(actualClientInfo);
         }
 

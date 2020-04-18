@@ -16,17 +16,17 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
     public class MsalMemoryTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
         /// <summary>
-        /// .NET Core Memory cache
+        /// .NET Core Memory cache.
         /// </summary>
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
-        /// Msal memory token cache options
+        /// Msal memory token cache options.
         /// </summary>
         private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="microsoftIdentityOptions"></param>
         /// <param name="httpContextAccessor"></param>

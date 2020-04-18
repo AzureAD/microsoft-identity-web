@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Identity.Web.Resource;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Xunit;
+using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
+using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public void GetIssuerValidator_AuthorityNotInAliases_ReturnsValidator() //B2C
+        public void GetIssuerValidator_AuthorityNotInAliases_ReturnsValidator() // B2C
         {
             var authorityNotInAliases = TestConstants.B2CAuthorityWithV2;
 
@@ -53,16 +53,16 @@ namespace Microsoft.Identity.Web.Test.Resource
             Assert.NotNull(validator);
         }
 
-        //TODO: Possible bug in cache. Validator is cached with key as authority host, but tries to retrieve with full authority.
+        // TODO: Possible bug in cache. Validator is cached with key as authority host, but tries to retrieve with full authority.
         [Fact]
         public void GetIssuerValidator_CachedAuthority_ReturnsCachedValidator()
         {
-            //var authorityNotInAliases = TestConstants.ProductionPrefNetworkEnvironment;
+            // var authorityNotInAliases = TestConstants.ProductionPrefNetworkEnvironment;
 
-            //var validator1 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
-            //var validator2 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            // var validator1 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            // var validator2 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
 
-            //Assert.Same(validator1, validator2);
+            // Assert.Same(validator1, validator2);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var securityToken = Substitute.For<SecurityToken>();
             var validationParameters = new TokenValidationParameters();
             var expectedErrorMessage = "Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform.";
-            
+
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() => validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, validationParameters));
             Assert.Equal(expectedErrorMessage, exception.Message);
 
@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Web.Test.Resource
 
             var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
                 new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } });
-            
+
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
 
@@ -171,8 +171,8 @@ namespace Microsoft.Identity.Web.Test.Resource
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
             var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
 
-            var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() => 
-                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, 
+            var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
+                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
                     new TokenValidationParameters() { ValidIssuer = TestConstants.B2CIssuer }));
             Assert.Equal(expectedErrorMessage, exception.Message);
         }
@@ -205,7 +205,8 @@ namespace Microsoft.Identity.Web.Test.Resource
                 validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
                     new TokenValidationParameters()
                     {
-                        ValidIssuers = new[] {
+                        ValidIssuers = new[]
+                        {
                             "https://host1/{tenantid}/v2.0",
                             "https://host2/{tenantid}/v2.0"
                         }
@@ -226,7 +227,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = $"Issuer: '{invalidIssuerToValidate}', does not match any of the valid issuers provided for this application.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(invalidIssuerToValidate,jwtSecurityToken,
+                validator.Validate(invalidIssuerToValidate, jwtSecurityToken,
                     new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
             Assert.Equal(expectedErrorMessage, exception.Message);
         }
@@ -290,8 +291,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                     new TokenValidationParameters()
                     {
                         ValidIssuers = new[] { TestConstants.B2CIssuer }
-                    })
-                );
+                    }));
         }
 
         // Similar to Validate_NotMatchedTenantIds_ThrowsException but uses
@@ -313,8 +313,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                     new TokenValidationParameters()
                     {
                         ValidIssuers = new[] { TestConstants.B2CIssuer }
-                    })
-                );
+                    }));
         }
 
         // Similar to Validate_IssuerMatchedInValidIssuers_ReturnsIssuer but uses

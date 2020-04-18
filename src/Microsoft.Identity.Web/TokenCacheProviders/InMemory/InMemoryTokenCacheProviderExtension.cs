@@ -6,13 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 {
     /// <summary>
-    /// Extension class used to add an in-memory token cache serializer to MSAL
+    /// Extension class used to add an in-memory token cache serializer to MSAL.
     /// </summary>
     public static class InMemoryTokenCacheProviderExtension
     {
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
-        /// <param name="cacheOptions">The MSALMemoryTokenCacheOptions allows the caller to set the token cache expiration</param>
+        /// <param name="cacheOptions">The MSALMemoryTokenCacheOptions allows the caller to set the token cache expiration.</param>
         /// <returns></returns>
         public static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)

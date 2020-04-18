@@ -17,12 +17,12 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("123456", "MTIzNDU2")] //No padding
-        [InlineData("12345678", "MTIzNDU2Nzg")] //1 padding
-        [InlineData("1234567", "MTIzNDU2Nw")] //2 padding
-        [InlineData("12>123", "MTI-MTIz")] //With Base64 plus
-        [InlineData("12?123", "MTI_MTIz")] //With Base64 slash
-        [InlineData("", "")] //Empty string
+        [InlineData("123456", "MTIzNDU2")] // No padding
+        [InlineData("12345678", "MTIzNDU2Nzg")] // 1 padding
+        [InlineData("1234567", "MTIzNDU2Nw")] // 2 padding
+        [InlineData("12>123", "MTI-MTIz")] // With Base64 plus
+        [InlineData("12?123", "MTI_MTIz")] // With Base64 slash
+        [InlineData("", "")] // Empty string
         public void Encode_UTF8ByteArrayOfDecodedString_ReturnsValidEncodedString(string stringToEncode, string expectedEncodedString)
         {
             var actualEncodedString = Base64UrlHelpers.Encode(Encoding.UTF8.GetBytes(stringToEncode));
@@ -38,26 +38,26 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("123456", "MTIzNDU2")] //No padding
-        [InlineData("12345678", "MTIzNDU2Nzg")] //1 padding
-        [InlineData("1234567", "MTIzNDU2Nw")] //2 padding
-        [InlineData("12>123", "MTI-MTIz")] //With Base64 plus
-        [InlineData("12?123", "MTI_MTIz")] //With Base64 slash
-        [InlineData("", "")] //Empty string
+        [InlineData("123456", "MTIzNDU2")] // No padding
+        [InlineData("12345678", "MTIzNDU2Nzg")] // 1 padding
+        [InlineData("1234567", "MTIzNDU2Nw")] // 2 padding
+        [InlineData("12>123", "MTI-MTIz")] // With Base64 plus
+        [InlineData("12?123", "MTI_MTIz")] // With Base64 slash
+        [InlineData("", "")] // Empty string
         public void Encode_DecodedString_ReturnsEncodedString(string stringToEncode, string expectedEncodedString)
-        {          
+        {
             var actualEncodedString = Base64UrlHelpers.Encode(stringToEncode);
 
             Assert.Equal(expectedEncodedString, actualEncodedString);
         }
 
         [Theory]
-        [InlineData("MTIzNDU2", "123456")] //No padding
-        [InlineData("MTIzNDU2Nzg", "12345678")] //1 padding
-        [InlineData("MTIzNDU2Nw", "1234567")] //2 padding
-        [InlineData("MTI-MTIz", "12>123")] //With Base64 plus
-        [InlineData("MTI_MTIz", "12?123")] //With Base64 slash
-        [InlineData("", "")] //Empty string
+        [InlineData("MTIzNDU2", "123456")] // No padding
+        [InlineData("MTIzNDU2Nzg", "12345678")] // 1 padding
+        [InlineData("MTIzNDU2Nw", "1234567")] // 2 padding
+        [InlineData("MTI-MTIz", "12>123")] // With Base64 plus
+        [InlineData("MTI_MTIz", "12?123")] // With Base64 slash
+        [InlineData("", "")] // Empty string
         public void DecodeToString_ValidBase64UrlString_ReturnsDecodedString(string stringToDecode, string expectedDecodedString)
         {
             var actualDecodedString = Base64UrlHelpers.DecodeToString(stringToDecode);
@@ -89,12 +89,12 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("MTIzNDU2", "123456")] //No padding
-        [InlineData("MTIzNDU2Nzg", "12345678")] //1 padding
-        [InlineData("MTIzNDU2Nw", "1234567")] //2 padding
-        [InlineData("MTI-MTIz", "12>123")] //With Base64 plus
-        [InlineData("MTI_MTIz", "12?123")] //With Base64 slash
-        [InlineData("", "")] //Empty string
+        [InlineData("MTIzNDU2", "123456")] // No padding
+        [InlineData("MTIzNDU2Nzg", "12345678")] // 1 padding
+        [InlineData("MTIzNDU2Nw", "1234567")] // 2 padding
+        [InlineData("MTI-MTIz", "12>123")] // With Base64 plus
+        [InlineData("MTI_MTIz", "12?123")] // With Base64 slash
+        [InlineData("", "")] // Empty string
         public void DecodeToBytes_ValidBase64UrlString_ReturnsByteArray(string stringToDecode, string expectedDecodedString)
         {
             var expectedDecodedByteArray = Encoding.UTF8.GetBytes(expectedDecodedString);

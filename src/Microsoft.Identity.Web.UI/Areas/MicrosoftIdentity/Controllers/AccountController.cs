@@ -42,10 +42,10 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             return SignOut(
                  new AuthenticationProperties
                  {
-                     RedirectUri = callbackUrl
+                     RedirectUri = callbackUrl,
                  },
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                scheme);
+                 CookieAuthenticationDefaults.AuthenticationScheme,
+                 scheme);
         }
 
         [HttpGet("{scheme?}")]
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         public async Task<IActionResult> EditProfile([FromRoute] string scheme)
         {
             scheme = scheme ?? OpenIdConnectDefaults.AuthenticationScheme;
-            var authenticated = await HttpContext.AuthenticateAsync(scheme);
+            var authenticated = await HttpContext.AuthenticateAsync(scheme).ConfigureAwait(false);
             if (!authenticated.Succeeded)
             {
                 return Challenge(scheme);

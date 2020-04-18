@@ -35,7 +35,8 @@ namespace Microsoft.Identity.Web.Test
         private readonly IConfigurationSection _configSection;
         private readonly Action<ConfidentialClientApplicationOptions> _configureAppOptions = (options) => { };
         private readonly Action<JwtBearerOptions> _configureJwtOptions = (options) => { };
-        private readonly Action<MicrosoftIdentityOptions> _configureMsOptions = (options) => {
+        private readonly Action<MicrosoftIdentityOptions> _configureMsOptions = (options) =>
+        {
             options.Instance = TestConstants.AadInstance;
             options.TenantId = TestConstants.TenantIdAsGuid;
             options.ClientId = TestConstants.ClientId;
@@ -58,16 +59,20 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
-            //Config bind actions added correctly
+            // Config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create("");
+            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
             config.Received(3).GetSection(_configSectionName);
 
             AddProtectedWebApi_TestCommon(services, provider);
@@ -82,14 +87,18 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
-            //Configure options actions added correctly
+            // Configure options actions added correctly
             var configuredJwtOptions = provider.GetServices<IConfigureOptions<JwtBearerOptions>>().Cast<ConfigureNamedOptions<JwtBearerOptions>>();
             var configuredMsOptions = provider.GetService<IConfigureOptions<MicrosoftIdentityOptions>>() as ConfigureNamedOptions<MicrosoftIdentityOptions>;
 
@@ -97,27 +106,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(_configureMsOptions, configuredMsOptions.Action);
 
             AddProtectedWebApi_TestCommon(services, provider);
-        }
-
-        private void AddProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider)
-        {
-            //Correct services added
-            Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
-            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IJwtBearerMiddlewareDiagnostics));
-            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IJwtBearerMiddlewareDiagnostics)).Lifetime);
-
-            //JWT options added correctly
-            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
-
-            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
-
-            //Issuer validator and certificate set
-            var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
-
-            Assert.NotNull(jwtOptions.TokenValidationParameters.IssuerValidator);
-            Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKey);
         }
 
         [Theory]
@@ -131,17 +119,22 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFunc = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
-                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) => {
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFunc;
                 })
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
@@ -158,53 +151,28 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFunc = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
-                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) => {
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFunc;
                 })
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
 
             AddProtectedWebApi_TestJwtBearerTokenValidatedEvent(jwtOptions, tokenValidatedFunc);
-        }
-
-        private async void AddProtectedWebApi_TestJwtBearerTokenValidatedEvent(JwtBearerOptions jwtOptions, Func<TokenValidatedContext, Task> tokenValidatedFunc)
-        {
-            var scopeTypes = new[] { ClaimConstants.Scope, ClaimConstants.Scp, ClaimConstants.Roles, ClaimConstants.Role };
-            var expectedExceptionMessage = "Neither scope or roles claim was found in the bearer token.";
-            var scopeValue = "scope";
-
-            var httpContext = HttpContextUtilities.CreateHttpContext();
-            var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
-            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions);
-            tokenValidatedContext.Principal = new ClaimsPrincipal();
-
-            //No scopes throws exception
-            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => { await jwtOptions.Events.TokenValidated(tokenValidatedContext); });
-            Assert.Equal(expectedExceptionMessage, exception.Message);
-
-            //At least one scope executes successfully
-            foreach (var scopeType in scopeTypes)
-            {
-                tokenValidatedContext.Principal = new ClaimsPrincipal(
-                    new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(scopeType, scopeValue)
-                    })
-                );
-                await jwtOptions.Events.TokenValidated(tokenValidatedContext);
-            }
-
-            await tokenValidatedFunc.Received(4).Invoke(Arg.Any<TokenValidatedContext>());
         }
 
         [Theory]
@@ -223,10 +191,14 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
+            }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
             services.AddSingleton<IJwtBearerMiddlewareDiagnostics>((provider) => diagnostics);
@@ -236,9 +208,13 @@ namespace Microsoft.Identity.Web.Test
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
 
             if (subscribeToDiagnostics)
+            {
                 diagnostics.Received().Subscribe(Arg.Any<JwtBearerEvents>());
+            }
             else
+            {
                 diagnostics.DidNotReceive().Subscribe(Arg.Any<JwtBearerEvents>());
+            }
         }
 
         [Theory]
@@ -254,10 +230,14 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             if (useServiceCollectionExtension)
+            {
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
+            }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
+            }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
             services.AddSingleton<IJwtBearerMiddlewareDiagnostics>((provider) => diagnostics);
@@ -267,25 +247,13 @@ namespace Microsoft.Identity.Web.Test
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
 
             if (subscribeToDiagnostics)
-                diagnostics.Received().Subscribe(Arg.Any<JwtBearerEvents>());
-            else
-                diagnostics.DidNotReceive().Subscribe(Arg.Any<JwtBearerEvents>());
-        }
-
-        private IConfigurationSection GetConfigSection(string configSectionName)
-        {
-            var configAsDictionary = new Dictionary<string, string>()
             {
-                { configSectionName, null },
-                { $"{configSectionName}:Instance", TestConstants.AadInstance },
-                { $"{configSectionName}:TenantId", TestConstants.TenantIdAsGuid },
-                { $"{configSectionName}:ClientId", TestConstants.TenantIdAsGuid }
-            };
-            var memoryConfigSource = new MemoryConfigurationSource { InitialData = configAsDictionary };
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.Add(memoryConfigSource);
-            var configSection = configBuilder.Build().GetSection(configSectionName);
-            return configSection;
+                diagnostics.Received().Subscribe(Arg.Any<JwtBearerEvents>());
+            }
+            else
+            {
+                diagnostics.DidNotReceive().Subscribe(Arg.Any<JwtBearerEvents>());
+            }
         }
 
         [Fact]
@@ -297,9 +265,9 @@ namespace Microsoft.Identity.Web.Test
                 .AddProtectedWebApiCallsProtectedWebApi(config, _configSectionName, _jwtBearerScheme);
             var provider = services.BuildServiceProvider();
 
-            //Config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create("");
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create("");
+            // Config bind actions added correctly
+            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
             config.Received(2).GetSection(_configSectionName);
 
@@ -313,7 +281,7 @@ namespace Microsoft.Identity.Web.Test
                 .AddProtectedWebApiCallsProtectedWebApi(_configureAppOptions, _configureMsOptions, _jwtBearerScheme);
             var provider = services.BuildServiceProvider();
 
-            //Configure options actions added correctly
+            // Configure options actions added correctly
             var configuredAppOptions = provider.GetService<IConfigureOptions<ConfidentialClientApplicationOptions>>() as ConfigureNamedOptions<ConfidentialClientApplicationOptions>;
             var configuredMsOptions = provider.GetService<IConfigureOptions<MicrosoftIdentityOptions>>() as ConfigureNamedOptions<MicrosoftIdentityOptions>;
 
@@ -321,31 +289,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(_configureAppOptions, configuredAppOptions.Action);
 
             AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider);
-        }
-
-        private void AddProtectedWebApiCallsProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider)
-        {
-            //Correct services added
-            Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
-            Assert.Contains(services, s => s.ServiceType == typeof(ITokenAcquisition));
-            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<ConfidentialClientApplicationOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
-
-            //JWT options added correctly
-            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
-
-            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
-
-            //Token validated event added correctly
-            var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
-            var httpContext = HttpContextUtilities.CreateHttpContext();
-            var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
-            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions) { SecurityToken = new JwtSecurityToken() };
-
-            jwtOptions.Events.TokenValidated(tokenValidatedContext);
-
-            Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
         }
 
         [Theory]
@@ -398,6 +341,97 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(expectedAudiences.Length, jwtOptions.TokenValidationParameters.ValidAudiences.Count());
             Assert.Equal(expectedAudiences.OrderBy(x => x), jwtOptions.TokenValidationParameters.ValidAudiences.OrderBy(x => x));
+        }
+
+        private void AddProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider)
+        {
+            // Correct services added
+            Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IJwtBearerMiddlewareDiagnostics));
+            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IJwtBearerMiddlewareDiagnostics)).Lifetime);
+
+            // JWT options added correctly
+            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
+
+            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
+
+            // Issuer validator and certificate set
+            var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
+
+            Assert.NotNull(jwtOptions.TokenValidationParameters.IssuerValidator);
+            Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKey);
+        }
+
+        private async void AddProtectedWebApi_TestJwtBearerTokenValidatedEvent(JwtBearerOptions jwtOptions, Func<TokenValidatedContext, Task> tokenValidatedFunc)
+        {
+            var scopeTypes = new[] { ClaimConstants.Scope, ClaimConstants.Scp, ClaimConstants.Roles, ClaimConstants.Role };
+            var expectedExceptionMessage = "Neither scope or roles claim was found in the bearer token.";
+            var scopeValue = "scope";
+
+            var httpContext = HttpContextUtilities.CreateHttpContext();
+            var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
+            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions);
+            tokenValidatedContext.Principal = new ClaimsPrincipal();
+
+            // No scopes throws exception
+            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => { await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false); }).ConfigureAwait(false);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
+
+            // At least one scope executes successfully
+            foreach (var scopeType in scopeTypes)
+            {
+                tokenValidatedContext.Principal = new ClaimsPrincipal(
+                    new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(scopeType, scopeValue)
+                    }));
+                await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
+            }
+
+            await tokenValidatedFunc.Received(4).Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
+        }
+
+        private void AddProtectedWebApiCallsProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider)
+        {
+            // Correct services added
+            Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
+            Assert.Contains(services, s => s.ServiceType == typeof(ITokenAcquisition));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<ConfidentialClientApplicationOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
+
+            // JWT options added correctly
+            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
+
+            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
+
+            // Token validated event added correctly
+            var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
+            var httpContext = HttpContextUtilities.CreateHttpContext();
+            var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
+            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions) { SecurityToken = new JwtSecurityToken() };
+
+            jwtOptions.Events.TokenValidated(tokenValidatedContext);
+
+            Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
+        }
+
+        private IConfigurationSection GetConfigSection(string configSectionName)
+        {
+            var configAsDictionary = new Dictionary<string, string>()
+            {
+                { configSectionName, null },
+                { $"{configSectionName}:Instance", TestConstants.AadInstance },
+                { $"{configSectionName}:TenantId", TestConstants.TenantIdAsGuid },
+                { $"{configSectionName}:ClientId", TestConstants.TenantIdAsGuid }
+            };
+            var memoryConfigSource = new MemoryConfigurationSource { InitialData = configAsDictionary };
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.Add(memoryConfigSource);
+            var configSection = configBuilder.Build().GetSection(configSectionName);
+            return configSection;
         }
     }
 }

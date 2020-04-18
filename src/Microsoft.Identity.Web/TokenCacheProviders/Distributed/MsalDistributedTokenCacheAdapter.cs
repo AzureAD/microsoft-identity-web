@@ -16,27 +16,29 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     public class MsalDistributedTokenCacheAdapter : MsalAbstractTokenCacheProvider
     {
         /// <summary>
-        /// .NET Core Memory cache
+        /// .NET Core Memory cache.
         /// </summary>
         private readonly IDistributedCache _distributedCache;
 
         /// <summary>
-        /// Msal memory token cache options
+        /// Msal memory token cache options.
         /// </summary>
         private readonly DistributedCacheEntryOptions _cacheOptions;
 
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="MsalDistributedTokenCacheAdapter"/> class.
+        /// Constructor.
         /// </summary>
         /// <param name="microsoftIdentityOptions"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="memoryCache"></param>
         /// <param name="cacheOptions"></param>
-        public MsalDistributedTokenCacheAdapter(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
+        public MsalDistributedTokenCacheAdapter(
+                                            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
                                             IHttpContextAccessor httpContextAccessor,
                                             IDistributedCache memoryCache,
-                                            IOptions<DistributedCacheEntryOptions> cacheOptions) :
-            base(microsoftIdentityOptions, httpContextAccessor)
+                                            IOptions<DistributedCacheEntryOptions> cacheOptions) 
+            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             _distributedCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
@@ -54,7 +56,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            await _distributedCache.SetAsync(cacheKey, bytes, _cacheOptions).ConfigureAwait(false) ;
+            await _distributedCache.SetAsync(cacheKey, bytes, _cacheOptions).ConfigureAwait(false);
         }
     }
 }

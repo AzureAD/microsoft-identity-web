@@ -23,9 +23,9 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
         static LabAuthenticationHelper()
         {
-            //The data.txt is a place holder for the keyvault secret. It will only be written to during build time when testing appcenter.
-            //After the tests are finished in appcenter, the file will be deleted from the appcenter servers.
-            //The file will then be deleted locally Via VSTS task.
+            // The data.txt is a place holder for the keyvault secret. It will only be written to during build time when testing appcenter.
+            // After the tests are finished in appcenter, the file will be deleted from the appcenter servers.
+            // The file will then be deleted locally Via VSTS task.
             if (File.Exists(DataFileName))
             {
                 var data = File.ReadAllText(DataFileName);
@@ -136,6 +136,6 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
     {
         ClientCertificate,
         ClientSecret,
-        UserCredential
+        UserCredential,
     }
 }

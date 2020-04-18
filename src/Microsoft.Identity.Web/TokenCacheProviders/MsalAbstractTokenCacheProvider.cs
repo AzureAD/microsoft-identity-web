@@ -15,30 +15,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
         /// <summary>
-        /// Azure AD options
-        /// </summary>
-        protected readonly IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
-
-        /// <summary>
-        /// Http accessor
-        /// </summary>
-        protected readonly IHttpContextAccessor _httpContextAccessor;
-
-        /// <summary>
-        /// Constructor of the abstract token cache provider
-        /// </summary>
-        /// <param name="azureAdOptions"></param>
-        /// <param name="httpContextAccessor"></param>
-        protected MsalAbstractTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions, IHttpContextAccessor httpContextAccessor)
-        {
-            _microsoftIdentityOptions = microsoftIdentityOptions;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        /// <summary>
         /// Initializes the token cache serialization.
         /// </summary>
-        /// <param name="tokenCache">Token cache to serialize/deserialize</param>
+        /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
         /// <returns></returns>
         public Task InitializeAsync(ITokenCache tokenCache)
         {
@@ -49,8 +28,65 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return Task.CompletedTask;
         }
 
+        public async Task ClearAsync()
+        {
+            // This is a user token cache
+            await RemoveKeyAsync(GetCacheKey(false)).ConfigureAwait(false);
+
+            // TODO: Clear the cookie session if any. Get inspiration from
+            // https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/240
+        }
+
         /// <summary>
-        /// Cache key
+        /// Azure AD options.
+        /// </summary>
+        protected readonly IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
+
+        /// <summary>
+        /// Http accessor.
+        /// </summary>
+        protected readonly IHttpContextAccessor _httpContextAccessor;
+
+        /// <summary>
+        /// Constructor of the abstract token cache provider.
+        /// </summary>
+        /// <param name="azureAdOptions"></param>
+        /// <param name="httpContextAccessor"></param>
+        protected MsalAbstractTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions, IHttpContextAccessor httpContextAccessor)
+        {
+            _microsoftIdentityOptions = microsoftIdentityOptions;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        // if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry
+        protected virtual Task OnBeforeWriteAsync(TokenCacheNotificationArgs args)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Method to be implemented by concrete cache serializers to write the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="bytes">Bytes to write.</param>
+        /// <returns></returns>
+        protected abstract Task WriteCacheBytesAsync(string cacheKey, byte[] bytes);
+
+        /// <summary>
+        /// Method to be implemented by concrete cache serializers to Read the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <returns>Read bytes.</returns>
+        protected abstract Task<byte[]> ReadCacheBytesAsync(string cacheKey);
+
+        /// <summary>
+        /// Method to be implemented by concrete cache serializers to remove an entry from the cache.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        protected abstract Task RemoveKeyAsync(string cacheKey);
+
+        /// <summary>
+        /// Cache key.
         /// </summary>
         private string GetCacheKey(bool isAppTokenCache)
         {
@@ -99,41 +135,5 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
             }
         }
-
-        // if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry
-        protected virtual Task OnBeforeWriteAsync(TokenCacheNotificationArgs args)
-        {
-            return Task.CompletedTask;
-        }
-
-        public async Task ClearAsync()
-        {
-            // This is a user token cache
-            await RemoveKeyAsync(GetCacheKey(false)).ConfigureAwait(false);
-
-            // TODO: Clear the cookie session if any. Get inspiration from
-            // https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/240
-        }
-
-        /// <summary>
-        /// Method to be implemented by concrete cache serializers to write the cache bytes
-        /// </summary>
-        /// <param name="cacheKey">Cache key</param>
-        /// <param name="bytes">Bytes to write</param>
-        /// <returns></returns>
-        protected abstract Task WriteCacheBytesAsync(string cacheKey, byte[] bytes);
-
-        /// <summary>
-        /// Method to be implemented by concrete cache serializers to Read the cache bytes
-        /// </summary>
-        /// <param name="cacheKey">Cache key</param>
-        /// <returns>Read bytes</returns>
-        protected abstract Task<byte[]> ReadCacheBytesAsync(string cacheKey);
-
-        /// <summary>
-        /// Method to be implemented by concrete cache serializers to remove an entry from the cache
-        /// </summary>
-        /// <param name="cacheKey">Cache key</param>
-        protected abstract Task RemoveKeyAsync(string cacheKey);
     }
 }

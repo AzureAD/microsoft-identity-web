@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.False(options.IsB2C);
 
-            options.SignUpSignInPolicyId = "";
+            options.SignUpSignInPolicyId = string.Empty;
 
             Assert.False(options.IsB2C);
         }

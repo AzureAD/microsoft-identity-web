@@ -30,8 +30,8 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(SameSiteMode.None, SameSiteMode.Unspecified, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")] //Allow SameSite None
-        [InlineData(SameSiteMode.None, SameSiteMode.None, "Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1")] //Disallow SameSite None
+        [InlineData(SameSiteMode.None, SameSiteMode.Unspecified, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")] // Allow SameSite None
+        [InlineData(SameSiteMode.None, SameSiteMode.None, "Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1")] // Disallow SameSite None
         [InlineData(SameSiteMode.Strict, SameSiteMode.Strict, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
         public void HandleSameSiteCookieCompatibility_Default_ExecutesSuccessfully(SameSiteMode initialSameSiteMode, SameSiteMode expectedSameSiteMode, string userAgent)
         {
@@ -53,8 +53,8 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(SameSiteMode.None, SameSiteMode.Unspecified, true, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")] //Allow SameSite None
-        [InlineData(SameSiteMode.None, SameSiteMode.None, true, "Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1")] //Disallow SameSite None
+        [InlineData(SameSiteMode.None, SameSiteMode.Unspecified, true, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")] // Allow SameSite None
+        [InlineData(SameSiteMode.None, SameSiteMode.None, true, "Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1")] // Disallow SameSite None
         [InlineData(SameSiteMode.Strict, SameSiteMode.Strict, false, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
         public void HandleSameSiteCookieCompatibility_CustomFilter_ExecutesSuccessfully(SameSiteMode initialSameSiteMode, SameSiteMode expectedSameSiteMode, bool expectedEventCalled, string userAgent)
         {
@@ -66,7 +66,8 @@ namespace Microsoft.Identity.Web.Test
             var appendEventCalled = false;
             var deleteEventCalled = false;
 
-            _cookiePolicyOptions.HandleSameSiteCookieCompatibility((userAgent) => {
+            _cookiePolicyOptions.HandleSameSiteCookieCompatibility((userAgent) =>
+            {
                 appendEventCalled = true;
                 return CookiePolicyOptionsExtensions.DisallowsSameSiteNone(userAgent);
             });
@@ -77,7 +78,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(expectedSameSiteMode, appendCookieOptions.SameSite);
             Assert.Equal(expectedEventCalled, appendEventCalled);
 
-            _cookiePolicyOptions.HandleSameSiteCookieCompatibility((userAgent) => {
+            _cookiePolicyOptions.HandleSameSiteCookieCompatibility((userAgent) =>
+            {
                 deleteEventCalled = true;
                 return CookiePolicyOptionsExtensions.DisallowsSameSiteNone(userAgent);
             });

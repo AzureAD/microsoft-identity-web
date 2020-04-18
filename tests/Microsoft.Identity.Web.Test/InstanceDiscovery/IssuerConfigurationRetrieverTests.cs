@@ -23,13 +23,13 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             var expectedAddressExceptionMessage = "Azure AD Issuer metadata address url is required (Parameter 'address')";
             var expectedRetrieverExceptionMessage = "No metadata document retriever is provided (Parameter 'retriever')";
 
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedAddressExceptionMessage, exception.Message);
 
-            exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync("", null, CancellationToken.None));
+            exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(string.Empty, null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedAddressExceptionMessage, exception.Message);
 
-            exception = await Assert.ThrowsAsync<ArgumentNullException>("retriever", () => configurationRetriever.GetConfigurationAsync("address", null, CancellationToken.None));
+            exception = await Assert.ThrowsAsync<ArgumentNullException>("retriever", () => configurationRetriever.GetConfigurationAsync("address", null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedRetrieverExceptionMessage, exception.Message);
         }
 
@@ -44,8 +44,8 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             var documentRetriever = Substitute.For<IDocumentRetriever>();
             documentRetriever.GetDocumentAsync(metadataAddress, CancellationToken.None).Returns(Task.FromResult(metadata));
 
-            var actualIssuerMetadata = await configurationRetriever.GetConfigurationAsync(metadataAddress, documentRetriever, CancellationToken.None);
-            
+            var actualIssuerMetadata = await configurationRetriever.GetConfigurationAsync(metadataAddress, documentRetriever, CancellationToken.None).ConfigureAwait(false);
+
             Assert.Equal(expectedIssuerMetadata, actualIssuerMetadata, new IssuerMetadataComparer());
         }
 
@@ -75,9 +75,13 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             public bool Equals([AllowNull] IssuerMetadata x, [AllowNull] IssuerMetadata y)
             {
                 if (x == null && y == null)
+                {
                     return true;
+                }
                 else if (x == null || y == null)
+                {
                     return false;
+                }
 
                 return x.TenantDiscoveryEndpoint == y.TenantDiscoveryEndpoint &&
                         x.ApiVersion == y.ApiVersion &&
@@ -92,9 +96,13 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             public bool Equals([AllowNull] Metadata x, [AllowNull] Metadata y)
             {
                 if (x == null && y == null)
+                {
                     return true;
+                }
                 else if (x == null || y == null)
+                {
                     return false;
+                }
 
                 return x.PreferredNetwork == y.PreferredNetwork &&
                     x.PreferredCache == y.PreferredCache &&

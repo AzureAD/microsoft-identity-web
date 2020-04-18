@@ -21,15 +21,15 @@ namespace Microsoft.Identity.Web
         /// Add authentication with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configuration">The IConfiguration object</param>
-        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
-        /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
+        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
+        /// <param name="configuration">The IConfiguration object.</param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>The authentication builder for chaining</returns>
+        /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -48,15 +48,15 @@ namespace Microsoft.Identity.Web
         /// Add authentication with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
-        /// <param name="configureOpenIdConnectOptions">The IConfiguration object</param>
-        /// <param name="configureMicrosoftIdentityOptions">The configuration section with the necessary settings to initialize authentication options</param>
-        /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
-        /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
+        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
+        /// <param name="configureOpenIdConnectOptions">The IConfiguration object.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>The authentication builder for chaining</returns>
+        /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
@@ -80,16 +80,22 @@ namespace Microsoft.Identity.Web
                 options.SignInScheme = cookieScheme;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
+                {
                     options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
+                }
 
                 // This is a Microsoft identity platform Web app
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.IsB2C)
+                {
                     options.TokenValidationParameters.NameClaimType = "name";
+                }
                 else
+                {
                     options.TokenValidationParameters.NameClaimType = "preferred_username";
+                }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
                 if (options.TokenValidationParameters.IssuerValidator == null)
@@ -129,9 +135,10 @@ namespace Microsoft.Identity.Web
                     if (microsoftIdentityOptions.IsB2C)
                     {
                         context.ProtocolMessage.SetParameter("client_info", "1");
+
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context);
+                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
                     }
 
                     await redirectToIdpHandler(context).ConfigureAwait(false);
@@ -143,7 +150,7 @@ namespace Microsoft.Identity.Web
                     options.Events.OnRemoteFailure = async context =>
                     {
                         // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
-                        // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page 
+                        // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
                         // because password reset is not supported by a "sign-up or sign-in user flow".
                         await b2cOidcHandlers.OnRemoteFailure(context);
 

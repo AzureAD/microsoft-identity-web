@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         ///     The "keyVault" configuration section should define:
         ///         "authType": "ClientCertificate"
         ///         "clientId": [client ID]
-        ///         "certThumbprint": [certificate thumbprint]
+        ///         "certThumbprint": [certificate thumbprint].
         /// </para>
         /// <para>
         /// Authentication using <see cref="LabAccessAuthenticationType.UserCredential"/>
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         ///
         ///     The "keyVault" configuration section should define:
         ///         "authType": "UserCredential"
-        ///         "clientId": [client ID]
+        ///         "clientId": [client ID].
         /// </para>
         /// </remarks>
         public KeyVaultSecretsProvider()
@@ -71,15 +71,15 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             return certificate;
         }
 
-        private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
-        {
-            return await LabAuthenticationHelper.GetLabAccessTokenAsync(authority, new[] { resource + "/.default" }).ConfigureAwait(false);
-        }
-
         public void Dispose()
         {
             _keyVaultClient?.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
+        {
+            return await LabAuthenticationHelper.GetLabAccessTokenAsync(authority, new[] { resource + "/.default" }).ConfigureAwait(false);
         }
     }
 }

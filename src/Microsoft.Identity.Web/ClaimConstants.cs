@@ -16,8 +16,10 @@ namespace Microsoft.Identity.Web
         public const string Tid = "tid";
         public const string ClientInfo = "client_info";
         public const string UniqueObjectIdentifier = "utid";
+
         // Older scope claim
         public const string Scope = "http://schemas.microsoft.com/identity/claims/scope";
+
         // Newer scope claim
         public const string Scp = "scp";
         public const string Roles = "roles";

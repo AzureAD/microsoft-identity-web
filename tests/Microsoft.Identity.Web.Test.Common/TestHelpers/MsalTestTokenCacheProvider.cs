@@ -12,10 +12,6 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     public class MsalTestTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
-        public IMemoryCache MemoryCache { get; }
-        private readonly MsalMemoryTokenCacheOptions _cacheOptions;
-        public int Count { get; internal set; }
-
         public MsalTestTokenCacheProvider(
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
@@ -26,6 +22,12 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
         }
+
+        public IMemoryCache MemoryCache { get; }
+
+        public int Count { get; internal set; }
+
+        private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 
         protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {

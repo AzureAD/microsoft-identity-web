@@ -12,11 +12,11 @@ namespace Microsoft.Identity.Web
     public static class AccountExtensions
     {
         /// <summary>
-        /// Creates the <see cref="ClaimsPrincipal"/> from the values found 
-        /// in an <see cref="IAccount"/>
+        /// Creates the <see cref="ClaimsPrincipal"/> from the values found
+        /// in an <see cref="IAccount"/>.
         /// </summary>
-        /// <param name="account">The IAccount instance</param>
-        /// <returns>A <see cref="ClaimsPrincipal"/> built from IAccount</returns>
+        /// <param name="account">The IAccount instance.</param>
+        /// <returns>A <see cref="ClaimsPrincipal"/> built from IAccount.</returns>
         public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
         {
             if (account != null)
@@ -26,9 +26,8 @@ namespace Microsoft.Identity.Web
                     {
                         new Claim(ClaimConstants.Oid, account.HomeAccountId?.ObjectId),
                         new Claim(ClaimConstants.Tid, account.HomeAccountId?.TenantId),
-                        new Claim(ClaimTypes.Upn, account.Username)
-                    })
-                );
+                        new Claim(ClaimTypes.Upn, account.Username),
+                    }));
             }
 
             return null;

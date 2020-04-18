@@ -14,11 +14,11 @@ namespace Microsoft.Identity.Web
         /// Instantiate a ClaimsPrincipal from an account objectId and tenantId. This can
         /// be useful when the Web app subscribes to another service on behalf of the user
         /// and then is called back by a notification where the user is identified by his tenant
-        /// id and object id (like in Microsoft Graph Web Hooks)
+        /// id and object id (like in Microsoft Graph Web Hooks).
         /// </summary>
-        /// <param name="tenantId">Tenant Id of the account</param>
-        /// <param name="objectId">Object Id of the account in this tenant ID</param>
-        /// <returns>A ClaimsPrincipal containing these two claims</returns>
+        /// <param name="tenantId">Tenant Id of the account.</param>
+        /// <param name="objectId">Object Id of the account in this tenant ID.</param>
+        /// <returns>A ClaimsPrincipal containing these two claims.</returns>
         ///
         /// <example>
         /// <code>
@@ -39,10 +39,8 @@ namespace Microsoft.Identity.Web
                 new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tid, tenantId),
-                    new Claim(ClaimConstants.Oid, objectId)
-                })
-            );
+                    new Claim(ClaimConstants.Oid, objectId),
+                }));
         }
-
     }
 }

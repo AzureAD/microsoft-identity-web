@@ -41,32 +41,23 @@ namespace Microsoft.Identity.Web
             return Task.CompletedTask;
         }
 
-        private string BuildIssuerAddress(RedirectContext context, string defaultUserFlow, string userFlow)
-        {
-            if (!_userFlowToIssuerAddress.TryGetValue(userFlow, out var issuerAddress))
-            {
-                _userFlowToIssuerAddress[userFlow] = context.ProtocolMessage.IssuerAddress.ToLowerInvariant()
-                    .Replace($"/{defaultUserFlow.ToLowerInvariant()}/", $"/{userFlow.ToLowerInvariant()}/");
-            }
-
-            return _userFlowToIssuerAddress[userFlow];
-        }
-
         public Task OnRemoteFailure(RemoteFailureContext context)
         {
             context.HandleResponse();
-            // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page 
+
+            // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
             // because password reset is not supported by a "sign-up or sign-in user flow".
             // Below is a sample error message:
             // 'access_denied', error_description: 'AADB2C90118: The user has forgotten their password.
             // Correlation ID: f99deff4-f43b-43cc-b4e7-36141dbaf0a0
             // Timestamp: 2018-03-05 02:49:35Z
-            //', error_uri: 'error_uri is null'.
+            // ', error_uri: 'error_uri is null'.
             if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains("AADB2C90118"))
             {
                 // If the user clicked the reset password link, redirect to the reset password route
                 context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
             }
+
             // Access denied errors happen when a user cancels an action on the Azure Active Directory B2C UI. We just redirect back to
             // the main page in that case.
             // Message contains error: 'access_denied', error_description: 'AADB2C90091: The user has canceled entering self-asserted information.
@@ -83,6 +74,17 @@ namespace Microsoft.Identity.Web
             }
 
             return Task.CompletedTask;
+        }
+
+        private string BuildIssuerAddress(RedirectContext context, string defaultUserFlow, string userFlow)
+        {
+            if (!_userFlowToIssuerAddress.TryGetValue(userFlow, out var issuerAddress))
+            {
+                _userFlowToIssuerAddress[userFlow] = context.ProtocolMessage.IssuerAddress.ToLowerInvariant()
+                    .Replace($"/{defaultUserFlow.ToLowerInvariant()}/", $"/{userFlow.ToLowerInvariant()}/");
+            }
+
+            return _userFlowToIssuerAddress[userFlow];
         }
     }
 }

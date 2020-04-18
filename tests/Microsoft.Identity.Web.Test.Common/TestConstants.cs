@@ -56,22 +56,22 @@ namespace Microsoft.Identity.Web.Test.Common
         // Claims
         public const string ClaimNameTid = "tid";
         public const string ClaimNameIss = "iss";
-        public const string ClaimNameTfp = "tfp"; //Trust Framework Policy for B2C (aka userflow/policy)
+        public const string ClaimNameTfp = "tfp"; // Trust Framework Policy for B2C (aka userflow/policy)
 
         public static readonly IEnumerable<string> s_aliases = new[]
         {
             ProductionPrefNetworkEnvironment,
-            ProductionNotPrefEnvironmentAlias
+            ProductionNotPrefEnvironmentAlias,
         };
 
         public static readonly IEnumerable<string> s_scopesForApp = new[]
         {
-            "https://graph.microsoft.com/.default"
+            "https://graph.microsoft.com/.default",
         };
 
         public static readonly IEnumerable<string> s_scopesForUser = new[]
         {
-            "user.read"
+            "user.read",
         };
 
         public const string InvalidScopeError = "The scope user.read is not valid.";
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
 
-        //This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
+        // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj
             IxMTIyWhcNMzAwNTIyMDcwMDAwWjAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCh7HjK
             YyVMDZDT64OgtcGKWxHmK2wqzi2LJb65KxGdNfObWGxh5HQtjzrgHDkACPsgyYseqxhGxHh8I/TR6wBKx/AAKuPHE8jB4hJ1W6FczPfb7FaMV9xP0qNQrbNGZU
