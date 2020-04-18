@@ -4,7 +4,7 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods
+    /// Extension methods.
     /// </summary>
     internal static class Extensions
     {
@@ -18,7 +18,9 @@ namespace Microsoft.Identity.Web
             foreach (string str in stringCollection)
             {
                 if (searchFor.Contains(str))
+                {
                     return true;
+                }
             }
 
             return false;

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Http;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
 {
@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
             var domain = options.Domain;
             var tenantId = options.TenantId;
 
-            // If there are user flows, then it must build a B2C authority 
+            // If there are user flows, then it must build a B2C authority
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
@@ -31,7 +31,10 @@ namespace Microsoft.Identity.Web
         {
             authority = authority.Trim().TrimEnd('/');
             if (!authority.EndsWith("v2.0", StringComparison.InvariantCulture))
+            {
                 authority += "/v2.0";
+            }
+
             return authority;
         }
     }

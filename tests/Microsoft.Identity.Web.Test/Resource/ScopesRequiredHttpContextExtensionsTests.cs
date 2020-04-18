@@ -6,8 +6,8 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
-using Xunit;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             HttpContext httpContext = null;
 
-            Assert.Throws<NullReferenceException>(() => httpContext.VerifyUserHasAnyAcceptedScope(""));
+            Assert.Throws<NullReferenceException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
 

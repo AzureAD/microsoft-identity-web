@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Diagnostics for the JwtBearer middleware (used in Web APIs)
+    /// Diagnostics for the JwtBearer middleware (used in Web APIs).
     /// </summary>
     public class JwtBearerMiddlewareDiagnostics : IJwtBearerMiddlewareDiagnostics
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Resource
         /// Constructor for a <see cref="JwtBearerMiddlewareDiagnostics"/>. This constructor
         /// is used by dependency injection.
         /// </summary>
-        /// <param name="logger">Logger</param>
+        /// <param name="logger">Logger.</param>
         public JwtBearerMiddlewareDiagnostics(ILogger<JwtBearerMiddlewareDiagnostics> logger)
         {
             _logger = logger;
@@ -47,9 +47,9 @@ namespace Microsoft.Identity.Web.Resource
 
         /// <summary>
         /// Subscribes to all the JwtBearer events, to help debugging, while
-        /// preserving the previous handlers (which are called)
+        /// preserving the previous handlers (which are called).
         /// </summary>
-        /// <param name="events">Events to subscribe to</param>
+        /// <param name="events">Events to subscribe to.</param>
         public JwtBearerEvents Subscribe(JwtBearerEvents events)
         {
             if (events == null)
@@ -75,6 +75,7 @@ namespace Microsoft.Identity.Web.Resource
         private async Task OnMessageReceivedAsync(MessageReceivedContext context)
         {
             _logger.LogDebug($"1. Begin {nameof(OnMessageReceivedAsync)}");
+
             // Place a breakpoint here and examine the bearer token (context.Request.Headers.HeaderAuthorization / context.Request.Headers["Authorization"])
             // Use https://jwt.ms to decode the token and observe claims
             await s_onMessageReceived(context).ConfigureAwait(false);
@@ -84,6 +85,7 @@ namespace Microsoft.Identity.Web.Resource
         private async Task OnAuthenticationFailedAsync(AuthenticationFailedContext context)
         {
             _logger.LogDebug($"99. Begin {nameof(OnAuthenticationFailedAsync)}");
+
             // Place a breakpoint here and examine context.Exception
             await s_onAuthenticationFailed(context).ConfigureAwait(false);
             _logger.LogDebug($"99. End - {nameof(OnAuthenticationFailedAsync)}");

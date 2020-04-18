@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
     /// <summary>
-    /// Extension class used to add an in-memory token cache serializer to MSAL
+    /// Extension class used to add an in-memory token cache serializer to MSAL.
     /// </summary>
     public static class DistributedTokenCacheAdapterExtension
     {

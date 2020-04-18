@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         public string CertThumbprint { get; set; }
 
         /// <summary>
-        /// Secret value used to access Key Vault
+        /// Secret value used to access Key Vault.
         /// </summary>
         public string KeyVaultSecret { get; set; }
     }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes
+    /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// </summary>
     public class MicrosoftIdentityOptions : OpenIdConnectOptions
     {
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
         public string DefaultUserFlow => SignUpSignInPolicyId;
 
         /// <summary>
-        /// Is considered B2C if the attribute SignUpSignInPolicyId is defined
+        /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
         /// </summary>
         internal bool IsB2C { get { return !string.IsNullOrWhiteSpace(DefaultUserFlow); } }
     }

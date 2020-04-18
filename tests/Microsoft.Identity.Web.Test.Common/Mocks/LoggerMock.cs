@@ -13,14 +13,14 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     /// <remarks>
     /// <see cref="Microsoft.Extensions.Logging.ILogger"/> has only one logging method - Log.
     /// LogDebug, LogInformation, LogError, etc. are actually extension methods located in <see cref="Microsoft.Extensions.Logging.LoggerExtensions"/>, which all end up calling the Log method in the ILogger.
-    /// Since extension methods are concrete, NSubstitute cannot mock them. 
+    /// Since extension methods are concrete, NSubstitute cannot mock them.
     /// Subsequently Log method should be mocked; however, LoggerExtensions class passes a FormattedLogValues internal struct to the Log method.
     /// This prevents NSubstitute from successfully matching the method calls by parameters.
     /// More information:
     /// https://github.com/dotnet/extensions/issues?q=FormattedLogValues
     /// https://github.com/dotnet/extensions/issues/1319
     /// https://github.com/nsubstitute/NSubstitute/issues/597
-    /// https://github.com/moq/moq4/issues/918
+    /// https://github.com/moq/moq4/issues/918.
     /// </remarks>
     public class LoggerMock<T> : ILogger<T>
     {

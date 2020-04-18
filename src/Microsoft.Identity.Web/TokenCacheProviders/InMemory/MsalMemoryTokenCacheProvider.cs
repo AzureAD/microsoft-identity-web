@@ -16,27 +16,26 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
     public class MsalMemoryTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
         /// <summary>
-        /// .NET Core Memory cache
+        /// .NET Core Memory cache.
         /// </summary>
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
-        /// Msal memory token cache options
+        /// Msal memory token cache options.
         /// </summary>
         private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options</param>
-        /// <param name="httpContextAccessor">Accessor to the HttpContext</param>
-        /// <param name="memoryCache">serialization cache</param>
-        /// <param name="cacheOptions">Memory cache options</param>
+        /// <param name="microsoftIdentityOptions">Configuration options.</param>
+        /// <param name="httpContextAccessor">Accessor to the HttpContext.</param>
+        /// <param name="memoryCache">serialization cache.</param>
+        /// <param name="cacheOptions">Memory cache options.</param>
         public MsalMemoryTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
                                             IHttpContextAccessor httpContextAccessor,
                                             IMemoryCache memoryCache,
-                                            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) :
-            base(microsoftIdentityOptions, httpContextAccessor)
+                                            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) : base(microsoftIdentityOptions, httpContextAccessor)
         {
             if (cacheOptions == null)
             {
@@ -48,9 +47,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 
         /// <summary>
         /// Removes a token cache identitied by its key, from the serialization
-        /// cache
+        /// cache.
         /// </summary>
-        /// <param name="cacheKey">token cache key</param>
+        /// <param name="cacheKey">token cache key.</param>
         protected override Task RemoveKeyAsync(string cacheKey)
         {
             _memoryCache.Remove(cacheKey);
@@ -58,10 +57,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
-        /// Reads a blob from the serialization cache (identitied by its key)
+        /// Reads a blob from the serialization cache (identitied by its key).
         /// </summary>
-        /// <param name="cacheKey">Token cache key</param>
-        /// <returns>Read Bytes</returns>
+        /// <param name="cacheKey">Token cache key.</param>
+        /// <returns>Read Bytes.</returns>
         protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
             byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
@@ -69,10 +68,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
-        /// Writes a token cache blob to the serialization cache (identitied by its key)
+        /// Writes a token cache blob to the serialization cache (identitied by its key).
         /// </summary>
-        /// <param name="cacheKey">Token cache key</param>
-        /// <param name="bytes">Bytes to write</param>
+        /// <param name="cacheKey">Token cache key.</param>
+        /// <param name="bytes">Bytes to write.</param>
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
             _memoryCache.Set(cacheKey, bytes, _cacheOptions.SlidingExpiration);

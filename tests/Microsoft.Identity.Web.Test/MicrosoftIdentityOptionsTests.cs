@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Test.Common;
-using System.Globalization;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var options = new MicrosoftIdentityOptions()
             {
-                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow
+                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
             };
 
             Assert.True(options.IsB2C);
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.False(options.IsB2C);
 
-            options.SignUpSignInPolicyId = "";
+            options.SignUpSignInPolicyId = string.Empty;
 
             Assert.False(options.IsB2C);
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.Test
             ClientId = 1,
             Instance = 2,
             TenantId = 3,
-            Domain = 4
+            Domain = 4,
         }
     }
 }

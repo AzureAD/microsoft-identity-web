@@ -8,10 +8,10 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
     public class InMemoryTokenCache
     {
         private byte[] _cacheData;
-        /// <summary>
-        /// Path to the token cache
-        /// </summary>
 
+        /// <summary>
+        /// Path to the token cache.
+        /// </summary>
         public void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
             args.TokenCache.DeserializeMsalV3(_cacheData);

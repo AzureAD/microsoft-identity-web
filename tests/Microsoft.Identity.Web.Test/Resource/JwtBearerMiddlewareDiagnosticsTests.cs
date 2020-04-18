@@ -5,13 +5,13 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using NSubstitute;
 using Xunit;
-using Microsoft.Identity.Web.Test.Common.Mocks;
-using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
@@ -38,7 +38,8 @@ namespace Microsoft.Identity.Web.Test.Resource
             _jwtOptions = new JwtBearerOptions();
             _jwtEvents = new JwtBearerEvents();
             _authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
-            _eventHandler = (context) => {
+            _eventHandler = (context) =>
+            {
                 _customEventWasRaised = true;
                 return Task.CompletedTask;
             };
@@ -46,9 +47,9 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         [Fact]
         public async void Subscribe_OnAuthenticationFailed_CompletesSuccessfully()
-        {          
+        {
             _jwtEvents.OnAuthenticationFailed = _eventHandler;
-            _jwtDiagnostics.Subscribe(_jwtEvents);         
+            _jwtDiagnostics.Subscribe(_jwtEvents);
             await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
 
             AssertSuccess();

@@ -18,15 +18,18 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddTokenAcquisition();
 
-            Assert.Collection(services.OrderBy(s => s.ServiceType.Name),
-                actual => {
+            Assert.Collection(
+                services.OrderBy(s => s.ServiceType.Name),
+                actual =>
+                {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IHttpContextAccessor), actual.ServiceType);
                     Assert.Equal(typeof(HttpContextAccessor), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
                 },
-                actual => {
+                actual =>
+                {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                     Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
                     Assert.Equal(typeof(TokenAcquisition), actual.ImplementationType);

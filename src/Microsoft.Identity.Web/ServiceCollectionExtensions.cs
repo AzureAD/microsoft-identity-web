@@ -13,8 +13,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Add the token acquisition service.
         /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <returns>the service collection</returns>
+        /// <param name="services">Service collection.</param>
+        /// <returns>the service collection.</returns>
         /// <example>
         /// This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
         /// Note that the implementation of the token cache can be chosen separately.

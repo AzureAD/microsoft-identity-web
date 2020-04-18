@@ -3,9 +3,6 @@
 
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.Identity.Web
 {

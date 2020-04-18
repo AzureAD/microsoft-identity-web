@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace Microsoft.Identity.Web.InstanceDiscovery
 {
     /// <summary>
-    /// An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata />
+    /// An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata />.
     /// </summary>
     internal class IssuerConfigurationRetriever : IConfigurationRetriever<IssuerMetadata>
     {
@@ -21,14 +21,18 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">address - Azure AD Issuer metadata address url is required
         /// or
-        /// retriever - No metadata document retriever is provided</exception>
+        /// retriever - No metadata document retriever is provided.</exception>
         public async Task<IssuerMetadata> GetConfigurationAsync(string address, IDocumentRetriever retriever, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(address))
+            {
                 throw new ArgumentNullException(nameof(address), $"Azure AD Issuer metadata address url is required");
+            }
 
             if (retriever == null)
+            {
                 throw new ArgumentNullException(nameof(retriever), $"No metadata document retriever is provided");
+            }
 
             string doc = await retriever.GetDocumentAsync(address, cancel).ConfigureAwait(false);
             return JsonConvert.DeserializeObject<IssuerMetadata>(doc);

@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.Identity.Client;
 using NSubstitute;
 using Xunit;
-using System.Linq;
 
 namespace Microsoft.Identity.Web.Test
 {

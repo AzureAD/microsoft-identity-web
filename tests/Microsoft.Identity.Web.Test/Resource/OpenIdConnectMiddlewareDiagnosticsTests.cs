@@ -41,7 +41,8 @@ namespace Microsoft.Identity.Web.Test.Resource
             _openIdEvents = new OpenIdConnectEvents();
             _authProperties = new AuthenticationProperties();
             _authScheme = new AuthenticationScheme(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme, typeof(OpenIdConnectHandler));
-            _eventHandler = (context) => {
+            _eventHandler = (context) =>
+            {
                 _customEventWasRaised = true;
                 return Task.CompletedTask;
             };
