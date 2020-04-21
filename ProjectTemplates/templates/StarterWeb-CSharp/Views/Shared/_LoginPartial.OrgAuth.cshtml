@@ -1,11 +1,11 @@
 ﻿@using System.Security.Principal
 @*#if (IndividualB2CAuth)
-@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
 @using Microsoft.Extensions.Options
-@inject IOptionsMonitor<AzureADB2COptions> AzureADB2COptions
+@using Microsoft.Identity.Web
+@inject IOptionsMonitor<MicrosoftIdentityOptions> AzureADB2COptions
 
 @{
-    var options = AzureADB2COptions.Get(AzureADB2CDefaults.AuthenticationScheme);
+    var options = AzureADB2COptions.Get("AzureADB2C");
 }
 
 #endif *@

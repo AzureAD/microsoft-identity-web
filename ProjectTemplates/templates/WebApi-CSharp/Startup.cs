@@ -48,7 +48,7 @@ namespace Company.WebApplication1
             //         .AddInMemoryTokenCaches();
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddProtectedWebApi("AzureAdB2C", Configuration, options => Configuration.Bind("AzureAdB2C", options));
+                    .AddProtectedWebApi(Configuration, "AzureAdB2C");
             // Uncomment the following lines if you want your Web API to call a downstream API
             // services.AddProtectedWebApiCallsProtectedWebApi(Configuration, "AzureAdB2C")
             //         .AddInMemoryTokenCaches();
