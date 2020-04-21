@@ -37,13 +37,6 @@ dotnet new webapi2 --auth SingleOrg
 msbuild
 cd ..
 
-REM Test Web API  (Microsoft identity platform, MultiOrg)
-mkdir webapi
-cd webapi
-dotnet new webapi2 --auth MultiOrg
-msbuild
-cd ..
-
 REM Test Web API  (AzureAD B2C)
 mkdir webapi-b2c
 cd webapi-b2c
