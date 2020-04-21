@@ -10,7 +10,14 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
+#endif
+#if (OrganizationalAuth)
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+#endif
+#if (IndividualB2CAuth)
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
