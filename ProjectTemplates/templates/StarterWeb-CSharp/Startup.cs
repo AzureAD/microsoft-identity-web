@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 #endif
 #if (OrganizationalAuth)
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #if (MultiOrgAuth)
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 #endif
 #if (IndividualB2CAuth)
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 using Microsoft.AspNetCore.Builder;
@@ -89,7 +91,8 @@ namespace Company.WebApplication1
             services.AddControllersWithViews();
 #endif
 #if (OrganizationalAuth || IndividualAuth)
-           services.AddRazorPages();
+           services.AddRazorPages()
+                   .AddMicrosoftIdentityUI();
 #endif
         }
 

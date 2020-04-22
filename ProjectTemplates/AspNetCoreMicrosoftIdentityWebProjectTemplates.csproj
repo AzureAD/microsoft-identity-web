@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageType>Template</PackageType>
     <PackageVersion>0.1.0</PackageVersion>
-    <PackageId>Microsoft.IdentityPlatform.Templates</PackageId>
+    <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>
     <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
     <Authors>Microsoft</Authors>
     <Description>
