@@ -21,6 +21,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI'
     AssemblyName: 'Microsoft.Identity.Web.UI*'
 
+# Pack and sign Microsoft.Identity.Web.ProjectTemplates
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\ProjectTemplates'
+    AssemblyName: 'AspNetCoreMicrosoftIdentityWebProjectTemplates'
+
 # Copy all packages out to staging
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\packages'
