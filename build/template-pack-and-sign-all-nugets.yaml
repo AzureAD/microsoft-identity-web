@@ -26,7 +26,7 @@ steps:
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\ProjectTemplates'
-    AssemblyName: 'Microsoft.Identity.Web.ProjectTemplates*'
+    AssemblyName: 'AspNetCoreMicrosoftIdentityWebProjectTemplates'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
