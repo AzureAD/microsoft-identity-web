@@ -69,7 +69,7 @@ namespace Company.WebApplication1
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
             services.AddSignIn(Configuration, "AzureAd");
-            // Uncomment the following lines if you want your Web API to call a downstream API
+            // Uncomment the following lines if you want your Web app to call a downstream API
             // services.AddWebAppCallsProtectedWebApi(Configuration, 
             //                                        new string[] { "user.read" }, 
             //                                        "AzureAd")
