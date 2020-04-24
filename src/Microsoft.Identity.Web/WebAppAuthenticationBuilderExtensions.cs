@@ -67,6 +67,7 @@ namespace Microsoft.Identity.Web
         {
             builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            builder.Services.AddHttpClient();
 
             var microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);

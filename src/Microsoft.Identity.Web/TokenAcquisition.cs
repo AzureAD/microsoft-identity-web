@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace Microsoft.Identity.Web
         private IConfidentialClientApplication _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
+        private IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -48,12 +50,14 @@ namespace Microsoft.Identity.Web
             IHttpContextAccessor httpContextAccessor,
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IOptions<ConfidentialClientApplicationOptions> applicationOptions,
+            IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _microsoftIdentityOptions = microsoftIdentityOptions.Value;
             _applicationOptions = applicationOptions.Value;
             _tokenCacheProvider = tokenCacheProvider;
+            _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
         }
 
@@ -337,7 +341,7 @@ namespace Microsoft.Identity.Web
                 request.PathBase,
                 _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
 
-            if (!_applicationOptions.Instance.EndsWith("/"))
+            if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
                 _applicationOptions.Instance += "/";
 
             string authority;
@@ -352,6 +356,7 @@ namespace Microsoft.Identity.Web
                         .CreateWithApplicationOptions(_applicationOptions)
                         .WithRedirectUri(currentUri)
                         .WithB2CAuthority(authority)
+                        .WithHttpClientFactory(_httpClientFactory)
                         .Build();
                 }
                 else
@@ -362,6 +367,7 @@ namespace Microsoft.Identity.Web
                         .CreateWithApplicationOptions(_applicationOptions)
                         .WithRedirectUri(currentUri)
                         .WithAuthority(authority)
+                        .WithHttpClientFactory(_httpClientFactory)
                         .Build();
                 }
 

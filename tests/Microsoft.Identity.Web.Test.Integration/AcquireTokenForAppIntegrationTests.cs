@@ -13,6 +13,7 @@ using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using NSubstitute;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -70,7 +71,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Fact]
         public async Task GetAccessTokenForApp_WithUserScope_MsalServiceExceptionThrownAsync()
         {
-             // Arrange
+            // Arrange
             InitializeTokenAcquisitionObjects();
 
             // Act & Assert
@@ -91,6 +92,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             IOptions<MsalMemoryTokenCacheOptions> tokenOptions = _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>();
             IOptions<ConfidentialClientApplicationOptions> ccOptions = _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>();
             ILogger<TokenAcquisition> logger = _provider.GetService<ILogger<TokenAcquisition>>();
+            IHttpClientFactory httpClientFactory = _provider.GetService<IHttpClientFactory>();
 
             IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
 
@@ -105,6 +107,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                  httpContextAccessor,
                 microsoftIdentityOptions,
                 ccOptions,
+                httpClientFactory,
                 logger);
         }
 
@@ -141,6 +144,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 ));
             services.AddLogging();
             services.AddInMemoryTokenCaches();
+            services.AddHttpClient();
             _provider = services.BuildServiceProvider();
         }
 
