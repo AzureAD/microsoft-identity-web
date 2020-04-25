@@ -1,16 +1,16 @@
 ﻿@*#if (IndividualB2CAuth)
 @using Microsoft.Extensions.Options
 @using Microsoft.Identity.Web
-@inject IOptionsMonitor<MicrosoftIdentityOptions> AzureADB2COptions
+@inject IOptions<MicrosoftIdentityOptions> AzureADB2COptions
 
 @{
-    var options = AzureADB2COptions.Get("AzureADB2C");
+    var options = AzureADB2COptions.Value;
 }
 
 #endif *@
 
-    <ul class="navbar-nav">
-        @*#if (IndividualB2CAuth)
+<ul class="navbar-nav">
+    @*#if (IndividualB2CAuth)
         @if (User.Identity.IsAuthenticated)
         {
                 @if (!string.IsNullOrEmpty(options.EditProfilePolicyId))
@@ -54,4 +54,4 @@
                 </li>
         }
         #endif *@
-    </ul>
+</ul>
