@@ -88,7 +88,8 @@ namespace Company.WebApplication1
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddMicrosoftIdentityUI();
 #else
-            services.AddRazorPages();
+            services.AddRazorPages()
+                    .AddMicrosoftIdentityUI();
 #endif
         }
 
