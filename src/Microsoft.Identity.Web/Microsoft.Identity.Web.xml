@@ -1,0 +1,1348 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Web</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Web.AccountExtensions">
+            <summary>
+            Extension methods dealing with IAccount instances.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AccountExtensions.ToClaimsPrincipal(Microsoft.Identity.Client.IAccount)">
+            <summary>
+            Creates the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from the values found 
+            in an <see cref="T:Microsoft.Identity.Client.IAccount"/>
+            </summary>
+            <param name="account">The IAccount instance</param>
+            <returns>A <see cref="T:System.Security.Claims.ClaimsPrincipal"/> built from IAccount</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AuthorizeForScopesAttribute">
+            <summary>
+            Filter used on a controller action to trigger incremental consent.
+            </summary>
+            <example>
+            The following controller action will trigger
+            <code>
+            [AuthorizeForScopes(Scopes = new[] {"Mail.Send"})]
+            public async Task&lt;IActionResult&gt; SendEmail()
+            {
+            }
+            </code>
+            </example>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.Scopes">
+            <summary>
+            Scopes to request
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.ScopeKeySection">
+            <summary>
+            Key section on the configuration file that holds the scope value
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
+            <summary>
+            Handles the MsalUiRequiredException
+            </summary>
+            <param name="context">Context provided by ASP.NET Core</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.BuildAuthenticationPropertiesForIncrementalConsent(System.String[],Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Build Authentication properties needed for incremental consent.
+            </summary>
+            <param name="scopes">Scopes to request</param>
+            <param name="ex">MsalUiRequiredException instance</param>
+            <param name="context">current http context in the pipeline</param>
+            <returns>AuthenticationProperties</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimConstants">
+            <summary>
+            Constants for claim types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Name">
+            <summary>
+            Name claim: "name"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.ObjectId">
+            <summary>
+            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Oid">
+            <summary>
+            New Object id claim: "oid"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.PreferredUserName">
+            <summary>
+            PreferredUserName: "preferred_username"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tid">
+            <summary>
+            New Tenant Id claim: "tid"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.ClientInfo">
+            <summary>
+            ClientInfo claim: "client_info"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier">
+            <summary>
+            UniqueObjectIdentifier: "utid"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scope">
+            <summary>
+            Older scope claim: "http://schemas.microsoft.com/identity/claims/scope"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scp">
+            <summary>
+            Newer scope claim: "scp"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Roles">
+            <summary>
+            New Roles claim = "roles"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Role">
+            <summary>
+            Old Role claim: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Sub">
+            <summary>
+            Subject claim: "sub"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Acr">
+            <summary>
+            Acr claim: "acr"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.UserFlow">
+            <summary>
+            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference"
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tfp">
+            <summary>
+            Tfp claim: "tfp"
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
+            <summary>
+            Extensions around ClaimsPrincipal.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Account identifier for an MSAL.NET account from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">Claims principal</param>
+            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the unique object ID</param>
+            <remarks>This method returns the object ID both in case the developer has enabled or not claims mapping</remarks>
+            <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the tenant ID</param>
+            <returns>Tenant ID of the identity, or <c>null</c> if it cannot be found</returns>
+            <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the login-hint associated with a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">Identity for which to complete the login-hint</param>
+            <returns>login-hint for the identity, or <c>null</c> if it cannot be found</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the domain-hint associated with an identity
+            </summary>
+            <param name="claimsPrincipal">Identity for which to compute the domain-hint</param>
+            <returns>domain-hint for the identity, or <c>null</c> if it cannot be found</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Get the display name for the signed-in user, from the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">Claims about the user/account</param>
+            <returns>A string containing the display name for the user, as determined by Azure AD (v1.0) and Microsoft identity platform (v2.0) tokens,
+            or <c>null</c> if the claims cannot be found</returns>
+            <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims </remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user flow id associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow id</param>
+            <returns>User Flow Id of the identity, or <c>null</c> if it cannot be found</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>
+            </summary>
+            <param name="claimsPrincipal">the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim</param>
+            <returns>Name identifier ID (sub) of the identity, or <c>null</c> if it cannot be found</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalFactory">
+            <summary>
+            Factory class to create ClaimsPrincipal objects.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalFactory.FromTenantIdAndObjectId(System.String,System.String)">
+             <summary>
+             Instantiate a ClaimsPrincipal from an account objectId and tenantId. This can
+             be useful when the Web app subscribes to another service on behalf of the user
+             and then is called back by a notification where the user is identified by his tenant
+             id and object id (like in Microsoft Graph Web Hooks)
+             </summary>
+             <param name="tenantId">Tenant Id of the account</param>
+             <param name="objectId">Object Id of the account in this tenant ID</param>
+             <returns>A ClaimsPrincipal containing these two claims</returns>
+            
+             <example>
+             <code>
+             private async Task GetChangedMessagesAsync(IEnumerable&lt;Notification&gt; notifications)
+             {
+              foreach (var notification in notifications)
+              {
+               SubscriptionStore subscription =
+                       subscriptionStore.GetSubscriptionInfo(notification.SubscriptionId);
+              HttpContext.User = ClaimsPrincipalExtension.FromTenantIdAndObjectId(subscription.TenantId,
+                                                                                  subscription.UserId);
+              string accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+             </code>
+             </example>
+        </member>
+        <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">
+            <summary>
+            Extension class containing cookie policies (work around for same site)
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions)">
+            <summary>
+            Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
+            The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+            </summary>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions,System.Func{System.String,System.Boolean})">
+            <summary>
+            Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
+            The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+            </summary>
+            <param name="options"></param>
+            <param name="disallowsSameSiteNone">If you dont want to use the default user-agent list implementation, the method sent in this parameter will be run against the user-agent and if returned true, SameSite value will be set to Unspecified. The default user-agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.DisallowsSameSiteNone(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="userAgent"></param>
+            <remarks>Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/</remarks>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Extensions">
+            <summary>
+            Extension methods
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Extensions.ContainsAny(System.String,System.String[])">
+            <summary>Determines whether the specified string collection contains any.</summary>
+            <param name="searchFor">The search for.</param>
+            <param name="stringCollection">The string collection.</param>
+            <returns>
+              <c>true</c> if the specified string collection contains any; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.StoreTokenUsedToCallWebAPI(Microsoft.AspNetCore.Http.HttpContext,System.IdentityModel.Tokens.Jwt.JwtSecurityToken)">
+            <summary>
+            Keep the validated token associated with the Http request
+            </summary>
+            <param name="httpContext">Http context</param>
+            <param name="token">Token to preserve after the token is validated so that
+            it can be used in the actions</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.GetTokenUsedToCallWebAPI(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Get the parsed information about the token used to call the Web API
+            </summary>
+            <param name="httpContext">Http context associated with the current request</param>
+            <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the Web API</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
+            <summary>
+            An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata />
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever.GetConfigurationAsync(System.String,Microsoft.IdentityModel.Protocols.IDocumentRetriever,System.Threading.CancellationToken)">
+            <summary>Retrieves a populated configuration given an address and an <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/>.</summary>
+            <param name="address">Address of the discovery document.</param>
+            <param name="retriever">The <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/> to use to read the discovery document.</param>
+            <param name="cancel">A cancellation token that can be used by other objects or threads to receive notice of cancellation. <see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">address - Azure AD Issuer metadata address url is required
+            or
+            retriever - No metadata document retriever is provided</exception>
+        </member>
+        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata">
+            <summary>
+            Model class to hold information parsed from the Azure AD issuer endpoint
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.TenantDiscoveryEndpoint">
+            <summary>
+            Tenant discovery endpoint
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.ApiVersion">
+            <summary>
+            API Version
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Metadata">
+            <summary>
+            List of metadata associated with the endpoint
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.Metadata">
+            <summary>
+            Model child class to hold alias information parsed from the Azure AD issuer endpoint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredNetwork">
+            <summary>
+            Preferred alias
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredCache">
+            <summary>
+            Preferred alias to cache tokens emitted by one of the aliases (to avoid
+            SSO islands)
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.Aliases">
+            <summary>
+            Aliases of issuer URLs which are equivalent
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ITokenAcquisition">
+            <summary>
+            Interface for the token acquisition service (encapsultating MSAL.NET)
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token 
+            for a downstream API on behalf of the user account which claims are provided in the <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/>
+            member of the controller's <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/> parameter
+            </summary>
+            <param name="scopes">Scopes to request for the downstream API to call</param>
+            <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the 
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant</param>
+            <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+            using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+            </summary>
+            <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+            should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+            Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+            in the portal, and cannot be overriden in the application.</param>
+            <returns>An access token for the app itself, based on its scopes</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException)">
+            <summary>
+            Used in Web APIs (which therefore cannot have an interaction with the user). 
+            Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+            the client can trigger an interaction with the user so the user can consent to more scopes
+            </summary>
+            <param name="scopes">Scopes to consent to</param>
+            <param name="msalSeviceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            In a Web App, adds, to the MSAL.NET cache, the account of the user authenticating to the Web App, when the authorization code is received (after the user
+            signed-in and consented)
+            An On-behalf-of token contained in the <see cref="T:Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext"/> is added to the cache, so that it can then be used to acquire another token on-behalf-of the 
+            same user in order to call to downstream APIs.
+            </summary>
+            <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
+            <param name="scopes">Scopes to request</param>
+            <example>
+            From the configuration of the Authentication of the ASP.NET Core Web API: 
+            <code>OpenIdConnectOptions options;</code>
+            
+            Subscribe to the authorization code received event:
+            <code>
+             options.Events = new OpenIdConnectEvents();
+             options.Events.OnAuthorizationCodeReceived = OnAuthorizationCodeReceived;
+            }
+            </code>
+            
+            And then in the OnAuthorizationCodeRecieved method, call <see cref="M:Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext,System.Collections.Generic.IEnumerable{System.String})"/>:
+            <code>
+            private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
+            {
+              var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService&lt;ITokenAcquisition&gt;();
+               await _tokenAcquisition.AddAccountToCacheFromAuthorizationCode(context, new string[] { "user.read" });
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisitionInternal.RemoveAccountAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.RedirectContext)">
+            <summary>
+            Removes the account associated with context.HttpContext.User from the MSAL.NET cache
+            </summary>
+            <param name="context">RedirectContext passed-in to a <see cref="P:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/> 
+            Openidconnect event</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityOptions">
+            <summary>
+            Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.Instance">
+            <summary>
+            Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.TenantId">
+            <summary>
+            Gets or sets the tenant Id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.Domain">
+            <summary>
+            Gets or sets the domain of the Azure Active Directory tenant, e.g. contoso.onmicrosoft.com.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.EditProfilePolicyId">
+            <summary>
+            Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.SignUpSignInPolicyId">
+            <summary>
+            Gets or sets the sign up or sign in user flow name for B2C, e.g. b2c_1_susi.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPolicyId">
+            <summary>
+            Gets or sets the reset password user flow name for B2C, e.g. B2C_1_password_reset.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow">
+            <summary>
+            Gets the default user flow (which is signUpsignIn).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.IsB2C">
+            <summary>
+            Is considered B2C if the attribute SignUpSignInPolicyId is defined
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
+            <summary>
+            Generic class that validates token issuer from the provided Azure AD authority.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Resource.AadIssuerValidator._issuerAliases">
+            <summary>
+            A list of all Issuers across the various Azure AD instances
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
+            <summary>
+            Gets a <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/ </param>
+            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validate the issuer for multi-tenant applications of various audience (Work and School account, or Work and School accounts +
+            Personal accounts)
+            </summary>
+            <param name="actualIssuer">Issuer to validate (will be tenanted)</param>
+            <param name="securityToken">Received Security Token</param>
+            <param name="validationParameters">Token Validation parameters</param>
+            <remarks>The issuer is considered as valid if it has the same http scheme and authority as the
+            authority from the configuration file, has a tenant Id, and optionally v2.0 (this web api
+            accepts both V1 and V2 tokens).
+            Authority aliasing is also taken into account</remarks>
+            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown</returns>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer </exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
+            <summary>Gets the tenant id from a token.</summary>
+            <param name="securityToken">A JWT token.</param>
+            <returns>A string containing tenantId, if found or <see cref="F:System.String.Empty"/>.</returns>
+            <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
+            <summary>
+            Interface implemented by diagnostics for the JwtBearer middleware
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics.Subscribe(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents)">
+            <summary>
+            Called to subscribe to JwtBearerEvents
+            </summary>
+            <param name="events">JwtBearer events</param>
+            <returns>the events (for chaining)</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.IOpenIdConnectMiddlewareDiagnostics">
+            <summary>
+            Diagnostics used in the Open Id Connect middleware
+            (used in Web Apps)
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.IOpenIdConnectMiddlewareDiagnostics.Subscribe(Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents)">
+            <summary>
+            Method to subscribe to OpenIDConnect events
+            </summary>
+            <param name="events">Open Id connect events</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics">
+            <summary>
+            Diagnostics for the JwtBearer middleware (used in Web APIs)
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.#ctor(Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics})">
+            <summary>
+            Constructor for a <see cref="T:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics"/>. This constructor
+            is used by dependency injection.
+            </summary>
+            <param name="logger">Logger</param>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onAuthenticationFailed">
+            <summary>
+            Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onMessageReceived">
+            <summary>
+            Invoked when a protocol message is first received.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onTokenValidated">
+            <summary>
+            Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onChallenge">
+            <summary>
+            Invoked before a challenge is sent back to the caller.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.Subscribe(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents)">
+            <summary>
+            Subscribes to all the JwtBearer events, to help debugging, while
+            preserving the previous handlers (which are called)
+            </summary>
+            <param name="events">Events to subscribe to</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics">
+            <summary>
+            Diagnostics used in the Open Id Connect middleware
+            (used in Web Apps)
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.#ctor(Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics})">
+            <summary>
+            Constructor of the <see cref="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics"/>, used
+            by dependency injection
+            </summary>
+            <param name="logger">Logger used to log the diagnostics</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.Subscribe(Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents)">
+            <summary>
+            Subscribes to all the OpenIdConnect events, to help debugging, while
+            preserving the previous handlers (which are called)
+            </summary>
+            <param name="events">Events to subscribe to</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions">
+            <summary>
+            Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
+            can be used in Web APIs to validate scopes in controller actions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions.VerifyUserHasAnyAcceptedScope(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
+            <summary>
+            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the user authenticated in the
+            web API has any of the accepted scopes. 
+            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
+            method throws an HTTP Unauthorized with the message telling which scopes are expected in the token
+            </summary>
+            <param name="context">HttpContext (from the controller)</param>
+            <param name="acceptedScopes">Scopes accepted by this web API</param>
+            <exception cref="T:System.Net.Http.HttpRequestException"/> with a <see cref="P:Microsoft.AspNetCore.Http.HttpResponse.StatusCode"/> set to 
+            <see cref="F:System.Net.HttpStatusCode.Unauthorized"/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ServiceCollectionExtensions">
+            <summary>
+            Extensions for IServiceCollection for startup initialization of Web APIs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ServiceCollectionExtensions.AddTokenAcquisition(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+             <summary>
+             Add the token acquisition service.
+             </summary>
+             <param name="services">Service collection</param>
+             <returns>the service collection</returns>
+             <example>
+             This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
+             Note that the implementation of the token cache can be chosen separately.
+            
+             <code>
+             // Token acquisition service and its cache implementation as a session cache
+             services.AddTokenAcquisition()
+             .AddDistributedMemoryCache()
+             .AddSession()
+             .AddSessionBasedTokenCache()
+              ;
+             </code>
+             </example>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenAcquisition">
+            <summary>
+            Token acquisition service
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition})">
+            <summary>
+            Constructor of the TokenAcquisition service. This requires the Azure AD Options to
+            configure the confidential client application and a token cache provider.
+            This constructor is called by ASP.NET Core dependency injection
+            </summary>
+            <param name="tokenCacheProvider">The App token cache provider</param>
+            <param name="httpContextAccessor">Access to the HttpContext of the request</param>
+            <param name="microsoftIdentityOptions">Configuration options</param>
+            <param name="applicationOptions">MSAL.NET configuration options</param>
+            <param name="httpClientFactory">Http client factory</param>
+            <param name="logger">Logger</param>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenAcquisition._scopesRequestedByMsal">
+            <summary>
+            Scopes which are already requested by MSAL.NET. They should not be re-requested;
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext,System.Collections.Generic.IEnumerable{System.String})">
+             <summary>
+             This handler is executed after the authorization code is received (once the user signs-in and consents) during the
+             <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>Authorization code flow grant flow</a> in a web app.
+             It uses the code to request an access token from the Microsoft Identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
+             The access token (and refresh token) provided in the <see cref="T:Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext"/>, once added to the cache, are then used to acquire more tokens using the
+             <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a> for the signed-in user's account,
+             in order to call to downstream APIs.
+             </summary>
+             <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
+             <param name="scopes">scopes to request access to</param>
+             <example>
+             From the configuration of the Authentication of the ASP.NET Core Web API:
+             <code>OpenIdConnectOptions options;</code>
+            
+             Subscribe to the authorization code received event:
+             <code>
+              options.Events = new OpenIdConnectEvents();
+              options.Events.OnAuthorizationCodeReceived = OnAuthorizationCodeReceived;
+             }
+             </code>
+            
+             And then in the OnAuthorizationCodeRecieved method, call <see cref="M:Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext,System.Collections.Generic.IEnumerable{System.String})"/>:
+             <code>
+             private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
+             {
+               var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService&lt;ITokenAcquisition&gt;();
+                await _tokenAcquisition.AddAccountToCacheFromAuthorizationCode(context, new string[] { "user.read" });
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Typically used from a Web App or WebAPI controller, this method retrieves an access token
+            for a downstream API using;
+            1) the token cache (for Web Apps and Web APIs) if a token exists in the cache
+            2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+            in Web APIs, for the user account that is ascertained from claims are provided in the <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/> 
+            instance of the current HttpContext
+            </summary>
+            <param name="scopes">Scopes to request for the downstream API to call</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in</param>
+            <returns>An access token to call the downstream API and populated with this downstream Api's scopes</returns>
+            <remarks>Calling this method from a Web API supposes that you have previously called, 
+            in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
+            passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
+            you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
+            OpenIdConnectOptions.Events.OnAuthorizationCodeReceived</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Typically used from a Web App or WebAPI controller, this method retrieves an access token
+            for a downstream API using;
+            1) the token cache (for Web Apps and Web APis) if a token exists in the cache
+            2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+            in Web APIs, for the user account that is ascertained from claims are provided in the <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/> 
+            instance of the current HttpContext
+            </summary>
+            <param name="scopes">Scopes to request for the downstream API to call</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in</param>
+            <returns>An access token to call the downstream API and populated with this downstream Api's scopes</returns>
+            <remarks>Calling this method from a Web API supposes that you have previously called, 
+            in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
+            passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
+            you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
+            OpenIdConnectOptions.Events.OnAuthorizationCodeReceived</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+            using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+            </summary>
+            <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+            should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+            Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+            in the portal, and cannot be overriden in the application.</param>
+            <returns>An access token for the app itself, based on its scopes</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.RemoveAccountAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.RedirectContext)">
+            <summary>
+            Removes the account associated with context.HttpContext.User from the MSAL.NET cache
+            </summary>
+            <param name="context">RedirectContext passed-in to a <see cref="P:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
+            Openidconnect event</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync">
+            <summary>
+            Creates an MSAL Confidential client application if needed
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplicationAsync">
+            <summary>
+            Creates an MSAL Confidential client application
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal
+            </summary>
+            <param name="application"></param>
+            <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token</param>
+            <param name="scopes">Scopes for the downstream API to call</param>
+            <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
+            on behalf of the user described in the claimsPrincipal</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Gets an access token for a downstream API on behalf of the user which account is passed as an argument
+            </summary>
+            <param name="application"></param>
+            <param name="account">User IAccount for which to acquire a token.
+            See <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/></param>
+            <param name="scopes">Scopes for the downstream API to call</param>
+            <param name="tenant"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException)">
+            <summary>
+            Used in Web APIs (which therefore cannot have an interaction with the user).
+            Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+            the client can trigger an interaction with the user so that the user consents to more scopes
+            </summary>
+            <param name="scopes">Scopes to consent to</param>
+            <param name="msalServiceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccountByUserFlow(System.Collections.Generic.IEnumerable{Microsoft.Identity.Client.IAccount},System.String)">
+            <summary>
+            Gets an IAccount for the current B2C user flow in the user claims
+            </summary>
+            <param name="accounts"></param>
+            <param name="userFlow"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
+            <summary>
+            Extension class used to add an in-memory token cache serializer to MSAL
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds both the app and per-user in-memory token caches.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds the in-memory based application token cache to the service collection.</summary>
+            <param name="services">The services collection to add to.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedUserTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds the in-memory based per user token cache to the service collection.</summary>
+            <param name="services">The services collection to add to.</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter">
+            <summary>
+            An implementation of the token cache for both Confidential and Public clients backed by MemoryCache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCache">
+            <summary>
+            .NET Core Memory cache
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._cacheOptions">
+            <summary>
+            Msal memory token cache options
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="microsoftIdentityOptions"></param>
+            <param name="httpContextAccessor"></param>
+            <param name="memoryCache"></param>
+            <param name="cacheOptions"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a specific token cache, described by its cache key
+            from the distributed cache
+            </summary>
+            <param name="cacheKey">Key of the cache to remove</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Read a specific token cache, described by its cache key, from the 
+            distributed cache
+            </summary>
+            <param name="cacheKey"></param>
+            <returns>Read blob representing a token cache for the cache key
+            (account or app)</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (by key)
+            </summary>
+            <param name="cacheKey">Cache key</param>
+            <param name="bytes">blob to write</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
+            <summary>
+            MSAL token cache provider interface.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes a token cache (which can be a user token cache or an app token cache)
+            </summary>
+            <param name="tokenCache">Token cache for which to initialize the serialization</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync">
+            <summary>
+            Clear the cache
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
+            <summary>
+            Extension class used to add an in-memory token cache serializer to MSAL
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds both the app and per-user in-memory token caches.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns>the services (for chaining)</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">
+            <summary>
+            MSAL's in-memory token cache options
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.SlidingExpiration">
+            <summary>
+            Gets or sets the value of the duration after which the cache entry will expire unless it's used
+            This is the duration the tokens are kept in memory cache.
+            In production, a higher value, up-to 90 days is recommended.
+            </summary>
+            <value>
+            The SlidingExpiration value.
+            </value>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions"/> class.
+            By default, the sliding expiration is set for 14 days.</summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider">
+            <summary>
+            An implementation of token cache for both Confidential and Public clients backed by MemoryCache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._memoryCache">
+            <summary>
+            .NET Core Memory cache
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._cacheOptions">
+            <summary>
+            Msal memory token cache options
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="microsoftIdentityOptions">Configuration options</param>
+            <param name="httpContextAccessor">Accessor to the HttpContext</param>
+            <param name="memoryCache">serialization cache</param>
+            <param name="cacheOptions">Memory cache options</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a token cache identitied by its key, from the serialization
+            cache
+            </summary>
+            <param name="cacheKey">token cache key</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Reads a blob from the serialization cache (identitied by its key)
+            </summary>
+            <param name="cacheKey">Token cache key</param>
+            <returns>Read Bytes</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (identitied by its key)
+            </summary>
+            <param name="cacheKey">Token cache key</param>
+            <param name="bytes">Bytes to write</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
+            <summary></summary>
+            <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._microsoftIdentityOptions">
+            <summary>
+            Azure AD options
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._httpContextAccessor">
+            <summary>
+            Http accessor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Constructor of the abstract token cache provider
+            </summary>
+            <param name="microsoftIdentityOptions">Configuration options</param>
+            <param name="httpContextAccessor">Accessor for the HttpContext</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.GetCacheKey(System.Boolean)">
+            <summary>
+            Cache key
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            Raised AFTER MSAL added the new token in its in-memory copy of the cache.
+            This notification is called every time MSAL accesses the cache, not just when a write takes place:
+            If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.
+            If that is the case, we call the TokenCache.SerializeMsalV3() to get a binary blob representing the latest cache content – and persist it.
+            </summary>
+            <param name="args">Contains parameters used by the MSAL call accessing the cache.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry
+            </summary>
+            <param name="args">Token cache notification arguments</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync">
+            <summary>
+            Clear the cache
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Method to be implemented by concrete cache serializers to write the cache bytes
+            </summary>
+            <param name="cacheKey">Cache key</param>
+            <param name="bytes">Bytes to write</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to Read the cache bytes
+            </summary>
+            <param name="cacheKey">Cache key</param>
+            <returns>Read bytes</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to remove an entry from the cache
+            </summary>
+            <param name="cacheKey">Cache key</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider">
+             <summary>
+             An implementation of token cache for Confidential clients backed by an Http session.
+             </summary>
+             For this session cache to work effectively the aspnetcore session has to be configured properly.
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+            
+             // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
+             services.AddSession(option =>
+             {
+            	    option.Cookie.IsEssential = true;
+             });
+            
+             In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
+            
+             app.UseSession(); // Before UseMvc()
+            
+             <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
+            <summary>
+            Msal Token cache provider constructor
+            </summary>
+            <param name="microsoftIdentityOptions">Configuration options</param>
+            <param name="httpContextAccessor">accessor for an HttpContext</param>
+            <param name="logger">Logger</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Read a blob representing the token cache from its key
+            </summary>
+            <param name="cacheKey">Key representing the token cache
+            (account or app)</param>
+            <returns>Read blob</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes the token cache identitied by its key to the serialization mechanism
+            </summary>
+            <param name="cacheKey">key for the cache (account ID or app ID)</param>
+            <param name="bytes">blob to write to the cache</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a cache described from its key
+            </summary>
+            <param name="cacheKey">key of the token cache (user account or app ID)</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension">
+            <summary>
+            Extension class to add a session token cache serializer to MSAL
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+             <summary>Adds both App and per-user session token caches.</summary>
+             For this session cache to work effectively the aspnetcore session has to be configured properly.
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+            
+             // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
+             services.AddSession(option =>
+             {
+            	    option.Cookie.IsEssential = true;
+             });
+            
+             In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
+            
+             app.UseSession(); // Before UseMvc()
+            
+             <param name="services">The services collection to add to.</param>
+             <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+             <summary>Adds the Http session based application token cache to the service collection.</summary>
+             For this session cache to work effectively the aspnetcore session has to be configured properly.
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+            
+             // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
+             services.AddSession(option =>
+             {
+            	    option.Cookie.IsEssential = true;
+             });
+            
+             In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
+            
+             app.UseSession(); // Before UseMvc()
+            
+             <param name="services">The services collection to add to.</param>
+             <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionPerUserTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+             <summary>Adds the http session based per user token cache to the service collection.</summary>
+             For this session cache to work effectively the aspnetcore session has to be configured properly.
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+            
+             // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
+             services.AddSession(option =>
+             {
+            	    option.Cookie.IsEssential = true;
+             });
+            
+             In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
+            
+             app.UseSession(); // Before UseMvc()
+            
+             <param name="services">The services collection to add to.</param>
+             <returns></returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions">
+            <summary>
+            Extensions for AuthenticationBuilder for startup initialization of Web APIs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddProtectedWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">AuthenticationBuilder to which to add this configuration</param>
+            <param name="configuration">The Configuration object</param>
+            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
+            <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
+            <param name="tokenDecryptionCertificate">Token decryption certificate (null by default)</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JwtBearer events.
+            </param>
+            <returns>The authentication builder to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddProtectedWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Security.Cryptography.X509Certificates.X509Certificate2,System.String,System.Boolean)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">AuthenticationBuilder to which to add this configuration</param>
+            <param name="configureJwtBearerOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions"/></param>
+            <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>
+            configuration options</param>
+            <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
+            <param name="tokenDecryptionCertificate">Token decryption certificate</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JwtBearer events.
+            </param>
+            <returns>The authentication builder to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions,Microsoft.Identity.Web.MicrosoftIdentityOptions)">
+            <summary>
+            Ensure that if the audience is a GUID, api://{audience} is also added
+            as a valid audience (this is the default App ID URL in the app registration
+            portal)
+            </summary>
+            <param name="options"><see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions"/> for which to ensure that
+            api://GUID is a valid audience</param>
+            <param name="msIdentityOptions">Configuration options</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.WebApiServiceCollectionExtensions">
+            <summary>
+            Extensions for IServiceCollection for startup initialization of Web APIs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configuration">The Configuration object</param>
+            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
+            <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
+            <param name="tokenDecryptionCertificate">Token decryption certificate (null by default)</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JwtBearer events.
+            </param>
+            <returns>The service collection to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Security.Cryptography.X509Certificates.X509Certificate2,System.String,System.Boolean)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configureJwtBearerOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions"/></param>
+            <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/></param>
+            <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
+            <param name="tokenDecryptionCertificate">Token decryption certificate (null by default)</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JwtBearer events.
+            </param>
+            <returns>The service collection to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddProtectedWebApiCallsProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This supposes that the configuration files have a section named configSectionName (typically "AzureAD")
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configuration">Configuration</param>
+            <param name="configSectionName">Section name in the config file (by default "AzureAD")</param>
+            <param name="jwtBearerScheme">Scheme for the JwtBearer token</param>
+            <returns>The service collection to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddProtectedWebApiCallsProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This supposes that the configuration files have a section named configSectionName (typically "AzureAD")
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="T:Microsoft.Identity.Client.ConfidentialClientApplicationOptions"/></param>
+            <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/></param>
+            <param name="jwtBearerScheme">Scheme for the JwtBearer token</param>
+            <returns>The service collection to chain</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions">
+            <summary>
+            Extensions for AuthenticationBuilder for startup initialization.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddSignIn(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">AuthenticationBuilder to which to add this configuration</param>
+            <param name="configuration">The IConfiguration object</param>
+            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options</param>
+            <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
+            <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenIdConnect events.
+            </param>
+            <returns>The authentication builder for chaining</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddSignIn(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">AuthenticationBuilder to which to add this configuration</param>
+            <param name="configureOpenIdConnectOptions">The IConfiguration object</param>
+            <param name="configureMicrosoftIdentityOptions">The configuration section with the necessary settings to initialize authentication options</param>
+            <param name="openIdConnectScheme">The OpenIdConnect scheme name to be used. By default it uses "OpenIdConnect"</param>
+            <param name="cookieScheme">The Cookies scheme name to be used. By default it uses "Cookies"</param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenIdConnect events.
+            </param>
+            <returns>The authentication builder for chaining</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.WebAppServiceCollectionExtensions">
+            <summary>
+            Extensions for IServiceCollection for startup initialization.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddSignIn(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to 
+            initialize the authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configuration">The IConfiguration object</param>
+            <param name="configSectionName">The name of the configuration section with the necessary
+            settings to initialize authentication options</param>
+            <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+            several OpenIdConnect identity providers.</param>
+            <param name="cookieScheme">Optional name for the acookie uthentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme) </param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenIdConnect events.
+            </param>
+            <returns>The service collection for chaining</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddSignIn(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configureOpenIdConnectOptions">the action to configure the <see cref="T:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions"/></param>
+            <param name="configureMicrosoftIdentityOptions">the action to configure the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/></param>
+            <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+            several OpenIdConnect identity providers.</param>
+            <param name="cookieScheme">Optional name for the acookie uthentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme) </param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenIdConnect events.
+            </param>
+            <returns>Yhe service collection for chaining</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddWebAppCallsProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+            <summary>
+            Add MSAL support to the Web App or Web API
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="configuration">Configuration</param>
+            <param name="initialScopes">Initial scopes to request at sign-in</param>
+            <param name="configSectionName">The name of the configuration section with the necessary
+            settings to initialize authentication options</param>
+            <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+            several OpenIdConnect identity providers.</param>
+            <returns>Yhe service collection for chaining</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddWebAppCallsProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Collections.Generic.IEnumerable{System.String},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String)">
+            <summary>
+            Add MSAL support to the Web App or Web API
+            </summary>
+            <param name="services">Service collection to which to add authentication</param>
+            <param name="initialScopes">Initial scopes to request at sign-in</param>
+            <param name="configureMicrosoftIdentityOptions">The action to set the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/></param>
+            <param name="configureConfidentialClientApplicationOptions">The action to set the <see cref="T:Microsoft.Identity.Client.ConfidentialClientApplicationOptions"/></param>
+            <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
+            (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+            several OpenIdConnect identity providers.</param>
+            <returns>The service collection for chaining</returns>
+        </member>
+    </members>
+</doc>

@@ -25,12 +25,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     ///
     /// app.UseSession(); // Before UseMvc()
     ///
-    /// <seealso cref="https://aka.ms/msal-net-token-cache-serialization"/>
+    /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
     public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IMsalTokenCacheProvider
     {
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
         private ILogger _logger;
 
+        /// <summary>
+        /// Msal Token cache provider constructor
+        /// </summary>
+        /// <param name="microsoftIdentityOptions">Configuration options</param>
+        /// <param name="httpContextAccessor">accessor for an HttpContext</param>
+        /// <param name="logger">Logger</param>
         public MsalSessionTokenCacheProvider(
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
@@ -40,6 +46,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _logger = logger;
         }
 
+        /// <summary>
+        /// Read a blob representing the token cache from its key
+        /// </summary>
+        /// <param name="cacheKey">Key representing the token cache
+        /// (account or app)</param>
+        /// <returns>Read blob</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
             await CurrentHttpContext.Session.LoadAsync().ConfigureAwait(false);
@@ -63,6 +75,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             }
         }
 
+        /// <summary>
+        /// Writes the token cache identitied by its key to the serialization mechanism
+        /// </summary>
+        /// <param name="cacheKey">key for the cache (account ID or app ID)</param>
+        /// <param name="bytes">blob to write to the cache</param>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
             s_sessionLock.EnterWriteLock();
@@ -80,6 +97,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             }
         }
 
+        /// <summary>
+        /// Removes a cache described from its key
+        /// </summary>
+        /// <param name="cacheKey">key of the token cache (user account or app ID)</param>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
             s_sessionLock.EnterWriteLock();

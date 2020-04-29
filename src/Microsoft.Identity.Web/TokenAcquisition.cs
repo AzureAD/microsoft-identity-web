@@ -42,9 +42,12 @@ namespace Microsoft.Identity.Web
         /// configure the confidential client application and a token cache provider.
         /// This constructor is called by ASP.NET Core dependency injection
         /// </summary>
-        /// <param name="configuration"></param>
         /// <param name="tokenCacheProvider">The App token cache provider</param>
-        /// <param name="userTokenCacheProvider">The User token cache provider</param>
+        /// <param name="httpContextAccessor">Access to the HttpContext of the request</param>
+        /// <param name="microsoftIdentityOptions">Configuration options</param>
+        /// <param name="applicationOptions">MSAL.NET configuration options</param>
+        /// <param name="httpClientFactory">Http client factory</param>
+        /// <param name="logger">Logger</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
@@ -169,7 +172,7 @@ namespace Microsoft.Identity.Web
             IEnumerable<string> scopes,
             string tenant = null)
         {
-            return await GetAccessTokenForUserAsync(scopes, tenant);
+            return await GetAccessTokenForUserAsync(scopes, tenant).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -272,7 +275,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache
         /// </summary>
-        /// <param name="context">RedirectContext passed-in to a <see cref="OnRedirectToIdentityProviderForSignOut"/>
+        /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
         /// Openidconnect event</param>
         /// <returns></returns>
         public async Task RemoveAccountAsync(RedirectContext context)
@@ -316,7 +319,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL Confidential client application if needed
         /// </summary>
-        /// <param name="claimsPrincipal"></param>
         /// <returns></returns>
         private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
@@ -330,8 +332,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL Confidential client application
         /// </summary>
-        /// <param name="claimsPrincipal"></param>
-        /// <returns></returns>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
             var request = CurrentHttpContext.Request;

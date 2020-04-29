@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     /// <summary>
     /// An implementation of the token cache for both Confidential and Public clients backed by MemoryCache.
     /// </summary>
-    /// <seealso cref="https://aka.ms/msal-net-token-cache-serialization"/>
+    /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
     public class MsalDistributedTokenCacheAdapter : MsalAbstractTokenCacheProvider
     {
         /// <summary>
@@ -42,16 +42,33 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             _cacheOptions = cacheOptions.Value;
         }
 
+        /// <summary>
+        /// Removes a specific token cache, described by its cache key
+        /// from the distributed cache
+        /// </summary>
+        /// <param name="cacheKey">Key of the cache to remove</param>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
             await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Read a specific token cache, described by its cache key, from the 
+        /// distributed cache
+        /// </summary>
+        /// <param name="cacheKey"></param>
+        /// <returns>Read blob representing a token cache for the cache key
+        /// (account or app)</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
             return await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Writes a token cache blob to the serialization cache (by key)
+        /// </summary>
+        /// <param name="cacheKey">Cache key</param>
+        /// <param name="bytes">blob to write</param>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
             await _distributedCache.SetAsync(cacheKey, bytes, _cacheOptions).ConfigureAwait(false) ;

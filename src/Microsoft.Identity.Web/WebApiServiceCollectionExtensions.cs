@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">Service collection to which to add authentication</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/></param>
-        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="configureMicrosoftIdentityOptions"/></param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/></param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate (null by default)</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
