@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// 
-        /// And then in the OnAuthorizationCodeRecieved method, call <see cref="AddAccountToCacheFromAuthorizationCode"/>:
+        /// And then in the OnAuthorizationCodeRecieved method, call <see cref="AddAccountToCacheFromAuthorizationCodeAsync"/>:
         /// <code>
         /// private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
         /// {
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache
         /// </summary>
-        /// <param name="context">RedirectContext passed-in to a <see cref="OnRedirectToIdentityProviderForSignOut"/> 
+        /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/> 
         /// Openidconnect event</param>
         /// <returns></returns>
         Task RemoveAccountAsync(RedirectContext context);

@@ -5,6 +5,9 @@ using System.Diagnostics;
 
 namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account
 {
+    /// <summary>
+    /// Model for the Error page
+    /// </summary>
     [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : PageModel

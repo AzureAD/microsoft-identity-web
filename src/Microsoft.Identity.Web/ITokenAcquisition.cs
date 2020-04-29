@@ -18,9 +18,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token 
         /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the <paramref name="context"/> parameter
+        /// member of the controller's <see cref="HttpContext"/> parameter
         /// </summary>
-        /// <param name="context">HttpContext associated with the Controller or auth operation</param>
         /// <param name="scopes">Scopes to request for the downstream API to call</param>
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the 
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant</param>

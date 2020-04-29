@@ -7,6 +7,9 @@ using System;
 
 namespace Microsoft.Identity.Web
 {
+    /// <summary>
+    /// Extension class containing cookie policies (work around for same site)
+    /// </summary>
     public static class CookiePolicyOptionsExtensions
     {
         /// <summary>
@@ -49,7 +52,12 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        // Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAgent"></param>
+        /// <remarks>Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/</remarks>
+        /// <returns></returns>
         public static bool DisallowsSameSiteNone(string userAgent)
         {
             // Cover all iOS based browsers here. This includes:

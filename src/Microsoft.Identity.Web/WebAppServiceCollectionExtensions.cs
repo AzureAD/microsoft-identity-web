@@ -61,8 +61,8 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="services">Service collection to which to add authentication</param>
-        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/></param>
-        /// <param name="configureMicrosoftIdentityOptions">the action to set the <see cref="MicrosoftIdentityOptions"/></param>
+        /// <param name="configureOpenIdConnectOptions">the action to configure the <see cref="OpenIdConnectOptions"/></param>
+        /// <param name="configureMicrosoftIdentityOptions">the action to configure the <see cref="MicrosoftIdentityOptions"/></param>
         /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme 
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
@@ -94,6 +94,7 @@ namespace Microsoft.Identity.Web
         /// Add MSAL support to the Web App or Web API
         /// </summary>
         /// <param name="services">Service collection to which to add authentication</param>
+        /// <param name="configuration">Configuration</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
         /// settings to initialize authentication options</param>

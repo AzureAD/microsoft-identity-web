@@ -53,9 +53,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="builder">AuthenticationBuilder to which to add this configuration</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/></param>
-        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="configureMicrosoftIdentityOptions"/></param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>
+        /// configuration options</param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer"</param>
-        /// <param name="configureJwtBearerOptions">An action to configure JwtBearerOptions</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
@@ -69,6 +69,10 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
@@ -146,6 +150,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="options"><see cref="JwtBearerOptions"/> for which to ensure that
         /// api://GUID is a valid audience</param>
+        /// <param name="msIdentityOptions">Configuration options</param>
         internal static void EnsureValidAudiencesContainsApiGuidIfGuidProvided(JwtBearerOptions options, MicrosoftIdentityOptions msIdentityOptions)
         {
             options.TokenValidationParameters.ValidAudiences ??= new List<string>();

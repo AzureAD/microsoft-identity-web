@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
@@ -27,8 +28,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Constructor of the abstract token cache provider
         /// </summary>
-        /// <param name="azureAdOptions"></param>
-        /// <param name="httpContextAccessor"></param>
+        /// <param name="microsoftIdentityOptions">Configuration options</param>
+        /// <param name="httpContextAccessor">Accessor for the HttpContext</param>
         protected MsalAbstractTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions, IHttpContextAccessor httpContextAccessor)
         {
             _microsoftIdentityOptions = microsoftIdentityOptions;
@@ -42,6 +43,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <returns></returns>
         public Task InitializeAsync(ITokenCache tokenCache)
         {
+            if (tokenCache == null)
+            {
+                throw new ArgumentNullException(nameof(tokenCache));
+            }
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
             tokenCache.SetBeforeWriteAsync(OnBeforeWriteAsync);
@@ -100,12 +105,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
-        // if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry
+        /// <summary>
+        /// if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry
+        /// </summary>
+        /// <param name="args">Token cache notification arguments</param>
+        /// <returns></returns>
         protected virtual Task OnBeforeWriteAsync(TokenCacheNotificationArgs args)
         {
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Clear the cache
+        /// </summary>
         public async Task ClearAsync()
         {
             // This is a user token cache

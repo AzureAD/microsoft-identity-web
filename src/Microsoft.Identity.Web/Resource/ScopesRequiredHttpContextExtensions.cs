@@ -10,6 +10,10 @@ using System.Security.Claims;
 
 namespace Microsoft.Identity.Web.Resource
 {
+    /// <summary>
+    /// Extension class providing the extension methods for <see cref="HttpContent"/> that
+    /// can be used in Web APIs to validate scopes in controller actions.
+    /// </summary>
     public static class ScopesRequiredHttpContextExtensions
     {
         /// <summary>
@@ -18,6 +22,7 @@ namespace Microsoft.Identity.Web.Resource
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
         /// method throws an HTTP Unauthorized with the message telling which scopes are expected in the token
         /// </summary>
+        /// <param name="context">HttpContext (from the controller)</param>
         /// <param name="acceptedScopes">Scopes accepted by this web API</param>
         /// <exception cref="HttpRequestException"/> with a <see cref="HttpResponse.StatusCode"/> set to 
         /// <see cref="HttpStatusCode.Unauthorized"/>

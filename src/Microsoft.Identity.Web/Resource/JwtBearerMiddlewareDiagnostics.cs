@@ -15,6 +15,11 @@ namespace Microsoft.Identity.Web.Resource
     {
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Constructor for a <see cref="JwtBearerMiddlewareDiagnostics"/>. This constructor
+        /// is used by dependency injection.
+        /// </summary>
+        /// <param name="logger">Logger</param>
         public JwtBearerMiddlewareDiagnostics(ILogger<JwtBearerMiddlewareDiagnostics> logger)
         {
             _logger = logger;

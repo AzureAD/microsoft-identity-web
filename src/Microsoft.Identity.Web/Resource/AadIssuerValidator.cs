@@ -14,7 +14,7 @@ using Microsoft.Identity.Web.InstanceDiscovery;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Generic class that validates token issuer from the provided Azure AD authority. Use the <see cref="AadIssuerValidatorFactory"/> to create instances of this class.
+    /// Generic class that validates token issuer from the provided Azure AD authority.
     /// </summary>
     internal class AadIssuerValidator
     {
