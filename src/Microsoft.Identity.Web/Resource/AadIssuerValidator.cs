@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.Resource
         }
 
         /// <summary>
-        /// Gets a <see cref="AadIssuerValidator"/> for an authority.
+        /// Gets an <see cref="AadIssuerValidator"/> for an authority.
         /// </summary>
         /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/ </param>
         /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
@@ -47,35 +47,26 @@ namespace Microsoft.Identity.Web.Resource
             if (string.IsNullOrEmpty(aadAuthority))
                 throw new ArgumentNullException(nameof(aadAuthority));
 
-            if (s_issuerValidators.TryGetValue(aadAuthority, out AadIssuerValidator aadIssuerValidator))
+            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri authorityUri);
+            string authorityHost = authorityUri?.Authority ?? new Uri(FallbackAuthority).Authority;
+
+            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator aadIssuerValidator))
             {
                 return aadIssuerValidator;
             }
-            else
-            {
-                // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-                var issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                string authorityHost;
-                try
 
-                {
-                    authorityHost = new Uri(aadAuthority).Authority;
-                }
-                catch
-                {
-                    authorityHost = null;
-                }
+            // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
+            var issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-                // Add issuer aliases of the chosen authority
-                string authority = authorityHost ?? new Uri(FallbackAuthority).Host;
-                var aliases = issuerMetadata.Metadata
-                    .Where(m => m.Aliases.Any(a => string.Equals(a, authority, StringComparison.OrdinalIgnoreCase)))
-                    .SelectMany(m => m.Aliases)
-                    .Append(authority) // For b2c scenarios, the alias will be the authorityHost itself
-                    .Distinct();
-                s_issuerValidators[authority] = new AadIssuerValidator(aliases);
-                return s_issuerValidators[authority];
-            }
+            // Add issuer aliases of the chosen authority to the cache
+            var aliases = issuerMetadata.Metadata
+                .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
+                .SelectMany(m => m.Aliases)
+                .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
+                .Distinct();
+            s_issuerValidators[authorityHost] = new AadIssuerValidator(aliases);
+
+            return s_issuerValidators[authorityHost];
         }
 
         /// <summary>
@@ -85,8 +76,8 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="actualIssuer">Issuer to validate (will be tenanted)</param>
         /// <param name="securityToken">Received Security Token</param>
         /// <param name="validationParameters">Token Validation parameters</param>
-        /// <remarks>The issuer is considered as valid if it has the same http scheme and authority as the
-        /// authority from the configuration file, has a tenant Id, and optionally v2.0 (this web api
+        /// <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+        /// authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
         /// accepts both V1 and V2 tokens).
         /// Authority aliasing is also taken into account</remarks>
         /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown</returns>
@@ -135,9 +126,9 @@ namespace Microsoft.Identity.Web.Resource
                 return _issuerAliases.Contains(issuerFromTemplateUri.Authority) &&
                        // "iss" authority is in the aliases
                        _issuerAliases.Contains(actualIssuerUri.Authority) &&
-                      // Template authority ends in the tenantId
+                      // Template authority ends in the tenant ID
                       IsValidTidInLocalPath(tenantId, issuerFromTemplateUri) &&
-                      // "iss" ends in the tenantId
+                      // "iss" ends in the tenant ID
                       IsValidTidInLocalPath(tenantId, actualIssuerUri);
             }
             catch
@@ -154,9 +145,9 @@ namespace Microsoft.Identity.Web.Resource
             return trimmedLocalPath == tenantId || trimmedLocalPath == $"{tenantId}/v2.0";
         }
 
-        /// <summary>Gets the tenant id from a token.</summary>
+        /// <summary>Gets the tenant ID from a token.</summary>
         /// <param name="securityToken">A JWT token.</param>
-        /// <returns>A string containing tenantId, if found or <see cref="string.Empty"/>.</returns>
+        /// <returns>A string containing tenant ID, if found or <see cref="string.Empty"/>.</returns>
         /// <remarks>Only <see cref="JwtSecurityToken"/> and <see cref="JsonWebToken"/> are acceptable types.</remarks>
         private static string GetTenantIdFromToken(SecurityToken securityToken)
         {
@@ -165,7 +156,7 @@ namespace Microsoft.Identity.Web.Resource
                 if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object tenantId))
                     return tenantId as string;
 
-                // Since B2C doesn't have TID as default, get it from issuer
+                // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jwtSecurityToken.Issuer);
             }
 
@@ -175,14 +166,14 @@ namespace Microsoft.Identity.Web.Resource
                 if (tid != null)
                     return tid;
 
-                // Since B2C doesn't have TID as default, get it from issuer
+                // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jsonWebToken.Issuer);
             }
 
             return string.Empty;
         }
 
-        // The AAD iss claims contains the tenantId in its value. The uri is {domain}/{tid}/v2.0
+        // The AAD "iss" claims contains the tenant ID in its value. The URI is {domain}/{tid}/v2.0
         private static string GetTenantIdFromIss(string iss)
         {
             if (string.IsNullOrEmpty(iss))
