@@ -349,6 +349,8 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                CheckApplicationOptionsContainClientSecret(_applicationOptions);
+
                 if (_microsoftIdentityOptions.IsB2C)
                 {
                     authority = $"{ _applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
@@ -380,6 +382,21 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(ex, "Exception acquiring token for a confidential client. ");
                 throw;
+            }
+        }
+
+        internal void CheckApplicationOptionsContainClientSecret(ConfidentialClientApplicationOptions applicationOptions)
+        {
+            if (string.IsNullOrEmpty(applicationOptions.ClientSecret))
+            {
+                string msg = "Client secret cannot be null or whitespace, " +
+                    "and must be included in the configuration of the web app when calling a web API. " +
+                    "For instance, in the appsettings.json file. ";
+
+                _logger.LogInformation(msg);
+                throw new MsalClientException(
+                    "missing_client_credentials",
+                    msg);
             }
         }
 

@@ -86,6 +86,34 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("some_secret")]
+        public void ApplicationOptionsIncludeClientSecret(string clientSecret)
+        {
+            // Arrange
+            InitializeTokenAcquisitionObjects();
+
+            var options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = clientSecret
+            };
+
+            try
+            {
+                _tokenAcquisition.CheckApplicationOptionsContainClientSecret(options);
+            }
+            catch(MsalClientException ex)
+            {
+                string msg = "Client secret cannot be null or whitespace, " +
+                   "and must be included in the configuration of the web app when calling a web API. " +
+                   "For instance, in the appsettings.json file. ";
+                Assert.Equal("missing_client_credentials", ex.ErrorCode);
+                Assert.Equal(msg, ex.Message);
+            }
+        }
+
         private void InitializeTokenAcquisitionObjects()
         {
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
