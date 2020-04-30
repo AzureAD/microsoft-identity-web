@@ -12,6 +12,7 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -145,7 +146,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalException ex)
             {
-                _logger.LogInformation(ex, "Exception occured while adding an account to the cache from the auth code. ");
+                _logger.LogInformation(
+                    ex,
+                    string.Format(CultureInfo.InvariantCulture,
+                    "Exception occured while adding an account to the cache from the auth code. "));
                 throw;
             }
         }
@@ -347,6 +351,19 @@ namespace Microsoft.Identity.Web
             string authority;
             IConfidentialClientApplication app;
 
+            MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
+            if (microsoftIdentityOptionsValidation.ValidateClientSecret(_applicationOptions).Failed)
+            {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Client secret cannot be null or whitespace, " +
+                   "and must be included in the configuration of the web app when calling a web API. " +
+                   "For instance, in the appsettings.json file. ");
+
+                _logger.LogInformation(msg);
+                throw new MsalClientException(
+                    "missing_client_credentials",
+                    msg);
+            }
+
             try
             {
                 if (_microsoftIdentityOptions.IsB2C)
@@ -378,7 +395,10 @@ namespace Microsoft.Identity.Web
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex, "Exception acquiring token for a confidential client. ");
+                _logger.LogInformation(
+                    ex,
+                    string.Format(CultureInfo.InvariantCulture,
+                    "Exception acquiring token for a confidential client. "));
                 throw;
             }
         }

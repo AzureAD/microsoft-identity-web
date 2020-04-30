@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -76,6 +78,7 @@ namespace Microsoft.Identity.Web
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             builder.Services.AddHttpClient();

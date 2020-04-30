@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
@@ -71,6 +73,8 @@ namespace Microsoft.Identity.Web
 
             var microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
             var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
