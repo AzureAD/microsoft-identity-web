@@ -13,6 +13,7 @@ using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using NSubstitute;
 using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -84,6 +85,33 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(TestConstants.InvalidScope, ex.ErrorCode);
             Assert.StartsWith(TestConstants.InvalidScopeErrorcode, ex.Message);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("some_secret")]
+        public void ApplicationOptionsIncludeClientSecret(string clientSecret)
+        {
+            // Arrange
+            InitializeTokenAcquisitionObjects();
+
+            var options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = clientSecret
+            };
+
+            MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
+            ValidateOptionsResult result = microsoftIdentityOptionsValidation.ValidateClientSecret(options);
+            if (result.Failed)
+            {
+                string msg = string.Format(CultureInfo.InvariantCulture, "The 'ClientSecret' option must be provided.");
+                Assert.Equal(msg, result.FailureMessage);
+            }
+            else
+            {
+                Assert.True(result.Succeeded);
+            }
         }
 
         private void InitializeTokenAcquisitionObjects()
