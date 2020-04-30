@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
+using System.Globalization;
 
 namespace Microsoft.Identity.Web
 {
@@ -71,6 +72,8 @@ namespace Microsoft.Identity.Web
 
             var microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
+            ValidateRequiredOptions(microsoftIdentityOptions);
 
             var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
@@ -161,6 +164,42 @@ namespace Microsoft.Identity.Web
             });
 
             return builder;
+        }
+
+        internal /*for testing*/ static void ValidateRequiredOptions(MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            string msg = "parameter cannot be null or whitespace, " +
+                    "and must be included in the configuration of the web app. " +
+                    "For instance, in the appsettings.json file. ";
+
+            if (string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
+            {
+                throw new ArgumentNullException(nameof(microsoftIdentityOptions.ClientId),
+                    string.Format(CultureInfo.InvariantCulture, "The ClientId " + msg));
+            }
+
+            if (string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
+            {
+                throw new ArgumentNullException(nameof(microsoftIdentityOptions.Instance),
+                    string.Format(CultureInfo.InvariantCulture, "The Instance " + msg));
+            }
+
+            if (microsoftIdentityOptions.IsB2C)
+            {
+                if (string.IsNullOrEmpty(microsoftIdentityOptions.Domain))
+                {
+                    throw new ArgumentNullException(nameof(microsoftIdentityOptions.Domain),
+                        string.Format(CultureInfo.InvariantCulture, "The Domain " + msg));
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
+                {
+                    throw new ArgumentNullException(nameof(microsoftIdentityOptions.TenantId),
+                        string.Format(CultureInfo.InvariantCulture, "The TenantId " + msg));
+                }
+            }           
         }
     }
 }
