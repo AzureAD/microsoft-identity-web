@@ -10,7 +10,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.12.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.13.0" />
   </ItemGroup>
 
   <ItemGroup>
