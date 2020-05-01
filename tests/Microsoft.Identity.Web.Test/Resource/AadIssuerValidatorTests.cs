@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public void GetIssuerValidator_AuthorityNotInAliases_ReturnsValidator() //B2C
+        public void GetIssuerValidator_B2cAuthorityNotInAliases_ReturnsValidator()
         {
             var authorityNotInAliases = TestConstants.B2CAuthorityWithV2;
 
@@ -53,16 +53,15 @@ namespace Microsoft.Identity.Web.Test.Resource
             Assert.NotNull(validator);
         }
 
-        //TODO: Possible bug in cache. Validator is cached with key as authority host, but tries to retrieve with full authority.
         [Fact]
         public void GetIssuerValidator_CachedAuthority_ReturnsCachedValidator()
         {
-            //var authorityNotInAliases = TestConstants.ProductionPrefNetworkEnvironment;
+            var authorityNotInAliases = TestConstants.AuthorityWithTenantSpecifiedWithV2;
 
-            //var validator1 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
-            //var validator2 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            var validator1 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            var validator2 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
 
-            //Assert.Same(validator1, validator2);
+            Assert.Same(validator1, validator2);
         }
 
         [Fact]
