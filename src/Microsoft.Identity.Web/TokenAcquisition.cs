@@ -338,13 +338,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
-            var request = CurrentHttpContext.Request;
-            string currentUri = UriHelper.BuildAbsolute(
-                request.Scheme,
-                request.Host,
-                request.PathBase,
-                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
-
             if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
                 _applicationOptions.Instance += "/";
 
@@ -371,7 +364,7 @@ namespace Microsoft.Identity.Web
                     authority = $"{ _applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     app = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithRedirectUri(currentUri)
+                        .WithRedirectUri(CreateRedirectUri())
                         .WithB2CAuthority(authority)
                         .WithHttpClientFactory(_httpClientFactory)
                         .Build();
@@ -382,7 +375,7 @@ namespace Microsoft.Identity.Web
 
                     app = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithRedirectUri(currentUri)
+                        .WithRedirectUri(CreateRedirectUri())
                         .WithAuthority(authority)
                         .WithHttpClientFactory(_httpClientFactory)
                         .Build();
@@ -556,7 +549,7 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return (msalSeviceException.Message.Contains("AADSTS50013"));
+            return (msalSeviceException.Message.Contains("AADSTS50013", StringComparison.InvariantCulture));
         }
 
         /// <summary>
@@ -570,11 +563,34 @@ namespace Microsoft.Identity.Web
             foreach (var account in accounts)
             {
                 string accountIdentifier = account.HomeAccountId.ObjectId.Split('.')[0];
-                if (accountIdentifier.EndsWith(userFlow.ToLower()))
+                if (accountIdentifier.EndsWith(userFlow.ToLower(CultureInfo.CurrentCulture), StringComparison.InvariantCulture))
                     return account;
             }
 
             return null;
+        }
+
+        internal /*for test only*/ string CreateRedirectUri()
+        {
+            if (Uri.TryCreate(_microsoftIdentityOptions.RedirectUri, UriKind.Absolute, out Uri uri))
+            {
+                if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                {
+                    return _microsoftIdentityOptions.RedirectUri;
+                }
+                else
+                {
+                    _logger.LogInformation("MicrosoftIdentityOptions RedirectUri value must have a Uri Scheme " +
+                        "of http or https in order to be a valid RedirectUri. ");
+                }
+            }
+
+            var request = CurrentHttpContext.Request;
+            return UriHelper.BuildAbsolute(
+                request.Scheme,
+                request.Host,
+                request.PathBase,
+                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
         }
     }
 }
