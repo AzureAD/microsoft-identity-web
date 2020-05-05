@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web
         /// There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms https
         /// URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
         /// in containers (for the same reasons)
-        /// If you don't specify RedirectUri, the redirect URI will be computed from the URL on which the app is
+        /// If you don't specify the RedirectUri, the redirect URI will be computed from the URL on which the app is
         /// deployed and the CallbackPath.
         /// </summary>
         public string RedirectUri { get; set; }

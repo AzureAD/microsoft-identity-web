@@ -127,14 +127,14 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData("http://cats.b2clogin.com/signout-callback-oidc", true)]
         public void ValidateRedirectUriFromMicrosoftIdentityOptions(
             string redirectUri,
-            bool isTrue)
+            bool expectConfiguredUri)
         {
             string httpContextRedirectUri = "https://IdentityDotNetSDKAutomation/";       
 
             InitializeTokenAcquisitionObjects();
             microsoftIdentityOptions.Value.RedirectUri = redirectUri;
 
-            if (isTrue)
+            if (expectConfiguredUri)
             {
                 Assert.Equal(microsoftIdentityOptions.Value.RedirectUri, _tokenAcquisition.CreateRedirectUri());
             }
