@@ -6,7 +6,7 @@ New Features:
 
 Bug Fixes:
 **AadIssuerValidator class now caches the authority aliases under the correct cache key**. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/51) for more details.
-**When not including the ClientSecret in appsettings.json, a null ref was through when acquiring the authorization code with MSAL.NET**. Microsoft Identity Web now checks all the required options and responses with actionable error messages if any are missing. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/66) for more details.
+**When not including the ClientSecret in appsettings.json, a null reference exception was thrown when acquiring the authorization code with MSAL.NET**. Microsoft Identity Web now checks all the required options and responds with actionable error messages if any are missing. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/66) for more details.
 
 0.1.1-preview
 ============
