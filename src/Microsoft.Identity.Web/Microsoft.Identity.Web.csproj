@@ -14,7 +14,7 @@
     <Company>Microsoft Corporation</Company>
     <Product>Microsoft Identity Web</Product>
     <Description>
-      This package enables ASP.NET Core Web apps and Web APIs to use the Microsoft identity platform (formerly Azure AD v2.0). 
+      This package enables ASP.NET Core Web apps and Web APIs to use the Microsoft identity platform (formerly Azure AD v2.0).
       This package is specifically used for web applications, which sign-in users, and protected web APIs, which optionally call downstream web APIs.
     </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
@@ -22,8 +22,8 @@
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
     <PackageTags>Microsoft Identity Web .NET ASP.NET Core Web App Web API B2C</PackageTags>
+    <DocumentationFile>true</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Label="Source Link">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

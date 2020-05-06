@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
     <PackageTags>Microsoft identity web ui .NET ASP.NET Core</PackageTags>
+    <DocumentationFile>true</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Label="Source Link">

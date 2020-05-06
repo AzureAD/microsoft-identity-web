@@ -443,6 +443,19 @@
             Gets or sets the domain of the Azure Active Directory tenant, e.g. contoso.onmicrosoft.com.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.RedirectUri">
+            <summary>
+            In a Web app, gets or sets the RedirectUri (URI where the token will be sent back by
+            Azure Active Directory or Azure Active Directory B2C)
+            This property is exclusive with <see cref="!:CallbackPath"/> which should be used preferably if you don't want
+            to have a different deployed configuration from your developper configuration.
+            There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms https
+            URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
+            in containers (for the same reasons)
+            If you don't specify the RedirectUri, the redirect URI will be computed from the URL on which the app is
+            deployed and the CallbackPath.
+            </summary>
+        </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.EditProfilePolicyId">
             <summary>
             Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
@@ -480,7 +493,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
             <summary>
-            Gets a <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
             </summary>
             <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/ </param>
             <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
@@ -494,8 +507,8 @@
             <param name="actualIssuer">Issuer to validate (will be tenanted)</param>
             <param name="securityToken">Received Security Token</param>
             <param name="validationParameters">Token Validation parameters</param>
-            <remarks>The issuer is considered as valid if it has the same http scheme and authority as the
-            authority from the configuration file, has a tenant Id, and optionally v2.0 (this web api
+            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+            authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
             accepts both V1 and V2 tokens).
             Authority aliasing is also taken into account</remarks>
             <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown</returns>
@@ -504,9 +517,9 @@
             <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer </exception>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
-            <summary>Gets the tenant id from a token.</summary>
+            <summary>Gets the tenant ID from a token.</summary>
             <param name="securityToken">A JWT token.</param>
-            <returns>A string containing tenantId, if found or <see cref="F:System.String.Empty"/>.</returns>
+            <returns>A string containing tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
             <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
