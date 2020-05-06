@@ -1,7 +1,7 @@
 0.1.2-preview
 ============
 New Features:
-**Microsoft Identity Web now uses an IHttpClientFactory to implement resilient Http requests**. The ASP.NET Core IHttpClientFactory manages the pooling and lifetime of the underlying HttpClientMessageHandler instances, which avoids port exhaustion and common DNS problems that occur when manually managing HttpClient lifetimes. More details on this feature [here](https://github.com/AzureAD/microsoft-identity-web/issues/6).
+**Microsoft Identity Web now uses an IHttpClientFactory to implement resilient HTTP requests**. The ASP.NET Core IHttpClientFactory manages the pooling and lifetime of the underlying HttpClientMessageHandler instances, which avoids port exhaustion and common DNS problems that occur when manually managing HttpClient lifetimes. More details on this feature [here](https://github.com/AzureAD/microsoft-identity-web/issues/6).
 **Developers can now set their own RedirectUri to handle differences in development and deployment of an application**. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/115) for more details.
 
 Bug Fixes:
