@@ -3,14 +3,15 @@
 
 using System;
 using System.Text;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
     public class ClientInfoTests
     {
-        private const string Uid = "uid-value";
-        private const string Utid = "utid-value";
+        private const string Uid = TestConstants.Uid;
+        private const string Utid = TestConstants.Utid;
         private string _decodedJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"}}";
         private string _decodedEmptyJson = "{}";
         private string _invalidJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"";
@@ -35,7 +36,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var expectedErrorMessage = "client info returned from the server is null (Parameter 'clientInfo')";
 
-            var exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(""));
+            var exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(string.Empty));
             Assert.Equal(expectedErrorMessage, exception.Message);
 
             exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(null));

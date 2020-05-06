@@ -20,6 +20,11 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string TenantId = "some-tenant-id";
         public const string TenantIdAsGuid = "da41245a5-11b3-996c-00a8-4d99re19f292";
         public const string Domain = "contoso.onmicrosoft.com";
+        public const string Uid = "my-uid";
+        public const string Utid = "my-utid";
+        public const string LoginHint = "login_hint";
+        public const string DomainHint = "domain_hint";
+        public const string Claims = "additional_claims";
 
         public const string AadInstance = "https://login.microsoftonline.com";
         public const string AuthorityCommonTenant = AadInstance + "/common/";
