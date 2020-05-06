@@ -447,7 +447,7 @@
             <summary>
             In a Web app, gets or sets the RedirectUri (URI where the token will be sent back by
             Azure Active Directory or Azure Active Directory B2C)
-            This property is exclusive with <see cref="!:CallbackPath"/> which should be used preferably if you don't want
+            This property is exclusive with <see cref="P:Microsoft.AspNetCore.Authentication.RemoteAuthenticationOptions.CallbackPath"/> which should be used preferably if you don't want
             to have a different deployed configuration from your developper configuration.
             There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms https
             URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
