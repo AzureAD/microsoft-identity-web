@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test
         private const string Tfp = "tfp-value";
         private const string Tid = "tid-value";
         private const string Userflow = "userflow-value";
-        private const string Utid = "utid-value";
+        private const string Utid = TestConstants.Utid;
 
         [Fact]
         public void GetNameIdentifierId_WithUtidClaim_ReturnsNameId()

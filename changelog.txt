@@ -1,3 +1,13 @@
+0.1.2-preview
+============
+New Features:
+**Microsoft Identity Web now uses an IHttpClientFactory to implement resilient HTTP requests**. The ASP.NET Core IHttpClientFactory manages the pooling and lifetime of the underlying HttpClientMessageHandler instances, which avoids port exhaustion and common DNS problems that occur when manually managing HttpClient lifetimes. More details on this feature [here](https://github.com/AzureAD/microsoft-identity-web/issues/6).
+**Developers can now set their own RedirectUri to handle differences in development and deployment of an application**. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/115) for more details.
+
+Bug Fixes:
+Performance improvement: **AadIssuerValidator class now caches the authority aliases under the correct cache key**. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/51) for more details.
+**When not including the ClientSecret in appsettings.json, a null reference exception was thrown when acquiring the authorization code with MSAL.NET**. Microsoft Identity Web now checks all the required options and responds with actionable error messages if any are missing. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/66) for more details.
+
 0.1.1-preview
 ============
 New Features:

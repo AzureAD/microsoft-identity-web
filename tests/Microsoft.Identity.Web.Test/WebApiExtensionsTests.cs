@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web.Test
 
             //Config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create("");
+            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
             config.Received(3).GetSection(_configSectionName);
 
             AddProtectedWebApi_TestCommon(services, provider);
@@ -91,10 +91,10 @@ namespace Microsoft.Identity.Web.Test
 
             //Configure options actions added correctly
             var configuredJwtOptions = provider.GetServices<IConfigureOptions<JwtBearerOptions>>().Cast<ConfigureNamedOptions<JwtBearerOptions>>();
-            var configuredMsOptions = provider.GetService<IConfigureOptions<MicrosoftIdentityOptions>>() as ConfigureNamedOptions<MicrosoftIdentityOptions>;
+            var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
             Assert.Contains(configuredJwtOptions, o => o.Action == _configureJwtOptions);
-            Assert.Same(_configureMsOptions, configuredMsOptions.Action);
+            Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
             AddProtectedWebApi_TestCommon(services, provider);
         }
@@ -116,6 +116,7 @@ namespace Microsoft.Identity.Web.Test
             //Issuer validator and certificate set
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
 
+            Assert.NotNull(jwtOptions.Authority);
             Assert.NotNull(jwtOptions.TokenValidationParameters.IssuerValidator);
             Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKey);
         }
@@ -189,7 +190,7 @@ namespace Microsoft.Identity.Web.Test
             tokenValidatedContext.Principal = new ClaimsPrincipal();
 
             //No scopes throws exception
-            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => { await jwtOptions.Events.TokenValidated(tokenValidatedContext); });
+            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => { await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false); }).ConfigureAwait(false);
             Assert.Equal(expectedExceptionMessage, exception.Message);
 
             //At least one scope executes successfully
@@ -201,10 +202,10 @@ namespace Microsoft.Identity.Web.Test
                         new Claim(scopeType, scopeValue)
                     })
                 );
-                await jwtOptions.Events.TokenValidated(tokenValidatedContext);
+                await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
             }
 
-            await tokenValidatedFunc.Received(4).Invoke(Arg.Any<TokenValidatedContext>());
+            await tokenValidatedFunc.Received(4).Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
         }
 
         [Theory]
@@ -298,8 +299,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             //Config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create("");
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create("");
+            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
             config.Received(2).GetSection(_configSectionName);
 
@@ -314,11 +315,11 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             //Configure options actions added correctly
-            var configuredAppOptions = provider.GetService<IConfigureOptions<ConfidentialClientApplicationOptions>>() as ConfigureNamedOptions<ConfidentialClientApplicationOptions>;
-            var configuredMsOptions = provider.GetService<IConfigureOptions<MicrosoftIdentityOptions>>() as ConfigureNamedOptions<MicrosoftIdentityOptions>;
+            var configuredAppOptions = provider.GetServices<IConfigureOptions<ConfidentialClientApplicationOptions>>().Cast<ConfigureNamedOptions<ConfidentialClientApplicationOptions>>();
+            var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
-            Assert.Same(_configureMsOptions, configuredMsOptions.Action);
-            Assert.Same(_configureAppOptions, configuredAppOptions.Action);
+            Assert.Contains(configuredAppOptions, o => o.Action == _configureAppOptions);
+            Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
             AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider);
         }
@@ -346,26 +347,6 @@ namespace Microsoft.Identity.Web.Test
             jwtOptions.Events.TokenValidated(tokenValidatedContext);
 
             Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
-        }
-
-        [Theory]
-        [InlineData(TestConstants.AuthorityCommonTenant, TestConstants.AuthorityCommonTenantWithV2)]
-        [InlineData(TestConstants.AuthorityOrganizationsUSTenant, TestConstants.AuthorityOrganizationsUSWithV2)]
-        [InlineData(TestConstants.AuthorityCommonTenantWithV2, TestConstants.AuthorityCommonTenantWithV2)]
-        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "/", TestConstants.AuthorityCommonTenantWithV2)]
-        [InlineData(TestConstants.B2CAuthorityWithV2, TestConstants.B2CAuthorityWithV2)]
-        [InlineData(TestConstants.B2CCustomDomainAuthorityWithV2, TestConstants.B2CCustomDomainAuthorityWithV2)]
-        [InlineData(TestConstants.B2CAuthority, TestConstants.B2CAuthorityWithV2)]
-        [InlineData(TestConstants.B2CCustomDomainAuthority, TestConstants.B2CCustomDomainAuthorityWithV2)]
-        public void EnsureAuthorityIsV2_0(string initialAuthority, string expectedAuthority)
-        {
-            JwtBearerOptions options = new JwtBearerOptions
-            {
-                Authority = initialAuthority
-            };
-
-            options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
-            Assert.Equal(expectedAuthority, options.Authority);
         }
 
         [Theory]
