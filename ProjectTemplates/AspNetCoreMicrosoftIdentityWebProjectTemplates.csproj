@@ -2,16 +2,22 @@
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>0.1.0</PackageVersion>
+    <PackageVersion>0.1.2</PackageVersion>
     <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>
     <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Company>Microsoft</Company>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Authors>Microsoft</Authors>
     <Description>
       Templates to use when creating a web app that signs in users or a protected Web API
       with the Microsoft identity platform (and call downstream APIs)</Description>
-    <PackageTags>dotnet-new;templates;Microsoft</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
+    <PackageReleaseNotes>The changelog is available at https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.txt and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
+    <PackageTags>dotnet-new;templates;Microsoft;Microsoft identity platform;Microsoft.Identity.Web</PackageTags>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>content</ContentTargetFolders>
