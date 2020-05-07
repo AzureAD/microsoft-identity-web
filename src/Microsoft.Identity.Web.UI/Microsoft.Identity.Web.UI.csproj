@@ -17,7 +17,6 @@
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
     <PackageReleaseNotes>The changelog is available at https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.txt and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
     <PackageTags>Microsoft identity web ui .NET ASP.NET Core</PackageTags>
-    <DocumentationFile>true</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Label="Source Link">
@@ -63,12 +62,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Microsoft.Identity.Web.UI.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 
 </Project>
