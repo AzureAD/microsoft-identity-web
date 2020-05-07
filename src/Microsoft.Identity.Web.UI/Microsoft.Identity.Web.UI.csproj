@@ -15,6 +15,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
+    <PackageReleaseNotes>The changelog is available at https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.txt and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
     <PackageTags>Microsoft identity web ui .NET ASP.NET Core</PackageTags>
     <DocumentationFile>true</DocumentationFile>
   </PropertyGroup>
