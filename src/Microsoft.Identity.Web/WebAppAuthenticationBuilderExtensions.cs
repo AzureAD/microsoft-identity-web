@@ -139,7 +139,31 @@ namespace Microsoft.Identity.Web
                         await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
                     }
 
+                    // Override the redirect Uri, if provided
+                    if (Uri.TryCreate(microsoftIdentityOptions.RedirectUri, UriKind.Absolute, out Uri uri))
+                    {
+                        if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                        {
+                            context.ProtocolMessage.RedirectUri = microsoftIdentityOptions.RedirectUri;
+                        }
+                    }
+
                     await redirectToIdpHandler(context).ConfigureAwait(false);
+                };
+
+                var redirectToIdpForSignOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
+                options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
+                {
+                    await redirectToIdpForSignOutHandler(context).ConfigureAwait(false);
+
+                    // Override the post logout redirect Uri, if provided
+                    if (Uri.TryCreate(microsoftIdentityOptions.PostLogoutRedirectUri, UriKind.Absolute, out Uri uri))
+                    {
+                        if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                        {
+                            context.ProtocolMessage.PostLogoutRedirectUri = microsoftIdentityOptions.PostLogoutRedirectUri;
+                        }
+                    }
                 };
 
                 if (microsoftIdentityOptions.IsB2C)

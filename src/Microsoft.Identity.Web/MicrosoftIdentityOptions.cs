@@ -30,14 +30,25 @@ namespace Microsoft.Identity.Web
         /// In a Web app, gets or sets the RedirectUri (URI where the token will be sent back by
         /// Azure Active Directory or Azure Active Directory B2C)
         /// This property is exclusive with <see cref="RemoteAuthenticationOptions.CallbackPath"/> which should be used preferably if you don't want
-        /// to have a different deployed configuration from your developper configuration.
+        /// to have a different deployed configuration from your developer configuration.
         /// There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms https
         /// URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
         /// in containers (for the same reasons)
-        /// If you don't specify the RedirectUri, the redirect URI will be computed from the URL on which the app is
+        /// If you don't specify the redirect URI, the redirect URI will be computed from the URL on which the app is
         /// deployed and the CallbackPath.
         /// </summary>
         public string RedirectUri { get; set; }
+
+        /// <summary>
+        /// In a Web app, gets or sets the PostLogoutRedirectUri 
+        /// This property is exclusive with <see cref="RemoteAuthenticationOptions.SignedOutCallbackPath"/> which should be used preferably if you don't want
+        /// to have a different deployed configuration from your developer configuration.
+        /// There are cases where PostLogoutRedirectUri is needed, for instance when you use a reverse proxy that transforms https
+        /// URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
+        /// in containers (for the same reasons)
+        /// If you don't specify the PostLogoutRedirectUri, it will be computed by ASP.NET Core using the SignedOutCallbackPath.
+        /// </summary>
+        public string PostLogoutRedirectUri { get; set; }
 
         /// <summary>
         /// Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
