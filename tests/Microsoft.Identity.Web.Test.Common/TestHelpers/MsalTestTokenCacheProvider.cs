@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             : base(microsoftIdentityOptions, httpContextAccessor)
         {
             MemoryCache = memoryCache;
-            _cacheOptions = cacheOptions.Value;
+            _cacheOptions = cacheOptions?.Value;
         }
 
         public IMemoryCache MemoryCache { get; }

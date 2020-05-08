@@ -14,6 +14,7 @@ namespace Microsoft.Identity.Web
         /// Add the token acquisition service.
         /// </summary>
         /// <param name="services">Service collection.</param>
+        /// <param name="isTokenAcquisitionSingleton"></param>
         /// <returns>the service collection.</returns>
         /// <example>
         /// This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
@@ -28,11 +29,21 @@ namespace Microsoft.Identity.Web
         ///  ;
         /// </code>
         /// </example>
-        public static IServiceCollection AddTokenAcquisition(this IServiceCollection services)
+        public static IServiceCollection AddTokenAcquisition(
+            this IServiceCollection services,
+            bool isTokenAcquisitionSingleton = false)
         {
             // Token acquisition service
             services.AddHttpContextAccessor();
-            services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+            if (!isTokenAcquisitionSingleton)
+            {
+                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+            }
+            else
+            {
+                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+            }
+
             return services;
         }
     }

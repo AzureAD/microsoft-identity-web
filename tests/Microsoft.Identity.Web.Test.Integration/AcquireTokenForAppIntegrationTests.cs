@@ -170,7 +170,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 logger);
         }
 
-        private IHttpContextAccessor CreateMockHttpContextAccessor()
+        private static IHttpContextAccessor CreateMockHttpContextAccessor()
         {
             var mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
             mockHttpContextAccessor.HttpContext = new DefaultHttpContext();
@@ -184,6 +184,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         private void BuildTheRequiredServices()
         {
             var services = new ServiceCollection();
+
             services.AddTokenAcquisition();
             services.AddTransient(
                 _provider => Options.Create(new MicrosoftIdentityOptions

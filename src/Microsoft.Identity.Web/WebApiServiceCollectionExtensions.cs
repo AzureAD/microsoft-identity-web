@@ -116,10 +116,14 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
         {
-            services.AddTokenAcquisition();
-            services.AddHttpContextAccessor();
             services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
             services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+
+            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
+            services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
+            services.AddHttpContextAccessor();
 
             services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
             {

@@ -169,7 +169,11 @@ namespace Microsoft.Identity.Web
             services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
 
             services.AddHttpContextAccessor();
-            services.AddTokenAcquisition();
+
+            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+
+            services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
 
             services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
             {
