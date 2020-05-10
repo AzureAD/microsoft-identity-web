@@ -148,8 +148,9 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(
                     ex,
-                    string.Format(CultureInfo.InvariantCulture,
-                    "Exception occured while adding an account to the cache from the auth code. "));
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Exception occurred while adding an account to the cache from the auth code. "));
                 throw;
             }
         }
@@ -230,8 +231,7 @@ namespace Microsoft.Identity.Web
                     string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
                                                 : validatedToken.InnerToken.RawData;
                     var result = await _application
-                                        .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal),
-                                                                new UserAssertion(tokenUsedToCallTheWebApi))
+                                        .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
                                         .ExecuteAsync()
                                         .ConfigureAwait(false);
                     accessToken = result.AccessToken;
@@ -300,7 +300,6 @@ namespace Microsoft.Identity.Web
 
                 _tokenCacheProvider?.ClearAsync().ConfigureAwait(false);
             }
-
             else
             {
                 account = await app.GetAccountAsync(context.HttpContext.User.GetMsalAccountId()).ConfigureAwait(false);
@@ -330,6 +329,7 @@ namespace Microsoft.Identity.Web
             {
                 _application = await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             }
+
             return _application;
         }
 
@@ -368,13 +368,13 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{ _applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                     app = builder.Build();
                 }
                 else
                 {
-                    authority = $"{ _applicationOptions.Instance}{_applicationOptions.TenantId}/";
+                    authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
                     builder.WithAuthority(authority);
                     app = builder.Build();
                 }
@@ -388,8 +388,9 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(
                     ex,
-                    string.Format(CultureInfo.InvariantCulture,
-                    "Exception acquiring token for a confidential client. "));
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Exception acquiring token for a confidential client. "));
                 throw;
             }
         }
@@ -476,7 +477,6 @@ namespace Microsoft.Identity.Web
 
                 return result.AccessToken;
             }
-
             else if (!string.IsNullOrWhiteSpace(tenant))
             {
                 // Acquire an access token as another AAD authority
@@ -540,6 +540,7 @@ namespace Microsoft.Identity.Web
             {
                 headers.Remove(HeaderNames.WWWAuthenticate);
             }
+
             headers.Add(HeaderNames.WWWAuthenticate, v);
         }
 
@@ -549,7 +550,7 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return (msalSeviceException.Message.Contains("AADSTS50013", StringComparison.InvariantCulture));
+            return msalSeviceException.Message.Contains("AADSTS50013", StringComparison.InvariantCulture);
         }
 
         /// <summary>
@@ -580,6 +581,7 @@ namespace Microsoft.Identity.Web
                 {
                     return _microsoftIdentityOptions.RedirectUri;
                 }
+
                 _logger.LogInformation("MicrosoftIdentityOptions RedirectUri value must have a Uri Scheme " +
                     "of http or https in order to be a valid RedirectUri. ");
             }

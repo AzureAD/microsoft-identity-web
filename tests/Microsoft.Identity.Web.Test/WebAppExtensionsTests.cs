@@ -35,10 +35,12 @@ namespace Microsoft.Identity.Web.Test
         private const string _configSectionName = "AzureAd-Custom";
         private IConfigurationSection _configSection;
         private readonly Action<ConfidentialClientApplicationOptions> _configureAppOptions = (options) => { };
-        private readonly Action<OpenIdConnectOptions> _configureOidcOptions = (options) => {
+        private readonly Action<OpenIdConnectOptions> _configureOidcOptions = (options) =>
+        {
             options.ClientId = TestConstants.ClientId;
         };
-        private Action<MicrosoftIdentityOptions> _configureMsOptions = (options) => {
+        private Action<MicrosoftIdentityOptions> _configureMsOptions = (options) =>
+        {
             options.Instance = TestConstants.AadInstance;
             options.TenantId = TestConstants.TenantIdAsGuid;
             options.ClientId = TestConstants.ClientId;
@@ -130,7 +132,8 @@ namespace Microsoft.Identity.Web.Test
 
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
                 });
@@ -156,7 +159,8 @@ namespace Microsoft.Identity.Web.Test
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
                 });
@@ -186,7 +190,8 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                         options.Events ??= new OpenIdConnectEvents();
                         options.Events.OnRemoteFailure += remoteFailureFuncMock;
                     });
@@ -210,7 +215,8 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(false)]
         public async Task AddSignIn_WithConfigActionParameters_B2cSpecificSetup(bool useServiceCollectionExtension)
         {
-            _configureMsOptions = (options) => {
+            _configureMsOptions = (options) =>
+            {
                 options.Instance = TestConstants.B2CInstance;
                 options.TenantId = TestConstants.TenantIdAsGuid;
                 options.ClientId = TestConstants.ClientId;
@@ -220,7 +226,8 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
                 });
@@ -251,7 +258,8 @@ namespace Microsoft.Identity.Web.Test
 
             var services = new ServiceCollection()
                 .AddWebAppCallsProtectedWebApi(configMock, initialScopes, _configSectionName, _oidcScheme)
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
@@ -288,7 +296,8 @@ namespace Microsoft.Identity.Web.Test
 
             var services = new ServiceCollection()
                 .AddWebAppCallsProtectedWebApi(initialScopes, _configureMsOptions, _configureAppOptions, _oidcScheme)
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) => {
+                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
@@ -405,12 +414,11 @@ namespace Microsoft.Identity.Web.Test
             await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
             await oidcOptions.Events.RemoteFailure(remoteFailureContext).ConfigureAwait(false);
 
-
             await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
             // Assert issuer is updated to non-default user flow
             Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters["client_info"]);
-            Assert.Equal("1", redirectContext.ProtocolMessage.Parameters["client_info"].ToString(CultureInfo.InvariantCulture));;
+            Assert.Equal("1", redirectContext.ProtocolMessage.Parameters["client_info"].ToString(CultureInfo.InvariantCulture));
         }
 
         private void AddWebAppCallsProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, OpenIdConnectOptions oidcOptions, IEnumerable<string> initialScopes)

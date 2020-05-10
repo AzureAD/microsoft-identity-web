@@ -35,7 +35,8 @@ namespace Microsoft.Identity.Web.Test
         private readonly IConfigurationSection _configSection;
         private readonly Action<ConfidentialClientApplicationOptions> _configureAppOptions = (options) => { };
         private readonly Action<JwtBearerOptions> _configureJwtOptions = (options) => { };
-        private readonly Action<MicrosoftIdentityOptions> _configureMsOptions = (options) => {
+        private readonly Action<MicrosoftIdentityOptions> _configureMsOptions = (options) =>
+        {
             options.Instance = TestConstants.AadInstance;
             options.TenantId = TestConstants.TenantIdAsGuid;
             options.ClientId = TestConstants.ClientId;
@@ -62,8 +63,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
@@ -88,8 +91,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
@@ -136,7 +141,8 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFunc = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
-                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) => {
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFunc;
                 })
@@ -147,8 +153,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
@@ -165,7 +173,8 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFunc = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
-                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) => {
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFunc;
                 })
@@ -176,8 +185,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+            }
 
             var provider = services.BuildServiceProvider();
 
@@ -208,8 +219,7 @@ namespace Microsoft.Identity.Web.Test
                     new ClaimsIdentity(new Claim[]
                     {
                         new Claim(scopeType, scopeValue),
-                    })
-                );
+                    }));
                 await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
             }
 
@@ -236,8 +246,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
+            }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
             services.AddSingleton<IJwtBearerMiddlewareDiagnostics>((provider) => diagnostics);
@@ -273,8 +285,10 @@ namespace Microsoft.Identity.Web.Test
                 services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
             }
             else
+            {
                 new AuthenticationBuilder(services)
                     .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
+            }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
             services.AddSingleton<IJwtBearerMiddlewareDiagnostics>((provider) => diagnostics);
@@ -387,7 +401,7 @@ namespace Microsoft.Identity.Web.Test
                 Audience = initialAudience,
                 TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidAudiences = initialAudiences
+                    ValidAudiences = initialAudiences,
                 },
             };
             MicrosoftIdentityOptions msIdentityOptions = new MicrosoftIdentityOptions()

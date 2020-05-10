@@ -108,8 +108,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
-            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
+            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
 
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
@@ -122,8 +121,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
 
-            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } });
+            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } });
 
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
@@ -135,8 +133,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim });
 
-            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
+            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
 
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
@@ -150,13 +147,11 @@ namespace Microsoft.Identity.Web.Test.Resource
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
             var jsonWebToken = new JsonWebToken($"{{}}", $"{{\"{TestConstants.ClaimNameIss}\":\"{TestConstants.AadIssuer}\",\"{TestConstants.ClaimNameTid}\":\"{TestConstants.TenantIdAsGuid}\"}}");
 
-            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
+            var actualIssuer = validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
 
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
 
-            actualIssuer = validator.Validate(TestConstants.AadIssuer, jsonWebToken,
-                new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
+            actualIssuer = validator.Validate(TestConstants.AadIssuer, jsonWebToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer });
 
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
@@ -171,8 +166,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                    new TokenValidationParameters() { ValidIssuer = TestConstants.B2CIssuer }));
+                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.B2CIssuer }));
             Assert.Equal(expectedErrorMessage, exception.Message);
         }
 
@@ -186,8 +180,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
-                    new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer }));
+                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer }));
             Assert.Equal(expectedErrorMessage, exception.Message);
         }
 
@@ -201,12 +194,15 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken,
+                validator.Validate(
+                    TestConstants.AadIssuer,
+                    jwtSecurityToken,
                     new TokenValidationParameters()
                     {
-                        ValidIssuers = new[] {
+                        ValidIssuers = new[]
+                        {
                             "https://host1/{tenantid}/v2.0",
-                            "https://host2/{tenantid}/v2.0"
+                            "https://host2/{tenantid}/v2.0",
                         },
                     }));
             Assert.Equal(expectedErrorMessage, exception.Message);
@@ -225,8 +221,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = $"Issuer: '{invalidIssuerToValidate}', does not match any of the valid issuers provided for this application.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(invalidIssuerToValidate, jwtSecurityToken,
-                    new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
+                validator.Validate(invalidIssuerToValidate, jwtSecurityToken, new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
             Assert.Equal(expectedErrorMessage, exception.Message);
         }
 
@@ -289,8 +284,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                     new TokenValidationParameters()
                     {
                         ValidIssuers = new[] { TestConstants.B2CIssuer },
-                    })
-                );
+                    }));
         }
 
         // Similar to Validate_NotMatchedTenantIds_ThrowsException but uses
@@ -312,8 +306,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                     new TokenValidationParameters()
                     {
                         ValidIssuers = new[] { TestConstants.B2CIssuer },
-                    })
-                );
+                    }));
         }
 
         // Similar to Validate_IssuerMatchedInValidIssuers_ReturnsIssuer but uses

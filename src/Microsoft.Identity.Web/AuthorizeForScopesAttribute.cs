@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to request.</param>
         /// <param name="ex">MsalUiRequiredException instance.</param>
-        /// <param name="context">current http context in the pipeline.</param>
+        /// <param name="context">current HTTP context in the pipeline.</param>
         /// <returns>AuthenticationProperties.</returns>
         private AuthenticationProperties BuildAuthenticationPropertiesForIncrementalConsent(
             string[] scopes,
@@ -128,8 +128,9 @@ namespace Microsoft.Identity.Web
                  OidcConstants.ScopeProfile,
             };
 
-            properties.SetParameter<ICollection<string>>(OpenIdConnectParameterNames.Scope,
-                                                         scopes.Union(additionalBuiltInScopes).ToList());
+            properties.SetParameter<ICollection<string>>(
+                OpenIdConnectParameterNames.Scope,
+                scopes.Union(additionalBuiltInScopes).ToList());
 
             // Attempts to set the login_hint to avoid the logged-in user to be presented with an account selection dialog
             var loginHint = context.User.GetLoginHint();

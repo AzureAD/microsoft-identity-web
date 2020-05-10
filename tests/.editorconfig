@@ -11,11 +11,23 @@ dotnet_diagnostic.SA1600.severity = none
 # CA2201: Do not raise reserved exception types
 dotnet_diagnostic.CA2201.severity = none
 
+# SA1618: Generic type parameters should be documented
+dotnet_diagnostic.SA1618.severity = none
+
+# CA1062: Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none
+
 # CA1303: Do not pass literals as localized parameters
 dotnet_diagnostic.CA1303.severity = none
 
-# SA1117: Parameters should be on same line or separate lines
-dotnet_diagnostic.SA1117.severity = none
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
 
 # SA1124: Do not use regions
 dotnet_diagnostic.SA1124.severity = none
+
+# SA1402: File may only contain a single type
+dotnet_diagnostic.SA1402.severity = none
+
+# SA1611: Element parameters should be documented
+dotnet_diagnostic.SA1611.severity = none

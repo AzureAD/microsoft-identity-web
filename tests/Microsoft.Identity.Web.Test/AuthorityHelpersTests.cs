@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Xunit;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web.Test.Common;
+using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
