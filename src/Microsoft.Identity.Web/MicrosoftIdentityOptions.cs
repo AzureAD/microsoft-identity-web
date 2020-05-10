@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         public string RedirectUri { get; set; }
 
         /// <summary>
-        /// In a Web app, gets or sets the PostLogoutRedirectUri 
+        /// In a web app, gets or sets the PostLogoutRedirectUri 
         /// This property is exclusive with <see cref="RemoteAuthenticationOptions.SignedOutCallbackPath"/> which should be used preferably if you don't want
         /// to have a different deployed configuration from your developer configuration.
         /// There are cases where PostLogoutRedirectUri is needed, for instance when you use a reverse proxy that transforms https
