@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         public string Domain { get; set; }
 
         /// <summary>
-        /// In a Web app, gets or sets the RedirectUri (URI where the token will be sent back by
+        /// In a web app, gets or sets the RedirectUri (URI where the token will be sent back by
         /// Azure Active Directory or Azure Active Directory B2C)
         /// This property is exclusive with <see cref="RemoteAuthenticationOptions.CallbackPath"/> which should be used preferably if you don't want
         /// to have a different deployed configuration from your developer configuration.
