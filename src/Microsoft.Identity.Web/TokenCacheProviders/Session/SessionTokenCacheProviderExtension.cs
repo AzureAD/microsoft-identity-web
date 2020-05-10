@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
     /// <summary>
-    /// Extension class to add a session token cache serializer to MSAL
+    /// Extension class to add a session token cache serializer to MSAL.
     /// </summary>
     public static class SessionTokenCacheProviderExtension
     {
@@ -99,8 +99,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         {
             services.AddHttpContextAccessor();
             services.AddSession(option =>
-            { option.Cookie.IsEssential = true; }
-            );
+                {
+                    option.Cookie.IsEssential = true;
+                });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
             return services;
         }

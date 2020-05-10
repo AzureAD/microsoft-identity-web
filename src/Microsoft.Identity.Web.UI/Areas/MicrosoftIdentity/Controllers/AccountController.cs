@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 {
     /// <summary>
-    /// Controller used in web apps to manage accounts
+    /// Controller used in web apps to manage accounts.
     /// </summary>
     [NonController]
     [AllowAnonymous]
@@ -24,19 +24,19 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
         /// <summary>
         /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
-        /// This constructor is used by dependency injection
+        /// This constructor is used by dependency injection.
         /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options</param>
+        /// <param name="microsoftIdentityOptions">Configuration options.</param>
         public AccountController(IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptions)
         {
             _options = microsoftIdentityOptions;
         }
 
         /// <summary>
-        /// Handles user sign in
+        /// Handles user sign in.
         /// </summary>
-        /// <param name="scheme">Authentication scheme</param>
-        /// <returns>Challenge generating a redirect to Azure AD to sign in the user</returns>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult SignIn([FromRoute] string scheme)
         {
@@ -48,10 +48,10 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         }
 
         /// <summary>
-        /// Handles the user sign-out
+        /// Handles the user sign-out.
         /// </summary>
-        /// <param name="scheme">Authentication scheme</param>
-        /// <returns>Sign out result</returns>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Sign out result.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult SignOut([FromRoute] string scheme)
         {
@@ -60,17 +60,17 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             return SignOut(
                  new AuthenticationProperties
                  {
-                     RedirectUri = callbackUrl
+                     RedirectUri = callbackUrl,
                  },
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 scheme);
         }
 
         /// <summary>
-        /// In B2C applications handles the Reset password policy
+        /// In B2C applications handles the Reset password policy.
         /// </summary>
-        /// <param name="scheme">Authentication scheme</param>
-        /// <returns>Challenge generating a redirect to Azure AD B2C</returns>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD B2C.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult ResetPassword([FromRoute] string scheme)
         {
@@ -83,10 +83,10 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         }
 
         /// <summary>
-        /// In B2C applications, handles the Edit Profile policy
+        /// In B2C applications, handles the Edit Profile policy.
         /// </summary>
-        /// <param name="scheme">Authentication scheme</param>
-        /// <returns>Challenge generating a redirect to Azure AD B2C</returns>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD B2C.</returns>
         [HttpGet("{scheme?}")]
         public async Task<IActionResult> EditProfile([FromRoute] string scheme)
         {

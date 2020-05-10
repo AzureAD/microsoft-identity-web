@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension class containing cookie policies (work around for same site)
+    /// Extension class containing cookie policies (work around for same site).
     /// </summary>
     public static class CookiePolicyOptionsExtensions
     {
         /// <summary>
         /// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
-        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -25,10 +25,10 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
         /// <param name="options"></param>
-        /// <param name="disallowsSameSiteNone">If you dont want to use the default user-agent list implementation, the method sent in this parameter will be run against the user-agent and if returned true, SameSite value will be set to Unspecified. The default user-agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/</param>
+        /// <param name="disallowsSameSiteNone">If you dont want to use the default user-agent list implementation, the method sent in this parameter will be run against the user-agent and if returned true, SameSite value will be set to Unspecified. The default user-agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.</param>
         /// <returns></returns>
         public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
         {
@@ -53,10 +53,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="userAgent"></param>
-        /// <remarks>Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/</remarks>
+        /// <remarks>Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.</remarks>
         /// <returns></returns>
         public static bool DisallowsSameSiteNone(string userAgent)
         {
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
                 return true;
             }
 
-            // Cover Mac OS X based browsers that use the Mac OS networking stack. 
+            // Cover Mac OS X based browsers that use the Mac OS networking stack.
             // This includes:
             // - Safari on Mac OS X.
             // This does not include:
@@ -84,9 +84,9 @@ namespace Microsoft.Identity.Web
                 return true;
             }
 
-            // Cover Chrome 50-69, because some versions are broken by SameSite=None, 
+            // Cover Chrome 50-69, because some versions are broken by SameSite=None,
             // and none in this range require it.
-            // Note: this covers some pre-Chromium Edge versions, 
+            // Note: this covers some pre-Chromium Edge versions,
             // but pre-Chromium Edge does not require SameSite=None.
             if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6"))
             {

@@ -1,31 +1,32 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     public class MsalTestTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
-        public IMemoryCache MemoryCache { get; }
-        private readonly MsalMemoryTokenCacheOptions _cacheOptions;
-        public int Count { get; internal set; }
-
         public MsalTestTokenCacheProvider(
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
-            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) :
-            base(microsoftIdentityOptions, httpContextAccessor)
+            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) : base(microsoftIdentityOptions, httpContextAccessor)
         {
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
         }
+
+        public IMemoryCache MemoryCache { get; }
+
+        public int Count { get; internal set; }
+
+        private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 
         protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {

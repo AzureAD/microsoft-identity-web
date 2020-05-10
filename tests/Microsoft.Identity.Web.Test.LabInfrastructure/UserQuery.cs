@@ -8,48 +8,56 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
     public class UserQuery
     {
         public UserType? UserType { get; set; }
+
         public MFA? MFA { get; set; }
+
         public ProtectionPolicy? ProtectionPolicy { get; set; }
+
         public HomeDomain? HomeDomain { get; set; }
+
         public HomeUPN? HomeUPN { get; set; }
+
         public B2CIdentityProvider? B2CIdentityProvider { get; set; }
-        public FederationProvider? FederationProvider { get; set; } //Requires userType to be set to federated
+
+        public FederationProvider? FederationProvider { get; set; } // Requires userType to be set to federated
+
         public AzureEnvironment? AzureEnvironment { get; set; }
+
         public SignInAudience? SignInAudience { get; set; }
 
         public static UserQuery PublicAadUserQuery => new UserQuery()
         {
             UserType = LabInfrastructure.UserType.Cloud,
-            AzureEnvironment = LabInfrastructure.AzureEnvironment.azurecloud
+            AzureEnvironment = LabInfrastructure.AzureEnvironment.azurecloud,
         };
 
         public static UserQuery MsaUserQuery => new UserQuery
         {
-            UserType = LabInfrastructure.UserType.MSA
+            UserType = LabInfrastructure.UserType.MSA,
         };
 
         public static UserQuery B2CLocalAccountUserQuery => new UserQuery
         {
             UserType = LabInfrastructure.UserType.B2C,
-            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Local
+            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Local,
         };
 
         public static UserQuery B2CFacebookUserQuery => new UserQuery
         {
             UserType = LabInfrastructure.UserType.B2C,
-            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Facebook
+            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Facebook,
         };
 
         public static UserQuery B2CGoogleUserQuery => new UserQuery
         {
             UserType = LabInfrastructure.UserType.B2C,
-            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Google
+            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.Google,
         };
 
         public static UserQuery B2CMSAUserQuery => new UserQuery
         {
             UserType = LabInfrastructure.UserType.B2C,
-            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.MSA
+            B2CIdentityProvider = LabInfrastructure.B2CIdentityProvider.MSA,
         };
 
         // generated code, re-generate or update manually if you change the members of this class !
@@ -76,15 +84,15 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         public override int GetHashCode()
         {
             var hashCode = 1863312741;
-            hashCode = hashCode * -1521134295 + EqualityComparer<UserType?>.Default.GetHashCode(UserType);
-            hashCode = hashCode * -1521134295 + EqualityComparer<MFA?>.Default.GetHashCode(MFA);
-            hashCode = hashCode * -1521134295 + EqualityComparer<ProtectionPolicy?>.Default.GetHashCode(ProtectionPolicy);
-            hashCode = hashCode * -1521134295 + EqualityComparer<HomeDomain?>.Default.GetHashCode(HomeDomain);
-            hashCode = hashCode * -1521134295 + EqualityComparer<HomeUPN?>.Default.GetHashCode(HomeUPN);
-            hashCode = hashCode * -1521134295 + EqualityComparer<B2CIdentityProvider?>.Default.GetHashCode(B2CIdentityProvider);
-            hashCode = hashCode * -1521134295 + EqualityComparer<FederationProvider?>.Default.GetHashCode(FederationProvider);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AzureEnvironment?>.Default.GetHashCode(AzureEnvironment);
-            hashCode = hashCode * -1521134295 + EqualityComparer<SignInAudience?>.Default.GetHashCode(SignInAudience);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<UserType?>.Default.GetHashCode(UserType);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<MFA?>.Default.GetHashCode(MFA);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<ProtectionPolicy?>.Default.GetHashCode(ProtectionPolicy);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<HomeDomain?>.Default.GetHashCode(HomeDomain);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<HomeUPN?>.Default.GetHashCode(HomeUPN);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<B2CIdentityProvider?>.Default.GetHashCode(B2CIdentityProvider);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<FederationProvider?>.Default.GetHashCode(FederationProvider);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<AzureEnvironment?>.Default.GetHashCode(AzureEnvironment);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<SignInAudience?>.Default.GetHashCode(SignInAudience);
             return hashCode;
         }
         #endregion

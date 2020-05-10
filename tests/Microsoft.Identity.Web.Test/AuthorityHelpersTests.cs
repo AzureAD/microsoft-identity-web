@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 Domain = TestConstants.B2CTenant,
                 Instance = TestConstants.B2CInstance,
-                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow
+                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
             };
             string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
 
@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web.Test
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 TenantId = TestConstants.TenantIdAsGuid,
-                Instance = TestConstants.AadInstance
+                Instance = TestConstants.AadInstance,
             };
             string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0";
 
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.Test
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
                 TenantId = TestConstants.TenantIdAsGuid,
-                Instance = TestConstants.AadInstance + "/"
+                Instance = TestConstants.AadInstance + "/",
             };
             string expectedResult = $"{TestConstants.AadInstance}/{options.TenantId}/v2.0";
 
@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Web.Test
         {
             OpenIdConnectOptions options = new OpenIdConnectOptions
             {
-                Authority = initialAuthority
+                Authority = initialAuthority,
             };
 
             options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);

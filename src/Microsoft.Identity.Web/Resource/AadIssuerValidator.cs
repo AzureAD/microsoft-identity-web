@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Resource
         private static readonly ConfigurationManager<IssuerMetadata> s_configManager = new ConfigurationManager<IssuerMetadata>(AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
 
         /// <summary>
-        /// A list of all Issuers across the various Azure AD instances
+        /// A list of all Issuers across the various Azure AD instances.
         /// </summary>
         private readonly ISet<string> _issuerAliases;
 
@@ -39,13 +39,15 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
         /// </summary>
-        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/ </param>
+        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
         /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
         /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
         {
             if (string.IsNullOrEmpty(aadAuthority))
+            {
                 throw new ArgumentNullException(nameof(aadAuthority));
+            }
 
             Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri authorityUri);
             string authorityHost = authorityUri?.Authority ?? new Uri(FallbackAuthority).Authority;
@@ -71,41 +73,53 @@ namespace Microsoft.Identity.Web.Resource
 
         /// <summary>
         /// Validate the issuer for multi-tenant applications of various audience (Work and School account, or Work and School accounts +
-        /// Personal accounts)
+        /// Personal accounts).
         /// </summary>
-        /// <param name="actualIssuer">Issuer to validate (will be tenanted)</param>
-        /// <param name="securityToken">Received Security Token</param>
-        /// <param name="validationParameters">Token Validation parameters</param>
+        /// <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
+        /// <param name="securityToken">Received Security Token.</param>
+        /// <param name="validationParameters">Token Validation parameters.</param>
         /// <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
         /// authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
         /// accepts both V1 and V2 tokens).
-        /// Authority aliasing is also taken into account</remarks>
-        /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown</returns>
+        /// Authority aliasing is also taken into account.</remarks>
+        /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
         /// <exception cref="ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
-        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer </exception>
+        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer. </exception>
         public string Validate(string actualIssuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
         {
             if (string.IsNullOrEmpty(actualIssuer))
+            {
                 throw new ArgumentNullException(nameof(actualIssuer));
+            }
 
             if (securityToken == null)
+            {
                 throw new ArgumentNullException(nameof(securityToken));
+            }
 
             if (validationParameters == null)
+            {
                 throw new ArgumentNullException(nameof(validationParameters));
+            }
 
             string tenantId = GetTenantIdFromToken(securityToken);
             if (string.IsNullOrWhiteSpace(tenantId))
+            {
                 throw new SecurityTokenInvalidIssuerException("Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform.");
+            }
 
             if (validationParameters.ValidIssuers != null)
                 foreach (var validIssuerTemplate in validationParameters.ValidIssuers)
                     if (IsValidIssuer(validIssuerTemplate, tenantId, actualIssuer))
+                    {
                         return actualIssuer;
+                    }
 
             if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
+            {
                 return actualIssuer;
+            }
 
             // If a valid issuer is not found, throw
             // brentsch - todo, create a list of all the possible valid issuers in TokenValidationParameters
@@ -115,7 +129,9 @@ namespace Microsoft.Identity.Web.Resource
         private bool IsValidIssuer(string validIssuerTemplate, string tenantId, string actualIssuer)
         {
             if (string.IsNullOrEmpty(validIssuerTemplate))
+            {
                 return false;
+            }
 
             try
             {
@@ -154,7 +170,9 @@ namespace Microsoft.Identity.Web.Resource
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
                 if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object tenantId))
+                {
                     return tenantId as string;
+                }
 
                 // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jwtSecurityToken.Issuer);
@@ -164,7 +182,9 @@ namespace Microsoft.Identity.Web.Resource
             {
                 jsonWebToken.TryGetPayloadValue(ClaimConstants.Tid, out string tid);
                 if (tid != null)
+                {
                     return tid;
+                }
 
                 // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jsonWebToken.Issuer);
@@ -177,7 +197,9 @@ namespace Microsoft.Identity.Web.Resource
         private static string GetTenantIdFromIss(string iss)
         {
             if (string.IsNullOrEmpty(iss))
+            {
                 return string.Empty;
+            }
 
             var uri = new Uri(iss);
 
