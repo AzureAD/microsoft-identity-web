@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// Azure Active Directory or Azure Active Directory B2C)
         /// This property is exclusive with <see cref="RemoteAuthenticationOptions.CallbackPath"/> which should be used preferably if you don't want
         /// to have a different deployed configuration from your developer configuration.
-        /// There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms https
+        /// There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms HTTPS
         /// URLs (external world) to http URLs (inside the protected area). This can also be useful for Web apps running
         /// in containers (for the same reasons)
         /// If you don't specify the redirect URI, the redirect URI will be computed from the URL on which the app is
