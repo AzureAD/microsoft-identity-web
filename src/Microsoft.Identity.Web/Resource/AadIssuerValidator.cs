@@ -6,10 +6,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Identity.Web.InstanceDiscovery;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -110,11 +110,15 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             if (validationParameters.ValidIssuers != null)
+            {
                 foreach (var validIssuerTemplate in validationParameters.ValidIssuers)
+                {
                     if (IsValidIssuer(validIssuerTemplate, tenantId, actualIssuer))
                     {
                         return actualIssuer;
                     }
+                }
+            }
 
             if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
             {

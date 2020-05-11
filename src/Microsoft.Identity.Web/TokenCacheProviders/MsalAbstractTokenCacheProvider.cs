@@ -46,6 +46,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             {
                 throw new ArgumentNullException(nameof(tokenCache));
             }
+
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
             tokenCache.SetBeforeWriteAsync(OnBeforeWriteAsync);

@@ -16,7 +16,8 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
-            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) : base(microsoftIdentityOptions, httpContextAccessor)
+            IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;

@@ -40,7 +40,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         public MsalSessionTokenCacheProvider(
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<MsalSessionTokenCacheProvider> logger) : base(microsoftIdentityOptions, httpContextAccessor)
+            ILogger<MsalSessionTokenCacheProvider> logger)
+            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             _logger = logger;
         }
@@ -66,6 +67,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
                 {
                     _logger.LogInformation($"CacheId {cacheKey} not found in session {CurrentHttpContext.Session.Id}");
                 }
+
                 return blob;
             }
             finally

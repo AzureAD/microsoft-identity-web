@@ -63,9 +63,9 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
                         PreferredCache = "login.windows.net",
                         Aliases = new List<string>
                         {
-                            "login.microsoftonline.com"
-                        }
-                    }
+                            "login.microsoftonline.com",
+                        },
+                    },
                 },
             };
         }

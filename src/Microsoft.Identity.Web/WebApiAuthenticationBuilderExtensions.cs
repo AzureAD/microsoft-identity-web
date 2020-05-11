@@ -42,7 +42,8 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            return builder.AddProtectedWebApi(options => configuration.Bind(configSectionName, options),
+            return builder.AddProtectedWebApi(
+                options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
                 jwtBearerScheme,
@@ -57,14 +58,14 @@ namespace Microsoft.Identity.Web
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>
         /// configuration options.</param>
-        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate.</param>
+        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddProtectedWebApi(
-        this AuthenticationBuilder builder,
+            this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             X509Certificate2 tokenDecryptionCertificate = null,
@@ -75,6 +76,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(builder));
             }
+
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
@@ -176,6 +178,7 @@ namespace Microsoft.Identity.Web
                 validAudiences.Add(msIdentityOptions.ClientId);
                 validAudiences.Add($"api://{msIdentityOptions.ClientId}");
             }
+
             options.TokenValidationParameters.ValidAudiences = validAudiences;
         }
     }

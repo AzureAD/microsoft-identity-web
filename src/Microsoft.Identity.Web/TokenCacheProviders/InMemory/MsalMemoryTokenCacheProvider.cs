@@ -32,21 +32,24 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <param name="httpContextAccessor">Accessor to the HttpContext.</param>
         /// <param name="memoryCache">serialization cache.</param>
         /// <param name="cacheOptions">Memory cache options.</param>
-        public MsalMemoryTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-                                            IHttpContextAccessor httpContextAccessor,
-                                            IMemoryCache memoryCache,
-                                            IOptions<MsalMemoryTokenCacheOptions> cacheOptions) : base(microsoftIdentityOptions, httpContextAccessor)
+        public MsalMemoryTokenCacheProvider(
+            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
+            IHttpContextAccessor httpContextAccessor,
+            IMemoryCache memoryCache,
+            IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             if (cacheOptions == null)
             {
                 throw new ArgumentNullException(nameof(cacheOptions));
             }
+
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
         }
 
         /// <summary>
-        /// Removes a token cache identitied by its key, from the serialization
+        /// Removes a token cache identified by its key, from the serialization
         /// cache.
         /// </summary>
         /// <param name="cacheKey">token cache key.</param>
@@ -57,7 +60,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
-        /// Reads a blob from the serialization cache (identitied by its key).
+        /// Reads a blob from the serialization cache (identified by its key).
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <returns>Read Bytes.</returns>
@@ -68,7 +71,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
-        /// Writes a token cache blob to the serialization cache (identitied by its key).
+        /// Writes a token cache blob to the serialization cache (identified by its key).
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <param name="bytes">Bytes to write.</param>

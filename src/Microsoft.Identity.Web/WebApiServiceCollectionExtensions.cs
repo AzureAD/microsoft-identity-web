@@ -40,7 +40,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            builder.AddProtectedWebApi(options => configuration.Bind(configSectionName, options),
+            builder.AddProtectedWebApi(
+                options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
                 jwtBearerScheme,
@@ -55,8 +56,8 @@ namespace Microsoft.Identity.Web
         /// <param name="services">Service collection to which to add authentication.</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
-        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="tokenDecryptionCertificate">Token decryption certificate (null by default).</param>
+        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>

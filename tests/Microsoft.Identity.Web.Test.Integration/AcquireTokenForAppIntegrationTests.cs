@@ -41,7 +41,8 @@ namespace Microsoft.Identity.Web.Test.Integration
             _keyVault = new KeyVaultSecretsProvider();
             _ccaSecret = _keyVault.GetSecret(TestConstants.ConfidentialClientKeyVaultUri).Value;
 
-            if (!string.IsNullOrEmpty(_ccaSecret)) // Need the secret before building the services
+            // Need the secret before building the services
+            if (!string.IsNullOrEmpty(_ccaSecret))
             {
                 BuildTheRequiredServices();
             }
@@ -156,7 +157,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                 microsoftIdentityOptions,
-                 httpContextAccessor,
+                httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);
 
@@ -189,7 +190,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 {
                     Authority = TestConstants.AuthorityCommonTenant,
                     ClientId = TestConstants.ConfidentialClientId,
-                    CallbackPath = "",
+                    CallbackPath = string.Empty,
                 }));
             services.AddTransient(
                 _provider => Options.Create(new ConfidentialClientApplicationOptions
@@ -198,8 +199,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     TenantId = TestConstants.ConfidentialClientLabTenant,
                     ClientId = TestConstants.ConfidentialClientId,
                     ClientSecret = _ccaSecret,
-                }
-                ));
+                }));
             services.AddLogging();
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();
