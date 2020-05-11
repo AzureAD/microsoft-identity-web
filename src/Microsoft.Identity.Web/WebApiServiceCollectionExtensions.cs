@@ -124,11 +124,15 @@ namespace Microsoft.Identity.Web
             {
                 options.Events ??= new JwtBearerEvents();
 
+                var onTokenValidatedHandler = options.Events.OnTokenValidated;
+
                 options.Events.OnTokenValidated = async context =>
                 {
                     context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
                     context.Success();
                     await Task.FromResult(0).ConfigureAwait(false);
+
+                    await onTokenValidatedHandler(context).ConfigureAwait(false);
                 };
             });
 
