@@ -62,8 +62,8 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                  {
                      RedirectUri = callbackUrl,
                  },
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                scheme);
+                 CookieAuthenticationDefaults.AuthenticationScheme,
+                 scheme);
         }
 
         /// <summary>
