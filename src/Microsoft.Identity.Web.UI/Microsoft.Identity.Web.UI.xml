@@ -6,93 +6,99 @@
     <members>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController">
             <summary>
-            Controller used in web apps to manage accounts
+            Controller used in web apps to manage accounts.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
             <summary>
             Constructor of <see cref="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController"/> from <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>
-            This constructor is used by dependency injection
+            This constructor is used by dependency injection.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options</param>
+            <param name="microsoftIdentityOptions">Configuration options.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(System.String)">
             <summary>
-            Handles user sign in
+            Handles user sign in.
             </summary>
-            <param name="scheme">Authentication scheme</param>
-            <returns>Challenge generating a redirect to Azure AD to sign in the user</returns>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(System.String)">
             <summary>
-            Handles the user sign-out
+            Handles the user sign-out.
             </summary>
-            <param name="scheme">Authentication scheme</param>
-            <returns>Sign out result</returns>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Sign out result.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.ResetPassword(System.String)">
             <summary>
-            In B2C applications handles the Reset password policy
+            In B2C applications handles the Reset password policy.
             </summary>
-            <param name="scheme">Authentication scheme</param>
-            <returns>Challenge generating a redirect to Azure AD B2C</returns>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD B2C.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.EditProfile(System.String)">
             <summary>
-            In B2C applications, handles the Edit Profile policy
+            In B2C applications, handles the Edit Profile policy.
             </summary>
-            <param name="scheme">Authentication scheme</param>
-            <returns>Challenge generating a redirect to Azure AD B2C</returns>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD B2C.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel">
             <summary>
-            Page presenting the Access denied error
+            Page presenting the Access denied error.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel.OnGet">
             <summary>
-            Method handling the Get Http verb
+            Method handling the HTTP GET method.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel">
             <summary>
-            Model for the Error page
+            Model for the Error page.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.RequestId">
             <summary>
             This API supports infrastructure and is not intended to be used
-            directly from your code.This API may change or be removed in future releases
+            directly from your code.This API may change or be removed in future releases.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.ShowRequestId">
             <summary>
             This API supports infrastructure and is not intended to be used
-            directly from your code.This API may change or be removed in future releases
+            directly from your code.This API may change or be removed in future releases.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.OnGet">
             <summary>
             This API supports infrastructure and is not intended to be used
-            directly from your code.This API may change or be removed in future releases
+            directly from your code.This API may change or be removed in future releases.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.SignedOutModel">
             <summary>
-            Model for the SignOut page
+            Model for the SignOut page.
             </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.SignedOutModel.OnGet">
+            <summary>
+            Method handling the HTTP GET method.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.ServiceCollectionExtensions">
             <summary>
             Extension method on <see cref="T:Microsoft.Extensions.DependencyInjection.IMvcBuilder"/> to add UI
-            for Microsoft.Identity.Web
+            for Microsoft.Identity.Web.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.ServiceCollectionExtensions.AddMicrosoftIdentityUI(Microsoft.Extensions.DependencyInjection.IMvcBuilder)">
             <summary>
             Adds a controller and Razor pages for the accounts management.
             </summary>
-            <param name="builder">MVC Builder</param>
+            <param name="builder">MVC Builder.</param>
         </member>
     </members>
 </doc>
