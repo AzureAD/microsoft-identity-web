@@ -1,0 +1,34 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    string name = ViewData["name"] as string;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>@name, Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <table class="table table-striped table-condensed" style="font-family: monospace">
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>photo</td>
+            <td>
+                @{
+                    if (ViewData["photo"] != null)
+                    {
+                        <img style="margin: 5px 0; width: 150px" src="data:image/jpeg;base64, @ViewData["photo"]" />
+                    }
+                    else
+                    {
+                        <h3>NO PHOTO</h3>
+                        <p>Check user profile in Azure Active Directory to add a photo.</p>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+</div>
