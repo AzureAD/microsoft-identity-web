@@ -101,6 +101,8 @@ namespace Microsoft.Identity.Web
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
         /// <returns>The service collection for chaining.</returns>
+        /// <remarks>This method cannot be used with Azure AD B2C as, with B2C an initial scope needs
+        /// to be provided</remarks>
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
