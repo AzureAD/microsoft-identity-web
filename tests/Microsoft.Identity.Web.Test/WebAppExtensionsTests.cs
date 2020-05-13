@@ -324,6 +324,23 @@ namespace Microsoft.Identity.Web.Test
             await AddWebAppCallsProtectedWebApi_TestRedirectToIdentityProviderForSignOutEvent(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
         }
 
+        [Fact]
+        public void AddWebAppCallsProtectedWebApi_NoScopes()
+        {
+            // Arrange & Act
+            var services = new ServiceCollection()
+                .AddWebAppCallsProtectedWebApi(Substitute.For<IConfiguration>());
+
+            var provider = services.BuildServiceProvider();
+
+            var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(_oidcScheme);
+
+            // Assert
+            Assert.Equal(OpenIdConnectResponseType.IdToken, oidcOptions.ResponseType);
+            Assert.Contains(OidcConstants.ScopeOpenId, oidcOptions.Scope);
+            Assert.Contains(OidcConstants.ScopeProfile, oidcOptions.Scope);
+        }
+
         private void AddSignIn_TestCommon(IServiceCollection services, ServiceProvider provider)
         {
             // Assert correct services added

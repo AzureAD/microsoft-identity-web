@@ -54,8 +54,8 @@ namespace WebApp_OpenIDConnect_DotNet
             // Token acquisition service based on MSAL.NET
             // and chosen token cache implementation
             services.AddWebAppCallsProtectedWebApi(Configuration,
-                initialScopes: new string[] { Configuration["TodoList:TodoListScope"] },
-                configSectionName: "AzureAdB2C")
+                     initialScopes: new string[] { Configuration["TodoList:TodoListScope"] },
+                     configSectionName: "AzureAd")
                     .AddInMemoryTokenCaches();
 
             // Add APIs
