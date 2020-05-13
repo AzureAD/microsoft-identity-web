@@ -95,13 +95,38 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
         /// <param name="configuration">Configuration.</param>
+        /// <param name="configSectionName">The name of the configuration section with the necessary
+        /// settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
+        /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+        /// several OpenIdConnect identity providers.</param>
+        /// <returns>The service collection for chaining.</returns>
+        public static IServiceCollection AddWebAppCallsProtectedWebApi(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            string configSectionName = "AzureAd",
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
+        {
+            return AddWebAppCallsProtectedWebApi(
+                services,
+                null,
+                options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
+                openIdConnectScheme);
+        }
+
+        /// <summary>
+        /// Add MSAL support to the Web App or Web API.
+        /// </summary>
+        /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="configuration">Configuration.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
         /// settings to initialize authentication options.</param>
         /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
-        /// <returns>Yhe service collection for chaining.</returns>
+        /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
