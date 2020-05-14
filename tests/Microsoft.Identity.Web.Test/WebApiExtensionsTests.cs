@@ -382,37 +382,5 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
         }
-
-        [Theory]
-        [InlineData(TestConstants.HttpLocalHost, null, new string[] { TestConstants.HttpLocalHost })]
-        [InlineData(TestConstants.ApiAudience, null, new string[] { TestConstants.ApiAudience })]
-        [InlineData(TestConstants.ApiClientId, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData("", null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, new string[] { TestConstants.ApiAudience }, new string[] { TestConstants.ApiAudience, TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, new string[] { TestConstants.ApiClientId }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.ApiClientId })]
-        [InlineData(TestConstants.HttpLocalHost, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.HttpLocalHost, TestConstants.B2CCustomDomainInstance })]
-        [InlineData(TestConstants.ApiAudience, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.B2CCustomDomainInstance })]
-        [InlineData(TestConstants.ApiClientId, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.B2CCustomDomainInstance })]
-        public void EnsureValidAudiencesContainsApiGuidIfGuidProvided(string initialAudience, string[] initialAudiences, string[] expectedAudiences)
-        {
-            JwtBearerOptions jwtOptions = new JwtBearerOptions()
-            {
-                Audience = initialAudience,
-                TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidAudiences = initialAudiences,
-                },
-            };
-            MicrosoftIdentityOptions msIdentityOptions = new MicrosoftIdentityOptions()
-            {
-                ClientId = TestConstants.ApiClientId,
-            };
-
-            WebApiAuthenticationBuilderExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(jwtOptions, msIdentityOptions);
-
-            Assert.Equal(expectedAudiences.Length, jwtOptions.TokenValidationParameters.ValidAudiences.Count());
-            Assert.Equal(expectedAudiences.OrderBy(x => x), jwtOptions.TokenValidationParameters.ValidAudiences.OrderBy(x => x));
-        }
     }
 }

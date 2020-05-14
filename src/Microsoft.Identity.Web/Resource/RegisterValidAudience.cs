@@ -35,19 +35,18 @@ namespace Microsoft.Identity.Web.Resource
             validationParameters.AudienceValidator = ValidateAudience;
         }
 
-        private bool ValidateAudience(
+        internal /*for test only*/ bool ValidateAudience(
             IEnumerable<string> audiences,
             SecurityToken securityToken,
             TokenValidationParameters validationParameters)
         {
             JwtSecurityToken token = securityToken as JwtSecurityToken;
-
             string validAudience;
 
             if (string.IsNullOrEmpty(validationParameters.ValidAudience) &&
                 validationParameters.ValidAudiences == null)
             {
-                // handle v2.0 access token
+                // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
                 if (token.Claims.Any(c => c.Type == Version && c.Value == V2) || IsB2C)
                 {
                     validAudience = $"{ClientId}";
@@ -63,21 +62,13 @@ namespace Microsoft.Identity.Web.Resource
 
                 throw new SecurityTokenValidationException("Token does not contain a valid audience type. ");
             }
+            else if (!string.IsNullOrEmpty(validationParameters.ValidAudience))
+            {
+                return audiences.Contains(validationParameters.ValidAudience);
+            }
             else
             {
-                try
-                {
-                    Validators.ValidateAudience(
-                        audiences,
-                        securityToken,
-                        validationParameters);
-                }
-                catch (SecurityTokenInvalidAudienceException ex)
-                {
-                    throw ex;
-                }
-
-                return true;
+                return audiences.Intersect(validationParameters.ValidAudiences).Any();
             }
         }
     }
