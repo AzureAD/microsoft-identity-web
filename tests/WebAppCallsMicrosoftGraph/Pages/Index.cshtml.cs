@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
@@ -13,9 +13,9 @@ namespace WebAppCallsMicrosoftGraph.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private readonly GraphServiceClient _graphServiceClient;
+        private readonly IGraphServiceClient _graphServiceClient;
 
-        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient)
+        public IndexModel(ILogger<IndexModel> logger, IGraphServiceClient graphServiceClient)
         {
             _logger = logger;
             _graphServiceClient = graphServiceClient;
@@ -23,7 +23,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
 
         public async Task OnGet()
         {
-            var x = await _graphServiceClient.Me.Request().GetAsync();
+            var user = await _graphServiceClient.Me.Request().GetAsync();
          
             try
             {
@@ -32,9 +32,9 @@ namespace WebAppCallsMicrosoftGraph.Pages
                     byte[] photoByte = ((MemoryStream)photoStream).ToArray();
                     ViewData["photo"] = Convert.ToBase64String(photoByte);
                 }
-                ViewData["name"] = x.DisplayName;
+                ViewData["name"] = user.DisplayName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ViewData["photo"] = null;
             }
