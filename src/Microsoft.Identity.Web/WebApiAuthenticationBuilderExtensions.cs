@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
 
                 // The valid audience could be given as Client Id or as Uri.
                 // If it does not start with 'api://', this variant is added to the list of valid audiences.
-                EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
+                EnsureValidAudiences(options, microsoftIdentityOptions);
 
                 // If the developer registered an IssuerValidator, do not overwrite it
                 if (options.TokenValidationParameters.IssuerValidator == null)
@@ -160,26 +160,22 @@ namespace Microsoft.Identity.Web
         /// <param name="options"><see cref="JwtBearerOptions"/> for which to ensure that
         /// api://GUID is a valid audience.</param>
         /// <param name="msIdentityOptions">Configuration options.</param>
-        internal static void EnsureValidAudiencesContainsApiGuidIfGuidProvided(JwtBearerOptions options, MicrosoftIdentityOptions msIdentityOptions)
+        internal static void EnsureValidAudiences(JwtBearerOptions options, MicrosoftIdentityOptions msIdentityOptions)
         {
-            options.TokenValidationParameters.ValidAudiences ??= new List<string>();
-            var validAudiences = new List<string>(options.TokenValidationParameters.ValidAudiences);
-            if (!string.IsNullOrWhiteSpace(options.Audience))
+            var tokenValidationParameters = options.TokenValidationParameters;
+            if (tokenValidationParameters.ValidAudience == null && tokenValidationParameters.AudienceValidator == null)
             {
-                validAudiences.Add(options.Audience);
-                if (!options.Audience.StartsWith("api://", StringComparison.OrdinalIgnoreCase)
-                                                 && Guid.TryParse(options.Audience, out _))
+                if (!string.IsNullOrWhiteSpace(options.Audience))
                 {
-                    validAudiences.Add($"api://{options.Audience}");
+                    string audience = options.Audience.Replace("{ClientId}", msIdentityOptions.ClientId);
+                    tokenValidationParameters.ValidAudience = audience;
+                }
+                else if (tokenValidationParameters.ValidAudiences == null
+                     || !tokenValidationParameters.ValidAudiences.Any())
+                {
+                    throw new SecurityTokenValidationException("You need to set either the Audience or the ValidAudiences. See https://aka.ms/msidweb-audiences");
                 }
             }
-            else
-            {
-                validAudiences.Add(msIdentityOptions.ClientId);
-                validAudiences.Add($"api://{msIdentityOptions.ClientId}");
-            }
-
-            options.TokenValidationParameters.ValidAudiences = validAudiences;
         }
     }
 }

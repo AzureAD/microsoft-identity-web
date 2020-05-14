@@ -409,7 +409,7 @@ namespace Microsoft.Identity.Web.Test
                 ClientId = TestConstants.ApiClientId,
             };
 
-            WebApiAuthenticationBuilderExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(jwtOptions, msIdentityOptions);
+            WebApiAuthenticationBuilderExtensions.EnsureValidAudiences(jwtOptions, msIdentityOptions);
 
             Assert.Equal(expectedAudiences.Length, jwtOptions.TokenValidationParameters.ValidAudiences.Count());
             Assert.Equal(expectedAudiences.OrderBy(x => x), jwtOptions.TokenValidationParameters.ValidAudiences.OrderBy(x => x));
