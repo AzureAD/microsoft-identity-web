@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Resource
                 validationParameters.ValidAudiences == null)
             {
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
-                if (token.Claims.Any(c => c.Type == Version && c.Value == V2) || IsB2C)
+                if (IsB2C || token.Claims.Any(c => c.Type == Version && c.Value == V2))
                 {
                     validAudience = $"{ClientId}";
                     return audiences.Contains(validAudience);
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web.Resource
                     return audiences.Contains(validAudience);
                 }
 
-                throw new SecurityTokenValidationException("Token does not contain a valid audience type. ");
+                throw new SecurityTokenValidationException("Token does not contain a valid audience. ");
             }
             else if (!string.IsNullOrEmpty(validationParameters.ValidAudience))
             {

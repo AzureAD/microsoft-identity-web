@@ -19,95 +19,137 @@ namespace Microsoft.Identity.Web.Test.Resource
         private const string V1 = "1.0";
         private const string V2 = "2.0";
         private const string V3 = "3.0";
+        private JwtSecurityToken _token;
+        private RegisterValidAudience _registerValidAudience;
+        private TokenValidationParameters _validationParams;
+        private IEnumerable<string> _validAudiences;
+        private MicrosoftIdentityOptions _options;
+        private string _expectedAudience;
 
         [Theory]
-        [InlineData(false, 1, V1)]
-        [InlineData(false, 1, V2)]
-        [InlineData(false, 4, V3)]
-        [InlineData(false, 2, V1)]
-        [InlineData(false, 3, V1)]
-        [InlineData(false, 3, V2)]
-        [InlineData(true, 1, V1)]
-        [InlineData(true, 1, V2)]
-        [InlineData(true, 2, V1)]
-        [InlineData(true, 3, V2)]
-        public void ValidateTokenAudience(
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_FromToken(
             bool isB2C,
-            int testNumber,
             string tokenVersion)
         {
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            InitializeTests(isB2C, tokenVersion);
+            AssertAudienceFromToken();
+        }
+
+        [Theory]
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_ProvidedInValidAudience(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion);
+            AssertAudienceProvidedInValidAudience();
+        }
+
+        [Theory]
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_ProvidedInValidAudiences(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion);
+            AssertAudienceProvidedInValidAudiences();
+        }
+
+        [Theory]
+        [InlineData(false, V3)]
+        public void InvalidAudience_AssertFails(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion);
+            AssertFailureOnInvalidAudienceInToken();
+        }
+
+        private void InitializeTests(
+            bool isB2C,
+            string tokenVersion)
+        {
+            _options = new MicrosoftIdentityOptions
             {
                 ClientId = TestConstants.ClientId,
             };
 
             if (isB2C)
             {
-                options.SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow;
+                _options.SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow;
             }
 
-            string expectedAudience = string.Empty;
             if (tokenVersion == V2 || isB2C)
             {
-                expectedAudience = options.ClientId;
+                _expectedAudience = _options.ClientId;
             }
             else
             {
-                expectedAudience = $"api://{options.ClientId}";
+                _expectedAudience = $"api://{_options.ClientId}";
             }
 
             IEnumerable<Claim> claims = new Claim[]
             {
                   new Claim(Version, tokenVersion),
-                  new Claim(Audience, expectedAudience),
+                  new Claim(Audience, _expectedAudience),
             };
 
-            JwtSecurityToken token = new JwtSecurityToken(null, null, claims);
-            var validationParams = new TokenValidationParameters();
-            RegisterValidAudience registerValidAudience = new RegisterValidAudience();
-            registerValidAudience.RegisterAudienceValidation(validationParams, options);
-            IEnumerable<string> validAudiences;
-            validAudiences = new List<string> { expectedAudience };
+            _token = new JwtSecurityToken(null, null, claims);
+            _validationParams = new TokenValidationParameters();
+            _registerValidAudience = new RegisterValidAudience();
+            _registerValidAudience.RegisterAudienceValidation(_validationParams, _options);
+            _validAudiences = new List<string> { _expectedAudience };
+        }
 
-            switch (testNumber)
-            {
-                case 1:
-                    Assert.True(registerValidAudience.ValidateAudience(
-                        validAudiences,
-                        token,
-                        validationParams));
-                    Assert.Equal(expectedAudience, token.Audiences.FirstOrDefault());
-                    Assert.Single(token.Audiences);
-                    break;
-                case 2:
-                    validationParams.ValidAudience = expectedAudience;
-                    Assert.True(registerValidAudience.ValidateAudience(
-                        validAudiences,
-                        token,
-                        validationParams));
-                    Assert.Equal(expectedAudience, token.Audiences.FirstOrDefault());
-                    Assert.Single(token.Audiences);
-                    break;
-                case 3:
-                    validationParams.ValidAudiences = new List<string>
+        private void AssertAudienceFromToken()
+        {
+            Assert.True(_registerValidAudience.ValidateAudience(
+                       _validAudiences,
+                       _token,
+                       _validationParams));
+            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
+            Assert.Single(_token.Audiences);
+        }
+
+        private void AssertAudienceProvidedInValidAudience()
+        {
+            _validationParams.ValidAudience = _expectedAudience;
+            Assert.True(_registerValidAudience.ValidateAudience(
+                _validAudiences,
+                _token,
+                _validationParams));
+            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
+            Assert.Single(_token.Audiences);
+        }
+
+        private void AssertAudienceProvidedInValidAudiences()
+        {
+            _validationParams.ValidAudiences = new List<string>
                     {
-                         $"api://{options.ClientId}",
-                         options.ClientId,
+                         $"api://{_options.ClientId}",
+                         _options.ClientId,
                     };
-                    Assert.True(registerValidAudience.ValidateAudience(
-                        validAudiences,
-                        token,
-                        validationParams));
-                    Assert.Equal(expectedAudience, token.Audiences.FirstOrDefault());
-                    Assert.Single(token.Audiences);
-                    break;
-                case 4:
-                    Assert.Throws<SecurityTokenValidationException>(() => registerValidAudience.ValidateAudience(
-                    validAudiences,
-                    token,
-                    validationParams));
-                    break;
-            }
+            Assert.True(_registerValidAudience.ValidateAudience(
+                _validAudiences,
+                _token,
+                _validationParams));
+            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
+            Assert.Single(_token.Audiences);
+        }
+
+        private void AssertFailureOnInvalidAudienceInToken()
+        {
+            Assert.Throws<SecurityTokenValidationException>(() => _registerValidAudience.ValidateAudience(
+                   _validAudiences,
+                   _token,
+                   _validationParams));
         }
     }
 }
