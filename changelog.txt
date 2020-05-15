@@ -6,7 +6,7 @@ New Features:
 
 Bug Fixes:
 **The AddProtectedWebApiCallsProtectedWebApi method registers an event handler for OnTokenValidated without preserving any existing registered event handlers.** Now events are chained correctly. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/154).
-**Depending on the endpoint, v1.0 or v2.0, the format of the `aud` value in the token will be different.** Microsoft Identity Web now uses the Middleware library to help validate the token audience.
+**Depending on the endpoint, v1.0 or v2.0, and if the application is B2C or not, the default format of the `aud` value in the token will be different.** Microsoft Identity Web now looks at these parameters to validate the audience.
 
 0.1.2-preview
 ============
