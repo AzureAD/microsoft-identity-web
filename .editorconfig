@@ -515,9 +515,6 @@ dotnet_diagnostic.SA1312.severity = none
 # SA1313: Parameter names should begin with lower-case letter
 dotnet_diagnostic.SA1313.severity = none
 
-# SA1400: Access modifier should be declared
-dotnet_diagnostic.SA1400.severity = none
-
 # SA1401: Fields should be private
 dotnet_diagnostic.SA1401.severity = none
 

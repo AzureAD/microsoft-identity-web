@@ -25,8 +25,8 @@ namespace Microsoft.Identity.Web.Test.Integration
 #if !FROM_GITHUB_ACTION
     public class AcquireTokenForAppIntegrationTests
     {
-        TokenAcquisition _tokenAcquisition;
-        ServiceProvider _provider;
+        private TokenAcquisition _tokenAcquisition;
+        private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
         private IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions;
 
