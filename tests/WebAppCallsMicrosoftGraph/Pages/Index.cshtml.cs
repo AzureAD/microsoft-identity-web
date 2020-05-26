@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
+using Microsoft.Identity.Web;
 
 namespace WebAppCallsMicrosoftGraph.Pages
 {
+    [AuthorizeForScopes(Scopes = new[] { "user.read" })]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private readonly IGraphServiceClient _graphServiceClient;
+        private readonly GraphServiceClient _graphServiceClient;
 
-        public IndexModel(ILogger<IndexModel> logger, IGraphServiceClient graphServiceClient)
+        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient)
         {
             _logger = logger;
             _graphServiceClient = graphServiceClient;

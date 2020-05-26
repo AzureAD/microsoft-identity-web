@@ -27,10 +27,10 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSignIn(Configuration)
-                    .AddWebAppCallsProtectedWebApi(Configuration, new string[] { "user.read" })
+                    .AddWebAppCallsProtectedWebApi(Configuration)
                     .AddInMemoryTokenCaches();
 
-            services.AddMicrosoftGraph(Configuration);
+            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
             services.AddRazorPages().AddMvcOptions(options =>
             {
