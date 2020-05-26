@@ -482,7 +482,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert original TokenValidated event was called; properties were set
             await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
-            Assert.True(tokenValidatedContext.Principal.HasClaim(c => c.Type == ClaimConstants.Tid));
+            Assert.True(tokenValidatedContext.Principal.HasClaim(c => c.Type == ClaimConstants.UniqueTenantIdentifier));
             Assert.True(tokenValidatedContext.Principal.HasClaim(c => c.Type == ClaimConstants.UniqueObjectIdentifier));
         }
 

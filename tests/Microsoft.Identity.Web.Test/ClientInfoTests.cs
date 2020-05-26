@@ -10,8 +10,8 @@ namespace Microsoft.Identity.Web.Test
 {
     public class ClientInfoTests
     {
-        private const string Uid = TestConstants.Uid;
-        private const string Utid = TestConstants.Utid;
+        private const string Uid = "Uid";
+        private const string Utid = "Utid";
         private string _decodedJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"}}";
         private string _decodedEmptyJson = "{}";
         private string _invalidJson = $"{{\"uid\":\"{Uid}\",\"utid\":\"{Utid}\"";

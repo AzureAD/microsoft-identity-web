@@ -18,22 +18,14 @@ namespace Microsoft.Identity.Web
         /// <returns>A string corresponding to an account identifier as defined in <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
         public static string GetMsalAccountId(this ClaimsPrincipal claimsPrincipal)
         {
-            string userObjectId = claimsPrincipal.GetObjectId();
-            string nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
-            string tenantId = claimsPrincipal.GetTenantId();
-            string userFlowId = claimsPrincipal.GetUserFlowId();
+            string uniqueObjectIdentifier = claimsPrincipal.GetHomeObjectId();
+            string uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
 
-            if (!string.IsNullOrWhiteSpace(nameIdentifierId) &&
-                !string.IsNullOrWhiteSpace(tenantId) &&
-                !string.IsNullOrWhiteSpace(userFlowId))
+            if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {
-                // B2C pattern: {oid}-{userFlow}.{tid}
-                return $"{nameIdentifierId}.{tenantId}";
-            }
-            else if (!string.IsNullOrWhiteSpace(userObjectId) && !string.IsNullOrWhiteSpace(tenantId))
-            {
-                // AAD pattern: {oid}.{tid}
-                return $"{userObjectId}.{tenantId}";
+                // AAD pattern: {uid}.{utid}
+                // B2C pattern: {uid}-{userFlow}.{utid} -> userflow is included in the uid for B2C
+                return $"{uniqueObjectIdentifier}.{uniqueTenantIdentifier}";
             }
 
             return null;
@@ -144,6 +136,26 @@ namespace Microsoft.Identity.Web
             }
 
             return userFlowId;
+        }
+
+        /// <summary>
+        /// Gets the GetHomeObjectId associated with the <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="claimsPrincipal">the <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+        /// <returns>Home Object identifier ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        public static string GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
+        }
+
+        /// <summary>
+        /// Gets the GetHomeTenantId associated with the <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="claimsPrincipal">the <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+        /// <returns>Home Tenant identifier ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        public static string GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueTenantIdentifier);
         }
 
         /// <summary>

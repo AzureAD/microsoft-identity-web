@@ -5,7 +5,6 @@ using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -130,6 +129,8 @@ namespace Microsoft.Identity.Web
                         context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                     }
 
+                    context.ProtocolMessage.SetParameter("client_info", "1");
+
                     // Additional claims
                     if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
                     {
@@ -140,8 +141,6 @@ namespace Microsoft.Identity.Web
 
                     if (microsoftIdentityOptions.IsB2C)
                     {
-                        context.ProtocolMessage.SetParameter("client_info", "1");
-
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
                         await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
