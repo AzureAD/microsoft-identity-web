@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.Resource
         /// "Audience" member, its available in the TokenValidationParameter.ValidAudience.
         /// </summary>
         /// <param name="audiences">audiences in the security token.</param>
-        /// <param name="securityToken">Security token from which to validate the audiences</param>
+        /// <param name="securityToken">Security token from which to validate the audiences.</param>
         /// <param name="validationParameters">Token validation parameters.</param>
         /// <returns>true is the token is valid, and false, otherwise.</returns>
         internal /*for test only*/ bool ValidateAudience(
