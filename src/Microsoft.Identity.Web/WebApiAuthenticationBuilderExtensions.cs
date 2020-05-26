@@ -101,9 +101,13 @@ namespace Microsoft.Identity.Web
                 // This is a Microsoft identity platform Web API
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                // The valid audience could be given as Client Id or as Uri.
-                // If it does not start with 'api://', this variant is added to the list of valid audiences.
-                EnsureValidAudiencesContainsApiGuidIfGuidProvided(options, microsoftIdentityOptions);
+                if (options.TokenValidationParameters.AudienceValidator == null)
+                {
+                    RegisterValidAudience registerAudience = new RegisterValidAudience();
+                    registerAudience.RegisterAudienceValidation(
+                        options.TokenValidationParameters,
+                        microsoftIdentityOptions);
+                }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
                 if (options.TokenValidationParameters.IssuerValidator == null)
@@ -150,36 +154,6 @@ namespace Microsoft.Identity.Web
             });
 
             return builder;
-        }
-
-        /// <summary>
-        /// Ensure that if the audience is a GUID, api://{audience} is also added
-        /// as a valid audience (this is the default App ID URL in the app registration
-        /// portal).
-        /// </summary>
-        /// <param name="options"><see cref="JwtBearerOptions"/> for which to ensure that
-        /// api://GUID is a valid audience.</param>
-        /// <param name="msIdentityOptions">Configuration options.</param>
-        internal static void EnsureValidAudiencesContainsApiGuidIfGuidProvided(JwtBearerOptions options, MicrosoftIdentityOptions msIdentityOptions)
-        {
-            options.TokenValidationParameters.ValidAudiences ??= new List<string>();
-            var validAudiences = new List<string>(options.TokenValidationParameters.ValidAudiences);
-            if (!string.IsNullOrWhiteSpace(options.Audience))
-            {
-                validAudiences.Add(options.Audience);
-                if (!options.Audience.StartsWith("api://", StringComparison.OrdinalIgnoreCase)
-                                                 && Guid.TryParse(options.Audience, out _))
-                {
-                    validAudiences.Add($"api://{options.Audience}");
-                }
-            }
-            else
-            {
-                validAudiences.Add(msIdentityOptions.ClientId);
-                validAudiences.Add($"api://{msIdentityOptions.ClientId}");
-            }
-
-            options.TokenValidationParameters.ValidAudiences = validAudiences;
         }
     }
 }

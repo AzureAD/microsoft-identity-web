@@ -324,95 +324,81 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void AddProtectedWebApiCallsProtectedWebApi_WithConfigName()
+        public async Task AddProtectedWebApiCallsProtectedWebApi_WithConfigName()
         {
             var config = Substitute.For<IConfiguration>();
+            var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
+                    options.Events ??= new JwtBearerEvents();
+                    options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                })
                 .AddProtectedWebApiCallsProtectedWebApi(config, _configSectionName, _jwtBearerScheme);
             var provider = services.BuildServiceProvider();
 
-            // Config bind actions added correctly
+            // Assert config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
-            config.Received(2).GetSection(_configSectionName);
+            config.Received(3).GetSection(_configSectionName);
 
-            AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider);
+            await AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
         }
 
         [Fact]
-        public void AddProtectedWebApiCallsProtectedWebApi_WithConfigActions()
+        public async Task AddProtectedWebApiCallsProtectedWebApi_WithConfigActions()
         {
+            var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var services = new ServiceCollection()
+                .Configure<JwtBearerOptions>(_jwtBearerScheme, (options) =>
+                {
+                    options.Events ??= new JwtBearerEvents();
+                    options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                })
                 .AddProtectedWebApiCallsProtectedWebApi(_configureAppOptions, _configureMsOptions, _jwtBearerScheme);
             var provider = services.BuildServiceProvider();
 
-            // Configure options actions added correctly
+            // Assert configure options actions added correctly
             var configuredAppOptions = provider.GetServices<IConfigureOptions<ConfidentialClientApplicationOptions>>().Cast<ConfigureNamedOptions<ConfidentialClientApplicationOptions>>();
             var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
             Assert.Contains(configuredAppOptions, o => o.Action == _configureAppOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
-            AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider);
+            await AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
         }
 
-        private void AddProtectedWebApiCallsProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider)
+        private async Task AddProtectedWebApiCallsProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
         {
-            // Correct services added
+            // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
             Assert.Contains(services, s => s.ServiceType == typeof(ITokenAcquisition));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<ConfidentialClientApplicationOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
 
-            // JWT options added correctly
+            // Assert JWT options added correctly
             var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
 
             Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
 
-            // Token validated event added correctly
+            // Assert token validated event added correctly
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
             var httpContext = HttpContextUtilities.CreateHttpContext();
             var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
-            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions) { SecurityToken = new JwtSecurityToken() };
+            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions)
+            {
+                SecurityToken = new JwtSecurityToken(),
+                Principal = new ClaimsPrincipal(),
+            };
 
-            jwtOptions.Events.TokenValidated(tokenValidatedContext);
+            await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
 
+            // Assert events called
+            await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
             Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
-        }
-
-        [Theory]
-        [InlineData(TestConstants.HttpLocalHost, null, new string[] { TestConstants.HttpLocalHost })]
-        [InlineData(TestConstants.ApiAudience, null, new string[] { TestConstants.ApiAudience })]
-        [InlineData(TestConstants.ApiClientId, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData("", null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, null, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, new string[] { TestConstants.ApiAudience }, new string[] { TestConstants.ApiAudience, TestConstants.ApiAudience, TestConstants.ApiClientId })]
-        [InlineData(null, new string[] { TestConstants.ApiClientId }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.ApiClientId })]
-        [InlineData(TestConstants.HttpLocalHost, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.HttpLocalHost, TestConstants.B2CCustomDomainInstance })]
-        [InlineData(TestConstants.ApiAudience, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.B2CCustomDomainInstance })]
-        [InlineData(TestConstants.ApiClientId, new string[] { TestConstants.B2CCustomDomainInstance }, new string[] { TestConstants.ApiAudience, TestConstants.ApiClientId, TestConstants.B2CCustomDomainInstance })]
-        public void EnsureValidAudiencesContainsApiGuidIfGuidProvided(string initialAudience, string[] initialAudiences, string[] expectedAudiences)
-        {
-            JwtBearerOptions jwtOptions = new JwtBearerOptions()
-            {
-                Audience = initialAudience,
-                TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidAudiences = initialAudiences,
-                },
-            };
-            MicrosoftIdentityOptions msIdentityOptions = new MicrosoftIdentityOptions()
-            {
-                ClientId = TestConstants.ApiClientId,
-            };
-
-            WebApiAuthenticationBuilderExtensions.EnsureValidAudiencesContainsApiGuidIfGuidProvided(jwtOptions, msIdentityOptions);
-
-            Assert.Equal(expectedAudiences.Length, jwtOptions.TokenValidationParameters.ValidAudiences.Count());
-            Assert.Equal(expectedAudiences.OrderBy(x => x), jwtOptions.TokenValidationParameters.ValidAudiences.OrderBy(x => x));
         }
     }
 }

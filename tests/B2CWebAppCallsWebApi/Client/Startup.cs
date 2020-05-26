@@ -55,7 +55,7 @@ namespace WebApp_OpenIDConnect_DotNet
             // and chosen token cache implementation
             services.AddWebAppCallsProtectedWebApi(Configuration,
                      initialScopes: new string[] { Configuration["TodoList:TodoListScope"] },
-                     configSectionName: "AzureAd")
+                     configSectionName: "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
             // Add APIs
