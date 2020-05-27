@@ -167,7 +167,7 @@ Possible design to discuss:
         StoreWithDistinguihedName,
     }
 
-    /// <summary>
+   /// <summary>
     /// Description of a certificate.
     /// </summary>
     public class CertificateDescription
@@ -175,8 +175,8 @@ Possible design to discuss:
         /// <summary>
         /// Creates a certificate description from a certificate (by code).
         /// </summary>
-        /// <param name="certificate2"></param>
-        /// <returns>A certificate description</returns>
+        /// <param name="certificate2">Certificate.</param>
+        /// <returns>A certificate description.</returns>
         public static CertificateDescription FromCertificate(X509Certificate2 certificate2)
         {
             return new CertificateDescription
@@ -191,7 +191,7 @@ Possible design to discuss:
         /// <param name="keyVaultUrl"></param>
         /// <param name="certificateName"></param>
         /// <param name="version"></param>
-        /// <returns>A certificate description</returns>
+        /// <returns>A certificate description.</returns>
         public static CertificateDescription FromKeyVault(string keyVaultUrl, string certificateName, string version)
         {
             return new CertificateDescription
@@ -221,8 +221,8 @@ Possible design to discuss:
         /// <summary>
         /// Create a certificate description from path on disk.
         /// </summary>
-        /// <param name="path">Path were to find the certificate file</param>
-        /// <param name="password">certificate password</param>
+        /// <param name="path">Path were to find the certificate file.</param>
+        /// <param name="password">certificate password.</param>
         /// <returns>A certificate description.</returns>
         public static CertificateDescription FromPath(string path, string password = null)
         {
@@ -233,6 +233,8 @@ Possible design to discuss:
                 ReferenceOrValue = password,
             };
         }
+
+        // Todo: do the other ones
 
         /// <summary>
         /// Type of the source of the certificate.
@@ -274,9 +276,9 @@ Possible design to discuss:
 
         /// <summary>
         /// The certificate, either provided directly in code by the
-        /// or loaded from the description
+        /// or loaded from the description.
         /// </summary>
-        public X509Certificate Certificate { get; private set; }
+        public X509Certificate2 Certificate { get; internal set; }
     }
 
    public class MicrosoftIdentityOptions : OpenIdConnectOptions
@@ -294,4 +296,73 @@ Possible design to discuss:
         public CertificateDescription[] DecryptCertificates { get; set; }
     }
 
+```
+
+Then `TokenAcquisition` will require a `ICertificateLoader` (by dependency injection)
+
+```CSharp
+   /// <summary>
+    /// Interface to implement load a certificate.
+    /// </summary>
+    public interface ICertificateLoader
+    {
+        /// <summary>
+        /// Load the certificate from the description if needed.
+        /// </summary>
+        /// <param name="certificateDescription">Description of the certificate.</param>
+        void LoadIfNeeded(CertificateDescription certificateDescription);
+    }
+```
+
+We would propose a default implementation for this interface
+
+```CSharp
+   /// <summary>
+    /// Certificate Loader.
+    /// </summary>
+    public class DefaultCertificateLoader : ICertificateLoader
+    {
+        /// <summary>
+        /// Load the certificate from the description if needed.
+        /// </summary>
+        /// <param name="certificateDescription">Description of the certificate.</param>
+        public void LoadIfNeeded(CertificateDescription certificateDescription)
+        {
+            if (certificateDescription.Certificate == null)
+            {
+                switch (certificateDescription.SourceType)
+                {
+                    case CertificateSource.KeyVault:
+                        certificateDescription.Certificate = LoadFromKeyVault(certificateDescription.Container, certificateDescription.ReferenceOrValue);
+                        break;
+                    case CertificateSource.Base64Encoded:
+                        certificateDescription.Certificate = LoadFromBase64Encoded(certificateDescription.ReferenceOrValue);
+                        break;
+                    case CertificateSource.Path:
+                        // TODO
+                        break;
+                    case CertificateSource.StoreWithThumbprint:
+                        // TODO
+                        break;
+                    case CertificateSource.StoreWithDistinguihedName:
+                        // TODO
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64)
+        {
+            byte[] decoded = Convert.FromBase64String(certificateBase64);
+            X509Certificate2 cert = new X509Certificate2(decoded);
+            return cert;
+        }
+
+        private static X509Certificate2 LoadFromKeyVault(string keyVaultUrl, string certificateName)
+        {
+            throw new NotImplementedException();
+        }
+    }
 ```
