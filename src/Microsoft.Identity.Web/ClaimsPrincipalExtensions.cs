@@ -18,6 +18,11 @@ namespace Microsoft.Identity.Web
         /// <returns>A string corresponding to an account identifier as defined in <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
         public static string GetMsalAccountId(this ClaimsPrincipal claimsPrincipal)
         {
+            if (claimsPrincipal == null)
+            {
+                throw new ArgumentNullException(nameof(claimsPrincipal));
+            }
+            
             string uniqueObjectIdentifier = claimsPrincipal.GetHomeObjectId();
             string uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
 
