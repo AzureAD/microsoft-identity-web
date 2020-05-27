@@ -150,6 +150,11 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
         {
+            if (claimsPrincipal == null)
+            {
+                throw new ArgumentNullException(nameof(claimsPrincipal));
+            }
+            
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
         }
 
