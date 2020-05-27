@@ -139,10 +139,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets the GetHomeObjectId associated with the <see cref="ClaimsPrincipal"/>.
+        /// Gets the Home Object ID associated with the <see cref="ClaimsPrincipal"/>.
         /// </summary>
-        /// <param name="claimsPrincipal">the <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
-        /// <returns>Home Object identifier ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+        /// <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
