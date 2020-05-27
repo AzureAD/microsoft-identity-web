@@ -366,3 +366,5 @@ We would propose a default implementation for this interface
         }
     }
 ```
+
+See also https://github.com/AzureAD/microsoft-identity-web/wiki/Spec-certificates#sample-code-to-load-certificates for possible implementations
