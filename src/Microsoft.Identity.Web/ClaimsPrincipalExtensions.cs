@@ -154,10 +154,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets the GetHomeTenantId associated with the <see cref="ClaimsPrincipal"/>.
+        /// Gets the Home Tenant ID associated with the <see cref="ClaimsPrincipal"/>.
         /// </summary>
-        /// <param name="claimsPrincipal">the <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
-        /// <returns>Home Tenant identifier ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+        /// <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal == null)
