@@ -155,6 +155,11 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Tenant identifier ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
         {
+            if (claimsPrincipal == null)
+            {
+                throw new ArgumentNullException(nameof(claimsPrincipal));
+            }
+            
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueTenantIdentifier);
         }
 
