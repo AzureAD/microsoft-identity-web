@@ -44,9 +44,16 @@ namespace Microsoft.Identity.Web
         public const string ClientInfo = "client_info";
 
         /// <summary>
-        /// UniqueObjectIdentifier: "utid".
+        /// UniqueObjectIdentifier: "uid".
+        /// Home Object Id.
         /// </summary>
-        public const string UniqueObjectIdentifier = "utid";
+        public const string UniqueObjectIdentifier = "uid";
+
+        /// <summary>
+        /// UniqueTenantIdentifier: "utid".
+        /// Home Tenant Id.
+        /// </summary>
+        public const string UniqueTenantIdentifier = "utid";
 
         /// <summary>
         /// Older scope claim: "http://schemas.microsoft.com/identity/claims/scope".

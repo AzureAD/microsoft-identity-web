@@ -16,15 +16,21 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string ApiAudience = "api://" + ApiClientId;
         public const string ApiClientId = "1EE5A092-0DFD-42B6-88E5-C517C0141321";
 
+        public const string UserOne = "User One";
+        public const string UserTwo = "User Two";
+
         public const string ClientId = "87f0ee88-8251-48b3-8825-e0c9563f5234";
-        public const string TenantId = "some-tenant-id";
+        public const string TenantId = "guest-tenant-id";
         public const string TenantIdAsGuid = "da41245a5-11b3-996c-00a8-4d99re19f292";
+        public const string ObjectIdAsGuid = "6364bb70-9521-3fa8-989d-c2c19ff90223";
         public const string Domain = "contoso.onmicrosoft.com";
-        public const string Uid = "my-uid";
-        public const string Utid = "my-utid";
+        public const string Uid = "my-home-object-id";
+        public const string Oid = "my-guest-object-id";
+        public const string Utid = "my-home-tenant-id";
         public const string LoginHint = "login_hint";
         public const string DomainHint = "domain_hint";
         public const string Claims = "additional_claims";
+        public const string PreferredUsername = "preferred_username";
 
         public const string AadInstance = "https://login.microsoftonline.com";
         public const string AuthorityCommonTenant = AadInstance + "/common/";
