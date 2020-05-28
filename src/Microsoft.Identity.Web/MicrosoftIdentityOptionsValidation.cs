@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
@@ -46,6 +47,44 @@ namespace Microsoft.Identity.Web
             }
 
             return ValidateOptionsResult.Success;
+        }
+
+        public ClientCredentialType ValidateEitherClientCertificateOrClientSecret(
+            MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            if (string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates.Length == 0))
+            {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Both client secret & client certificate cannot be null or whitespace, " +
+                 "and ONE, must be included in the configuration of the web app when calling a web API. " +
+                 "For instance, in the appsettings.json file. ");
+
+                throw new MsalClientException(
+                    "missing_client_credentials",
+                    msg);
+            }
+            else if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates.Length > 0))
+            {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Both Client secret & client certificate, " +
+                   "cannot be included in the configuration of the web app when calling a web API. ");
+
+                throw new MsalClientException(
+                    "duplicate_client_credentials",
+                    msg);
+            }
+            else if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
+            {
+                return ClientCredentialType.Secret;
+            }
+
+            return ClientCredentialType.Certificate;
+        }
+
+        public enum ClientCredentialType
+        {
+            None = 0,
+            Both = 1,
+            Secret = 2,
+            Certificate = 3,
         }
     }
 }

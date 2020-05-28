@@ -19,6 +19,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
+using static Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation;
 
 namespace Microsoft.Identity.Web
 {
@@ -341,17 +342,9 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication app;
 
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            if (microsoftIdentityOptionsValidation.ValidateClientSecret(_applicationOptions).Failed)
-            {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Client secret cannot be null or whitespace, " +
-                   "and must be included in the configuration of the web app when calling a web API. " +
-                   "For instance, in the appsettings.json file. ");
 
-                _logger.LogInformation(msg);
-                throw new MsalClientException(
-                    "missing_client_credentials",
-                    msg);
-            }
+            ClientCredentialType clientCredentialType =
+                microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(_microsoftIdentityOptions);
 
             try
             {
@@ -364,15 +357,20 @@ namespace Microsoft.Identity.Web
                 {
                     authority = $"{_applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
-                    app = builder.Build();
                 }
                 else
                 {
                     authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
                     builder.WithAuthority(authority);
-                    app = builder.Build();
                 }
 
+                if (clientCredentialType == ClientCredentialType.Certificate)
+                {
+                    CertificateDescription certificateDescription = LoadFirstCertificate(_microsoftIdentityOptions);
+                    builder.WithCertificate(certificateDescription.Certificate);
+                }
+
+                app = builder.Build();
                 // Initialize token cache providers
                 await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
@@ -565,6 +563,14 @@ namespace Microsoft.Identity.Web
             }
 
             return null;
+        }
+
+        internal /*for test only*/ static CertificateDescription LoadFirstCertificate(MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            CertificateDescription certificateDescription = microsoftIdentityOptions.ClientCertificates.First();
+            defaultCertificateLoader.LoadIfNeeded(certificateDescription);
+            return certificateDescription;
         }
 
         internal /*for test only*/ string CreateRedirectUri()

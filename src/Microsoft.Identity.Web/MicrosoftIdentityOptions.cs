@@ -80,5 +80,15 @@ namespace Microsoft.Identity.Web
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
         /// </summary>
         internal bool IsB2C { get { return !string.IsNullOrWhiteSpace(DefaultUserFlow); } }
+
+        /// <summary>
+        /// Description of the certificates used to prove the identity of the Web app or Web API.
+        /// </summary>
+        public CertificateDescription[] ClientCertificates { get; set; }
+
+        /// <summary>
+        /// Description of the certificates used to decrypt an encrypted token in a Web API.
+        /// </summary>
+        public CertificateDescription[] DecryptCertificates { get; set; }
     }
 }
