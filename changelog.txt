@@ -1,3 +1,12 @@
+0.1.4-preview
+============
+New Features:
+**Microsoft Identity Web provides an option to specify if the token acquisition service should be a singleton**. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/1).
+
+Bug Fixes:
+**When logging in with an unauthorized account, the user was redirected to `/Account/AccessDenied` which did not exist**. Microsoft Identity Web UI now properly sets the path on the scheme with the same name. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/117).
+**In the context of a guest account, Microsoft Identity Web used the `loginHint` to determine the guest account for accessing the MSAL .NET cache**. Now, Microsoft Identity Web retrieves `user_info` from the authorization server and is able to determine the unique object identifier for guest accounts. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/18).
+
 0.1.3-preview
 ============
 New Features:
