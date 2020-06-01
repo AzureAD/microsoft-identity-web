@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
         private IConfidentialClientApplication _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
-        private IMsalHttpClientFactory _httpClientFactory;
+        private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web
                 // If they are not yet in the HttpContext.User's claims, add them here.
                 if (!context.HttpContext.User.Claims.Any())
                 {
-                    (context.HttpContext.User.Identity as ClaimsIdentity).AddClaims(context.Principal.Claims);
+                    (context.HttpContext.User.Identity as ClaimsIdentity)?.AddClaims(context.Principal.Claims);
                 }
 
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
@@ -148,9 +148,7 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(
                     ex,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Exception occurred while adding an account to the cache from the auth code. "));
+                    "Exception occurred while adding an account to the cache from the auth code. ");
                 throw;
             }
         }
@@ -175,7 +173,7 @@ namespace Microsoft.Identity.Web
         [Obsolete("This method has been deprecated, please use the GetAccessTokenForUserAsync() method instead.")]
         public async Task<string> GetAccessTokenOnBehalfOfUserAsync(
             IEnumerable<string> scopes,
-            string tenant = null)
+            string? tenant = null)
         {
             return await GetAccessTokenForUserAsync(scopes, tenant).ConfigureAwait(false);
         }
@@ -189,7 +187,7 @@ namespace Microsoft.Identity.Web
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// <param name="tenantId">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream Api's scopes.</returns>
         /// <remarks>Calling this method from a Web API supposes that you have previously called,
@@ -199,7 +197,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
-            string tenant = null)
+            string? tenantId = null)
         {
             if (scopes == null)
             {
@@ -212,7 +210,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, tenant)
+                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, tenantId)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -401,12 +399,12 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication application,
             ClaimsPrincipal claimsPrincipal,
             IEnumerable<string> scopes,
-            string tenant)
+            string? tenant)
         {
             // Gets MsalAccountId for AAD and B2C scenarios
             string accountIdentifier = claimsPrincipal.GetMsalAccountId();
             string loginHint = claimsPrincipal.GetLoginHint();
-            IAccount account = null;
+            IAccount? account = null;
 
             if (accountIdentifier != null)
             {
@@ -446,9 +444,9 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant"></param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
-            IAccount account,
+            IAccount? account,
             IEnumerable<string> scopes,
-            string tenant)
+            string? tenant)
         {
             if (scopes == null)
             {

@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="httpContext">Http context associated with the current request.</param>
         /// <returns><see cref="JwtSecurityToken"/> used to call the Web API.</returns>
-        internal static JwtSecurityToken GetTokenUsedToCallWebAPI(this HttpContext httpContext)
+        internal static JwtSecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
         {
             return httpContext.Items["JwtSecurityTokenUsedToCallWebAPI"] as JwtSecurityToken;
         }

@@ -49,10 +49,10 @@ namespace Microsoft.Identity.Web.Resource
                 throw new ArgumentNullException(nameof(aadAuthority));
             }
 
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri authorityUri);
+            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
             string authorityHost = authorityUri?.Authority ?? new Uri(FallbackAuthority).Authority;
 
-            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator aadIssuerValidator))
+            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
             {
                 return aadIssuerValidator;
             }
@@ -173,9 +173,9 @@ namespace Microsoft.Identity.Web.Resource
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object tenantId))
+                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tenantId))
                 {
-                    return tenantId as string;
+                    return (string)tenantId;
                 }
 
                 // Since B2C doesn't have "tid" as default, get it from issuer

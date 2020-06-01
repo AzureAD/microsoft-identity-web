@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="account">The IAccount instance.</param>
         /// <returns>A <see cref="ClaimsPrincipal"/> built from IAccount.</returns>
-        public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
+        public static ClaimsPrincipal? ToClaimsPrincipal(this IAccount? account)
         {
             if (account != null)
             {

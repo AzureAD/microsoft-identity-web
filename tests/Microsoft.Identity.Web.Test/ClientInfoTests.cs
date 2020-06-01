@@ -54,13 +54,13 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DeserializeFromJson_ValidByteArray_ReturnsClientInfo()
         {
-            var clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_decodedJson));
+            var clientInfoResult = ClientInfo.CreateFromJson(_decodedJson);
 
             Assert.NotNull(clientInfoResult);
             Assert.Equal(Uid, clientInfoResult.UniqueObjectIdentifier);
             Assert.Equal(Utid, clientInfoResult.UniqueTenantIdentifier);
 
-            clientInfoResult = ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_decodedEmptyJson));
+            clientInfoResult = ClientInfo.CreateFromJson(_decodedEmptyJson);
             Assert.NotNull(clientInfoResult);
             Assert.Null(clientInfoResult.UniqueObjectIdentifier);
             Assert.Null(clientInfoResult.UniqueTenantIdentifier);
@@ -69,11 +69,11 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DeserializeFromJson_NullOrEmptyJsonByteArray_ReturnsNull()
         {
-            var actualClientInfo = ClientInfo.DeserializeFromJson<ClientInfo>(Array.Empty<byte>());
+            var actualClientInfo = ClientInfo.CreateFromJson("");
 
             Assert.Null(actualClientInfo);
 
-            actualClientInfo = ClientInfo.DeserializeFromJson<ClientInfo>(null);
+            actualClientInfo = ClientInfo.CreateFromJson(null);
 
             Assert.Null(actualClientInfo);
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DeserializeFromJson_InvalidJsonByteArray_ReturnsNull()
         {
-            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.DeserializeFromJson<ClientInfo>(Encoding.UTF8.GetBytes(_invalidJson)));
+            Assert.Throws<Newtonsoft.Json.JsonSerializationException>(() => ClientInfo.CreateFromJson(_invalidJson));
         }
     }
 }

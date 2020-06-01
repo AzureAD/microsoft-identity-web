@@ -32,12 +32,12 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes to request.
         /// </summary>
-        public string[] Scopes { get; set; }
+        public string[]? Scopes { get; set; }
 
         /// <summary>
         /// Key section on the configuration file that holds the scope value.
         /// </summary>
-        public string ScopeKeySection { get; set; }
+        public string? ScopeKeySection { get; set; }
 
         /// <summary>
         /// Handles the MsalUiRequiredException.
@@ -45,51 +45,47 @@ namespace Microsoft.Identity.Web
         /// <param name="context">Context provided by ASP.NET Core.</param>
         public override void OnException(ExceptionContext context)
         {
-            // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
-            string[] incrementalConsentScopes = Array.Empty<string>();
-            MsalUiRequiredException msalUiRequiredException = context.Exception as MsalUiRequiredException;
+            MsalUiRequiredException? msalUiRequiredException =
+                (context.Exception as MsalUiRequiredException) ??
+                (context.Exception?.InnerException as MsalUiRequiredException);
 
-            if (msalUiRequiredException == null)
+            if (msalUiRequiredException != null &&
+                CanBeSolvedByReSignInOfUser(msalUiRequiredException))
             {
-                msalUiRequiredException = context.Exception?.InnerException as MsalUiRequiredException;
-            }
-
-            if (msalUiRequiredException != null)
-            {
-                if (CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+                // the users cannot provide both scopes and ScopeKeySection at the same time
+                if (!string.IsNullOrWhiteSpace(ScopeKeySection) && Scopes != null && Scopes.Length > 0)
                 {
-                    // the users cannot provide both scopes and ScopeKeySection at the same time
-                    if (!string.IsNullOrWhiteSpace(ScopeKeySection) && Scopes != null && Scopes.Length > 0)
-                    {
-                        throw new InvalidOperationException($"Either provide the '{nameof(ScopeKeySection)}' or the '{nameof(Scopes)}' to the 'AuthorizeForScopes'.");
-                    }
-
-                    // If the user wishes us to pick the Scopes from a particular config setting.
-                    if (!string.IsNullOrWhiteSpace(ScopeKeySection))
-                    {
-                        // Load the injected IConfiguration
-                        IConfiguration configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-
-                        if (configuration == null)
-                        {
-                            throw new InvalidOperationException($"The {nameof(ScopeKeySection)} is provided but the IConfiguration instance is not present in the services collection");
-                        }
-
-                        incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
-
-                        if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes != null && incrementalConsentScopes.Length > 0)
-                        {
-                            throw new InvalidOperationException("no scopes provided in scopes...");
-                        }
-                    }
-                    else
-                    {
-                        incrementalConsentScopes = Scopes;
-                    }
-
-                    var properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
-                    context.Result = new ChallengeResult(properties);
+                    throw new InvalidOperationException($"Either provide the '{nameof(ScopeKeySection)}' or the '{nameof(Scopes)}' to the 'AuthorizeForScopes'.");
                 }
+
+                // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
+                string[]? incrementalConsentScopes;
+
+                // If the user wishes us to pick the Scopes from a particular config setting.
+                if (!string.IsNullOrWhiteSpace(ScopeKeySection))
+                {
+                    // Load the injected IConfiguration
+                    IConfiguration configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+
+                    if (configuration == null)
+                    {
+                        throw new InvalidOperationException($"The {nameof(ScopeKeySection)} is provided but the IConfiguration instance is not present in the services collection");
+                    }
+
+                    incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
+
+                    if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
+                    {
+                        throw new InvalidOperationException("no scopes provided in scopes...");
+                    }
+                }
+                else
+                {
+                    incrementalConsentScopes = Scopes;
+                }
+
+                var properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
+                context.Result = new ChallengeResult(properties);
             }
 
             base.OnException(context);
@@ -114,7 +110,7 @@ namespace Microsoft.Identity.Web
         /// <param name="context">current HTTP context in the pipeline.</param>
         /// <returns>AuthenticationProperties.</returns>
         private AuthenticationProperties BuildAuthenticationPropertiesForIncrementalConsent(
-            string[] scopes,
+            string[]? scopes,
             MsalUiRequiredException ex,
             HttpContext context)
         {
@@ -128,9 +124,13 @@ namespace Microsoft.Identity.Web
                  OidcConstants.ScopeProfile,
             };
 
+            // TODO: scopes can actually be null here - how do we treat this case? 
+            // if this is not allowed then we should throw before calling this method 
+            // if this is allowed, we need to avoid the null ref below
+
             properties.SetParameter<ICollection<string>>(
                 OpenIdConnectParameterNames.Scope,
-                scopes.Union(additionalBuiltInScopes).ToList());
+                scopes.Union(additionalBuiltInScopes).ToList()); // potential null ref exception
 
             // Attempts to set the login_hint to avoid the logged-in user to be presented with an account selection dialog
             var loginHint = context.User.GetLoginHint();

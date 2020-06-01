@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -158,7 +159,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
-            IEnumerable<string> initialScopes,
+            IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
@@ -198,7 +199,7 @@ namespace Microsoft.Identity.Web
                 var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
                 options.Events.OnAuthorizationCodeReceived = async context =>
                 {
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
+                    var tokenAcquisition = (ITokenAcquisitionInternal)context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
                     await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
                     await codeReceivedHandler(context).ConfigureAwait(false);
                 };
@@ -232,7 +233,7 @@ namespace Microsoft.Identity.Web
                 options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
                 {
                     // Remove the account from MSAL.NET token cache
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
+                    var tokenAcquisition = (ITokenAcquisitionInternal)context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
                     await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
                     await signOutHandler(context).ConfigureAwait(false);
                 };

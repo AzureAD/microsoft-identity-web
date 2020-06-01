@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         // * the 62nd and 63rd regular base64 encoding characters ('+' and '/') are replace with ('-' and '_')
         // The changes make the encoding alphabet file and URL safe
         // See RFC4648, section 5 for more info
-        public static string Encode(string arg)
+        public static string? Encode(string? arg)
         {
             if (arg == null)
             {
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
             return Convert.FromBase64String(s); // Standard base64 decoder
         }
 
-        internal static string Encode(byte[] arg)
+        internal static string? Encode(byte[]? arg)
         {
             if (arg == null)
             {

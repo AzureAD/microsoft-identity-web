@@ -15,18 +15,18 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         /// Tenant discovery endpoint.
         /// </summary>
         [JsonProperty(PropertyName = "tenant_discovery_endpoint")]
-        public string TenantDiscoveryEndpoint { get; set; }
+        public string? TenantDiscoveryEndpoint { get; set; }
 
         /// <summary>
         /// API Version.
         /// </summary>
         [JsonProperty(PropertyName = "api-version")]
-        public string ApiVersion { get; set; }
+        public string? ApiVersion { get; set; }
 
         /// <summary>
         /// List of metadata associated with the endpoint.
         /// </summary>
         [JsonProperty(PropertyName = "metadata")]
-        public List<Metadata> Metadata { get; set; }
+        public List<Metadata>? Metadata { get; set; }
     }
 }

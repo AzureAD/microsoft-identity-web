@@ -126,7 +126,7 @@ namespace Microsoft.Identity.Web.Resource
         {
             foreach (var property in message.GetType().GetProperties())
             {
-                object value = property.GetValue(message);
+                object? value = property.GetValue(message);
                 if (value != null)
                 {
                     _logger.LogDebug($"   - {property.Name}={value}");

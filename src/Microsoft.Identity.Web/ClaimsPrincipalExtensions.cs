@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="claimsPrincipal">Claims principal.</param>
         /// <returns>A string corresponding to an account identifier as defined in <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
-        public static string GetMsalAccountId(this ClaimsPrincipal claimsPrincipal)
+        public static string? GetMsalAccountId(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal == null)
             {
@@ -85,13 +85,13 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="claimsPrincipal">Identity for which to compute the domain-hint.</param>
         /// <returns>domain-hint for the identity, or <c>null</c> if it cannot be found.</returns>
-        public static string GetDomainHint(this ClaimsPrincipal claimsPrincipal)
+        public static string? GetDomainHint(this ClaimsPrincipal claimsPrincipal)
         {
             // Tenant for MSA accounts
             const string msaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
 
             var tenantId = GetTenantId(claimsPrincipal);
-            string domainHint = string.IsNullOrWhiteSpace(tenantId)
+            string? domainHint = string.IsNullOrWhiteSpace(tenantId)
                 ? null
                 : tenantId.Equals(msaTenantId, StringComparison.OrdinalIgnoreCase) ? "consumers" : "organizations";
 
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
-            
+
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
         }
 
