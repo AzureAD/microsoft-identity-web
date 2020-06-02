@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
-            
+
             string uniqueObjectIdentifier = claimsPrincipal.GetHomeObjectId();
             string uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
 
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
-            
+
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
         }
 
@@ -169,7 +169,7 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
-            
+
             return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueTenantIdentifier);
         }
 
