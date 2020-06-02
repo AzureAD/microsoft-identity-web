@@ -39,20 +39,10 @@ namespace Microsoft.Identity.Web
             return ValidateOptionsResult.Success;
         }
 
-        public ValidateOptionsResult ValidateClientSecret(ConfidentialClientApplicationOptions options)
-        {
-            if (string.IsNullOrEmpty(options.ClientSecret))
-            {
-                return ValidateOptionsResult.Fail($"The '{nameof(options.ClientSecret)}' option must be provided.");
-            }
-
-            return ValidateOptionsResult.Success;
-        }
-
         public ClientCredentialType ValidateEitherClientCertificateOrClientSecret(
             MicrosoftIdentityOptions microsoftIdentityOptions)
         {
-            if (string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates.Length == 0))
+            if (string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates == null))
             {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Both client secret & client certificate cannot be null or whitespace, " +
                  "and ONE, must be included in the configuration of the web app when calling a web API. " +
@@ -62,7 +52,7 @@ namespace Microsoft.Identity.Web
                     "missing_client_credentials",
                     msg);
             }
-            else if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates.Length > 0))
+            else if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates != null))
             {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Both Client secret & client certificate, " +
                    "cannot be included in the configuration of the web app when calling a web API. ");

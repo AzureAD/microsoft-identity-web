@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +27,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
-        private IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions;
+        private IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
 
         private KeyVaultSecretsProvider _keyVault;
         private string _ccaSecret;
@@ -90,33 +89,6 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        [InlineData("some_secret")]
-        public void ApplicationOptionsIncludeClientSecret(string clientSecret)
-        {
-            // Arrange
-            InitializeTokenAcquisitionObjects();
-
-            var options = new ConfidentialClientApplicationOptions
-            {
-                ClientSecret = clientSecret,
-            };
-
-            MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            ValidateOptionsResult result = microsoftIdentityOptionsValidation.ValidateClientSecret(options);
-            if (result.Failed)
-            {
-                string msg = string.Format(CultureInfo.InvariantCulture, "The 'ClientSecret' option must be provided.");
-                Assert.Equal(msg, result.FailureMessage);
-            }
-            else
-            {
-                Assert.True(result.Succeeded);
-            }
-        }
-
-        [Theory]
         [InlineData(null, false)]
         [InlineData("", false)]
         [InlineData("notAUri", false)]
@@ -133,11 +105,11 @@ namespace Microsoft.Identity.Web.Test.Integration
             string httpContextRedirectUri = "https://IdentityDotNetSDKAutomation/";
 
             InitializeTokenAcquisitionObjects();
-            microsoftIdentityOptions.Value.RedirectUri = redirectUri;
+            _microsoftIdentityOptions.Value.RedirectUri = redirectUri;
 
             if (expectConfiguredUri)
             {
-                Assert.Equal(microsoftIdentityOptions.Value.RedirectUri, _tokenAcquisition.CreateRedirectUri());
+                Assert.Equal(_microsoftIdentityOptions.Value.RedirectUri, _tokenAcquisition.CreateRedirectUri());
             }
             else
             {
@@ -147,7 +119,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
-            microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
+            _microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
             IOptions<MsalMemoryTokenCacheOptions> tokenOptions = _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>();
             IOptions<ConfidentialClientApplicationOptions> ccOptions = _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>();
             ILogger<TokenAcquisition> logger = _provider.GetService<ILogger<TokenAcquisition>>();
@@ -156,7 +128,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                microsoftIdentityOptions,
+                _microsoftIdentityOptions,
                 httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);
@@ -164,7 +136,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             _tokenAcquisition = new TokenAcquisition(
                 _msalTestTokenCacheProvider,
                 httpContextAccessor,
-                microsoftIdentityOptions,
+                _microsoftIdentityOptions,
                 ccOptions,
                 httpClientFactory,
                 logger);

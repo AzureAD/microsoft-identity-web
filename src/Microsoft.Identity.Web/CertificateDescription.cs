@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web
         {
             return new CertificateDescription
             {
-                SourceType = CertificateSource.StoreWithThumbprint,
+                SourceType = CertificateSource.StoreWithDistinguishedName,
                 Container = $"{certificateStoreLocation}/{certificateStoreName}",
                 ReferenceOrValue = certificateDistinguishedName,
             };
@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Type of the source of the certificate.
         /// </summary>
-        public CertificateSource SourceType { get; private set; }
+        public CertificateSource SourceType { get; set; }
 
         /// <summary>
         /// Container in which to find the certificate.
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c></item>
         /// </list>
         /// </summary>
-        public string Container { get; private set; }
+        public string Container { get; set; }
 
         /// <summary>
         /// Reference to the certificate or value.
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Web
         /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithThumbprint"/>,
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c></item>
         /// </list>
-        public string ReferenceOrValue { get; private set; }
+        public string ReferenceOrValue { get; set; }
 
         /// <summary>
         /// The certificate, either provided directly in code by the
