@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols;
-using Newtonsoft.Json;
 
 namespace Microsoft.Identity.Web.InstanceDiscovery
 {
@@ -34,8 +34,13 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
                 throw new ArgumentNullException(nameof(retriever), $"No metadata document retriever is provided");
             }
 
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+
             string doc = await retriever.GetDocumentAsync(address, cancel).ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<IssuerMetadata>(doc);
+            return JsonSerializer.Deserialize<IssuerMetadata>(doc, options);
         }
     }
 }

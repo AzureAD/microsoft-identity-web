@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
-        /// Msal memory token cache options.
+        /// MSAL memory token cache options.
         /// </summary>
         private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 

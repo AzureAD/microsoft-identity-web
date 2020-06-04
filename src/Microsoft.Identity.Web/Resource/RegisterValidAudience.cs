@@ -49,13 +49,13 @@ namespace Microsoft.Identity.Web.Resource
         ///  api://{ClientID}.
         ///
         /// When Web API developers don't provide the "Audience" in the configuration, Microsoft.Identity.Web
-        /// considers that this is the default App ID URI as explained abovce. When developer provide the
-        /// "Audience" member, its available in the TokenValidationParameter.ValidAudience.
+        /// considers that this is the default App ID URI as explained above. When developer provides the
+        /// "Audience" member, it's available in the TokenValidationParameter.ValidAudience.
         /// </summary>
-        /// <param name="audiences">audiences in the security token.</param>
+        /// <param name="audiences">Audiences in the security token.</param>
         /// <param name="securityToken">Security token from which to validate the audiences.</param>
         /// <param name="validationParameters">Token validation parameters.</param>
-        /// <returns>true is the token is valid, and false, otherwise.</returns>
+        /// <returns>True if the token is valid; false, otherwise.</returns>
         internal /*for test only*/ bool ValidateAudience(
             IEnumerable<string> audiences,
             SecurityToken securityToken,
