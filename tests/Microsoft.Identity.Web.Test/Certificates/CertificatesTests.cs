@@ -12,11 +12,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
 {
     public class CertificatesTests
     {
-        // TODO
-        // TokenAcquistion -> LoadFirstCertificate() to test cert loader
-        // test this w/a null certDescription: builder.WithCertificate(certificateDescription.Certificate); do we get an error? 
-        // for each type of cert
-
         [Theory]
         [InlineData("some_secret")]
         public void ValidateCredentialType(string clientSecret)

@@ -122,6 +122,11 @@ namespace Microsoft.Identity.Web
                 {
                     options.TokenValidationParameters.TokenDecryptionKey = new X509SecurityKey(tokenDecryptionCertificate);
                 }
+                else if (tokenDecryptionCertificate == null && microsoftIdentityOptions.DecryptCertificates != null)
+                {
+                    options.TokenValidationParameters.TokenDecryptionKey =
+                        new X509SecurityKey(DefaultCertificateLoader.LoadFirstCertificate(microsoftIdentityOptions.DecryptCertificates));
+                }
 
                 if (options.Events == null)
                 {

@@ -38,7 +38,6 @@ namespace Microsoft.Identity.Web
                 Container = keyVaultUrl,
                 ReferenceOrValue = certificateName,
             };
-            // todo support values?
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a thumprint and store location.
+        /// Create a certificate description from a thumbprint and store location (certificate manager on Windows for instance)
         /// </summary>
         /// <param name="certificateThumbprint">Certificate thumbprint.</param>
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
@@ -93,7 +92,8 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a thumprint and store location.
+        /// Create a certificate description from a certificate distinguished name (such as CN=name)
+        /// and store location (certificate manager on Windows for instance).
         /// </summary>
         /// <param name="certificateDistinguishedName">Certificate distinguished named.</param>
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>

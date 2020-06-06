@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
@@ -34,10 +35,10 @@ namespace Microsoft.Identity.Web
                         certificateDescription.Certificate = LoadFromPath(certificateDescription.Container, certificateDescription.ReferenceOrValue);
                         break;
                     case CertificateSource.StoreWithThumbprint:
-                        certificateDescription.Certificate = LoadLocalCertificateFromThumbprint(certificateDescription.Container, certificateDescription.ReferenceOrValue);
+                        certificateDescription.Certificate = LoadLocalCertificateFromThumbprint(certificateDescription.ReferenceOrValue, certificateDescription.Container);
                         break;
                     case CertificateSource.StoreWithDistinguishedName:
-                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.Container, certificateDescription.ReferenceOrValue);
+                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.ReferenceOrValue, certificateDescription.Container);
                         break;
                     default:
                         break;
@@ -54,7 +55,8 @@ namespace Microsoft.Identity.Web
         private static X509Certificate2 LoadFromKeyVault(string keyVaultUrl, string certificateName)
         {
             var client = new CertificateClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-            KeyVaultCertificateWithPolicy certificateWithPolicy = client.GetCertificate(certificateName);
+            KeyVaultCertificateWithPolicy certificateWithPolicy =
+                client.GetCertificateAsync(certificateName).GetAwaiter().GetResult();
             return new X509Certificate2(certificateWithPolicy.Cer);
         }
 
@@ -149,6 +151,14 @@ namespace Microsoft.Identity.Web
             // Return the first certificate in the collection, has the right name and is current.
             var cert = signingCert.OfType<X509Certificate2>().OrderByDescending(c => c.NotBefore).FirstOrDefault();
             return cert;
+        }
+
+        internal /*for test only*/ static X509Certificate2 LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            CertificateDescription certDescription = certificateDescription.First();
+            defaultCertificateLoader.LoadIfNeeded(certDescription);
+            return certDescription?.Certificate;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
@@ -84,11 +85,22 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Description of the certificates used to prove the identity of the Web app or Web API.
         /// </summary>
-        public CertificateDescription[] ClientCertificates { get; set; }
+        /// <example> An example in the appsetting.json:
+        /// <code>
+        /// "ClientCertificates": [
+        ///   {
+        ///     "SourceType": "StoreWithDistinguishedName",
+        ///      "Container": "CurrentUser/My",
+        ///      "ReferenceOrValue": "CN=WebAppCallingWebApiCert"
+        ///     }
+        ///    ]
+        ///   </code>
+        ///   </example>
+        public IEnumerable<CertificateDescription> ClientCertificates { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a Web API.
         /// </summary>
-        public CertificateDescription[] DecryptCertificates { get; set; }
+        public IEnumerable<CertificateDescription> DecryptCertificates { get; set; }
     }
 }

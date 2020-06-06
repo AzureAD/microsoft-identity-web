@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -366,8 +367,8 @@ namespace Microsoft.Identity.Web
 
                 if (clientCredentialType == ClientCredentialType.Certificate)
                 {
-                    CertificateDescription certificateDescription = LoadFirstCertificate(_microsoftIdentityOptions);
-                    builder.WithCertificate(certificateDescription.Certificate);
+                    X509Certificate2 certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
+                    builder.WithCertificate(certificate);
                 }
 
                 app = builder.Build();
@@ -563,14 +564,6 @@ namespace Microsoft.Identity.Web
             }
 
             return null;
-        }
-
-        internal /*for test only*/ static CertificateDescription LoadFirstCertificate(MicrosoftIdentityOptions microsoftIdentityOptions)
-        {
-            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            CertificateDescription certificateDescription = microsoftIdentityOptions.ClientCertificates.First();
-            defaultCertificateLoader.LoadIfNeeded(certificateDescription);
-            return certificateDescription;
         }
 
         internal /*for test only*/ string CreateRedirectUri()

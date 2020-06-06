@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
             return ClientCredentialType.Certificate;
         }
 
-        public enum ClientCredentialType
+        internal enum ClientCredentialType
         {
             None = 0,
             Both = 1,
