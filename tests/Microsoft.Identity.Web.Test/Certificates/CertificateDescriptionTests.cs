@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [InlineData("https://vaultname.vault.azure.net/certificates/certificateid/3fb1c62f74b844b0a2d9f1a3d289648d", "certificateName")]
         public void TestFromKeyVault(string keyVaultUrl, string certificateName)
         {
-            CertificateDescription certificateDescription = CertificateDescription.FromKeyVault(keyVaultUrl, certificateName, string.Empty);
+            CertificateDescription certificateDescription = CertificateDescription.FromKeyVault(keyVaultUrl, certificateName);
             Assert.Equal(CertificateSource.KeyVault, certificateDescription.SourceType);
             Assert.Equal(keyVaultUrl, certificateDescription.Container);
             Assert.Equal(certificateName, certificateDescription.ReferenceOrValue);

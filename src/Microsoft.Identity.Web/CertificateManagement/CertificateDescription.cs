@@ -28,9 +28,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="keyVaultUrl"></param>
         /// <param name="certificateName"></param>
-        /// <param name="version"></param>
         /// <returns>A certificate description.</returns>
-        public static CertificateDescription FromKeyVault(string keyVaultUrl, string certificateName, string version)
+        public static CertificateDescription FromKeyVault(string keyVaultUrl, string certificateName)
         {
             return new CertificateDescription
             {
@@ -72,7 +71,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a thumbprint and store location (certificate manager on Windows for instance)
+        /// Create a certificate description from a thumbprint and store location (certificate manager on Windows for instance).
         /// </summary>
         /// <param name="certificateThumbprint">Certificate thumbprint.</param>
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>

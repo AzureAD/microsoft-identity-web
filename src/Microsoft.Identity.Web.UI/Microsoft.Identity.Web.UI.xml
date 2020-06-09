@@ -98,7 +98,7 @@
             <summary>
             Adds a controller and Razor pages for the accounts management.
             </summary>
-            <param name="builder">MVC Builder.</param>
+            <param name="builder">MVC builder.</param>
         </member>
     </members>
 </doc>
