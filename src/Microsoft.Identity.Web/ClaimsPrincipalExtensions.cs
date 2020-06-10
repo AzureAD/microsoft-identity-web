@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets the NameIdentifierId associated with the <see cref="ClaimsPrincipal"/>.
         /// </summary>
-        /// <param name="claimsPrincipal">the <see cref="ClaimsPrincipal"/> from which to retrieve the <c>uid</c> claim.</param>
+        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the <c>uid</c> claim.</param>
         /// <returns>Name identifier ID (uid) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string GetNameIdentifierId(this ClaimsPrincipal claimsPrincipal)
         {
