@@ -24,14 +24,10 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ClientSecret = clientSecret,
             };
 
-            // Act
+            // Act & Assert 
+            // Should not throw
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-
-            ClientCredentialType clientCredentialType =
-                microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
-
-            // Assert
-            Assert.Equal(ClientCredentialType.Secret, clientCredentialType);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
         }
 
         [Theory]
@@ -49,13 +45,10 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ClientCertificates = new CertificateDescription[] { certificateDescription },
             };
 
-            // Act
+            // Act & Assert 
+            // Should not throw
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            ClientCredentialType clientCredentialType =
-                microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
-
-            // Assert
-            Assert.Equal(ClientCredentialType.Certificate, clientCredentialType);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
         }
 
         [Fact]

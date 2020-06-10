@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Certificates
@@ -42,7 +39,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
         [Theory]
         [InlineData("CN=TestCert", StoreLocation.LocalMachine, StoreName.Root)]
-        public void TestFromStoreWithDistinguishedName(string certificateDistinguisedName, StoreLocation storeLocation, StoreName storeName)
+        public void TestFromCertificateDistinguishedName(string certificateDistinguisedName, StoreLocation storeLocation, StoreName storeName)
         {
             CertificateDescription certificateDescription =
                 CertificateDescription.FromStoreWithDistinguishedName(certificateDistinguisedName, storeLocation, storeName);

@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
             return ValidateOptionsResult.Success;
         }
 
-        public ClientCredentialType ValidateEitherClientCertificateOrClientSecret(
+        public void ValidateEitherClientCertificateOrClientSecret(
             MicrosoftIdentityOptions microsoftIdentityOptions)
         {
             if (string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret) && (microsoftIdentityOptions.ClientCertificates == null))
@@ -61,20 +61,6 @@ namespace Microsoft.Identity.Web
                     "duplicate_client_credentials",
                     msg);
             }
-            else if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
-            {
-                return ClientCredentialType.Secret;
-            }
-
-            return ClientCredentialType.Certificate;
-        }
-
-        internal enum ClientCredentialType
-        {
-            None = 0,
-            Both = 1,
-            Secret = 2,
-            Certificate = 3,
         }
     }
 }

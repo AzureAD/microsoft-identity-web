@@ -343,9 +343,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication app;
 
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-
-            ClientCredentialType clientCredentialType =
-                microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(_microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(_microsoftIdentityOptions);
 
             try
             {
@@ -365,7 +363,7 @@ namespace Microsoft.Identity.Web
                     builder.WithAuthority(authority);
                 }
 
-                if (clientCredentialType == ClientCredentialType.Certificate)
+                if (_microsoftIdentityOptions.ClientCertificates != null)
                 {
                     X509Certificate2 certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
                     builder.WithCertificate(certificate);

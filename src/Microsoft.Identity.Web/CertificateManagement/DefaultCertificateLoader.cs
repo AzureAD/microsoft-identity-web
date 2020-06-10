@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
                         certificateDescription.Certificate = LoadFromPath(certificateDescription.Container, certificateDescription.ReferenceOrValue);
                         break;
                     case CertificateSource.StoreWithThumbprint:
-                        certificateDescription.Certificate = LoadLocalCertificateFromThumbprint(certificateDescription.ReferenceOrValue, certificateDescription.Container);
+                        certificateDescription.Certificate = LoadFromStoreWithThumbprint(certificateDescription.ReferenceOrValue, certificateDescription.Container);
                         break;
                     case CertificateSource.StoreWithDistinguishedName:
                         certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.ReferenceOrValue, certificateDescription.Container);
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
             return new X509Certificate2(certificateWithPolicy.Cer);
         }
 
-        private static X509Certificate2 LoadLocalCertificateFromThumbprint(
+        private static X509Certificate2 LoadFromStoreWithThumbprint(
             string certificateThumbprint,
             string storeDescription = "CurrentUser/My")
         {
@@ -93,8 +93,10 @@ namespace Microsoft.Identity.Web
                  certificateStoreName,
                  certificateStoreLocation))
             {
-                var by = X509FindType.FindBySubjectDistinguishedName;
-                cert = FindCertificateByCriterium(x509Store, by, certificateSubjectDistinguishedName);
+                cert = FindCertificateByCriterium(
+                    x509Store,
+                    X509FindType.FindBySubjectDistinguishedName,
+                    certificateSubjectDistinguishedName);
             }
 
             return cert;
@@ -114,15 +116,12 @@ namespace Microsoft.Identity.Web
         {
             string[] path = storeDescription.Split('/');
 
-            if (path.Length == 2)
+            if (path.Length != 2
+                || !Enum.TryParse<StoreLocation>(path[0], true, out certificateStoreLocation)
+                || !Enum.TryParse<StoreName>(path[1], true, out certificateStoreName))
             {
-                if (path.Length != 2
-                    || !Enum.TryParse<StoreLocation>(path[0], true, out certificateStoreLocation)
-                    || !Enum.TryParse<StoreName>(path[1], true, out certificateStoreName))
-                {
-                    throw new ArgumentException("store should be of the form 'StoreLocation/StoreName' with StoreLocation begin 'CurrentUser' or 'CurrentMachine'"
-                        + $" and StoreName begin '' or in '{string.Join(", ", typeof(StoreName).GetEnumNames())}'");
-                }
+                throw new ArgumentException("store should be of the form 'StoreLocation/StoreName' with StoreLocation begin 'CurrentUser' or 'CurrentMachine'"
+                    + $" and StoreName begin '' or in '{string.Join(", ", typeof(StoreName).GetEnumNames())}'");
             }
         }
 

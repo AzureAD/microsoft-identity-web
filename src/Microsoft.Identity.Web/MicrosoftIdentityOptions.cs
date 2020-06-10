@@ -101,6 +101,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a Web API.
         /// </summary>
-        public IEnumerable<CertificateDescription> DecryptCertificates { get; set; }
+        public IEnumerable<CertificateDescription> TokenDecryptionCertificates { get; set; }
     }
 }
