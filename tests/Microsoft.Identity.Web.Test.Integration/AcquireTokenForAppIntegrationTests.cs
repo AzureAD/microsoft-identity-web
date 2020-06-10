@@ -159,14 +159,14 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             services.AddTokenAcquisition();
             services.AddTransient(
-                _provider => Options.Create(new MicrosoftIdentityOptions
+                provider => Options.Create(new MicrosoftIdentityOptions
                 {
                     Authority = TestConstants.AuthorityCommonTenant,
                     ClientId = TestConstants.ConfidentialClientId,
                     CallbackPath = string.Empty,
                 }));
             services.AddTransient(
-                _provider => Options.Create(new ConfidentialClientApplicationOptions
+                provider => Options.Create(new ConfidentialClientApplicationOptions
                 {
                     Instance = TestConstants.AadInstance,
                     TenantId = TestConstants.ConfidentialClientLabTenant,

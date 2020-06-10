@@ -476,9 +476,6 @@ dotnet_diagnostic.CA1303.severity = none
 # SA1004: Documentation lines should begin with single space
 dotnet_diagnostic.SA1004.severity = none
 
-# SA1027: Use tabs correctly
-dotnet_diagnostic.SA1027.severity = none
-
 # SA1118: Parameter should not span multiple lines
 dotnet_diagnostic.SA1118.severity = none
 
@@ -509,17 +506,8 @@ dotnet_diagnostic.SA1308.severity = none
 # SA1311: Static readonly fields should begin with upper-case letter
 dotnet_diagnostic.SA1311.severity = none
 
-# SA1312: Variable names should begin with lower-case letter
-dotnet_diagnostic.SA1312.severity = none
-
-# SA1313: Parameter names should begin with lower-case letter
-dotnet_diagnostic.SA1313.severity = none
-
 # SA1401: Fields should be private
 dotnet_diagnostic.SA1401.severity = none
-
-# SA1502: Element should not be on a single line
-dotnet_diagnostic.SA1502.severity = none
 
 # SA1512: Single-line comments should not be followed by blank line
 dotnet_diagnostic.SA1512.severity = none

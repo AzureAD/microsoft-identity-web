@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         private readonly IDistributedCache _distributedCache;
 
         /// <summary>
-        /// Msal memory token cache options.
+        /// MSAL memory token cache options.
         /// </summary>
         private readonly DistributedCacheEntryOptions _cacheOptions;
 

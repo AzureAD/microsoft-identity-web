@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected readonly IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
 
         /// <summary>
-        /// Http accessor.
+        /// HTTP accessor.
         /// </summary>
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
