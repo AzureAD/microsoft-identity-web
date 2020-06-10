@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
+using static Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation;
 
 namespace Microsoft.Identity.Web
 {
@@ -341,17 +343,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication app;
 
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            if (microsoftIdentityOptionsValidation.ValidateClientSecret(_applicationOptions).Failed)
-            {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Client secret cannot be null or whitespace, " +
-                   "and must be included in the configuration of the web app when calling a web API. " +
-                   "For instance, in the appsettings.json file. ");
-
-                _logger.LogInformation(msg);
-                throw new MsalClientException(
-                    "missing_client_credentials",
-                    msg);
-            }
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(_microsoftIdentityOptions);
 
             try
             {
@@ -364,15 +356,20 @@ namespace Microsoft.Identity.Web
                 {
                     authority = $"{_applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
-                    app = builder.Build();
                 }
                 else
                 {
                     authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
                     builder.WithAuthority(authority);
-                    app = builder.Build();
                 }
 
+                if (_microsoftIdentityOptions.ClientCertificates != null)
+                {
+                    X509Certificate2 certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
+                    builder.WithCertificate(certificate);
+                }
+
+                app = builder.Build();
                 // Initialize token cache providers
                 await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
