@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
+using Azure.Security.KeyVault.Secrets;     
 
 namespace Microsoft.Identity.Web
 {
@@ -52,12 +53,51 @@ namespace Microsoft.Identity.Web
             return new X509Certificate2(decoded);
         }
 
+        /// <summary>
+        /// Load a certificate from KeyVault, including the private key.
+        /// </summary>
+        /// <param name="keyVaultUrl">Url of KeyVault.</param>
+        /// <param name="certificateName">Name of the certificate.</param>
+        /// <returns>An <see cref="X509Certificate2"/> certificate.</returns>
+        /// <remarks>This code is inspired by Heath Stewart's code in:
+        /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
+        /// </remarks>
         private static X509Certificate2 LoadFromKeyVault(string keyVaultUrl, string certificateName)
         {
-            var client = new CertificateClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-            KeyVaultCertificateWithPolicy certificateWithPolicy =
-                client.GetCertificateAsync(certificateName).GetAwaiter().GetResult();
-            return new X509Certificate2(certificateWithPolicy.Cer);
+            Uri keyVaultUri = new Uri(keyVaultUrl);
+            DefaultAzureCredential credential = new DefaultAzureCredential();
+            CertificateClient certificateClient = new CertificateClient(keyVaultUri, credential);
+            SecretClient secretClient = new SecretClient(keyVaultUri, credential);
+
+            KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
+
+            // Return a certificate with only the public key if the private key is not exportable.
+            if (certificate.Policy?.Exportable != true)
+            {
+                return new X509Certificate2(certificate.Cer);
+            }
+
+            // Parse the secret ID and version to retrieve the private key.
+            string[] segments = certificate.SecretId.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length != 3)
+            {
+                throw new InvalidOperationException($"Number of segments is incorrect: {segments.Length}, URI: {certificate.SecretId}");
+            }
+
+            string secretName = segments[1];
+            string secretVersion = segments[2];
+
+            KeyVaultSecret secret = secretClient.GetSecret(secretName, secretVersion);
+
+            // For PEM, you'll need to extract the base64-encoded message body.
+            // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
+            if ("application/x-pkcs12".Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
+            {
+                byte[] pfx = Convert.FromBase64String(secret.Value);
+                return new X509Certificate2(pfx);
+            }
+
+            throw new NotSupportedException($"Only PKCS#12 is supported. Found Content-Type: {secret.Properties.ContentType}");
         }
 
         private static X509Certificate2 LoadFromStoreWithThumbprint(

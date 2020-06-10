@@ -252,6 +252,27 @@ namespace Microsoft.Identity.Web
                     throw new ArgumentException("CertificateDiskPath can only be used when SourceType is Path");
                 }
 
+                return Container;
+            }
+            set
+            {
+                SourceType = CertificateSource.Path;
+                Container = value;
+            }
+        }
+
+        /// <summary>
+        /// Path on disk to the certificate password.
+        /// </summary>
+        public string CertificatePassword
+        {
+            get
+            {
+                if (SourceType != CertificateSource.Path)
+                {
+                    throw new ArgumentException("CertificatePassword can only be used when SourceType is Path");
+                }
+
                 return ReferenceOrValue;
             }
             set
