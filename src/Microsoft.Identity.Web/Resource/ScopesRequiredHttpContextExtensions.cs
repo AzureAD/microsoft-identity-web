@@ -33,7 +33,13 @@ namespace Microsoft.Identity.Web.Resource
                 throw new ArgumentNullException(nameof(acceptedScopes));
             }
 
-            Claim scopeClaim = context?.User?.FindFirst("http://schemas.microsoft.com/identity/claims/scope");
+            Claim scopeClaim = context?.User?.FindFirst(ClaimConstants.Scope);
+
+            // Fallback to scp claim name
+            if (scopeClaim == null)
+            {
+                scopeClaim = context?.User?.FindFirst(ClaimConstants.Scp);
+            }
 
             if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
             {
