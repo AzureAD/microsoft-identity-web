@@ -234,6 +234,7 @@ namespace Microsoft.Identity.Web
                                                 : validatedToken.InnerToken.RawData;
                     var result = await _application
                                         .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
+                                        .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                                         .ExecuteAsync()
                                         .ConfigureAwait(false);
                     accessToken = result.AccessToken;
@@ -272,6 +273,7 @@ namespace Microsoft.Identity.Web
             AuthenticationResult result;
             result = await _application
                    .AcquireTokenForClient(scopes.Except(_scopesRequestedByMsal))
+                   .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                    .ExecuteAsync()
                    .ConfigureAwait(false);
 
