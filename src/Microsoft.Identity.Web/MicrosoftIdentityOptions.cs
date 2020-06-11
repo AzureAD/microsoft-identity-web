@@ -127,9 +127,9 @@ namespace Microsoft.Identity.Web
         /// this method will send the public certificate to Azure AD along with the token request,
         /// so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
         /// This saves the application admin from the need to explicitly manage the certificate rollover
-        /// (either via portal or powershell/CLI operation). For details see https://aka.ms/msal-net-sni
+        /// (either via portal or powershell/CLI operation). For details see https://aka.ms/msal-net-sni.
         /// </summary>
-        /// The default is <c>false</c>.</param>
+        /// The default is <c>false.</c>
         public bool SendX5C { get; set; } = false;
     }
 }
