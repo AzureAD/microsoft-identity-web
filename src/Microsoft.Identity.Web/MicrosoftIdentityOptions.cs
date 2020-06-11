@@ -87,23 +87,38 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Description of the certificates used to prove the identity of the Web app or Web API.
+        /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
         /// <code>
         /// "ClientCertificates": [
         ///   {
         ///     "SourceType": "StoreWithDistinguishedName",
-        ///      "Container": "CurrentUser/My",
-        ///      "ReferenceOrValue": "CN=WebAppCallingWebApiCert"
+        ///      "CertificateStorePath": "CurrentUser/My",
+        ///      "CertificateDistinguishedName": "CN=WebAppCallingWebApiCert"
         ///     }
         ///    ]
         ///   </code>
+        ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CertificateDescription> ClientCertificates { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a Web API.
+        /// For the moment only the first certificate is considered.
         /// </summary>
+        /// <example> An example in the appsetting.json:
+        /// <code>
+        /// "TokenDecryptionCertificates": [
+        ///   {
+        ///     "SourceType": "StoreWithDistinguishedName",
+        ///      "CertificateStorePath": "CurrentUser/My",
+        ///      "CertificateDistinguishedName": "CN=WebAppCallingWebApiCert"
+        ///     }
+        ///    ]
+        ///   </code>
+        ///   See also https://aka.ms/ms-id-web-certificates.
+        ///   </example>
         public IEnumerable<CertificateDescription> TokenDecryptionCertificates { get; set; }
     }
 }

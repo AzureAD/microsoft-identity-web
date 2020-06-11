@@ -6,28 +6,30 @@ using System.Globalization;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
-using static Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation;
 
 namespace Microsoft.Identity.Web.Test.Certificates
 {
     public class CertificatesTests
     {
-        [Theory]
-        [InlineData("some_secret")]
-        public void ValidateCredentialType(string clientSecret)
+        [Fact]
+        public void ValidateCredentialType()
         {
             // Arrange
             MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ConfidentialClientId,
-                ClientSecret = clientSecret,
             };
 
-            // Act & Assert 
+            ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = "some secret",
+            };
+
+            // Act & Assert
             // Should not throw
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
         }
 
         [Theory]
@@ -45,10 +47,15 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ClientCertificates = new CertificateDescription[] { certificateDescription },
             };
 
-            // Act & Assert 
+            ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = string.Empty,
+            };
+
+            // Act & Assert
             // Should not throw
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
         }
 
         [Fact]
@@ -61,11 +68,16 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ClientId = TestConstants.ConfidentialClientId,
             };
 
+            ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = string.Empty,
+            };
+
             // Act
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
 
             Action credentialAction = () =>
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
 
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
@@ -88,15 +100,19 @@ namespace Microsoft.Identity.Web.Test.Certificates
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ConfidentialClientId,
-                ClientSecret = "some secret",
                 ClientCertificates = new CertificateDescription[] { certificateDescription },
+            };
+
+            ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = "some secret",
             };
 
             // Act
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
 
             Action credentialAction = () =>
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
 
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
