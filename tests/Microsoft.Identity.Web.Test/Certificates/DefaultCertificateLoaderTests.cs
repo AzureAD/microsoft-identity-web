@@ -19,12 +19,32 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [Theory]
         public void TestDefaultCertificateLoader(CertificateSource certificateSource, string container, string referenceOrValue)
         {
-            CertificateDescription certificateDescription = new CertificateDescription
+            CertificateDescription certificateDescription;
+            switch (certificateSource)
             {
-                SourceType = certificateSource,
-                Container = container,
-                ReferenceOrValue = referenceOrValue,
-            };
+                case CertificateSource.KeyVault:
+                    certificateDescription = CertificateDescription.FromKeyVault(container, referenceOrValue);
+                    break;
+                case CertificateSource.Base64Encoded:
+                    certificateDescription = CertificateDescription.FromBase64Encoded(referenceOrValue);
+                    break;
+                case CertificateSource.Path:
+                    certificateDescription = CertificateDescription.FromPath(container, referenceOrValue);
+                    break;
+                case CertificateSource.StoreWithThumbprint:
+                    certificateDescription = new CertificateDescription() { SourceType = CertificateSource.StoreWithThumbprint };
+                    certificateDescription.CertificateThumbprint = referenceOrValue;
+                    certificateDescription.CertificateStorePath = container;
+                    break;
+                case CertificateSource.StoreWithDistinguishedName:
+                    certificateDescription = new CertificateDescription() { SourceType = CertificateSource.StoreWithDistinguishedName };
+                    certificateDescription.CertificateDistinguishedName = referenceOrValue;
+                    certificateDescription.CertificateStorePath = container;
+                    break;
+                default:
+                    certificateDescription = null;
+                    break;
+            }
 
             ICertificateLoader loader = new DefaultCertificateLoader();
             loader.LoadIfNeeded(certificateDescription);

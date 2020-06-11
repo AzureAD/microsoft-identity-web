@@ -343,7 +343,9 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication app;
 
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(_microsoftIdentityOptions);
+            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
+                _applicationOptions.ClientSecret,
+                _microsoftIdentityOptions.ClientCertificates);
 
             try
             {

@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Type of the source of the certificate.
         /// </summary>
-        internal CertificateSource SourceType { get; set; }
+        public CertificateSource SourceType { get; set; }
 
         /// <summary>
         /// Container in which to find the certificate.
