@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web
         ///     }
         ///    ]
         ///   </code>
-        ///   See also https://aka.ms/ms-id-web-certificates
+        ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CertificateDescription> ClientCertificates { get; set; }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web
         ///     }
         ///    ]
         ///   </code>
-        ///   See also https://aka.ms/ms-id-web-certificates
+        ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CertificateDescription> TokenDecryptionCertificates { get; set; }
     }
