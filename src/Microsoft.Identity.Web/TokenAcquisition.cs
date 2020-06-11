@@ -20,7 +20,6 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
-using static Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation;
 
 namespace Microsoft.Identity.Web
 {
@@ -142,6 +141,7 @@ namespace Microsoft.Identity.Web
                 // Share the ID Token though
                 var result = await _application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
                 context.HandleCodeRedemption(null, result.IdToken);
@@ -465,6 +465,7 @@ namespace Microsoft.Identity.Web
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
                     .WithB2CAuthority(authority)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
@@ -477,6 +478,7 @@ namespace Microsoft.Identity.Web
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
                     .WithAuthority(authority)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
                 return result.AccessToken;
@@ -485,6 +487,7 @@ namespace Microsoft.Identity.Web
             {
                 result = await application
                    .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
+                   .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                    .ExecuteAsync()
                    .ConfigureAwait(false);
                 return result.AccessToken;
