@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
 
@@ -19,9 +18,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateName, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificateName, certificateDescription.KeyVaultCertificateName);
             Assert.Equal(keyVaultUrl, certificateDescription.KeyVaultUrl);
-
-            Assert.Throws<ArgumentException>(() => certificateDescription.CertificateDiskPath);
-            Assert.Throws<ArgumentException>(() => certificateDescription.CertificateDistinguishedName);
         }
 
         [Theory]
@@ -34,9 +30,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(password, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificatePath, certificateDescription.CertificateDiskPath);
             Assert.Equal(password, certificateDescription.CertificatePassword);
-
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultUrl);
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultCertificateName);
         }
 
         [Theory]
@@ -47,9 +40,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(CertificateSource.Base64Encoded, certificateDescription.SourceType);
             Assert.Equal(base64Encoded, certificateDescription.ReferenceOrValue);
             Assert.Equal(base64Encoded, certificateDescription.Base64EncodedValue);
-
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultUrl);
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultCertificateName);
         }
 
         [Theory]
@@ -63,9 +53,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateDistinguishedName, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificateDistinguishedName, certificateDescription.CertificateDistinguishedName);
             Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.CertificateStorePath);
-
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultUrl);
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultCertificateName);
         }
 
         [Theory]
@@ -79,9 +66,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateThumbprint, certificateDescription.ReferenceOrValue);
             Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.CertificateStorePath);
             Assert.Equal(certificateThumbprint, certificateDescription.CertificateThumbprint);
-
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultUrl);
-            Assert.Throws<ArgumentException>(() => certificateDescription.KeyVaultCertificateName);
         }
 
         [Fact]
@@ -91,8 +75,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             {
                 CertificateDescription certificateDescription =
                     CertificateDescription.FromCertificate(certificate2);
-                Assert.Equal(CertificateSource.Certificate, certificateDescription.SourceType);
-                Assert.Equal(certificate2, certificateDescription.Certificate);
             }
         }
     }

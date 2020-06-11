@@ -36,8 +36,8 @@ namespace Microsoft.Identity.Web
             return new CertificateDescription
             {
                 SourceType = CertificateSource.KeyVault,
-                Container = keyVaultUrl,
-                ReferenceOrValue = keyVaultCertificateName,
+                KeyVaultUrl = keyVaultUrl,
+                KeyVaultCertificateName = keyVaultCertificateName,
             };
         }
 
@@ -51,8 +51,7 @@ namespace Microsoft.Identity.Web
             return new CertificateDescription
             {
                 SourceType = CertificateSource.Base64Encoded,
-                Container = string.Empty,
-                ReferenceOrValue = base64EncodedValue,
+                Base64EncodedValue = base64EncodedValue,
             };
         }
 
@@ -67,8 +66,8 @@ namespace Microsoft.Identity.Web
             return new CertificateDescription
             {
                 SourceType = CertificateSource.Path,
-                Container = path,
-                ReferenceOrValue = password,
+                CertificateDiskPath = path,
+                CertificatePassword = password,
             };
         }
 
@@ -87,8 +86,8 @@ namespace Microsoft.Identity.Web
             return new CertificateDescription
             {
                 SourceType = CertificateSource.StoreWithThumbprint,
-                Container = $"{certificateStoreLocation}/{certificateStoreName}",
-                ReferenceOrValue = certificateThumbprint,
+                CertificateStorePath = $"{certificateStoreLocation}/{certificateStoreName}",
+                CertificateThumbprint = certificateThumbprint,
             };
         }
 
@@ -108,8 +107,8 @@ namespace Microsoft.Identity.Web
             return new CertificateDescription
             {
                 SourceType = CertificateSource.StoreWithDistinguishedName,
-                Container = $"{certificateStoreLocation}/{certificateStoreName}",
-                ReferenceOrValue = certificateDistinguishedName,
+                CertificateStorePath = $"{certificateStoreLocation}/{certificateStoreName}",
+                CertificateDistinguishedName = certificateDistinguishedName,
             };
         }
 
@@ -132,176 +131,91 @@ namespace Microsoft.Identity.Web
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c></item>
         /// </list>
         /// </summary>
-        internal string Container { get; set; }
+        internal string Container
+        {
+            get
+            {
+                switch (SourceType)
+                {
+                    case CertificateSource.Certificate:
+                        return null;
+                    case CertificateSource.KeyVault:
+                        return KeyVaultUrl;
+                    case CertificateSource.Base64Encoded:
+                        return null;
+                    case CertificateSource.Path:
+                        return CertificateDiskPath;
+                    case CertificateSource.StoreWithThumbprint:
+                    case CertificateSource.StoreWithDistinguishedName:
+                        return CertificateStorePath;
+                    default:
+                        return null;
+                }
+            }
+            set
+            {
+                switch (SourceType)
+                {
+                    case CertificateSource.Certificate:
+                        break;
+                    case CertificateSource.KeyVault:
+                        KeyVaultUrl = value;
+                        break;
+                    case CertificateSource.Base64Encoded:
+                        break;
+                    case CertificateSource.Path:
+                        CertificateDiskPath = value;
+                        break;
+                    case CertificateSource.StoreWithDistinguishedName:
+                    case CertificateSource.StoreWithThumbprint:
+                        CertificateStorePath = value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
         /// <summary>
         /// URL of the KeyVault for instance https://msidentitywebsamples.vault.azure.net.
         /// </summary>
-        public string KeyVaultUrl
-        {
-            get
-            {
-                if (SourceType != CertificateSource.KeyVault)
-                {
-                    throw new ArgumentException("KeyVaultUrl can only be used when SourceType is KeyVault");
-                }
-
-                return Container;
-            }
-            set
-            {
-                SourceType = CertificateSource.KeyVault;
-                Container = value;
-            }
-        }
+        public string KeyVaultUrl { get; set; }
 
         /// <summary>
         /// Certiticate store path, for instance "CurrentUser/My".
         /// </summary>
         /// <remarks>This property should only be used in conjunction with DistinguishName or Thumbprint.</remarks>
-        public string CertificateStorePath
-        {
-            get
-            {
-                if (SourceType != CertificateSource.StoreWithDistinguishedName
-                    && SourceType != CertificateSource.StoreWithThumbprint)
-                {
-                    throw new ArgumentException("CertificateStorePath can only be used when SourceType is StoreWithDistinguishedName or StoreWithThumbprint");
-                }
-
-                return Container;
-            }
-            set
-            {
-                Container = value;
-            }
-        }
+        public string CertificateStorePath { get; set; }
 
         /// <summary>
         /// Certificate distinguished name.
         /// </summary>
-        public string CertificateDistinguishedName
-        {
-            get
-            {
-                if (SourceType != CertificateSource.StoreWithDistinguishedName)
-                {
-                    throw new ArgumentException("CertificateDistinguishedName can only be used when SourceType is StoreWithDistinguishedName");
-                }
-
-                return ReferenceOrValue;
-            }
-            set
-            {
-                SourceType = CertificateSource.StoreWithDistinguishedName;
-                ReferenceOrValue = value;
-            }
-        }
+        public string CertificateDistinguishedName { get; set; }
 
         /// <summary>
         /// Name of the certificate in KeyVault.
         /// </summary>
-        public string KeyVaultCertificateName
-        {
-            get
-            {
-                if (SourceType != CertificateSource.KeyVault)
-                {
-                    throw new ArgumentException("KeyVaultCertificateName can only be used when SourceType is KeyVault");
-                }
-
-                return ReferenceOrValue;
-            }
-            set
-            {
-                SourceType = CertificateSource.KeyVault;
-                ReferenceOrValue = value;
-            }
-        }
+        public string KeyVaultCertificateName { get; set; }
 
         /// <summary>
         /// Certificate thumbprint.
         /// </summary>
-        public string CertificateThumbprint
-        {
-            get
-            {
-                if (SourceType != CertificateSource.StoreWithThumbprint)
-                {
-                    throw new ArgumentException("StoreWithThumbprint can only be used when SourceType is StoreWithThumbprint");
-                }
-
-                return ReferenceOrValue;
-            }
-            set
-            {
-                SourceType = CertificateSource.StoreWithThumbprint;
-                ReferenceOrValue = value;
-            }
-        }
+        public string CertificateThumbprint { get; set; }
 
         /// <summary>
         /// Path on disk to the certificate.
         /// </summary>
-        public string CertificateDiskPath
-        {
-            get
-            {
-                if (SourceType != CertificateSource.Path)
-                {
-                    throw new ArgumentException("CertificateDiskPath can only be used when SourceType is Path");
-                }
-
-                return Container;
-            }
-            set
-            {
-                SourceType = CertificateSource.Path;
-                Container = value;
-            }
-        }
+        public string CertificateDiskPath { get; set; }
 
         /// <summary>
         /// Path on disk to the certificate password.
         /// </summary>
-        public string CertificatePassword
-        {
-            get
-            {
-                if (SourceType != CertificateSource.Path)
-                {
-                    throw new ArgumentException("CertificatePassword can only be used when SourceType is Path");
-                }
-
-                return ReferenceOrValue;
-            }
-            set
-            {
-                SourceType = CertificateSource.Path;
-                ReferenceOrValue = value;
-            }
-        }
+        public string CertificatePassword { get; set; }
 
         /// <summary>
         /// Base 64 encoded value.
         /// </summary>
-        public string Base64EncodedValue
-        {
-            get
-            {
-                if (SourceType != CertificateSource.Base64Encoded)
-                {
-                    throw new ArgumentException("Base64EncodedValue can only be used when SourceType is Base64Encoded");
-                }
-
-                return ReferenceOrValue;
-            }
-            set
-            {
-                SourceType = CertificateSource.Base64Encoded;
-                ReferenceOrValue = value;
-            }
-        }
+        public string Base64EncodedValue { get; set; }
 
         /// <summary>
         /// Reference to the certificate or value.
@@ -318,7 +232,53 @@ namespace Microsoft.Identity.Web
         /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithThumbprint"/>,
         /// this value is the thumbprint.</item>
         /// </list>
-        internal string ReferenceOrValue { get; set; }
+        internal string ReferenceOrValue
+        {
+            get
+            {
+                switch (SourceType)
+                {
+                    case CertificateSource.KeyVault:
+                        return KeyVaultCertificateName;
+                    case CertificateSource.Path:
+                        return CertificatePassword;
+                    case CertificateSource.StoreWithThumbprint:
+                        return CertificateThumbprint;
+                    case CertificateSource.StoreWithDistinguishedName:
+                        return CertificateDistinguishedName;
+                    case CertificateSource.Certificate:
+                    case CertificateSource.Base64Encoded:
+                        return Base64EncodedValue;
+                    default:
+                        return null;
+                }
+            }
+            set
+            {
+                switch (SourceType)
+                {
+                    case CertificateSource.Certificate:
+                        break;
+                    case CertificateSource.KeyVault:
+                        KeyVaultCertificateName = value;
+                        break;
+                    case CertificateSource.Base64Encoded:
+                        Base64EncodedValue = value;
+                        break;
+                    case CertificateSource.Path:
+                        CertificateDiskPath = value;
+                        break;
+                    case CertificateSource.StoreWithThumbprint:
+                        CertificateThumbprint = value;
+                        break;
+                    case CertificateSource.StoreWithDistinguishedName:
+                        CertificateDistinguishedName = value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
         /// <summary>
         /// The certificate, either provided directly in code by the
