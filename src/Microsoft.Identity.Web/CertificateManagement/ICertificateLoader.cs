@@ -4,7 +4,7 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Interface to implement load a certificate.
+    /// Interface to implement loading of a certificate.
     /// </summary>
     internal interface ICertificateLoader
     {

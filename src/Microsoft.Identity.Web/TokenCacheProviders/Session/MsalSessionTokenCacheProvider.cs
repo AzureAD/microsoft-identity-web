@@ -10,21 +10,24 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
     /// <summary>
-    /// An implementation of token cache for Confidential clients backed by an HTTP session.
+    /// An implementation of token cache for confidential clients backed by an HTTP session.
     /// </summary>
+    /// <remarks>
     /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
     /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
     ///
-    /// // In the method - public void ConfigureServices(IServiceCollection services) in startup.cs, add the following
+    /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
+    /// <code>
     /// services.AddSession(option =>
     /// {
     ///     option.Cookie.IsEssential = true;
     /// });
-    ///
-    /// In the method - public void Configure(IApplicationBuilder app, IHostingEnvironment env) in startup.cs, add the following
-    ///
+    /// </code>
+    /// In the method <c>public void Configure(IApplicationBuilder app, IHostingEnvironment env)</c> in Startup.cs, add the following:
+    /// <code>
     /// app.UseSession(); // Before UseMvc()
-    ///
+    /// </code>
+    /// </remarks>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
     public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IMsalTokenCacheProvider
     {

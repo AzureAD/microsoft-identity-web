@@ -54,9 +54,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Load a certificate from KeyVault, including the private key.
+        /// Load a certificate from Key Vault, including the private key.
         /// </summary>
-        /// <param name="keyVaultUrl">Url of KeyVault.</param>
+        /// <param name="keyVaultUrl">URL of Key Vault.</param>
         /// <param name="certificateName">Name of the certificate.</param>
         /// <returns>An <see cref="X509Certificate2"/> certificate.</returns>
         /// <remarks>This code is inspired by Heath Stewart's code in:
