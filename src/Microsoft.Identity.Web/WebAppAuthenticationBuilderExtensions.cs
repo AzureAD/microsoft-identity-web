@@ -155,6 +155,11 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
+                    if (microsoftIdentityOptions.ForceHttpsRedirectUris && (context.ProtocolMessage?.RedirectUri?.StartsWith("http://") ?? false))
+                    {
+                        context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
+                    }
+
                     await redirectToIdpHandler(context).ConfigureAwait(false);
                 };
 
@@ -170,6 +175,11 @@ namespace Microsoft.Identity.Web
                         {
                             context.ProtocolMessage.PostLogoutRedirectUri = microsoftIdentityOptions.PostLogoutRedirectUri;
                         }
+                    }
+
+                    if (microsoftIdentityOptions.ForceHttpsRedirectUris && (context.ProtocolMessage?.PostLogoutRedirectUri?.StartsWith("http://") ?? false))
+                    {
+                        context.ProtocolMessage.PostLogoutRedirectUri = context.ProtocolMessage.PostLogoutRedirectUri.Replace("http://", "https://");
                     }
                 };
 

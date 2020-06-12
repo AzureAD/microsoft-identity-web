@@ -24,8 +24,9 @@ namespace Microsoft.Identity.Web.Resource
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
-        /// <exception cref="HttpRequestException"/> with a <see cref="HttpResponse.StatusCode"/> set to
-        /// <see cref="HttpStatusCode.Unauthorized"/>
+        /// <exception cref="HttpRequestException"> with a <see cref="HttpResponse.StatusCode"/> set to
+        /// <see cref="HttpStatusCode.Unauthorized"/>.
+        /// </exception>
         public static void VerifyUserHasAnyAcceptedScope(this HttpContext context, params string[] acceptedScopes)
         {
             if (acceptedScopes == null)

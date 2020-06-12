@@ -341,6 +341,45 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(OidcConstants.ScopeProfile, oidcOptions.Scope);
         }
 
+        [Theory]
+        [InlineData(true, "http://localhost:123", "https://localhost:123")]
+        [InlineData(false, "http://localhost:123", "http://localhost:123")]
+        public async void AddSignIn_ForceHttpsRedirectUris(bool forceHttpsRedirectUris, string actualUri, string expectedUri)
+        {
+            _configureMsOptions = (options) =>
+            {
+                options.Instance = TestConstants.AadInstance;
+                options.TenantId = TestConstants.TenantIdAsGuid;
+                options.ClientId = TestConstants.ClientId;
+                options.ForceHttpsRedirectUris = forceHttpsRedirectUris;
+            };
+
+            var services = new ServiceCollection();
+            services.AddDataProtection();
+            new AuthenticationBuilder(services)
+                .AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme);
+
+            var provider = services.BuildServiceProvider();
+
+            var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(_oidcScheme);
+
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
+            var redirectContext = new RedirectContext(httpContext, authScheme, oidcOptions, authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage()
+                {
+                    RedirectUri = actualUri,
+                    PostLogoutRedirectUri = actualUri,
+                },
+            };
+
+            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
+            await oidcOptions.Events.RedirectToIdentityProviderForSignOut(redirectContext).ConfigureAwait(false);
+
+            Assert.Equal(expectedUri, redirectContext.ProtocolMessage.RedirectUri);
+            Assert.Equal(expectedUri, redirectContext.ProtocolMessage.PostLogoutRedirectUri);
+        }
+
         private void AddSignIn_TestCommon(IServiceCollection services, ServiceProvider provider)
         {
             // Assert correct services added

@@ -9,22 +9,22 @@ namespace Microsoft.Identity.Web
     public enum CertificateSource
     {
         /// <summary>
-        /// Certificate itself
+        /// Certificate itself.
         /// </summary>
         Certificate = 0,
 
         /// <summary>
-        /// KeyVault
+        /// From an Azure Key Vault.
         /// </summary>
         KeyVault = 1,
 
         /// <summary>
-        /// Base 64 encoded directly in the configuration.
+        /// Base64 encoded string directly from the configuration.
         /// </summary>
         Base64Encoded = 2,
 
         /// <summary>
-        /// Local path on disk
+        /// From local path on disk.
         /// </summary>
         Path = 3,
 
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         StoreWithThumbprint = 4,
 
         /// <summary>
-        /// From the certificate store, described by its Distinguished name.
+        /// From the certificate store, described by its distinguished name.
         /// </summary>
         StoreWithDistinguishedName = 5,
     }

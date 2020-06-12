@@ -284,7 +284,7 @@ namespace Microsoft.Identity.Web
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache.
         /// </summary>
         /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
-        /// Openidconnect event.</param>
+        /// OpenID Connect event.</param>
         /// <returns></returns>
         public async Task RemoveAccountAsync(RedirectContext context)
         {
