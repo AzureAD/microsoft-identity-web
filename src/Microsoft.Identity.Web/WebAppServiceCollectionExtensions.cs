@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
-            builder.AddSignIn(
+            builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 openIdConnectScheme,
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
-            builder.AddSignIn(
+            builder.AddMicrosoftWebApp(
                  configureOpenIdConnectOptions,
                  configureMicrosoftIdentityOptions,
                  openIdConnectScheme,

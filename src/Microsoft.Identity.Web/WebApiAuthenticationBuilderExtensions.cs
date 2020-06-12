@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for AuthenticationBuilder for startup initialization of Web APIs.
     /// </summary>
-    public static class WebApiAuthenticationBuilderExtensions
+    public static partial class WebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static AuthenticationBuilder AddProtectedWebApi(
+        public static AuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = "AzureAd",
@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            return builder.AddProtectedWebApi(
+            return builder.AddMicrosoftWebApi(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static AuthenticationBuilder AddProtectedWebApi(
+        public static AuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
