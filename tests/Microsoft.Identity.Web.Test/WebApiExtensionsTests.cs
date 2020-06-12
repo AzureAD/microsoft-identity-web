@@ -60,12 +60,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+                services.AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+                    .AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
 
             var provider = services.BuildServiceProvider();
@@ -88,12 +88,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+                services.AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+                    .AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
 
             var provider = services.BuildServiceProvider();
@@ -150,12 +150,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+                services.AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
+                    .AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, true);
             }
 
             var provider = services.BuildServiceProvider();
@@ -182,12 +182,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+                services.AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
+                    .AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, true);
             }
 
             var provider = services.BuildServiceProvider();
@@ -243,12 +243,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
+                services.AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
+                    .AddMicrosoftWebApi(config, _configSectionName, _jwtBearerScheme, _certificate, subscribeToDiagnostics);
             }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
@@ -282,12 +282,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (useServiceCollectionExtension)
             {
-                services.AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
+                services.AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
             }
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddProtectedWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
+                    .AddMicrosoftWebApi(_configureJwtOptions, _configureMsOptions, _certificate, _jwtBearerScheme, subscribeToDiagnostics);
             }
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();

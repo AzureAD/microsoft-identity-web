@@ -44,7 +44,7 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddSignIn(Configuration, "AzureAd");
+              .AddMicrosoftWebApp(Configuration, "AzureAd");
 
             // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
             // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.

@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
+                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
             }
 
             var provider = services.BuildServiceProvider();
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
+                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
             }
 
             var provider = services.BuildServiceProvider();
@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
             }
 
             await AddSignIn_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
             }
 
             await AddSignIn_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
@@ -204,7 +204,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
             }
 
             await AddSignIn_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
@@ -240,7 +240,7 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 new AuthenticationBuilder(services)
-                    .AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
             }
 
             await AddSignIn_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);

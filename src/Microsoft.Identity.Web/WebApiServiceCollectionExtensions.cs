@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for IServiceCollection for startup initialization of Web APIs.
     /// </summary>
-    public static class WebApiServiceCollectionExtensions
+    public static partial class WebApiServiceCollectionExtensions
     {
         /// <summary>
         /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
@@ -31,6 +31,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
+        [Obsolete("Rather use AuthenticationBuilder.AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -40,7 +41,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            builder.AddProtectedWebApi(
+            builder.AddMicrosoftWebApi(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
@@ -62,6 +63,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
+        [Obsolete("Rather use AuthenticationBuilder.AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -71,7 +73,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            builder.AddProtectedWebApi(
+            builder.AddMicrosoftWebApi(
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
                 tokenDecryptionCertificate,
