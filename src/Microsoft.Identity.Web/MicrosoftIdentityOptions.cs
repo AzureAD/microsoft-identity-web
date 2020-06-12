@@ -56,7 +56,8 @@ namespace Microsoft.Identity.Web
         /// When set to true, forces the <see cref="OpenIdConnectMessage.RedirectUri"/> and the <see cref="OpenIdConnectMessage.PostLogoutRedirectUri"/> to use the HTTPS scheme.
         /// This behavior can be desired, for instance, when you use a reverse proxy that transforms HTTPS
         /// URLs (external world) to HTTP URLs (inside the protected area). This can also be useful for web apps running
-        /// in containers (for the same reasons).
+        /// in containers (for the same reasons), for example when deploying your web app to
+        /// Azure App Services in Linux containers.
         /// </summary>
         public bool ForceHttpsRedirectUris { get; set; }
 
