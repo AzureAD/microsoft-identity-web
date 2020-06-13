@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -26,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Use AddMicrosoftWebApp instead")]
+        [Obsolete("Use AddMicrosoftWebApp instead.  See https://aka.ms/ms-id-web/net5")]
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -54,7 +55,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Use AddMicrosoftWebApp instead")]
+        [Obsolete("Use AddMicrosoftWebApp instead.  See https://aka.ms/ms-id-web/net5")]
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
