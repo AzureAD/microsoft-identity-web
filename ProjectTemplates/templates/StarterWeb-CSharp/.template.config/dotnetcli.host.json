@@ -69,8 +69,8 @@
       "shortName": ""
     },
     "RazorRuntimeCompilation": {
-        "longName": "razor-runtime-compilation",
-        "shortName": "rrc"
+      "longName": "razor-runtime-compilation",
+      "shortName": "rrc"
     },
     "CalledApiUrl": {
         "longName": "called-api-url",
