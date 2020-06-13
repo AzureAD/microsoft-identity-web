@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static AuthenticationBuilder AddProtectedWebApi2(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static AuthenticationBuilder AddProtectedWebApi2(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
