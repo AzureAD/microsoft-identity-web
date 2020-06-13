@@ -27,7 +27,7 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSignIn(Configuration)
-                    .AddWebAppCallsProtectedWebApi(Configuration)
+                    .AddMicrosoftWebAppCallsWebApi(Configuration)
                     .AddInMemoryTokenCaches();
 
             services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });

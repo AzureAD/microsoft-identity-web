@@ -52,11 +52,9 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void AddSignIn_WithConfigNameParameters(bool useServiceCollectionExtension, bool subscribeToDiagnostics)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddMicrosoftWebApp_WithConfigNameParameters(bool subscribeToDiagnostics)
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(_configSectionName).Returns(_configSection);
@@ -64,17 +62,11 @@ namespace Microsoft.Identity.Web.Test
             var diagnosticsMock = Substitute.For<IOpenIdConnectMiddlewareDiagnostics>();
 
             var services = new ServiceCollection();
+
             services.AddDataProtection();
 
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
-            }
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -83,31 +75,22 @@ namespace Microsoft.Identity.Web.Test
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
             configMock.Received(3).GetSection(_configSectionName);
 
-            AddSignIn_TestCommon(services, provider);
-            AddSignIn_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
+            AddMicrosoftWebApp_TestCommon(services, provider);
+            AddMicrosoftWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void AddSignIn_WithConfigActionParameters(bool useServiceCollectionExtension, bool subscribeToDiagnostics)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddMicrosoftWebApp_WithConfigActionParameters(bool subscribeToDiagnostics)
         {
             var diagnosticsMock = Substitute.For<IOpenIdConnectMiddlewareDiagnostics>();
 
             var services = new ServiceCollection();
             services.AddDataProtection();
 
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
-            }
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -118,14 +101,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(configuredOidcOptions, o => o.Action == _configureOidcOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
-            AddSignIn_TestCommon(services, provider);
-            AddSignIn_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
+            AddMicrosoftWebApp_TestCommon(services, provider);
+            AddMicrosoftWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task AddSignIn_WithConfigNameParameters_TestRedirectToIdentityProviderEvent(bool useServiceCollectionExtension)
+        [Fact]
+        public async Task AddMicrosoftWebApp_WithConfigNameParameters_TestRedirectToIdentityProviderEvent()
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(_configSectionName).Returns(_configSection);
@@ -139,23 +120,14 @@ namespace Microsoft.Identity.Web.Test
                 });
             services.AddDataProtection();
 
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
-            }
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
 
-            await AddSignIn_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
+            await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task AddSignIn_WithConfigActionParameters_TestRedirectToIdentityProviderEvent(bool useServiceCollectionExtension)
+        [Fact]
+        public async Task AddMicrosoftWebApp_WithConfigActionParameters_TestRedirectToIdentityProviderEvent()
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
@@ -164,25 +136,16 @@ namespace Microsoft.Identity.Web.Test
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
                 });
+
             services.AddDataProtection();
-
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
+            new AuthenticationBuilder(services)
                     .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
-            }
 
-            await AddSignIn_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
+            await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task AddSignIn_WithConfigNameParameters_TestB2cSpecificSetup(bool useServiceCollectionExtension)
+        [Fact]
+        public async Task AddMicrosoftWebApp_WithConfigNameParameters_TestB2cSpecificSetup()
         {
             var configMock = Substitute.For<IConfiguration>();
             _configSection = GetConfigSection(_configSectionName, true);
@@ -192,28 +155,19 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection()
                 .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
                 {
-                        options.Events ??= new OpenIdConnectEvents();
-                        options.Events.OnRemoteFailure += remoteFailureFuncMock;
-                    });
+                    options.Events ??= new OpenIdConnectEvents();
+                    options.Events.OnRemoteFailure += remoteFailureFuncMock;
+                });
             services.AddDataProtection();
 
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
-            }
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApp(configMock, _configSectionName, _oidcScheme, _cookieScheme, false);
 
-            await AddSignIn_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
+            await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task AddSignIn_WithConfigActionParameters_B2cSpecificSetup(bool useServiceCollectionExtension)
+        [Fact]
+        public async Task AddMicrosoftWebApp_WithConfigActionParameters_B2cSpecificSetup()
         {
             _configureMsOptions = (options) =>
             {
@@ -233,17 +187,10 @@ namespace Microsoft.Identity.Web.Test
                 });
             services.AddDataProtection();
 
-            if (useServiceCollectionExtension)
-            {
-                services.AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
-            }
-            else
-            {
-                new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
-            }
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
 
-            await AddSignIn_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
+            await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
 
         [Fact]
@@ -255,16 +202,17 @@ namespace Microsoft.Identity.Web.Test
             var authCodeReceivedFuncMock = Substitute.For<Func<AuthorizationCodeReceivedContext, Task>>();
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
+            var services = new ServiceCollection();
 
-            var services = new ServiceCollection()
-                .AddWebAppCallsProtectedWebApi(configMock, initialScopes, _configSectionName, _oidcScheme)
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
-                {
-                    options.Events ??= new OpenIdConnectEvents();
-                    options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
-                    options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                    options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
-                });
+            var builder = services.AddAuthentication()
+                .AddMicrosoftWebAppCallsWebApi(configMock, initialScopes, _configSectionName, _oidcScheme);
+            services.Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+            {
+                 options.Events ??= new OpenIdConnectEvents();
+                 options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
+                 options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                 options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
+            });
 
             services.RemoveAll<ITokenAcquisition>();
             services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
@@ -294,15 +242,17 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
 
-            var services = new ServiceCollection()
-                .AddWebAppCallsProtectedWebApi(initialScopes, _configureMsOptions, _configureAppOptions, _oidcScheme)
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
-                {
-                    options.Events ??= new OpenIdConnectEvents();
-                    options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
-                    options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                    options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
-                });
+            var services = new ServiceCollection();
+
+            var builder = services.AddAuthentication()
+                .AddMicrosoftWebAppCallsWebApi(initialScopes, _configureMsOptions, _configureAppOptions, _oidcScheme);
+            services.Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+            {
+                options.Events ??= new OpenIdConnectEvents();
+                options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
+                options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
+            });
 
             services.RemoveAll<ITokenAcquisition>();
             services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
@@ -328,8 +278,10 @@ namespace Microsoft.Identity.Web.Test
         public void AddWebAppCallsProtectedWebApi_NoScopes()
         {
             // Arrange & Act
-            var services = new ServiceCollection()
-                .AddWebAppCallsProtectedWebApi(Substitute.For<IConfiguration>());
+            var services = new ServiceCollection();
+
+            services.AddAuthentication()
+                .AddMicrosoftWebAppCallsWebApi(Substitute.For<IConfiguration>());
 
             var provider = services.BuildServiceProvider();
 
@@ -341,7 +293,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(OidcConstants.ScopeProfile, oidcOptions.Scope);
         }
 
-        private void AddSignIn_TestCommon(IServiceCollection services, ServiceProvider provider)
+        private void AddMicrosoftWebApp_TestCommon(IServiceCollection services, ServiceProvider provider)
         {
             // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
@@ -364,7 +316,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(ClaimConstants.PreferredUserName, oidcOptions.TokenValidationParameters.NameClaimType);
         }
 
-        private async Task AddSignIn_TestRedirectToIdentityProviderEvent(IServiceCollection services, Func<RedirectContext, Task> redirectFunc)
+        private async Task AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(IServiceCollection services, Func<RedirectContext, Task> redirectFunc)
         {
             var provider = services.BuildServiceProvider();
 
@@ -389,7 +341,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.False(redirectContext.Properties.Parameters.ContainsKey(OpenIdConnectParameterNames.DomainHint));
         }
 
-        private void AddSignIn_TestSubscribesToDiagnostics(IServiceCollection services, IOpenIdConnectMiddlewareDiagnostics diagnosticsMock, bool subscribeToDiagnostics)
+        private void AddMicrosoftWebApp_TestSubscribesToDiagnostics(IServiceCollection services, IOpenIdConnectMiddlewareDiagnostics diagnosticsMock, bool subscribeToDiagnostics)
         {
             services.RemoveAll<IOpenIdConnectMiddlewareDiagnostics>();
             services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics>((provider) => diagnosticsMock);
@@ -409,7 +361,7 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-        private async Task AddSignIn_TestB2cSpecificSetup(IServiceCollection services, Func<RemoteFailureContext, Task> remoteFailureFuncMock)
+        private async Task AddMicrosoftWebApp_TestB2cSpecificSetup(IServiceCollection services, Func<RemoteFailureContext, Task> remoteFailureFuncMock)
         {
             var provider = services.BuildServiceProvider();
 
