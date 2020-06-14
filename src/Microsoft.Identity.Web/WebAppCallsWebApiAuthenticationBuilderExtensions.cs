@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for IServiceCollection for startup initialization.
+    /// Extensions for AuthenticationBuilder for startup initialization.
     /// </summary>
     public static class WebAppCallsWebApiAuthenticationBuilderExtensions
     {

@@ -8,9 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using TodoListService.AuthorizationPolicies;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace TodoListService
 {

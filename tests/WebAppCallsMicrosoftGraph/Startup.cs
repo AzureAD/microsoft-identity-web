@@ -26,9 +26,10 @@ namespace WebAppCallsMicrosoftGraph
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSignIn(Configuration)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration)
-                    .AddInMemoryTokenCaches();
+            services.AddAuthentication()
+                    .AddMicrosoftWebApp(Configuration)
+                    .AddMicrosoftWebAppCallsWebApi(Configuration);
+            services.AddInMemoryTokenCaches();
 
             services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
