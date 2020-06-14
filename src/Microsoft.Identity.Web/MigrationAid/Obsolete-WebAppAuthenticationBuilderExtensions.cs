@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -75,7 +74,7 @@ namespace Microsoft.Identity.Web
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Enable Web Apps to call APIs (acquiring tokens with MSAL.NET).
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
         /// <param name="configuration">Configuration.</param>
@@ -102,7 +101,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Enable Web Apps to call APIs (acquiring tokens with MSAL.NET).
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
         /// <param name="configuration">Configuration.</param>
@@ -129,7 +128,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Enable Web Apps to call APIs (acquiring tokens with MSAL.NET).
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
