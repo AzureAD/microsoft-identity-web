@@ -3,14 +3,13 @@
 
 using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
-namespace Microsoft.Identity.Web.MigrationAid
+namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Extensions for IServiceCollection for startup initialization of Web APIs.
