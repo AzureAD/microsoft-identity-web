@@ -39,11 +39,17 @@ namespace test.Services
             _httpClient = httpClient;
         }
 
-
-        public async Task<string> CallWebApi()
+        /// <summary>
+        /// Calls the Web API with the required scopes
+        /// </summary>
+        /// <param name="requireScopes">[Optional] Scopes required to call the Web API. If
+        /// not specified, uses scopes from the configuration</param>
+        /// <param name="relativeEndpoint">Endpoint relative to the CalledApiUrl configuration</param>
+        /// <returns>A Json string representing the result of calling the Web API</returns>
+        public async Task<string> CallWebApi(string relativeEndpoint = "", string[] requireScopes = null)
         {
-            string[] scopes = _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
-            string apiUrl = _configuration["CalledApi:CalledApiUrl"];
+            string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
+            string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";
 
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"bearer {accessToken}");
