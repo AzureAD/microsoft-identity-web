@@ -349,30 +349,6 @@
       "replaces" :  "user.read",
       "description": "Scopes to request to call the API from the web app."
     },
-    "TokenCacheSerialization": {
-      "type": "parameter",
-      "datatype": "choice",
-      "choices": [
-        {
-          "choice": "InMemory",
-          "description": "In memory implementation of the token cache serialization."
-        },
-        {
-          "choice": "Session",
-          "description": "Session based implementation of the token cache serialization."
-        },
-        {
-          "choice": "DistributedMemory",
-          "description": "Distributed memory cache implementation."
-        },
-        {
-            "choice": "SQL",
-            "description": "SQL implementation for the token cache serialization."
-        }
-      ],
-      "defaultValue": "InMemory",
-      "description": "The token cache serialization technology to use"
-    },
     "GenerateApi": {
       "type": "computed",
       "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
