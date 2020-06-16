@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
-        public static AuthenticationBuilder AddProtectedWebApi2(
+        public static AuthenticationBuilder AddProtectedWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = "AzureAd",
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Use AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
-        public static AuthenticationBuilder AddProtectedWebApi2(
+        public static AuthenticationBuilder AddProtectedWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
