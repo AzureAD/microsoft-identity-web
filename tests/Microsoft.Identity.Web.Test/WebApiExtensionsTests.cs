@@ -279,8 +279,9 @@ namespace Microsoft.Identity.Web.Test
                 {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                })
-                .AddProtectedWebApiCallsProtectedWebApi(config, _configSectionName, _jwtBearerScheme);
+                });
+            new AuthenticationBuilder(services).AddMicrosoftWebApiCallsWebApi(config, _configSectionName, _jwtBearerScheme);
+
             var provider = services.BuildServiceProvider();
 
             // Assert config bind actions added correctly
@@ -301,8 +302,9 @@ namespace Microsoft.Identity.Web.Test
                 {
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                })
-                .AddProtectedWebApiCallsProtectedWebApi(_configureAppOptions, _configureMsOptions, _jwtBearerScheme);
+                });
+            new AuthenticationBuilder(services).AddMicrosoftWebApiCallsWebApi(_configureAppOptions, _configureMsOptions, _jwtBearerScheme);
+
             var provider = services.BuildServiceProvider();
 
             // Assert configure options actions added correctly
