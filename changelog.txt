@@ -1,3 +1,14 @@
+0.1.5-preview
+============
+### New Features:
+**Microsoft Identity Web supports certificates.** The developer can now use client and token decryption certificates, which can be retrieved from a variety of sources, like Azure Key Vault, certificate store, a Base54 encoded string, and more. The location of the certificate can be specified in a configuration file or programmatically. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/165) and [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/Using-certificates) for more details.
+**Microsoft Identity Web now allows specifying if the x5c claim (the public key of the certificate) should be sent to the STS.** Sending the x5c enables easy certificate rollover. To enable this behavior set the `SendX5C` property in the configuration file. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/197) for more details.
+**Microsoft Identity Web provides an option to force redirect URIs to use the HTTPS scheme,** which can be useful in certain scenarios, like app deployment in a container. To enable this behavior set `ForceHttpsRedirectUris` property in the configuration file. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/175) for more details.
+
+### Bug Fixes:
+**Microsoft Identity Web uses `System.Text.Json` namespace instead of `Newtonsoft.Json` for working with JSON.** See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/182) for more details.
+**The documentation now correctly specifies that `ClaimsPrincipalExtensions.GetNameIdentifierId` returns a `uid` claim value.** See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/171) for more details.
+
 0.1.4-preview
 ============
 New Features:
