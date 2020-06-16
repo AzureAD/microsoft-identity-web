@@ -26,9 +26,10 @@ steps:
     configuration: ${{ parameters.BuildConfiguration }}
 
 - task: DotNetCoreCLI@2
+  displayName: 'Run project tests'
   inputs:
     command: test
-    projects: '**/*Tests/*.csproj'
+    projects: '**/tests/Microsoft.Identity.Web*/Microsoft.Identity.Web.*.csproj'
     arguments: '--configuration ${{ parameters.BuildConfiguration }}'
     
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
