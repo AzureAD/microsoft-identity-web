@@ -28,7 +28,6 @@ namespace Microsoft.Identity.Web
         /// <param name="configuration">The Configuration object.</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
-        /// <param name="tokenDecryptionCertificate">Token decryption certificate (null by default).</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
@@ -38,13 +37,11 @@ namespace Microsoft.Identity.Web
             IConfiguration configuration,
             string configSectionName = "AzureAd",
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             return builder.AddMicrosoftWebApi(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
-                tokenDecryptionCertificate,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
@@ -57,7 +54,6 @@ namespace Microsoft.Identity.Web
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>
         /// configuration options.</param>
-        /// <param name="tokenDecryptionCertificate">Token decryption certificate.</param>
         /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.
@@ -67,7 +63,6 @@ namespace Microsoft.Identity.Web
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-            X509Certificate2 tokenDecryptionCertificate = null,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
@@ -117,11 +112,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 // If you provide a token decryption certificate, it will be used to decrypt the token
-                if (tokenDecryptionCertificate != null)
-                {
-                    options.TokenValidationParameters.TokenDecryptionKey = new X509SecurityKey(tokenDecryptionCertificate);
-                }
-                else if (tokenDecryptionCertificate == null && microsoftIdentityOptions.TokenDecryptionCertificates != null)
+                if (microsoftIdentityOptions.TokenDecryptionCertificates != null)
                 {
                     options.TokenValidationParameters.TokenDecryptionKey =
                         new X509SecurityKey(DefaultCertificateLoader.LoadFirstCertificate(microsoftIdentityOptions.TokenDecryptionCertificates));

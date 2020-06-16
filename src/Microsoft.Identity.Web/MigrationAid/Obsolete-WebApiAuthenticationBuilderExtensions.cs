@@ -36,11 +36,15 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
+            if (tokenDecryptionCertificate != null)
+            {
+                throw new ArgumentException("Use the TokenDecryptionCertificates config property. See https://aka.ms/ms-id-web-certificates");
+            }
+
             return builder.AddMicrosoftWebApi(
                 configuration,
                 configSectionName,
                 jwtBearerScheme,
-                tokenDecryptionCertificate,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
 
@@ -66,11 +70,17 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
-            => builder.AddMicrosoftWebApi(
-                configureJwtBearerOptions,
-                configureMicrosoftIdentityOptions,
-                tokenDecryptionCertificate,
-                jwtBearerScheme,
-                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        {
+            if (tokenDecryptionCertificate != null)
+            {
+                throw new ArgumentException("Use the TokenDecryptionCertificates config property. See https://aka.ms/ms-id-web-certificates");
+            }
+
+            return builder.AddMicrosoftWebApi(
+            configureJwtBearerOptions,
+            configureMicrosoftIdentityOptions,
+            jwtBearerScheme,
+            subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
     }
 }

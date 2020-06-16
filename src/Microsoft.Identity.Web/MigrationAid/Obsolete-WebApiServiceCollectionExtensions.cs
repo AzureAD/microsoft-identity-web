@@ -38,11 +38,15 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
+            if (tokenDecryptionCertificate != null)
+            {
+                throw new ArgumentException("Use the TokenDecryptionCertificates property of MicrosoftIdentityOptions. See https://aka.ms/ms-id-web-certificates");
+            }
+
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
             builder.AddMicrosoftWebApi(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
-                tokenDecryptionCertificate,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
             return services;
@@ -70,11 +74,15 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
+            if (tokenDecryptionCertificate != null)
+            {
+                throw new ArgumentException("Use the TokenDecryptionCertificates property of MicrosoftIdentityOptions. See https://aka.ms/ms-id-web-certificates");
+            }
+
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
             builder.AddMicrosoftWebApi(
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
-                tokenDecryptionCertificate,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
             return services;
