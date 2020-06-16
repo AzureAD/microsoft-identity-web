@@ -3,6 +3,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Web" Version="0.1.4-preview" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="0.1.5-preview" />
   </ItemGroup>
 </Project>
