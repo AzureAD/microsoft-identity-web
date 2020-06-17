@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for AuthenticationBuilder for startup initialization.
     /// </summary>
-    public static class WebAppAuthenticationBuilderExtensions
+    public static partial class WebAppAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add authentication with Microsoft identity platform.
@@ -32,14 +32,14 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddSignIn(
+        public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = "AzureAd",
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
-                builder.AddSignIn(
+                builder.AddMicrosoftWebApp(
                     options => configuration.Bind(configSectionName, options),
                     options => configuration.Bind(configSectionName, options),
                     openIdConnectScheme,
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddSignIn(
+        public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,

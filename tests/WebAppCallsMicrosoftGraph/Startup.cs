@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,9 +27,10 @@ namespace WebAppCallsMicrosoftGraph
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSignIn(Configuration)
-                    .AddWebAppCallsProtectedWebApi(Configuration)
-                    .AddInMemoryTokenCaches();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftWebApp(Configuration)
+                    .AddMicrosoftWebAppCallsWebApi(Configuration);
+            services.AddInMemoryTokenCaches();
 
             services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 

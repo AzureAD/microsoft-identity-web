@@ -8,9 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using TodoListService.AuthorizationPolicies;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace TodoListService
 {
@@ -36,7 +34,7 @@ namespace TodoListService
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddProtectedWebApi(options =>
+                    .AddMicrosoftWebApi(options =>
                                         {
                                             Configuration.Bind(sectionName, options);
                                             options.TokenValidationParameters.NameClaimType = "name";

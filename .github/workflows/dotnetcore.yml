@@ -9,9 +9,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Setup .NET Core 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100-preview.5.20279.10
+        includePreviewVersions: true # Required for preview versions
+    - name: Build with dotnet
+      run: dotnet test -f net5.0 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
+    - name: Setup .NET Core 3.1.101
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
     - name: Build with dotnet
-      run: dotnet test -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
+      run: dotnet test -f netcoreapp3.1 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
