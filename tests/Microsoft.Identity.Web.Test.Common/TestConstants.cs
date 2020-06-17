@@ -105,6 +105,11 @@ namespace Microsoft.Identity.Web.Test.Common
             y1NFZmB24rMoq8C+HPOpuVLzkwBr+qcCq7ry2326auogvVMGaxhHlwSLR4Q1OhRjKs8JctCk2+5Qs1NHfawa7jWHxdAK6cLm7Rv/c0ig2Jow7wRaI5ciAcEjX7
             m1t9gRT1mNeeluL4cZa6WyVXqXc6U2wfR5DY6GOMUubN5Nr1n8Czew8TPfab4OG37BuEMNmBpqoRrRgFnDzVtItOnhuFTa0=";
 
+        public static string DecryptTokenCertificateDescriptionJson = "{" +
+            "\"SourceType\": \"Base64Encoded\"," +
+            $"\"Base64EncodedValue\": \"{CertificateX5c}\"," +
+            "}"
+            ;
         public const string KeyVaultContainer = "https://buildautomation.vault.azure.net";
         public const string KeyVaultReference = "AzureADIdentityDivisionTestAgentCert";
     }
