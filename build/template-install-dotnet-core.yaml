@@ -11,3 +11,4 @@ steps:
   displayName: 'Use .Net Core SDK 3.1.101'
   inputs:
     version: 3.1.101
+    
