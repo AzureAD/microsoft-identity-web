@@ -16,21 +16,8 @@ steps:
     platform: ${{ parameters.BuildPlatform }}
     configuration: ${{ parameters.BuildConfiguration }}
 
-- task: VSBuild@1
-  displayName: 'Build solution Microsoft.Identity.Web.sln'
-  inputs:
-    solution: Microsoft.Identity.Web.sln
-    vsVersion: '16.0'
-    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
-    platform: ${{ parameters.BuildPlatform }}
-    configuration: ${{ parameters.BuildConfiguration }}
-
-- task: DotNetCoreCLI@2
-  displayName: 'Run project tests'
-  inputs:
-    command: test
-    projects: '**/tests/Microsoft.Identity.Web*/Microsoft.Identity.Web.*.csproj'
-    arguments: '--configuration ${{ parameters.BuildConfiguration }}'
+- name: 'Build solution Microsoft.Identity.Web.sln'
+  run: dotnet test -f net5.0 -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true' --runtime ${{ parameters.BuildPlatform }} --configuration ${{ parameters.BuildConfiguration }} Microsoft.Identity.Web.sln
     
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
