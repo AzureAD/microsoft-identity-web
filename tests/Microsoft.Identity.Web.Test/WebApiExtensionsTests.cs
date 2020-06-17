@@ -29,7 +29,6 @@ namespace Microsoft.Identity.Web.Test
 {
     public class WebApiExtensionsTests
     {
-
         private const string _configSectionName = "AzureAd-Custom";
         private const string _jwtBearerScheme = "Bearer-Custom";
         private static readonly X509Certificate2 _certificate = new X509Certificate2(Convert.FromBase64String(TestConstants.CertificateX5c));
