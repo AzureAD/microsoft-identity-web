@@ -302,11 +302,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IOpenIdConnectMiddlewareDiagnostics)).Lifetime);
             Assert.Contains(services, s => s.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>));
 
-            // Assert OIDC options added correctly
-            var configuredOidcOptions = provider.GetService<IConfigureOptions<OpenIdConnectOptions>>() as ConfigureNamedOptions<OpenIdConnectOptions>;
-
-            Assert.Equal(_oidcScheme, configuredOidcOptions.Name);
-
             // Assert properties set
             var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(_oidcScheme);
 
