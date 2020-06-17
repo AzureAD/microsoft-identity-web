@@ -44,6 +44,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Company.WebApplication1
 {
+#if (GenerateApi)
+    using Services;
+#endif
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -69,14 +73,22 @@ namespace Company.WebApplication1
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
             services.AddSignIn(Configuration, "AzureAd");
-            // Uncomment the following lines if you want your Web app to call a downstream API
-            // services.AddWebAppCallsProtectedWebApi(Configuration, 
-            //                                        new string[] { "user.read" }, 
-            //                                        "AzureAd")
-            //         .AddInMemoryTokenCaches();
+#if (GenerateApi)
+            services.AddWebAppCallsProtectedWebApi(Configuration, 
+                                                  "AzureAd")
+                    .AddInMemoryTokenCaches();
 
+            services.AddDownstreamWebApiService(Configuration);
+#endif
 #elif (IndividualB2CAuth)
             services.AddSignIn(Configuration, "AzureAdB2C");
+#if (GenerateApi)
+            services.AddWebAppCallsProtectedWebApi(Configuration, 
+                                                  "AzureAdB2C")
+                    .AddInMemoryTokenCaches();
+
+            services.AddDownstreamWebApiService(Configuration);
+#endif
 #endif
 #if (OrganizationalAuth)
 
