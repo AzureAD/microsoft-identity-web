@@ -99,9 +99,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IJwtBearerMiddlewareDiagnostics)).Lifetime);
 
             // JWT options added correctly
-            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
-
-            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
+            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as IConfigureNamedOptions<JwtBearerOptions>;
 
             // Issuer validator and certificate set
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);
