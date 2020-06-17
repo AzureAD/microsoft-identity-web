@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.Test
             AddProtectedWebApi_TestCommon(services, provider);
         }
 
-        private void AddProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, bool checkDecryptCertificate=true)
+        private void AddProtectedWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, bool checkDecryptCertificate = true)
         {
             // Correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));
@@ -278,7 +278,7 @@ namespace Microsoft.Identity.Web.Test
                 { $"{configSectionName}:Instance", TestConstants.AadInstance },
                 { $"{configSectionName}:TenantId", TestConstants.TenantIdAsGuid },
                 { $"{configSectionName}:ClientId", TestConstants.TenantIdAsGuid },
-                { $"{configSectionName}:TokenDecryptionCertificates", serializedTokenDecryptionJsonBlob},
+                { $"{configSectionName}:TokenDecryptionCertificates", serializedTokenDecryptionJsonBlob },
             };
             var memoryConfigSource = new MemoryConfigurationSource { InitialData = configAsDictionary };
             var configBuilder = new ConfigurationBuilder();

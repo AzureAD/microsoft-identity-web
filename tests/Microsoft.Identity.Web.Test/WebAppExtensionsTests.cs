@@ -298,7 +298,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(true, "https://localhost:123", "https://localhost:123")]
         [InlineData(false, "http://localhost:123", "http://localhost:123")]
         [InlineData(false, "https://localhost:123", "https://localhost:123")]
-        public async void AddSignIn_ForceHttpsRedirectUris(bool forceHttpsRedirectUris, string actualUri, string expectedUri)
+        public async void AddMicrosoftWebApp_ForceHttpsRedirectUris(bool forceHttpsRedirectUris, string actualUri, string expectedUri)
         {
             _configureMsOptions = (options) =>
             {
@@ -311,7 +311,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                .AddSignIn(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme);
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme);
 
             var provider = services.BuildServiceProvider();
 
