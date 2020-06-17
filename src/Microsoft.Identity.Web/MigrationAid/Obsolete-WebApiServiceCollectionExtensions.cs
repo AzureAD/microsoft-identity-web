@@ -39,11 +39,11 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            builder.AddMicrosoftWebApi(
-                options => configuration.Bind(configSectionName, options),
-                options => configuration.Bind(configSectionName, options),
-                tokenDecryptionCertificate,
+            builder.AddProtectedWebApi(
+                configuration,
+                configSectionName,
                 jwtBearerScheme,
+                tokenDecryptionCertificate,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
             return services;
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            builder.AddMicrosoftWebApi(
+            builder.AddProtectedWebApi(
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
                 tokenDecryptionCertificate,

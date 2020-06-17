@@ -36,11 +36,14 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            return builder.AddMicrosoftWebApi(
-                configuration,
-                configSectionName,
-                jwtBearerScheme,
+            // Just call the obsolete method below (which takes delegates).
+            // This method will do the work of taking into account the legacy
+            // parameter for the token decyrption certificate
+            return builder.AddProtectedWebApi(
+                options => configuration.Bind(configSectionName, options),
+                options => configuration.Bind(configSectionName, options),
                 tokenDecryptionCertificate,
+                jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
 
@@ -66,11 +69,15 @@ namespace Microsoft.Identity.Web
             X509Certificate2 tokenDecryptionCertificate = null,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
-            => builder.AddMicrosoftWebApi(
-                configureJwtBearerOptions,
-                configureMicrosoftIdentityOptions,
-                tokenDecryptionCertificate,
-                jwtBearerScheme,
-                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        {
+            return builder.AddMicrosoftWebApi(
+            configureJwtBearerOptions,
+            options => ObsoleteLegacyTokenDecryptCertificateParameter.HandleLegacyTokenDecryptionCertificateParameter(
+                                                        options,
+                                                        configureMicrosoftIdentityOptions,
+                                                        tokenDecryptionCertificate),
+            jwtBearerScheme,
+            subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
     }
 }
