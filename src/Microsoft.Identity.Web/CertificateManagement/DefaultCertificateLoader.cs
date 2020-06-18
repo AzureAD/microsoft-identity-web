@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
         private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64)
         {
             byte[] decoded = Convert.FromBase64String(certificateBase64);
-            return new X509Certificate2(decoded);
+            return new X509Certificate2(decoded, (string)null, X509KeyStorageFlags.MachineKeySet| X509KeyStorageFlags.EphemeralKeySet);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
             // Return a certificate with only the public key if the private key is not exportable.
             if (certificate.Policy?.Exportable != true)
             {
-                return new X509Certificate2(certificate.Cer);
+                return new X509Certificate2(certificate.Cer, (string)null, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
             }
 
             // Parse the secret ID and version to retrieve the private key.

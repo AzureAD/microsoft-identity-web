@@ -10,5 +10,5 @@ steps:
   inputs:
     solution: ${{ parameters.ProjectPath }}
     vsVersion: '16.0'
-    msbuildArgs: '/t:pack /p:nobuild=${{parameters.NoBuild}} /p:IncludeSymbols=true'
+    msbuildArgs: '/t:pack /p:nobuild=${{parameters.NoBuild}} /p:IncludeSymbols=true /p:TargetFramework=netcoreapp3.1 '
     configuration: ${{ parameters.BuildConfiguration }}
