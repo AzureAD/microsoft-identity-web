@@ -30,7 +30,7 @@ steps:
 
 # Copy all packages out to staging
 - task: CopyFiles@2
-  displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
+  displayName: 'Copy Files from $(Build.ArtifactStagingDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
   inputs:
     SourceFolder: '$(Build.ArtifactStagingDirectory)'
     Contents: '*nupkg'
