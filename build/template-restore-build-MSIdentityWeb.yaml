@@ -7,26 +7,12 @@ parameters:
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
 
 steps:
-# - task: VSBuild@1
-#   displayName: 'NuGet restore Microsoft.Identity.Web.sln'
-#   inputs:
-#     solution: Microsoft.Identity.Web.sln
-#     vsVersion: '16.0'
-#     msbuildArgs: '/t:restore'
-#     platform: ${{ parameters.BuildPlatform }}
-#     configuration: ${{ parameters.BuildConfiguration }}
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
   inputs:
     command: test
     projects: 'Microsoft.Identity.Web.sln'
-    arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
-# - task: DotNetCoreCLI@2
-#   displayName: 'Run project tests'
-#   inputs:
-#     command: test
-#     projects: '**/tests/Microsoft.Identity.Web*/Microsoft.Identity.Web.*.csproj'
-#     arguments: '--configuration ${{ parameters.BuildConfiguration }}'
+    arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
  
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
