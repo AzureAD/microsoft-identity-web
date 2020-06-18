@@ -32,7 +32,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\packages'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(Build.ArtifactStagingDirectory)'
     Contents: '**\*nupkg'
     TargetFolder: '$(Build.ArtifactStagingDirectory)\packages'
     flattenFolders: true
