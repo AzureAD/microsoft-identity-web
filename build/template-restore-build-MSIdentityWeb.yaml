@@ -14,6 +14,16 @@ steps:
     projects: 'Microsoft.Identity.Web.sln'
     arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
+# For Rolsyn
+- task: VSBuild@1
+  displayName: 'Build solution Microsoft.Identity.Web.sln'
+  inputs:
+    solution: Microsoft.Identity.Web.sln
+    vsVersion: '16.0'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
+    platform: ${{ parameters.BuildPlatform }}
+    configuration: ${{ parameters.BuildConfiguration }}
+
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
   inputs:
