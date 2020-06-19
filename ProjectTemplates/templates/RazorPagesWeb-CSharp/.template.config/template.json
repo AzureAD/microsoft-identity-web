@@ -101,6 +101,8 @@
                 "Services/**"
             ]
         }
+      ],
+    }
   ],
   "symbols": {
     "auth": {
@@ -353,11 +355,10 @@
     "GenerateApi": {
       "type": "computed",
       "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
-    }
   },
   "primaryOutputs": [
     {
-        "path": "Company.WebApplication1.csproj"
+       "path": "Company.WebApplication1.csproj"
     }
   ],
   "defaultName": "WebApplication",
