@@ -339,6 +339,7 @@
       "replaces": "copyrightYear",
       "parameters": {
         "format": "yyyy"
+      }
     },
     "CalledApiUrl": {
       "type": "parameter",
@@ -355,7 +356,7 @@
     "GenerateApi": {
         "type": "computed",
         "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
-    },
+    }
   },
   "primaryOutputs": [
     {
@@ -377,4 +378,3 @@
     }
   ]
  }
-}
