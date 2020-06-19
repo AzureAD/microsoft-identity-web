@@ -111,6 +111,21 @@ dotnet new webapi2 --auth IndividualB2C
 dotnet build
 cd ..
 
+echo " Test Web API calling Web API (Microsoft identity platform, SingleOrg)"
+mkdir webapi-api
+cd webapi-api
+dotnet new webapi2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet build
+cd ..
+
+echo " Test Web API calling Web API (AzureAD B2C)"
+mkdir webapi-b2c-api
+cd webapi-b2c-api
+dotnet new webapi2 --auth IndividualB2C --called-api-url "https://localhost:44332" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
+dotnet build
+cd ..
+
+
 echo "Uninstall templates"
 cd ..
 dotnet new -u Microsoft.Identity.Web.ProjectTemplates
