@@ -350,8 +350,8 @@
       "description": "Scopes to request to call the API from the web app."
     },
     "GenerateApi": {
-      "type": "computed",
-      "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
+        "type": "computed",
+        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
     }
   },
   "primaryOutputs": [

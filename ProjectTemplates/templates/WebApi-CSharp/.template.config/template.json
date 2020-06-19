@@ -5,12 +5,12 @@
     "Web",
     "WebAPI"
   ],
-  "name": "ASP.NET Core Web API",
+  "name": "ASP.NET Core Web API (Microsoft.Identity.Platform)",
   "generatorVersions": "[1.0.0.0-*)",
   "description": "A project template for creating an ASP.NET Core application with an example Controller for a RESTful HTTP service. This template can also be used for ASP.NET Core MVC Views and Controllers.",
-  "groupIdentity": "Microsoft.Web.WebApi",
+  "groupIdentity": "Microsoft.Web.WebApi2",
   "precedence": "7000",
-  "identity": "Microsoft.Identity.Web.WebApi.CSharp.5.0",
+  "identity": "Microsoft.Identity.Web.WebApi2.CSharp.5.0",
   "shortName": "webapi2",
   "tags": {
     "language": "C#",

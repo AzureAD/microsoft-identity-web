@@ -355,7 +355,7 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
+        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
     }
   },
   "primaryOutputs": [

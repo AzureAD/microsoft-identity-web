@@ -17,8 +17,8 @@ namespace Company.WebApplication1.Pages
 #if (GenerateApi)
     using Services;
 
-#endif 
     [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
+#endif 
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
