@@ -10,4 +10,8 @@ steps:
   inputs:
     command: pack
     projects: '${{ parameters.ProjectPath }}'
-    arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:nobuild=${{parameters.NoBuild}} -p:IncludeSymbols=true -p:outputDir= '
+    nobuild: '${{parameters.NoBuild}}'
+    IncludeSymbols: true
+    verbosityPack: normal
+    packDirectory:
+    arguments: '--configuration ${{ parameters.BuildConfiguration }}'
