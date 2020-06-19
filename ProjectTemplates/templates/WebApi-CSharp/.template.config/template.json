@@ -121,7 +121,7 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Whether to exclude launchSettings.json in the generated template."
+      "description": "Whether to exclude launchSettings.json from the generated template."
     },
     "HttpPort": {
       "type": "parameter",
@@ -211,6 +211,10 @@
         {
           "choice": "netcoreapp5.0",
           "description": "Target netcoreapp5.0"
+        },
+        {
+          "choice": "netcoreapp3.1",
+          "description": "Target netcoreapp3.1"
         }
       ],
       "replaces": "netcoreapp5.0",
@@ -229,6 +233,22 @@
       "datatype": "bool",
       "description": "If specified, skips the automatic restore of the project on create.",
       "defaultValue": "false"
+    },
+    "CalledApiUrl": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "https://graph.microsoft.com/v1.0/me",
+      "description": "URL of the API to call from the web app."
+    },
+    "CalledApiScopes": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces" :  "user.read",
+      "description": "Scopes to request to call the API from the web app."
+    },
+    "GenerateApi": {
+        "type": "computed",
+        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
     }
   },
   "primaryOutputs": [

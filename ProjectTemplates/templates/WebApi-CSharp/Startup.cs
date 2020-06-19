@@ -27,6 +27,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Company.WebApplication1
 {
+#if (GenerateApi)
+    using Services;
+
+#endif
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -43,15 +47,23 @@ namespace Company.WebApplication1
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddProtectedWebApi(Configuration, "AzureAd");
-            // Uncomment the following lines if you want your Web API to call a downstream API
-            // services.AddProtectedWebApiCallsProtectedWebApi(Configuration, "AzureAd")
-            //         .AddInMemoryTokenCaches();
+#if (GenerateApi)
+            services.AddWebAppCallsProtectedWebApi(Configuration, 
+                                                  "AzureAd")
+                    .AddInMemoryTokenCaches();
+
+            services.AddDownstreamWebApiService(Configuration);
+#endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddProtectedWebApi(Configuration, "AzureAdB2C");
-            // Uncomment the following lines if you want your Web API to call a downstream API
-            // services.AddProtectedWebApiCallsProtectedWebApi(Configuration, "AzureAdB2C")
-            //         .AddInMemoryTokenCaches();
+#if (GenerateApi)
+            services.AddWebAppCallsProtectedWebApi(Configuration, 
+                                                  "AzureAdB2C")
+                    .AddInMemoryTokenCaches();
+
+            services.AddDownstreamWebApiService(Configuration);
+#endif
 #endif
 
             services.AddControllers();
