@@ -94,9 +94,13 @@
           "exclude": [
             "Data/SqlServer/**"
           ]
+        },
+        {
+          "condition": "(!GenerateApi)",
+            "exclude": [
+                "Services/**"
+            ]
         }
-      ]
-    }
   ],
   "symbols": {
     "auth": {
@@ -318,6 +322,10 @@
         {
           "choice": "netcoreapp5.0",
           "description": "Target netcoreapp5.0"
+        },
+        {
+          "choice": "netcoreapp3.1",
+          "description": "Target netcoreapp3.1"
         }
       ],
       "replaces": "netcoreapp5.0",
@@ -329,12 +337,27 @@
       "replaces": "copyrightYear",
       "parameters": {
         "format": "yyyy"
-      }
+    },
+    "CalledApiUrl": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "https://graph.microsoft.com/v1.0/me",
+      "description": "URL of the API to call from the web app."
+    },
+    "CalledApiScopes": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces" :  "user.read",
+      "description": "Scopes to request to call the API from the web app."
+    },
+    "GenerateApi": {
+      "type": "computed",
+      "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
     }
   },
   "primaryOutputs": [
     {
-      "path": "Company.WebApplication1.csproj"
+        "path": "Company.WebApplication1.csproj"
     }
   ],
   "defaultName": "WebApplication",
