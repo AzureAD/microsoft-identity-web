@@ -101,7 +101,7 @@
                 "Services/**"
             ]
         }
-      ],
+      ]
     }
   ],
   "symbols": {
@@ -353,12 +353,13 @@
       "description": "Scopes to request to call the API from the web app."
     },
     "GenerateApi": {
-      "type": "computed",
-      "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
+        "type": "computed",
+        "value": "(CalledApiUrl != \"\" && CalledApiScopes != \"\")"
+    },
   },
   "primaryOutputs": [
     {
-       "path": "Company.WebApplication1.csproj"
+      "path": "Company.WebApplication1.csproj"
     }
   ],
   "defaultName": "WebApplication",
@@ -375,4 +376,5 @@
       "continueOnError": true
     }
   ]
+ }
 }
