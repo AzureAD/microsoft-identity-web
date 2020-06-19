@@ -18,6 +18,7 @@ namespace Company.WebApplication1.Pages
     using Services;
 
 #endif 
+    [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -25,33 +26,31 @@ namespace Company.WebApplication1.Pages
 #if (GenerateApi)
         private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public IndexModel(ILogger<HomeController> logger,
+        public IndexModel(ILogger<IndexModel> logger,
                           IDownstreamWebApi downstreamWebApi)
         {
              _logger = logger;
             _downstreamWebApi = downstreamWebApi;
        }
 
-        [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
-        public void OnGet()
+        public async Task OnGet()
         {
             ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
 
             // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
-
-            return View();
+            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
+            //                                                             new string[] {"user.read"});
         }
 #else
         public IndexModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
         }
-#endif
 
         public void OnGet()
         {
 
         }
+#endif
     }
 }

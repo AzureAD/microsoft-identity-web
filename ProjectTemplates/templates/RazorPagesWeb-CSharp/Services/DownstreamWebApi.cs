@@ -5,11 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
-namespace test.Services
+namespace Company.WebApplication1.Services
 {
     public interface IDownstreamWebApi
     {
-        Task<string> CallWebApi();
+        Task<string> CallWebApi(string relativeEndpoint = "", string[] requiredScopes = null);
     }
 
     public static class DownstreamWebApiExtensions
@@ -46,7 +46,7 @@ namespace test.Services
         /// not specified, uses scopes from the configuration</param>
         /// <param name="relativeEndpoint">Endpoint relative to the CalledApiUrl configuration</param>
         /// <returns>A Json string representing the result of calling the Web API</returns>
-        public async Task<string> CallWebApi(string relativeEndpoint = "", string[] requireScopes = null)
+        public async Task<string> CallWebApi(string relativeEndpoint = "", string[] requiredScopes = null)
         {
             string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
             string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";
