@@ -15,15 +15,15 @@
   - 'Azure Key Vault: buildautomation'
   - 'Install Keyvault Secrets'
 
-- template-restore-build-MSIdentityWeb.yaml - `BuildPlatform:'$(BuildPlatform)', BuildConfiguration: '$(BuildConfiguration)', MsIdentityWebSemVer: $(MsIdentityWebSemVer)`
+- [template-restore-build-MSIdentityWeb.yaml](template-restore-build-MSIdentityWeb.yaml) `(BuildPlatform:'$(BuildPlatform)', BuildConfiguration: '$(BuildConfiguration)', MsIdentityWebSemVer: $(MsIdentityWebSemVer))`
   - Build solution Microsoft.Identity.Web.sln and run tests' (.NET Core)
-  - Build solution Microsoft.Identity.Web.sln netcoreapp3.1 for Roslyn analyzers' (VSBuild@1)
+  - Buil(template-restore-build-MSIdentityWeb.yaml)d solution Microsoft.Identity.Web.sln netcoreapp3.1 for Roslyn analyzers' (VSBuild@1)
   - 'Component Detection'
 - [template-postbuild-code-analysis.yaml](template-postbuild-code-analysis.yaml)
   - 'Run Roslyn Analyzers'
   - 'Check Roslyn Results '
 - [template-pack-and-sign-all-nugets.yaml](template-pack-and-sign-all-nugets.yaml)
-  -[template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web')`
+  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\ProjectTemplates')`
   - 'Copy Files from `$(Build.SourcesDirectory)` to: `$(Build.ArtifactStagingDirectory)\packages'`
