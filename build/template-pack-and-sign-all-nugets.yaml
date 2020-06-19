@@ -12,7 +12,7 @@ steps:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web'
     AssemblyName: 'Microsoft.Identity.Web'
-    HasRefAssembly: 'true'
+    HasRefAssembly: 'false'
 
 # Pack and sign Microsoft.Identity.Web.UI
 - template: template-pack-and-sign-nuget.yaml
@@ -30,7 +30,7 @@ steps:
 
 # Copy all packages out to staging
 - task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\packages'
+  displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: '**\*nupkg'

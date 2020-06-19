@@ -5,10 +5,13 @@ parameters:
   NoBuild: 'true'
 
 steps:
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   displayName: 'Pack ${{ parameters.ProjectPath }}'
   inputs:
-    solution: ${{ parameters.ProjectPath }}
-    vsVersion: '15.0'
-    msbuildArgs: '/t:pack /p:nobuild=${{parameters.NoBuild}} /p:IncludeSymbols=true'
-    configuration: ${{ parameters.BuildConfiguration }}
+    command: pack
+    projects: '${{ parameters.ProjectPath }}'
+    nobuild: '${{parameters.NoBuild}}'
+    IncludeSymbols: true
+    verbosityPack: normal
+    packDirectory:
+    arguments: '--configuration ${{ parameters.BuildConfiguration }}'
