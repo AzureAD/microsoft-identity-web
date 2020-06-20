@@ -95,7 +95,8 @@ namespace Microsoft.Identity.Web
                 // This is a Microsoft identity platform Web API
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                if (options.TokenValidationParameters.AudienceValidator == null)
+                if (options.TokenValidationParameters.AudienceValidator == null
+                && options.TokenValidationParameters.ValidAudiences == null)
                 {
                     RegisterValidAudience registerAudience = new RegisterValidAudience();
                     registerAudience.RegisterAudienceValidation(
