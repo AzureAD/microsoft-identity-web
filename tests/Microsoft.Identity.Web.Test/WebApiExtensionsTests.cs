@@ -366,5 +366,36 @@ namespace Microsoft.Identity.Web.Test
             await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
             Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
         }
+
+        [Fact]
+        public void AddProtectedWebApi_WithValidAudiences()
+        {
+            var config = Substitute.For<IConfiguration>();
+            config.Configure().GetSection(_configSectionName).Returns(_configSection);
+
+            ServiceCollection services = new ServiceCollection();
+
+            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.Audience = TestConstants.ClientId;
+                options.TokenValidationParameters.ValidAudiences = new string[]
+                {
+                        options.Audience, $"api://{options.Audience}", $"https://{options.Audience}",
+                };
+            });
+
+            new AuthenticationBuilder(services)
+                .AddMicrosoftWebApi(config, _configSectionName, JwtBearerDefaults.AuthenticationScheme);
+
+            var provider = services.BuildServiceProvider();
+
+            var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerDefaults.AuthenticationScheme);
+
+            Assert.NotNull(jwtOptions.TokenValidationParameters.ValidAudiences);
+            Assert.Contains(TestConstants.ClientId, jwtOptions.TokenValidationParameters.ValidAudiences);
+            Assert.Contains($"api://{TestConstants.ClientId}", jwtOptions.TokenValidationParameters.ValidAudiences);
+            Assert.Contains($"https://{TestConstants.ClientId}", jwtOptions.TokenValidationParameters.ValidAudiences);
+            Assert.Equal(TestConstants.ClientId, jwtOptions.Audience);
+        }
     }
 }
