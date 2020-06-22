@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
+using Company.WebApplication1.Services;
 #endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,10 +19,6 @@ using Company.WebApplication1.Models;
 
 namespace Company.WebApplication1.Controllers
 {
-#if (GenerateApi)
-    using Services;
-
-#endif 
 #if (OrganizationalAuth)
     [Authorize]
 #endif

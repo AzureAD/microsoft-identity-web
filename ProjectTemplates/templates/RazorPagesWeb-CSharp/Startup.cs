@@ -41,13 +41,12 @@ using Microsoft.Extensions.Hosting;
 #if(MultiOrgAuth)
 using Microsoft.IdentityModel.Tokens;
 #endif
+#if (GenerateApi)
+using Company.WebApplication1.Services;
+#endif
 
 namespace Company.WebApplication1
 {
-#if (GenerateApi)
-    using Services;
-#endif
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -100,8 +99,7 @@ namespace Company.WebApplication1
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddMicrosoftIdentityUI();
 #else
-            services.AddRazorPages()
-                    .AddMicrosoftIdentityUI();
+            services.AddRazorPages();
 #endif
         }
 

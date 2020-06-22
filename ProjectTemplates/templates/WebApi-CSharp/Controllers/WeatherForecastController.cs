@@ -10,17 +10,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
+using Company.WebApplication1.Services;
 #endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
-
 namespace Company.WebApplication1.Controllers
 {
-#if (GenerateApi)
-    using Services;
-
-#endif 
 #if (!NoAuth)
     [Authorize]
 #endif
