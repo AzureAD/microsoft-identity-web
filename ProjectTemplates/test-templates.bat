@@ -8,6 +8,28 @@ echo "Test templates"
 mkdir tests
 cd tests
 
+echo " Test Web app (No Auth)"
+mkdir webapp-noauth
+cd webapp-noauth
+dotnet new webapp2
+dotnet build
+cd ..
+
+echo " Test Web app (No Auth)"
+mkdir mvcwebapp-noauth
+cd mvcwebapp-noauth
+dotnet new mvc2
+dotnet build
+cd ..
+
+echo " Test Web API (No auth)"
+mkdir webapi-noauth
+cd webapi-noauth
+dotnet new webapi2
+dotnet build
+cd ..
+
+
 echo " Test Web app (Microsoft identity platform, MVC, Single Org)"
 mkdir mvcwebapp
 cd mvcwebapp
@@ -51,7 +73,6 @@ dotnet new mvc2 --auth  IndividualB2C --called-api-url "https://localhost:44332"
 dotnet build
 cd ..
 
-
 echo " Test Web app (Microsoft identity platform, Razor, Single Org)"
 mkdir webapp
 cd webapp
@@ -72,7 +93,6 @@ cd webapp-b2c
 dotnet new webapp2 --auth  IndividualB2C
 dotnet build
 cd ..
-
 
 echo " Test Web app calling Web API  (Microsoft identity platform, Razor, Single Org)"
 mkdir webapp-api

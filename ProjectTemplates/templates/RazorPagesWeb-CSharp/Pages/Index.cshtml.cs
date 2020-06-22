@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
+using Company.WebApplication1.Services;
 #endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,8 +16,6 @@ using Microsoft.Extensions.Logging;
 namespace Company.WebApplication1.Pages
 {
 #if (GenerateApi)
-    using Services;
-
     [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
 #endif 
     public class IndexModel : PageModel

@@ -24,13 +24,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+#if (GenerateApi)
+using Company.WebApplication1.Services;
+#endif
 
 namespace Company.WebApplication1
 {
-#if (GenerateApi)
-    using Services;
-
-#endif
     public class Startup
     {
         public Startup(IConfiguration configuration)
