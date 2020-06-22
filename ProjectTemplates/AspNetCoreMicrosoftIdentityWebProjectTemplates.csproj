@@ -1,8 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!--This should be passed from the VSTS build-->
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">0.2.0-localbuild</ClientSemVer>
+    <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
+    <PackageVersion>$(ClientSemVer)</PackageVersion>
+    
     <PackageType>Template</PackageType>
-    <PackageVersion>0.1.5</PackageVersion>
     <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>
     <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
