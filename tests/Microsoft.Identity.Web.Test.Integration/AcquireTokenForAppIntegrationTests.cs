@@ -27,7 +27,6 @@ namespace Microsoft.Identity.Web.Test.Integration
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
-        private IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
 
         private KeyVaultSecretsProvider _keyVault;
         private string _ccaSecret;
@@ -88,38 +87,9 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
-        [Theory]
-        [InlineData(null, false)]
-        [InlineData("", false)]
-        [InlineData("notAUri", false)]
-        [InlineData("htt://nonhttp/", false)]
-        [InlineData("https://login.microsoftonline.com/", true)]
-        [InlineData("https://login.microsoftonline.com", true)]
-        [InlineData("https://cats.b2clogin.com/", true)]
-        [InlineData("https://cats.b2clogin.com/signout-callback-oidc", true)]
-        [InlineData("http://cats.b2clogin.com/signout-callback-oidc", true)]
-        public void ValidateRedirectUriFromMicrosoftIdentityOptions(
-            string redirectUri,
-            bool expectConfiguredUri)
-        {
-            string httpContextRedirectUri = "https://IdentityDotNetSDKAutomation/";
-
-            InitializeTokenAcquisitionObjects();
-            _microsoftIdentityOptions.Value.RedirectUri = redirectUri;
-
-            if (expectConfiguredUri)
-            {
-                Assert.Equal(_microsoftIdentityOptions.Value.RedirectUri, _tokenAcquisition.CreateRedirectUri());
-            }
-            else
-            {
-                Assert.Equal(httpContextRedirectUri, _tokenAcquisition.CreateRedirectUri());
-            }
-        }
-
         private void InitializeTokenAcquisitionObjects()
         {
-            _microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
+            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
             IOptions<MsalMemoryTokenCacheOptions> tokenOptions = _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>();
             IOptions<ConfidentialClientApplicationOptions> ccOptions = _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>();
             ILogger<TokenAcquisition> logger = _provider.GetService<ILogger<TokenAcquisition>>();
@@ -128,7 +98,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                _microsoftIdentityOptions,
+                microsoftIdentityOptions,
                 httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);
@@ -136,7 +106,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             _tokenAcquisition = new TokenAcquisition(
                 _msalTestTokenCacheProvider,
                 httpContextAccessor,
-                _microsoftIdentityOptions,
+                microsoftIdentityOptions,
                 ccOptions,
                 httpClientFactory,
                 logger);

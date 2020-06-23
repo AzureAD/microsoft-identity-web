@@ -336,6 +336,13 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
+            var request = CurrentHttpContext.Request;
+            string currentUri = UriHelper.BuildAbsolute(
+                request.Scheme,
+                request.Host,
+                request.PathBase,
+                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+
             if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
             {
                 _applicationOptions.Instance += "/";
@@ -353,7 +360,7 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithRedirectUri(CreateRedirectUri())
+                        .WithRedirectUri(currentUri)
                         .WithHttpClientFactory(_httpClientFactory);
 
                 if (_microsoftIdentityOptions.IsB2C)
@@ -569,27 +576,6 @@ namespace Microsoft.Identity.Web
             }
 
             return null;
-        }
-
-        internal /*for test only*/ string CreateRedirectUri()
-        {
-            if (Uri.TryCreate(_microsoftIdentityOptions.RedirectUri, UriKind.Absolute, out Uri uri))
-            {
-                if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
-                {
-                    return _microsoftIdentityOptions.RedirectUri;
-                }
-
-                _logger.LogInformation("MicrosoftIdentityOptions RedirectUri value must have a Uri Scheme " +
-                    "of http or https in order to be a valid RedirectUri. ");
-            }
-
-            var request = CurrentHttpContext.Request;
-            return UriHelper.BuildAbsolute(
-                request.Scheme,
-                request.Host,
-                request.PathBase,
-                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
         }
     }
 }
