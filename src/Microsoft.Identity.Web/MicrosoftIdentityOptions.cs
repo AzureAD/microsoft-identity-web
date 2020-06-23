@@ -29,39 +29,6 @@ namespace Microsoft.Identity.Web
         public string Domain { get; set; }
 
         /// <summary>
-        /// In a web app, gets or sets the RedirectUri (URI where the token will be sent back by
-        /// Azure Active Directory or Azure Active Directory B2C).
-        /// This property is exclusive with <see cref="RemoteAuthenticationOptions.CallbackPath"/> which should be used preferably if you don't want
-        /// to have a different deployed configuration from your developer configuration.
-        /// There are cases where RedirectUri is needed, for instance when you use a reverse proxy that transforms HTTPS
-        /// URLs (external world) to HTTP URLs (inside the protected area). This can also be useful for web apps running
-        /// in containers (for the same reasons).
-        /// If you don't specify the redirect URI, the redirect URI will be computed from the URL on which the app is
-        /// deployed and the CallbackPath.
-        /// </summary>
-        public string RedirectUri { get; set; }
-
-        /// <summary>
-        /// In a web app, gets or sets the PostLogoutRedirectUri.
-        /// This property is exclusive with <see cref="OpenIdConnectOptions.SignedOutCallbackPath"/> which should be used preferably if you don't want
-        /// to have a different deployed configuration from your developer configuration.
-        /// There are cases where PostLogoutRedirectUri is needed, for instance when you use a reverse proxy that transforms HTTPS
-        /// URLs (external world) to HTTP URLs (inside the protected area). This can also be useful for web apps running
-        /// in containers (for the same reasons).
-        /// If you don't specify the PostLogoutRedirectUri, it will be computed by ASP.NET Core using the SignedOutCallbackPath.
-        /// </summary>
-        public string PostLogoutRedirectUri { get; set; }
-
-        /// <summary>
-        /// When set to true, forces the <see cref="OpenIdConnectMessage.RedirectUri"/> and the <see cref="OpenIdConnectMessage.PostLogoutRedirectUri"/> to use the HTTPS scheme.
-        /// This behavior can be desired, for instance, when you use a reverse proxy that transforms HTTPS
-        /// URLs (external world) to HTTP URLs (inside the protected area). This can also be useful for web apps running
-        /// in containers (for the same reasons), for example when deploying your web app to
-        /// Azure App Services in Linux containers.
-        /// </summary>
-        public bool ForceHttpsRedirectUris { get; set; }
-
-        /// <summary>
         /// Gets or sets TokenAcquisition as a Singleton. There are scenarios, like using the Graph SDK,
         /// which require TokenAcquisition to be a Singleton.
         /// </summary>

@@ -294,18 +294,15 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(true, "http://localhost:123", "https://localhost:123")]
-        [InlineData(true, "https://localhost:123", "https://localhost:123")]
-        [InlineData(false, "http://localhost:123", "http://localhost:123")]
-        [InlineData(false, "https://localhost:123", "https://localhost:123")]
-        public async void AddMicrosoftWebApp_ForceHttpsRedirectUris(bool forceHttpsRedirectUris, string actualUri, string expectedUri)
+        [InlineData("http://localhost:123")]
+        [InlineData("https://localhost:123")]
+        public async void AddMicrosoftWebApp_RedirectUri(string expectedUri)
         {
             _configureMsOptions = (options) =>
             {
                 options.Instance = TestConstants.AadInstance;
                 options.TenantId = TestConstants.TenantIdAsGuid;
                 options.ClientId = TestConstants.ClientId;
-                options.ForceHttpsRedirectUris = forceHttpsRedirectUris;
             };
 
             var services = new ServiceCollection();
@@ -322,8 +319,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 ProtocolMessage = new OpenIdConnectMessage()
                 {
-                    RedirectUri = actualUri,
-                    PostLogoutRedirectUri = actualUri,
+                    RedirectUri = expectedUri,
                 },
             };
 
@@ -331,7 +327,6 @@ namespace Microsoft.Identity.Web.Test
             await oidcOptions.Events.RedirectToIdentityProviderForSignOut(redirectContext).ConfigureAwait(false);
 
             Assert.Equal(expectedUri, redirectContext.ProtocolMessage.RedirectUri);
-            Assert.Equal(expectedUri, redirectContext.ProtocolMessage.PostLogoutRedirectUri);
         }
 
         private void AddMicrosoftWebApp_TestCommon(IServiceCollection services, ServiceProvider provider)
