@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     internal class RegisterValidAudience
     {
-        private string ClientId { get; set; }
+        private string ClientId { get; set; } = null!;
         private bool IsB2C { get; set; } = false;
         private const string Version = "ver";
         private const string V1 = "1.0";
@@ -61,7 +61,12 @@ namespace Microsoft.Identity.Web.Resource
             SecurityToken securityToken,
             TokenValidationParameters validationParameters)
         {
-            JwtSecurityToken token = securityToken as JwtSecurityToken;
+            JwtSecurityToken? token = securityToken as JwtSecurityToken;
+            if (token == null)
+            {
+                throw new SecurityTokenValidationException("Token is not JWT token.");
+            }
+
             string validAudience;
 
             // Case of a default App ID URI (the developer did not provide explicit valid audience(s)

@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal static class ObsoleteLegacyTokenDecryptCertificateParameter
     {
-        internal static void HandleLegacyTokenDecryptionCertificateParameter(MicrosoftIdentityOptions options, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, X509Certificate2 tokenDecryptionCertificate)
+        internal static void HandleLegacyTokenDecryptionCertificateParameter(MicrosoftIdentityOptions options, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, X509Certificate2? tokenDecryptionCertificate)
         {
             // Case where a legacy tokenDecryptionCertificate was passed. We then replace
             // the delegate called by the developer by a delegate which calls the delegate

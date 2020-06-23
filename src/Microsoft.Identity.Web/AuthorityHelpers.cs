@@ -10,8 +10,8 @@ namespace Microsoft.Identity.Web
     {
         internal static string BuildAuthority(MicrosoftIdentityOptions options)
         {
-            var baseUri = new Uri(options.Instance);
-            var pathBase = baseUri.PathAndQuery.TrimEnd('/');
+            Uri baseUri = new Uri(options.Instance);
+            string pathBase = baseUri.PathAndQuery.TrimEnd('/');
             var domain = options.Domain;
             var tenantId = options.TenantId;
 

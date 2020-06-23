@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Diagnostics used in the Open Id Connect middleware
+    /// Diagnostics used in the OpenID Connect middleware
     /// (used in Web Apps).
     /// </summary>
     public class OpenIdConnectMiddlewareDiagnostics : IOpenIdConnectMiddlewareDiagnostics
@@ -32,46 +32,46 @@ namespace Microsoft.Identity.Web.Resource
         //     be used to set ProtocolMessage.State that will be persisted through the authentication
         //     process. The ProtocolMessage can also be used to add or customize parameters
         //     sent to the identity provider.
-        private Func<RedirectContext, Task> s_onRedirectToIdentityProvider;
+        private Func<RedirectContext, Task> s_onRedirectToIdentityProvider = null!;
 
         // Summary:
         //     Invoked when a protocol message is first received.
-        private Func<MessageReceivedContext, Task> s_onMessageReceived;
+        private Func<MessageReceivedContext, Task> s_onMessageReceived = null!;
 
         // Summary:
         //     Invoked after security token validation if an authorization code is present in
         //     the protocol message.
-        private Func<AuthorizationCodeReceivedContext, Task> s_onAuthorizationCodeReceived;
+        private Func<AuthorizationCodeReceivedContext, Task> s_onAuthorizationCodeReceived = null!;
 
         // Summary:
         //     Invoked after "authorization code" is redeemed for tokens at the token endpoint.
-        private Func<TokenResponseReceivedContext, Task> s_onTokenResponseReceived;
+        private Func<TokenResponseReceivedContext, Task> s_onTokenResponseReceived = null!;
 
         // Summary:
         //     Invoked when an IdToken has been validated and produced an AuthenticationTicket.
-        private Func<TokenValidatedContext, Task> s_onTokenValidated;
+        private Func<TokenValidatedContext, Task> s_onTokenValidated = null!;
 
         // Summary:
         //     Invoked when user information is retrieved from the UserInfoEndpoint.
-        private Func<UserInformationReceivedContext, Task> s_onUserInformationReceived;
+        private Func<UserInformationReceivedContext, Task> s_onUserInformationReceived = null!;
 
         // Summary:
         //     Invoked if exceptions are thrown during request processing. The exceptions will
         //     be re-thrown after this event unless suppressed.
-        private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed;
+        private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed = null!;
 
         // Summary:
         //     Invoked when a request is received on the RemoteSignOutPath.
-        private Func<RemoteSignOutContext, Task> s_onRemoteSignOut;
+        private Func<RemoteSignOutContext, Task> s_onRemoteSignOut = null!;
 
         // Summary:
         //     Invoked before redirecting to the identity provider to sign out.
-        private Func<RedirectContext, Task> s_onRedirectToIdentityProviderForSignOut;
+        private Func<RedirectContext, Task> s_onRedirectToIdentityProviderForSignOut = null!;
 
         // Summary:
         //     Invoked before redirecting to the Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions.SignedOutRedirectUri
         //     at the end of a remote sign-out flow.
-        private Func<RemoteSignOutContext, Task> s_onSignedOutCallbackRedirect;
+        private Func<RemoteSignOutContext, Task> s_onSignedOutCallbackRedirect = null!;
 
         /// <summary>
         /// Subscribes to all the OpenIdConnect events, to help debugging, while
@@ -80,6 +80,8 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="events">Events to subscribe to.</param>
         public void Subscribe(OpenIdConnectEvents events)
         {
+            events ??= new OpenIdConnectEvents();
+
             s_onRedirectToIdentityProvider = events.OnRedirectToIdentityProvider;
             events.OnRedirectToIdentityProvider = OnRedirectToIdentityProviderAsync;
 
@@ -126,7 +128,7 @@ namespace Microsoft.Identity.Web.Resource
         {
             foreach (var property in message.GetType().GetProperties())
             {
-                object value = property.GetValue(message);
+                object? value = property.GetValue(message);
                 if (value != null)
                 {
                     _logger.LogDebug($"   - {property.Name}={value}");

@@ -17,9 +17,7 @@ namespace Microsoft.Identity.Web.Test
         {
             IAccount account = null;
 
-            var claimsPrincipalResult = account.ToClaimsPrincipal();
-
-            Assert.Null(claimsPrincipalResult);
+            Assert.Throws<ArgumentNullException>("account", () => account.ToClaimsPrincipal());
         }
 
         [Fact]
@@ -34,6 +32,7 @@ namespace Microsoft.Identity.Web.Test
             account.HomeAccountId.Returns(new AccountId("identifier", oid, tid));
 
             var claimsIdentityResult = account.ToClaimsPrincipal().Identity as ClaimsIdentity;
+
             Assert.NotNull(claimsIdentityResult);
             Assert.Equal(3, claimsIdentityResult.Claims.Count());
             Assert.Equal(username, claimsIdentityResult.FindFirst(ClaimTypes.Upn)?.Value);
@@ -42,11 +41,14 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void ToClaimsPrincipal_AccountWithNullValues_ThrowsException()
+        public void ToClaimsPrincipal_AccountWithNullValues_ReturnsEmptyPrincipal()
         {
             IAccount account = Substitute.For<IAccount>();
 
-            Assert.Throws<ArgumentNullException>("value", () => account.ToClaimsPrincipal());
+            var claimsIdentityResult = account.ToClaimsPrincipal().Identity as ClaimsIdentity;
+
+            Assert.NotNull(claimsIdentityResult);
+            Assert.Single(claimsIdentityResult.Claims);
         }
     }
 }

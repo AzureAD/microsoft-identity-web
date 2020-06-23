@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// <param name="path">Path were to find the certificate file.</param>
         /// <param name="password">Certificate password.</param>
         /// <returns>A certificate description.</returns>
-        public static CertificateDescription FromPath(string path, string password = null)
+        public static CertificateDescription FromPath(string path, string? password = null)
         {
             return new CertificateDescription
             {
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
         /// </list>
         /// </summary>
-        internal string Container
+        internal string? Container
         {
             get
             {
@@ -179,43 +179,43 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// URL of the Key Vault for instance https://msidentitywebsamples.vault.azure.net.
         /// </summary>
-        public string KeyVaultUrl { get; set; }
+        public string? KeyVaultUrl { get; set; }
 
         /// <summary>
         /// Certificate store path, for instance "CurrentUser/My".
         /// </summary>
         /// <remarks>This property should only be used in conjunction with DistinguishName or Thumbprint.</remarks>
-        public string CertificateStorePath { get; set; }
+        public string? CertificateStorePath { get; set; }
 
         /// <summary>
         /// Certificate distinguished name.
         /// </summary>
-        public string CertificateDistinguishedName { get; set; }
+        public string? CertificateDistinguishedName { get; set; }
 
         /// <summary>
         /// Name of the certificate in Key Vault.
         /// </summary>
-        public string KeyVaultCertificateName { get; set; }
+        public string? KeyVaultCertificateName { get; set; }
 
         /// <summary>
         /// Certificate thumbprint.
         /// </summary>
-        public string CertificateThumbprint { get; set; }
+        public string? CertificateThumbprint { get; set; }
 
         /// <summary>
         /// Path on disk to the certificate.
         /// </summary>
-        public string CertificateDiskPath { get; set; }
+        public string? CertificateDiskPath { get; set; }
 
         /// <summary>
         /// Path on disk to the certificate password.
         /// </summary>
-        public string CertificatePassword { get; set; }
+        public string? CertificatePassword { get; set; }
 
         /// <summary>
         /// Base64 encoded certificate value.
         /// </summary>
-        public string Base64EncodedValue { get; set; }
+        public string? Base64EncodedValue { get; set; }
 
         /// <summary>
         /// Reference to the certificate or value.
@@ -232,7 +232,7 @@ namespace Microsoft.Identity.Web
         /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithThumbprint"/>,
         /// this value is the thumbprint.</item>
         /// </list>
-        internal string ReferenceOrValue
+        internal string? ReferenceOrValue
         {
             get
             {
@@ -284,6 +284,6 @@ namespace Microsoft.Identity.Web
         /// The certificate, either provided directly in code
         /// or loaded from the description.
         /// </summary>
-        public X509Certificate2 Certificate { get; internal set; }
+        public X509Certificate2? Certificate { get; internal set; }
     }
 }

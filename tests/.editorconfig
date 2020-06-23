@@ -5,6 +5,9 @@
 # Code files
 [*.{cs,vb}]
 
+# SA0001: XML comment analysis disabled
+dotnet_diagnostic.SA0001.severity = none
+
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
 
@@ -31,3 +34,6 @@ dotnet_diagnostic.SA1402.severity = none
 
 # SA1611: Element parameters should be documented
 dotnet_diagnostic.SA1611.severity = none
+
+# SA1604: Element documentation should have summary
+dotnet_diagnostic.SA1604.severity = none

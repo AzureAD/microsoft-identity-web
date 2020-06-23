@@ -57,10 +57,20 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
+            if (configureConfidentialClientApplicationOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
+            }
+
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
+
             builder.Services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
 
-            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
             builder.Services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);

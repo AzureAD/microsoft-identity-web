@@ -6,19 +6,19 @@ using System.Security.Claims;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Factory class to create ClaimsPrincipal objects.
+    /// Factory class to create <see cref="ClaimsPrincipal"/> objects.
     /// </summary>
     public static class ClaimsPrincipalFactory
     {
         /// <summary>
-        /// Instantiate a ClaimsPrincipal from an account objectId and tenantId. This can
-        /// be useful when the Web app subscribes to another service on behalf of the user
-        /// and then is called back by a notification where the user is identified by his tenant
-        /// id and object id (like in Microsoft Graph Web Hooks).
+        /// Instantiate a <see cref="ClaimsPrincipal"/> from an account object ID and tenant ID. This can
+        /// be useful when the web app subscribes to another service on behalf of the user
+        /// and then is called back by a notification where the user is identified by their tenant
+        /// ID and object ID (like in Microsoft Graph Web Hooks).
         /// </summary>
-        /// <param name="tenantId">Tenant Id of the account.</param>
-        /// <param name="objectId">Object Id of the account in this tenant ID.</param>
-        /// <returns>A ClaimsPrincipal containing these two claims.</returns>
+        /// <param name="tenantId">Tenant ID of the account.</param>
+        /// <param name="objectId">Object ID of the account in this tenant ID.</param>
+        /// <returns>A <see cref="ClaimsPrincipal"/> containing these two claims.</returns>
         ///
         /// <example>
         /// <code>

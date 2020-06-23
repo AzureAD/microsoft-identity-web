@@ -33,10 +33,10 @@ namespace Microsoft.Identity.Web
 
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private IConfidentialClientApplication _application;
+        private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
-        private IMsalHttpClientFactory _httpClientFactory;
+        private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web
         /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
         /// <param name="microsoftIdentityOptions">Configuration options.</param>
         /// <param name="applicationOptions">MSAL.NET configuration options.</param>
-        /// <param name="httpClientFactory">Http client factory.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web
                 // If they are not yet in the HttpContext.User's claims, add them here.
                 if (!context.HttpContext.User.Claims.Any())
                 {
-                    (context.HttpContext.User.Identity as ClaimsIdentity).AddClaims(context.Principal.Claims);
+                    (context.HttpContext.User.Identity as ClaimsIdentity)?.AddClaims(context.Principal.Claims);
                 }
 
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.Web
         [Obsolete("This method has been deprecated, please use the GetAccessTokenForUserAsync() method instead.")]
         public async Task<string> GetAccessTokenOnBehalfOfUserAsync(
             IEnumerable<string> scopes,
-            string tenant = null)
+            string? tenant = null)
         {
             return await GetAccessTokenForUserAsync(scopes, tenant).ConfigureAwait(false);
         }
@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-        /// <returns>An access token to call the downstream API and populated with this downstream Api's scopes.</returns>
+        /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a Web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
         /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
@@ -201,7 +201,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
-            string tenant = null)
+            string? tenant = null)
         {
             if (scopes == null)
             {
@@ -224,7 +224,7 @@ namespace Microsoft.Identity.Web
 
                 // to get a token for a Web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
                 // flow as this one only applies to Web APIs.
-                JwtSecurityToken validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
+                JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
 
                 // Case of Web APIs: we need to do an on-behalf-of flow
                 if (validatedToken != null)
@@ -285,12 +285,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
         /// OpenID Connect event.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that represents a completed account removal operation.</returns>
         public async Task RemoveAccountAsync(RedirectContext context)
         {
-            ClaimsPrincipal user = context.HttpContext.User;
             IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-            IAccount account = null;
 
             // For B2C, we should remove all accounts of the user regardless the user flow
             if (_microsoftIdentityOptions.IsB2C)
@@ -306,8 +304,8 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                string identifier = context.HttpContext.User.GetMsalAccountId();
-                account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
+                string? identifier = context.HttpContext.User.GetMsalAccountId();
+                IAccount account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
 
                 if (account != null)
                 {
@@ -320,7 +318,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL Confidential client application if needed.
         /// </summary>
-        /// <returns></returns>
         private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
             if (_application == null)
@@ -348,9 +345,6 @@ namespace Microsoft.Identity.Web
                 _applicationOptions.Instance += "/";
             }
 
-            string authority;
-            IConfidentialClientApplication app;
-
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                 _applicationOptions.ClientSecret,
                 _microsoftIdentityOptions.ClientCertificates);
@@ -361,6 +355,8 @@ namespace Microsoft.Identity.Web
                         .CreateWithApplicationOptions(_applicationOptions)
                         .WithRedirectUri(currentUri)
                         .WithHttpClientFactory(_httpClientFactory);
+
+                string authority;
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -375,11 +371,11 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.ClientCertificates != null)
                 {
-                    X509Certificate2 certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
+                    X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
                     builder.WithCertificate(certificate);
                 }
 
-                app = builder.Build();
+                IConfidentialClientApplication app = builder.Build();
                 // Initialize token cache providers
                 await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
@@ -399,7 +395,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
         /// </summary>
-        /// <param name="application"></param>
+        /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
         /// <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
@@ -408,12 +404,12 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication application,
             ClaimsPrincipal claimsPrincipal,
             IEnumerable<string> scopes,
-            string tenant)
+            string? tenant)
         {
             // Gets MsalAccountId for AAD and B2C scenarios
-            string accountIdentifier = claimsPrincipal.GetMsalAccountId();
-            string loginHint = claimsPrincipal.GetLoginHint();
-            IAccount account = null;
+            string? accountIdentifier = claimsPrincipal.GetMsalAccountId();
+            string? loginHint = claimsPrincipal.GetLoginHint();
+            IAccount? account = null;
 
             if (accountIdentifier != null)
             {
@@ -436,8 +432,8 @@ namespace Microsoft.Identity.Web
             // If it is B2C and could not get an account (most likely because there is no tid claims), try to get it by user flow
             if (_microsoftIdentityOptions.IsB2C && account == null)
             {
-                string currentUserFlow = claimsPrincipal.GetUserFlowId();
-                account = GetAccountByUserFlow(await application.GetAccountsAsync().ConfigureAwait(false), currentUserFlow);
+                string? currentUserFlow = claimsPrincipal.GetUserFlowId();
+                account = GetAccountByUserFlow(await application.GetAccountsAsync().ConfigureAwait(false), currentUserFlow!);
             }
 
             return await GetAccessTokenOnBehalfOfUserFromCacheAsync(application, account, scopes, tenant).ConfigureAwait(false);
@@ -453,9 +449,9 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant"></param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
-            IAccount account,
+            IAccount? account,
             IEnumerable<string> scopes,
-            string tenant)
+            string? tenant)
         {
             if (scopes == null)
             {
@@ -508,8 +504,8 @@ namespace Microsoft.Identity.Web
         /// the client can trigger an interaction with the user so that the user consents to more scopes.
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
-        public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException)
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException)
         {
             // A user interaction is required, but we are in a Web API, and therefore, we need to report back to the client through a www-Authenticate header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = "consent";
@@ -520,6 +516,8 @@ namespace Microsoft.Identity.Web
                     throw msalServiceException;
                 }
             }
+
+            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
             string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
@@ -534,14 +532,12 @@ namespace Microsoft.Identity.Web
                 };
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
-            string scheme = "Bearer";
-            StringValues v = new StringValues($"{scheme} {parameterString}");
 
             var httpResponse = CurrentHttpContext.Response;
             var headers = httpResponse.Headers;
             httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
 
-            headers[HeaderNames.WWWAuthenticate] = v;
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"Bearer {parameterString}");
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
@@ -556,10 +552,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets an IAccount for the current B2C user flow in the user claims.
         /// </summary>
-        /// <param name="accounts"></param>
-        /// <param name="userFlow"></param>
-        /// <returns></returns>
-        private IAccount GetAccountByUserFlow(IEnumerable<IAccount> accounts, string userFlow)
+        /// <param name="accounts">A collection of accounts to search through.</param>
+        /// <param name="userFlow">A B2C user flow.</param>
+        /// <returns>An <see cref="IAccount"/> with the specified user flow.</returns>
+        private IAccount? GetAccountByUserFlow(IEnumerable<IAccount> accounts, string userFlow)
         {
             foreach (var account in accounts)
             {

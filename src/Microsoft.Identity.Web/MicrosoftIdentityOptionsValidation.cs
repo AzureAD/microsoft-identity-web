@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Extensions.Options;
@@ -42,8 +41,8 @@ namespace Microsoft.Identity.Web
         }
 
         public static void ValidateEitherClientCertificateOrClientSecret(
-            string clientSecret,
-            IEnumerable<CertificateDescription> cert)
+            string? clientSecret,
+            IEnumerable<CertificateDescription>? cert)
         {
             if (string.IsNullOrEmpty(clientSecret) && (cert == null))
             {

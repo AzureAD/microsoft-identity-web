@@ -67,11 +67,26 @@ namespace Microsoft.Identity.Web
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configureOpenIdConnectOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureOpenIdConnectOptions));
+            }
+
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
+
             builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
             builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
-            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
