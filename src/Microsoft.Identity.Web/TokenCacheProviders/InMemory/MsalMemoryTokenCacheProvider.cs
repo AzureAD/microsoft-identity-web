@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <param name="bytes">Bytes to write.</param>
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            _memoryCache.Set(cacheKey, bytes, _cacheOptions.SlidingExpiration);
+            _memoryCache.Set(cacheKey, bytes, _cacheOptions.AbsoluteExpirationRelativeToNow);
             return Task.CompletedTask;
         }
     }
