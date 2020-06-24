@@ -351,8 +351,7 @@ namespace Microsoft.Identity.Web
             string authority;
             IConfidentialClientApplication app;
 
-            MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            microsoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
+            MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                 _applicationOptions.ClientSecret,
                 _microsoftIdentityOptions.ClientCertificates);
 
