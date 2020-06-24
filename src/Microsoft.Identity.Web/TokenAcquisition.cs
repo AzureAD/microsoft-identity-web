@@ -540,12 +540,8 @@ namespace Microsoft.Identity.Web
             var httpResponse = CurrentHttpContext.Response;
             var headers = httpResponse.Headers;
             httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
-            if (headers.ContainsKey(HeaderNames.WWWAuthenticate))
-            {
-                headers.Remove(HeaderNames.WWWAuthenticate);
-            }
 
-            headers.Add(HeaderNames.WWWAuthenticate, v);
+            headers[HeaderNames.WWWAuthenticate] = v;
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
