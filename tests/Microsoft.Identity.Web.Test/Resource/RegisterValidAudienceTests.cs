@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         private void AssertFailureOnInvalidAudienceInToken()
         {
-            Assert.Throws<SecurityTokenValidationException>(() => _registerValidAudience.ValidateAudience(
+            Assert.Throws<SecurityTokenInvalidAudienceException>(() => _registerValidAudience.ValidateAudience(
                    _validAudiences,
                    _token,
                    _validationParams));

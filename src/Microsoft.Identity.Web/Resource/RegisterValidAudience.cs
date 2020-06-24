@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Web.Resource
                     return audiences.Contains(validAudience);
                 }
 
-                throw new SecurityTokenValidationException("Token does not contain a valid audience. ");
+                throw new SecurityTokenInvalidAudienceException("Token contains an invalid audience. ");
             }
 
             // Cases where developers explicitly provided the valid audiences
