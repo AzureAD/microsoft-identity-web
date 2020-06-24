@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            MemoryCache.Set(cacheKey, bytes, _cacheOptions.SlidingExpiration);
+            MemoryCache.Set(cacheKey, bytes, _cacheOptions.AbsoluteExpirationRelativeToNow);
             Count++;
             return Task.CompletedTask;
         }

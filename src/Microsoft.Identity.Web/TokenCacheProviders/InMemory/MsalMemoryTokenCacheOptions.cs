@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// By default, the sliding expiration is set for 14 days.</summary>
         public MsalMemoryTokenCacheOptions()
         {
-            SlidingExpiration = TimeSpan.FromDays(14);
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(14);
         }
 
         /// <summary>
@@ -23,9 +23,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// In production, a higher value, up-to 90 days is recommended.
         /// </summary>
         /// <value>
-        /// The SlidingExpiration value.
+        /// The AbsoluteExpirationRelativeToNow value.
         /// </value>
-        public TimeSpan SlidingExpiration
+        public TimeSpan AbsoluteExpirationRelativeToNow
         {
             get;
             set;
