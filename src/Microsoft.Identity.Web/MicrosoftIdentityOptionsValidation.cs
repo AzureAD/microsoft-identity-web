@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
             return ValidateOptionsResult.Success;
         }
 
-        public void ValidateEitherClientCertificateOrClientSecret(
+        public static void ValidateEitherClientCertificateOrClientSecret(
             string clientSecret,
             IEnumerable<CertificateDescription> cert)
         {
