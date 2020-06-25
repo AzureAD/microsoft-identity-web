@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web
             builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
+                options => { },
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
@@ -81,11 +82,12 @@ namespace Microsoft.Identity.Web
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
             builder.AddMicrosoftWebApp(
-                 configureOpenIdConnectOptions,
-                 configureMicrosoftIdentityOptions,
-                 openIdConnectScheme,
-                 cookieScheme,
-                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                configureOpenIdConnectOptions,
+                configureMicrosoftIdentityOptions,
+                options => { },
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
             return services;
         }
 

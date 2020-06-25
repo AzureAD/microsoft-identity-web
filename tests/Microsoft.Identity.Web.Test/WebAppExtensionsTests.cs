@@ -45,6 +45,7 @@ namespace Microsoft.Identity.Web.Test
             options.TenantId = TestConstants.TenantIdAsGuid;
             options.ClientId = TestConstants.ClientId;
         };
+        private readonly Action<CookieAuthenticationOptions> _configureCookieOptions = (options) => { };
 
         public WebAppExtensionsTests()
         {
@@ -90,13 +91,18 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
             // Assert configure options actions added correctly
             var configuredOidcOptions = provider.GetServices<IConfigureOptions<OpenIdConnectOptions>>().Cast<ConfigureNamedOptions<OpenIdConnectOptions>>();
             var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
+
+#if DOTNET_CORE_31
+            var configuredCookieOptions = provider.GetServices<IConfigureOptions<CookieAuthenticationOptions>>().Cast<ConfigureNamedOptions<CookieAuthenticationOptions>>();
+            Assert.Contains(configuredCookieOptions, o => o.Action == _configureCookieOptions);
+#endif
 
             Assert.Contains(configuredOidcOptions, o => o.Action == _configureOidcOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
@@ -139,7 +145,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -188,7 +194,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme, false);
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
@@ -308,7 +314,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _oidcScheme, _cookieScheme);
+                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme);
 
             var provider = services.BuildServiceProvider();
 
