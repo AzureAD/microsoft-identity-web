@@ -21,7 +21,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Clear the cache.
         /// </summary>
+        /// <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
         /// <returns></returns>
-        Task ClearAsync();
+        Task ClearAsync(string homeAccountId);
     }
 }

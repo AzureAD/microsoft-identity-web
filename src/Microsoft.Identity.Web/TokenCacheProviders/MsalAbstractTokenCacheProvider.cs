@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -55,26 +54,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         }
 
         /// <summary>
-        /// Cache key.
-        /// </summary>
-        private string GetCacheKey(bool isAppTokenCache)
-        {
-            if (isAppTokenCache)
-            {
-                return $"{_microsoftIdentityOptions.Value.ClientId}_AppTokenCache";
-            }
-            else
-            {
-                // In the case of Web Apps, the cache key is the user account Id, and the expectation is that AcquireTokenSilent
-                // should return a token otherwise this might require a challenge.
-                // In the case Web APIs, the token cache key is a hash of the access token used to call the Web API
-                JwtSecurityToken jwtSecurityToken = _httpContextAccessor.HttpContext.GetTokenUsedToCallWebAPI();
-                return (jwtSecurityToken != null) ? jwtSecurityToken.RawSignature
-                                                                  : _httpContextAccessor.HttpContext.User.GetMsalAccountId();
-            }
-        }
-
-        /// <summary>
         /// Raised AFTER MSAL added the new token in its in-memory copy of the cache.
         /// This notification is called every time MSAL accesses the cache, not just when a write takes place:
         /// If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.
@@ -86,23 +65,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             // if the access operation resulted in a cache update
             if (args.HasStateChanged)
             {
-                string cacheKey = GetCacheKey(args.IsApplicationCache);
-                if (!string.IsNullOrWhiteSpace(cacheKey))
-                {
-                    await WriteCacheBytesAsync(cacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
-                }
+                await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
             }
         }
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            string cacheKey = GetCacheKey(args.IsApplicationCache);
-
-            if (!string.IsNullOrEmpty(cacheKey))
-            {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
-                args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
-            }
+            byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey).ConfigureAwait(false);
+            args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
         }
 
         /// <summary>
@@ -118,10 +88,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Clear the cache.
         /// </summary>
-        public async Task ClearAsync()
+        /// <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+        public async Task ClearAsync(string homeAccountId)
         {
             // This is a user token cache
-            await RemoveKeyAsync(GetCacheKey(false)).ConfigureAwait(false);
+            await RemoveKeyAsync(homeAccountId).ConfigureAwait(false);
 
             // TODO: Clear the cookie session if any. Get inspiration from
             // https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/240
