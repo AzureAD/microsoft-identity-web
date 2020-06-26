@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
                                 nameof(Scopes)));
                     }
 
-                    // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
+                    // Do not re-use the property Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
                     string[]? incrementalConsentScopes;
 
                     // If the user wishes us to pick the Scopes from a particular config setting.
