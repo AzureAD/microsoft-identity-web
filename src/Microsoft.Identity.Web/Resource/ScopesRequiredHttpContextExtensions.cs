@@ -19,14 +19,15 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// When applied to an <see cref="HttpContext"/>, verifies that the user authenticated in the
         /// web API has any of the accepted scopes.
+        /// If there is no authenticated user, the reponse is a 401 (Unauthenticated).
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-        /// method throws an HTTP Unauthorized with the message telling which scopes are expected in the token.
+        /// method updates the HTTP response providing a status code Forbidden (403)
+        /// and writes to the response body a message telling which scopes are expected in the token.
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
-        /// <exception cref="HttpRequestException"> with a <see cref="HttpResponse.StatusCode"/> set to
-        /// <see cref="HttpStatusCode.Unauthorized"/>.
-        /// </exception>
+        /// <remarks>When the scopes don't match the response is a 403 (Forbidden), 
+        /// because the user is authenticated (hence not 401), but not authorized.</remarks>
         public static void VerifyUserHasAnyAcceptedScope(this HttpContext context, params string[] acceptedScopes)
         {
             if (acceptedScopes == null)
@@ -34,19 +35,31 @@ namespace Microsoft.Identity.Web.Resource
                 throw new ArgumentNullException(nameof(acceptedScopes));
             }
 
-            Claim scopeClaim = context?.User?.FindFirst(ClaimConstants.Scope);
-
-            // Fallback to scp claim name
-            if (scopeClaim == null)
+            if (context == null)
             {
-                scopeClaim = context?.User?.FindFirst(ClaimConstants.Scp);
+                throw new ArgumentNullException(nameof(context));
             }
-
-            if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
+            else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                string message = $"The 'scope' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
-                throw new HttpRequestException(message);
+            }
+            else
+            {
+                // Attempt with Scp claim
+                Claim? scopeClaim = context.User.FindFirst(ClaimConstants.Scp);
+
+                // Fallback to Scope claim name
+                if (scopeClaim == null)
+                {
+                    scopeClaim = context?.User?.FindFirst(ClaimConstants.Scope);
+                }
+
+                if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    string message = $"The 'scope' or 'scp' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
+                    context.Response.WriteAsync(message);
+                }
             }
         }
     }

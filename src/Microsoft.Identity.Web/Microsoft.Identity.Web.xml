@@ -1210,14 +1210,15 @@
             <summary>
             When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the user authenticated in the
             web API has any of the accepted scopes.
+            If there is no authenticated user, the reponse is a 401 (Unauthenticated).
             If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-            method throws an HTTP Unauthorized with the message telling which scopes are expected in the token.
+            method updates the HTTP response providing a status code Forbidden (403)
+            and writes to the response body a message telling which scopes are expected in the token.
             </summary>
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedScopes">Scopes accepted by this web API.</param>
-            <exception cref="T:System.Net.Http.HttpRequestException"> with a <see cref="P:Microsoft.AspNetCore.Http.HttpResponse.StatusCode"/> set to
-            <see cref="F:System.Net.HttpStatusCode.Unauthorized"/>.
-            </exception>
+            <remarks>When the scopes don't match the response is a 403 (Forbidden), 
+            because the user is authenticated (hence not 401), but not authorized.</remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.ServiceCollectionExtensions">
             <summary>
@@ -1508,14 +1509,14 @@
             <summary>Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions"/> class.
             By default, the sliding expiration is set for 14 days.</summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.SlidingExpiration">
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow">
             <summary>
             Gets or sets the value of the duration after which the cache entry will expire unless it's used
             This is the duration the tokens are kept in memory cache.
             In production, a higher value, up-to 90 days is recommended.
             </summary>
             <value>
-            The SlidingExpiration value.
+            The AbsoluteExpirationRelativeToNow value.
             </value>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider">
