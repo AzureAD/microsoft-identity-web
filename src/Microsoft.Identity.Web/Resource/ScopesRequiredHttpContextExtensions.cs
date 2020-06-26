@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Resource
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
-        /// <remarks>When the scopes don't match the response is a 403 (Forbidden), 
+        /// <remarks>When the scopes don't match the response is a 403 (Forbidden),
         /// because the user is authenticated (hence not 401), but not authorized.</remarks>
         public static void VerifyUserHasAnyAcceptedScope(this HttpContext context, params string[] acceptedScopes)
         {
