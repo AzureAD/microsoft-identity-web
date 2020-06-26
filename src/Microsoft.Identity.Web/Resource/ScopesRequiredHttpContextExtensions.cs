@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.Resource
         /// web API has any of the accepted scopes.
         /// If there is no authenticated user, the reponse is a 401 (Unauthenticated).
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-        /// method updates the HTTP response providing a status code Forbidden (403)
+        /// method updates the HTTP response providing a status code 403 (Forbidden)
         /// and writes to the response body a message telling which scopes are expected in the token.
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
