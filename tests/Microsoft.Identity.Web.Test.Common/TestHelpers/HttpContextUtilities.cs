@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -21,7 +22,10 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             featureCollection.Set<IHttpResponseFeature>(new HttpResponseFeature());
             featureCollection.Set<IHttpRequestFeature>(new HttpRequestFeature());
 
-            return contextFactory.Create(featureCollection);
+            HttpContext httpContext = contextFactory.Create(featureCollection);
+            httpContext.Response.Body = new MemoryStream();
+            httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+            return httpContext;
         }
 
         public static HttpContext CreateHttpContext(string[] userScopes)
