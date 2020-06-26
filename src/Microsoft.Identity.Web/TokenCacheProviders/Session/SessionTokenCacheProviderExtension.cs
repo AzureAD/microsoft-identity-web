@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             // Add session if you are planning to use session based token cache
             var sessionStoreService = services.FirstOrDefault(x => x.ServiceType.Name == "ISessionStore");
 
@@ -84,6 +90,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionAppTokenCache(this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddHttpContextAccessor();
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
             return services;
@@ -112,6 +123,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionPerUserTokenCache(this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddHttpContextAccessor();
             services.AddSession(option =>
                 {

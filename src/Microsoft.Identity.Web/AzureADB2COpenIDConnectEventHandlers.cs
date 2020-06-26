@@ -76,12 +76,12 @@ namespace Microsoft.Identity.Web
             return Task.CompletedTask;
         }
 
-        private string BuildIssuerAddress(RedirectContext context, string defaultUserFlow, string userFlow)
+        private string BuildIssuerAddress(RedirectContext context, string? defaultUserFlow, string userFlow)
         {
             if (!_userFlowToIssuerAddress.TryGetValue(userFlow, out var issuerAddress))
             {
                 _userFlowToIssuerAddress[userFlow] = context.ProtocolMessage.IssuerAddress.ToLowerInvariant()
-                    .Replace($"/{defaultUserFlow.ToLowerInvariant()}/", $"/{userFlow.ToLowerInvariant()}/");
+                    .Replace($"/{defaultUserFlow?.ToLowerInvariant()}/", $"/{userFlow.ToLowerInvariant()}/");
             }
 
             return _userFlowToIssuerAddress[userFlow];

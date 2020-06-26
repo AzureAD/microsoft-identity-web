@@ -85,20 +85,35 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this AuthenticationBuilder builder,
-            IEnumerable<string> initialScopes,
+            IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
+
+            if (configureConfidentialClientApplicationOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
+            }
+
             IServiceCollection services = builder.Services;
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
-            services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
+            services.Configure(configureMicrosoftIdentityOptions);
+            services.Configure(configureConfidentialClientApplicationOptions);
 
             services.AddHttpContextAccessor();
 
-            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
+            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
             services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
@@ -126,7 +141,7 @@ namespace Microsoft.Identity.Web
                 var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
                 options.Events.OnAuthorizationCodeReceived = async context =>
                 {
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
+                    var tokenAcquisition = (ITokenAcquisitionInternal)context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
                     await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
                     await codeReceivedHandler(context).ConfigureAwait(false);
                 };
@@ -135,19 +150,18 @@ namespace Microsoft.Identity.Web
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;
                 options.Events.OnTokenValidated = async context =>
                 {
-                    ClientInfo clientInfoFromServer;
                     if (context.Request.Form.ContainsKey(ClaimConstants.ClientInfo))
                     {
                         context.Request.Form.TryGetValue(ClaimConstants.ClientInfo, out Microsoft.Extensions.Primitives.StringValues value);
 
                         if (!string.IsNullOrEmpty(value))
                         {
-                            clientInfoFromServer = ClientInfo.CreateFromJson(value);
+                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(value);
 
                             if (clientInfoFromServer != null)
                             {
-                                context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                context.Principal.Identities.FirstOrDefault().AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                             }
                         }
                     }
@@ -160,7 +174,7 @@ namespace Microsoft.Identity.Web
                 options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
                 {
                     // Remove the account from MSAL.NET token cache
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>() as ITokenAcquisitionInternal;
+                    var tokenAcquisition = (ITokenAcquisitionInternal)context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisition>();
                     await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
                     await signOutHandler(context).ConfigureAwait(false);
                 };

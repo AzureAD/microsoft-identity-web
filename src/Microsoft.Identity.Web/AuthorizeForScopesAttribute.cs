@@ -32,37 +32,36 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes to request.
         /// </summary>
-        public string[] Scopes { get; set; }
+        public string[]? Scopes { get; set; }
 
         /// <summary>
         /// Key section on the configuration file that holds the scope value.
         /// </summary>
-        public string ScopeKeySection { get; set; }
+        public string? ScopeKeySection { get; set; }
 
         /// <summary>
-        /// Handles the MsalUiRequiredException.
+        /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
         /// <param name="context">Context provided by ASP.NET Core.</param>
         public override void OnException(ExceptionContext context)
         {
-            // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
-            string[] incrementalConsentScopes = Array.Empty<string>();
-            MsalUiRequiredException msalUiRequiredException = context.Exception as MsalUiRequiredException;
-
-            if (msalUiRequiredException == null)
+            if (context != null)
             {
-                msalUiRequiredException = context.Exception?.InnerException as MsalUiRequiredException;
-            }
+                MsalUiRequiredException? msalUiRequiredException =
+                    (context.Exception as MsalUiRequiredException)
+                    ?? (context.Exception?.InnerException as MsalUiRequiredException);
 
-            if (msalUiRequiredException != null)
-            {
-                if (CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+                if (msalUiRequiredException != null &&
+                    CanBeSolvedByReSignInOfUser(msalUiRequiredException))
                 {
                     // the users cannot provide both scopes and ScopeKeySection at the same time
                     if (!string.IsNullOrWhiteSpace(ScopeKeySection) && Scopes != null && Scopes.Length > 0)
                     {
                         throw new InvalidOperationException($"Either provide the '{nameof(ScopeKeySection)}' or the '{nameof(Scopes)}' to the 'AuthorizeForScopes'.");
                     }
+
+                    // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
+                    string[]? incrementalConsentScopes;
 
                     // If the user wishes us to pick the Scopes from a particular config setting.
                     if (!string.IsNullOrWhiteSpace(ScopeKeySection))
@@ -77,7 +76,7 @@ namespace Microsoft.Identity.Web
 
                         incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
 
-                        if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes != null && incrementalConsentScopes.Length > 0)
+                        if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
                         {
                             throw new InvalidOperationException("no scopes provided in scopes...");
                         }
@@ -87,7 +86,7 @@ namespace Microsoft.Identity.Web
                         incrementalConsentScopes = Scopes;
                     }
 
-                    var properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
+                    AuthenticationProperties properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
                     context.Result = new ChallengeResult(properties);
                 }
             }
@@ -107,17 +106,18 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Build Authentication properties needed for incremental consent.
+        /// Build authentication properties needed for incremental consent.
         /// </summary>
         /// <param name="scopes">Scopes to request.</param>
-        /// <param name="ex">MsalUiRequiredException instance.</param>
-        /// <param name="context">current HTTP context in the pipeline.</param>
+        /// <param name="ex"><see cref="MsalUiRequiredException"/> instance.</param>
+        /// <param name="context">Current HTTP context in the pipeline.</param>
         /// <returns>AuthenticationProperties.</returns>
         private AuthenticationProperties BuildAuthenticationPropertiesForIncrementalConsent(
-            string[] scopes,
+            string[]? scopes,
             MsalUiRequiredException ex,
             HttpContext context)
         {
+            scopes ??= new string[0];
             var properties = new AuthenticationProperties();
 
             // Set the scopes, including the scopes that ADAL.NET / MSAL.NET need for the token cache

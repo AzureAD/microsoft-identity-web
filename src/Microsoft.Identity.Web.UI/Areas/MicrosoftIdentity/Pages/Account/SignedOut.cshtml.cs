@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account
         /// <summary>
         /// Method handling the HTTP GET method.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A Sign Out page or Home page.</returns>
         public IActionResult OnGet()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User?.Identity?.IsAuthenticated ?? false)
             {
                 return LocalRedirect("~/");
             }

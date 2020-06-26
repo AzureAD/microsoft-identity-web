@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
         public async Task GetConfigurationAsync_NullOrEmptyParameters_ThrowsException()
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
-            var expectedAddressExceptionMessage = "Azure AD Issuer metadata address url is required (Parameter 'address')";
+            var expectedAddressExceptionMessage = "Azure AD Issuer metadata address URL is required (Parameter 'address')";
             var expectedRetrieverExceptionMessage = "No metadata document retriever is provided (Parameter 'retriever')";
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);

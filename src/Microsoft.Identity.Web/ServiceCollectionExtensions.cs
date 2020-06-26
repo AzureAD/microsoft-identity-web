@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web
@@ -33,6 +34,11 @@ namespace Microsoft.Identity.Web
             this IServiceCollection services,
             bool isTokenAcquisitionSingleton = false)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             // Token acquisition service
             services.AddHttpContextAccessor();
             if (!isTokenAcquisitionSingleton)

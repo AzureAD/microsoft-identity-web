@@ -27,19 +27,19 @@ namespace Microsoft.Identity.Web
                 switch (certificateDescription.SourceType)
                 {
                     case CertificateSource.KeyVault:
-                        certificateDescription.Certificate = LoadFromKeyVault(certificateDescription.Container, certificateDescription.ReferenceOrValue);
+                        certificateDescription.Certificate = LoadFromKeyVault(certificateDescription.Container!, certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.Base64Encoded:
-                        certificateDescription.Certificate = LoadFromBase64Encoded(certificateDescription.ReferenceOrValue);
+                        certificateDescription.Certificate = LoadFromBase64Encoded(certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.Path:
-                        certificateDescription.Certificate = LoadFromPath(certificateDescription.Container, certificateDescription.ReferenceOrValue);
+                        certificateDescription.Certificate = LoadFromPath(certificateDescription.Container!, certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.StoreWithThumbprint:
-                        certificateDescription.Certificate = LoadFromStoreWithThumbprint(certificateDescription.ReferenceOrValue, certificateDescription.Container);
+                        certificateDescription.Certificate = LoadFromStoreWithThumbprint(certificateDescription.ReferenceOrValue!, certificateDescription.Container!);
                         break;
                     case CertificateSource.StoreWithDistinguishedName:
-                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.ReferenceOrValue, certificateDescription.Container);
+                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.ReferenceOrValue!, certificateDescription.Container!);
                         break;
                     default:
                         break;
@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
             byte[] decoded = Convert.FromBase64String(certificateBase64);
             return new X509Certificate2(
                 decoded,
-                (string)null,
+                (string?)null,
                 X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Web
             {
                 return new X509Certificate2(
                     certificate.Cer,
-                    (string)null,
+                    (string?)null,
                     X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
             }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web
             throw new NotSupportedException($"Only PKCS#12 is supported. Found Content-Type: {secret.Properties.ContentType}");
         }
 
-        private static X509Certificate2 LoadFromStoreWithThumbprint(
+        private static X509Certificate2? LoadFromStoreWithThumbprint(
             string certificateThumbprint,
             string storeDescription = "CurrentUser/My")
         {
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web
             StoreName certificateStoreName = StoreName.My;
             ParseStoreLocationAndName(storeDescription, ref certificateStoreLocation, ref certificateStoreName);
 
-            X509Certificate2 cert;
+            X509Certificate2? cert;
             using (X509Store x509Store = new X509Store(
                 certificateStoreName,
                 certificateStoreLocation))
@@ -128,13 +128,13 @@ namespace Microsoft.Identity.Web
             return cert;
         }
 
-        private static X509Certificate2 LoadFromStoreWithDistinguishedName(string certificateSubjectDistinguishedName, string storeDescription = "CurrentUser/My")
+        private static X509Certificate2? LoadFromStoreWithDistinguishedName(string certificateSubjectDistinguishedName, string storeDescription = "CurrentUser/My")
         {
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser;
             StoreName certificateStoreName = StoreName.My;
             ParseStoreLocationAndName(storeDescription, ref certificateStoreLocation, ref certificateStoreName);
 
-            X509Certificate2 cert;
+            X509Certificate2? cert;
             using (X509Store x509Store = new X509Store(
                  certificateStoreName,
                  certificateStoreLocation))
@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Web
 
         private static X509Certificate2 LoadFromPath(
             string certificateFileName,
-            string password = null)
+            string? password = null)
         {
             return new X509Certificate2(
                 certificateFileName,
@@ -174,11 +174,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Find a certificate by criteria.
         /// </summary>
-        /// <param name="x509Store"></param>
-        /// <param name="identifierCriterium"></param>
-        /// <param name="certificateIdentifier"></param>
-        /// <returns></returns>
-        private static X509Certificate2 FindCertificateByCriterium(
+        private static X509Certificate2? FindCertificateByCriterium(
             X509Store x509Store,
             X509FindType identifierCriterium,
             string certificateIdentifier)
@@ -198,12 +194,12 @@ namespace Microsoft.Identity.Web
             return cert;
         }
 
-        internal /*for test only*/ static X509Certificate2 LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
+        internal /*for test only*/ static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
         {
             DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
             CertificateDescription certDescription = certificateDescription.First();
             defaultCertificateLoader.LoadIfNeeded(certDescription);
-            return certDescription?.Certificate;
+            return certDescription.Certificate;
         }
     }
 }

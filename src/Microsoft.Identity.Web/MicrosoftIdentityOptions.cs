@@ -16,17 +16,17 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
         /// </summary>
-        public string Instance { get; set; }
+        public string Instance { get; set; } = null!;
 
         /// <summary>
-        /// Gets or sets the tenant Id.
+        /// Gets or sets the tenant ID.
         /// </summary>
-        public string TenantId { get; set; }
+        public string? TenantId { get; set; }
 
         /// <summary>
         /// Gets or sets the domain of the Azure Active Directory tenant, e.g. contoso.onmicrosoft.com.
         /// </summary>
-        public string Domain { get; set; }
+        public string? Domain { get; set; }
 
         /// <summary>
         /// Gets or sets TokenAcquisition as a Singleton. There are scenarios, like using the Graph SDK,
@@ -37,22 +37,22 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
         /// </summary>
-        public string EditProfilePolicyId { get; set; }
+        public string? EditProfilePolicyId { get; set; }
 
         /// <summary>
         /// Gets or sets the sign up or sign in user flow name for B2C, e.g. b2c_1_susi.
         /// </summary>
-        public string SignUpSignInPolicyId { get; set; }
+        public string? SignUpSignInPolicyId { get; set; }
 
         /// <summary>
         /// Gets or sets the reset password user flow name for B2C, e.g. B2C_1_password_reset.
         /// </summary>
-        public string ResetPasswordPolicyId { get; set; }
+        public string? ResetPasswordPolicyId { get; set; }
 
         /// <summary>
         /// Gets the default user flow (which is signUpsignIn).
         /// </summary>
-        public string DefaultUserFlow => SignUpSignInPolicyId;
+        public string? DefaultUserFlow => SignUpSignInPolicyId;
 
         /// <summary>
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web
         ///   </code>
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
-        public IEnumerable<CertificateDescription> ClientCertificates { get; set; }
+        public IEnumerable<CertificateDescription>? ClientCertificates { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a Web API.
@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web
         ///   </code>
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
-        public IEnumerable<CertificateDescription> TokenDecryptionCertificates { get; set; }
+        public IEnumerable<CertificateDescription>? TokenDecryptionCertificates { get; set; }
 
         /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.

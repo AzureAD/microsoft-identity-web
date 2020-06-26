@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
@@ -38,6 +39,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<DistributedCacheEntryOptions> cacheOptions)
             : base(microsoftIdentityOptions, httpContextAccessor)
         {
+            if (cacheOptions == null)
+            {
+                throw new ArgumentNullException(nameof(cacheOptions));
+            }
+
             _distributedCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
         }

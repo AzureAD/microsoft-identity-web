@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// When applied to an <see cref="HttpContext"/>, verifies that the user authenticated in the
         /// web API has any of the accepted scopes.
-        /// If there is no authenticated user, the reponse is a 401 (Unauthenticated).
+        /// If there is no authenticated user, the response is a 401 (Unauthenticated).
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
         /// method updates the HTTP response providing a status code 403 (Forbidden)
         /// and writes to the response body a message telling which scopes are expected in the token.
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Resource
                 // Fallback to Scope claim name
                 if (scopeClaim == null)
                 {
-                    scopeClaim = context?.User?.FindFirst(ClaimConstants.Scope);
+                    scopeClaim = context.User.FindFirst(ClaimConstants.Scope);
                 }
 
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())

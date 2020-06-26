@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
             IConfiguration configuration,
             string configSectionName = "AzureAd",
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            X509Certificate2 tokenDecryptionCertificate = null,
+            X509Certificate2? tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
             this IServiceCollection services,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-            X509Certificate2 tokenDecryptionCertificate = null,
+            X509Certificate2? tokenDecryptionCertificate = null,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {

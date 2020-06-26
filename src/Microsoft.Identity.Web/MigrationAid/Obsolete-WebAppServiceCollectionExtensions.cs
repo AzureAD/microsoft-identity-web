@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>Yhe service collection for chaining.</returns>
+        /// <returns>The service collection for chaining.</returns>
         [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,

@@ -20,6 +20,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
         /// <param name="scopes">Scopes to request.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed add to cache operation.</returns>
         /// <example>
         /// From the configuration of the Authentication of the ASP.NET Core Web API:
         /// <code>OpenIdConnectOptions options;</code>
@@ -47,7 +48,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
         /// OpenID Connect event.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that represents a completed remove from cache operation.</returns>
         Task RemoveAccountAsync(RedirectContext context);
     }
 }

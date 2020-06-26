@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,12 +10,12 @@ namespace Microsoft.Identity.Web
     internal class ClientInfo
     {
         [JsonPropertyName("uid")]
-        public string UniqueObjectIdentifier { get; set; }
+        public string UniqueObjectIdentifier { get; set; } = null!;
 
         [JsonPropertyName("utid")]
-        public string UniqueTenantIdentifier { get; set; }
+        public string UniqueTenantIdentifier { get; set; } = null!;
 
-        public static ClientInfo CreateFromJson(string clientInfo)
+        public static ClientInfo? CreateFromJson(string clientInfo)
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
@@ -26,7 +25,7 @@ namespace Microsoft.Identity.Web
             return DeserializeFromJson(Base64UrlHelpers.DecodeToBytes(clientInfo));
         }
 
-        internal static ClientInfo DeserializeFromJson(byte[] jsonByteArray)
+        internal static ClientInfo? DeserializeFromJson(byte[] jsonByteArray)
         {
             if (jsonByteArray == null || jsonByteArray.Length == 0)
             {

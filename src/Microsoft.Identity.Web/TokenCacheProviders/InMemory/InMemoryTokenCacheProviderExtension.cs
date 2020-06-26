@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
@@ -16,6 +17,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         public static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
             services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();

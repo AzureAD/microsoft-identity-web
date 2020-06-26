@@ -33,12 +33,12 @@ namespace Microsoft.Identity.Web
             IConfiguration configuration,
             string configSectionName = "AzureAd",
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            X509Certificate2 tokenDecryptionCertificate = null,
+            X509Certificate2? tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             // Just call the obsolete method below (which takes delegates).
             // This method will do the work of taking into account the legacy
-            // parameter for the token decyrption certificate
+            // parameter for the token decryption certificate
             return builder.AddProtectedWebApi(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-            X509Certificate2 tokenDecryptionCertificate = null,
+            X509Certificate2? tokenDecryptionCertificate = null,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {

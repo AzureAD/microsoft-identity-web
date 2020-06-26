@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
             {
                 // TODO:
                 // Suspect. Why not get the IOption<MicrosoftIdentityOptions>?
-                var microsoftIdentityOptions = new MicrosoftIdentityOptions(); // configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
+                MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions(); // configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
                 configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
