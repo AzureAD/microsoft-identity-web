@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web
@@ -39,15 +40,34 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(services));
             }
 
+            ServiceDescriptor tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            ServiceDescriptor tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null)
+            {
+                if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
+                {
+                    // The service was added, but already, but not with the right lifetime
+                    services.Remove(tokenAcquisitionService);
+                    services.Remove(tokenAcquisitionInternalService);
+                }
+                else
+                {
+                    // The service is already added with the right lifetime
+                    return services;
+                }
+            }
+
             // Token acquisition service
             services.AddHttpContextAccessor();
-            if (!isTokenAcquisitionSingleton)
+            if (isTokenAcquisitionSingleton)
             {
-                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
             }
             else
             {
-                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
             }
 
             return services;

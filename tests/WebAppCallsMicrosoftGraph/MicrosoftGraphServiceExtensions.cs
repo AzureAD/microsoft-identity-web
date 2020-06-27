@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
@@ -27,7 +29,7 @@ namespace WebAppCallsMicrosoftGraph
             // Graph base URL
             string graphBaseUrl = configuration.GetValue<string>(graphBaseUrlKey);
 
-
+            services.AddTokenAcquisition(true);
             services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 var tokenAquisitionService = serviceProvider.GetService<ITokenAcquisition>();
