@@ -95,8 +95,16 @@ namespace Microsoft.Identity.Web
 
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme);
+
+#if DOTNET_CORE_31
             builder.AddOpenIdConnect(openIdConnectScheme, options =>
             {
+                // TODO: replace by the work around that @Tratcher will provider
+                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+#else
+            builder.AddOpenIdConnect<IServiceProvider>(openIdConnectScheme, (options, serviceProvider) =>
+            {
+#endif
                 options.SignInScheme = cookieScheme;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
@@ -180,7 +188,7 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
                 {
-                    var diags = builder.Services.BuildServiceProvider().GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+                    var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
                     diags.Subscribe(options.Events);
                 }
