@@ -198,7 +198,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var configMock = Substitute.For<IConfiguration>();
             var initialScopes = new List<string>() { "custom_scope" };
-            var tokenAcquisitionMock = Substitute.For<ITokenAcquisition, ITokenAcquisitionInternal>();
+            var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
             var authCodeReceivedFuncMock = Substitute.For<Func<AuthorizationCodeReceivedContext, Task>>();
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
@@ -237,7 +237,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task AddWebAppCallsProtectedWebApi_WithConfigActionParameters()
         {
             var initialScopes = new List<string>() { "custom_scope" };
-            var tokenAcquisitionMock = Substitute.For<ITokenAcquisition, ITokenAcquisitionInternal>();
+            var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
             var authCodeReceivedFuncMock = Substitute.For<Func<AuthorizationCodeReceivedContext, Task>>();
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
@@ -445,7 +445,7 @@ namespace Microsoft.Identity.Web.Test
             IServiceProvider provider,
             OpenIdConnectOptions oidcOptions,
             Func<AuthorizationCodeReceivedContext, Task> authCodeReceivedFuncMock,
-            ITokenAcquisition tokenAcquisitionMock)
+            ITokenAcquisitionInternal tokenAcquisitionMock)
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
@@ -453,7 +453,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert original AuthorizationCodeReceived event and TokenAcquisition method were called
             await authCodeReceivedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<AuthorizationCodeReceivedContext>()).ConfigureAwait(false);
-            await ((ITokenAcquisitionInternal)tokenAcquisitionMock).ReceivedWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>()).ConfigureAwait(false);
+            await tokenAcquisitionMock.ReceivedWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>()).ConfigureAwait(false);
         }
 
         private async Task AddWebAppCallsProtectedWebApi_TestTokenValidatedEvent(IServiceProvider provider, OpenIdConnectOptions oidcOptions, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
@@ -473,7 +473,7 @@ namespace Microsoft.Identity.Web.Test
             IServiceProvider provider,
             OpenIdConnectOptions oidcOptions,
             Func<RedirectContext, Task> redirectFuncMock,
-            ITokenAcquisition tokenAcquisitionMock)
+            ITokenAcquisitionInternal tokenAcquisitionMock)
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
@@ -481,7 +481,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert original RedirectToIdentityProviderForSignOut event and TokenAcquisition method were called
             await redirectFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>()).ConfigureAwait(false);
-            await ((ITokenAcquisitionInternal)tokenAcquisitionMock).ReceivedWithAnyArgs().RemoveAccountAsync(Arg.Any<RedirectContext>()).ConfigureAwait(false);
+            await tokenAcquisitionMock.ReceivedWithAnyArgs().RemoveAccountAsync(Arg.Any<RedirectContext>()).ConfigureAwait(false);
         }
 
         private (HttpContext, AuthenticationScheme, AuthenticationProperties) CreateContextParameters(IServiceProvider provider)

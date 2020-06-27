@@ -41,13 +41,15 @@ namespace Microsoft.Identity.Web
 
             // Token acquisition service
             services.AddHttpContextAccessor();
-            if (!isTokenAcquisitionSingleton)
+            if (isTokenAcquisitionSingleton)
             {
-                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
             }
             else
             {
-                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
             }
 
             return services;

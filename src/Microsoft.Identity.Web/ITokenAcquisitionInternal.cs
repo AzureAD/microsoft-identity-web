@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Interface for the internal operations of token acquisition service (encapsulating MSAL.NET).
     /// </summary>
-    internal interface ITokenAcquisitionInternal
+    internal interface ITokenAcquisitionInternal : ITokenAcquisition
     {
         /// <summary>
         /// In a Web App, adds, to the MSAL.NET cache, the account of the user authenticating to the Web App, when the authorization code is received (after the user
