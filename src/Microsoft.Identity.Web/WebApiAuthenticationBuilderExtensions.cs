@@ -79,9 +79,16 @@ namespace Microsoft.Identity.Web
             builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             builder.Services.AddHttpClient();
 
+#if DOTNET_CORE_31
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.AddJwtBearer(jwtBearerScheme, options =>
             {
+            // TODO: replace by the work around that @Tratcher will provider
+                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+#else
+            builder.AddJwtBearer<IServiceProvider>(jwtBearerScheme, (options, serviceProvider) =>
+            {
+#endif
                 // TODO:
                 // Suspect. Why not get the IOption<MicrosoftIdentityOptions>?
                 MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions(); // configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
@@ -142,7 +149,7 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                 {
-                    var diags = builder.Services.BuildServiceProvider().GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
+                    var diags = serviceProvider.GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
 
                     diags.Subscribe(options.Events);
                 }
