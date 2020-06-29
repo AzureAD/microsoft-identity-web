@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Web
             MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
-            services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
+            services.AddTokenAcquisition();
 
             services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
             {

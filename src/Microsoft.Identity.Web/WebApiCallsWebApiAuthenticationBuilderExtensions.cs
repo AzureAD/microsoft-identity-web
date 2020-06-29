@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web
             MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
             configureMicrosoftIdentityOptions(microsoftIdentityOptions);
 
-            builder.Services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
+            builder.Services.AddTokenAcquisition();
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
