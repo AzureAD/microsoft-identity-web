@@ -122,11 +122,6 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                // As AcquireTokenByAuthorizationCodeAsync is asynchronous we want to tell ASP.NET core that we are handing the code
-                // even if it's not done yet, so that it does not concurrently call the Token endpoint. (otherwise there will be a
-                // race condition ending-up in an error from Azure AD telling "code already redeemed")
-                context.HandleCodeRedemption();
-
                 // The cache will need the claims from the ID token.
                 // If they are not yet in the HttpContext.User's claims, add them here.
                 if (!context.HttpContext.User.Claims.Any())
