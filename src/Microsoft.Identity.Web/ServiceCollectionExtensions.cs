@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
                 {
-                    // The service was added, but already, but not with the right lifetime
+                    // The service was already added, but not with the right lifetime
                     services.Remove(tokenAcquisitionService);
                     services.Remove(tokenAcquisitionInternalService);
                 }
