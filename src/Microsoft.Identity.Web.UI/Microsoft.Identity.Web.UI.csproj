@@ -48,7 +48,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\gh\microsoft-identity-web\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.xml</DocumentationFile>
+    <DocumentationFile>Microsoft.Identity.Web.UI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -15,22 +15,23 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for AuthenticationBuilder for startup initialization.
+    /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
     public static class WebAppCallsWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Add MSAL support to the web app or web API.
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
-        /// <param name="configuration">Configuration.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
         /// settings to initialize authentication options.</param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
-        /// several OpenIdConnect identity providers.</param>
+        /// <param name="openIdConnectScheme">Optional name for the OpenID Connect authentication scheme
+        /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
+        /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        /// <remarks>This method cannot be used with Azure AD B2C as, with B2C an initial scope needs
+        /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
         public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
@@ -47,16 +48,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Add MSAL support to the web app or web API.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
-        /// <param name="configuration">Configuration.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
         /// settings to initialize authentication options.</param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
-        /// several OpenIdConnect identity providers.</param>
+        /// <param name="openIdConnectScheme">Optional name for the OpenID Connect authentication scheme
+        /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
+        /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this AuthenticationBuilder builder,
@@ -73,15 +74,15 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add MSAL support to the Web App or Web API.
+        /// Add MSAL support to the web app or web API.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to set the <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="configureConfidentialClientApplicationOptions">The action to set the <see cref="ConfidentialClientApplicationOptions"/>.</param>
-        /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
-        /// several OpenIdConnect identity providers.</param>
+        /// <param name="openIdConnectScheme">Optional name for the Open ID Connect authentication scheme
+        /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
+        /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this AuthenticationBuilder builder,

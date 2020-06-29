@@ -69,7 +69,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\gh\microsoft-identity-web\src\Microsoft.Identity.Web\Microsoft.Identity.Web.xml</DocumentationFile>
+    <DocumentationFile>Microsoft.Identity.Web.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">

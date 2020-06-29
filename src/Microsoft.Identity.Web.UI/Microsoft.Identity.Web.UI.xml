@@ -62,7 +62,7 @@
         <member name="P:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.RequestId">
             <summary>
             This API supports infrastructure and is not intended to be used
-            directly from your code.This API may change or be removed in future releases.
+            directly from your code. This API may change or be removed in future releases.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.ShowRequestId">
@@ -86,7 +86,7 @@
             <summary>
             Method handling the HTTP GET method.
             </summary>
-            <returns></returns>
+            <returns>A Sign Out page or Home page.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.ServiceCollectionExtensions">
             <summary>
