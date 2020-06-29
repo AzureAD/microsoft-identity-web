@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web
@@ -37,6 +38,23 @@ namespace Microsoft.Identity.Web
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
+            }
+
+            ServiceDescriptor tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            ServiceDescriptor tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null)
+            {
+                if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
+                {
+                    // The service was already added, but not with the right lifetime
+                    services.Remove(tokenAcquisitionService);
+                    services.Remove(tokenAcquisitionInternalService);
+                }
+                else
+                {
+                    // The service is already added with the right lifetime
+                    return services;
+                }
             }
 
             // Token acquisition service
