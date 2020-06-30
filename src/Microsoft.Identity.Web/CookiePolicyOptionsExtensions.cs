@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +16,7 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
-        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
+        /// The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
         /// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
         /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
@@ -25,10 +27,10 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-        /// The default list of user-agents that disallow SameSite None, was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
+        /// The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
         /// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
-        /// <param name="disallowsSameSiteNone">If you don't want to use the default user-agent list implementation, the method sent in this parameter will be run against the user-agent and if returned true, SameSite value will be set to Unspecified. The default user-agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
+        /// <param name="disallowsSameSiteNone">If you don't want to use the default user agent list implementation, the method sent in this parameter will be run against the user agent and if returned true, SameSite value will be set to Unspecified. The default user agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
         /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
         public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
         {
@@ -59,50 +61,120 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Checks if the specified user agent supports SameSite None cookies.
+        /// Checks if the specified user agent supports "SameSite=None" cookies.
         /// </summary>
         /// <param name="userAgent">Browser user agent.</param>
-        /// <remarks>Method taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.</remarks>
-        /// <returns>True, if the user agent does not allow SameSite None cookie; otherwise, false.</returns>
+        /// <remarks>
+        /// Incompatible user agents include:
+        /// <list type="bullet">
+        /// <item>Versions of Chrome from Chrome 51 to Chrome 66 (inclusive on both ends).</item>
+        /// <item>Versions of UC Browser on Android prior to version 12.13.2.</item>
+        /// <item>Versions of Safari and embedded browsers on MacOS 10.14 and all browsers on iOS 12.</item>
+        /// </list>
+        /// Reference: https://www.chromium.org/updates/same-site/incompatible-clients.
+        /// </remarks>
+        /// <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
         public static bool DisallowsSameSiteNone(string userAgent)
         {
-            if (!string.IsNullOrEmpty(userAgent))
+            return HasWebKitSameSiteBug() ||
+                DropsUnrecognizedSameSiteCookies();
+
+            bool HasWebKitSameSiteBug() =>
+                IsIosVersion(12) ||
+                (IsMacosxVersion(10, 14) &&
+                (IsSafari() || IsMacEmbeddedBrowser()));
+
+            bool DropsUnrecognizedSameSiteCookies()
             {
-                // Cover all iOS based browsers here. This includes:
-                // - Safari on iOS 12 for iPhone, iPod Touch, iPad
-                // - WkWebview on iOS 12 for iPhone, iPod Touch, iPad
-                // - Chrome on iOS 12 for iPhone, iPod Touch, iPad
-                // All of which are broken by SameSite=None, because they use the iOS networking
-                // stack.
-                if (userAgent.Contains("CPU iPhone OS 12") ||
-                    userAgent.Contains("iPad; CPU OS 12"))
+                if (IsUcBrowser())
                 {
-                    return true;
+                    return !IsUcBrowserVersionAtLeast(12, 13, 2);
                 }
 
-                // Cover Mac OS X based browsers that use the Mac OS networking stack.
-                // This includes:
-                // - Safari on Mac OS X.
-                // This does not include:
-                // - Chrome on Mac OS X
-                // Because they do not use the Mac OS networking stack.
-                if (userAgent.Contains("Macintosh; Intel Mac OS X 10_14") &&
-                    userAgent.Contains("Version/") && userAgent.Contains("Safari"))
-                {
-                    return true;
-                }
-
-                // Cover Chrome 50-69, because some versions are broken by SameSite=None,
-                // and none in this range require it.
-                // Note: this covers some pre-Chromium Edge versions,
-                // but pre-Chromium Edge does not require SameSite=None.
-                if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6"))
-                {
-                    return true;
-                }
+                return IsChromiumBased() &&
+                    IsChromiumVersionAtLeast(51) &&
+                    !IsChromiumVersionAtLeast(67);
             }
 
-            return false;
+            bool IsIosVersion(int major)
+            {
+                string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
+
+                // Extract digits from first capturing group.
+                Match match = Regex.Match(userAgent, regex);
+                return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture);
+            }
+
+            bool IsMacosxVersion(int major, int minor)
+            {
+                string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
+
+                // Extract digits from first and second capturing groups.
+                Match match = Regex.Match(userAgent, regex);
+                return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture) &&
+                    match.Groups[2].Value == minor.ToString(CultureInfo.CurrentCulture);
+            }
+
+            bool IsSafari()
+            {
+                string regex = @"Version\/.* Safari\/";
+
+                return Regex.IsMatch(userAgent, regex) &&
+                       !IsChromiumBased();
+            }
+
+            bool IsMacEmbeddedBrowser()
+            {
+                string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
+
+                return Regex.IsMatch(userAgent, regex);
+            }
+
+            bool IsChromiumBased()
+            {
+                string regex = "Chrom(e|ium)";
+
+                return Regex.IsMatch(userAgent, regex);
+            }
+
+            bool IsChromiumVersionAtLeast(int major)
+            {
+                string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]* ";
+
+                // Extract digits from first capturing group.
+                Match match = Regex.Match(userAgent, regex);
+                int version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
+                return version >= major;
+            }
+
+            bool IsUcBrowser()
+            {
+                string regex = @"UCBrowser\/";
+
+                return Regex.IsMatch(userAgent, regex);
+            }
+
+            bool IsUcBrowserVersionAtLeast(int major, int minor, int build)
+            {
+                string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
+
+                // Extract digits from three capturing groups.
+                Match match = Regex.Match(userAgent, regex);
+                int major_version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
+                int minor_version = Convert.ToInt32(match.Groups[2].Value, CultureInfo.CurrentCulture);
+                int build_version = Convert.ToInt32(match.Groups[3].Value, CultureInfo.CurrentCulture);
+                if (major_version != major)
+                {
+                    return major_version > major;
+                }
+
+                if (minor_version != minor)
+                {
+                    return minor_version > minor;
+                }
+
+                return build_version >= build;
+            }
         }
     }
 }
