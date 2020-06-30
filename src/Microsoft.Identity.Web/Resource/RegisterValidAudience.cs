@@ -67,7 +67,8 @@ namespace Microsoft.Identity.Web.Resource
                 throw new SecurityTokenValidationException("Token is not JWT token.");
             }
 
-            string validAudience;
+            TokenValidationParameters validationParametersClone = validationParameters.Clone();
+            validationParametersClone.AudienceValidator = null;
 
             // Case of a default App ID URI (the developer did not provide explicit valid audience(s)
             if (string.IsNullOrEmpty(validationParameters.ValidAudience) &&
@@ -76,29 +77,18 @@ namespace Microsoft.Identity.Web.Resource
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
                 if (IsB2C || token.Claims.Any(c => c.Type == Version && c.Value == V2))
                 {
-                    validAudience = $"{ClientId}";
-                    return audiences.Contains(validAudience);
+                    validationParametersClone.ValidAudience = $"{ClientId}";
                 }
 
                 // handle v1.0 access token
                 if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
                 {
-                    validAudience = $"api://{ClientId}";
-                    return audiences.Contains(validAudience);
+                    validationParametersClone.ValidAudience = $"api://{ClientId}";
                 }
-
-                throw new SecurityTokenInvalidAudienceException("Token contains an invalid audience. ");
             }
 
-            // Cases where developers explicitly provided the valid audiences
-            else if (!string.IsNullOrEmpty(validationParameters.ValidAudience))
-            {
-                return audiences.Contains(validationParameters.ValidAudience);
-            }
-            else
-            {
-                return audiences.Intersect(validationParameters.ValidAudiences).Any();
-            }
+            Validators.ValidateAudience(audiences, securityToken, validationParametersClone);
+            return true;
         }
     }
 }
