@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Resource
                 }
 
                 // handle v1.0 access token
-                if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
+                else if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
                 {
                     validationParametersClone.ValidAudience = $"api://{ClientId}";
                 }
