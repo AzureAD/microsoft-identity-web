@@ -1207,8 +1207,8 @@
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions.ValidateAppRole(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
             <summary>
-            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the application in the
-            web API has the expected roles.
+            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the application
+            has the expected roles.
             </summary>
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedRoles">Roles accepted by this web API.</param>
@@ -1456,12 +1456,10 @@
             MSAL memory token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
-            <param name="microsoftIdentityOptions"></param>
-            <param name="httpContextAccessor"></param>
             <param name="memoryCache"></param>
             <param name="cacheOptions"></param>
         </member>
@@ -1507,11 +1505,11 @@
             <param name="tokenCache">Token cache for which to initialize the serialization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
             <summary>
             Clear the cache.
             </summary>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
             <summary>
@@ -1558,12 +1556,10 @@
             MSAL memory token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
             <summary>
             Constructor.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor to the HttpContext.</param>
             <param name="memoryCache">serialization cache.</param>
             <param name="cacheOptions">Memory cache options.</param>
         </member>
@@ -1594,35 +1590,12 @@
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
         </member>
-        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._microsoftIdentityOptions">
-            <summary>
-            Azure AD options.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._httpContextAccessor">
-            <summary>
-            HTTP accessor.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            Constructor of the abstract token cache provider.
-            </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor for the HttpContext.</param>
-        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
             <summary>
             Initializes the token cache serialization.
             </summary>
             <param name="tokenCache">Token cache to serialize/deserialize.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.GetCacheKey(System.Boolean)">
-            <summary>
-            Cache key.
-            </summary>
-            <returns>The cache key.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
             <summary>
@@ -1640,11 +1613,11 @@
             <param name="args">Token cache notification arguments.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(System.String)">
             <summary>
             Clear the cache.
             </summary>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
             <summary>
@@ -1690,12 +1663,11 @@
              </remarks>
              <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.AspNetCore.Http.ISession,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
             <summary>
             MSAL Token cache provider constructor.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor for an HttpContext.</param>
+            <param name="session">Session for the current user.</param>
             <param name="logger">Logger.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.ReadCacheBytesAsync(System.String)">
