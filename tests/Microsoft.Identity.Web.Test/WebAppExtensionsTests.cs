@@ -229,7 +229,7 @@ namespace Microsoft.Identity.Web.Test
             provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
-            configMock.Received(3).GetSection(_configSectionName);
+            configMock.Received(2).GetSection(_configSectionName);
 
             var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(_oidcScheme);
 
@@ -263,7 +263,7 @@ namespace Microsoft.Identity.Web.Test
             services.RemoveAll<ITokenAcquisition>();
             services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
 
-            var provider = services.BuildServiceProvider();
+            var provider = builder.Services.BuildServiceProvider();
 
             // Assert configure options actions added correctly
             var configuredAppOptions = provider.GetServices<IConfigureOptions<ConfidentialClientApplicationOptions>>().Cast<ConfigureNamedOptions<ConfidentialClientApplicationOptions>>();

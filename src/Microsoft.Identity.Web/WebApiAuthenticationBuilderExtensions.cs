@@ -86,10 +86,7 @@ namespace Microsoft.Identity.Web
             builder.AddJwtBearer<IServiceProvider>(jwtBearerScheme, (options, serviceProvider) =>
             {
 #endif
-                // TODO:
-                // Suspect. Why not get the IOption<MicrosoftIdentityOptions>?
-                MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions(); // configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
-                configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
                 {

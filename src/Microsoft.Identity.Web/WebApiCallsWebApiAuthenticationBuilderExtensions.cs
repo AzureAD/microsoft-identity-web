@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -66,17 +67,22 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
-            builder.Services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
-
-            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
-            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+            builder.Services.Configure(configureConfidentialClientApplicationOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
 
             builder.Services.AddTokenAcquisition();
             builder.Services.AddHttpContextAccessor();
 
+#if DOTNET_CORE_31
             builder.Services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
             {
+                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+#else
+            builder.AddJwtBearer<IServiceProvider>(jwtBearerScheme, (options, serviceProvider) =>
+            {
+#endif
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
+
                 options.Events ??= new JwtBearerEvents();
 
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;
