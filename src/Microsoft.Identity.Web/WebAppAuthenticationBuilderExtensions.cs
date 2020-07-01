@@ -93,25 +93,17 @@ namespace Microsoft.Identity.Web
             builder.Services.Configure(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
-            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
-            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
-
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
-
-            var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
 
-#if DOTNET_CORE_31
-            builder.AddOpenIdConnect(openIdConnectScheme, options =>
-            {
-                // TODO: replace by the work around that @Tratcher will provider
-                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
-#else
-            builder.AddOpenIdConnect<IServiceProvider>(openIdConnectScheme, (options, serviceProvider) =>
-            {
-#endif
+            builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
+           {
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
+                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
+
                 options.SignInScheme = cookieScheme;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))

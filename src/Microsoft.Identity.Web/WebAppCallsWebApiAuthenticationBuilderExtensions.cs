@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -106,21 +107,19 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            IServiceCollection services = builder.Services;
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(configureMicrosoftIdentityOptions);
-            services.Configure(configureConfidentialClientApplicationOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
+            builder.Services.Configure(configureConfidentialClientApplicationOptions);
 
-            services.AddHttpContextAccessor();
+            builder.Services.AddHttpContextAccessor();
 
-            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions();
-            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+            builder.Services.AddTokenAcquisition();
 
-            services.AddTokenAcquisition();
-
-            services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
+            builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
                 // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
