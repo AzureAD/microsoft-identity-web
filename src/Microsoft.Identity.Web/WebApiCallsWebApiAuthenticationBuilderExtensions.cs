@@ -73,14 +73,9 @@ namespace Microsoft.Identity.Web
             builder.Services.AddTokenAcquisition();
             builder.Services.AddHttpContextAccessor();
 
-#if DOTNET_CORE_31
-            builder.Services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
-#else
-            builder.AddJwtBearer<IServiceProvider>(jwtBearerScheme, (options, serviceProvider) =>
-            {
-#endif
                 MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
 
                 options.Events ??= new JwtBearerEvents();

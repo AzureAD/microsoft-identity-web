@@ -76,16 +76,10 @@ namespace Microsoft.Identity.Web
             builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             builder.Services.AddHttpClient();
 
-#if DOTNET_CORE_31
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
-            builder.AddJwtBearer(jwtBearerScheme, options =>
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-            // TODO: replace by the work around that @Tratcher will provider
-                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
-#else
-            builder.AddJwtBearer<IServiceProvider>(jwtBearerScheme, (options, serviceProvider) =>
-            {
-#endif
                 MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))

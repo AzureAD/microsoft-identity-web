@@ -107,19 +107,18 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            IServiceCollection services = builder.Services;
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(configureMicrosoftIdentityOptions);
-            services.Configure(configureConfidentialClientApplicationOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
+            builder.Services.Configure(configureConfidentialClientApplicationOptions);
 
-            services.AddHttpContextAccessor();
+            builder.Services.AddHttpContextAccessor();
 
-            services.AddTokenAcquisition();
+            builder.Services.AddTokenAcquisition();
 
-            services.Configure<OpenIdConnectOptions>(openIdConnectScheme, options =>
+            builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
                 MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
