@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
@@ -46,22 +45,15 @@ namespace Microsoft.Identity.Web
         {
             if (string.IsNullOrEmpty(clientSecret) && (cert == null))
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Both client secret & client certificate cannot be null or whitespace, " +
-                 "and ONE, must be included in the configuration of the web app when calling a web API. " +
-                 "For instance, in the appsettings.json file. ");
-
                 throw new MsalClientException(
-                    "missing_client_credentials",
-                    msg);
+                    ErrorMessage.MissingClientCredentials,
+                    ErrorMessage.ClientSecretAndCertficateNull);
             }
             else if (!string.IsNullOrEmpty(clientSecret) && (cert != null))
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Both Client secret & client certificate, " +
-                   "cannot be included in the configuration of the web app when calling a web API. ");
-
                 throw new MsalClientException(
-                    "duplicate_client_credentials",
-                    msg);
+                    ErrorMessage.DuplicateClientCredentials,
+                    ErrorMessage.BothClientSecretAndCertificateProvided);
             }
         }
     }

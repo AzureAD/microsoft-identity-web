@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -53,7 +54,7 @@ namespace Microsoft.Identity.Web.Resource
                 if (rolesClaim == null || !rolesClaim.Value.Split(' ').Intersect(acceptedRoles).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = $"The 'roles' or 'role' claim does not contain roles '{string.Join(",", acceptedRoles)}' or was not found";
+                    string message = string.Format(CultureInfo.InvariantCulture, LogMessages.MissingRoles, string.Join(",", acceptedRoles));
                     context.Response.WriteAsync(message);
                 }
             }

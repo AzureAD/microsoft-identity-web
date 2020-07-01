@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Microsoft.Identity.Web.InstanceDiscovery;
@@ -18,13 +19,10 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     internal class AadIssuerValidator
     {
-        private const string AzureADIssuerMetadataUrl = "https://login.microsoftonline.com/common/discovery/instance?authorization_endpoint=https://login.microsoftonline.com/common/oauth2/v2.0/authorize&api-version=1.1";
-        private const string FallbackAuthority = "https://login.microsoftonline.com/";
-
         // TODO: separate AadIssuerValidator creation logic from the validation logic in order to unit test it
         private static readonly IDictionary<string, AadIssuerValidator> s_issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
-        private static readonly ConfigurationManager<IssuerMetadata> s_configManager = new ConfigurationManager<IssuerMetadata>(AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
+        private static readonly ConfigurationManager<IssuerMetadata> s_configManager = new ConfigurationManager<IssuerMetadata>(Constants.AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
 
         /// <summary>
         /// A list of all Issuers across the various Azure AD instances.
@@ -50,7 +48,7 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(FallbackAuthority).Authority;
+            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
 
             if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
             {
@@ -106,7 +104,7 @@ namespace Microsoft.Identity.Web.Resource
             string tenantId = GetTenantIdFromToken(securityToken);
             if (string.IsNullOrWhiteSpace(tenantId))
             {
-                throw new SecurityTokenInvalidIssuerException("Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform.");
+                throw new SecurityTokenInvalidIssuerException(ErrorMessage.TenantIdClaimNotPresentInToken);
             }
 
             if (validationParameters.ValidIssuers != null)
@@ -127,7 +125,11 @@ namespace Microsoft.Identity.Web.Resource
 
             // If a valid issuer is not found, throw
             // brentsch - todo, create a list of all the possible valid issuers in TokenValidationParameters
-            throw new SecurityTokenInvalidIssuerException($"Issuer: '{actualIssuer}', does not match any of the valid issuers provided for this application.");
+            throw new SecurityTokenInvalidIssuerException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    ErrorMessage.IssuerDoesNotMatchValidIssuers,
+                    actualIssuer));
         }
 
         private bool IsValidIssuer(string validIssuerTemplate, string tenantId, string actualIssuer)

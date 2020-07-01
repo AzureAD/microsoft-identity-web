@@ -9,17 +9,17 @@ namespace Microsoft.Identity.Web
 {
     internal class ClientInfo
     {
-        [JsonPropertyName("uid")]
+        [JsonPropertyName(Constants.Uid)]
         public string UniqueObjectIdentifier { get; set; } = null!;
 
-        [JsonPropertyName("utid")]
+        [JsonPropertyName(Constants.Utid)]
         public string UniqueTenantIdentifier { get; set; } = null!;
 
         public static ClientInfo? CreateFromJson(string clientInfo)
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
-                throw new ArgumentNullException(nameof(clientInfo), $"client info returned from the server is null");
+                throw new ArgumentNullException(nameof(clientInfo), ErrorMessage.ClientInfoReturnedFromServerIsNull);
             }
 
             return DeserializeFromJson(Base64UrlHelpers.DecodeToBytes(clientInfo));
