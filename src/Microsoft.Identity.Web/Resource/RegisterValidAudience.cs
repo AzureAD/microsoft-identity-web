@@ -67,8 +67,7 @@ namespace Microsoft.Identity.Web.Resource
                 throw new SecurityTokenValidationException("Token is not JWT token.");
             }
 
-            TokenValidationParameters validationParametersClone = validationParameters.Clone();
-            validationParametersClone.AudienceValidator = null;
+            validationParameters.AudienceValidator = null;
 
             // Case of a default App ID URI (the developer did not provide explicit valid audience(s)
             if (string.IsNullOrEmpty(validationParameters.ValidAudience) &&
@@ -77,17 +76,17 @@ namespace Microsoft.Identity.Web.Resource
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
                 if (IsB2C || token.Claims.Any(c => c.Type == Version && c.Value == V2))
                 {
-                    validationParametersClone.ValidAudience = $"{ClientId}";
+                    validationParameters.ValidAudience = $"{ClientId}";
                 }
 
                 // handle v1.0 access token
                 else if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
                 {
-                    validationParametersClone.ValidAudience = $"api://{ClientId}";
+                    validationParameters.ValidAudience = $"api://{ClientId}";
                 }
             }
 
-            Validators.ValidateAudience(audiences, securityToken, validationParametersClone);
+            Validators.ValidateAudience(audiences, securityToken, validationParameters);
             return true;
         }
     }
