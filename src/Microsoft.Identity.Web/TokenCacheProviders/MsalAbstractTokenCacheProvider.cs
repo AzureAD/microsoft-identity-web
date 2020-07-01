@@ -3,8 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
@@ -13,27 +11,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// <seealso cref="Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
-        /// <summary>
-        /// Azure AD options.
-        /// </summary>
-        protected readonly IOptions<MicrosoftIdentityOptions> _microsoftIdentityOptions;
-
-        /// <summary>
-        /// HTTP accessor.
-        /// </summary>
-        protected readonly IHttpContextAccessor _httpContextAccessor;
-
-        /// <summary>
-        /// Constructor of the abstract token cache provider.
-        /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
-        /// <param name="httpContextAccessor">Accessor for the HttpContext.</param>
-        protected MsalAbstractTokenCacheProvider(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions, IHttpContextAccessor httpContextAccessor)
-        {
-            _microsoftIdentityOptions = microsoftIdentityOptions;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
         /// <summary>
         /// Initializes the token cache serialization.
         /// </summary>
