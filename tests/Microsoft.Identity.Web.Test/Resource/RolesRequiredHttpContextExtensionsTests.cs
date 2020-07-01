@@ -60,15 +60,6 @@ namespace Microsoft.Identity.Web.Test.Resource
             Assert.Equal(expectedErrorMessage, GetBody(response));
         }
 
-        private static string GetBody(HttpResponse response)
-        {
-            byte[] buffer = new byte[response.Body.Length];
-            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
-            response.Body.Read(buffer, 0, buffer.Length);
-            string body = Encoding.Default.GetString(buffer);
-            return body;
-        }
-
         [Fact]
         public void VerifyAppHasAnyAcceptedRole_MatchesAcceptedRoles_ExecutesSuccessfully()
         {
@@ -83,6 +74,15 @@ namespace Microsoft.Identity.Web.Test.Resource
 
             httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedRole2 acceptedRole1" });
             httpContext.ValidateAppRole("acceptedRole1", "acceptedRole2");
+        }
+
+        private static string GetBody(HttpResponse response)
+        {
+            byte[] buffer = new byte[response.Body.Length];
+            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
+            response.Body.Read(buffer, 0, buffer.Length);
+            string body = Encoding.Default.GetString(buffer);
+            return body;
         }
     }
 }
