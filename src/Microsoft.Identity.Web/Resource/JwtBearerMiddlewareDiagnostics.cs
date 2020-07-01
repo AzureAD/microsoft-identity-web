@@ -28,22 +28,22 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
         /// </summary>
-        private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed;
+        private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed = null!;
 
         /// <summary>
         /// Invoked when a protocol message is first received.
         /// </summary>
-        private Func<MessageReceivedContext, Task> s_onMessageReceived;
+        private Func<MessageReceivedContext, Task> s_onMessageReceived = null!;
 
         /// <summary>
         /// Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
         /// </summary>
-        private Func<TokenValidatedContext, Task> s_onTokenValidated;
+        private Func<TokenValidatedContext, Task> s_onTokenValidated = null!;
 
         /// <summary>
         /// Invoked before a challenge is sent back to the caller.
         /// </summary>
-        private Func<JwtBearerChallengeContext, Task> s_onChallenge;
+        private Func<JwtBearerChallengeContext, Task> s_onChallenge = null!;
 
         /// <summary>
         /// Subscribes to all the JwtBearer events, to help debugging, while
@@ -52,10 +52,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="events">Events to subscribe to.</param>
         public JwtBearerEvents Subscribe(JwtBearerEvents events)
         {
-            if (events == null)
-            {
-                events = new JwtBearerEvents();
-            }
+            events ??= new JwtBearerEvents();
 
             s_onAuthenticationFailed = events.OnAuthenticationFailed;
             events.OnAuthenticationFailed = OnAuthenticationFailedAsync;

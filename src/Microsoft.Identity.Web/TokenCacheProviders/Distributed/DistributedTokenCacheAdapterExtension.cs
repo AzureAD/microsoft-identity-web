@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
@@ -12,7 +13,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     {
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
         public static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
@@ -23,9 +24,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         /// <summary>Adds the in-memory based application token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
+        /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
         public static IServiceCollection AddDistributedAppTokenCache(
             this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddDistributedMemoryCache();
             services.AddSingleton<IMsalTokenCacheProvider, MsalDistributedTokenCacheAdapter>();
             return services;
@@ -33,9 +40,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         /// <summary>Adds the in-memory based per user token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
+        /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
         public static IServiceCollection AddDistributedUserTokenCache(
             this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddDistributedMemoryCache();
             services.AddHttpContextAccessor();
             services.AddSingleton<IMsalTokenCacheProvider, MsalDistributedTokenCacheAdapter>();

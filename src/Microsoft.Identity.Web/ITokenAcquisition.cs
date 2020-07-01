@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string tenantId = null);
+        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalSeviceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
-        void ReplyForbiddenWithWwwAuthenticateHeader(
+        Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalSeviceException);
     }

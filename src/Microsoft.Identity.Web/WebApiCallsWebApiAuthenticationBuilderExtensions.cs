@@ -7,23 +7,24 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for AuthenticationBuilder for startup initialization of Web APIs.
+    /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
     public static partial class WebApiCallsWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This supposes that the configuration files have a section named configSectionName (typically "AzureAD").
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
-        /// <param name="configuration">Configuration.</param>
-        /// <param name="configSectionName">Section name in the config file (by default "AzureAD").</param>
-        /// <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="configSectionName">The section name in the config file (by default "AzureAd").</param>
+        /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
@@ -38,13 +39,12 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This supposes that the configuration files have a section named configSectionName (typically "AzureAD").
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
-        /// <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
+        /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
@@ -57,17 +57,27 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.Configure<ConfidentialClientApplicationOptions>(configureConfidentialClientApplicationOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            if (configureConfidentialClientApplicationOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
+            }
 
-            var microsoftIdentityOptions = new MicrosoftIdentityOptions();
-            configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
 
-            builder.Services.AddTokenAcquisition(microsoftIdentityOptions.SingletonTokenAcquisition);
+            builder.Services.Configure(configureConfidentialClientApplicationOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
+
+            builder.Services.AddTokenAcquisition();
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.Configure<JwtBearerOptions>(jwtBearerScheme, options =>
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
+
                 options.Events ??= new JwtBearerEvents();
 
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
@@ -21,7 +22,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>
         /// MSAL memory token cache options.
         /// </summary>
-        private readonly DistributedCacheEntryOptions _cacheOptions;
+        private readonly MsalDistributedTokenCacheAdapterOptions _cacheOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MsalDistributedTokenCacheAdapter"/> class.
@@ -32,6 +33,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IDistributedCache memoryCache,
                                             IOptions<DistributedCacheEntryOptions> cacheOptions)
         {
+            if (cacheOptions == null)
+            {
+                throw new ArgumentNullException(nameof(cacheOptions));
+            }
+
             _distributedCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
         }

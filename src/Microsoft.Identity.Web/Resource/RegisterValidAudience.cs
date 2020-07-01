@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     internal class RegisterValidAudience
     {
-        private string ClientId { get; set; }
+        private string ClientId { get; set; } = null!;
         private bool IsB2C { get; set; } = false;
         private const string Version = "ver";
         private const string V1 = "1.0";
@@ -61,8 +61,13 @@ namespace Microsoft.Identity.Web.Resource
             SecurityToken securityToken,
             TokenValidationParameters validationParameters)
         {
-            JwtSecurityToken token = securityToken as JwtSecurityToken;
-            string validAudience;
+            JwtSecurityToken? token = securityToken as JwtSecurityToken;
+            if (token == null)
+            {
+                throw new SecurityTokenValidationException("Token is not JWT token.");
+            }
+
+            validationParameters.AudienceValidator = null;
 
             // Case of a default App ID URI (the developer did not provide explicit valid audience(s)
             if (string.IsNullOrEmpty(validationParameters.ValidAudience) &&
@@ -71,29 +76,18 @@ namespace Microsoft.Identity.Web.Resource
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
                 if (IsB2C || token.Claims.Any(c => c.Type == Version && c.Value == V2))
                 {
-                    validAudience = $"{ClientId}";
-                    return audiences.Contains(validAudience);
+                    validationParameters.ValidAudience = $"{ClientId}";
                 }
 
                 // handle v1.0 access token
-                if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
+                else if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
                 {
-                    validAudience = $"api://{ClientId}";
-                    return audiences.Contains(validAudience);
+                    validationParameters.ValidAudience = $"api://{ClientId}";
                 }
-
-                throw new SecurityTokenInvalidAudienceException("Token contains an invalid audience. ");
             }
 
-            // Cases where developers explicitly provided the valid audiences
-            else if (!string.IsNullOrEmpty(validationParameters.ValidAudience))
-            {
-                return audiences.Contains(validationParameters.ValidAudience);
-            }
-            else
-            {
-                return audiences.Intersect(validationParameters.ValidAudiences).Any();
-            }
+            Validators.ValidateAudience(audiences, securityToken, validationParameters);
+            return true;
         }
     }
 }

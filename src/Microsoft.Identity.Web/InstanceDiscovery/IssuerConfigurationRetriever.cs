@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Protocols;
 namespace Microsoft.Identity.Web.InstanceDiscovery
 {
     /// <summary>
-    /// An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata />.
+    /// An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata.
     /// </summary>
     internal class IssuerConfigurationRetriever : IConfigurationRetriever<IssuerMetadata>
     {
@@ -18,15 +18,17 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         /// <param name="address">Address of the discovery document.</param>
         /// <param name="retriever">The <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/> to use to read the discovery document.</param>
         /// <param name="cancel">A cancellation token that can be used by other objects or threads to receive notice of cancellation. <see cref="T:System.Threading.CancellationToken"/>.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">address - Azure AD Issuer metadata address url is required
+        /// <returns>
+        /// A <see cref="Task{IssuerMetadata}"/> that, when completed, returns <see cref="IssuerMetadata"/> from the configuration.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">address - Azure AD Issuer metadata address URL is required
         /// or
         /// retriever - No metadata document retriever is provided.</exception>
         public async Task<IssuerMetadata> GetConfigurationAsync(string address, IDocumentRetriever retriever, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentNullException(nameof(address), $"Azure AD Issuer metadata address url is required");
+                throw new ArgumentNullException(nameof(address), $"Azure AD Issuer metadata address URL is required");
             }
 
             if (retriever == null)
@@ -40,7 +42,7 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
             };
 
             string doc = await retriever.GetDocumentAsync(address, cancel).ConfigureAwait(false);
-            return JsonSerializer.Deserialize<IssuerMetadata>(doc, options);
+            return JsonSerializer.Deserialize<IssuerMetadata>(doc, options)!; // Note: The analyzer says Deserialize can return null, but the method comment says it just throws exceptions.
         }
     }
 }

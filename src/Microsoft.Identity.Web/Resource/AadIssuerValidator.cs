@@ -49,19 +49,19 @@ namespace Microsoft.Identity.Web.Resource
                 throw new ArgumentNullException(nameof(aadAuthority));
             }
 
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri authorityUri);
+            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
             string authorityHost = authorityUri?.Authority ?? new Uri(FallbackAuthority).Authority;
 
-            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator aadIssuerValidator))
+            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
             {
                 return aadIssuerValidator;
             }
 
             // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-            var issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            IssuerMetadata issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             // Add issuer aliases of the chosen authority to the cache
-            var aliases = issuerMetadata.Metadata
+            IEnumerable<string> aliases = issuerMetadata.Metadata
                 .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
                 .SelectMany(m => m.Aliases)
                 .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
@@ -139,8 +139,8 @@ namespace Microsoft.Identity.Web.Resource
 
             try
             {
-                var issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
-                var actualIssuerUri = new Uri(actualIssuer);
+                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
+                Uri actualIssuerUri = new Uri(actualIssuer);
 
                 // Template authority is in the aliases
                 return _issuerAliases.Contains(issuerFromTemplateUri.Authority) &&
@@ -173,9 +173,9 @@ namespace Microsoft.Identity.Web.Resource
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object tenantId))
+                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tenantId))
                 {
-                    return tenantId as string;
+                    return (string)tenantId;
                 }
 
                 // Since B2C doesn't have "tid" as default, get it from issuer
@@ -184,7 +184,7 @@ namespace Microsoft.Identity.Web.Resource
 
             if (securityToken is JsonWebToken jsonWebToken)
             {
-                jsonWebToken.TryGetPayloadValue(ClaimConstants.Tid, out string tid);
+                jsonWebToken.TryGetPayloadValue(ClaimConstants.Tid, out string? tid);
                 if (tid != null)
                 {
                     return tid;

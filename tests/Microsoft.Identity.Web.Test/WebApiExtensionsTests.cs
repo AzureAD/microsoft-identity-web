@@ -307,7 +307,7 @@ namespace Microsoft.Identity.Web.Test
             provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
-            config.Received(3).GetSection(_configSectionName);
+            config.Received(2).GetSection(_configSectionName);
 
             await AddProtectedWebApiCallsProtectedWebApi_TestCommon(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
         }
@@ -344,11 +344,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<ConfidentialClientApplicationOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
-
-            // Assert JWT options added correctly
-            var configuredJwtOptions = provider.GetService<IConfigureOptions<JwtBearerOptions>>() as ConfigureNamedOptions<JwtBearerOptions>;
-
-            Assert.Equal(_jwtBearerScheme, configuredJwtOptions.Name);
 
             // Assert token validated event added correctly
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(_jwtBearerScheme);

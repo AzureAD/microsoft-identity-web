@@ -105,15 +105,14 @@ namespace TodoListClient.Services
         {
             await PrepareAuthenticatedClient();
             var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist");
+            var content = await response.Content.ReadAsStringAsync();
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var content = await response.Content.ReadAsStringAsync();
                 IEnumerable<Todo> todolist = JsonSerializer.Deserialize<IEnumerable<Todo>>(content, _jsonOptions);
-
                 return todolist;
             }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}. Cause: {content}");
         }
 
         private async Task PrepareAuthenticatedClient()

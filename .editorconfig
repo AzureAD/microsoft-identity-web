@@ -467,9 +467,6 @@ dotnet_diagnostic.SA1309.severity = none
 # CA1031: Do not catch general exception types
 dotnet_diagnostic.CA1031.severity = none
 
-# CA1062: Validate arguments of public methods
-dotnet_diagnostic.CA1062.severity = none
-
 # CA1303: Do not pass literals as localized parameters
 dotnet_diagnostic.CA1303.severity = none
 
@@ -527,19 +524,22 @@ dotnet_diagnostic.SA1614.severity = none
 # SA1615: Element return value should be documented
 dotnet_diagnostic.SA1615.severity = none
 
-# SA1616: Element return value documentation should have text
-dotnet_diagnostic.SA1616.severity = none
-
 # SA1623: Property summary documentation should match accessors
 dotnet_diagnostic.SA1623.severity = none
 
 # SA1642: Constructor summary documentation should begin with standard text
 dotnet_diagnostic.SA1642.severity = none
 
-# SA1649: File name should match first type name
+## SA1649: File name should match first type name
 dotnet_diagnostic.SA1649.severity = none
 #########################################################
 #########################################################
+
+# SA1011: Closing square brackets should be spaced correctly
+dotnet_diagnostic.SA1011.severity = none
+
+# SA1009: Closing parenthesis should be spaced correctly
+dotnet_diagnostic.SA1009.severity = none
 
 [*.{cpp,h,in}]
 curly_bracket_next_line = true

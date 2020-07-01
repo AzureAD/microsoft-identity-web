@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// An implementation of token cache for confidential clients backed by an HTTP session.
     /// </summary>
     /// <remarks>
-    /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
+    /// For this session cache to work effectively, the ASP.NET Core session has to be configured properly.
     /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
     ///
     /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         {
             await _session.LoadAsync().ConfigureAwait(false);
 
-            s_sessionLock.EnterReadLock();
+            _sessionLock.EnterReadLock();
             try
             {
                 if (_session.TryGetValue(cacheKey, out byte[] blob))
@@ -72,53 +72,53 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             }
             finally
             {
-                s_sessionLock.ExitReadLock();
+                _sessionLock.ExitReadLock();
             }
         }
 
         /// <summary>
         /// Writes the token cache identified by its key to the serialization mechanism.
         /// </summary>
-        /// <param name="cacheKey">key for the cache (account ID or app ID).</param>
-        /// <param name="bytes">blob to write to the cache.</param>
+        /// <param name="cacheKey">Key for the cache (account ID or app ID).</param>
+        /// <param name="bytes">Blob to write to the cache.</param>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            s_sessionLock.EnterWriteLock();
+            _sessionLock.EnterWriteLock();
             try
             {
                 _logger.LogInformation($"Serializing session {_session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
                 _session.Set(cacheKey, bytes);
-                await _session.CommitAsync().ConfigureAwait(false);
+                await Task.CompletedTask.ConfigureAwait(false);
             }
             finally
             {
-                s_sessionLock.ExitWriteLock();
+                _sessionLock.ExitWriteLock();
             }
         }
 
         /// <summary>
-        /// Removes a cache described from its key.
+        /// Removes a cache described by its key.
         /// </summary>
         /// <param name="cacheKey">Key of the token cache (user account or app ID).</param>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
-            s_sessionLock.EnterWriteLock();
+            _sessionLock.EnterWriteLock();
             try
             {
                 _logger.LogInformation($"Clearing session {_session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
                 _session.Remove(cacheKey);
-                await _session.CommitAsync().ConfigureAwait(false);
+                await Task.CompletedTask.ConfigureAwait(false);
             }
             finally
             {
-                s_sessionLock.ExitWriteLock();
+                _sessionLock.ExitWriteLock();
             }
         }
 
-        private static readonly ReaderWriterLockSlim s_sessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        private readonly ReaderWriterLockSlim _sessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
     }
 }

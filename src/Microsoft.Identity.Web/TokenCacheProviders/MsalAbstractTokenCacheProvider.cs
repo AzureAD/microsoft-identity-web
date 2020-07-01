@@ -7,7 +7,9 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
-    /// <summary></summary>
+    /// <summary>
+    /// Token cache provider with default implementation.
+    /// </summary>
     /// <seealso cref="Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
@@ -15,7 +17,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Initializes the token cache serialization.
         /// </summary>
         /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
         public Task InitializeAsync(ITokenCache tokenCache)
         {
             if (tokenCache == null)
@@ -56,7 +58,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
         /// </summary>
         /// <param name="args">Token cache notification arguments.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that represents a completed operation.</returns>
         protected virtual Task OnBeforeWriteAsync(TokenCacheNotificationArgs args)
         {
             return Task.CompletedTask;
@@ -80,7 +82,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="bytes">Bytes to write.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that represents a completed write operation.</returns>
         protected abstract Task WriteCacheBytesAsync(string cacheKey, byte[] bytes);
 
         /// <summary>
@@ -94,6 +96,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Method to be implemented by concrete cache serializers to remove an entry from the cache.
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed remove key operation.</returns>
         protected abstract Task RemoveKeyAsync(string cacheKey);
     }
 }

@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web
             builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
                 options => configuration.Bind(configSectionName, options),
+                options => { },
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
@@ -69,7 +70,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
-        /// <returns>Yhe service collection for chaining.</returns>
+        /// <returns>The service collection for chaining.</returns>
         [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,
@@ -81,11 +82,12 @@ namespace Microsoft.Identity.Web
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
             builder.AddMicrosoftWebApp(
-                 configureOpenIdConnectOptions,
-                 configureMicrosoftIdentityOptions,
-                 openIdConnectScheme,
-                 cookieScheme,
-                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                configureOpenIdConnectOptions,
+                configureMicrosoftIdentityOptions,
+                options => { },
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
             return services;
         }
 

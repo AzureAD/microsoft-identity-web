@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -16,20 +15,20 @@ using Microsoft.IdentityModel.Tokens;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for AuthenticationBuilder for startup initialization of Web APIs.
+    /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
     public static partial class WebApiAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
-        /// <param name="configuration">The Configuration object.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
-        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the JwtBearer events.
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApi(
@@ -47,16 +46,14 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
-        /// <param name="builder">AuthenticationBuilder to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
-        /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>
-        /// configuration options.</param>
-        /// <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the JwtBearer events.
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApi(
@@ -72,7 +69,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
-            builder.Services.Configure<MicrosoftIdentityOptions>(configureMicrosoftIdentityOptions);
+            builder.Services.Configure(configureMicrosoftIdentityOptions);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
@@ -80,12 +77,10 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
-            builder.AddJwtBearer(jwtBearerScheme, options =>
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                // TODO:
-                // Suspect. Why not get the IOption<MicrosoftIdentityOptions>?
-                var microsoftIdentityOptions = new MicrosoftIdentityOptions(); // configuration.GetSection(configSectionName).Get<MicrosoftIdentityOptions>();
-                configureMicrosoftIdentityOptions(microsoftIdentityOptions);
+                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
                 {
@@ -95,7 +90,9 @@ namespace Microsoft.Identity.Web
                 // This is a Microsoft identity platform Web API
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                if (options.TokenValidationParameters.AudienceValidator == null)
+                if (options.TokenValidationParameters.AudienceValidator == null
+                 && options.TokenValidationParameters.ValidAudience == null
+                 && options.TokenValidationParameters.ValidAudiences == null)
                 {
                     RegisterValidAudience registerAudience = new RegisterValidAudience();
                     registerAudience.RegisterAudienceValidation(
@@ -142,7 +139,7 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                 {
-                    var diags = builder.Services.BuildServiceProvider().GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
+                    var diags = serviceProvider.GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
 
                     diags.Subscribe(options.Events);
                 }

@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Security.Claims;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods dealing with IAccount instances.
+    /// Extension methods for <see cref="IAccount"/>.
     /// </summary>
     public static class AccountExtensions
     {
@@ -15,22 +16,31 @@ namespace Microsoft.Identity.Web
         /// Creates the <see cref="ClaimsPrincipal"/> from the values found
         /// in an <see cref="IAccount"/>.
         /// </summary>
-        /// <param name="account">The IAccount instance.</param>
-        /// <returns>A <see cref="ClaimsPrincipal"/> built from IAccount.</returns>
+        /// <param name="account">The <see cref="IAccount"/> instance.</param>
+        /// <returns>A <see cref="ClaimsPrincipal"/> built from <see cref="IAccount"/>.</returns>
         public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
         {
-            if (account != null)
+            if (account == null)
             {
-                return new ClaimsPrincipal(
-                    new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimConstants.Oid, account.HomeAccountId?.ObjectId),
-                        new Claim(ClaimConstants.Tid, account.HomeAccountId?.TenantId),
-                        new Claim(ClaimTypes.Upn, account.Username),
-                    }));
+                throw new ArgumentNullException(nameof(account));
             }
 
-            return null;
+            ClaimsIdentity identity = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Upn, account.Username),
+                });
+
+            if (!string.IsNullOrEmpty(account.HomeAccountId?.ObjectId))
+            {
+                identity.AddClaim(new Claim(ClaimConstants.Oid, account.HomeAccountId.ObjectId));
+            }
+
+            if (!string.IsNullOrEmpty(account.HomeAccountId?.TenantId))
+            {
+                identity.AddClaim(new Claim(ClaimConstants.Tid, account.HomeAccountId.TenantId));
+            }
+
+            return new ClaimsPrincipal(identity);
         }
     }
 }

@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Diagnostics used in the Open Id Connect middleware
+    /// Diagnostics used in the OpenID Connect middleware
     /// (used in Web Apps).
     /// </summary>
     public interface IOpenIdConnectMiddlewareDiagnostics
     {
         /// <summary>
-        /// Method to subscribe to OpenIDConnect events.
+        /// Method to subscribe to <see cref="OpenIdConnectEvents"/>.
         /// </summary>
-        /// <param name="events">Open Id connect events.</param>
+        /// <param name="events">OpenID Connect events.</param>
         void Subscribe(OpenIdConnectEvents events);
     }
 }

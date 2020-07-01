@@ -3,7 +3,6 @@
 
 using System;
 using System.Net;
-using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
@@ -18,7 +17,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             HttpContext httpContext = null;
 
-            Assert.Throws<NullReferenceException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
 
@@ -29,14 +28,13 @@ namespace Microsoft.Identity.Web.Test.Resource
         public void VerifyUserHasAnyAcceptedScope_NoClaims_ThrowsException()
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
-            var expectedErrorMessage = $"The 'scope' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
             var expectedStatusCode = (int)HttpStatusCode.Unauthorized;
 
             var httpContext = HttpContextUtilities.CreateHttpContext();
+            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
 
-            var exception = Assert.Throws<HttpRequestException>(() => httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes));
-            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
-            Assert.Equal(expectedErrorMessage, exception.Message);
+            HttpResponse response = httpContext.Response;
+            Assert.Equal(expectedStatusCode, response.StatusCode);
         }
 
         [Fact]
@@ -44,20 +42,30 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
             var actualScopes = new[] { "acceptedScope3", "acceptedScope4" };
-            var expectedErrorMessage = $"The 'scope' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
-            var expectedStatusCode = (int)HttpStatusCode.Unauthorized;
+            var expectedErrorMessage = $"The 'scope' or 'scp' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
+            var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
             var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes);
+            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
 
-            var exception = Assert.Throws<HttpRequestException>(() => httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes));
-            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
-            Assert.Equal(expectedErrorMessage, exception.Message);
+            HttpResponse response = httpContext.Response;
+            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Equal(expectedErrorMessage, GetBody(response));
 
             httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope3", "acceptedScope4" });
+            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
+            response = httpContext.Response;
+            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Equal(expectedErrorMessage, GetBody(response));
+        }
 
-            exception = Assert.Throws<HttpRequestException>(() => httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes));
-            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
-            Assert.Equal(expectedErrorMessage, exception.Message);
+        private static string GetBody(HttpResponse response)
+        {
+            byte[] buffer = new byte[response.Body.Length];
+            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
+            response.Body.Read(buffer, 0, buffer.Length);
+            string body = System.Text.Encoding.Default.GetString(buffer);
+            return body;
         }
 
         [Fact]
