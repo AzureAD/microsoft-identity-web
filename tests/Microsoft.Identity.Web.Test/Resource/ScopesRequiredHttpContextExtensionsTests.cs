@@ -3,7 +3,6 @@
 
 using System;
 using System.Net;
-using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;

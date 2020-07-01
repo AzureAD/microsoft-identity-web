@@ -1199,6 +1199,22 @@
              <param name="validationParameters">Token validation parameters.</param>
              <returns>True if the token is valid; false, otherwise.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions">
+            <summary>
+            Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
+            can be used in Web APIs to validate the roles in controller actions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions.ValidateAppRole(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
+            <summary>
+            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the application in the
+            web API has the expected roles.
+            </summary>
+            <param name="context">HttpContext (from the controller).</param>
+            <param name="acceptedRoles">Roles accepted by this web API.</param>
+            <remarks>When the roles don't match, the response is a 403 (Forbidden),
+            because the app does not have the expected roles.</remarks>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions">
             <summary>
             Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
