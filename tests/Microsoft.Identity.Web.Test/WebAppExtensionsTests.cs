@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -194,7 +194,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
@@ -314,7 +314,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme);
 
             var provider = services.BuildServiceProvider();
 

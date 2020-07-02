@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -41,7 +44,6 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
                 builder.AddMicrosoftWebApp(
                     options => configuration.Bind(configSectionName, options),
-                    options => configuration.Bind(configSectionName, options),
                     options => { },
                     openIdConnectScheme,
                     cookieScheme,
@@ -51,7 +53,6 @@ namespace Microsoft.Identity.Web
         /// Add authentication with Microsoft identity platform.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
-        /// <param name="configureOpenIdConnectOptions">The action to configure <see cref="OpenIdConnectOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
@@ -62,7 +63,6 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
-            Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions> configureCookieAuthenticationOptions,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
@@ -74,10 +74,6 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (configureOpenIdConnectOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureOpenIdConnectOptions));
-            }
 
             if (configureMicrosoftIdentityOptions == null)
             {
@@ -89,7 +85,6 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureCookieAuthenticationOptions));
             }
 
-            builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
@@ -100,101 +95,175 @@ namespace Microsoft.Identity.Web
 
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
+                .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
            {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
-                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
+               PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
+               var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
-                options.SignInScheme = cookieScheme;
+               options.SignInScheme = cookieScheme;
 
-                if (string.IsNullOrWhiteSpace(options.Authority))
-                {
-                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
-                }
+               if (string.IsNullOrWhiteSpace(options.Authority))
+               {
+                   options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
+               }
 
-                // This is a Microsoft identity platform Web app
-                options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+               // This is a Microsoft identity platform Web app
+               options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                // B2C doesn't have preferred_username claims
-                if (microsoftIdentityOptions.IsB2C)
-                {
-                    options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
-                }
-                else
-                {
-                    options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
-                }
+               // B2C doesn't have preferred_username claims
+               if (microsoftIdentityOptions.Value.IsB2C)
+               {
+                   options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
+               }
+               else
+               {
+                   options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
+               }
 
-                // If the developer registered an IssuerValidator, do not overwrite it
-                if (options.TokenValidationParameters.IssuerValidator == null)
-                {
-                    // If you want to restrict the users that can sign-in to several organizations
-                    // Set the tenant value in the appsettings.json file to 'organizations', and add the
-                    // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
-                    options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
-                }
+               // If the developer registered an IssuerValidator, do not overwrite it
+               if (options.TokenValidationParameters.IssuerValidator == null)
+               {
+                   // If you want to restrict the users that can sign-in to several organizations
+                   // Set the tenant value in the appsettings.json file to 'organizations', and add the
+                   // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
+                   options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
+               }
 
-                // Avoids having users being presented the select account dialog when they are already signed-in
-                // for instance when going through incremental consent
-                var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
-                options.Events.OnRedirectToIdentityProvider = async context =>
-                {
-                    var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
-                    if (!string.IsNullOrWhiteSpace(login))
-                    {
-                        context.ProtocolMessage.LoginHint = login;
-                        context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
-                            OpenIdConnectParameterNames.DomainHint);
+               // Avoids having users being presented the select account dialog when they are already signed-in
+               // for instance when going through incremental consent
+               var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
+               options.Events.OnRedirectToIdentityProvider = async context =>
+               {
+                   var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
+                   if (!string.IsNullOrWhiteSpace(login))
+                   {
+                       context.ProtocolMessage.LoginHint = login;
+                       context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
+                           OpenIdConnectParameterNames.DomainHint);
 
                         // delete the login_hint and domainHint from the Properties when we are done otherwise
                         // it will take up extra space in the cookie.
                         context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
-                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
-                    }
+                       context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                   }
 
-                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
+                   context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
                     // Additional claims
                     if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
-                    {
-                        context.ProtocolMessage.SetParameter(
-                            OidcConstants.AdditionalClaims,
-                            context.Properties.Items[OidcConstants.AdditionalClaims]);
-                    }
+                   {
+                       context.ProtocolMessage.SetParameter(
+                           OidcConstants.AdditionalClaims,
+                           context.Properties.Items[OidcConstants.AdditionalClaims]);
+                   }
 
-                    if (microsoftIdentityOptions.IsB2C)
-                    {
+                   if (microsoftIdentityOptions.Value.IsB2C)
+                   {
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
                         await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
-                    }
+                   }
 
-                    await redirectToIdpHandler(context).ConfigureAwait(false);
-                };
+                   await redirectToIdpHandler(context).ConfigureAwait(false);
+               };
 
-                if (microsoftIdentityOptions.IsB2C)
-                {
-                    var remoteFailureHandler = options.Events.OnRemoteFailure;
-                    options.Events.OnRemoteFailure = async context =>
-                    {
+               if (microsoftIdentityOptions.Value.IsB2C)
+               {
+                   var remoteFailureHandler = options.Events.OnRemoteFailure;
+                   options.Events.OnRemoteFailure = async context =>
+                   {
                         // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
                         // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
                         // because password reset is not supported by a "sign-up or sign-in user flow".
                         await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
 
-                        await remoteFailureHandler(context).ConfigureAwait(false);
-                    };
-                }
+                       await remoteFailureHandler(context).ConfigureAwait(false);
+                   };
+               }
 
-                if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
-                {
-                    var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+               if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+               {
+                   var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
-                    diags.Subscribe(options.Events);
-                }
-            });
+                   diags.Subscribe(options.Events);
+               }
+           });
 
             return builder;
+        }
+
+        internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            StringBuilder sb = new StringBuilder();
+            
+            foreach (var property in typeof(OpenIdConnectOptions).GetProperties())
+            {
+                sb.Append($"options.{property.Name} = microsoftIdentityOptions.{property.Name};");
+                sb.AppendLine();
+            }
+            string text = sb.ToString();
+
+            options.Authority = microsoftIdentityOptions.Authority;
+            options.ClientId = microsoftIdentityOptions.ClientId;
+            options.ClientSecret = microsoftIdentityOptions.ClientSecret;
+            options.Configuration = microsoftIdentityOptions.Configuration;
+            options.ConfigurationManager = microsoftIdentityOptions.ConfigurationManager;
+            options.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
+            foreach (ClaimAction c in microsoftIdentityOptions.ClaimActions)
+            {
+                options.ClaimActions.Add(c);
+            }
+            options.RequireHttpsMetadata = microsoftIdentityOptions.RequireHttpsMetadata;
+            options.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
+            options.Events = microsoftIdentityOptions.Events;
+            options.MaxAge = microsoftIdentityOptions.MaxAge;
+            options.ProtocolValidator = microsoftIdentityOptions.ProtocolValidator;
+            options.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
+            options.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            options.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
+            options.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
+            options.Resource = microsoftIdentityOptions.Resource;
+            options.ResponseMode = microsoftIdentityOptions.ResponseMode;
+            options.ResponseType = microsoftIdentityOptions.ResponseType;
+            options.Prompt = microsoftIdentityOptions.Prompt;
+
+            foreach(string scope in microsoftIdentityOptions.Scope)
+            {
+                options.Scope.Add(scope);
+            }
+            options.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
+            options.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
+            options.StateDataFormat = microsoftIdentityOptions.StateDataFormat;
+            options.StringDataFormat = microsoftIdentityOptions.StringDataFormat;
+            options.SecurityTokenValidator = microsoftIdentityOptions.SecurityTokenValidator;
+            options.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters;
+            options.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
+            options.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
+            options.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
+            options.NonceCookie = microsoftIdentityOptions.NonceCookie;
+            options.UsePkce = microsoftIdentityOptions.UsePkce;
+            options.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
+            options.BackchannelHttpHandler = microsoftIdentityOptions.BackchannelHttpHandler;
+            options.Backchannel = microsoftIdentityOptions.Backchannel;
+            options.DataProtectionProvider = microsoftIdentityOptions.DataProtectionProvider;
+            options.CallbackPath = microsoftIdentityOptions.CallbackPath;
+            options.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
+            options.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
+            options.SignInScheme = microsoftIdentityOptions.SignInScheme;
+            options.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
+            options.Events = microsoftIdentityOptions.Events;
+            options.SaveTokens = microsoftIdentityOptions.SaveTokens;
+            options.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
+            options.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
+            options.Events = microsoftIdentityOptions.Events;
+            options.EventsType = microsoftIdentityOptions.EventsType;
+            options.ForwardDefault = microsoftIdentityOptions.ForwardDefault;
+            options.ForwardAuthenticate = microsoftIdentityOptions.ForwardAuthenticate;
+            options.ForwardChallenge = microsoftIdentityOptions.ForwardChallenge;
+            options.ForwardForbid = microsoftIdentityOptions.ForwardForbid;
+            options.ForwardSignIn = microsoftIdentityOptions.ForwardSignIn;
+            options.ForwardSignOut = microsoftIdentityOptions.ForwardSignOut;
+            options.ForwardDefaultSelector = microsoftIdentityOptions.ForwardDefaultSelector;
         }
     }
 }
