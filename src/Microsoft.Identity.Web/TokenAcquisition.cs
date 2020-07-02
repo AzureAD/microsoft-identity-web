@@ -382,7 +382,7 @@ namespace Microsoft.Identity.Web
                     ex,
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        "Exception acquiring token for a confidential client. "));
+                        ErrorMessage.ExceptionAcquiringTokenForConfidentialClient));
                 throw;
             }
         }

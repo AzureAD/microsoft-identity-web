@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             return builder.AddMicrosoftWebApiCallsWebApi(

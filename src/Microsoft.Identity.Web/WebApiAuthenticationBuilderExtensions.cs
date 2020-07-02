@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
                     {
-                        throw new UnauthorizedAccessException("Neither scope or roles claim was found in the bearer token.");
+                        throw new UnauthorizedAccessException(ErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                     }
 
                     await tokenValidatedHandler(context).ConfigureAwait(false);

@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
@@ -117,11 +117,11 @@ namespace Microsoft.Identity.Web
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.IsB2C)
                 {
-                    options.TokenValidationParameters.NameClaimType = "name";
+                    options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
                 }
                 else
                 {
-                    options.TokenValidationParameters.NameClaimType = "preferred_username";
+                    options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
                 }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web
                         context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                     }
 
-                    context.ProtocolMessage.SetParameter("client_info", "1");
+                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
                     // Additional claims
                     if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))

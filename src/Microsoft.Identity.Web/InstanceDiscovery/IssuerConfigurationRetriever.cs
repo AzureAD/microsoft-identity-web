@@ -28,12 +28,12 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         {
             if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentNullException(nameof(address), $"Azure AD Issuer metadata address URL is required");
+                throw new ArgumentNullException(nameof(address), ErrorMessage.IssuerMetadataURLIsRequired);
             }
 
             if (retriever == null)
             {
-                throw new ArgumentNullException(nameof(retriever), $"No metadata document retriever is provided");
+                throw new ArgumentNullException(nameof(retriever), ErrorMessage.NoMetadataDocumentRetrieverProvided);
             }
 
             var options = new JsonSerializerOptions
