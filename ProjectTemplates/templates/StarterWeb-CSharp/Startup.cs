@@ -71,19 +71,21 @@ namespace Company.WebApplication1
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
-            services.AddSignIn(Configuration, "AzureAd");
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftWebApp(Configuration, "AzureAd");
 #if (GenerateApi)
-            services.AddWebAppCallsProtectedWebApi(Configuration, 
-                                                  "AzureAd")
+                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                                                   "AzureAd")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #endif
 #elif (IndividualB2CAuth)
-            services.AddSignIn(Configuration, "AzureAdB2C");
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftWebApp(Configuration, "AzureAdB2C");
 #if (GenerateApi)
-            services.AddWebAppCallsProtectedWebApi(Configuration, 
-                                                  "AzureAdB2C")
+                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                                                   "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);

@@ -45,20 +45,20 @@ namespace Company.WebApplication1
 #if (OrganizationalAuth)
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddProtectedWebApi(Configuration, "AzureAd");
+                    .AddMicrosoftWebApi(Configuration, "AzureAd");
 #if (GenerateApi)
-            services.AddWebAppCallsProtectedWebApi(Configuration, 
-                                                  "AzureAd")
+                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                                                   "AzureAd")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddProtectedWebApi(Configuration, "AzureAdB2C");
+                    .AddMicrosoftWebApi(Configuration, "AzureAdB2C");
 #if (GenerateApi)
-            services.AddWebAppCallsProtectedWebApi(Configuration, 
-                                                  "AzureAdB2C")
+                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                                                   "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
