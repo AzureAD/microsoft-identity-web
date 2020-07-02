@@ -2,7 +2,7 @@ echo "Build and Install templates"
 dotnet pack AspNetCoreMicrosoftIdentityWebProjectTemplates.csproj
 cd bin
 cd Debug
-dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.1.5.nupkg
+dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.2.0.nupkg
 
 echo "Test templates"
 mkdir tests
