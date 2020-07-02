@@ -59,6 +59,8 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
+        /// <param name="configureOpenIdConnectOptions">The IConfiguration object.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The configuration section with the necessary settings to initialize authentication options.</param>
         /// <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
