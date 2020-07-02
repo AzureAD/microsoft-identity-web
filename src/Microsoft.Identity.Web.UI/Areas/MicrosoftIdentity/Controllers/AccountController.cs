@@ -20,14 +20,14 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
     [Route("[area]/[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _options;
+        private readonly IOptions<MicrosoftIdentityOptions> _options;
 
         /// <summary>
         /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
         /// This constructor is used by dependency injection.
         /// </summary>
         /// <param name="microsoftIdentityOptions">Configuration options.</param>
-        public AccountController(IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptions)
+        public AccountController(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions)
         {
             _options = microsoftIdentityOptions;
         }
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items["policy"] = _options.CurrentValue?.ResetPasswordPolicyId;
+            properties.Items["policy"] = _options.Value?.ResetPasswordPolicyId;
             return Challenge(properties, scheme);
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items["policy"] = _options.CurrentValue?.EditProfilePolicyId;
+            properties.Items["policy"] = _options.Value?.EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
     }
