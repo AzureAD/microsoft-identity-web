@@ -98,6 +98,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
 
+            builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
            {

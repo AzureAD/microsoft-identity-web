@@ -77,6 +77,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
+            builder.AddJwtBearer(jwtBearerScheme, options => { });
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
             {
