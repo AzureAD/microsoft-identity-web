@@ -141,16 +141,16 @@ namespace Microsoft.Identity.Web
                        context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
                            OpenIdConnectParameterNames.DomainHint);
 
-                        // delete the login_hint and domainHint from the Properties when we are done otherwise
-                        // it will take up extra space in the cookie.
-                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                       // delete the login_hint and domainHint from the Properties when we are done otherwise
+                       // it will take up extra space in the cookie.
+                       context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                    }
 
                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
-                    // Additional claims
-                    if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                   // Additional claims
+                   if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
                    {
                        context.ProtocolMessage.SetParameter(
                            OidcConstants.AdditionalClaims,
@@ -159,9 +159,9 @@ namespace Microsoft.Identity.Web
 
                    if (microsoftIdentityOptions.Value.IsB2C)
                    {
-                        // When a new Challenge is returned using any B2C user flow different than susi, we must change
-                        // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
+                       // When a new Challenge is returned using any B2C user flow different than susi, we must change
+                       // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
+                       await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
                    }
 
                    await redirectToIdpHandler(context).ConfigureAwait(false);
@@ -172,10 +172,10 @@ namespace Microsoft.Identity.Web
                    var remoteFailureHandler = options.Events.OnRemoteFailure;
                    options.Events.OnRemoteFailure = async context =>
                    {
-                        // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
-                        // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
-                        // because password reset is not supported by a "sign-up or sign-in user flow".
-                        await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
+                       // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
+                       // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
+                       // because password reset is not supported by a "sign-up or sign-in user flow".
+                       await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
 
                        await remoteFailureHandler(context).ConfigureAwait(false);
                    };
@@ -194,15 +194,6 @@ namespace Microsoft.Identity.Web
 
         internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MicrosoftIdentityOptions microsoftIdentityOptions)
         {
-            StringBuilder sb = new StringBuilder();
-            
-            foreach (var property in typeof(OpenIdConnectOptions).GetProperties())
-            {
-                sb.Append($"options.{property.Name} = microsoftIdentityOptions.{property.Name};");
-                sb.AppendLine();
-            }
-            string text = sb.ToString();
-
             options.Authority = microsoftIdentityOptions.Authority;
             options.ClientId = microsoftIdentityOptions.ClientId;
             options.ClientSecret = microsoftIdentityOptions.ClientSecret;
@@ -213,6 +204,7 @@ namespace Microsoft.Identity.Web
             {
                 options.ClaimActions.Add(c);
             }
+
             options.RequireHttpsMetadata = microsoftIdentityOptions.RequireHttpsMetadata;
             options.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
             options.Events = microsoftIdentityOptions.Events;
@@ -227,10 +219,11 @@ namespace Microsoft.Identity.Web
             options.ResponseType = microsoftIdentityOptions.ResponseType;
             options.Prompt = microsoftIdentityOptions.Prompt;
 
-            foreach(string scope in microsoftIdentityOptions.Scope)
+            foreach (string scope in microsoftIdentityOptions.Scope)
             {
                 options.Scope.Add(scope);
             }
+
             options.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
             options.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
             options.StateDataFormat = microsoftIdentityOptions.StateDataFormat;
