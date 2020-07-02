@@ -68,6 +68,16 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
+            if (configureJwtBearerOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureJwtBearerOptions));
+            }
+
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
+
             builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);
 
@@ -90,6 +100,8 @@ namespace Microsoft.Identity.Web
 
                 // This is a Microsoft identity platform Web API
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+
+                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
 
                 if (options.TokenValidationParameters.AudienceValidator == null
                  && options.TokenValidationParameters.ValidAudience == null

@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Web
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
-           {
+            {
                 MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
                 var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
 
@@ -114,6 +114,8 @@ namespace Microsoft.Identity.Web
 
                 // This is a Microsoft identity platform Web app
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+
+                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
 
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.IsB2C)
