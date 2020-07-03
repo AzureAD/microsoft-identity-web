@@ -119,7 +119,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
                 // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts

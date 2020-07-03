@@ -24,7 +24,6 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
 using NSubstitute.Extensions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -101,6 +100,7 @@ namespace Microsoft.Identity.Web.Test
 
 #if DOTNET_CORE_31
             var configuredCookieOptions = provider.GetServices<IConfigureOptions<CookieAuthenticationOptions>>().Cast<ConfigureNamedOptions<CookieAuthenticationOptions>>();
+
             Assert.Contains(configuredCookieOptions, o => o.Action == _configureCookieOptions);
 #endif
 
@@ -213,10 +213,10 @@ namespace Microsoft.Identity.Web.Test
                 .AddMicrosoftWebAppCallsWebApi(configMock, initialScopes, _configSectionName, _oidcScheme);
             services.Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
             {
-                 options.Events ??= new OpenIdConnectEvents();
-                 options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
-                 options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                 options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
+                options.Events ??= new OpenIdConnectEvents();
+                options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
+                options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
             });
 
             services.RemoveAll<ITokenAcquisition>();
@@ -339,8 +339,6 @@ namespace Microsoft.Identity.Web.Test
             // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IOpenIdConnectMiddlewareDiagnostics));
-            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IOpenIdConnectMiddlewareDiagnostics)).Lifetime);
             Assert.Contains(services, s => s.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>));
 
             // Assert properties set
@@ -538,7 +536,7 @@ namespace Microsoft.Identity.Web.Test
             int expectedNumberOfProperties;
 #if DOTNET_CORE_31
             expectedNumberOfProperties = 54;
- // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #elif DOTNET_50
             expectedNumberOfProperties = 56;
  // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));

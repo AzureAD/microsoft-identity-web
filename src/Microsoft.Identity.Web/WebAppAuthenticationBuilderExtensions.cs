@@ -87,8 +87,12 @@ namespace Microsoft.Identity.Web
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
-            builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+
+            if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+            {
+                builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
+            }
 
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
@@ -182,9 +186,9 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
                 {
-                    var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+                    var diagnostics = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
-                    diags.Subscribe(options.Events);
+                    diagnostics.Subscribe(options.Events);
                 }
             });
 
