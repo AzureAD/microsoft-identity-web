@@ -74,7 +74,6 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-
             if (configureMicrosoftIdentityOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
@@ -96,98 +95,98 @@ namespace Microsoft.Identity.Web
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
-           {
-               PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
-               var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
+            {
+                PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
+                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
-               options.SignInScheme = cookieScheme;
+                options.SignInScheme = cookieScheme;
 
-               if (string.IsNullOrWhiteSpace(options.Authority))
-               {
-                   options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
-               }
+                if (string.IsNullOrWhiteSpace(options.Authority))
+                {
+                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
+                }
 
-               // This is a Microsoft identity platform Web app
-               options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+                // This is a Microsoft identity platform Web app
+                options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-               // B2C doesn't have preferred_username claims
-               if (microsoftIdentityOptions.Value.IsB2C)
-               {
-                   options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
-               }
-               else
-               {
-                   options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
-               }
+                // B2C doesn't have preferred_username claims
+                if (microsoftIdentityOptions.Value.IsB2C)
+                {
+                    options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
+                }
+                else
+                {
+                    options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
+                }
 
-               // If the developer registered an IssuerValidator, do not overwrite it
-               if (options.TokenValidationParameters.IssuerValidator == null)
-               {
-                   // If you want to restrict the users that can sign-in to several organizations
-                   // Set the tenant value in the appsettings.json file to 'organizations', and add the
-                   // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
-                   options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
-               }
+                // If the developer registered an IssuerValidator, do not overwrite it
+                if (options.TokenValidationParameters.IssuerValidator == null)
+                {
+                    // If you want to restrict the users that can sign-in to several organizations
+                    // Set the tenant value in the appsettings.json file to 'organizations', and add the
+                    // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
+                    options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
+                }
 
-               // Avoids having users being presented the select account dialog when they are already signed-in
-               // for instance when going through incremental consent
-               var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
-               options.Events.OnRedirectToIdentityProvider = async context =>
-               {
-                   var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
-                   if (!string.IsNullOrWhiteSpace(login))
-                   {
-                       context.ProtocolMessage.LoginHint = login;
-                       context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
-                           OpenIdConnectParameterNames.DomainHint);
+                // Avoids having users being presented the select account dialog when they are already signed-in
+                // for instance when going through incremental consent
+                var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
+                options.Events.OnRedirectToIdentityProvider = async context =>
+                {
+                    var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
+                    if (!string.IsNullOrWhiteSpace(login))
+                    {
+                        context.ProtocolMessage.LoginHint = login;
+                        context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
+                            OpenIdConnectParameterNames.DomainHint);
 
-                       // delete the login_hint and domainHint from the Properties when we are done otherwise
-                       // it will take up extra space in the cookie.
-                       context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
-                       context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
-                   }
+                        // delete the login_hint and domainHint from the Properties when we are done otherwise
+                        // it will take up extra space in the cookie.
+                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                    }
 
-                   context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
+                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
-                   // Additional claims
-                   if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
-                   {
-                       context.ProtocolMessage.SetParameter(
-                           OidcConstants.AdditionalClaims,
-                           context.Properties.Items[OidcConstants.AdditionalClaims]);
-                   }
+                    // Additional claims
+                    if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                    {
+                        context.ProtocolMessage.SetParameter(
+                            OidcConstants.AdditionalClaims,
+                            context.Properties.Items[OidcConstants.AdditionalClaims]);
+                    }
 
-                   if (microsoftIdentityOptions.Value.IsB2C)
-                   {
-                       // When a new Challenge is returned using any B2C user flow different than susi, we must change
-                       // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                       await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
-                   }
+                    if (microsoftIdentityOptions.Value.IsB2C)
+                    {
+                        // When a new Challenge is returned using any B2C user flow different than susi, we must change
+                        // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
+                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
+                    }
 
-                   await redirectToIdpHandler(context).ConfigureAwait(false);
-               };
+                    await redirectToIdpHandler(context).ConfigureAwait(false);
+                };
 
-               if (microsoftIdentityOptions.Value.IsB2C)
-               {
-                   var remoteFailureHandler = options.Events.OnRemoteFailure;
-                   options.Events.OnRemoteFailure = async context =>
-                   {
-                       // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
-                       // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
-                       // because password reset is not supported by a "sign-up or sign-in user flow".
-                       await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
+                if (microsoftIdentityOptions.Value.IsB2C)
+                {
+                    var remoteFailureHandler = options.Events.OnRemoteFailure;
+                    options.Events.OnRemoteFailure = async context =>
+                    {
+                        // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
+                        // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
+                        // because password reset is not supported by a "sign-up or sign-in user flow".
+                        await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
 
-                       await remoteFailureHandler(context).ConfigureAwait(false);
-                   };
-               }
+                        await remoteFailureHandler(context).ConfigureAwait(false);
+                    };
+                }
 
-               if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
-               {
-                   var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+                if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+                {
+                    var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
-                   diags.Subscribe(options.Events);
-               }
-           });
+                    diags.Subscribe(options.Events);
+                }
+            });
 
             return builder;
         }
