@@ -234,6 +234,10 @@ namespace Microsoft.Identity.Web
             options.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
             options.NonceCookie = microsoftIdentityOptions.NonceCookie;
             options.UsePkce = microsoftIdentityOptions.UsePkce;
+#if DOTNET_50
+            options.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+            options.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
+#endif
             options.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             options.BackchannelHttpHandler = microsoftIdentityOptions.BackchannelHttpHandler;
             options.Backchannel = microsoftIdentityOptions.Backchannel;

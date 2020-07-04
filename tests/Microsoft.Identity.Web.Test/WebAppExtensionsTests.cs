@@ -24,6 +24,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
 using NSubstitute.Extensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -523,6 +524,26 @@ namespace Microsoft.Identity.Web.Test
             configBuilder.Add(memoryConfigSource);
             var configSection = configBuilder.Build().GetSection(configSectionName);
             return configSection;
+        }
+
+        [Fact]
+        public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
+        {
+            // If the number of public properties of OpenIdConnectOptions changes,
+            // then, the PopulateOpenIdOptionsFromMicrosoftIdentityOptions method
+            // needs to be updated. For this uncomment the 2 lines below, and run the test
+            // then diff the files to find what are the new properties
+            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties().Length;
+
+            int expectedNumberOfProperties;
+#if DOTNET_CORE_31
+            expectedNumberOfProperties = 54;
+ // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+#elif DOTNET_50
+            expectedNumberOfProperties = 56;
+ // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+#endif
+            Assert.Equal(expectedNumberOfProperties, numberOfProperties);
         }
     }
 }
