@@ -109,6 +109,8 @@ namespace Microsoft.Identity.Web
                 // This is a Microsoft identity platform Web app
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
+                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
+
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.Value.IsB2C)
                 {
