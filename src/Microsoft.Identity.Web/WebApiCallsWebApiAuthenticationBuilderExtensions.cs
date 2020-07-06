@@ -76,8 +76,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
-
                 options.Events ??= new JwtBearerEvents();
 
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;
