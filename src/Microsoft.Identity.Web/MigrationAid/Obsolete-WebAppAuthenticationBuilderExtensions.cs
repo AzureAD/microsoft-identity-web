@@ -38,7 +38,6 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
         builder.AddMicrosoftWebApp(
             options => configuration.Bind(configSectionName, options),
-            options => configuration.Bind(configSectionName, options),
             options => { },
             openIdConnectScheme,
             cookieScheme,
@@ -66,7 +65,6 @@ namespace Microsoft.Identity.Web
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
             builder.AddMicrosoftWebApp(
-                configureOpenIdConnectOptions,
                 configureMicrosoftIdentityOptions,
                 options => { },
                 openIdConnectScheme,
