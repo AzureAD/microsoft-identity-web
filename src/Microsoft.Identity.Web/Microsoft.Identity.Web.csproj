@@ -56,11 +56,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>$(DefineConstants);DOTNET_CORE_31</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <DefineConstants>$(DefineConstants);DOTNET_50</DefineConstants>
+    <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>

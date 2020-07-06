@@ -236,7 +236,7 @@ namespace Microsoft.Identity.Web
             options.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
             options.NonceCookie = microsoftIdentityOptions.NonceCookie;
             options.UsePkce = microsoftIdentityOptions.UsePkce;
-#if DOTNET_50
+#if DOTNET_50_AND_ABOVE
             options.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
             options.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
 #endif
