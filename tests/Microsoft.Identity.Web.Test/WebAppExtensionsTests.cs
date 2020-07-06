@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web.Test
 
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -185,7 +185,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -369,7 +369,7 @@ namespace Microsoft.Identity.Web.Test
             await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
 
             // Assert properties set, events called
-          //  await redirectFunc.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>()).ConfigureAwait(false);
+            await redirectFunc.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>()).ConfigureAwait(false);
             Assert.NotNull(redirectContext.ProtocolMessage.LoginHint);
             Assert.NotNull(redirectContext.ProtocolMessage.DomainHint);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters[OidcConstants.AdditionalClaims]);
@@ -419,7 +419,7 @@ namespace Microsoft.Identity.Web.Test
             await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
             await oidcOptions.Events.RemoteFailure(remoteFailureContext).ConfigureAwait(false);
 
- //           await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
+            await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
             // Assert issuer is updated to non-default user flow
             Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters["client_info"]);
