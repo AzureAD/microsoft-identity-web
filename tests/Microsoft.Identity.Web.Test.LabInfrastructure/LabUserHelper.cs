@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
             if (KeyVaultSecretsProvider == null)
             {
-                throw new InvalidOperationException("Error: Keyvault secrets provider is not set");
+                throw new InvalidOperationException("Error: Key Vault secrets provider is not set");
             }
 
             try
