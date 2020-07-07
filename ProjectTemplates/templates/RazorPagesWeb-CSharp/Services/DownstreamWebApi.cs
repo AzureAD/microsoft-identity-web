@@ -45,7 +45,7 @@ namespace Company.WebApplication1.Services
         /// <param name="requireScopes">[Optional] Scopes required to call the Web API. If
         /// not specified, uses scopes from the configuration</param>
         /// <param name="relativeEndpoint">Endpoint relative to the CalledApiUrl configuration</param>
-        /// <returns>A Json string representing the result of calling the Web API</returns>
+        /// <returns>A JSON string representing the result of calling the Web API</returns>
         public async Task<string> CallWebApi(string relativeEndpoint = "", string[] requiredScopes = null)
         {
             string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');

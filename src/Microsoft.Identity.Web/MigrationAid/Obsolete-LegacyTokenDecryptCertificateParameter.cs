@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Class used to handle gracefully the obsolete token decyrption certificate parameter in
+    /// Class used to handle gracefully the obsolete token decryption certificate parameter in
     /// deprecated AddProtectedWebApi methods.
     /// </summary>
     internal static class ObsoleteLegacyTokenDecryptCertificateParameter
