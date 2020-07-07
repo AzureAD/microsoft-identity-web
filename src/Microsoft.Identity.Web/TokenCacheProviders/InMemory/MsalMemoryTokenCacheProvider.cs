@@ -28,16 +28,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
-        /// <param name="httpContextAccessor">Accessor to the HttpContext.</param>
         /// <param name="memoryCache">serialization cache.</param>
         /// <param name="cacheOptions">Memory cache options.</param>
         public MsalMemoryTokenCacheProvider(
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-            IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
-            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             if (cacheOptions == null)
             {

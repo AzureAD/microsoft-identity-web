@@ -452,6 +452,9 @@ dotnet_diagnostic.SX1101.severity = error
 # SA1309: Field names should not begin with underscore
 dotnet_diagnostic.SA1309.severity = none
 
+# SA1414: Tuple types in signatures should have element names
+dotnet_diagnostic.SA1414.severity = none
+
 #########################################################
 # Below is a list of rules for which the warnings need to be addressed
 # These rules are only temporarily suppressed to reduce the noise
@@ -534,12 +537,6 @@ dotnet_diagnostic.SA1642.severity = none
 dotnet_diagnostic.SA1649.severity = none
 #########################################################
 #########################################################
-
-# SA1011: Closing square brackets should be spaced correctly
-dotnet_diagnostic.SA1011.severity = none
-
-# SA1009: Closing parenthesis should be spaced correctly
-dotnet_diagnostic.SA1009.severity = none
 
 [*.{cpp,h,in}]
 curly_bracket_next_line = true

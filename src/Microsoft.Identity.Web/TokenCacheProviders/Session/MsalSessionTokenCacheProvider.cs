@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -31,21 +30,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
     public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IMsalTokenCacheProvider
     {
-        private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
-        private readonly ILogger _logger;
+        private ILogger _logger;
+        private ISession _session;
 
         /// <summary>
         /// MSAL Token cache provider constructor.
         /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
-        /// <param name="httpContextAccessor">Accessor for an HttpContext.</param>
+        /// <param name="session">Session for the current user.</param>
         /// <param name="logger">Logger.</param>
         public MsalSessionTokenCacheProvider(
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-            IHttpContextAccessor httpContextAccessor,
+            ISession session,
             ILogger<MsalSessionTokenCacheProvider> logger)
-            : base(microsoftIdentityOptions, httpContextAccessor)
         {
+            _session = session;
             _logger = logger;
         }
 
@@ -57,18 +54,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>Read blob.</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            await CurrentHttpContext.Session.LoadAsync().ConfigureAwait(false);
+            await _session.LoadAsync().ConfigureAwait(false);
 
             _sessionLock.EnterReadLock();
             try
             {
-                if (CurrentHttpContext.Session.TryGetValue(cacheKey, out byte[] blob))
+                if (_session.TryGetValue(cacheKey, out byte[] blob))
                 {
-                    _logger.LogInformation($"Deserializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                    _logger.LogInformation($"Deserializing session {_session.Id}, cacheId {cacheKey}");
                 }
                 else
                 {
-                    _logger.LogInformation($"CacheId {cacheKey} not found in session {CurrentHttpContext.Session.Id}");
+                    _logger.LogInformation($"CacheId {cacheKey} not found in session {_session.Id}");
                 }
 
                 return blob;
@@ -89,10 +86,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation($"Serializing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation($"Serializing session {_session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
-                CurrentHttpContext.Session.Set(cacheKey, bytes);
+                _session.Set(cacheKey, bytes);
                 await Task.CompletedTask.ConfigureAwait(false);
             }
             finally
@@ -110,10 +107,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation($"Clearing session {CurrentHttpContext.Session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation($"Clearing session {_session.Id}, cacheId {cacheKey}");
 
                 // Reflect changes in the persistent store
-                CurrentHttpContext.Session.Remove(cacheKey);
+                _session.Remove(cacheKey);
                 await Task.CompletedTask.ConfigureAwait(false);
             }
             finally

@@ -616,7 +616,7 @@
             <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
             should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
             Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-            in the portal, and cannot be overriden in the application.</param>
+            in the portal, and cannot be overridden in the application.</param>
             <returns>An access token for the app itself, based on its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException)">
@@ -766,7 +766,7 @@
         </member>
         <member name="T:Microsoft.Identity.Web.ObsoleteLegacyTokenDecryptCertificateParameter">
             <summary>
-            Class used to handle gracefully the obsolete token decyrption certificate parameter in
+            Class used to handle gracefully the obsolete token decryption certificate parameter in
             deprecated AddProtectedWebApi methods.
             </summary>
         </member>
@@ -1368,7 +1368,7 @@
             <param name="scopes">Scopes to request for the downstream API to call.</param>
             <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
             cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-            <returns>An access token to call the downstream API and populated with this downstream Api's scopes.</returns>
+            <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
             <remarks>Calling this method from a Web API supposes that you have previously called,
             in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
             passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
@@ -1402,7 +1402,7 @@
             <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
             should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
             Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-            in the portal, and cannot be overriden in the application.</param>
+            in the portal, and cannot be overridden in the application.</param>
             <returns>An access token for the app itself, based on its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.RemoveAccountAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.RedirectContext)">
@@ -1445,8 +1445,8 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException)">
             <summary>
-            Used in Web APIs (which therefore cannot have an interaction with the user).
-            Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+            Used in web APIs (which therefore cannot have an interaction with the user).
+            Replies to the client through the HTTP response by sending a 403 (forbidden) and populating 'WWW-Authenticate' header so that
             the client can trigger an interaction with the user so that the user consents to more scopes.
             </summary>
             <param name="scopes">Scopes to consent to.</param>
@@ -1496,12 +1496,10 @@
             MSAL memory token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
-            <param name="microsoftIdentityOptions"></param>
-            <param name="httpContextAccessor"></param>
             <param name="memoryCache"></param>
             <param name="cacheOptions"></param>
         </member>
@@ -1547,11 +1545,11 @@
             <param name="tokenCache">Token cache for which to initialize the serialization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
             <summary>
             Clear the cache.
             </summary>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
             <summary>
@@ -1598,12 +1596,10 @@
             MSAL memory token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
             <summary>
             Constructor.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor to the HttpContext.</param>
             <param name="memoryCache">serialization cache.</param>
             <param name="cacheOptions">Memory cache options.</param>
         </member>
@@ -1634,35 +1630,12 @@
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
         </member>
-        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._microsoftIdentityOptions">
-            <summary>
-            Azure AD options.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider._httpContextAccessor">
-            <summary>
-            HTTP accessor.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
-            <summary>
-            Constructor of the abstract token cache provider.
-            </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor for the HttpContext.</param>
-        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
             <summary>
             Initializes the token cache serialization.
             </summary>
             <param name="tokenCache">Token cache to serialize/deserialize.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.GetCacheKey(System.Boolean)">
-            <summary>
-            Cache key.
-            </summary>
-            <returns>The cache key.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
             <summary>
@@ -1680,11 +1653,11 @@
             <param name="args">Token cache notification arguments.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(System.String)">
             <summary>
             Clear the cache.
             </summary>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
             <summary>
@@ -1730,12 +1703,11 @@
              </remarks>
              <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.AspNetCore.Http.ISession,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
             <summary>
             MSAL Token cache provider constructor.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
-            <param name="httpContextAccessor">Accessor for an HttpContext.</param>
+            <param name="session">Session for the current user.</param>
             <param name="logger">Logger.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.ReadCacheBytesAsync(System.String)">

@@ -46,8 +46,8 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
             else
             {
-                _output.WriteLine("Connection to keyvault failed. No secret returned. ");
-                throw new ArgumentNullException(nameof(_ccaSecret), "No secret returned from keyvault. ");
+                _output.WriteLine("Connection to Key Vault failed. No secret returned. ");
+                throw new ArgumentNullException(nameof(_ccaSecret), "No secret returned from Key Vault. ");
             }
         }
 
@@ -98,8 +98,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                microsoftIdentityOptions,
-                httpContextAccessor,
                 _provider.GetService<IMemoryCache>(),
                 tokenOptions);
 
