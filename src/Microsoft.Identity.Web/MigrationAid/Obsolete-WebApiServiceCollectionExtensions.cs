@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AddMicrosoftWebApiAuth. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApiAuthentication. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
