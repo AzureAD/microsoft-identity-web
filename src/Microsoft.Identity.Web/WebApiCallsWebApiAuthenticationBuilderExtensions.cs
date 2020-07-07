@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             return builder.AddMicrosoftWebApiCallsWebApi(
@@ -76,8 +76,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
-
                 options.Events ??= new JwtBearerEvents();
 
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;

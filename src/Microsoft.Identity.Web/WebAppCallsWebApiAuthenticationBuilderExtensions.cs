@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             return builder.AddMicrosoftWebAppCallsWebApi(
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             return builder.AddMicrosoftWebAppCallsWebApi(
@@ -119,7 +119,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider>((options, serviceProvider) =>
             {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
                 options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
 
                 // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts

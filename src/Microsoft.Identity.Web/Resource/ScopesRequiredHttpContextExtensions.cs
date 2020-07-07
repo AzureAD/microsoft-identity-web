@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web.Resource
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = $"The 'scope' or 'scp' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
+                    string message = string.Format(CultureInfo.InvariantCulture, LogMessages.MissingScopes, string.Join(",", acceptedScopes));
                     context.Response.WriteAsync(message);
                 }
             }

@@ -268,98 +268,6 @@
             </summary>
             <param name="certificateDescription">Description of the certificate.</param>
         </member>
-        <member name="T:Microsoft.Identity.Web.ClaimConstants">
-            <summary>
-            Constants for claim types.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Name">
-            <summary>
-            Name claim: "name".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.ObjectId">
-            <summary>
-            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Oid">
-            <summary>
-            New Object id claim: "oid".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.PreferredUserName">
-            <summary>
-            PreferredUserName: "preferred_username".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.TenantId">
-            <summary>
-            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tid">
-            <summary>
-            New Tenant Id claim: "tid".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.ClientInfo">
-            <summary>
-            ClientInfo claim: "client_info".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier">
-            <summary>
-            UniqueObjectIdentifier: "uid".
-            Home Object Id.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier">
-            <summary>
-            UniqueTenantIdentifier: "utid".
-            Home Tenant Id.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scope">
-            <summary>
-            Older scope claim: "http://schemas.microsoft.com/identity/claims/scope".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scp">
-            <summary>
-            Newer scope claim: "scp".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Roles">
-            <summary>
-            New Roles claim = "roles".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Role">
-            <summary>
-            Old Role claim: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Sub">
-            <summary>
-            Subject claim: "sub".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Acr">
-            <summary>
-            Acr claim: "acr".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UserFlow">
-            <summary>
-            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tfp">
-            <summary>
-            Tfp claim: "tfp".
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
             <summary>
             Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
@@ -468,6 +376,98 @@
               string accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(scopes);
              </code>
              </example>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimConstants">
+            <summary>
+            Constants for claim types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Name">
+            <summary>
+            Name claim: "name".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.ObjectId">
+            <summary>
+            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Oid">
+            <summary>
+            New Object id claim: "oid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.PreferredUserName">
+            <summary>
+            PreferredUserName: "preferred_username".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tid">
+            <summary>
+            New Tenant Id claim: "tid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.ClientInfo">
+            <summary>
+            ClientInfo claim: "client_info".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier">
+            <summary>
+            UniqueObjectIdentifier: "uid".
+            Home Object Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier">
+            <summary>
+            UniqueTenantIdentifier: "utid".
+            Home Tenant Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scope">
+            <summary>
+            Older scope claim: "http://schemas.microsoft.com/identity/claims/scope".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scp">
+            <summary>
+            Newer scope claim: "scp".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Roles">
+            <summary>
+            New Roles claim = "roles".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Role">
+            <summary>
+            Old Role claim: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Sub">
+            <summary>
+            Subject claim: "sub".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Acr">
+            <summary>
+            Acr claim: "acr".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.UserFlow">
+            <summary>
+            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tfp">
+            <summary>
+            Tfp claim: "tfp".
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">
             <summary>
@@ -946,12 +946,11 @@
             </param>
             <returns>The authentication builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             </summary>
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
-            <param name="configureOpenIdConnectOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions"/>.</param>
             <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
             <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>

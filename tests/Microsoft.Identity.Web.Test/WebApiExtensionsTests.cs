@@ -90,10 +90,13 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Configure options actions added correctly
-            var configuredJwtOptions = provider.GetServices<IConfigureOptions<JwtBearerOptions>>().Cast<ConfigureNamedOptions<JwtBearerOptions>>();
             var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
+#if DOTNET_CORE_31
+            var configuredJwtOptions = provider.GetServices<IConfigureOptions<JwtBearerOptions>>().Cast<ConfigureNamedOptions<JwtBearerOptions>>();
+
             Assert.Contains(configuredJwtOptions, o => o.Action == _configureJwtOptions);
+#endif
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
             AddProtectedWebApi_TestCommon(services, provider);

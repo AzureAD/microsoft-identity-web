@@ -102,13 +102,10 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            // Tenant for MSA accounts
-            const string msaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
-
             var tenantId = GetTenantId(claimsPrincipal);
             string? domainHint = string.IsNullOrWhiteSpace(tenantId)
                 ? null
-                : tenantId.Equals(msaTenantId, StringComparison.OrdinalIgnoreCase) ? "consumers" : "organizations";
+                : tenantId.Equals(Constants.MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Constants.Consumers : Constants.Organizations;
 
             return domainHint;
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,12 @@ namespace Microsoft.Identity.Web
                     // the users cannot provide both scopes and ScopeKeySection at the same time
                     if (!string.IsNullOrWhiteSpace(ScopeKeySection) && Scopes != null && Scopes.Length > 0)
                     {
-                        throw new InvalidOperationException($"Either provide the '{nameof(ScopeKeySection)}' or the '{nameof(Scopes)}' to the 'AuthorizeForScopes'.");
+                        throw new InvalidOperationException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                ErrorMessage.ProvideEitherScopeKeySectionOrScopes,
+                                nameof(ScopeKeySection),
+                                nameof(Scopes)));
                     }
 
                     // Do not re-use the attribute param Scopes. For more info: https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/273
@@ -71,14 +77,18 @@ namespace Microsoft.Identity.Web
 
                         if (configuration == null)
                         {
-                            throw new InvalidOperationException($"The {nameof(ScopeKeySection)} is provided but the IConfiguration instance is not present in the services collection");
+                            throw new InvalidOperationException(
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    ErrorMessage.ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
+                                    nameof(ScopeKeySection)));
                         }
 
                         incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
 
                         if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
                         {
-                            throw new InvalidOperationException("no scopes provided in scopes...");
+                            throw new InvalidOperationException(ErrorMessage.NoScopesProvided);
                         }
                     }
                     else

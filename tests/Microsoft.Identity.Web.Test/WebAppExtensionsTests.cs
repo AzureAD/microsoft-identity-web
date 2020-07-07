@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.Test
             // Assert config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(_oidcScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            configMock.Received(3).GetSection(_configSectionName);
+            configMock.Received(2).GetSection(_configSectionName);
 
             AddMicrosoftWebApp_TestCommon(services, provider);
             AddMicrosoftWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
@@ -91,20 +91,19 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
             // Assert configure options actions added correctly
-            var configuredOidcOptions = provider.GetServices<IConfigureOptions<OpenIdConnectOptions>>().Cast<ConfigureNamedOptions<OpenIdConnectOptions>>();
             var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
 #if DOTNET_CORE_31
             var configuredCookieOptions = provider.GetServices<IConfigureOptions<CookieAuthenticationOptions>>().Cast<ConfigureNamedOptions<CookieAuthenticationOptions>>();
+
             Assert.Contains(configuredCookieOptions, o => o.Action == _configureCookieOptions);
 #endif
 
-            Assert.Contains(configuredOidcOptions, o => o.Action == _configureOidcOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
             AddMicrosoftWebApp_TestCommon(services, provider);
@@ -119,7 +118,7 @@ namespace Microsoft.Identity.Web.Test
 
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -137,7 +136,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -145,7 +144,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                    .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
+                    .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -159,7 +158,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -186,7 +185,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -194,7 +193,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme, false);
 
             await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
@@ -214,10 +213,10 @@ namespace Microsoft.Identity.Web.Test
                 .AddMicrosoftWebAppCallsWebApi(configMock, initialScopes, _configSectionName, _oidcScheme);
             services.Configure<OpenIdConnectOptions>(_oidcScheme, (options) =>
             {
-                 options.Events ??= new OpenIdConnectEvents();
-                 options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
-                 options.Events.OnTokenValidated += tokenValidatedFuncMock;
-                 options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
+                options.Events ??= new OpenIdConnectEvents();
+                options.Events.OnAuthorizationCodeReceived += authCodeReceivedFuncMock;
+                options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                options.Events.OnRedirectToIdentityProviderForSignOut += redirectFuncMock;
             });
 
             services.RemoveAll<ITokenAcquisition>();
@@ -314,7 +313,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
             services.AddDataProtection();
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApp(_configureOidcOptions, _configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme);
+                .AddMicrosoftWebApp(_configureMsOptions, _configureCookieOptions, _oidcScheme, _cookieScheme);
 
             var provider = services.BuildServiceProvider();
 
@@ -340,8 +339,6 @@ namespace Microsoft.Identity.Web.Test
             // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
-            Assert.Contains(services, s => s.ServiceType == typeof(IOpenIdConnectMiddlewareDiagnostics));
-            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(IOpenIdConnectMiddlewareDiagnostics)).Lifetime);
             Assert.Contains(services, s => s.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>));
 
             // Assert properties set
@@ -525,6 +522,26 @@ namespace Microsoft.Identity.Web.Test
             configBuilder.Add(memoryConfigSource);
             var configSection = configBuilder.Build().GetSection(configSectionName);
             return configSection;
+        }
+
+        [Fact]
+        public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
+        {
+            // If the number of public properties of OpenIdConnectOptions changes,
+            // then, the PopulateOpenIdOptionsFromMicrosoftIdentityOptions method
+            // needs to be updated. For this uncomment the 2 lines below, and run the test
+            // then diff the files to find what are the new properties
+            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties().Length;
+
+            int expectedNumberOfProperties;
+#if DOTNET_CORE_31
+            expectedNumberOfProperties = 54;
+            // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+#elif DOTNET_50
+            expectedNumberOfProperties = 56;
+ // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+#endif
+            Assert.Equal(expectedNumberOfProperties, numberOfProperties);
         }
     }
 }

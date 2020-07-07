@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
         {
             if (options.SameSite == SameSiteMode.None)
             {
-                var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+                var userAgent = httpContext.Request.Headers[Constants.UserAgent].ToString();
                 if (disallowsSameSiteNone(userAgent))
                 {
                     options.SameSite = SameSiteMode.Unspecified;

@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,12 +36,11 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
                 builder.AddMicrosoftWebApp(
-                    options => configuration.Bind(configSectionName, options),
                     options => configuration.Bind(configSectionName, options),
                     options => { },
                     openIdConnectScheme,
@@ -51,7 +51,6 @@ namespace Microsoft.Identity.Web
         /// Add authentication with Microsoft identity platform.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
-        /// <param name="configureOpenIdConnectOptions">The action to configure <see cref="OpenIdConnectOptions"/>.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
@@ -62,7 +61,6 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder for chaining.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
-            Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions> configureCookieAuthenticationOptions,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
@@ -72,11 +70,6 @@ namespace Microsoft.Identity.Web
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configureOpenIdConnectOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureOpenIdConnectOptions));
             }
 
             if (configureMicrosoftIdentityOptions == null)
@@ -89,39 +82,45 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureCookieAuthenticationOptions));
             }
 
-            builder.Services.Configure(openIdConnectScheme, configureOpenIdConnectOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
-            builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
             builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
 
+            if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+            {
+                builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
+            }
+
+            builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
-           {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
-                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions);
+                .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
+            {
+                PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
+                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
                 options.SignInScheme = cookieScheme;
 
                 if (string.IsNullOrWhiteSpace(options.Authority))
                 {
-                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
+                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
                 }
 
                 // This is a Microsoft identity platform Web app
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
+                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
+
                 // B2C doesn't have preferred_username claims
-                if (microsoftIdentityOptions.IsB2C)
+                if (microsoftIdentityOptions.Value.IsB2C)
                 {
-                    options.TokenValidationParameters.NameClaimType = "name";
+                    options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
                 }
                 else
                 {
-                    options.TokenValidationParameters.NameClaimType = "preferred_username";
+                    options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
                 }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
@@ -151,7 +150,7 @@ namespace Microsoft.Identity.Web
                         context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                     }
 
-                    context.ProtocolMessage.SetParameter("client_info", "1");
+                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
                     // Additional claims
                     if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
@@ -161,7 +160,7 @@ namespace Microsoft.Identity.Web
                             context.Properties.Items[OidcConstants.AdditionalClaims]);
                     }
 
-                    if (microsoftIdentityOptions.IsB2C)
+                    if (microsoftIdentityOptions.Value.IsB2C)
                     {
                         // When a new Challenge is returned using any B2C user flow different than susi, we must change
                         // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
@@ -171,7 +170,7 @@ namespace Microsoft.Identity.Web
                     await redirectToIdpHandler(context).ConfigureAwait(false);
                 };
 
-                if (microsoftIdentityOptions.IsB2C)
+                if (microsoftIdentityOptions.Value.IsB2C)
                 {
                     var remoteFailureHandler = options.Events.OnRemoteFailure;
                     options.Events.OnRemoteFailure = async context =>
@@ -187,13 +186,84 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
                 {
-                    var diags = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
+                    var diagnostics = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
-                    diags.Subscribe(options.Events);
+                    diagnostics.Subscribe(options.Events);
                 }
             });
 
             return builder;
+        }
+
+        internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            options.Authority = microsoftIdentityOptions.Authority;
+            options.ClientId = microsoftIdentityOptions.ClientId;
+            options.ClientSecret = microsoftIdentityOptions.ClientSecret;
+            options.Configuration = microsoftIdentityOptions.Configuration;
+            options.ConfigurationManager = microsoftIdentityOptions.ConfigurationManager;
+            options.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
+            foreach (ClaimAction c in microsoftIdentityOptions.ClaimActions)
+            {
+                options.ClaimActions.Add(c);
+            }
+
+            options.RequireHttpsMetadata = microsoftIdentityOptions.RequireHttpsMetadata;
+            options.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
+            options.Events = microsoftIdentityOptions.Events;
+            options.MaxAge = microsoftIdentityOptions.MaxAge;
+            options.ProtocolValidator = microsoftIdentityOptions.ProtocolValidator;
+            options.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
+            options.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            options.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
+            options.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
+            options.Resource = microsoftIdentityOptions.Resource;
+            options.ResponseMode = microsoftIdentityOptions.ResponseMode;
+            options.ResponseType = microsoftIdentityOptions.ResponseType;
+            options.Prompt = microsoftIdentityOptions.Prompt;
+
+            foreach (string scope in microsoftIdentityOptions.Scope)
+            {
+                options.Scope.Add(scope);
+            }
+
+            options.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
+            options.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
+            options.StateDataFormat = microsoftIdentityOptions.StateDataFormat;
+            options.StringDataFormat = microsoftIdentityOptions.StringDataFormat;
+            options.SecurityTokenValidator = microsoftIdentityOptions.SecurityTokenValidator;
+            options.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters;
+            options.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
+            options.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
+            options.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
+            options.NonceCookie = microsoftIdentityOptions.NonceCookie;
+            options.UsePkce = microsoftIdentityOptions.UsePkce;
+#if DOTNET_50_AND_ABOVE
+            options.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+            options.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
+#endif
+            options.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
+            options.BackchannelHttpHandler = microsoftIdentityOptions.BackchannelHttpHandler;
+            options.Backchannel = microsoftIdentityOptions.Backchannel;
+            options.DataProtectionProvider = microsoftIdentityOptions.DataProtectionProvider;
+            options.CallbackPath = microsoftIdentityOptions.CallbackPath;
+            options.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
+            options.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
+            options.SignInScheme = microsoftIdentityOptions.SignInScheme;
+            options.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
+            options.Events = microsoftIdentityOptions.Events;
+            options.SaveTokens = microsoftIdentityOptions.SaveTokens;
+            options.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
+            options.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
+            options.Events = microsoftIdentityOptions.Events;
+            options.EventsType = microsoftIdentityOptions.EventsType;
+            options.ForwardDefault = microsoftIdentityOptions.ForwardDefault;
+            options.ForwardAuthenticate = microsoftIdentityOptions.ForwardAuthenticate;
+            options.ForwardChallenge = microsoftIdentityOptions.ForwardChallenge;
+            options.ForwardForbid = microsoftIdentityOptions.ForwardForbid;
+            options.ForwardSignIn = microsoftIdentityOptions.ForwardSignIn;
+            options.ForwardSignOut = microsoftIdentityOptions.ForwardSignOut;
+            options.ForwardDefaultSelector = microsoftIdentityOptions.ForwardDefaultSelector;
         }
     }
 }

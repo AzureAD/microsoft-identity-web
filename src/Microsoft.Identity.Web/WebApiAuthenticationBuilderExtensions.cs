@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
@@ -68,27 +68,41 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.Configure(jwtBearerScheme, configureJwtBearerOptions);
+            if (configureJwtBearerOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureJwtBearerOptions));
+            }
+
+            if (configureMicrosoftIdentityOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+            }
+
+            builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             builder.Services.AddHttpClient();
+
+            if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+            {
+                builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
+            }
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
+                .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
             {
-                MicrosoftIdentityOptions microsoftIdentityOptions = serviceProvider.GetRequiredService<IOptions<MicrosoftIdentityOptions>>().Value;
-
                 if (string.IsNullOrWhiteSpace(options.Authority))
                 {
-                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
+                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
                 }
 
                 // This is a Microsoft identity platform Web API
                 options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+
+                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
 
                 if (options.TokenValidationParameters.AudienceValidator == null
                  && options.TokenValidationParameters.ValidAudience == null
@@ -97,7 +111,7 @@ namespace Microsoft.Identity.Web
                     RegisterValidAudience registerAudience = new RegisterValidAudience();
                     registerAudience.RegisterAudienceValidation(
                         options.TokenValidationParameters,
-                        microsoftIdentityOptions);
+                        microsoftIdentityOptions.Value);
                 }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
@@ -109,10 +123,10 @@ namespace Microsoft.Identity.Web
                 }
 
                 // If you provide a token decryption certificate, it will be used to decrypt the token
-                if (microsoftIdentityOptions.TokenDecryptionCertificates != null)
+                if (microsoftIdentityOptions.Value.TokenDecryptionCertificates != null)
                 {
                     options.TokenValidationParameters.TokenDecryptionKey =
-                        new X509SecurityKey(DefaultCertificateLoader.LoadFirstCertificate(microsoftIdentityOptions.TokenDecryptionCertificates));
+                        new X509SecurityKey(DefaultCertificateLoader.LoadFirstCertificate(microsoftIdentityOptions.Value.TokenDecryptionCertificates));
                 }
 
                 if (options.Events == null)
@@ -131,7 +145,7 @@ namespace Microsoft.Identity.Web
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
                     {
-                        throw new UnauthorizedAccessException("Neither scope or roles claim was found in the bearer token.");
+                        throw new UnauthorizedAccessException(ErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                     }
 
                     await tokenValidatedHandler(context).ConfigureAwait(false);
@@ -139,9 +153,9 @@ namespace Microsoft.Identity.Web
 
                 if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                 {
-                    var diags = serviceProvider.GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
+                    var diagnostics = serviceProvider.GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
 
-                    diags.Subscribe(options.Events);
+                    diagnostics.Subscribe(options.Events);
                 }
             });
 

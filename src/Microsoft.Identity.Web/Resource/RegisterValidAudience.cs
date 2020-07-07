@@ -16,9 +16,6 @@ namespace Microsoft.Identity.Web.Resource
     {
         private string ClientId { get; set; } = null!;
         private bool IsB2C { get; set; } = false;
-        private const string Version = "ver";
-        private const string V1 = "1.0";
-        private const string V2 = "2.0";
 
         public void RegisterAudienceValidation(
             TokenValidationParameters validationParameters,
@@ -64,7 +61,7 @@ namespace Microsoft.Identity.Web.Resource
             JwtSecurityToken? token = securityToken as JwtSecurityToken;
             if (token == null)
             {
-                throw new SecurityTokenValidationException("Token is not JWT token.");
+                throw new SecurityTokenValidationException(ErrorMessage.TokenIsNotJWTToken);
             }
 
             validationParameters.AudienceValidator = null;
@@ -74,13 +71,13 @@ namespace Microsoft.Identity.Web.Resource
                 validationParameters.ValidAudiences == null)
             {
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
-                if (IsB2C || token.Claims.Any(c => c.Type == Version && c.Value == V2))
+                if (IsB2C || token.Claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V2))
                 {
                     validationParameters.ValidAudience = $"{ClientId}";
                 }
 
                 // handle v1.0 access token
-                else if (token.Claims.Any(c => c.Type == Version && c.Value == V1))
+                else if (token.Claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V1))
                 {
                     validationParameters.ValidAudience = $"api://{ClientId}";
                 }
