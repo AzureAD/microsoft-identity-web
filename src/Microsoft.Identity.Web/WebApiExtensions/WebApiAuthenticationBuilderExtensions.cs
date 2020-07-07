@@ -53,8 +53,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the JWT bearer events.
-        /// </param>
+        /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
         /// <returns>The authentication builder to chain.</returns>
         public static AuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,

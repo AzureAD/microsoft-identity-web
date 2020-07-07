@@ -29,11 +29,11 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApiAuthentication. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             X509Certificate2? tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web
         public static IServiceCollection AddProtectedWebApiCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             return services.AddAuthentication(jwtBearerScheme).AddMicrosoftWebApiCallsWebApi(

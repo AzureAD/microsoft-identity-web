@@ -840,6 +840,9 @@
             <summary>
             Extensions for IServiceCollection for startup initialization of Web APIs.
             </summary>
+            <summary>
+            Extension for IServiceCollection for startup initialization of Web APIs.
+            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddProtectedWebApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
             <summary>
@@ -892,6 +895,21 @@
             <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
             <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
             <returns>The service collection to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddMicrosoftWebApiAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication.</param>
+            <param name="configuration">The Configuration object.</param>
+            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+            <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
+            <param name="tokenDecryptionCertificate">Token decryption certificate (null by default).</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JwtBearer events.
+            </param>
+            <returns>The authentication builder to chain extension methods.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions">
             <summary>
@@ -963,6 +981,9 @@
         <member name="T:Microsoft.Identity.Web.WebAppServiceCollectionExtensions">
             <summary>
             Extensions for IServiceCollection for startup initialization.
+            </summary>
+            <summary>
+            Extension for IServiceCollection for startup initialization.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddSignIn(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
@@ -1045,6 +1066,26 @@
             (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
             several OpenIdConnect identity providers.</param>
             <returns>The service collection for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddMicrosoftWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
+            initialize the authentication options.
+            </summary>
+            <param name="services">Service collection to which to add authentication.</param>
+            <param name="configuration">The IConfiguration object.</param>
+            <param name="configSectionName">The name of the configuration section with the necessary
+            settings to initialize authentication options.</param>
+            <param name="openIdConnectScheme">Optional name for the open id connect authentication scheme
+            (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
+            several OpenIdConnect identity providers.</param>
+            <param name="cookieScheme">Optional name for the cookie authentication scheme
+            (by default OpenIdConnectDefaults.AuthenticationScheme).</param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenIdConnect events.
+            </param>
+            <returns>The authentication builder to chain extension methods.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
             <summary>

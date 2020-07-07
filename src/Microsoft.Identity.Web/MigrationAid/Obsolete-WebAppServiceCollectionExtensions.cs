@@ -35,11 +35,11 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The service collection for chaining.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebAppAuthentication. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Web
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             return services.AddAuthentication(openIdConnectScheme).AddMicrosoftWebAppCallsWebApi(
@@ -133,7 +133,7 @@ namespace Microsoft.Identity.Web
             this IServiceCollection services,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             return services.AddAuthentication(openIdConnectScheme).AddMicrosoftWebAppCallsWebApi(
