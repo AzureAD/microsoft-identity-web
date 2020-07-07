@@ -283,29 +283,34 @@ namespace Microsoft.Identity.Web
         /// <returns>A <see cref="Task"/> that represents a completed account removal operation.</returns>
         public async Task RemoveAccountAsync(RedirectContext context)
         {
-            IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-
-            // For B2C, we should remove all accounts of the user regardless the user flow
-            if (_microsoftIdentityOptions.IsB2C)
+            ClaimsPrincipal user = context.HttpContext.User;
+            string? userId = user.GetMsalAccountId();
+            if (!string.IsNullOrEmpty(userId))
             {
-                var b2cAccounts = await app.GetAccountsAsync().ConfigureAwait(false);
+                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-                foreach (var b2cAccount in b2cAccounts)
+                // For B2C, we should remove all accounts of the user regardless the user flow
+                if (_microsoftIdentityOptions.IsB2C)
                 {
-                    await app.RemoveAsync(b2cAccount).ConfigureAwait(false);
+                    var b2cAccounts = await app.GetAccountsAsync().ConfigureAwait(false);
+
+                    foreach (var b2cAccount in b2cAccounts)
+                    {
+                        await app.RemoveAsync(b2cAccount).ConfigureAwait(false);
+                    }
+
+                    await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
                 }
-
-                _tokenCacheProvider?.ClearAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                string? identifier = context.HttpContext.User.GetMsalAccountId();
-                IAccount account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
-
-                if (account != null)
+                else
                 {
-                    await app.RemoveAsync(account).ConfigureAwait(false);
-                    _tokenCacheProvider?.ClearAsync().ConfigureAwait(false);
+                    string? identifier = context.HttpContext.User.GetMsalAccountId();
+                    IAccount account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
+
+                    if (account != null)
+                    {
+                        await app.RemoveAsync(account).ConfigureAwait(false);
+                        await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
+                    }
                 }
             }
         }

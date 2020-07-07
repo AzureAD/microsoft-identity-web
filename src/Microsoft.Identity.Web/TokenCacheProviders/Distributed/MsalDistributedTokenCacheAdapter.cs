@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
@@ -28,16 +27,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>
         /// Initializes a new instance of the <see cref="MsalDistributedTokenCacheAdapter"/> class.
         /// </summary>
-        /// <param name="microsoftIdentityOptions"></param>
-        /// <param name="httpContextAccessor"></param>
         /// <param name="memoryCache"></param>
         /// <param name="cacheOptions"></param>
         public MsalDistributedTokenCacheAdapter(
-                                            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
-                                            IHttpContextAccessor httpContextAccessor,
                                             IDistributedCache memoryCache,
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> cacheOptions)
-            : base(microsoftIdentityOptions, httpContextAccessor)
         {
             if (cacheOptions == null)
             {
