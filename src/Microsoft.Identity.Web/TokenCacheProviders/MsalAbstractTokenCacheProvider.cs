@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         private async Task OnAfterAccessAsync(TokenCacheNotificationArgs args)
         {
             // The access operation resulted in a cache update.
-            if (args.HasStateChanged && !string.IsNullOrEmpty(args.SuggestedCacheKey))
+            if (args.HasStateChanged)
             {
                 if (args.HasTokens)
                 {
