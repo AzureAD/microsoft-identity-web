@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
 
             _distributedCache = memoryCache;
-            _cacheOptions = (MsalDistributedTokenCacheAdapterOptions)cacheOptions.Value;
+            _cacheOptions = cacheOptions.Value;
         }
 
         /// <summary>
