@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="cacheOptions"></param>
         public MsalDistributedTokenCacheAdapter(
                                             IDistributedCache memoryCache,
-                                            IOptions<DistributedCacheEntryOptions> cacheOptions)
+                                            IOptions<MsalDistributedTokenCacheAdapterOptions> cacheOptions)
         {
             if (cacheOptions == null)
             {
