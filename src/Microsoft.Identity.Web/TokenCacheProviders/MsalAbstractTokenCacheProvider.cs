@@ -54,7 +54,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                     await RemoveKeyAsync(args.SuggestedCacheKey).ConfigureAwait(false);
                 }
             }
-
         }
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
