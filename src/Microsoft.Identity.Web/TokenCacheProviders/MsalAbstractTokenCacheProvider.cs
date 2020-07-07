@@ -41,17 +41,28 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="args">Contains parameters used by the MSAL call accessing the cache.</param>
         private async Task OnAfterAccessAsync(TokenCacheNotificationArgs args)
         {
-            // if the access operation resulted in a cache update
+            // The access operation resulted in a cache update.
             if (args.HasStateChanged)
             {
-                await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
+                if (args.HasTokens)
+                {
+                    await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
+                }
+                else
+                {
+                    // No token in the cache. we can remove the cache entry
+                    await RemoveKeyAsync(args.SuggestedCacheKey).ConfigureAwait(false);
+                }
             }
         }
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey).ConfigureAwait(false);
-            args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
+            if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
+            {
+                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey).ConfigureAwait(false);
+                args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
+            }
         }
 
         /// <summary>
