@@ -93,8 +93,15 @@
         },
         {
           "condition": "(!GenerateApi)",
+            "exclude": [
+              "Services/DownstreamWebApi.cs"
+            ]
+        },
+        {
+          "condition": "(!CallsMicrosoftGraph)",
           "exclude": [
-            "Services/**"
+             "Services/MicrosoftGraphServiceExtensions.cs",
+            "Services/TokenAcquisitionCredentialProvider.cs"
           ]
         }
       ]
@@ -343,6 +350,11 @@
       "replaces": "https://graph.microsoft.com/v1.0/me",
       "description": "URL of the API to call from the web app."
     },
+    "CallsMicrosoftGraph": {
+        "type": "parameter",
+        "datatype": "bool",
+        "description": "Specifies if the web app calls Microsoft Graph."
+    },
     "CalledApiScopes": {
       "type": "parameter",
       "datatype": "string",
@@ -352,6 +364,10 @@
     "GenerateApi": {
         "type": "computed",
         "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
+    },
+    "GenerateApiOrGraph": {
+        "type": "computed",
+        "value": "(GenerateApi || CallsMicrosoftGraph)"
     }
   },
   "primaryOutputs": [
@@ -361,16 +377,29 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-    {
-      "condition": "(!skipRestore)",
-      "description": "Restore NuGet packages required by this project.",
-      "manualInstructions": [
-        {
-          "text": "Run 'dotnet restore'"
-        }
-      ],
-      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
-      "continueOnError": true
-    }
+  {
+     "condition": "(CallsMicrosoftGraph)",
+     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
+     "description": "Adds Microsoft Graph package.",
+    "manualInstructions": [
+    ],
+    "args": {
+        "referenceType": "package",
+        "reference": "Microsoft.Graph",
+        "version": "3.8.0"
+    },
+   "continueOnError": true
+  },
+  {
+    "condition": "(!skipRestore)",
+    "description": "Restore NuGet packages required by this project.",
+    "manualInstructions": [
+      {
+        "text": "Run 'dotnet restore'"
+      }
+    ],
+    "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+    "continueOnError": true
+  }
   ]
 }
