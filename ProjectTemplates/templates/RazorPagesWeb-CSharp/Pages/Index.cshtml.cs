@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-#if (GenerateApi)
+#if (GenerateApi || CallsMicrosoftGraph)
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
 using Company.WebApplication1.Services;
+#endif
+#if (CallsMicrosoftGraph)
+using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Company.WebApplication1.Pages
 {
-#if (GenerateApi)
+#if (GenerateApi || CallsMicrosoftGraph)
     [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
 #endif 
     public class IndexModel : PageModel
@@ -39,6 +42,22 @@ namespace Company.WebApplication1.Pages
             // You can also specify the relative endpoint and the scopes
             // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
             //                                                             new string[] {"user.read"});
+        }
+#elif (CallsMicrosoftGraph)
+        private readonly GraphServiceClient _graphServiceClient;
+
+        public IndexModel(ILogger<IndexModel> logger,
+                          GraphServiceClient graphServiceClient)
+        {
+            _logger = logger;
+            _graphServiceClient = graphServiceClient;
+        }
+
+        public async Task OnGet()
+        {
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+
+            ViewData["ApiResult"] = user.DisplayName;
         }
 #else
         public IndexModel(ILogger<IndexModel> logger)

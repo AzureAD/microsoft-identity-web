@@ -79,6 +79,10 @@
     "CalledApiScopes": {
         "longName": "called-api-scopes",
         "shortName": ""
+    },
+    "CallsMicrosoftGraph": {
+        "longName": "calls-graph",
+        "shortName": ""
     }
   },
   "usageExamples": [
