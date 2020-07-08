@@ -98,7 +98,7 @@
         {
           "condition": "(!GenerateApi)",
             "exclude": [
-                  "Services/DownstreamWebApi.cs"
+                "Services/DownstreamWebApi.cs"
             ]
         },
         {
@@ -349,10 +349,10 @@
       }
     },
     "CalledApiUrl": {
-        "type": "parameter",
-        "datatype": "string",
-        "replaces": "https://graph.microsoft.com/v1.0/me",
-        "description": "URL of the API to call from the web app."
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "https://graph.microsoft.com/v1.0/me",
+      "description": "URL of the API to call from the web app."
     },
     "CallsMicrosoftGraph": {
         "type": "parameter",
