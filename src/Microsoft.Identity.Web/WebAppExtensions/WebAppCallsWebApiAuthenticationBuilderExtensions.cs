@@ -151,11 +151,11 @@ namespace Microsoft.Identity.Web
                 {
                     if (context.Request.Form.ContainsKey(ClaimConstants.ClientInfo))
                     {
-                        context.Request.Form.TryGetValue(ClaimConstants.ClientInfo, out Microsoft.Extensions.Primitives.StringValues value);
+                        string clientInfo = context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo);
 
-                        if (!string.IsNullOrEmpty(value))
+                        if (!string.IsNullOrEmpty(clientInfo))
                         {
-                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(value);
+                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
                             if (clientInfoFromServer != null)
                             {
