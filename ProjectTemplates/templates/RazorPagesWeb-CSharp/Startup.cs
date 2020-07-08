@@ -41,7 +41,7 @@ using Microsoft.Extensions.Hosting;
 #if(MultiOrgAuth)
 using Microsoft.IdentityModel.Tokens;
 #endif
-#if (GenerateApi || CallsMicrosoftGraph)
+#if (GenerateApiOrGraph)
 using Company.WebApplication1.Services;
 #endif
 #if (CallsMicrosoftGraph)

@@ -105,8 +105,8 @@
           "condition": "(!CallsMicrosoftGraph)",
           "exclude": [
              "Services/MicrosoftGraphServiceExtensions.cs",
-            "Services/TokenAcquisitionCredentialProvider.cs"
-          ]
+             "Services/TokenAcquisitionCredentialProvider.cs"
+            ]
         }
       ]
     }
@@ -357,6 +357,7 @@
     "CallsMicrosoftGraph": {
         "type": "parameter",
         "datatype": "bool",
+        "defaultValue": "false",
         "description": "Specifies if the web app calls Microsoft Graph."
     },
     "CalledApiScopes": {
@@ -368,6 +369,10 @@
     "GenerateApi": {
         "type": "computed",
         "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
+    },
+    "GenerateApiOrGraph": {
+        "type": "computed",
+        "value": "(GenerateApi || CallsMicrosoftGraph)"
     }
   },
   "primaryOutputs": [

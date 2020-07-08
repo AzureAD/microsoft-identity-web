@@ -353,6 +353,7 @@
     "CallsMicrosoftGraph": {
         "type": "parameter",
         "datatype": "bool",
+        "defaultValue": "false",
         "description": "Specifies if the web app calls Microsoft Graph."
     },
     "CalledApiScopes": {

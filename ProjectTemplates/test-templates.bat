@@ -77,7 +77,7 @@ cd ..
 echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Multiple Orgs)"
 mkdir mvcwebapp-multi-org-graph
 cd mvcwebapp-multi-org-graph
-dotnet new mvc2 --auth MultiOrg --calls-graph "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new mvc2 --auth MultiOrg --calls-graph --called-api-scopes "user.read"
 dotnet build
 cd ..
 
