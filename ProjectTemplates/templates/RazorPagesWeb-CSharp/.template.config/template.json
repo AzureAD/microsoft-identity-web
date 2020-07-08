@@ -103,9 +103,9 @@
         },
         {
           "condition": "(!CallsMicrosoftGraph)",
-            "exclude": [
-                "Services/MicrosoftGraphServiceExtensions.cs",
-                "Services/TokenAcquisitionCredentialProvider.cs"
+          "exclude": [
+             "Services/MicrosoftGraphServiceExtensions.cs",
+             "Services/TokenAcquisitionCredentialProvider.cs"
             ]
         }
       ]
