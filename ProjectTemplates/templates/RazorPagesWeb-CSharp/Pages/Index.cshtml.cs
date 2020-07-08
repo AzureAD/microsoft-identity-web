@@ -43,7 +43,7 @@ namespace Company.WebApplication1.Pages
             // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
             //                                                             new string[] {"user.read"});
         }
-#elif (CallsMicrosoftGraph)
+#elseif (CallsMicrosoftGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public IndexModel(ILogger<IndexModel> logger,
