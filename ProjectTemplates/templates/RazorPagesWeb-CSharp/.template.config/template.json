@@ -103,10 +103,10 @@
         },
         {
           "condition": "(!CallsMicrosoftGraph)",
-          "exclude": [
-             "Services/MicrosoftGraphServiceExtensions.cs",
-            "Services/TokenAcquisitionCredentialProvider.cs"
-          ]
+            "exclude": [
+                "Services/MicrosoftGraphServiceExtensions.cs",
+                "Services/TokenAcquisitionCredentialProvider.cs"
+            ]
         }
       ]
     }
@@ -368,6 +368,10 @@
     "GenerateApi": {
         "type": "computed",
         "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
+    },
+    "GenerateApiOrGraph": {
+        "type": "computed",
+        "value": "(GenerateApi || CallsMicrosoftGraph)"
     }
   },
   "primaryOutputs": [

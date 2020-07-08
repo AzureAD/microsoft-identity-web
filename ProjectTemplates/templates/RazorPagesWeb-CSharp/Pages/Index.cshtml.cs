@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-#if (GenerateApi || CallsMicrosoftGraph)
+#if (GenerateApiOrGraph)
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Company.WebApplication1.Pages
 {
-#if (GenerateApi || CallsMicrosoftGraph)
+#if (GenerateApiOrGraph)
     [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
 #endif 
     public class IndexModel : PageModel
