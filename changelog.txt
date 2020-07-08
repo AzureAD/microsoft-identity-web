@@ -1,3 +1,21 @@
+0.2.0-preview
+============
+### API breaking changes:
+- 
+- Rename `MsalMemoryTokenCacheOptions.SlidingExpiration` to align with ASP .NET Core and use `.AbsoluteExpirationRelativeToNow`. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/250).
+- Remove the `ForceHttpsRedirectUris`, `RedirectUri`, and `PostLogoutRedirectUri` options from `MicrosoftIdentityOptions`. ASP .NET Core recommends the [following guidance](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-3.1) on working with proxies. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/223).
+
+### New Features:
+**Microsoft Identity Web implements the C# 8.0 nullable standard**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/15).
+**Microsoft Identity Web now validates the app roles for a Web API, for example a daemon application**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/131).
+**Microsoft Identity Web now supports .NET Core 5.0**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/194).
+**The project templates now have an option to generate a downstream Web API**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/196).
+**Microsoft Identity Web now has the ability to specify custom cookie options**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/237).
+
+### Bug Fixes:
+**When accessing KeyVault, storage flags need to used, as there is no user profile**. The correct storage flags are now used. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/219).
+
+
 0.1.5-preview
 ============
 ### New Features:
