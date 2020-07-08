@@ -41,8 +41,11 @@ using Microsoft.Extensions.Hosting;
 #if(MultiOrgAuth)
 using Microsoft.IdentityModel.Tokens;
 #endif
-#if (GenerateApi)
+#if (GenerateApiOrGraph)
 using Company.WebApplication1.Services;
+#endif
+#if (CallsMicrosoftGraph)
+using Microsoft.Graph;
 #endif
 
 namespace Company.WebApplication1
@@ -71,24 +74,31 @@ namespace Company.WebApplication1
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApp(Configuration, "AzureAd");
-#if (GenerateApi)
+            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
+#if (GenerateApiOrGraph)
                     .AddMicrosoftWebAppCallsWebApi(Configuration, 
                                                    "AzureAd")
                     .AddInMemoryTokenCaches();
-
+#else
+                    ;
+#endif
+#if (GenerateApi)
             services.AddDownstreamWebApiService(Configuration);
 #endif
+#if (CallsMicrosoftGraph)
+            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
+                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
+#endif
 #elif (IndividualB2CAuth)
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApp(Configuration, "AzureAdB2C");
+            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
                     .AddMicrosoftWebAppCallsWebApi(Configuration, 
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
+#else
+                    ;
 #endif
 #endif
 #if (OrganizationalAuth)

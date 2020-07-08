@@ -2,7 +2,7 @@ echo "Build and Install templates"
 dotnet pack AspNetCoreMicrosoftIdentityWebProjectTemplates.csproj
 cd bin
 cd Debug
-dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.2.0-localbuild.nupkg
+dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.2.0-preview.nupkg
 
 echo "Test templates"
 mkdir tests
@@ -65,6 +65,22 @@ cd mvcwebapp-multi-org-api
 dotnet new mvc2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
 dotnet build
 cd ..
+
+
+echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Single Orgs)"
+mkdir mvcwebapp-graph
+cd mvcwebapp-graph
+dotnet new mvc2 --auth SingleOrg --calls-graph --called-api-scopes "user.read"
+dotnet build
+cd ..
+
+echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Multiple Orgs)"
+mkdir mvcwebapp-multi-org-graph
+cd mvcwebapp-multi-org-graph
+dotnet new mvc2 --auth MultiOrg --calls-graph "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet build
+cd ..
+
 
 echo " Test Web app calling Web API  (MVC, Azure AD B2C)"
 mkdir mvcwebapp-b2c-api

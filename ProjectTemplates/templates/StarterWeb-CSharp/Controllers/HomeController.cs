@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 #if (OrganizationalAuth)
 using Microsoft.AspNetCore.Authorization;
 #endif
-#if (GenerateApi)
+#if (GenerateApiOrGraph)
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
 using Company.WebApplication1.Services;
+#endif
+#if (CallsMicrosoftGraph)
+using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -43,6 +46,24 @@ namespace Company.WebApplication1.Controllers
 
             // You can also specify the relative endpoint and the scopes
             // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
+            
+            return View();
+        }
+#elseif (CallsMicrosoftGraph)
+        private readonly GraphServiceClient _graphServiceClient;
+
+        public HomeController(ILogger<HomeController> logger,
+                          GraphServiceClient graphServiceClient)
+        {
+             _logger = logger;
+            _graphServiceClient = graphServiceClient;
+       }
+
+        [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+            ViewData["ApiResult"] = user.DisplayName;
             
             return View();
         }
