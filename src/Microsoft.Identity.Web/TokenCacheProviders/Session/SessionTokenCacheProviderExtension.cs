@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -65,6 +66,38 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
 
             return services;
+        }
+
+        /// <summary>
+        /// Adds both App and per-user session token caches.
+        /// </summary>
+        /// <remarks>
+        /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
+        /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+        ///
+        /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
+        /// <code>
+        /// services.AddSession(option =>
+        /// {
+        ///     option.Cookie.IsEssential = true;
+        /// });
+        /// </code>
+        /// In the method <c>public void Configure(IApplicationBuilder app, IHostingEnvironment env)</c> in Startup.cs, add the following:
+        /// <code>
+        /// app.UseSession(); // Before UseMvc()
+        /// </code>
+        /// </remarks>
+        /// <param name="builder">The authentication builder to add the session token caches to.</param>
+        /// <returns>The builder to chain more commands.</returns>
+        public static AuthenticationBuilder AddSessionTokenCaches(this AuthenticationBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            builder.Services.AddSessionTokenCaches();
+            return builder;
         }
 
         /// <summary>

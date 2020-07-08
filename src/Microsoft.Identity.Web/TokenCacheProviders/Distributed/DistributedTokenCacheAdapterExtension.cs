@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
@@ -22,7 +23,22 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             return services;
         }
 
-        /// <summary>Adds the in-memory based application token cache to the service collection.</summary>
+        /// <summary>Adds both the app and per-user .NET Core distributed based token caches.</summary>
+        /// <param name="builder">The Authentication builder to add to.</param>
+        /// <returns>A <see cref="AuthenticationBuilder"/> to chain.</returns>
+        public static AuthenticationBuilder AddDistributedTokenCaches(
+            this AuthenticationBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            builder.Services.AddDistributedTokenCaches();
+            return builder;
+        }
+
+        /// <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
         public static IServiceCollection AddDistributedAppTokenCache(
@@ -38,7 +54,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             return services;
         }
 
-        /// <summary>Adds the in-memory based per user token cache to the service collection.</summary>
+        /// <summary>Adds the  .NET Core distributed cache based per user token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
         public static IServiceCollection AddDistributedUserTokenCache(
