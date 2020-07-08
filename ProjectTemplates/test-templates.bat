@@ -73,6 +73,7 @@ dotnet new mvc2 --auth  IndividualB2C --called-api-url "https://localhost:44332"
 dotnet build
 cd ..
 
+
 echo " Test Web app (Microsoft identity platform, Razor, Single Org)"
 mkdir webapp
 cd webapp
@@ -115,6 +116,19 @@ dotnet new webapp2 --auth  IndividualB2C --called-api-url "https://localhost:443
 dotnet build
 cd ..
 
+echo " Test Web app calling Microsoft Graph (Microsoft identity platform, Razor, Single Org)"
+mkdir webapp-graph
+cd webapp-graph
+dotnet new webapp2 --auth SingleOrg --calls-graph --called-api-scopes "user.read"
+dotnet build
+cd ..
+
+echo " Test Web app calling Microsoft Graph (Microsoft identity platform, Razor, Single Org)"
+mkdir webapp-graph-multiorg
+cd webapp-graph-multiorg
+dotnet new webapp2 --auth MultiOrg --calls-graph --called-api-scopes "user.read"
+dotnet build
+cd ..
 
 
 echo " Test Web API  (Microsoft identity platform, SingleOrg)"

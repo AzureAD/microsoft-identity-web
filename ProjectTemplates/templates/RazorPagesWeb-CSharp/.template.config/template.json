@@ -98,8 +98,15 @@
         {
           "condition": "(!GenerateApi)",
             "exclude": [
-                "Services/**"
+                "Services/DownstreamWebApi.cs"
             ]
+        },
+        {
+          "condition": "(!CallsMicrosoftGraph)",
+          "exclude": [
+             "Services/MicrosoftGraphServiceExtensions.cs",
+            "Services/TokenAcquisitionCredentialProvider.cs"
+          ]
         }
       ]
     }
@@ -347,6 +354,11 @@
       "replaces": "https://graph.microsoft.com/v1.0/me",
       "description": "URL of the API to call from the web app."
     },
+    "CallsMicrosoftGraph": {
+        "type": "parameter",
+        "datatype": "bool",
+        "description": "Specifies if the web app calls Microsoft Graph."
+    },
     "CalledApiScopes": {
       "type": "parameter",
       "datatype": "string",
@@ -365,6 +377,20 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
+  {
+     "condition": "(CallsMicrosoftGraph)",
+     "description": "Adds Microsoft Graph package.",
+     "manualInstructions": [
+     {
+       "text": "Add Microsoft.Graph NuGet package"
+     }
+   ],
+   "referenceType": "package",
+   "reference": "Microsoft.Graph",
+   "version": "3.8.0",
+   "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
+   "continueOnError": true
+    },
     {
       "condition": "(!skipRestore)",
       "description": "Restore NuGet packages required by this project.",
