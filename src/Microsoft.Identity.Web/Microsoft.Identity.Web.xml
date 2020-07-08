@@ -832,8 +832,7 @@
             <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
             <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
             <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-            Set to true if you want to debug, or just understand the JWT bearer events.
-            </param>
+            Set to true if you want to debug, or just understand the JWT bearer events.</param>
             <returns>The authentication builder to chain.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.WebApiServiceCollectionExtensions">
@@ -896,7 +895,7 @@
             <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
             <returns>The service collection to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddMicrosoftWebApiAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddMicrosoftWebApiAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Boolean)">
             <summary>
             Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -905,10 +904,8 @@
             <param name="configuration">The Configuration object.</param>
             <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
             <param name="jwtBearerScheme">The JwtBearer scheme name to be used. By default it uses "Bearer".</param>
-            <param name="tokenDecryptionCertificate">Token decryption certificate (null by default).</param>
             <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
-            Set to true if you want to debug, or just understand the JwtBearer events.
-            </param>
+            Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions">
@@ -1470,13 +1467,18 @@
             <param name="services">The services collection to add to.</param>
             <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
+            <summary>Adds both the app and per-user .NET Core distributed based token caches.</summary>
+            <param name="builder">The Authentication builder to add to.</param>
+            <returns>A <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to chain.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>Adds the in-memory based application token cache to the service collection.</summary>
+            <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
             <param name="services">The services collection to add to.</param>
             <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedUserTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>Adds the in-memory based per user token cache to the service collection.</summary>
+            <summary>Adds the  .NET Core distributed cache based per user token cache to the service collection.</summary>
             <param name="services">The services collection to add to.</param>
             <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
         </member>
@@ -1496,7 +1498,7 @@
             MSAL memory token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
@@ -1547,9 +1549,10 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
             <summary>
-            Clear the cache.
+            Clear the user token cache.
             </summary>
             <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
             <summary>
@@ -1560,6 +1563,11 @@
             <summary>Adds both the app and per-user in-memory token caches.</summary>
             <param name="services">The services collection to add to.</param>
             <returns>the services (for chaining).</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
+            <summary>Adds both the app and per-user in-memory token caches.</summary>
+            <param name="builder">The authentication builder to add to.</param>
+            <returns>the builder (for chaining).</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">
             <summary>
@@ -1758,6 +1766,29 @@
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionTokenCaches(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
+             <summary>
+             Adds both App and per-user session token caches.
+             </summary>
+             <remarks>
+             For this session cache to work effectively the ASP.NET Core session has to be configured properly.
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+            
+             In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
+             <code>
+             services.AddSession(option =>
+             {
+                 option.Cookie.IsEssential = true;
+             });
+             </code>
+             In the method <c>public void Configure(IApplicationBuilder app, IHostingEnvironment env)</c> in Startup.cs, add the following:
+             <code>
+             app.UseSession(); // Before UseMvc()
+             </code>
+             </remarks>
+             <param name="builder">The authentication builder to add the session token caches to.</param>
+             <returns>The builder to chain more commands.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
              <summary>
