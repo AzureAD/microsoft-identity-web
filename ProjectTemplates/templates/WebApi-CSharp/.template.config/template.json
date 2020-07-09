@@ -36,6 +36,19 @@
           "exclude": [
             "Properties/launchSettings.json"
           ]
+        },
+        {
+          "condition": "(!GenerateApi)",
+            "exclude": [
+              "Services/DownstreamWebApi.cs"
+            ]
+        },
+        {
+          "condition": "(!CallsMicrosoftGraph)",
+          "exclude": [
+             "Services/MicrosoftGraphServiceExtensions.cs",
+            "Services/TokenAcquisitionCredentialProvider.cs"
+          ]
         }
       ]
     }
