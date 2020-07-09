@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Use AddMicrosoftWebApp instead. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApp instead. See https://aka.ms/ms-id-web/net5. Note that OpenIdConnect options are now computed from MicrosoftIdentityOptions and CookieOptions can be set.")]
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             IConfiguration configuration,

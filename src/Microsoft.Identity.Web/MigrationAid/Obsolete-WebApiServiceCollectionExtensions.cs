@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AddMicrosoftWebApiAuthentication. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use services.AddMicrosoftWebApiAuthentication. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JwtBearer events.
         /// </param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use services.AddAuthentication(jwtBearerScheme).AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApi(
             this IServiceCollection services,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">Section name in the config file (by default "AzureAD").</param>
         /// <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApiCallsWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApiCallsWebApi on the result of AddMicrosoftWebApiAuthentication/AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApiCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="jwtBearerScheme">Scheme for the JwtBearer token.</param>
         /// <returns>The service collection to chain.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApiCallsWebApi. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebApiCallsWebApi on the result of AddMicrosoftWebApiAuthentication/AddMicrosoftWebApi. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddProtectedWebApiCallsProtectedWebApi(
             this IServiceCollection services,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
