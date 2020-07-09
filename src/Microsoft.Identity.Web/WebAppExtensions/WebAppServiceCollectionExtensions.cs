@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
             builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
-                options => { },
+                null,
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
