@@ -78,11 +78,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
 
-            Assert.Equal(
-                string.Format(CultureInfo.InvariantCulture, "Both client secret & client certificate cannot be null or whitespace, " +
-                 "and ONE, must be included in the configuration of the web app when calling a web API. " +
-                 "For instance, in the appsettings.json file. "), exception.Message);
-            Assert.Equal("missing_client_credentials", exception.ErrorCode);
+            Assert.Equal(IDWebErrorMessage.IDW10104ClientSecretAndCertficateNull, exception.Message);
+            Assert.Equal(ErrorCodes.MissingClientCredentials, exception.ErrorCode);
         }
 
         [Fact]
@@ -111,10 +108,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
 
-            Assert.Equal(
-                string.Format(CultureInfo.InvariantCulture, "Both Client secret & client certificate, " +
-                   "cannot be included in the configuration of the web app when calling a web API. "), exception.Message);
-            Assert.Equal("duplicate_client_credentials", exception.ErrorCode);
+            Assert.Equal(IDWebErrorMessage.IDW10105BothClientSecretAndCertificateProvided, exception.Message);
+            Assert.Equal(ErrorCodes.DuplicateClientCredentials, exception.ErrorCode);
         }
     }
 }

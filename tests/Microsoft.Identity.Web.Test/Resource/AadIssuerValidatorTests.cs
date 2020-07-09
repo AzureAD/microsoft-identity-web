@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Identity.Web.Resource;
@@ -88,16 +89,15 @@ namespace Microsoft.Identity.Web.Test.Resource
             var jsonWebToken = new JsonWebToken($"{{}}", $"{{}}");
             var securityToken = Substitute.For<SecurityToken>();
             var validationParameters = new TokenValidationParameters();
-            var expectedErrorMessage = "Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform.";
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() => validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, validationParameters));
-            Assert.Equal(expectedErrorMessage, exception.Message);
+            Assert.Equal(IDWebErrorMessage.IDW10401TenantIdClaimNotPresentInToken, exception.Message);
 
             exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() => validator.Validate(TestConstants.AadIssuer, jsonWebToken, validationParameters));
-            Assert.Equal(expectedErrorMessage, exception.Message);
+            Assert.Equal(IDWebErrorMessage.IDW10401TenantIdClaimNotPresentInToken, exception.Message);
 
             exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() => validator.Validate(TestConstants.AadIssuer, securityToken, validationParameters));
-            Assert.Equal(expectedErrorMessage, exception.Message);
+            Assert.Equal(IDWebErrorMessage.IDW10401TenantIdClaimNotPresentInToken, exception.Message);
         }
 
         [Fact]
@@ -163,7 +163,10 @@ namespace Microsoft.Identity.Web.Test.Resource
             var tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
+            var expectedErrorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.IDW10303IssuerDoesNotMatchValidIssuers,
+                    TestConstants.AadIssuer);
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.B2CIssuer }));
@@ -177,7 +180,10 @@ namespace Microsoft.Identity.Web.Test.Resource
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.B2CTenantAsGuid);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
+            var expectedErrorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.IDW10303IssuerDoesNotMatchValidIssuers,
+                    TestConstants.AadIssuer);
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.AadIssuer }));
@@ -191,7 +197,10 @@ namespace Microsoft.Identity.Web.Test.Resource
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = $"Issuer: '{TestConstants.AadIssuer}', does not match any of the valid issuers provided for this application.";
+            var expectedErrorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.IDW10303IssuerDoesNotMatchValidIssuers,
+                    TestConstants.AadIssuer);
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
@@ -218,7 +227,10 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = $"Issuer: '{invalidIssuerToValidate}', does not match any of the valid issuers provided for this application.";
+            var expectedErrorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.IDW10303IssuerDoesNotMatchValidIssuers,
+                    invalidIssuerToValidate);
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(invalidIssuerToValidate, jwtSecurityToken, new TokenValidationParameters() { ValidIssuers = new[] { TestConstants.AadIssuer } }));
