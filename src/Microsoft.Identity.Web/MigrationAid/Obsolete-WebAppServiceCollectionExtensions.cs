@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The service collection for chaining.</returns>
-        [Obsolete("Use AuthenticationBuilder.AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use services.AddAuthentication(openIdScheme).AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddSignIn(
             this IServiceCollection services,
             Action<OpenIdConnectOptions> configureOpenIdConnectOptions,
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C as, with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        [Obsolete("Use AddMicrosoftWebAppCallsWebApi instead.  See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebAppCallsWebApi on the result of AddMicrosoftWebAppAuthentication or AddMicrosoftWebApp.  See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Web
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
         /// <returns>The service collection for chaining.</returns>
-        [Obsolete("Use AddMicrosoftWebAppCallsWebApi instead.  See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebAppCallsWebApi on the result of AddMicrosoftWebAppAuthentication or AddMicrosoftWebApp. See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IConfiguration configuration,
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
         /// <returns>The service collection for chaining.</returns>
-        [Obsolete("Use AddMicrosoftWebAppCallsWebApi instead.  See https://aka.ms/ms-id-web/net5")]
+        [Obsolete("Use AddMicrosoftWebAppCallsWebApi on the result of AddMicrosoftWebAppAuthentication or AddMicrosoftWebApp.  See https://aka.ms/ms-id-web/net5")]
         public static IServiceCollection AddWebAppCallsProtectedWebApi(
             this IServiceCollection services,
             IEnumerable<string> initialScopes,
