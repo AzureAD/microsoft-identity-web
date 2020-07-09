@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
@@ -410,7 +409,7 @@ namespace Microsoft.Identity.Web.Test
         private void AddMicrosoftWebApp_TestSubscribesToDiagnostics(IServiceCollection services, IOpenIdConnectMiddlewareDiagnostics diagnosticsMock, bool subscribeToDiagnostics)
         {
             services.RemoveAll<IOpenIdConnectMiddlewareDiagnostics>();
-            services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics>((provider) => diagnosticsMock);
+            services.AddSingleton((provider) => diagnosticsMock);
 
             var provider = services.BuildServiceProvider();
 
@@ -439,8 +438,10 @@ namespace Microsoft.Identity.Web.Test
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
             authProperties.Items[OidcConstants.PolicyKey] = TestConstants.B2CEditProfileUserFlow;
 
-            var redirectContext = new RedirectContext(httpContext, authScheme, oidcOptions, authProperties);
-            redirectContext.ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = $"IssuerAddress/{TestConstants.B2CSignUpSignInUserFlow}/" };
+            var redirectContext = new RedirectContext(httpContext, authScheme, oidcOptions, authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = $"IssuerAddress/{TestConstants.B2CSignUpSignInUserFlow}/" },
+            };
 
             (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
@@ -452,8 +453,8 @@ namespace Microsoft.Identity.Web.Test
             await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
             // Assert issuer is updated to non-default user flow
             Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress);
-            Assert.NotNull(redirectContext.ProtocolMessage.Parameters["client_info"]);
-            Assert.Equal("1", redirectContext.ProtocolMessage.Parameters["client_info"].ToString(CultureInfo.InvariantCulture));
+            Assert.NotNull(redirectContext.ProtocolMessage.Parameters[ClaimConstants.ClientInfo]);
+            Assert.Equal(Constants.One, redirectContext.ProtocolMessage.Parameters[ClaimConstants.ClientInfo].ToString(CultureInfo.InvariantCulture));
         }
 
         private void AddMicrosoftWebAppCallsWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, OpenIdConnectOptions oidcOptions, IEnumerable<string> initialScopes)
@@ -494,7 +495,15 @@ namespace Microsoft.Identity.Web.Test
         private async Task AddMicrosoftWebAppCallsWebApi_TestTokenValidatedEvent(IServiceProvider provider, OpenIdConnectOptions oidcOptions, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
-            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, oidcOptions, httpContext.User, authProperties);
+
+            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, oidcOptions, httpContext.User, authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage(
+                    new Dictionary<string, string[]>()
+                    {
+                        { ClaimConstants.ClientInfo, new string[] { Base64UrlHelpers.Encode($"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}") } },
+                    }),
+            };
 
             await oidcOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
 
@@ -523,8 +532,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var httpContext = HttpContextUtilities.CreateHttpContext();
             httpContext.RequestServices = provider;
-            httpContext.Request.Form = new FormCollection(
-                new Dictionary<string, StringValues>() { { ClaimConstants.ClientInfo, Base64UrlHelpers.Encode($"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}") } });
+
             var authScheme = new AuthenticationScheme(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme, typeof(OpenIdConnectHandler));
             var authProperties = new AuthenticationProperties();
 
