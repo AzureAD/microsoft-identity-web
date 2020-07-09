@@ -110,6 +110,9 @@ namespace Company.WebApplication1
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddMicrosoftIdentityUI();
+#elif (IndividualB2CAuth)
+            services.AddRazorPages()
+                    .AddMicrosoftIdentityUI();
 #else
             services.AddRazorPages();
 #endif
