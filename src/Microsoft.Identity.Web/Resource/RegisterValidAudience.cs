@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web.Resource
             JwtSecurityToken? token = securityToken as JwtSecurityToken;
             if (token == null)
             {
-                throw new SecurityTokenValidationException(ErrorMessage.TokenIsNotJWTToken);
+                throw new SecurityTokenValidationException(IDWebErrorMessage.IDW10403TokenIsNotJWTToken);
             }
 
             validationParameters.AudienceValidator = null;
