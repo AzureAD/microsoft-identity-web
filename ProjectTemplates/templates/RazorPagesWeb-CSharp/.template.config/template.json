@@ -349,10 +349,11 @@
       }
     },
     "CalledApiUrl": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "https://graph.microsoft.com/v1.0/me",
-      "description": "URL of the API to call from the web app."
+        "type": "parameter",
+        "datatype": "string",
+        "replaces": "[WebApiUrl]",
+        "defaultValue" : "https://graph.microsoft.com/v1.0/me",
+        "description": "URL of the API to call from the web app."
     },
     "CallsMicrosoftGraph": {
         "type": "parameter",
@@ -368,7 +369,7 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" && CalledApiScopes != \"user.read\")"
+        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\")"
     },
     "GenerateApiOrGraph": {
         "type": "computed",

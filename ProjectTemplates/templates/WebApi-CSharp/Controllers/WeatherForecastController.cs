@@ -12,6 +12,9 @@ using System.Net;
 using System.Net.Http;
 using Company.WebApplication1.Services;
 #endif
+#if (CallsMicrosoftGraph)
+using Microsoft.Graph;
+#endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
@@ -63,6 +66,31 @@ namespace Company.WebApplication1.Controllers
             .ToArray();
         }
 
+#elseif (CallsMicrosoftGraph)
+        private readonly GraphServiceClient _graphServiceClient;
+
+        public WeatherForecastController(ILogger<WeatherForecastController> logger,
+                                         GraphServiceClient graphServiceClient)
+        {
+             _logger = logger;
+            _graphServiceClient = graphServiceClient;
+       }
+
+        [HttpGet]
+        public async Task<IEnumerable<WeatherForecast>> Get()
+        {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
 #else
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
