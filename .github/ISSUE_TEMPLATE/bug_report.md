@@ -42,7 +42,7 @@ var your = (code) => here;
 A clear and concise description of what you expected to happen (or code).
 
 **Actual behavior**
-A clear and concise description of what happens, e.g. exception is thrown, UI freezes  
+A clear and concise description of what happens, e.g. an exception is thrown, UI freezes.
 
 **Possible solution**
 <!--- Only if you have suggestions on a fix for the bug. -->
