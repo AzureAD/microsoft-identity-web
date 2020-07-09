@@ -149,9 +149,7 @@ namespace Microsoft.Identity.Web
                 var onTokenValidatedHandler = options.Events.OnTokenValidated;
                 options.Events.OnTokenValidated = async context =>
                 {
-                    if (context.Request.Form.ContainsKey(ClaimConstants.ClientInfo))
-                    {
-                        string clientInfo = context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo);
+                        string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
                         if (!string.IsNullOrEmpty(clientInfo))
                         {
@@ -163,9 +161,8 @@ namespace Microsoft.Identity.Web
                                 context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                             }
                         }
-                    }
 
-                    await onTokenValidatedHandler(context).ConfigureAwait(false);
+                        await onTokenValidatedHandler(context).ConfigureAwait(false);
                 };
 
                 // Handling the sign-out: removing the account from MSAL.NET cache
