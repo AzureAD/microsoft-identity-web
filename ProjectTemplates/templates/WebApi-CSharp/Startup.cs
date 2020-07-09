@@ -24,10 +24,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-#if (GenerateApi)
+#if (GenerateApiOrGraph)
 using Company.WebApplication1.Services;
 #endif
-
+#if (CallsMicrosoftGraph)
+using Microsoft.Graph;
+#endif
 namespace Company.WebApplication1
 {
     public class Startup
@@ -44,26 +46,32 @@ namespace Company.WebApplication1
         {
 #if (OrganizationalAuth)
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApi(Configuration, "AzureAd")
-#if (GenerateApi)
+            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAd")
+#if (GenerateApi || CallsMicrosoftGraph)
                     .AddMicrosoftWebAppCallsWebApi(Configuration, 
                                                    "AzureAd")
                     .AddInMemoryTokenCaches();
 
-            services.AddDownstreamWebApiService(Configuration);
 #else
                     ;
 #endif
+#if (GenerateApi)
+            services.AddDownstreamWebApiService(Configuration);
+#endif
+#if (CallsMicrosoftGraph)
+            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
+                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
+#endif
 #elif (IndividualB2CAuth)
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApi(Configuration, "AzureAdB2C");
+            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
                     .AddMicrosoftWebAppCallsWebApi(Configuration, 
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
+#else
+                    ;
 #endif
 #endif
 
