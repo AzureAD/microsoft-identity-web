@@ -1,3 +1,42 @@
+0.2.0-preview
+============
+### API breaking changes:
+Before | After
+-- | --
+services.AddSignIn() | services.AddMicrosoftWebAppAuthentication()
+services.AddSignIn() | services.AddAuthentication().AddMicrosoftWebApp()
+services.AddProtectedWebApi() | services.AddMicrosoftWebApiAuthentication()
+services.AddProtectedWebApi() | services.AddAuthentication().AddMicrosoftWebApi()
+.AddWebAppCallsProtectedWebApi() | .AddMicrosoftWebAppCallsWebApi()
+.AddProtectedWebApiCallsWebApi() | .AddMicrosoftWebApiCallsWebApi()
+
+- See the [wiki](https://aka.ms/ms-id-web/net5) for migration assistance and more information on the new API.
+- Rename `MsalMemoryTokenCacheOptions.SlidingExpiration` to align with ASP.NET Core and use `AbsoluteExpirationRelativeToNow`. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/250).
+- Removed the `ForceHttpsRedirectUris`, `RedirectUri`, and `PostLogoutRedirectUri` options from `MicrosoftIdentityOptions`. ASP.NET Core recommends the [following guidance](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-3.1) on working with proxies. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/223).
+- Removed the `SingletonTokenAcquisition` property from `MicrosoftIdentityOptions`. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/249).
+- Microsoft Identity Web now has an `MsalDistributedTokenCacheAdapterOptions` class inheriting from `DistributedCacheEntryOptions` so the token cache serialization can expose their own options. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/251).
+
+### New Features:
+**Microsoft Identity Web implements the C# 8.0 nullable standard**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/15).
+**Microsoft Identity Web now validates the app roles for a web API, for example a web API called by a daemon application**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/131).
+**Microsoft Identity Web now supports .NET 5.0**, in addition to .NET Core 3.1. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/194).
+**The project templates now have an option to generate the call to a downstream web API, or a call to Microsoft Graph**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/196).
+**Microsoft Identity Web now has the ability to specify custom cookie options in the `AddMicrosoftWebApp` methods**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/237).
+
+### Bug Fixes:
+**When accessing KeyVault, storage flags need to be used, as there is no user profile**. The correct storage flags are now used. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/219).
+**Uses the recommended workaround for the clients incompatible with the `SameSite=None` cookie attribute**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/238).
+**Fixed a dependency injection anti-pattern when resolving `ITokenAcquisition`**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/240).
+**The `TokenValidationParameters` are now cloned before using**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/241).
+**Microsoft Identity Web now throws a `SecurityTokenValidationException`**, when there is an invalid audience. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/242).
+**Microsoft Identity Web no longer throws an exception if the user sets the custom audiences**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/243).
+**Removed multiple calls to `HandleCodeRedemption` in `TokenAcquisition`**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/246).
+**Fixes to the `MsalSessionTokenCacheProvider`**, such as removing the static lock object and removing the session commit. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/252).
+**In the `AccountController`, Microsoft Identity Web now uses `IOptions` instead of `IOptionsMonitor`**, for consistency. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/232).
+**Microsoft Identity Web no longer calls the `BuildServiceProvider` in the configuration methods** and uses a more appropriate `Configure` overload that provides the required `IServiceProvider` instance. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/234).
+**Microsoft Identity Web now uses the `SuggestedCacheKey`** returned in the `TokenCacheNotificationArgs` from MSAL to determine the correct cache key. This enables the removal of several lines of code and the use of the `HttpContext.User`. See issue [235](https://github.com/AzureAD/microsoft-identity-web/issues/235), [248](https://github.com/AzureAD/microsoft-identity-web/issues/248), [273]https://github.com/AzureAD/microsoft-identity-web/issues/273(), and [222](https://github.com/AzureAD/microsoft-identity-web/issues/222) for details.
+**Microsoft Identity Web now retrieves the `client_info` data directly from the protocol message**. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/245).
+
 0.1.5-preview
 ============
 ### New Features:
