@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
                         throw new InvalidOperationException(
                             string.Format(
                                 CultureInfo.InvariantCulture,
-                                IDWebErrorMessage.IDW10101ProvideEitherScopeKeySectionOrScopes,
+                                IDWebErrorMessage.ProvideEitherScopeKeySectionOrScopes,
                                 nameof(ScopeKeySection),
                                 nameof(Scopes)));
                     }
@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
                             throw new InvalidOperationException(
                                 string.Format(
                                     CultureInfo.InvariantCulture,
-                                    IDWebErrorMessage.IDW10102ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
+                                    IDWebErrorMessage.ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
                                     nameof(ScopeKeySection)));
                         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
 
                         if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
                         {
-                            throw new InvalidOperationException(IDWebErrorMessage.IDW10103NoScopesProvided);
+                            throw new InvalidOperationException(IDWebErrorMessage.NoScopesProvided);
                         }
                     }
                     else

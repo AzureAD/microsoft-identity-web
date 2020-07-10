@@ -387,7 +387,7 @@ namespace Microsoft.Identity.Web
                     ex,
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        IDWebErrorMessage.IDW10501ExceptionAcquiringTokenForConfidentialClient));
+                        IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient));
                 throw;
             }
         }

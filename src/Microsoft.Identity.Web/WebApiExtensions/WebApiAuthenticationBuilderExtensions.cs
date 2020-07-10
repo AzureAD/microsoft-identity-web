@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
                     && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
                     {
-                        throw new UnauthorizedAccessException(IDWebErrorMessage.IDW10201NeitherScopeOrRolesClaimFoundInToken);
+                        throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                     }
 
                     await tokenValidatedHandler(context).ConfigureAwait(false);

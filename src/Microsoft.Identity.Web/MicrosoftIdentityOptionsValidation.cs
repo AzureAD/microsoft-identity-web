@@ -47,13 +47,13 @@ namespace Microsoft.Identity.Web
             {
                 throw new MsalClientException(
                     ErrorCodes.MissingClientCredentials,
-                    IDWebErrorMessage.IDW10104ClientSecretAndCertficateNull);
+                    IDWebErrorMessage.ClientSecretAndCertficateNull);
             }
             else if (!string.IsNullOrEmpty(clientSecret) && (cert != null))
             {
                 throw new MsalClientException(
                     ErrorCodes.DuplicateClientCredentials,
-                    IDWebErrorMessage.IDW10105BothClientSecretAndCertificateProvided);
+                    IDWebErrorMessage.BothClientSecretAndCertificateProvided);
             }
         }
     }

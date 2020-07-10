@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
 
-            string expectedErrorMessage = IDWebErrorMessage.IDW10301IssuerMetadataURLIsRequired + " (Parameter 'address')";
+            string expectedErrorMessage = IDWebErrorMessage.IssuerMetadataURLIsRequired + " (Parameter 'address')";
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedErrorMessage, exception.Message);
@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             Assert.Equal(expectedErrorMessage, exception.Message);
 
             exception = await Assert.ThrowsAsync<ArgumentNullException>("retriever", () => configurationRetriever.GetConfigurationAsync("address", null, CancellationToken.None)).ConfigureAwait(false);
-            Assert.Equal(IDWebErrorMessage.IDW10302NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
+            Assert.Equal(IDWebErrorMessage.NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
         }
 
         [Fact]

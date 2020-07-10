@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void CreateFromJson_NullOrEmptyString_ThrowsException()
         {
-            var expectedErrorMessage = IDWebErrorMessage.IDW10402ClientInfoReturnedFromServerIsNull + " (Parameter 'clientInfo')";
+            var expectedErrorMessage = IDWebErrorMessage.ClientInfoReturnedFromServerIsNull + " (Parameter 'clientInfo')";
 
             var exception = Assert.Throws<ArgumentNullException>(() => ClientInfo.CreateFromJson(string.Empty));
             Assert.Equal(expectedErrorMessage, exception.Message);

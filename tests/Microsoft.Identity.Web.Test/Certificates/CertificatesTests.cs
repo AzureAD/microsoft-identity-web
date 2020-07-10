@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
 
-            Assert.Equal(IDWebErrorMessage.IDW10104ClientSecretAndCertficateNull, exception.Message);
+            Assert.Equal(IDWebErrorMessage.ClientSecretAndCertficateNull, exception.Message);
             Assert.Equal(ErrorCodes.MissingClientCredentials, exception.ErrorCode);
         }
 
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
 
-            Assert.Equal(IDWebErrorMessage.IDW10105BothClientSecretAndCertificateProvided, exception.Message);
+            Assert.Equal(IDWebErrorMessage.BothClientSecretAndCertificateProvided, exception.Message);
             Assert.Equal(ErrorCodes.DuplicateClientCredentials, exception.ErrorCode);
         }
     }
