@@ -1,22 +1,22 @@
 ---
 name: Documentation
-about: Describe this issue template's purpose here.
+about: Suggest a change to the documentation.
 title: '[Documentation] '
 labels: documentation
 assignees: ''
 
 ---
 
-### Documentation Related To Component:
+### Documentation related to component
 <!-- Type name of component here (e.g. "Contribute", or "Logging" ) -->
 
-### Please check those that apply
+### Please check all that apply
 
 - [ ] typo
 - [ ] documentation doesn't exist
 - [ ] documentation needs clarification
-- [ ] error(s) in example
-- [ ] needs example
+- [ ] error(s) in the example
+- [ ] needs an example
 
-### Description Of The Issue
+### Description of the issue
 <!-- Descrbe the issue in detail here -->
