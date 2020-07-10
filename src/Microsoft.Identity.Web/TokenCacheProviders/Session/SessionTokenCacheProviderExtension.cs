@@ -5,7 +5,9 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -64,6 +66,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 
             services.AddHttpContextAccessor();
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
+            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
 
             return services;
         }
@@ -129,7 +132,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             }
 
             services.AddHttpContextAccessor();
+            services.AddSession(option =>
+            {
+                option.Cookie.IsEssential = true;
+            });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
+            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
+
             return services;
         }
 
@@ -167,6 +176,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
                     option.Cookie.IsEssential = true;
                 });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
+            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
+
             return services;
         }
     }
