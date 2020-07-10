@@ -122,13 +122,6 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                // The cache will need the claims from the ID token.
-                // If they are not yet in the HttpContext.User's claims, add them here.
-                if (!context.HttpContext.User.Claims.Any())
-                {
-                    (context.HttpContext.User.Identity as ClaimsIdentity)?.AddClaims(context.Principal.Claims);
-                }
-
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
