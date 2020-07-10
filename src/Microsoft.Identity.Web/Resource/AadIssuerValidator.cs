@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Resource
             string tenantId = GetTenantIdFromToken(securityToken);
             if (string.IsNullOrWhiteSpace(tenantId))
             {
-                throw new SecurityTokenInvalidIssuerException(ErrorMessage.TenantIdClaimNotPresentInToken);
+                throw new SecurityTokenInvalidIssuerException(IDWebErrorMessage.TenantIdClaimNotPresentInToken);
             }
 
             if (validationParameters.ValidIssuers != null)
@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Web.Resource
             throw new SecurityTokenInvalidIssuerException(
                 string.Format(
                     CultureInfo.InvariantCulture,
-                    ErrorMessage.IssuerDoesNotMatchValidIssuers,
+                    IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
                     actualIssuer));
         }
 

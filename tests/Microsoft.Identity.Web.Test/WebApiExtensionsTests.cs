@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Web.Test
         private async void AddMicrosoftWebApi_TestJwtBearerTokenValidatedEvent(JwtBearerOptions jwtOptions, Func<TokenValidatedContext, Task> tokenValidatedFunc)
         {
             var scopeTypes = new[] { ClaimConstants.Scope, ClaimConstants.Scp, ClaimConstants.Roles, ClaimConstants.Role };
-            var expectedExceptionMessage = "Neither scope or roles claim was found in the bearer token.";
+            var expectedExceptionMessage = IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken;
             var scopeValue = "scope";
 
             var httpContext = HttpContextUtilities.CreateHttpContext();

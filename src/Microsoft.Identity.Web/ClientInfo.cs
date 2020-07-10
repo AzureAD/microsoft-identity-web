@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
-                throw new ArgumentNullException(nameof(clientInfo), ErrorMessage.ClientInfoReturnedFromServerIsNull);
+                throw new ArgumentNullException(nameof(clientInfo), IDWebErrorMessage.ClientInfoReturnedFromServerIsNull);
             }
 
             return DeserializeFromJson(Base64UrlHelpers.DecodeToBytes(clientInfo));
