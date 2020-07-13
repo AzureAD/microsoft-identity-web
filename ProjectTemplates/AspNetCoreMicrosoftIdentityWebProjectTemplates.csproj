@@ -34,6 +34,12 @@
   <ItemGroup>
     <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
     <Compile Remove="**\*" />
+    <Compile Remove="ProvisionAadApp\**" />
+    <Compile Remove="Provisionning\**" />
+    <EmbeddedResource Remove="ProvisionAadApp\**" />
+    <EmbeddedResource Remove="Provisionning\**" />
+    <None Remove="ProvisionAadApp\**" />
+    <None Remove="Provisionning\**" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ProvisionAadApp": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\gh\\microsoft-identity-web\\tests\\WebAppCallsWebApiCallsGraph\\Client --tenant-id 7f58f645-c190-4ce5-9de4-e2b7acd2a6ab"
+    }
+  }
+}
