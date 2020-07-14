@@ -81,6 +81,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <param name="cacheKey">Key for the cache (account ID or app ID).</param>
         /// <param name="bytes">Blob to write to the cache.</param>
+        /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
             _sessionLock.EnterWriteLock();
@@ -102,6 +103,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// Removes a cache described by its key.
         /// </summary>
         /// <param name="cacheKey">Key of the token cache (user account or app ID).</param>
+        /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
             _sessionLock.EnterWriteLock();

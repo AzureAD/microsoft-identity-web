@@ -50,6 +50,7 @@ namespace Microsoft.Identity.Web.Resource
         /// preserving the previous handlers (which are called).
         /// </summary>
         /// <param name="events">Events to subscribe to.</param>
+        /// <returns><see cref="JwtBearerEvents"/> for chaining.</returns>
         public JwtBearerEvents Subscribe(JwtBearerEvents events)
         {
             events ??= new JwtBearerEvents();

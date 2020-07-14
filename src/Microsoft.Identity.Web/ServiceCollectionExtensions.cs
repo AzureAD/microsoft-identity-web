@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Web
         /// Add the token acquisition service.
         /// </summary>
         /// <param name="services">Service collection.</param>
-        /// <param name="isTokenAcquisitionSingleton"></param>
-        /// <returns>the service collection.</returns>
+        /// <param name="isTokenAcquisitionSingleton">Specifies if an instance of <see cref="ITokenAcquisition"/> should be a singleton.</param>
+        /// <returns>The service collection.</returns>
         /// <example>
-        /// This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
+        /// This method is typically called from the <c>ConfigureServices(IServiceCollection services)</c> in Startup.cs.
         /// Note that the implementation of the token cache can be chosen separately.
         ///
         /// <code>
@@ -27,8 +27,7 @@ namespace Microsoft.Identity.Web
         /// services.AddTokenAcquisition()
         /// .AddDistributedMemoryCache()
         /// .AddSession()
-        /// .AddSessionBasedTokenCache()
-        ///  ;
+        /// .AddSessionBasedTokenCache();
         /// </code>
         /// </example>
         public static IServiceCollection AddTokenAcquisition(
