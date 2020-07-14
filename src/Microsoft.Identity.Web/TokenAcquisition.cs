@@ -435,11 +435,12 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets an access token for a downstream API on behalf of the user which account is passed as an argument.
         /// </summary>
-        /// <param name="application"></param>
+        /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="account">User IAccount for which to acquire a token.
         /// See <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="tenant"></param>
+        /// <param name="tenant">Specific tenant for which to acquire a token to access the scopes
+        /// on behalf of the user.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
@@ -498,6 +499,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1

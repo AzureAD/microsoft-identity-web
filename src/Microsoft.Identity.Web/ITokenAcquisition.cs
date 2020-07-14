@@ -42,6 +42,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalSeviceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalSeviceException);
