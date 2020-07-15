@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web.Resource
                 if (rolesClaim == null || !rolesClaim.Value.Split(' ').Intersect(acceptedRoles).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = string.Format(CultureInfo.InvariantCulture, LogMessages.MissingRoles, string.Join(",", acceptedRoles));
+                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(",", acceptedRoles));
                     context.Response.WriteAsync(message);
                 }
             }

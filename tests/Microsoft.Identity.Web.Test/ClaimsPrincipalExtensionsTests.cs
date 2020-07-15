@@ -201,12 +201,10 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void GetDomainHint_WithTenantIdClaims_ReturnsDomainHint()
         {
-            var msaTenantId = "9188040D-6c67-4c5b-b112-36a304b66dad";
-
             var claimsPrincipalWithMsaTenant = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.TenantId, msaTenantId),
+                    new Claim(ClaimConstants.TenantId, Constants.MsaTenantId),
                 }));
 
             var claimsPrincipalWithNonMsaTenant = new ClaimsPrincipal(
@@ -215,8 +213,8 @@ namespace Microsoft.Identity.Web.Test
                     new Claim(ClaimConstants.TenantId, TestConstants.TenantIdAsGuid),
                 }));
 
-            Assert.Equal("consumers", claimsPrincipalWithMsaTenant.GetDomainHint());
-            Assert.Equal("organizations", claimsPrincipalWithNonMsaTenant.GetDomainHint());
+            Assert.Equal(Constants.Consumers, claimsPrincipalWithMsaTenant.GetDomainHint());
+            Assert.Equal(Constants.Organizations, claimsPrincipalWithNonMsaTenant.GetDomainHint());
         }
 
         [Fact]

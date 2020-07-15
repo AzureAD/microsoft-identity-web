@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
@@ -87,7 +88,11 @@ namespace Microsoft.Identity.Web
             string[] segments = certificate.SecretId.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
             if (segments.Length != 3)
             {
-                throw new InvalidOperationException($"Number of segments is incorrect: {segments.Length}, URI: {certificate.SecretId}");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.IncorrectNumberOfUriSegments,
+                    segments.Length,
+                    certificate.SecretId));
             }
 
             string secretName = segments[1];
@@ -97,18 +102,18 @@ namespace Microsoft.Identity.Web
 
             // For PEM, you'll need to extract the base64-encoded message body.
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
-            if ("application/x-pkcs12".Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
+            if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
             {
                 byte[] pfx = Convert.FromBase64String(secret.Value);
                 return new X509Certificate2(pfx);
             }
 
-            throw new NotSupportedException($"Only PKCS#12 is supported. Found Content-Type: {secret.Properties.ContentType}");
+            throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.OnlyPkcs12IsSupported, secret.Properties.ContentType));
         }
 
         private static X509Certificate2? LoadFromStoreWithThumbprint(
             string certificateThumbprint,
-            string storeDescription = "CurrentUser/My")
+            string storeDescription = Constants.PersonalUserCertificateStorePath)
         {
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser;
             StoreName certificateStoreName = StoreName.My;
@@ -128,7 +133,9 @@ namespace Microsoft.Identity.Web
             return cert;
         }
 
-        private static X509Certificate2? LoadFromStoreWithDistinguishedName(string certificateSubjectDistinguishedName, string storeDescription = "CurrentUser/My")
+        private static X509Certificate2? LoadFromStoreWithDistinguishedName(
+            string certificateSubjectDistinguishedName,
+            string storeDescription = Constants.PersonalUserCertificateStorePath)
         {
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser;
             StoreName certificateStoreName = StoreName.My;
@@ -166,8 +173,10 @@ namespace Microsoft.Identity.Web
                 || !Enum.TryParse<StoreLocation>(path[0], true, out certificateStoreLocation)
                 || !Enum.TryParse<StoreName>(path[1], true, out certificateStoreName))
             {
-                throw new ArgumentException("store should be of the form 'StoreLocation/StoreName' with StoreLocation begin 'CurrentUser' or 'CurrentMachine'"
-                    + $" and StoreName begin '' or in '{string.Join(", ", typeof(StoreName).GetEnumNames())}'");
+                throw new ArgumentException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.InvalidCertificateStorePath,
+                    string.Join("', '", typeof(StoreName).GetEnumNames())));
             }
         }
 

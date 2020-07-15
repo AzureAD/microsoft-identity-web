@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddProtectedWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             X509Certificate2? tokenDecryptionCertificate = null,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)

@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             builder.Services.AddInMemoryTokenCaches();

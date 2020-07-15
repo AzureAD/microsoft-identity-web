@@ -111,11 +111,11 @@ namespace Microsoft.Identity.Web
                 // B2C doesn't have preferred_username claims
                 if (microsoftIdentityOptions.Value.IsB2C)
                 {
-                    options.TokenValidationParameters.NameClaimType = Constants.NameClaim;
+                    options.TokenValidationParameters.NameClaimType = ClaimConstants.Name;
                 }
                 else
                 {
-                    options.TokenValidationParameters.NameClaimType = Constants.PreferredUserName;
+                    options.TokenValidationParameters.NameClaimType = ClaimConstants.PreferredUserName;
                 }
 
                 // If the developer registered an IssuerValidator, do not overwrite it
