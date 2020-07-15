@@ -317,7 +317,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(string? userFlow =null)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(string? userFlow = null)
         {
             var request = CurrentHttpContext.Request;
             string currentUri = UriHelper.BuildAbsolute(
