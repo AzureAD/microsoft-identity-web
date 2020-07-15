@@ -180,6 +180,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// <paramref name="user"/>Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a Web app), or the user for which the token was received (in a Web API)</param>
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a Web API supposes that you have previously called,
@@ -189,7 +191,8 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
-            string? tenant = null)
+            string? tenant = null,
+            ClaimsPrincipal? user = null)
         {
             if (scopes == null)
             {
@@ -202,7 +205,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, tenant)
+                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, user ?? CurrentHttpContext.User, scopes, tenant)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -326,12 +329,16 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
-            var request = CurrentHttpContext.Request;
-            string currentUri = UriHelper.BuildAbsolute(
-                request.Scheme,
-                request.Host,
-                request.PathBase,
-                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+            var request = CurrentHttpContext?.Request;
+            string currentUri = null;
+            if (request != null)
+            {
+                currentUri = UriHelper.BuildAbsolute(
+                    request.Scheme,
+                    request.Host,
+                    request.PathBase,
+                    _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+            }
 
             if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
             {
@@ -346,8 +353,13 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithRedirectUri(currentUri)
                         .WithHttpClientFactory(_httpClientFactory);
+
+                // The redirect URI is not needed for OBO
+                if (currentUri != null)
+                {
+                    builder.WithRedirectUri(currentUri);
+                }
 
                 string authority;
 
