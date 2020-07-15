@@ -56,7 +56,7 @@ namespace TodoListClient.Services
             var jsonRequest = JsonSerializer.Serialize(todo);
             var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-            var response = await this._httpClient.PostAsync($"{ _TodoListBaseAddress}/api/todolist", jsoncontent);
+            var response = await _httpClient.PostAsync($"{ _TodoListBaseAddress}/api/todolist", jsoncontent);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -73,7 +73,7 @@ namespace TodoListClient.Services
         {
             await PrepareAuthenticatedClient();
 
-            var response = await this._httpClient.DeleteAsync($"{ _TodoListBaseAddress}/api/todolist/{id}");
+            var response = await _httpClient.DeleteAsync($"{ _TodoListBaseAddress}/api/todolist/{id}");
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -121,7 +121,10 @@ namespace TodoListClient.Services
 
         private async Task PrepareAuthenticatedClient()
         {
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope });
+            string userFlow = "b2c_1_susi";
+            // Each user flow is a separate authorization server. 
+            // specify which user flow is connected to the web API.
+            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope, }, userFlow:userFlow);
             Debug.WriteLine($"access token-{accessToken}");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

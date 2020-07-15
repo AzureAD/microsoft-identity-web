@@ -140,7 +140,7 @@ namespace Microsoft.Identity.Web
                     ex,
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        "Exception occurred while adding an account to the cache from the auth code. "));
+                        LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode));
                 throw;
             }
         }
@@ -181,15 +181,14 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a Web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
         /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
-        public async Task<string> GetAccessTokenForUserAsync(
-            IEnumerable<string> scopes,
-            string? tenant = null)
+        public async Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenant = null, string? userFlow = null)
         {
             if (scopes == null)
             {
@@ -197,12 +196,12 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = await GetOrBuildConfidentialClientApplicationAsync(userFlow).ConfigureAwait(false);
             string accessToken;
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, tenant)
+                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, userFlow, tenant)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -309,22 +308,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Creates an MSAL Confidential client application if needed.
+        /// Creates an MSAL confidential client application if needed.
         /// </summary>
-        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
+        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(string? userFlow = null)
         {
             if (_application == null)
             {
-                _application = await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                _application = await BuildConfidentialClientApplicationAsync(userFlow).ConfigureAwait(false);
             }
 
             return _application;
         }
 
         /// <summary>
-        /// Creates an MSAL Confidential client application.
+        /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(string? userFlow =null)
         {
             var request = CurrentHttpContext.Request;
             string currentUri = UriHelper.BuildAbsolute(
@@ -353,7 +352,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{_applicationOptions.Instance}tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
@@ -391,45 +390,39 @@ namespace Microsoft.Identity.Web
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
+        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal claimsPrincipal,
             IEnumerable<string> scopes,
+            string? userFlow,
             string? tenant)
         {
-            // Gets MsalAccountId for AAD and B2C scenarios
-            string? accountIdentifier = claimsPrincipal.GetMsalAccountId();
-            string? loginHint = claimsPrincipal.GetLoginHint();
             IAccount? account = null;
-
-            if (accountIdentifier != null)
+            if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
             {
-                account = await application.GetAccountAsync(accountIdentifier).ConfigureAwait(false);
+                string? nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
+                string? utid = claimsPrincipal.GetHomeTenantId();
+                string? b2cAccountIdentifier = $"{nameIdentifierId}-{userFlow}.{utid}";
+                account = await application.GetAccountAsync(b2cAccountIdentifier).ConfigureAwait(false);
+            }
+            else
+            {
+                string? accountIdentifier = claimsPrincipal.GetMsalAccountId();
 
-                // Special case for guest users as the Guest oid / tenant id are not surfaced.
-                // B2C should not follow this logic since loginHint is not present
-                if (!_microsoftIdentityOptions.IsB2C && account == null)
+                if (accountIdentifier != null)
                 {
-                    if (loginHint == null)
-                    {
-                        throw new ArgumentNullException(nameof(loginHint));
-                    }
-
-                    var accounts = await application.GetAccountsAsync().ConfigureAwait(false);
-                    account = accounts.FirstOrDefault(a => a.Username == loginHint);
+                    account = await application.GetAccountAsync(accountIdentifier).ConfigureAwait(false);
                 }
             }
 
-            // If it is B2C and could not get an account (most likely because there is no tid claims), try to get it by user flow
-            if (_microsoftIdentityOptions.IsB2C && account == null)
-            {
-                string? currentUserFlow = claimsPrincipal.GetUserFlowId();
-                account = GetAccountByUserFlow(await application.GetAccountsAsync().ConfigureAwait(false), currentUserFlow!);
-            }
-
-            return await GetAccessTokenOnBehalfOfUserFromCacheAsync(application, account, scopes, tenant).ConfigureAwait(false);
+            return await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+                application,
+                account,
+                scopes,
+                tenant).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -441,11 +434,13 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes for the downstream API to call.</param>
         /// <param name="tenant">Specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
+        /// <param name="userFlow">Azure AD B2C user flow.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
-            string? tenant)
+            string? tenant,
+            string? userFlow = null)
         {
             if (scopes == null)
             {
@@ -458,7 +453,7 @@ namespace Microsoft.Identity.Web
             {
                 string authority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/tfp/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}");
+                    $"/{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
@@ -503,7 +498,7 @@ namespace Microsoft.Identity.Web
         public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
-            string proposedAction = "consent";
+            string proposedAction = Constants.Consent;
             if (msalServiceException.ErrorCode == MsalError.InvalidGrantError)
             {
                 if (AcceptedTokenVersionMismatch(msalServiceException))
@@ -520,10 +515,10 @@ namespace Microsoft.Identity.Web
 
             IDictionary<string, string> parameters = new Dictionary<string, string>()
                 {
-                    { "consentUri", consentUrl },
-                    { "claims", msalServiceException.Claims },
-                    { "scopes", string.Join(",", scopes) },
-                    { "proposedAction", proposedAction },
+                    { Constants.ConsentUrl, consentUrl },
+                    { Constants.Claims, msalServiceException.Claims },
+                    { Constants.Scopes, string.Join(",", scopes) },
+                    { Constants.ProposedAction, proposedAction },
                 };
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
@@ -532,7 +527,7 @@ namespace Microsoft.Identity.Web
             var headers = httpResponse.Headers;
             httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
 
-            headers[HeaderNames.WWWAuthenticate] = new StringValues($"Bearer {parameterString}");
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
@@ -541,27 +536,7 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalSeviceException.Message.Contains("AADSTS50013", StringComparison.InvariantCulture);
-        }
-
-        /// <summary>
-        /// Gets an IAccount for the current B2C user flow in the user claims.
-        /// </summary>
-        /// <param name="accounts">A collection of accounts to search through.</param>
-        /// <param name="userFlow">A B2C user flow.</param>
-        /// <returns>An <see cref="IAccount"/> with the specified user flow.</returns>
-        private IAccount? GetAccountByUserFlow(IEnumerable<IAccount> accounts, string userFlow)
-        {
-            foreach (var account in accounts)
-            {
-                string accountIdentifier = account.HomeAccountId.ObjectId.Split('.')[0];
-                if (accountIdentifier.EndsWith(userFlow.ToLower(CultureInfo.InvariantCulture), StringComparison.InvariantCulture))
-                {
-                    return account;
-                }
-            }
-
-            return null;
+            return msalSeviceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
         }
     }
 }

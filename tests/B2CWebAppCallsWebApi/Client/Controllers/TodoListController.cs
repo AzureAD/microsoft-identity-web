@@ -20,7 +20,9 @@ namespace TodoListClient.Controllers
         }
 
         // GET: TodoList
-        [AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        //[AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        [AuthorizeForScopes(
+            ScopeKeySection = "TodoList:TodoListScope", UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> Index()
         {
             return View(await _todoListService.GetAsync());
@@ -51,7 +53,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            Todo todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {

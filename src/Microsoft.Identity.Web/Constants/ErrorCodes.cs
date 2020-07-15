@@ -7,5 +7,6 @@ namespace Microsoft.Identity.Web
     {
         public const string MissingClientCredentials = "missing_client_credentials";
         public const string DuplicateClientCredentials = "duplicate_client_credentials";
+        public const string B2CPasswordResetErrorCode = "AADSTS50013";
     }
 }

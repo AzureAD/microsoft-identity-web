@@ -94,5 +94,10 @@ namespace Microsoft.Identity.Web
         /// Tfp claim: "tfp".
         /// </summary>
         public const string Tfp = "tfp";
+
+        /// <summary>
+        /// Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+        /// </summary>
+        public const string NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
     }
 }
