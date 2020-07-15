@@ -51,7 +51,7 @@ namespace TodoListClient.Services
 
         public async Task<Todo> AddAsync(Todo todo)
         {
-            await PrepareAuthenticatedClient();
+            await PrepareAuthenticatedClient(null);
 
             var jsonRequest = JsonSerializer.Serialize(todo);
             var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
@@ -71,7 +71,7 @@ namespace TodoListClient.Services
 
         public async Task DeleteAsync(int id)
         {
-            await PrepareAuthenticatedClient();
+            await PrepareAuthenticatedClient(null);
 
             var response = await _httpClient.DeleteAsync($"{ _TodoListBaseAddress}/api/todolist/{id}");
 
@@ -85,7 +85,7 @@ namespace TodoListClient.Services
 
         public async Task<Todo> EditAsync(Todo todo)
         {
-            await PrepareAuthenticatedClient();
+            await PrepareAuthenticatedClient(null);
 
             var jsonRequest = JsonSerializer.Serialize(todo);
             var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json-patch+json");
@@ -103,9 +103,9 @@ namespace TodoListClient.Services
             throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
         }
 
-        public async Task<IEnumerable<Todo>> GetAsync()
+        public async Task<IEnumerable<Todo>> GetAsync(string userFlow)
         {
-            await PrepareAuthenticatedClient();
+            await PrepareAuthenticatedClient(userFlow);
 
             var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist");
             if (response.StatusCode == HttpStatusCode.OK)
@@ -119,9 +119,8 @@ namespace TodoListClient.Services
             throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
         }
 
-        private async Task PrepareAuthenticatedClient()
+        private async Task PrepareAuthenticatedClient(string userFlow)
         {
-            string userFlow = "b2c_1_susi";
             // Each user flow is a separate authorization server. 
             // specify which user flow is connected to the web API.
             var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope, }, userFlow:userFlow);
@@ -132,7 +131,7 @@ namespace TodoListClient.Services
 
         public async Task<Todo> GetAsync(int id)
         {
-            await PrepareAuthenticatedClient();
+            await PrepareAuthenticatedClient(null);
 
             var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist/{id}");
             if (response.StatusCode == HttpStatusCode.OK)

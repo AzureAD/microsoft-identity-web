@@ -284,13 +284,7 @@ namespace Microsoft.Identity.Web
                 // For B2C, we should remove all accounts of the user regardless the user flow
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    var b2cAccounts = await app.GetAccountsAsync().ConfigureAwait(false);
-
-                    foreach (var b2cAccount in b2cAccounts)
-                    {
-                        await app.RemoveAsync(b2cAccount).ConfigureAwait(false);
-                    }
-
+                    // TODO: this will be changed later w/MSAL cache key updates for B2C
                     await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
                 }
                 else

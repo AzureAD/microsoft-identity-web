@@ -474,9 +474,9 @@
             Tfp claim: "tfp".
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.NameIdentifier">
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.NameIdentifierId">
             <summary>
-            Name Identifier claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+            Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">

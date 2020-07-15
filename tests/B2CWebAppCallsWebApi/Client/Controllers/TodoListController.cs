@@ -25,7 +25,7 @@ namespace TodoListClient.Controllers
             ScopeKeySection = "TodoList:TodoListScope", UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> Index()
         {
-            return View(await _todoListService.GetAsync());
+            return View(await _todoListService.GetAsync("b2c_1_susi"));
         }
 
         // GET: TodoList/Details/5
