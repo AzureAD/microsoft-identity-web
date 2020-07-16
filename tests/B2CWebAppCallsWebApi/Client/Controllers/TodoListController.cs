@@ -28,6 +28,27 @@ namespace TodoListClient.Controllers
             return View(await _todoListService.GetAsync("b2c_1_susi"));
         }
 
+        [AuthorizeForScopes(
+            ScopeKeySection = "TodoList:TodoListScope", UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsSisu()
+        {
+            // We cal the todolistService, but this is to get the user sign-in with 
+            // the user flow, we don't use the result in the vuew
+            var result = await _todoListService.GetAsync("b2c_1_susi");
+            return View("Claims", result );
+        }
+
+        [AuthorizeForScopes(
+    ScopeKeySection = "TodoList:TodoListScope", UserFlow = "b2c_1_edit_profile")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsEditProfile()
+        {
+            // We cal the todolistService, but this is to get the user sign-in with 
+            // the user flow, we don't use the result in the vuew
+            var result = await _todoListService.GetAsync("b2c_1_edit_profile");
+            return View("Claims", result);
+        }
+
+
         // GET: TodoList/Details/5
         public async Task<ActionResult> Details(int id)
         {
