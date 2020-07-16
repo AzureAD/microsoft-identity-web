@@ -180,11 +180,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// <paramref name="user"/>Optional claims principal representing the user. If not provided, will use the signed-in
-        /// user (in a Web app), or the user for which the token was received (in a Web API)</param>
+        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a Web API)
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
-        /// <remarks>Calling this method from a Web API supposes that you have previously called,
+        /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
         /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
@@ -330,7 +331,7 @@ namespace Microsoft.Identity.Web
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
             var request = CurrentHttpContext?.Request;
-            string currentUri = null;
+            string? currentUri = null;
             if (request != null)
             {
                 currentUri = UriHelper.BuildAbsolute(
@@ -356,7 +357,7 @@ namespace Microsoft.Identity.Web
                         .WithHttpClientFactory(_httpClientFactory);
 
                 // The redirect URI is not needed for OBO
-                if (currentUri != null)
+                if (!string.IsNullOrEmpty(currentUri))
                 {
                     builder.WithRedirectUri(currentUri);
                 }
