@@ -107,8 +107,9 @@ namespace BlazorServerWeb_CSharp
                     ;
 #endif
 #endif
-#if (OrganizationalAuth)
-            services.AddControllersWithViews();
+#if (OrganizationalAuth || IndividualB2CAuth)
+            services.AddControllersWithViews()
+                    .AddMicrosoftIdentityUI();
 
             services.AddAuthorization(options =>
             {
