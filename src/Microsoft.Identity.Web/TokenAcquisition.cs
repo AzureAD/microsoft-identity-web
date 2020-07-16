@@ -201,7 +201,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, userFlow, tenant)
+                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, tenant)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -281,11 +281,17 @@ namespace Microsoft.Identity.Web
             {
                 IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-                // For B2C, we should remove all accounts of the user regardless the user flow
+                //// For B2C, we should remove all accounts of the user regardless the user flow
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    // TODO: this will be changed later w/MSAL cache key updates for B2C
-                    await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
+                    string? identifier = context.HttpContext.User.GetB2CAccountId();
+                    IAccount account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
+
+                    if (account != null)
+                    {
+                        await app.RemoveAsync(account).ConfigureAwait(false);
+                        await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
+                    }
                 }
                 else
                 {
@@ -384,22 +390,18 @@ namespace Microsoft.Identity.Web
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal claimsPrincipal,
             IEnumerable<string> scopes,
-            string? userFlow,
             string? tenant)
         {
             IAccount? account = null;
-            if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
+            if (_microsoftIdentityOptions.IsB2C)
             {
-                string? nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
-                string? utid = claimsPrincipal.GetHomeTenantId();
-                string? b2cAccountIdentifier = string.Format(CultureInfo.InvariantCulture, "{0}-{1}.{2}", nameIdentifierId, userFlow, utid);
+                string? b2cAccountIdentifier = claimsPrincipal.GetB2CAccountId();
                 account = await application.GetAccountAsync(b2cAccountIdentifier).ConfigureAwait(false);
             }
             else

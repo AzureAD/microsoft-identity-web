@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace Microsoft.Identity.Web
@@ -31,6 +32,29 @@ namespace Microsoft.Identity.Web
                 // AAD pattern: {uid}.{utid}
                 // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
                 return $"{uniqueObjectIdentifier}.{uniqueTenantIdentifier}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the account identifier for B2C account in MSAL .NET from a <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="claimsPrincipal">Claims principal.</param>
+        /// <returns>A string corresponding to an account identifier as defined in <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
+        public static string? GetB2CAccountId(this ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal == null)
+            {
+                throw new ArgumentNullException(nameof(claimsPrincipal));
+            }
+
+            string? nameIdentifiderId = claimsPrincipal.GetNameIdentifierId();
+            string? uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
+
+            if (!string.IsNullOrWhiteSpace(nameIdentifiderId) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", nameIdentifiderId, uniqueTenantIdentifier);
             }
 
             return null;

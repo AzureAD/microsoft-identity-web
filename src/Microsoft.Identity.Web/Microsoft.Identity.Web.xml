@@ -285,6 +285,13 @@
             <param name="claimsPrincipal">Claims principal.</param>
             <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetB2CAccountId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the account identifier for B2C account in MSAL .NET from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims principal.</param>
+            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
             <summary>
             Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
