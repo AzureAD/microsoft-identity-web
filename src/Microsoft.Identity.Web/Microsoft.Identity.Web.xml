@@ -1440,9 +1440,9 @@
             <param name="application"><see cref="T:Microsoft.Identity.Client.IConfidentialClientApplication"/>.</param>
             <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
             <param name="scopes">Scopes for the downstream API to call.</param>
-            <param name="userFlow">Azure AD B2C user flow to target.</param>
             <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
             on behalf of the user described in the claimsPrincipal.</param>
+            <param name="userFlow">Azure AD B2C user flow to target.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>

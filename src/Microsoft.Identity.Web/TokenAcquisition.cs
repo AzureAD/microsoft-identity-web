@@ -122,16 +122,25 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                string? userFlow = context.Principal.Claims.FirstOrDefault(c => c.Type == ClaimConstants.UserFlow)?.Value;
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID Token though
-                var result = await _application
-                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
+                var builder = _application
+                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code);
+
+                if (_microsoftIdentityOptions.IsB2C)
+                {
+                    var authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    builder.WithB2CAuthority(authority);
+                }
+
+                var result = await builder.WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                                          .ExecuteAsync()
+                                          .ConfigureAwait(false);
+
                 context.HandleCodeRedemption(null, result.IdToken);
             }
             catch (MsalException ex)
@@ -188,7 +197,10 @@ namespace Microsoft.Identity.Web
         /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
-        public async Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenant = null, string? userFlow = null)
+        public async Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenant = null,
+            string? userFlow = null)
         {
             if (scopes == null)
             {
@@ -196,12 +208,17 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            _application = await GetOrBuildConfidentialClientApplicationAsync(userFlow).ConfigureAwait(false);
+            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             string accessToken;
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(_application, CurrentHttpContext.User, scopes, userFlow, tenant)
+                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+                    _application,
+                    CurrentHttpContext.User,
+                    scopes,
+                    tenant,
+                    userFlow)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -384,15 +401,15 @@ namespace Microsoft.Identity.Web
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
+        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal claimsPrincipal,
             IEnumerable<string> scopes,
-            string? userFlow,
-            string? tenant)
+            string? tenant,
+            string? userFlow = null)
         {
             IAccount? account = null;
             if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))

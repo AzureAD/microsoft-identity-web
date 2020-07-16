@@ -13,10 +13,12 @@ namespace TodoListClient.Controllers
     public class TodoListController : Controller
     {
         private readonly ITodoListService _todoListService;
+        private readonly ITokenAcquisition _tokenAcquisition;
 
-        public TodoListController(ITodoListService todoListService)
+        public TodoListController(ITodoListService todoListService, ITokenAcquisition tokenAcquisition)
         {
             _todoListService = todoListService;
+            _tokenAcquisition = tokenAcquisition;
         }
 
         // GET: TodoList
@@ -27,6 +29,27 @@ namespace TodoListClient.Controllers
         {
             return View(await _todoListService.GetAsync("b2c_1_susi"));
         }
+
+        [AuthorizeForScopes(Scopes = new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" }, UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsSisu()
+        {
+            // We get a token, but we don't use it. It's only to trigger the user flow
+            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" },
+                userFlow: "b2c_1_susi");
+            return View("Claims", null);
+        }
+
+        [AuthorizeForScopes(Scopes = new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" }, UserFlow = "b2c_1_edit_profile")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsEditProfile()
+        {
+            // We get a token, but we don't use it. It's only to trigger the user flow
+            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" },
+                userFlow: "b2c_1_edit_profile");
+            return View("Claims", null);
+        }
+
 
         // GET: TodoList/Details/5
         public async Task<ActionResult> Details(int id)
