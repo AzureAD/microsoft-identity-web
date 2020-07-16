@@ -399,7 +399,7 @@ namespace Microsoft.Identity.Web
             {
                 string? nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
                 string? utid = claimsPrincipal.GetHomeTenantId();
-                string? b2cAccountIdentifier = $"{nameIdentifierId}-{userFlow}.{utid}";
+                string? b2cAccountIdentifier = string.Format(CultureInfo.InvariantCulture, "{0}-{1}.{2}", nameIdentifierId, userFlow, utid);
                 account = await application.GetAccountAsync(b2cAccountIdentifier).ConfigureAwait(false);
             }
             else
