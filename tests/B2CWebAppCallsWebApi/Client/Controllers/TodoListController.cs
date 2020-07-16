@@ -14,6 +14,10 @@ namespace TodoListClient.Controllers
     {
         private readonly ITodoListService _todoListService;
         private readonly ITokenAcquisition _tokenAcquisition;
+        private const string Scope = "https://fabrikamb2c.onmicrosoft.com/tasks/read";
+        private const string Susi = "b2c_1_susi";
+        private const string EditProfile = "b2c_1_edit_profile";
+        private const string Claims = "Claims";
 
         public TodoListController(ITodoListService todoListService, ITokenAcquisition tokenAcquisition)
         {
@@ -24,30 +28,30 @@ namespace TodoListClient.Controllers
         // GET: TodoList
         //[AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
         [AuthorizeForScopes(
-            ScopeKeySection = "TodoList:TodoListScope", UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+            ScopeKeySection = "TodoList:TodoListScope", UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> Index()
         {
-            return View(await _todoListService.GetAsync("b2c_1_susi"));
+            return View(await _todoListService.GetAsync(Susi));
         }
 
-        [AuthorizeForScopes(Scopes = new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" }, UserFlow = "b2c_1_susi")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
-        public async Task<ActionResult> ClaimsSisu()
+        [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsSusi()
         {
             // We get a token, but we don't use it. It's only to trigger the user flow
-            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(
-                new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" },
-                userFlow: "b2c_1_susi");
-            return View("Claims", null);
+            await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { Scope },
+                userFlow: Susi);
+            return View(Claims, null);
         }
 
-        [AuthorizeForScopes(Scopes = new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" }, UserFlow = "b2c_1_edit_profile")] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = EditProfile)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> ClaimsEditProfile()
         {
             // We get a token, but we don't use it. It's only to trigger the user flow
-            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(
-                new string[] { "https://fabrikamb2c.onmicrosoft.com/tasks/read" },
-                userFlow: "b2c_1_edit_profile");
-            return View("Claims", null);
+            await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { Scope },
+                userFlow: EditProfile);
+            return View(Claims, null);
         }
 
 

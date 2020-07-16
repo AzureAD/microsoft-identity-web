@@ -321,11 +321,11 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application if needed.
         /// </summary>
-        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(string? userFlow = null)
+        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
             if (_application == null)
             {
-                _application = await BuildConfidentialClientApplicationAsync(userFlow).ConfigureAwait(false);
+                _application = await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             }
 
             return _application;
@@ -334,7 +334,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(string? userFlow = null)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
             var request = CurrentHttpContext.Request;
             string currentUri = UriHelper.BuildAbsolute(
@@ -363,7 +363,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
