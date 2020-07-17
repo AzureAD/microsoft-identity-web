@@ -24,7 +24,7 @@
 
     protected override void OnInitialized()
     {
-        var options = microsoftIdentityOptions.Get();
+        var options = microsoftIdentityOptions.CurrentValue;
         canEditProfile = !string.IsNullOrEmpty(options.EditProfilePolicyId);
     }
 }
