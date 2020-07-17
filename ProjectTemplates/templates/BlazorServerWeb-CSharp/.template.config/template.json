@@ -8,9 +8,9 @@
   "name": "Blazor Server App (Microsoft identity platform)",
   "generatorVersions": "[1.0.0.0-*)",
   "description": "A project template for creating a Blazor server app that runs server-side inside an ASP.NET Core app and handles user interactions over a SignalR connection. This template can be used for web apps with rich dynamic user interfaces (UIs).",
-  "groupIdentity": "Microsoft.Identity.Blazor.Server",
+  "groupIdentity": "Microsoft.Identity.Web.Blazor.Server",
   "precedence": "7000",
-  "identity": "Microsoft.Web.Blazor.Server.CSharp.5.0",
+  "identity": "Microsoft.Identity.Web.Blazor.Server.CSharp.5.0",
   "shortName": "blazorserver2",
   "thirdPartyNotices": "https://aka.ms/aspnetcore/5.0-third-party-notices",
   "tags": {
@@ -95,7 +95,7 @@
             "Shared/LoginDisplay.WindowsAuth.razor"
           ]
         },
-        {
+	{
           "condition": "(IndividualB2CAuth)",
           "rename": {
             "Shared/LoginDisplay.IndividualB2CAuth.razor": "Shared/LoginDisplay.razor"
@@ -127,6 +127,33 @@
             "Shared/LoginDisplay.IndividualB2CAuth.razor",
             "Shared/LoginDisplay.OrganizationalAuth.razor"
           ]
+        },
+        {
+          "condition": "(!GenerateApi)",
+            "exclude": [
+                "Services/DownstreamWebApi.cs"
+            ]
+        },
+        {
+          "condition": "(!CallsMicrosoftGraph)",
+          "rename": {
+            "Shared/NavMenu.NoGraph.razor": "Shared/NavMenu.razor"
+          },
+          "exclude": [
+            "Services/MicrosoftGraphServiceExtensions.cs",
+            "Services/TokenAcquisitionCredentialProvider.cs",
+            "Shared/NavMenu.CallsMicrosoftGraph.razor",
+            "Pages/ShowProfile.razor"
+            ]
+        },
+        {
+          "condition": "(CallsMicrosoftGraph)",
+          "rename": {
+            "Shared/NavMenu.CallsMicrosoftGraph.razor": "Shared/NavMenu.razor"
+          },
+          "exclude": [
+            "Shared/NavMenu.NoGraph.razor"
+            ]
         }
       ]
     }
@@ -339,6 +366,10 @@
         {
           "choice": "net5.0",
           "description": "Target net5.0"
+        },
+        {
+          "choice": "netcoreapp3.1",
+          "description": "Target netcoreapp3.1"
         }
       ],
       "replaces": "net5.0",
@@ -356,7 +387,7 @@
         "type": "parameter",
         "datatype": "string",
         "replaces": "[WebApiUrl]",
-        "defaultValue" : "https://graph.microsoft.com/v1.0/me",
+        "defaultValue" : "https://graph.microsoft.com/beta",
         "description": "URL of the API to call from the web app."
     },
     "CallsMicrosoftGraph": {
@@ -373,7 +404,7 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\")"
+        "value": "(CalledApiUrl != \"https://graph.microsoft.com/beta\" || CalledApiScopes != \"user.read\")"
     },
     "GenerateApiOrGraph": {
         "type": "computed",

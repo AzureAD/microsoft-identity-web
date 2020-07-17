@@ -80,9 +80,13 @@ namespace BlazorServerWeb_CSharp
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
+#if (GenerateApiOrGraph)
+            string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
+#endif
             services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
-#if (GenerateApi || CallsMicrosoftGraph)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+#if (GenerateApiOrGraph)
+                    .AddMicrosoftWebAppCallsWebApi(Configuration,
+                                                   scopes,
                                                    "AzureAd")
                     .AddInMemoryTokenCaches();
 #else
@@ -92,13 +96,17 @@ namespace BlazorServerWeb_CSharp
             services.AddDownstreamWebApiService(Configuration);
 #endif
 #if (CallsMicrosoftGraph)
-            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
+            services.AddMicrosoftGraph(scopes,
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
 #endif
 #elif (IndividualB2CAuth)
+#if (GenerateApi)
+            string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
+#endif
             services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
                     .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                                                   scopes,
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
