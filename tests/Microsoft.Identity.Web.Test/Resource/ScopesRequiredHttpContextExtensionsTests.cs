@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
@@ -42,7 +43,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
             var actualScopes = new[] { "acceptedScope3", "acceptedScope4" };
-            var expectedErrorMessage = $"The 'scope' or 'scp' claim does not contain scopes '{string.Join(",", acceptedScopes)}' or was not found";
+            var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
             var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes);

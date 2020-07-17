@@ -11,8 +11,8 @@ namespace Microsoft.Identity.Web.Test
     public class MicrosoftIdentityOptionsTests
     {
         private MicrosoftIdentityOptions microsoftIdentityOptions;
-        private const string AzureAd = "AzureAd";
-        private const string AzureAdB2C = "AzureAdB2C";
+        private const string AzureAd = Constants.AzureAd;
+        private const string AzureAdB2C = Constants.AzureAdB2C;
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -78,10 +78,10 @@ namespace Microsoft.Identity.Web.Test
 
         private void CheckReturnValueAgainstExpectedMissingParam(MissingParam missingParam, ValidateOptionsResult result)
         {
-            if (result.Failed == true)
+            if (result.Failed)
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "The '{0}' option must be provided.", missingParam);
-                Assert.Equal(msg, result.FailureMessage);
+                string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, missingParam);
+                Assert.Equal(message, result.FailureMessage);
             }
             else
             {

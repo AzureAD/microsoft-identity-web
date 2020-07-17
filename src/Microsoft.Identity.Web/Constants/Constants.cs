@@ -3,6 +3,9 @@
 
 namespace Microsoft.Identity.Web
 {
+    /// <summary>
+    /// General constants.
+    /// </summary>
     internal static class Constants
     {
         // IssuerMetadata
@@ -30,16 +33,17 @@ namespace Microsoft.Identity.Web
         public const string Organizations = "organizations";
 
         // ClientInfo
-        public const string Uid = "uid";
-        public const string Utid = "utid";
         public const string ClientInfo = "client_info";
         public const string One = "1";
 
+        // Certificates
+        public const string MediaTypePksc12 = "application/x-pkcs12";
+        public const string PersonalUserCertificateStorePath = "CurrentUser/My";
+
         // Miscellaneous
         public const string UserAgent = "User-Agent";
-        public const string JwtSecurityTokenUsedToCallWebAPI = "JwtSecurityTokenUsedToCallWebAPI";
+        public const string JwtSecurityTokenUsedToCallWebApi = "JwtSecurityTokenUsedToCallWebAPI";
         public const string AzureAd = "AzureAd";
-        public const string PreferredUserName = "preferred_username";
-        public const string NameClaim = "name";
+        public const string AzureAdB2C = "AzureAdB2C";
     }
 }
