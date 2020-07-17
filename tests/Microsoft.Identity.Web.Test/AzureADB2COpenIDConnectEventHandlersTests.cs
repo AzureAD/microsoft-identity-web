@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web.Test
             await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
             Assert.Equal(OpenIdConnectScope.OpenIdProfile, context.ProtocolMessage.Scope);
-            Assert.Equal(OpenIdConnectResponseType.IdToken, context.ProtocolMessage.ResponseType);
+            Assert.Equal(OpenIdConnectResponseType.CodeIdToken, context.ProtocolMessage.ResponseType);
             Assert.Equal(_customIssuer, context.ProtocolMessage.IssuerAddress, true);
             Assert.False(context.Properties.Items.ContainsKey(OidcConstants.PolicyKey));
         }
