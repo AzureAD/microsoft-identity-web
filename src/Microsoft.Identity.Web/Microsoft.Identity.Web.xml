@@ -47,15 +47,6 @@
             </summary>
             <param name="context">Context provided by ASP.NET Core.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.BuildAuthenticationPropertiesForIncrementalConsent(System.String[],Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpContext)">
-            <summary>
-            Build authentication properties needed for incremental consent.
-            </summary>
-            <param name="scopes">Scopes to request.</param>
-            <param name="ex"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> instance.</param>
-            <param name="context">Current HTTP context in the pipeline.</param>
-            <returns>AuthenticationProperties.</returns>
-        </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
             Description of a certificate.
@@ -533,6 +524,29 @@
             </summary>
             <param name="httpContext">HTTP context associated with the current request.</param>
             <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper">
+            <summary>
+            Helper methods to handle incremental consent and conditional access in
+            a Web app
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(Microsoft.Identity.Client.MsalUiRequiredException)">
+            <summary>
+            Can the exception be solved by re-signing-in the users?.
+            </summary>
+            <param name="ex">Exception from which the decision will be made</param>
+            <returns>Returns <c>true</c> if the issue can be solved by signing-in
+            the user, and <c>false</c>, otherwise.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(System.String[],Microsoft.Identity.Client.MsalUiRequiredException,System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Build authentication properties needed for incremental consent.
+            </summary>
+            <param name="scopes">Scopes to request.</param>
+            <param name="ex"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> instance.</param>
+            <param name="user">User.</param>
+            <returns>AuthenticationProperties.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
             <summary>
