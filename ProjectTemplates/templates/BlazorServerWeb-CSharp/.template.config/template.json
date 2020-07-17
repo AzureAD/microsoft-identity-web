@@ -131,14 +131,18 @@
         {
           "condition": "(!GenerateApi)",
             "exclude": [
-                "Services/DownstreamWebApi.cs"
+              "Services/DownstreamWebApi.cs",
+              "Pages/CallWebApi.razor"
             ]
         },
         {
-          "condition": "(!CallsMicrosoftGraph)",
+          "condition": "(!GenerateApi && !CallsMicrosoftGraph)",
           "rename": {
-            "Shared/NavMenu.NoGraph.razor": "Shared/NavMenu.razor"
-          },
+            "Shared/NavMenu.NoGraphOrApi.razor": "Shared/NavMenu.razor"
+          }
+        },
+        {
+          "condition": "(!CallsMicrosoftGraph)",
           "exclude": [
             "Services/MicrosoftGraphServiceExtensions.cs",
             "Services/TokenAcquisitionCredentialProvider.cs",
@@ -152,9 +156,20 @@
             "Shared/NavMenu.CallsMicrosoftGraph.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
-            "Shared/NavMenu.NoGraph.razor"
+            "Shared/NavMenu.NoGraphOrApi.razor",
+            "Shared/NavMenu.CallsWebApi.razor"
             ]
-        }
+        },
+        {
+          "condition": "(GenerateApi)",
+          "rename": {
+            "Shared/NavMenu.CallsWebApi.razor": "Shared/NavMenu.razor"
+          },
+          "exclude": [
+            "Shared/NavMenu.NoGraphOrApi.razor",
+            "Shared/NavMenu.CallsMicrosoftGraph.razor"
+            ]
+        }      
       ]
     }
   ],

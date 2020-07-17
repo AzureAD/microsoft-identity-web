@@ -56,14 +56,14 @@ cd ..
 echo " Test Web app calling Web API (Microsoft identity platform, MVC, Single Org)"
 mkdir mvcwebapp-api
 cd mvcwebapp-api
-dotnet new mvc2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new mvc2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\tests.sln add mvcwebapp-api.csproj
 cd ..
 
 echo " Test Web app calling Web API  (Microsoft identity platform, MVC, Multiple Orgs)"
 mkdir mvcwebapp-multi-org-api
 cd mvcwebapp-multi-org-api
-dotnet new mvc2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new mvc2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\tests.sln add mvcwebapp-multi-org-api.csproj
 cd ..
 
@@ -115,14 +115,14 @@ cd ..
 echo " Test Web app calling Web API  (Microsoft identity platform, Razor, Single Org)"
 mkdir webapp-api
 cd webapp-api
-dotnet new webapp2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new webapp2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\tests.sln add webapp-api.csproj
 cd ..
 
 echo " Test Web app calling Web API  (Microsoft identity platform, Razor, Multiple Orgs)"
 mkdir webapp-multi-org-api
 cd webapp-multi-org-api
-dotnet new webapp2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new webapp2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\tests.sln add webapp-multi-org-api.csproj
 cd ..
 
@@ -165,7 +165,7 @@ cd ..
 echo " Test Web API calling Web API (Microsoft identity platform, SingleOrg)"
 mkdir webapi-api
 cd webapi-api
-dotnet new webapi2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new webapi2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\tests.sln add webapi-api.csproj
 cd ..
 
@@ -211,7 +211,7 @@ cd ..
 echo " TTest Blazor app  calling Web API (Microsoft identity platform, SingleOrg)"
 mkdir blazorserver-api
 cd blazorserver-api
-dotnet new blazorserver2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
+dotnet new blazorserver2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
 dotnet sln ..\..\tests.sln add blazorserver-api.csproj
 cd ..
 
@@ -235,9 +235,6 @@ cd ..
 
 echo "Build the solution with all the projects created by applying the templates"
 dotnet build
-
-
-
 
 
 
