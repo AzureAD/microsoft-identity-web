@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Logging;
@@ -115,13 +116,13 @@ namespace Microsoft.Identity.Web.Resource
 
         private async Task OnRedirectToIdentityProviderAsync(RedirectContext context)
         {
-            _logger.LogDebug($"1. Begin {nameof(OnRedirectToIdentityProviderAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnRedirectToIdentityProviderAsync)));
 
             await s_onRedirectToIdentityProvider(context).ConfigureAwait(false);
 
             _logger.LogDebug("   Sending OpenIdConnect message:");
             DisplayProtocolMessage(context.ProtocolMessage);
-            _logger.LogDebug($"1. End - {nameof(OnRedirectToIdentityProviderAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnRedirectToIdentityProviderAsync)));
         }
 
         private void DisplayProtocolMessage(OpenIdConnectMessage message)
@@ -138,67 +139,67 @@ namespace Microsoft.Identity.Web.Resource
 
         private async Task OnMessageReceivedAsync(MessageReceivedContext context)
         {
-            _logger.LogDebug($"2. Begin {nameof(OnMessageReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnMessageReceivedAsync)));
             _logger.LogDebug("   Received from STS the OpenIdConnect message:");
             DisplayProtocolMessage(context.ProtocolMessage);
             await s_onMessageReceived(context).ConfigureAwait(false);
-            _logger.LogDebug($"2. End - {nameof(OnMessageReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnMessageReceivedAsync)));
         }
 
         private async Task OnAuthorizationCodeReceivedAsync(AuthorizationCodeReceivedContext context)
         {
-            _logger.LogDebug($"4. Begin {nameof(OnAuthorizationCodeReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnAuthorizationCodeReceivedAsync)));
             await s_onAuthorizationCodeReceived(context).ConfigureAwait(false);
-            _logger.LogDebug($"4. End - {nameof(OnAuthorizationCodeReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnAuthorizationCodeReceivedAsync)));
         }
 
         private async Task OnTokenResponseReceivedAsync(TokenResponseReceivedContext context)
         {
-            _logger.LogDebug($"5. Begin {nameof(OnTokenResponseReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnTokenResponseReceivedAsync)));
             await s_onTokenResponseReceived(context).ConfigureAwait(false);
-            _logger.LogDebug($"5. End - {nameof(OnTokenResponseReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnTokenResponseReceivedAsync)));
         }
 
         private async Task OnTokenValidatedAsync(TokenValidatedContext context)
         {
-            _logger.LogDebug($"3. Begin {nameof(OnTokenValidatedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnTokenValidatedAsync)));
             await s_onTokenValidated(context).ConfigureAwait(false);
-            _logger.LogDebug($"3. End - {nameof(OnTokenValidatedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnTokenValidatedAsync)));
         }
 
         private async Task OnUserInformationReceivedAsync(UserInformationReceivedContext context)
         {
-            _logger.LogDebug($"6. Begin {nameof(OnUserInformationReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnUserInformationReceivedAsync)));
             await s_onUserInformationReceived(context).ConfigureAwait(false);
-            _logger.LogDebug($"6. End - {nameof(OnUserInformationReceivedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnUserInformationReceivedAsync)));
         }
 
         private async Task OnAuthenticationFailedAsync(AuthenticationFailedContext context)
         {
-            _logger.LogDebug($"99. Begin {nameof(OnAuthenticationFailedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnAuthenticationFailedAsync)));
             await s_onAuthenticationFailed(context).ConfigureAwait(false);
-            _logger.LogDebug($"99. End - {nameof(OnAuthenticationFailedAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnAuthenticationFailedAsync)));
         }
 
         private async Task OnRedirectToIdentityProviderForSignOutAsync(RedirectContext context)
         {
-            _logger.LogDebug($"10. Begin {nameof(OnRedirectToIdentityProviderForSignOutAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnRedirectToIdentityProviderForSignOutAsync)));
             await s_onRedirectToIdentityProviderForSignOut(context).ConfigureAwait(false);
-            _logger.LogDebug($"10. End - {nameof(OnRedirectToIdentityProviderForSignOutAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnRedirectToIdentityProviderForSignOutAsync)));
         }
 
         private async Task OnRemoteSignOutAsync(RemoteSignOutContext context)
         {
-            _logger.LogDebug($"11. Begin {nameof(OnRemoteSignOutAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnRemoteSignOutAsync)));
             await s_onRemoteSignOut(context).ConfigureAwait(false);
-            _logger.LogDebug($"11. End - {nameof(OnRemoteSignOutAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnRemoteSignOutAsync)));
         }
 
         private async Task OnSignedOutCallbackRedirectAsync(RemoteSignOutContext context)
         {
-            _logger.LogDebug($"12. Begin {nameof(OnSignedOutCallbackRedirectAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnSignedOutCallbackRedirectAsync)));
             await s_onSignedOutCallbackRedirect(context).ConfigureAwait(false);
-            _logger.LogDebug($"12. End {nameof(OnSignedOutCallbackRedirectAsync)}");
+            _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnSignedOutCallbackRedirectAsync)));
         }
     }
 }

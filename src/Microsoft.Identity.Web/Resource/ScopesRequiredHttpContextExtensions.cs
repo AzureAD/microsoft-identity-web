@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web.Resource
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = string.Format(CultureInfo.InvariantCulture, LogMessages.MissingScopes, string.Join(",", acceptedScopes));
+                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
                     context.Response.WriteAsync(message);
                 }
             }

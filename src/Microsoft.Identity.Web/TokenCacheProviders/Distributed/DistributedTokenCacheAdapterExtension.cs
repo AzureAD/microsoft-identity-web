@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             builder.Services.AddDistributedTokenCaches();

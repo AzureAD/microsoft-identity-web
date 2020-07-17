@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -61,11 +62,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 if (_session.TryGetValue(cacheKey, out byte[] blob))
                 {
-                    _logger.LogInformation($"Deserializing session {_session.Id}, cacheId {cacheKey}");
+                    _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.DeserializingSessionCache, _session.Id, cacheKey));
                 }
                 else
                 {
-                    _logger.LogInformation($"CacheId {cacheKey} not found in session {_session.Id}");
+                    _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.SessionCacheKeyNotFound, cacheKey, _session.Id));
                 }
 
                 return blob;
@@ -87,7 +88,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation($"Serializing session {_session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.SerializingSessionCache, _session.Id, cacheKey));
 
                 // Reflect changes in the persistent store
                 _session.Set(cacheKey, bytes);
@@ -109,7 +110,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation($"Clearing session {_session.Id}, cacheId {cacheKey}");
+                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ClearingSessionCache, _session.Id, cacheKey));
 
                 // Reflect changes in the persistent store
                 _session.Remove(cacheKey);

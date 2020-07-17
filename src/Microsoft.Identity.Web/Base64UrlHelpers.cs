@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
@@ -19,11 +18,11 @@ namespace Microsoft.Identity.Web
 
         private static readonly string DoubleBase64PadCharacter = string.Format(CultureInfo.InvariantCulture, "{0}{0}", Base64PadCharacter);
 
-        // The following functions perform base64url encoding which differs from regular base64 encoding as follows
-        // * padding is skipped so the pad character '=' doesn't have to be percent encoded
-        // * the 62nd and 63rd regular base64 encoding characters ('+' and '/') are replace with ('-' and '_')
-        // The changes make the encoding alphabet file and URL safe
-        // See RFC4648, section 5 for more info
+        // The following functions perform Base64URL encoding which differs from regular Base64 encoding:
+        // * Padding is skipped so the pad character '=' doesn't have to be percent encoded.
+        // * The 62nd and 63rd regular Base64 encoding characters ('+' and '/') are replaced with ('-' and '_').
+        // The changes make the encoding alphabet file and URL safe.
+        // See RFC4648, section 5 for more info.
         public static string? Encode(string arg)
         {
             if (arg == null)
@@ -63,10 +62,10 @@ namespace Microsoft.Identity.Web
                     s += Base64PadCharacter;
                     break; // One pad char
                 default:
-                    throw new ArgumentException("Illegal base64url string!", nameof(arg));
+                    throw new ArgumentException(IDWebErrorMessage.InvalidBase64UrlString, nameof(arg));
             }
 
-            return Convert.FromBase64String(s); // Standard base64 decoder
+            return Convert.FromBase64String(s); // Standard Base64 decoder
         }
 
         internal static string? Encode(byte[] arg)
@@ -77,7 +76,7 @@ namespace Microsoft.Identity.Web
             }
 
             string s = Convert.ToBase64String(arg);
-            s = s.Split(Base64PadCharacter)[0]; // RemoveAccount any trailing padding
+            s = s.Split(Base64PadCharacter)[0]; // Remove any trailing padding
             s = s.Replace(Base64Character62, Base64UrlCharacter62); // 62nd char of encoding
             s = s.Replace(Base64Character63, Base64UrlCharacter63); // 63rd char of encoding
 
