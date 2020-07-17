@@ -298,10 +298,8 @@ namespace Microsoft.Identity.Web
             {
                 IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-                // For B2C, we should remove all accounts of the user regardless the user flow
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    // TODO: this will be changed later w/MSAL cache key updates for B2C
                     await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
                 }
                 else

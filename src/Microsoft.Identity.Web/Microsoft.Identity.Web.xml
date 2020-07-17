@@ -1423,12 +1423,12 @@
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed account removal operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync">
             <summary>
             Creates an MSAL confidential client application if needed.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplicationAsync(System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplicationAsync">
             <summary>
             Creates an MSAL confidential client application.
             </summary>
