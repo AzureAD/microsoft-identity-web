@@ -336,16 +336,16 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "netcoreapp5.0",
-          "description": "Target netcoreapp5.0"
+          "choice": "net5.0",
+          "description": "Target net5.0"
         },
         {
           "choice": "netcoreapp3.1",
           "description": "Target netcoreapp3.1"
         }
       ],
-      "replaces": "netcoreapp5.0",
-      "defaultValue": "netcoreapp5.0"
+      "replaces": "net5.0",
+      "defaultValue": "net5.0"
     },
     "copyrightYear": {
       "type": "generated",
@@ -390,19 +390,19 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-  {
-     "condition": "(CallsMicrosoftGraph)",
-     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
-     "description": "Adds Microsoft Graph package.",
-    "manualInstructions": [
-    ],
-    "args": {
+    {
+      "condition": "(CallsMicrosoftGraph)",
+      "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
+       "description": "Adds Microsoft Graph package.",
+      "manualInstructions": [
+      ],
+      "args": {
         "referenceType": "package",
         "reference": "Microsoft.Graph",
         "version": "3.8.0"
+      },
+     "continueOnError": true
     },
-   "continueOnError": true
-  },
     {
       "condition": "(!skipRestore)",
       "description": "Restore NuGet packages required by this project.",

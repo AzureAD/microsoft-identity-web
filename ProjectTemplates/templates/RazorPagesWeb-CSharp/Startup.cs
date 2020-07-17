@@ -103,13 +103,14 @@ namespace Company.WebApplication1
 #endif
 #if (OrganizationalAuth)
 
-            services.AddRazorPages().AddMvcOptions(options =>
+            services.AddAuthorization(options =>
             {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            }).AddMicrosoftIdentityUI();
+                // By default, all incoming requests will be authorized according to the default policy
+                options.FallbackPolicy = options.DefaultPolicy;
+            });
+            services.AddRazorPages()
+                    .AddMvcOptions(options => {})
+                    .AddMicrosoftIdentityUI();
 #elif (IndividualB2CAuth)
             services.AddRazorPages()
                     .AddMicrosoftIdentityUI();

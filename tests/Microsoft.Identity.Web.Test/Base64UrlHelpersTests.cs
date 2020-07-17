@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web.Test
             Action decodeAction = () => Base64UrlHelpers.DecodeToBytes(stringToDecodeWithInvalidLength);
 
             var exception = Assert.Throws<ArgumentException>(decodeAction);
-            Assert.Equal("Illegal base64url string! (Parameter 'arg')", exception.Message);
+            Assert.Equal(IDWebErrorMessage.InvalidBase64UrlString + " (Parameter 'arg')", exception.Message);
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -43,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var acceptedRoles = new[] { "access_as_application", "access_as_application_for_write" };
             var actualRoles = new[] { "access_as_application_for_read_all_directory", "access_as_application_for_read" };
-            var expectedErrorMessage = $"The 'roles' or 'role' claim does not contain roles '{string.Join(",", acceptedRoles)}' or was not found";
+            var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(",", acceptedRoles));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
             var httpContext = HttpContextUtilities.CreateHttpContext(actualRoles);

@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddSignIn(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = "AzureAd",
+            string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>

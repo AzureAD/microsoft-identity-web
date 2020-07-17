@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web
             // Correlation ID: f99deff4-f43b-43cc-b4e7-36141dbaf0a0
             // Timestamp: 2018-03-05 02:49:35Z
             // ', error_uri: 'error_uri is null'.
-            if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains("AADB2C90118"))
+            if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains(ErrorCodes.B2CForgottenPassword))
             {
                 // If the user clicked the reset password link, redirect to the reset password route
                 context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web
             // Correlation ID: d01c8878-0732-4eb2-beb8-da82a57432e0
             // Timestamp: 2018-03-05 02:56:49Z
             // ', error_uri: 'error_uri is null'.
-            else if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains("access_denied"))
+            else if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains(ErrorCodes.AccessDenied))
             {
                 context.Response.Redirect($"{context.Request.PathBase}/");
             }
