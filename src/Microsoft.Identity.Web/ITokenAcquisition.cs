@@ -21,8 +21,9 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="userFlow">Azure AD B2C UserFlow to target.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null);
+        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)

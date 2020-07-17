@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
             if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {
                 // AAD pattern: {uid}.{utid}
-                // B2C pattern: {uid}-{userFlow}.{utid} -> userflow is included in the uid for B2C
+                // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
                 return $"{uniqueObjectIdentifier}.{uniqueTenantIdentifier}";
             }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Web
         /// Gets the user flow ID associated with the <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
-        /// <returns>User Flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        /// <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetUserFlowId(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal == null)
@@ -198,8 +198,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets the NameIdentifierId associated with the <see cref="ClaimsPrincipal"/>.
         /// </summary>
-        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the <c>uid</c> claim.</param>
-        /// <returns>Name identifier ID (uid) of the identity, or <c>null</c> if it cannot be found.</returns>
+        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
+        /// <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetNameIdentifierId(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal == null)
@@ -207,7 +207,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
+            return claimsPrincipal.FindFirstValue(ClaimConstants.NameIdentifierId);
         }
     }
 }

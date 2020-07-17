@@ -1,0 +1,36 @@
+﻿@model IEnumerable<TodoListService.Models.Todo>
+
+@{
+    ViewData["Title"] = "Claims";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Value
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claims in (User.Identity as System.Security.Claims.ClaimsIdentity).Claims)
+        {
+            <tr>
+                <td>
+                    @claims.Type
+                </td>
+                <td>
+                    @claims.Value
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

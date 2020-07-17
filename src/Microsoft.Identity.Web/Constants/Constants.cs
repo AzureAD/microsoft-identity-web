@@ -45,5 +45,14 @@ namespace Microsoft.Identity.Web
         public const string JwtSecurityTokenUsedToCallWebApi = "JwtSecurityTokenUsedToCallWebAPI";
         public const string AzureAd = "AzureAd";
         public const string AzureAdB2C = "AzureAdB2C";
+        public const string PreferredUserName = "preferred_username";
+        public const string NameClaim = "name";
+        public const string Tfp = "tfp";
+        public const string Consent = "consent";
+        public const string ConsentUrl = "consentUri";
+        public const string Claims = "claims";
+        public const string Scopes = "scopes";
+        public const string ProposedAction = "proposedAction";
+        public const string Bearer = "Bearer";
     }
 }
