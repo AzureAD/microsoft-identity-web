@@ -34,11 +34,18 @@ namespace Microsoft.Identity.Web.Test
             var httpContext = HttpContextUtilities.CreateHttpContext();
             var authProperties = new AuthenticationProperties();
             authProperties.Items.Add(OidcConstants.PolicyKey, CustomUserFlow);
-            var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties) { ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer } };
+            var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage()
+                {
+                    IssuerAddress = _defaultIssuer,
+                    Scope = TestConstants.Scopes,
+                },
+            };
 
             await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
-            Assert.Equal(OpenIdConnectScope.OpenIdProfile, context.ProtocolMessage.Scope);
+            Assert.Equal(TestConstants.Scopes, context.ProtocolMessage.Scope);
             Assert.Equal(OpenIdConnectResponseType.CodeIdToken, context.ProtocolMessage.ResponseType);
             Assert.Equal(_customIssuer, context.ProtocolMessage.IssuerAddress, true);
             Assert.False(context.Properties.Items.ContainsKey(OidcConstants.PolicyKey));

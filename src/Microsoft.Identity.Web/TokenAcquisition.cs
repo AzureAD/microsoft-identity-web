@@ -129,7 +129,8 @@ namespace Microsoft.Identity.Web
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID Token though
                 var builder = _application
-                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code);
+                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -137,8 +138,7 @@ namespace Microsoft.Identity.Web
                     builder.WithB2CAuthority(authority);
                 }
 
-                var result = await builder.WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                                          .ExecuteAsync()
+                var result = await builder.ExecuteAsync()
                                           .ConfigureAwait(false);
 
                 context.HandleCodeRedemption(null, result.IdToken);

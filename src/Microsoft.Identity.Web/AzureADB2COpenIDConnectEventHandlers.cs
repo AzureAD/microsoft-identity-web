@@ -32,7 +32,6 @@ namespace Microsoft.Identity.Web
                 !string.IsNullOrEmpty(userFlow) &&
                 !string.Equals(userFlow, defaultUserFlow, StringComparison.OrdinalIgnoreCase))
             {
-                context.ProtocolMessage.Scope = OpenIdConnectScope.OpenIdProfile;
                 context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.CodeIdToken;
                 context.ProtocolMessage.IssuerAddress = BuildIssuerAddress(context, defaultUserFlow, userFlow);
                 context.Properties.Items.Remove(OidcConstants.PolicyKey);
