@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         /// it can be used in the actions.</param>
         internal static void StoreTokenUsedToCallWebAPI(this HttpContext httpContext, JwtSecurityToken? token)
         {
-            httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebAPI, token);
+            httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebApi, token);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// <returns><see cref="JwtSecurityToken"/> used to call the web API.</returns>
         internal static JwtSecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
         {
-            return httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebAPI] as JwtSecurityToken;
+            return httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] as JwtSecurityToken;
         }
     }
 }

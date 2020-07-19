@@ -41,6 +41,11 @@ namespace Microsoft.Identity.Web
         public string? ScopeKeySection { get; set; }
 
         /// <summary>
+        /// Azure AD B2C user flow.
+        /// </summary>
+        public string? UserFlow { get; set; }
+
+        /// <summary>
         /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
         /// <param name="context">Context provided by ASP.NET Core.</param>
@@ -156,6 +161,13 @@ namespace Microsoft.Identity.Web
             if (!string.IsNullOrEmpty(ex.Claims))
             {
                 properties.Items.Add(OidcConstants.AdditionalClaims, ex.Claims);
+            }
+
+            if (!string.IsNullOrEmpty(UserFlow))
+            {
+                properties.Items.Add(
+                    OidcConstants.PolicyKey,
+                    UserFlow);
             }
 
             return properties;

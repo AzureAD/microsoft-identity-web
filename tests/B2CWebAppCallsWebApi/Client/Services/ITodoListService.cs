@@ -9,7 +9,7 @@ namespace TodoListClient.Services
 {
     public interface ITodoListService
     {
-        Task<IEnumerable<Todo>> GetAsync();
+        Task<IEnumerable<Todo>> GetAsync(string userFlow);
 
         Task<Todo> GetAsync(int id);
 

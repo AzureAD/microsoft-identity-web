@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             builder.Services.AddSessionTokenCaches();

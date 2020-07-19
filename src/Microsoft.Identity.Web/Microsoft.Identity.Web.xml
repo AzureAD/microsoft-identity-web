@@ -41,6 +41,11 @@
             Key section on the configuration file that holds the scope value.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.UserFlow">
+            <summary>
+            Azure AD B2C user flow.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
             <summary>
             Handles the <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/>.
@@ -324,7 +329,7 @@
             Gets the user flow ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
             </summary>
             <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
-            <returns>User Flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
+            <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(System.Security.Claims.ClaimsPrincipal)">
             <summary>
@@ -344,8 +349,8 @@
             <summary>
             Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
             </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>uid</c> claim.</param>
-            <returns>Name identifier ID (uid) of the identity, or <c>null</c> if it cannot be found.</returns>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
+            <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.ClaimsPrincipalFactory">
             <summary>
@@ -467,6 +472,24 @@
         <member name="F:Microsoft.Identity.Web.ClaimConstants.Tfp">
             <summary>
             Tfp claim: "tfp".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.NameIdentifierId">
+            <summary>
+            Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+        <member name="T:Microsoft.Identity.Web.Constants">
+            <summary>
+            General constants.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
+            <summary>
+            Constants related to the error messages.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.LogMessages">
+            <summary>
+            Constants related to the log messages.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">
@@ -630,6 +653,7 @@
             </summary>
             <param name="scopes">Scopes to consent to.</param>
             <param name="msalSeviceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.ITokenAcquisitionInternal">
             <summary>
@@ -1190,6 +1214,7 @@
             preserving the previous handlers (which are called).
             </summary>
             <param name="events">Events to subscribe to.</param>
+            <returns><see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents"/> for chaining.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics">
             <summary>
@@ -1285,10 +1310,10 @@
              Add the token acquisition service.
              </summary>
              <param name="services">Service collection.</param>
-             <param name="isTokenAcquisitionSingleton"></param>
-             <returns>the service collection.</returns>
+             <param name="isTokenAcquisitionSingleton">Specifies if an instance of <see cref="T:Microsoft.Identity.Web.ITokenAcquisition"/> should be a singleton.</param>
+             <returns>The service collection.</returns>
              <example>
-             This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
+             This method is typically called from the <c>ConfigureServices(IServiceCollection services)</c> in Startup.cs.
              Note that the implementation of the token cache can be chosen separately.
             
              <code>
@@ -1296,8 +1321,7 @@
              services.AddTokenAcquisition()
              .AddDistributedMemoryCache()
              .AddSession()
-             .AddSessionBasedTokenCache()
-              ;
+             .AddSessionBasedTokenCache();
              </code>
              </example>
         </member>
@@ -1418,15 +1442,15 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync">
             <summary>
-            Creates an MSAL Confidential client application if needed.
+            Creates an MSAL confidential client application if needed.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplicationAsync">
             <summary>
-            Creates an MSAL Confidential client application.
+            Creates an MSAL confidential client application.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
             </summary>
@@ -1435,16 +1459,19 @@
             <param name="scopes">Scopes for the downstream API to call.</param>
             <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
             on behalf of the user described in the claimsPrincipal.</param>
+            <param name="userFlow">Azure AD B2C user flow to target.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user which account is passed as an argument.
             </summary>
-            <param name="application"></param>
+            <param name="application"><see cref="T:Microsoft.Identity.Client.IConfidentialClientApplication"/>.</param>
             <param name="account">User IAccount for which to acquire a token.
             See <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</param>
             <param name="scopes">Scopes for the downstream API to call.</param>
-            <param name="tenant"></param>
+            <param name="tenant">Specific tenant for which to acquire a token to access the scopes
+            on behalf of the user.</param>
+            <param name="userFlow">Azure AD B2C user flow.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException)">
             <summary>
@@ -1454,14 +1481,7 @@
             </summary>
             <param name="scopes">Scopes to consent to.</param>
             <param name="msalServiceException">The <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> that triggered the challenge.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccountByUserFlow(System.Collections.Generic.IEnumerable{Microsoft.Identity.Client.IAccount},System.String)">
-            <summary>
-            Gets an IAccount for the current B2C user flow in the user claims.
-            </summary>
-            <param name="accounts">A collection of accounts to search through.</param>
-            <param name="userFlow">A B2C user flow.</param>
-            <returns>An <see cref="T:Microsoft.Identity.Client.IAccount"/> with the specified user flow.</returns>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
             <summary>
@@ -1508,8 +1528,8 @@
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
-            <param name="memoryCache"></param>
-            <param name="cacheOptions"></param>
+            <param name="memoryCache">Distributed cache instance to use.</param>
+            <param name="cacheOptions">Options for the token cache.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
             <summary>
@@ -1517,13 +1537,14 @@
             from the distributed cache.
             </summary>
             <param name="cacheKey">Key of the cache to remove.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String)">
             <summary>
             Read a specific token cache, described by its cache key, from the
             distributed cache.
             </summary>
-            <param name="cacheKey"></param>
+            <param name="cacheKey">Key of the cache item to retrieve.</param>
             <returns>Read blob representing a token cache for the cache key
             (account or app).</returns>
         </member>
@@ -1533,6 +1554,7 @@
             </summary>
             <param name="cacheKey">Cache key.</param>
             <param name="bytes">blob to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions">
             <summary>
@@ -1623,6 +1645,7 @@
             cache.
             </summary>
             <param name="cacheKey">token cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(System.String)">
             <summary>
@@ -1637,6 +1660,7 @@
             </summary>
             <param name="cacheKey">Token cache key.</param>
             <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
             <summary>
@@ -1672,6 +1696,7 @@
             Clear the cache.
             </summary>
             <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
             <summary>
@@ -1738,12 +1763,14 @@
             </summary>
             <param name="cacheKey">Key for the cache (account ID or app ID).</param>
             <param name="bytes">Blob to write to the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.RemoveKeyAsync(System.String)">
             <summary>
             Removes a cache described by its key.
             </summary>
             <param name="cacheKey">Key of the token cache (user account or app ID).</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension">
             <summary>

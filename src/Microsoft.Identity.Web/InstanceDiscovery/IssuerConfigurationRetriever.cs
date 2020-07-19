@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         {
             if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentNullException(nameof(address), IDWebErrorMessage.IssuerMetadataURLIsRequired);
+                throw new ArgumentNullException(nameof(address), IDWebErrorMessage.IssuerMetadataUrlIsRequired);
             }
 
             if (retriever == null)

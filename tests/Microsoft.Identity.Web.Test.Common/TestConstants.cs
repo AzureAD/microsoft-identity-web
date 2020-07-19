@@ -63,6 +63,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";
         public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";
         public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";
+        public const string Scopes = "openid profile offline_access api://someapi";
 
         // Claims
         public const string ClaimNameTid = "tid";

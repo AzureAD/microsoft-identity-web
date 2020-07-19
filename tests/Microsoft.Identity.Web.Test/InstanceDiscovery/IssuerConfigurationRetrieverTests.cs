@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
 
-            string expectedErrorMessage = IDWebErrorMessage.IssuerMetadataURLIsRequired + " (Parameter 'address')";
+            string expectedErrorMessage = IDWebErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedErrorMessage, exception.Message);
