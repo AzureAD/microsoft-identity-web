@@ -340,5 +340,24 @@ namespace Microsoft.Identity.Web.Test.Resource
                     ValidIssuers = new[] { TestConstants.B2CCustomDomainIssuer },
                 });
         }
+
+        [Fact]
+        public void Validate_FromB2CAuthority_WithTfpIssuer_ThrowsException()
+        {
+            Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CIssuerTfp);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuerTfp, claims: new[] { issClaim });
+
+            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+
+            var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
+                validator.Validate(
+                    TestConstants.B2CIssuerTfp,
+                    jwtSecurityToken,
+                    new TokenValidationParameters()
+                    {
+                        ValidIssuers = new[] { TestConstants.B2CIssuerTfp },
+                    }));
+            Assert.Equal(IDWebErrorMessage.B2CTfpIssuerNotSupported, exception.Message);
+        }
     }
 }
