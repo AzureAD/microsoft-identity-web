@@ -191,8 +191,11 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a Web API)
+        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
-        /// <remarks>Calling this method from a Web API supposes that you have previously called,
+        /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
         /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
@@ -200,7 +203,8 @@ namespace Microsoft.Identity.Web
         public async Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
             string? tenant = null,
-            string? userFlow = null)
+            string? userFlow = null,
+            ClaimsPrincipal? user = null)
         {
             if (scopes == null)
             {
@@ -215,7 +219,7 @@ namespace Microsoft.Identity.Web
             {
                 accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(
                     _application,
-                    CurrentHttpContext.User,
+                    user ?? CurrentHttpContext.User,
                     scopes,
                     tenant,
                     userFlow)
@@ -334,12 +338,16 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
         {
-            var request = CurrentHttpContext.Request;
-            string currentUri = UriHelper.BuildAbsolute(
-                request.Scheme,
-                request.Host,
-                request.PathBase,
-                _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+            var request = CurrentHttpContext?.Request;
+            string? currentUri = null;
+            if (request != null)
+            {
+                currentUri = UriHelper.BuildAbsolute(
+                    request.Scheme,
+                    request.Host,
+                    request.PathBase,
+                    _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+            }
 
             if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
             {
@@ -354,8 +362,13 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithRedirectUri(currentUri)
                         .WithHttpClientFactory(_httpClientFactory);
+
+                // The redirect URI is not needed for OBO
+                if (!string.IsNullOrEmpty(currentUri))
+                {
+                    builder.WithRedirectUri(currentUri);
+                }
 
                 string authority;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
@@ -22,8 +23,15 @@ namespace Microsoft.Identity.Web
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <param name="userFlow">Azure AD B2C UserFlow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null);
+        Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
