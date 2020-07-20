@@ -2,12 +2,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [master, ]
+    branches: [pmaytak/build]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
-  schedule:
-    - cron: '0 6 * * 0'
+    branches: [pmaytak/build]
 
 jobs:
   analyse:
