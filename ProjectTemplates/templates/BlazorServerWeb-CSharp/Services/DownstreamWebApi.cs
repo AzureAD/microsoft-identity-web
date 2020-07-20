@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
-namespace BlazorServerWeb_CSharp.Services
+namespace BlazorServerWeb_CSharp
 {
     public interface IDownstreamWebApi
     {
