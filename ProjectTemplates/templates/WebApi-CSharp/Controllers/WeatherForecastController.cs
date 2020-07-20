@@ -10,9 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
+using Company.WebApplication1;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
@@ -66,7 +66,7 @@ namespace Company.WebApplication1.Controllers
             .ToArray();
         }
 
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
@@ -100,8 +100,10 @@ namespace Company.WebApplication1.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+#if (!NoAuth)
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
+#endif
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
