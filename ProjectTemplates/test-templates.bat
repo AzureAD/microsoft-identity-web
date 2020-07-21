@@ -9,14 +9,14 @@ mkdir tests
 cd tests
 dotnet new sln --name tests
 
-echo " Test Web app (No Auth)"
+echo " Test Web app (No auth)"
 mkdir webapp-noauth
 cd webapp-noauth
 dotnet new webapp2
 dotnet sln ..\tests.sln add webapp-noauth.csproj
 cd ..
 
-echo " Test Web app (No Auth)"
+echo " Test Web app (No auth)"
 mkdir mvcwebapp-noauth
 cd mvcwebapp-noauth
 dotnet new mvc2
@@ -68,7 +68,7 @@ dotnet sln ..\tests.sln add mvcwebapp-multi-org-api.csproj
 cd ..
 
 
-echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Single Orgs)"
+echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Single Org)"
 mkdir mvcwebapp-graph
 cd mvcwebapp-graph
 dotnet new mvc2 --auth SingleOrg --calls-graph --called-api-scopes "user.read"
@@ -201,14 +201,14 @@ dotnet new blazorserver2 --auth SingleOrg
 dotnet sln ..\..\tests.sln add blazorserver-SingleOrg.csproj
 cd ..
 
-echo " Test Blazor app   (AzureAD B2C)"
+echo " Test Blazor app (AzureAD B2C)"
 mkdir blazorserver-b2c
 cd blazorserver-b2c
 dotnet new blazorserver2 --auth IndividualB2C
 dotnet sln ..\..\tests.sln add blazorserver-b2c.csproj
 cd ..
 
-echo " TTest Blazor app  calling Web API (Microsoft identity platform, SingleOrg)"
+echo " Test Blazor app  calling Web API (Microsoft identity platform, SingleOrg)"
 mkdir blazorserver-api
 cd blazorserver-api
 dotnet new blazorserver2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
