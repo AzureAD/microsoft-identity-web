@@ -44,7 +44,7 @@
       "path": "Shared/ComponentsWebAssembly-CSharp.Shared.csproj"
     }
   ],
-  "shortName": "blazorwasm",
+  "shortName": "blazorwasm2",
   "sourceName": "ComponentsWebAssembly-CSharp",
   "sources": [
     {
@@ -211,7 +211,20 @@
             "Server/Controllers/OidcConfigurationController.cs",
             "Server/Models/ApplicationUser.cs"
           ]
-        }
+        },
+        {
+          "condition": "(Hosted && !GenerateApi)",
+            "exclude": [
+              "Server/Services/DownstreamWebApi.cs"
+            ]
+        },
+        {
+          "condition": "(Hosted &&!GenerateGraph)",
+          "exclude": [
+             "Server/Services/MicrosoftGraphServiceExtensions.cs",
+            "Server/Services/TokenAcquisitionCredentialProvider.cs"
+          ]
+        }	
       ]
     }
   ],
@@ -297,7 +310,7 @@
       "datatype": "string",
       "defaultValue": "https://login.microsoftonline.com/",
       "replaces": "https:////login.microsoftonline.com/",
-      "description": "The Azure Active Directory instance to connect to (use with SingleOrg)."
+      "description": "The Azure Active Directory instance to connect to (use with SingleOrg auth)."
     },
     "ClientId": {
       "type": "parameter",
@@ -452,7 +465,38 @@
       "parameters": {
         "format": "yyyy"
       }
-    }
+    },
+    "CalledApiUrl": {
+        "type": "parameter",
+        "datatype": "string",
+        "replaces": "[WebApiUrl]",
+        "defaultValue" : "https://graph.microsoft.com/v1.0/me",
+        "description": "URL of the API to call from the web app."
+    },
+    "CallsMicrosoftGraph": {
+        "type": "parameter",
+        "datatype": "bool",
+        "defaultValue": "false",
+        "description": "Specifies if the web app calls Microsoft Graph."
+    },
+    "CalledApiScopes": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces" :  "user.read",
+      "description": "Scopes to request to call the API from the web app."
+    },
+    "GenerateApi": {
+        "type": "computed",
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
+    },
+    "GenerateGraph": {
+        "type": "computed",
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && CallsMicrosoftGraph)"
+    },
+    "GenerateApiOrGraph": {
+        "type": "computed",
+        "value": "(GenerateApi || GenerateGraph)"
+    }    
   },
   "tags": {
     "language": "C#",
@@ -460,6 +504,19 @@
   },
   "postActions": [
     {
+    "condition": "(CallsMicrosoftGraph)",
+     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
+     "description": "Adds Microsoft Graph package.",
+    "manualInstructions": [
+    ],
+    "args": {
+        "referenceType": "package",
+        "reference": "Microsoft.Graph",
+        "version": "3.8.0"
+    },
+   "continueOnError": true
+  },
+  {
       "condition": "(!skipRestore && Hosted)",
       "description": "Restore NuGet packages required by this project.",
       "manualInstructions": [
