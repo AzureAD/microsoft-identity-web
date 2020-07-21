@@ -2,11 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 #endif
-#if (OrganizationalAuth)
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-#endif
-#if (IndividualB2CAuth)
+#if (OrganizationalAuth || IndividualB2CAuth) 
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
