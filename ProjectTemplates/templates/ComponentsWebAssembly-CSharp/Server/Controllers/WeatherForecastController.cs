@@ -18,6 +18,7 @@ using Microsoft.Graph;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
+using ComponentsWebAssembly_CSharp.Shared;
 namespace ComponentsWebAssembly_CSharp.Server.Controllers
 {
 #if (!NoAuth)
