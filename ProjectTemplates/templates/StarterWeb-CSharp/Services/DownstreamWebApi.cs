@@ -52,10 +52,11 @@ namespace Company.WebApplication1
             string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";
 
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"bearer {accessToken}");
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(httpMethod, $"{apiUrl}");
+            httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
 
             string apiResult;
-            var response = await _httpClient.GetAsync($"{apiUrl}");
+            var response = await _httpClient.SendAsync(httpRequestMessage);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 apiResult = await response.Content.ReadAsStringAsync();
