@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,7 @@ namespace Microsoft.Identity.Web
         private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
+        private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -50,13 +52,15 @@ namespace Microsoft.Identity.Web
         /// <param name="applicationOptions">MSAL.NET configuration options.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
+        /// <param name="serviceProvider">Service provider.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
             IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions,
             IOptions<ConfidentialClientApplicationOptions> applicationOptions,
             IHttpClientFactory httpClientFactory,
-            ILogger<TokenAcquisition> logger)
+            ILogger<TokenAcquisition> logger,
+            IServiceProvider serviceProvider)
         {
             _httpContextAccessor = httpContextAccessor;
             _microsoftIdentityOptions = microsoftIdentityOptions.Value;
@@ -64,6 +68,7 @@ namespace Microsoft.Identity.Web
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -206,6 +211,24 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             ClaimsPrincipal? user = null)
         {
+            if (user == null)
+            {
+                AuthenticationStateProvider? authenticationStateProvider =
+                    _serviceProvider.GetService(typeof(AuthenticationStateProvider))
+                    as AuthenticationStateProvider;
+                if (authenticationStateProvider != null)
+                {
+                    // AuthenticationState provider is only available in Blazor
+                    AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
+                    user = state.User;
+                }
+
+                if (user == null && _httpContextAccessor.HttpContext != null)
+                {
+                    user = _httpContextAccessor.HttpContext.User;
+                }
+            }
+
             if (scopes == null)
             {
                 throw new ArgumentNullException(nameof(scopes));
@@ -219,7 +242,7 @@ namespace Microsoft.Identity.Web
             {
                 accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(
                     _application,
-                    user ?? CurrentHttpContext.User,
+                    user,
                     scopes,
                     tenant,
                     userFlow)
