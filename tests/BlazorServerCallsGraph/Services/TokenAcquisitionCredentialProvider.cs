@@ -1,6 +1,8 @@
-﻿using Microsoft.Graph;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.Graph;
 using Microsoft.Identity.Web;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
