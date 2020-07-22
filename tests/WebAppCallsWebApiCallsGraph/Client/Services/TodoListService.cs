@@ -127,18 +127,6 @@ namespace TodoListClient.Services
             throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}. Cause: {content}");
         }
 
-        private async Task<HttpRequestMessage> PrepareAuthenticatedClient(
-            string url, 
-            HttpMethod httpMethod)
-        {
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope });
-            Debug.WriteLine($"access token-{accessToken}");
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(httpMethod, url);
-            httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
-            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            return httpRequestMessage;
-        }
-
         public async Task<Todo> GetAsync(int id)
         {
             var httpRequestMessage = await PrepareAuthenticatedClient(
@@ -154,6 +142,18 @@ namespace TodoListClient.Services
             }
 
             throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+        }
+
+        private async Task<HttpRequestMessage> PrepareAuthenticatedClient(
+            string url,
+            HttpMethod httpMethod)
+        {
+            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope });
+            Debug.WriteLine($"access token-{accessToken}");
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(httpMethod, url);
+            httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
+            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return httpRequestMessage;
         }
     }
 }
