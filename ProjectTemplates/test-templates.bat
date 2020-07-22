@@ -232,6 +232,92 @@ cd ..
 REM Blazor
 cd ..
 
+REM Blazor web assembly
+mkdir blazorwasm2
+cd blazorwasm2
+echo "Test blazorwasm2, no authentication, "
+mkdir blazorwasm2-noauth-nodownstreamapi
+cd blazorwasm2-noauth-nodownstreamapi
+dotnet new blazorwasm2
+dotnet sln ..\..\tests.sln add blazorwasm2-noauth-nodownstreamapi.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg, "
+mkdir blazorwasm2-singleorg-nodownstreamapi
+cd blazorwasm2-singleorg-nodownstreamapi
+dotnet new blazorwasm2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg-nodownstreamapi.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg, calling Microsoft Graph"
+mkdir blazorwasm2-singleorg-callsgraph
+cd blazorwasm2-singleorg-callsgraph
+dotnet new blazorwasm2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg, calling a web API"
+mkdir blazorwasm2-singleorg-callswebapi
+cd blazorwasm2-singleorg-callswebapi
+dotnet new blazorwasm2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg,  hosted"
+mkdir blazorwasm2-singleorg-nodownstreamapi-hosted
+cd blazorwasm2-singleorg-nodownstreamapi-hosted
+dotnet new blazorwasm2 --auth SingleOrg  --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-nodownstreamapi-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-nodownstreamapi-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-nodownstreamapi-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg, calling Microsoft Graph, hosted"
+mkdir blazorwasm2-singleorg-callsgraph-hosted
+cd blazorwasm2-singleorg-callsgraph-hosted
+dotnet new blazorwasm2 --auth SingleOrg --calls-graph --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-callsgraph-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-callsgraph-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-callsgraph-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, SingleOrg, calling a web API, hosted"
+mkdir blazorwasm2-singleorg-callswebapi-hosted
+cd blazorwasm2-singleorg-callswebapi-hosted
+dotnet new blazorwasm2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read" --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-callswebapi-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-callswebapi-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-callswebapi-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, B2C, "
+mkdir blazorwasm2-b2c-nodownstreamapi
+cd blazorwasm2-b2c-nodownstreamapi
+dotnet new blazorwasm2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add blazorwasm2-b2c-nodownstreamapi.csproj
+cd ..
+
+echo "Test blazorwasm2, B2C,  hosted"
+mkdir blazorwasm2-b2c-nodownstreamapi-hosted
+cd blazorwasm2-b2c-nodownstreamapi-hosted
+dotnet new blazorwasm2 --auth IndividualB2C  --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-nodownstreamapi-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-nodownstreamapi-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-nodownstreamapi-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, B2C, calling a web API, hosted"
+mkdir blazorwasm2-b2c-callswebapi-hosted
+cd blazorwasm2-b2c-callswebapi-hosted
+dotnet new blazorwasm2 --auth IndividualB2C --called-api-url "https://localhost:44332" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read" --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-callswebapi-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-callswebapi-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-callswebapi-hosted.Client.csproj
+cd ..
+
+REM Blazor web assembly
+cd ..
+
 
 echo "Build the solution with all the projects created by applying the templates"
 dotnet build

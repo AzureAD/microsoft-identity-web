@@ -14,8 +14,10 @@
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
   </ItemGroup>
 
+<!--#if (Hosted) -->
   <ItemGroup>
     <ProjectReference Include="..\Shared\ComponentsWebAssembly-CSharp.Shared.csproj" />
   </ItemGroup>
+<!--#endif -->
 
 </Project>
