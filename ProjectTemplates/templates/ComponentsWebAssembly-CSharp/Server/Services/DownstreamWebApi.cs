@@ -51,6 +51,7 @@ namespace ComponentsWebAssembly_CSharp.Server
             string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
             string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";
 
+            string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
 
