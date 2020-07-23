@@ -41,7 +41,7 @@ namespace Company.WebApplication1.Controllers
         [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
         public async Task<IActionResult> Index()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
+            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApiAsync();
             return View();
         }
 #elseif (GenerateGraph)

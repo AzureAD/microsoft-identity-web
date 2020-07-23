@@ -36,7 +36,7 @@ namespace Company.WebApplication1.Pages
 
         public async Task OnGet()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
+            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApiAsync();
         }
 #elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;

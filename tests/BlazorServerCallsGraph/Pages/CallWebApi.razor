@@ -23,6 +23,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        apiResult = await downstreamAPI.CallWebApi();
+        apiResult = await downstreamAPI.CallWebApiAsync();
     }
 }
