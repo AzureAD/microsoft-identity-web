@@ -211,21 +211,22 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             ClaimsPrincipal? user = null)
         {
+            if (user == null && _httpContextAccessor.HttpContext != null)
+            {
+                user = _httpContextAccessor.HttpContext.User;
+            }
+
             if (user == null)
             {
                 AuthenticationStateProvider? authenticationStateProvider =
                     _serviceProvider.GetService(typeof(AuthenticationStateProvider))
                     as AuthenticationStateProvider;
+
                 if (authenticationStateProvider != null)
                 {
                     // AuthenticationState provider is only available in Blazor
                     AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
                     user = state.User;
-                }
-
-                if (user == null && _httpContextAccessor.HttpContext != null)
-                {
-                    user = _httpContextAccessor.HttpContext.User;
                 }
             }
 

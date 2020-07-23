@@ -1345,6 +1345,7 @@
             <param name="applicationOptions">MSAL.NET configuration options.</param>
             <param name="httpClientFactory">HTTP client factory.</param>
             <param name="logger">Logger.</param>
+            <param name="serviceProvider">Service provider.</param>
         </member>
         <member name="F:Microsoft.Identity.Web.TokenAcquisition._scopesRequestedByMsal">
             <summary>
