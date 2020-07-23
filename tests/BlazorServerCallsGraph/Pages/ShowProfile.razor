@@ -1,6 +1,7 @@
 @page "/showprofile"
 
 @using Microsoft.Graph
+@using Microsoft.Identity.Client 
 @inject Microsoft.Graph.GraphServiceClient _graphServiceClient
 
 <h1>Me</h1>
@@ -65,10 +66,20 @@ else
             }
 
         }
-        catch (Exception)
+        catch(Exception ex)
         {
+            MsalUiRequiredException? msalUiRequiredException =
+                   (ex as MsalUiRequiredException)
+                   ?? (ex?.InnerException as MsalUiRequiredException);
+
             photo = null;
+            if (msalUiRequiredException != null &&
+                IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+            {
+
+            }
         }
+
         return photo;
     }
 

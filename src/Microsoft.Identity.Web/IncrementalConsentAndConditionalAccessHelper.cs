@@ -35,7 +35,6 @@ namespace Microsoft.Identity.Web
             return ex.ErrorCode.ContainsAny(new[] { MsalError.UserNullError, MsalError.InvalidGrantError });
         }
 
-
         /// <summary>
         /// Build authentication properties needed for incremental consent.
         /// </summary>

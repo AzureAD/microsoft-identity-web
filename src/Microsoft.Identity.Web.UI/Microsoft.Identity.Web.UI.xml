@@ -23,6 +23,14 @@
             <param name="scheme">Authentication scheme.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,Microsoft.AspNetCore.Authentication.AuthenticationProperties)">
+            <summary>
+            Challenges the user.
+            </summary>
+            <param name="scheme">Authentication scheme.</param>
+            <param name="authenticationProperties">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(System.String)">
             <summary>
             Handles the user sign-out.
