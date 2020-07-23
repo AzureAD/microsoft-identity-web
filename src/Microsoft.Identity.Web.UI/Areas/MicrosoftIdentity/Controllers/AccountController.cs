@@ -48,6 +48,20 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         }
 
         /// <summary>
+        /// Challenges the user.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <param name="authenticationProperties">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult Challenge([FromRoute] string scheme, AuthenticationProperties authenticationProperties)
+        {
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            return Challenge(authenticationProperties,
+                            scheme);
+        }
+
+        /// <summary>
         /// Handles the user sign-out.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
