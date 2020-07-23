@@ -55,8 +55,6 @@ namespace Company.WebApplication1.Controllers
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
             string downstreamApiResult = await _downstreamWebApi.CallWebApi();
-            // You can also specify the relative endpoint and the scopes
-            // downstreamApiResult = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast

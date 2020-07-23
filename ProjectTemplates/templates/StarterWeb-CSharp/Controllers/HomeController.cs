@@ -42,10 +42,6 @@ namespace Company.WebApplication1.Controllers
         public async Task<IActionResult> Index()
         {
             ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
-
-            // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
-
             return View();
         }
 #elseif (GenerateGraph)
