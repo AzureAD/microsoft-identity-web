@@ -12,7 +12,7 @@ namespace blazor
 {
     public interface IDownstreamWebApi
     {
-        Task<string> CallWebApi(string relativeEndpoint = "", string[] requiredScopes = null);
+        Task<string> CallWebApiAsync(string relativeEndpoint = "", string[] requiredScopes = null);
     }
 
     public static class DownstreamWebApiExtensions
@@ -49,7 +49,7 @@ namespace blazor
         /// not specified, uses scopes from the configuration</param>
         /// <param name="relativeEndpoint">Endpoint relative to the CalledApiUrl configuration</param>
         /// <returns>A JSON string representing the result of calling the Web API</returns>
-        public async Task<string> CallWebApi(string relativeEndpoint = "", string[] requiredScopes = null)
+        public async Task<string> CallWebApiAsync(string relativeEndpoint = "", string[] requiredScopes = null)
         {
             string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
             string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";

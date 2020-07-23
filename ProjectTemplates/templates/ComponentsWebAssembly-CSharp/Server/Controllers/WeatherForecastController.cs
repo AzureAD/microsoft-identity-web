@@ -52,7 +52,7 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            string downstreamApiResult = await _downstreamWebApi.CallWebApi();
+            string downstreamApiResult = await _downstreamWebApi.CallWebApiAsync();
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
