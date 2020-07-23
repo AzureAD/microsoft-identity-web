@@ -7,5 +7,6 @@
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="0.2.1-preview" />
 <!--#if (GenerateGraph) -->
     <PackageReference Include="Microsoft.Graph" Version="3.8.0" />
-<!--#endif -->   </ItemGroup>
+<!--#endif -->
+  </ItemGroup>
 </Project>
