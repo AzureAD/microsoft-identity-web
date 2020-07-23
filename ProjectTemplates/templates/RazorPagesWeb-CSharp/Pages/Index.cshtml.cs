@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1;
 #endif
 #if (GenerateGraph)
 using Microsoft.Graph;
@@ -37,11 +36,7 @@ namespace Company.WebApplication1.Pages
 
         public async Task OnGet()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
-
-            // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
-            //                                                             new string[] {"user.read"});
+            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApiAsync();
         }
 #elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;

@@ -95,7 +95,7 @@
             "Shared/LoginDisplay.WindowsAuth.razor"
           ]
         },
-	{
+        {
           "condition": "(IndividualB2CAuth)",
           "rename": {
             "Shared/LoginDisplay.IndividualB2CAuth.razor": "Shared/LoginDisplay.razor"
@@ -288,7 +288,7 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Whether to exclude launchSettings.json in the generated template."
+      "description": "Whether to exclude launchSettings.json from the generated template."
     },
     "HttpPort": {
       "type": "parameter",
@@ -448,19 +448,6 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-  {
-     "condition": "(GenerateGraph)",
-     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
-     "description": "Adds Microsoft Graph package.",
-    "manualInstructions": [
-    ],
-    "args": {
-        "referenceType": "package",
-        "reference": "Microsoft.Graph",
-        "version": "3.8.0"
-    },
-   "continueOnError": true
-  },
     {
       "condition": "(!skipRestore)",
       "description": "Restore NuGet packages required by this project.",

@@ -9,7 +9,7 @@
   "name": "Blazor WebAssembly App",
   "defaultName": "WebApplication",
   "description": "A project template for creating a Blazor app that runs on WebAssembly and is optionally hosted by an ASP.NET Core app. This template can be used for web apps with rich dynamic user interfaces (UIs).",
-  "groupIdentity": "Microsoft.Web.Blazor.Wasm",
+  "groupIdentity": "Microsoft.Web.Blazor2.Wasm",
   "precedence": "6002",
   "guids": [
     "4C26868E-5E7C-458D-82E3-040509D0C71F",
@@ -19,7 +19,7 @@
     "09732173-2cef-46b7-83db-1334bcb079d3", // Tenant ID
     "53bc9b9d-9d6a-45d4-8429-2a2761773502" // Client ID
   ],
-  "identity": "Microsoft.Web.Blazor.Wasm.CSharp.5.0",
+  "identity": "Microsoft.Web.Blazor.Wasm2.CSharp.5.0",
   "thirdPartyNotices": "https://aka.ms/aspnetcore/5.0-third-party-notices",
   "preferNameDirectory": true,
   "primaryOutputs": [
@@ -496,14 +496,14 @@
     "GenerateApiOrGraph": {
         "type": "computed",
         "value": "(GenerateApi || GenerateGraph)"
-    }    
+    }
   },
   "tags": {
     "language": "C#",
     "type": "project"
   },
   "postActions": [
-  {
+    {
       "condition": "(!skipRestore && Hosted)",
       "description": "Restore NuGet packages required by this project.",
       "manualInstructions": [
