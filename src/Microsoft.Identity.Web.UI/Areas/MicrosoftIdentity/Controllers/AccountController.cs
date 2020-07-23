@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -54,9 +55,19 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="authenticationProperties">Authentication scheme.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         [HttpGet("{scheme?}")]
-        public IActionResult Challenge([FromRoute] string scheme, AuthenticationProperties authenticationProperties)
+        public IActionResult Challenge(string redirectUri, string scope, string loginHint, string domainHint, string claims)
         {
-            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            string scheme = OpenIdConnectDefaults.AuthenticationScheme;
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "scope", scope },
+                { "loginHint", loginHint },
+                { "domainHint", domainHint },
+                { "claims", claims }
+            };
+            AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties);
+            authenticationProperties.RedirectUri = redirectUri;
+
             return Challenge(authenticationProperties,
                             scheme);
         }

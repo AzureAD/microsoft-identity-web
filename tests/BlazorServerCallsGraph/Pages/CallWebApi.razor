@@ -46,10 +46,8 @@ else
                 var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
                     msalUiRequiredException, user);
 
-                Microsoft.AspNetCore.Http.HostString host = new Microsoft.AspNetCore.Http.HostString(NavigationManager.BaseUri);
-                var url = Microsoft.AspNetCore.Routing.ControllerLinkGeneratorExtensions.GetUriByAction(linkGenerator,
-                     "Challenge", "Account", properties, Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectDefaults.AuthenticationScheme,
-                     host);
+                string url = $"{NavigationManager.BaseUri}MicrosoftIdentity/Account/Challenge?redirectUri={NavigationManager.BaseUri}/callWebApi&" 
+                    + properties.Parameters.Select(p => p.Key + "=" + p.Value).ToArray();
                 NavigationManager.NavigateTo(url);
             }
         }
