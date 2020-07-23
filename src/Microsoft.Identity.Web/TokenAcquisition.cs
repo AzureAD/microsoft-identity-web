@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
 
         private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
+        private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
 
@@ -219,7 +219,7 @@ namespace Microsoft.Identity.Web
             {
                 accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(
                     _application,
-                    user ?? CurrentHttpContext.User,
+                    user ?? CurrentHttpContext?.User,
                     scopes,
                     tenant,
                     userFlow)
@@ -232,7 +232,7 @@ namespace Microsoft.Identity.Web
 
                 // to get a token for a Web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
                 // flow as this one only applies to Web APIs.
-                JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
+                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
 
                 // Case of Web APIs: we need to do an on-behalf-of flow
                 if (validatedToken != null)
@@ -417,7 +417,7 @@ namespace Microsoft.Identity.Web
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
-            ClaimsPrincipal claimsPrincipal,
+            ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
             string? tenant,
             string? userFlow = null)
@@ -425,14 +425,14 @@ namespace Microsoft.Identity.Web
             IAccount? account = null;
             if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
             {
-                string? nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
-                string? utid = claimsPrincipal.GetHomeTenantId();
+                string? nameIdentifierId = claimsPrincipal?.GetNameIdentifierId();
+                string? utid = claimsPrincipal?.GetHomeTenantId();
                 string? b2cAccountIdentifier = string.Format(CultureInfo.InvariantCulture, "{0}-{1}.{2}", nameIdentifierId, userFlow, utid);
                 account = await application.GetAccountAsync(b2cAccountIdentifier).ConfigureAwait(false);
             }
             else
             {
-                string? accountIdentifier = claimsPrincipal.GetMsalAccountId();
+                string? accountIdentifier = claimsPrincipal?.GetMsalAccountId();
 
                 if (accountIdentifier != null)
                 {
@@ -544,6 +544,11 @@ namespace Microsoft.Identity.Web
                 };
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
+
+            if (CurrentHttpContext == null)
+            {
+                throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
+            }
 
             var httpResponse = CurrentHttpContext.Response;
             var headers = httpResponse.Headers;

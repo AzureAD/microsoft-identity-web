@@ -66,7 +66,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 
             services.AddHttpContextAccessor();
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
-            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
+            services.TryAddScoped(provider =>
+            {
+                var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                if (httpContext == null)
+                {
+                    throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
+                }
+
+                return httpContext.Session;
+            });
 
             return services;
         }
@@ -137,7 +146,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
                 option.Cookie.IsEssential = true;
             });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
-            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
+            services.TryAddScoped(provider =>
+            {
+                var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                if (httpContext == null)
+                {
+                    throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
+                }
+
+                return httpContext.Session;
+            });
 
             return services;
         }
@@ -176,7 +194,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
                     option.Cookie.IsEssential = true;
                 });
             services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
-            services.TryAddScoped(provider => provider.GetService<IHttpContextAccessor>().HttpContext.Session);
+            services.TryAddScoped(provider =>
+            {
+                var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                if (httpContext == null)
+                {
+                    throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
+                }
+
+                return httpContext.Session;
+            });
 
             return services;
         }
