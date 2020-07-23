@@ -10,14 +10,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1;
 #endif
 #if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
+#if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.Identity.Web.Resource;
+#endif
+
 namespace Company.WebApplication1.Controllers
 {
 #if (!NoAuth)
@@ -100,7 +102,7 @@ namespace Company.WebApplication1.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-#if (!NoAuth)
+#if (OrganizationalAuth || IndividualB2CAuth)
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
 #endif
