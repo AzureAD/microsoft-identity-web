@@ -1,6 +1,12 @@
 ﻿@page "/callwebapi"
 
 @using blazor
+@using Microsoft.Identity.Web
+@using Microsoft.Identity.Client
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Routing.LinkGenerator linkGenerator
+
 
 @inject IDownstreamWebApi downstreamAPI
 
@@ -23,6 +29,30 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        apiResult = await downstreamAPI.CallWebApiAsync();
+        try
+        {
+            apiResult = await downstreamAPI.CallWebApiAsync();
+        }
+        catch (Exception ex)
+        {
+            MsalUiRequiredException? msalUiRequiredException =
+                   (ex as MsalUiRequiredException)
+                   ?? (ex?.InnerException as MsalUiRequiredException);
+
+            if (msalUiRequiredException != null &&
+               IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+            {
+                var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync())?.User;
+                var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
+                    msalUiRequiredException, user);
+
+                Microsoft.AspNetCore.Http.HostString host = new Microsoft.AspNetCore.Http.HostString(NavigationManager.BaseUri);
+                var url = Microsoft.AspNetCore.Routing.ControllerLinkGeneratorExtensions.GetUriByAction(linkGenerator,
+                     "Challenge", "Account", properties, Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectDefaults.AuthenticationScheme,
+                     host);
+                NavigationManager.NavigateTo(url);
+            }
+        }
+
     }
 }

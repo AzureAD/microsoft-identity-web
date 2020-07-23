@@ -2,9 +2,7 @@
 
 @using Microsoft.Graph
 @using Microsoft.Identity.Web
-@using Microsoft.Identity.Client
 @inject GraphServiceClient _graphServiceClient
-@inject 
 
 <h1>Me</h1>
 
@@ -70,18 +68,7 @@ else
         }
         catch (Exception ex)
         {
-            MsalUiRequiredException? msalUiRequiredException =
-                   (ex as MsalUiRequiredException)
-                   ?? (ex?.InnerException as MsalUiRequiredException);
-
             photo = null;
-            if (msalUiRequiredException != null &&
-               IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
-            {
-                var user = null;
-                var x = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
-                    msalUiRequiredException, user);
-            }
         }
 
         return photo;
