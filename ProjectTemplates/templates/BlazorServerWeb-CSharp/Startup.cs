@@ -45,12 +45,9 @@ using Microsoft.IdentityModel.Tokens;
 #if (IndividualLocalAuth)
 using BlazorServerWeb_CSharp.Areas.Identity;
 #endif
-#if (GenerateApiOrGraph)
-using BlazorServerWeb_CSharp.Services;
-#endif
 using BlazorServerWeb_CSharp.Data;
 
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 namespace BlazorServerWeb_CSharp
@@ -95,7 +92,7 @@ namespace BlazorServerWeb_CSharp
 #if (GenerateApi)
             services.AddDownstreamWebApiService(Configuration);
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
             services.AddMicrosoftGraph(scopes,
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
 #endif

@@ -44,7 +44,7 @@
             ]
         },
         {
-          "condition": "(!CallsMicrosoftGraph)",
+          "condition": "(!GenerateGraph)",
           "exclude": [
              "Services/MicrosoftGraphServiceExtensions.cs",
             "Services/TokenAcquisitionCredentialProvider.cs"
@@ -252,27 +252,31 @@
         "datatype": "string",
         "replaces": "[WebApiUrl]",
         "defaultValue" : "https://graph.microsoft.com/v1.0/me",
-        "description": "URL of the API to call from the web app."
+        "description": "URL of the API to call from the web app. This option only applies if --auth SingleOrg or --auth IndividualB2C is specified."
     },
     "CallsMicrosoftGraph": {
         "type": "parameter",
         "datatype": "bool",
         "defaultValue": "false",
-        "description": "Specifies if the web app calls Microsoft Graph."
+        "description": "Specifies if the web app calls Microsoft Graph. This option only applies if --auth SingleOrg is specified."
     },
     "CalledApiScopes": {
       "type": "parameter",
       "datatype": "string",
       "replaces" :  "user.read",
-      "description": "Scopes to request to call the API from the web app."
+      "description": "Scopes to request to call the API from the web app. This option only applies if --auth SingleOrg or --auth IndividualB2C is specified."
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\")"
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
+    },
+    "GenerateGraph": {
+        "type": "computed",
+        "value": "(OrganizationalAuth && CallsMicrosoftGraph)"
     },
     "GenerateApiOrGraph": {
         "type": "computed",
-        "value": "(GenerateApi || CallsMicrosoftGraph)"
+        "value": "(GenerateApi || GenerateGraph)"
     }
   },
   "primaryOutputs": [
@@ -282,29 +286,16 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-  {
-     "condition": "(CallsMicrosoftGraph)",
-     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
-     "description": "Adds Microsoft Graph package.",
-    "manualInstructions": [
-    ],
-    "args": {
-        "referenceType": "package",
-        "reference": "Microsoft.Graph",
-        "version": "3.8.0"
-    },
-   "continueOnError": true
-  },
-  {
-    "condition": "(!skipRestore)",
-    "description": "Restore NuGet packages required by this project.",
-    "manualInstructions": [
-      {
-        "text": "Run 'dotnet restore'"
-      }
-    ],
-    "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
-    "continueOnError": true
-   }
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by this project.",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
   ]
 }

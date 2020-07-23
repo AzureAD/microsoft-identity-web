@@ -13,18 +13,47 @@ namespace TodoListClient.Controllers
     public class TodoListController : Controller
     {
         private readonly ITodoListService _todoListService;
+        private readonly ITokenAcquisition _tokenAcquisition;
+        private const string Scope = "https://fabrikamb2c.onmicrosoft.com/tasks/read";
+        private const string Susi = "b2c_1_susi";
+        private const string EditProfile = "b2c_1_edit_profile";
+        private const string Claims = "Claims";
 
-        public TodoListController(ITodoListService todoListService)
+        public TodoListController(ITodoListService todoListService, ITokenAcquisition tokenAcquisition)
         {
             _todoListService = todoListService;
+            _tokenAcquisition = tokenAcquisition;
         }
 
         // GET: TodoList
-        [AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        //[AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        [AuthorizeForScopes(
+            ScopeKeySection = "TodoList:TodoListScope", UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> Index()
         {
-            return View(await _todoListService.GetAsync());
+            return View(await _todoListService.GetAsync(Susi));
         }
+
+        [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsSusi()
+        {
+            // We get a token, but we don't use it. It's only to trigger the user flow
+            await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { Scope },
+                userFlow: Susi);
+            return View(Claims, null);
+        }
+
+        [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = EditProfile)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
+        public async Task<ActionResult> ClaimsEditProfile()
+        {
+            // We get a token, but we don't use it. It's only to trigger the user flow
+            await _tokenAcquisition.GetAccessTokenForUserAsync(
+                new string[] { Scope },
+                userFlow: EditProfile);
+            return View(Claims, null);
+        }
+
 
         // GET: TodoList/Details/5
         public async Task<ActionResult> Details(int id)
@@ -51,7 +80,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            Todo todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {

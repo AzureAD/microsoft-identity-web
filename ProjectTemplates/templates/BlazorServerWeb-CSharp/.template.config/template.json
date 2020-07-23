@@ -95,7 +95,7 @@
             "Shared/LoginDisplay.WindowsAuth.razor"
           ]
         },
-	{
+        {
           "condition": "(IndividualB2CAuth)",
           "rename": {
             "Shared/LoginDisplay.IndividualB2CAuth.razor": "Shared/LoginDisplay.razor"
@@ -136,13 +136,13 @@
             ]
         },
         {
-          "condition": "(!GenerateApi && !CallsMicrosoftGraph)",
+          "condition": "(!GenerateApiOrGraph)",
           "rename": {
             "Shared/NavMenu.NoGraphOrApi.razor": "Shared/NavMenu.razor"
           }
         },
         {
-          "condition": "(!CallsMicrosoftGraph)",
+          "condition": "(!GenerateGraph)",
           "exclude": [
             "Services/MicrosoftGraphServiceExtensions.cs",
             "Services/TokenAcquisitionCredentialProvider.cs",
@@ -151,13 +151,12 @@
             ]
         },
         {
-          "condition": "(CallsMicrosoftGraph)",
+          "condition": "(GenerateGraph)",
           "rename": {
             "Shared/NavMenu.CallsMicrosoftGraph.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
-            "Shared/NavMenu.NoGraphOrApi.razor",
-            "Shared/NavMenu.CallsWebApi.razor"
+            "Shared/NavMenu.NoGraphOrApi.razor"
             ]
         },
         {
@@ -166,8 +165,7 @@
             "Shared/NavMenu.CallsWebApi.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
-            "Shared/NavMenu.NoGraphOrApi.razor",
-            "Shared/NavMenu.CallsMicrosoftGraph.razor"
+            "Shared/NavMenu.NoGraphOrApi.razor"
             ]
         }      
       ]
@@ -219,6 +217,13 @@
       "defaultValue": "b2c_1_susi",
       "replaces": "MySignUpSignInPolicyId",
       "description": "The sign-in and sign-up policy ID for this project (use with IndividualB2C auth)."
+    },
+    "SignedOutCallbackPath": {
+        "type": "parameter",
+        "datatype": "string",
+        "defaultValue": "/signout/B2C_1_susi",
+        "replaces": "/signout/MySignUpSignInPolicyId",
+        "description": "The global signout callback (use with IndividualB2C auth)."
     },
     "ResetPasswordPolicyId": {
       "type": "parameter",
@@ -283,7 +288,7 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Whether to exclude launchSettings.json in the generated template."
+      "description": "Whether to exclude launchSettings.json from the generated template."
     },
     "HttpPort": {
       "type": "parameter",
@@ -419,11 +424,15 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"https://graph.microsoft.com/beta\" || CalledApiScopes != \"user.read\")"
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
+    },
+    "GenerateGraph": {
+        "type": "computed",
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && CallsMicrosoftGraph)"
     },
     "GenerateApiOrGraph": {
         "type": "computed",
-        "value": "(GenerateApi || CallsMicrosoftGraph)"
+        "value": "(GenerateApi || GenerateGraph)"
     },
     "skipRestore": {
       "type": "parameter",
@@ -439,19 +448,6 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-  {
-     "condition": "(CallsMicrosoftGraph)",
-     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
-     "description": "Adds Microsoft Graph package.",
-    "manualInstructions": [
-    ],
-    "args": {
-        "referenceType": "package",
-        "reference": "Microsoft.Graph",
-        "version": "3.8.0"
-    },
-   "continueOnError": true
-  },
     {
       "condition": "(!skipRestore)",
       "description": "Restore NuGet packages required by this project.",

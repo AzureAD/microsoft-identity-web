@@ -7,9 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ namespace Company.WebApplication1.Pages
 {
 #if (GenerateApiOrGraph)
     [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
-#endif 
+#endif
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -37,13 +36,9 @@ namespace Company.WebApplication1.Pages
 
         public async Task OnGet()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
-
-            // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
-            //                                                             new string[] {"user.read"});
+            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApiAsync();
         }
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public IndexModel(ILogger<IndexModel> logger,

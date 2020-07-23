@@ -1,6 +1,6 @@
 ﻿@page "/callwebapi"
 
-@using BlazorServerWeb_CSharp.Services
+@using BlazorServerWeb_CSharp
 
 @inject IDownstreamWebApi downstreamAPI
 
@@ -23,6 +23,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        apiResult = await downstreamAPI.CallWebApi();
+        apiResult = await downstreamAPI.CallWebApiAsync();
     }
 }

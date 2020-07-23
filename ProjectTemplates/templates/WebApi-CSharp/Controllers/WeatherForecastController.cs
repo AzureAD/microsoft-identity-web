@@ -10,14 +10,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
+#if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.Identity.Web.Resource;
+#endif
+
 namespace Company.WebApplication1.Controllers
 {
 #if (!NoAuth)
@@ -52,9 +54,7 @@ namespace Company.WebApplication1.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            string downstreamApiResult = await _downstreamWebApi.CallWebApi();
-            // You can also specify the relative endpoint and the scopes
-            // downstreamApiResult = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
+            string downstreamApiResult = await _downstreamWebApi.CallWebApiAsync();
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -66,7 +66,7 @@ namespace Company.WebApplication1.Controllers
             .ToArray();
         }
 
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
@@ -100,8 +100,10 @@ namespace Company.WebApplication1.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+#if (OrganizationalAuth || IndividualB2CAuth)
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
+#endif
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

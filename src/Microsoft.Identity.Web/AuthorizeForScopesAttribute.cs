@@ -37,6 +37,11 @@ namespace Microsoft.Identity.Web
         public string? ScopeKeySection { get; set; }
 
         /// <summary>
+        /// Azure AD B2C user flow.
+        /// </summary>
+        public string? UserFlow { get; set; }
+
+        /// <summary>
         /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
         /// <param name="context">Context provided by ASP.NET Core.</param>
