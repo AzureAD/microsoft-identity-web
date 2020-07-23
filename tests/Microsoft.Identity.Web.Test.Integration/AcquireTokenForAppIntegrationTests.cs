@@ -107,7 +107,8 @@ namespace Microsoft.Identity.Web.Test.Integration
                 microsoftIdentityOptions,
                 ccOptions,
                 httpClientFactory,
-                logger);
+                logger,
+                _provider);
         }
 
         private static IHttpContextAccessor CreateMockHttpContextAccessor()

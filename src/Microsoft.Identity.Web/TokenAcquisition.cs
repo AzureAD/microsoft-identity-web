@@ -441,7 +441,7 @@ namespace Microsoft.Identity.Web
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
-            ClaimsPrincipal claimsPrincipal,
+            ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
             string? tenant,
             string? userFlow = null)
@@ -449,14 +449,14 @@ namespace Microsoft.Identity.Web
             IAccount? account = null;
             if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
             {
-                string? nameIdentifierId = claimsPrincipal.GetNameIdentifierId();
-                string? utid = claimsPrincipal.GetHomeTenantId();
+                string? nameIdentifierId = claimsPrincipal?.GetNameIdentifierId();
+                string? utid = claimsPrincipal?.GetHomeTenantId();
                 string? b2cAccountIdentifier = string.Format(CultureInfo.InvariantCulture, "{0}-{1}.{2}", nameIdentifierId, userFlow, utid);
                 account = await application.GetAccountAsync(b2cAccountIdentifier).ConfigureAwait(false);
             }
             else
             {
-                string? accountIdentifier = claimsPrincipal.GetMsalAccountId();
+                string? accountIdentifier = claimsPrincipal?.GetMsalAccountId();
 
                 if (accountIdentifier != null)
                 {
