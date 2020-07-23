@@ -45,7 +45,7 @@ namespace Company.WebApplication1
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAd")
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
+                    .AddMicrosoftWebApiCallsWebApi(Configuration,
                                                    "AzureAd")
                     .AddInMemoryTokenCaches();
 
@@ -62,7 +62,7 @@ namespace Company.WebApplication1
 #elif (IndividualB2CAuth)
             services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
+                    .AddMicrosoftWebApiCallsWebApi(Configuration,
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
