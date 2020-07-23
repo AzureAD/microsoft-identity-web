@@ -1,8 +1,10 @@
 @page "/showprofile"
 
 @using Microsoft.Graph
-@using Microsoft.Identity.Client 
-@inject Microsoft.Graph.GraphServiceClient _graphServiceClient
+@using Microsoft.Identity.Web
+@using Microsoft.Identity.Client
+@inject GraphServiceClient _graphServiceClient
+@inject 
 
 <h1>Me</h1>
 
@@ -52,7 +54,7 @@ else
         photo = await GetPhoto();
     }
 
-    protected async Task <string> GetPhoto()
+    protected async Task<string> GetPhoto()
     {
         string photo;
 
@@ -66,7 +68,7 @@ else
             }
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             MsalUiRequiredException? msalUiRequiredException =
                    (ex as MsalUiRequiredException)
@@ -74,9 +76,11 @@ else
 
             photo = null;
             if (msalUiRequiredException != null &&
-                IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+               IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
             {
-
+                var user = null;
+                var x = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
+                    msalUiRequiredException, user);
             }
         }
 
