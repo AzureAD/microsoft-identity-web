@@ -1,10 +1,7 @@
 0.2.1-preview
 ============
-### API breaking changes:
-
-### New features:
-
 ### Bug fixes:
+**Fixes `NullReferenceException` when acquiring a user token because of a null `HttpContext`**. This applies to scenarios like server-side Blazor apps, long-running processes, daemon apps. See issues for details: [#157](https://github.com/AzureAD/microsoft-identity-web/issues/157), [#10](https://github.com/AzureAD/microsoft-identity-web/issues/10), [#38](https://github.com/AzureAD/microsoft-identity-web/issues/38).
 
 0.2.0-preview
 ============
