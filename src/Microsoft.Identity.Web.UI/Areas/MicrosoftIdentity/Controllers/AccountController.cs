@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -48,6 +49,39 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         }
 
         /// <summary>
+        /// Challenges the user.
+        /// </summary>
+        /// <param name="redirectUri">Redirect uri.</param>
+        /// <param name="scope">Scopes to request.</param>
+        /// <param name="loginHint">Login hint.</param>
+        /// <param name="domainHint">Domain hint.</param>
+        /// <param name="claims">Claims.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult Challenge(
+            string redirectUri,
+            string scope,
+            string loginHint,
+            string domainHint,
+            string claims)
+        {
+            string scheme = OpenIdConnectDefaults.AuthenticationScheme;
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { Constants.Scope, scope },
+                { Constants.LoginHint, loginHint },
+                { Constants.DomainHint, domainHint },
+                { Constants.Claims, claims },
+            };
+            AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties);
+            authenticationProperties.RedirectUri = redirectUri;
+
+            return Challenge(
+                authenticationProperties,
+                scheme);
+        }
+
+        /// <summary>
         /// Handles the user sign-out.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
@@ -78,7 +112,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items["policy"] = _options.Value?.ResetPasswordPolicyId;
+            properties.Items[Constants.Policy] = _options.Value?.ResetPasswordPolicyId;
             return Challenge(properties, scheme);
         }
 
@@ -99,7 +133,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items["policy"] = _options.Value?.EditProfilePolicyId;
+            properties.Items[Constants.Policy] = _options.Value?.EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
     }

@@ -45,7 +45,8 @@ namespace blazor
             });
 
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor()
+                       .AddMicrosoftIdentityConsentHandler();
             services.AddSingleton<WeatherForecastService>();
         }
 

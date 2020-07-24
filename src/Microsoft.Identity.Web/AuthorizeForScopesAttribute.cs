@@ -2,17 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web
 {
@@ -58,7 +54,7 @@ namespace Microsoft.Identity.Web
                     ?? (context.Exception?.InnerException as MsalUiRequiredException);
 
                 if (msalUiRequiredException != null &&
-                    CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+                    IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
                 {
                     // the users cannot provide both scopes and ScopeKeySection at the same time
                     if (!string.IsNullOrWhiteSpace(ScopeKeySection) && Scopes != null && Scopes.Length > 0)
@@ -101,76 +97,15 @@ namespace Microsoft.Identity.Web
                         incrementalConsentScopes = Scopes;
                     }
 
-                    AuthenticationProperties properties = BuildAuthenticationPropertiesForIncrementalConsent(incrementalConsentScopes, msalUiRequiredException, context.HttpContext);
+                    AuthenticationProperties properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
+                        incrementalConsentScopes,
+                        msalUiRequiredException,
+                        context.HttpContext.User);
                     context.Result = new ChallengeResult(properties);
                 }
             }
 
             base.OnException(context);
-        }
-
-        private bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)
-        {
-            // ex.ErrorCode != MsalUiRequiredException.UserNullError indicates a cache problem.
-            // When calling an [Authenticate]-decorated controller we expect an authenticated
-            // user and therefore its account should be in the cache. However in the case of an
-            // InMemoryCache, the cache could be empty if the server was restarted. This is why
-            // the null_user exception is thrown.
-
-            return ex.ErrorCode.ContainsAny(new[] { MsalError.UserNullError, MsalError.InvalidGrantError });
-        }
-
-        /// <summary>
-        /// Build authentication properties needed for incremental consent.
-        /// </summary>
-        /// <param name="scopes">Scopes to request.</param>
-        /// <param name="ex"><see cref="MsalUiRequiredException"/> instance.</param>
-        /// <param name="context">Current HTTP context in the pipeline.</param>
-        /// <returns>AuthenticationProperties.</returns>
-        private AuthenticationProperties BuildAuthenticationPropertiesForIncrementalConsent(
-            string[]? scopes,
-            MsalUiRequiredException ex,
-            HttpContext context)
-        {
-            scopes ??= new string[0];
-            var properties = new AuthenticationProperties();
-
-            // Set the scopes, including the scopes that ADAL.NET / MSAL.NET need for the token cache
-            string[] additionalBuiltInScopes =
-            {
-                 OidcConstants.ScopeOpenId,
-                 OidcConstants.ScopeOfflineAccess,
-                 OidcConstants.ScopeProfile,
-            };
-
-            properties.SetParameter<ICollection<string>>(
-                OpenIdConnectParameterNames.Scope,
-                scopes.Union(additionalBuiltInScopes).ToList());
-
-            // Attempts to set the login_hint to avoid the logged-in user to be presented with an account selection dialog
-            var loginHint = context.User.GetLoginHint();
-            if (!string.IsNullOrWhiteSpace(loginHint))
-            {
-                properties.SetParameter(OpenIdConnectParameterNames.LoginHint, loginHint);
-
-                var domainHint = context.User.GetDomainHint();
-                properties.SetParameter(OpenIdConnectParameterNames.DomainHint, domainHint);
-            }
-
-            // Additional claims required (for instance MFA)
-            if (!string.IsNullOrEmpty(ex.Claims))
-            {
-                properties.Items.Add(OidcConstants.AdditionalClaims, ex.Claims);
-            }
-
-            if (!string.IsNullOrEmpty(UserFlow))
-            {
-                properties.Items.Add(
-                    OidcConstants.PolicyKey,
-                    UserFlow);
-            }
-
-            return properties;
         }
     }
 }

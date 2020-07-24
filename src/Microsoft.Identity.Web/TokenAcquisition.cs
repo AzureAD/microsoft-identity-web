@@ -218,15 +218,21 @@ namespace Microsoft.Identity.Web
 
             if (user == null)
             {
-                AuthenticationStateProvider? authenticationStateProvider =
-                    _serviceProvider.GetService(typeof(AuthenticationStateProvider))
-                    as AuthenticationStateProvider;
-
-                if (authenticationStateProvider != null)
+                try
                 {
-                    // AuthenticationState provider is only available in Blazor
-                    AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
-                    user = state.User;
+                    AuthenticationStateProvider? authenticationStateProvider =
+                        _serviceProvider.GetService(typeof(AuthenticationStateProvider))
+                        as AuthenticationStateProvider;
+
+                    if (authenticationStateProvider != null)
+                    {
+                        // AuthenticationState provider is only available in Blazor
+                        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
+                        user = state.User;
+                    }
+                }
+                catch
+                {
                 }
             }
 
@@ -276,7 +282,7 @@ namespace Microsoft.Identity.Web
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 else
                 {
-                    throw;
+                    throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray());
                 }
             }
 
