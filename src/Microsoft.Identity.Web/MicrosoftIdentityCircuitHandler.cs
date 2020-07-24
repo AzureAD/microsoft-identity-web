@@ -65,6 +65,11 @@ namespace Microsoft.Identity.Web
             MicrosoftIdentityWebChallengeUserException? microsoftIdentityWebChallengeUserException =
                    ex as MicrosoftIdentityWebChallengeUserException;
 
+            if (microsoftIdentityWebChallengeUserException == null)
+            {
+                microsoftIdentityWebChallengeUserException = ex.InnerException as MicrosoftIdentityWebChallengeUserException;
+            }
+
             if (microsoftIdentityWebChallengeUserException != null &&
                IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(microsoftIdentityWebChallengeUserException.MsalUiRequiredException))
             {

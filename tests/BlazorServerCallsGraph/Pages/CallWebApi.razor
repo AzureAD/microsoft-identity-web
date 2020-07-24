@@ -3,7 +3,7 @@
 @using blazor
 @using Microsoft.Identity.Web
 
-@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler;
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
 @inject IDownstreamWebApi downstreamAPI
 
 <h1>Call an API</h1>
@@ -27,7 +27,7 @@ else
     {
         try
         {
-            apiResult = await downstreamAPI.CallWebApiAsync();
+            apiResult = await downstreamAPI.CallWebApiAsync("me");
         }
         catch (Exception ex)
         {
