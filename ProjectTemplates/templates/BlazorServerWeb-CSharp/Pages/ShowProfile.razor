@@ -1,7 +1,9 @@
 ﻿@page "/showprofile"
 
+@using Microsoft.Identity.Web
 @using Microsoft.Graph
 @inject Microsoft.Graph.GraphServiceClient _graphServiceClient
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
 
 <h1>Me</h1>
 
@@ -51,7 +53,7 @@ else
         photo = await GetPhoto();
     }
 
-    protected async Task <string> GetPhoto()
+    protected async Task<string> GetPhoto()
     {
         string photo;
 
@@ -65,9 +67,10 @@ else
             }
 
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             photo = null;
+            ConsentHandler.HandleException(ex);
         }
         return photo;
     }
