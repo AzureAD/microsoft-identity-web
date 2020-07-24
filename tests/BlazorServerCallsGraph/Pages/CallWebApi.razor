@@ -56,7 +56,7 @@ else
                 + $"&scope={string.Join(" ", scope)}&loginHint={loginHint}"
                 + $"&domainHint={domainHint}&claims={claims}";
 
-                url = "https://localhost:44357/MicrosoftIdentity/Account/Challenge?redirectUri=https:%2F%2Flocalhost:44357%2F%2FcallWebApi&scope=user.read%20openid%20offline_access%20profile&loginHint=&domainHint=&claims=";
+               // url = "https://localhost:44357/MicrosoftIdentity/Account/Challenge?redirectUri=https:%2F%2Flocalhost:44357%2F%2FcallWebApi&scope=user.read%20openid%20offline_access%20profile&loginHint=&domainHint=&claims=";
                 NavigationManager.NavigateTo(url, true);
             }
         }
