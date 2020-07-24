@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 #endif
-#if (OrganizationalAuth || IndividualB2CAuth) 
+#if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
@@ -20,9 +20,9 @@ using Microsoft.Extensions.Hosting;
 using System.Linq;
 #if (IndividualLocalAuth)
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+#endif
 #if (GenerateGraph)
 using Microsoft.Graph;
-#endif
 #endif
 
 namespace ComponentsWebAssembly_CSharp.Server
@@ -63,7 +63,7 @@ namespace ComponentsWebAssembly_CSharp.Server
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAd")
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
+                    .AddMicrosoftWebApiCallsWebApi(Configuration,
                                                    "AzureAd")
                     .AddInMemoryTokenCaches();
 
@@ -80,7 +80,7 @@ namespace ComponentsWebAssembly_CSharp.Server
 #elif (IndividualB2CAuth)
             services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
+                    .AddMicrosoftWebApiCallsWebApi(Configuration,
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();
 
