@@ -87,7 +87,6 @@ namespace Microsoft.Identity.Web
                     microsoftIdentityWebChallengeUserException.MsalUiRequiredException,
                     User);
 
-                // string redirectUri, string scope, string loginHint, string domainHint, string claims
                 string redirectUri = NavigationManager.Uri;
                 List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope] : new List<string>();
                 string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint] : string.Empty;
