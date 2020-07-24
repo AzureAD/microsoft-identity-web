@@ -15,7 +15,7 @@ jobs:
         dotnet-version: 5.0.100-preview.5.20279.10
         includePreviewVersions: true # Required for preview versions
     - name: Build with dotnet
-      run: dotnet test -f net5.0 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
+      run: dotnet test -f net5.0 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web-without-blasorwasm2-sample.sln # is netstandard2.1
     - name: Setup .NET Core 3.1.101
       uses: actions/setup-dotnet@v1
       with:
