@@ -1,70 +1,94 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-
     /// <summary>
-    /// Extensions for IServiceCollection for startup initialization of Web APIs.
+    /// Extensions for IServiceCollection for startup initialization of web APIs.
     /// </summary>
     public static class MicrosoftIdentityBlazorServiceCollectionExtensions
     {
         /// <summary>
         /// Add the incremental consent and conditional access handler for blazor
-        /// server side pages
+        /// server side pages.
         /// </summary>
         /// <param name="builder">Service side blazor builder.</param>
         /// <returns>The builder.</returns>
         public static IServerSideBlazorBuilder AddMicrosoftIdentityConsentHandler(
             this IServerSideBlazorBuilder builder)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, MicrosoftIdentityServiceHandler>());
             builder.Services.TryAddScoped<MicrosoftIdentityConsentAndConditionalAccessHandler>();
             return builder;
         }
     }
 
+    /// <summary>
+    /// Handler for Blazor specific APIs to handle incremental consent
+    /// and conditional access.
+    /// </summary>
     public class MicrosoftIdentityConsentAndConditionalAccessHandler
     {
+        /// <summary>
+        /// Boolean to determine if server is Blazor.
+        /// </summary>
         public bool IsBlazorServer { get; set; }
+
+        /// <summary>
+        /// Current user.
+        /// </summary>
         public ClaimsPrincipal User { get; internal set; }
-        public string BaseUri { get; internal set; }
+
+        /// <summary>
+        /// Base uri to use in forming the redirect.
+        /// </summary>
+        public string? BaseUri { get; internal set; }
+
         public void HandleException(Exception ex)
         {
-            MsalUiRequiredException? msalUiRequiredException =
-                   (ex as MsalUiRequiredException)
-                   ?? (ex?.InnerException as MsalUiRequiredException);
+            MicrosoftIdentityWebChallengeUserException? microsoftIdentityWebChallengeUserException =
+                   ex as MicrosoftIdentityWebChallengeUserException;
 
-            if (msalUiRequiredException != null &&
-               IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
+            if (microsoftIdentityWebChallengeUserException == null)
             {
-                var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
-                    msalUiRequiredException, User);
+                microsoftIdentityWebChallengeUserException = ex.InnerException as MicrosoftIdentityWebChallengeUserException;
+            }
+
+            if (microsoftIdentityWebChallengeUserException != null &&
+               IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(microsoftIdentityWebChallengeUserException.MsalUiRequiredException))
+            {
+                var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
+                    microsoftIdentityWebChallengeUserException.Scopes,
+                    microsoftIdentityWebChallengeUserException.MsalUiRequiredException,
+                    User);
 
                 // string redirectUri, string scope, string loginHint, string domainHint, string claims
                 string redirectUri = NavigationManager.Uri;
-                List<string> scope = properties.Parameters.ContainsKey("scope") ? (List<string>)properties.Parameters["scope"] : new List<string>();
-                string loginHint = properties.Parameters.ContainsKey("loginHint") ? (string)properties.Parameters["loginHint"] : string.Empty;
-                string domainHint = properties.Parameters.ContainsKey("domainHint") ? (string)properties.Parameters["domainHint"] : string.Empty;
-                string claims = properties.Parameters.ContainsKey("claims") ? (string)properties.Parameters["claims"] : string.Empty;
-                string url = $"{NavigationManager.BaseUri}MicrosoftIdentity/Account/Challenge?redirectUri={redirectUri}"
-                + $"&scope={string.Join(" ", scope)}&loginHint={loginHint}"
-                + $"&domainHint={domainHint}&claims={claims}";
+                List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope] : new List<string>();
+                string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint] : string.Empty;
+                string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint] : string.Empty;
+                string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims] : string.Empty;
+                string url = $"{NavigationManager.BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
+                + $"&{Constants.Scope}={string.Join(" ", scope)}&{Constants.LoginHint}={loginHint}"
+                + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
 
-                // url = "https://localhost:44357/MicrosoftIdentity/Account/Challenge?redirectUri=https:%2F%2Flocalhost:44357%2F%2FcallWebApi&scope=user.read%20openid%20offline_access%20profile&loginHint=&domainHint=&claims=";
                 NavigationManager.NavigateTo(url, true);
-
             }
             else
             {

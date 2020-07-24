@@ -718,16 +718,37 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions">
             <summary>
-            Extensions for IServiceCollection for startup initialization of Web APIs.
+            Extensions for IServiceCollection for startup initialization of web APIs.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions.AddMicrosoftIdentityConsentHandler(Microsoft.Extensions.DependencyInjection.IServerSideBlazorBuilder)">
             <summary>
             Add the incremental consent and conditional access handler for blazor
-            server side pages
+            server side pages.
             </summary>
             <param name="builder">Service side blazor builder.</param>
             <returns>The builder.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler">
+            <summary>
+            Handler for Blazor specific APIs to handle incremental consent
+            and conditional access.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.IsBlazorServer">
+            <summary>
+            Boolean to determine if server is Blazor.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.User">
+            <summary>
+            Current user.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.BaseUri">
+            <summary>
+            Base uri to use in forming the redirect.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityOptions">
             <summary>
@@ -820,6 +841,30 @@
             (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
             </summary>
             The default is <c>false.</c>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException">
+            <summary>
+             Microsoft Identity Web specific exception class for
+             use in Blazor or Razor pages to process the user challenge.
+             Handles the <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.MsalUiRequiredException"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.MsalUiRequiredException">
+            <summary>
+            Exception thrown by MSAL when a user challenge is encountered.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Scopes">
+            <summary>
+            Scopes to request.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.#ctor(Microsoft.Identity.Client.MsalUiRequiredException,System.String[])">
+            <summary>
+            Handles the user challenge for Blazor or Razor pages.
+            </summary>
+            <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
+            <param name="scopes">Scopes to request.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.ObsoleteLegacyTokenDecryptCertificateParameter">
             <summary>
