@@ -10,6 +10,7 @@ steps:
   inputs:
     command: pack
     projects: '${{ parameters.ProjectPath }}'
+    packagesToPack: '${{ parameters.ProjectPath }}'
     nobuild: '${{parameters.NoBuild}}'
     IncludeSymbols: true
     verbosityPack: normal
