@@ -7,11 +7,11 @@ parameters:
 steps:
 - task: DotNetCoreCLI@2
   displayName: 'Pack ${{ parameters.ProjectPath }}'
-  packagesToPack: '${{ parameters.ProjectPath }}'
   inputs:
     command: pack
     projects: '${{ parameters.ProjectPath }}'
     nobuild: '${{parameters.NoBuild}}'
+    packagesToPack: '${{ parameters.ProjectPath }}'
     IncludeSymbols: true
     verbosityPack: normal
     packDirectory:
