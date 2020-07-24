@@ -54,7 +54,7 @@ namespace BlazorServerWeb_CSharp
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
-           
+
             string apiResult;
             var response = await _httpClient.SendAsync(httpRequestMessage);
             if (response.StatusCode == HttpStatusCode.OK)

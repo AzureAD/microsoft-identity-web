@@ -4,20 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
-#endif
-#if (OrganizationalAuth)
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+#endif
+#if (OrganizationalAuth)
 #if (MultiOrgAuth)
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 using Microsoft.AspNetCore.Authorization;
-#endif
-#if (IndividualB2CAuth)
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.UI;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
@@ -46,10 +41,10 @@ using Microsoft.IdentityModel.Tokens;
 using BlazorServerWeb_CSharp.Areas.Identity;
 #endif
 using BlazorServerWeb_CSharp.Data;
-
 #if (GenerateGraph)
 using Microsoft.Graph;
 #endif
+
 namespace BlazorServerWeb_CSharp
 {
     public class Startup
@@ -102,7 +97,7 @@ namespace BlazorServerWeb_CSharp
 #endif
             services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAdB2C")
 #if (GenerateApi)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration, 
+                    .AddMicrosoftWebAppCallsWebApi(Configuration,
                                                    scopes,
                                                    "AzureAdB2C")
                     .AddInMemoryTokenCaches();

@@ -42,6 +42,7 @@ namespace Company.WebApplication1.Controllers
         public async Task<IActionResult> Index()
         {
             ViewData["ApiResult"] = await _downstreamWebApi.CallWebApiAsync();
+
             return View();
         }
 #elseif (GenerateGraph)

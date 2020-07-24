@@ -17,7 +17,7 @@ namespace ComponentsWebAssembly_CSharp.Server
         /// <param name="initialScopes">Initial scopes.</param>
         /// <param name="graphBaseUrl">Base URL for Microsoft graph. This can be
         /// changed for instance for applications running in national clouds</param>
-        public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, 
+        public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services,
                                              IEnumerable<string> initialScopes,
                                              string graphBaseUrl = "https://graph.microsoft.com/v1.0")
         {
