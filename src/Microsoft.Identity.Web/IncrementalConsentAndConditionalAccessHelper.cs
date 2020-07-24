@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -10,14 +13,14 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Helper methods to handle incremental consent and conditional access in
-    /// a Web app
+    /// a Web app.
     /// </summary>
     internal static class IncrementalConsentAndConditionalAccessHelper
     {
         /// <summary>
         /// Can the exception be solved by re-signing-in the users?.
         /// </summary>
-        /// <param name="ex">Exception from which the decision will be made</param>
+        /// <param name="ex">Exception from which the decision will be made.</param>
         /// <returns>Returns <c>true</c> if the issue can be solved by signing-in
         /// the user, and <c>false</c>, otherwise.</returns>
         public static bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)

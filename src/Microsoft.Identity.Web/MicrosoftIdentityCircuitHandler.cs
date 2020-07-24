@@ -43,7 +43,9 @@ namespace Microsoft.Identity.Web
     /// Handler for Blazor specific APIs to handle incremental consent
     /// and conditional access.
     /// </summary>
+#pragma warning disable SA1402 // File may only contain a single type
     public class MicrosoftIdentityConsentAndConditionalAccessHandler
+#pragma warning restore SA1402 // File may only contain a single type
     {
         /// <summary>
         /// Boolean to determine if server is Blazor.
@@ -60,14 +62,21 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public string? BaseUri { get; internal set; }
 
-        public void HandleException(Exception ex)
+        /// <summary>
+        /// For Blazor/Razor pages to process the exception from
+        /// a user challenge.
+        /// </summary>
+        /// <param name="exception">Exception.</param>
+        public void HandleException(Exception exception)
         {
             MicrosoftIdentityWebChallengeUserException? microsoftIdentityWebChallengeUserException =
-                   ex as MicrosoftIdentityWebChallengeUserException;
+                   exception as MicrosoftIdentityWebChallengeUserException;
 
             if (microsoftIdentityWebChallengeUserException == null)
             {
-                microsoftIdentityWebChallengeUserException = ex.InnerException as MicrosoftIdentityWebChallengeUserException;
+#pragma warning disable CA1062 // Validate arguments of public methods
+                microsoftIdentityWebChallengeUserException = exception.InnerException as MicrosoftIdentityWebChallengeUserException;
+#pragma warning restore CA1062 // Validate arguments of public methods
             }
 
             if (microsoftIdentityWebChallengeUserException != null &&
@@ -92,14 +101,18 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                throw ex;
+                throw exception;
             }
         }
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         internal NavigationManager NavigationManager { get; set; }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 
+#pragma warning disable SA1402 // File may only contain a single type
     internal class MicrosoftIdentityServiceHandler : CircuitHandler
+#pragma warning restore SA1402 // File may only contain a single type
     {
         public MicrosoftIdentityServiceHandler(MicrosoftIdentityConsentAndConditionalAccessHandler service, AuthenticationStateProvider provider, NavigationManager manager)
         {

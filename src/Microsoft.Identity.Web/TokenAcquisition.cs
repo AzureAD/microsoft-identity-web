@@ -232,7 +232,8 @@ namespace Microsoft.Identity.Web
                     }
                 }
                 catch
-                { }
+                {
+                }
             }
 
             if (scopes == null)
