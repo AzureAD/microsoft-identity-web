@@ -52,7 +52,13 @@ namespace Microsoft.Identity.Web
         public const string ConsentUrl = "consentUri";
         public const string Claims = "claims";
         public const string Scopes = "scopes";
+        public const string Scope = "scope";
         public const string ProposedAction = "proposedAction";
         public const string Bearer = "Bearer";
+        public const string LoginHint = "loginHint";
+        public const string DomainHint = "domainHint";
+
+        // Blazor challenge uri
+        public const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
     }
 }

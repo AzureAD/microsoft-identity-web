@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// Helper methods to handle incremental consent and conditional access in
     /// a Web app
     /// </summary>
-    public static class IncrementalConsentAndConditionalAccessHelper
+    internal static class IncrementalConsentAndConditionalAccessHelper
     {
         /// <summary>
         /// Can the exception be solved by re-signing-in the users?.

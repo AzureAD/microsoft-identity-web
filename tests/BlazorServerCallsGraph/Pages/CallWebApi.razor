@@ -2,11 +2,8 @@
 
 @using blazor
 @using Microsoft.Identity.Web
-@using Microsoft.Identity.Client
 
 @inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler;
-
-
 @inject IDownstreamWebApi downstreamAPI
 
 <h1>Call an API</h1>
@@ -35,34 +32,6 @@ else
         catch (Exception ex)
         {
             ConsentHandler.HandleException(ex);
-            /*
-
-                        MsalUiRequiredException? msalUiRequiredException =
-                               (ex as MsalUiRequiredException)
-                               ?? (ex?.InnerException as MsalUiRequiredException);
-
-                        if (msalUiRequiredException != null &&
-                           IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
-                        {
-                            var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync())?.User;
-                            var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(new string[] { "user.read" },
-                                msalUiRequiredException, user);
-
-                            // string redirectUri, string scope, string loginHint, string domainHint, string claims
-                            string redirectUri = NavigationManager.BaseUri + "/callWebApi";
-                            List<string> scope = properties.Parameters.ContainsKey("scope") ? (List<string>)properties.Parameters["scope"] : new List<string>();
-                            string loginHint = properties.Parameters.ContainsKey("loginHint") ? (string)properties.Parameters["loginHint"] : string.Empty ;
-                            string domainHint = properties.Parameters.ContainsKey("domainHint") ? (string)properties.Parameters["domainHint"] : string.Empty;
-                            string claims = properties.Parameters.ContainsKey("claims") ? (string)properties.Parameters["claims"] : string.Empty;
-                            string url = $"{NavigationManager.BaseUri}MicrosoftIdentity/Account/Challenge?redirectUri={redirectUri}"
-                            + $"&scope={string.Join(" ", scope)}&loginHint={loginHint}"
-                            + $"&domainHint={domainHint}&claims={claims}";
-
-                           // url = "https://localhost:44357/MicrosoftIdentity/Account/Challenge?redirectUri=https:%2F%2Flocalhost:44357%2F%2FcallWebApi&scope=user.read%20openid%20offline_access%20profile&loginHint=&domainHint=&claims=";
-                            NavigationManager.NavigateTo(url, true);
-            */
         }
-    }
-
     }
 }

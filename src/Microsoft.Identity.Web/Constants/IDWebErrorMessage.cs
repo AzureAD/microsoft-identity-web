@@ -40,6 +40,8 @@ namespace Microsoft.Identity.Web
 
         // MSAL IDW10500 = "IDW10500:"
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";
+        public const string MicrosoftIdentityWebChallengeUserException = "IDW10502: An MsalUiRequiredException was thrown due to a challenge for the user. " +
+           "This has occurred in a Blazor page. You need to use `ConsentHandler.HandleException(ex)` to challenge the user. ";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";
