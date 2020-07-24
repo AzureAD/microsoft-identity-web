@@ -716,6 +716,19 @@
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions">
+            <summary>
+            Extensions for IServiceCollection for startup initialization of Web APIs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions.AddMicrosoftIdentityConsentHandler(Microsoft.Extensions.DependencyInjection.IServerSideBlazorBuilder)">
+            <summary>
+            Add the incremental consent and conditional access handler for blazor
+            server side pages
+            </summary>
+            <param name="builder">Service side blazor builder.</param>
+            <returns>The builder.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityOptions">
             <summary>
             Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
