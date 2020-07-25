@@ -1,18 +1,18 @@
 0.2.1-preview
 ============
-### New Features:
+### New features:
 **Microsoft Identity Web now supports the ComponentsWebAssembly-CSharp project templates from ASP.NET Core**. See issue for details: [#320](https://github.com/AzureAD/microsoft-identity-web/issues/320).
 **Microsoft Identity Web now supports the BlazorServerWeb-CSharp project templates from ASP .NET Core**. See issue for details: [#319](https://github.com/AzureAD/microsoft-identity-web/issues/319).
-**When using AzureAD B2C, developers can now specify which policy/user flow to use to acquire the token**. Microsoft Identity Web now exposes a userflow parameter, which allows developers to specify the policy/userflow to use with looking for tokens in the cache. See issue for details: [#27](https://github.com/AzureAD/microsoft-identity-web/issues/27).
+**When using Azure AD B2C, developers can now specify which policy/user flow to use to acquire the token**. Microsoft Identity Web now exposes a user flow parameter, which allows developers to specify the policy/user flow to use with looking for tokens in the cache. See issue for details: [#27](https://github.com/AzureAD/microsoft-identity-web/issues/27).
 
 ### Bug fixes:
 **Fixes `NullReferenceException` when acquiring a user token because of a null `HttpContext`**. This applies to scenarios like server-side Blazor apps, long-running processes, daemon apps. See issues for details: [#157](https://github.com/AzureAD/microsoft-identity-web/issues/157), [#10](https://github.com/AzureAD/microsoft-identity-web/issues/10), [#38](https://github.com/AzureAD/microsoft-identity-web/issues/38).
 **When encountering a challenge from a Blazor page, Microsoft Identity Web could not handle the challenge in the same way it does for an MVC or Razor page**. The challenge from a Blazor page is now handled corrected. See issue for details: [#360](https://github.com/AzureAD/microsoft-identity-web/issues/360).
-**When acquiring a token for a user in a server side Blazor app, a null reference exception was encountered because the `CurrentHttpContext` was null**. Microsoft Identity Web now uses a Blazor specific class `AuthenticationStateProvider` to determine the current user. See issue for details: (#157)[https://github.com/AzureAD/microsoft-identity-web/issues/157].
+**When acquiring a token for a user in a server side Blazor app, a null reference exception was encountered because the `CurrentHttpContext` was null**. Microsoft Identity Web now uses a Blazor specific class `AuthenticationStateProvider` to determine the current user. See issue for details: [#157](https://github.com/AzureAD/microsoft-identity-web/issues/157).
 **In the templates, `CallWebApi` is an async method and now named accordingly, `CallWebApiAsync`**. See issue for details: [#357](https://github.com/AzureAD/microsoft-identity-web/issues/357).
 **Microsoft Identity Web now creates a `HttpRequestMessage` to append the authorization header with the bearer token**. See issue for details: [350](https://github.com/AzureAD/microsoft-identity-web/issues/350).
 **In the case of no authentication, the templates no longer support the usage of `--call-graph` and `--call-webapi-url`**. See issue for details: [337](https://github.com/AzureAD/microsoft-identity-web/issues/337).
-**Now that Microsoft Identity Web can specify the AAD B2C tokens by userflow, the correct method, `GetAccountAsync()` can be called for confidential clients**. See issue for details: [#295](https://github.com/AzureAD/microsoft-identity-web/issues/295).
+**Now that Microsoft Identity Web can specify the AAD B2C tokens by user flow, the correct method, `GetAccountAsync()` can be called for confidential clients**. See issue for details: [#295](https://github.com/AzureAD/microsoft-identity-web/issues/295).
 
 ### Fundamentals:
 **Microsoft Identity Web has error and log messages as constants**. See issue for details: [#261](https://github.com/AzureAD/microsoft-identity-web/issues/261).
