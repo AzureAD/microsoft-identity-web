@@ -27,8 +27,11 @@
             <summary>
             Challenges the user.
             </summary>
-            <param name="scheme">Authentication scheme.</param>
-            <param name="authenticationProperties">Authentication scheme.</param>
+            <param name="redirectUri">Redirect uri.</param>
+            <param name="scope">Scopes to request.</param>
+            <param name="loginHint">Login hint.</param>
+            <param name="domainHint">Domain hint.</param>
+            <param name="claims">Claims.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(System.String)">
@@ -95,6 +98,11 @@
             Method handling the HTTP GET method.
             </summary>
             <returns>A Sign Out page or Home page.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.UI.Constants">
+            <summary>
+            General constants.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.ServiceCollectionExtensions">
             <summary>

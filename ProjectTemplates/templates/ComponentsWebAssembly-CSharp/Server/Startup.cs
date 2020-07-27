@@ -1,7 +1,7 @@
 #if (OrganizationalAuth || IndividualB2CAuth || IndividualLocalAuth)
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
 #endif
+using Microsoft.AspNetCore.Builder;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -19,7 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 #if (IndividualLocalAuth)
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ComponentsWebAssembly_CSharp.Server.Data;
+using ComponentsWebAssembly_CSharp.Server.Models;
 #endif
 #if (GenerateGraph)
 using Microsoft.Graph;
