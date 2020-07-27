@@ -222,7 +222,7 @@
           "condition": "(Hosted &&!GenerateGraph)",
           "exclude": [
              "Server/Services/MicrosoftGraphServiceExtensions.cs",
-            "Server/Services/TokenAcquisitionCredentialProvider.cs"
+             "Server/Services/TokenAcquisitionCredentialProvider.cs"
           ]
         }
       ]
