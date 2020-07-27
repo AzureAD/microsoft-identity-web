@@ -27,7 +27,7 @@ else
     {
         try
         {
-            apiResult = await downstreamAPI.CallWebApiAsync();
+            apiResult = await downstreamAPI.CallWebApiAsync("me");
         }
         catch (Exception ex)
         {

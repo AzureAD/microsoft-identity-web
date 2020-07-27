@@ -49,8 +49,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        user = await _graphServiceClient.Me.Request().GetAsync();
-        photo = await GetPhoto();
+        try
+        {
+            user = await _graphServiceClient.Me.Request().GetAsync();
+            photo = await GetPhoto();
+        }
+        catch (Exception ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
     }
 
     protected async Task<string> GetPhoto()
@@ -67,10 +74,9 @@ else
             }
 
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             photo = null;
-            ConsentHandler.HandleException(ex);
         }
         return photo;
     }
