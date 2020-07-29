@@ -244,6 +244,16 @@ namespace Microsoft.Identity.Web
             // Use MSAL to get the right token to call the API
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             string accessToken;
+            string authority;
+
+            if (!string.IsNullOrEmpty(tenant))
+            {
+                authority = _application.Authority.Replace(new Uri(_application.Authority).PathAndQuery, $"/{tenant}/");
+            }
+            else
+            {
+                authority = _application.Authority;
+            }
 
             try
             {
@@ -251,20 +261,20 @@ namespace Microsoft.Identity.Web
                     _application,
                     user,
                     scopes,
-                    tenant,
+                    authority,
                     userFlow)
                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
-                // GetAccessTokenForUserAsync is an abstraction that can be called from a Web App or a Web API
+                // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
                 _logger.LogInformation(ex.Message);
 
-                // to get a token for a Web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
-                // flow as this one only applies to Web APIs.
+                // To get a token for a web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
+                // flow as this one only applies to web APIs.
                 JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
 
-                // Case of Web APIs: we need to do an on-behalf-of flow
+                // Case of web APIs: we need to do an on-behalf-of flow
                 if (validatedToken != null)
                 {
                     // In the case the token is a JWE (encrypted token), we use the decrypted token.
@@ -273,6 +283,7 @@ namespace Microsoft.Identity.Web
                     var result = await _application
                                         .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
                                         .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                                        .WithAuthority(authority)
                                         .ExecuteAsync()
                                         .ConfigureAwait(false);
                     accessToken = result.AccessToken;
@@ -442,14 +453,14 @@ namespace Microsoft.Identity.Web
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="tenant">(optional) Specific tenant for which to acquire a token to access the scopes
+        /// <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
-            string? tenant,
+            string? authority,
             string? userFlow = null)
         {
             IAccount? account = null;
@@ -474,7 +485,7 @@ namespace Microsoft.Identity.Web
                 application,
                 account,
                 scopes,
-                tenant).ConfigureAwait(false);
+                authority).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -484,14 +495,14 @@ namespace Microsoft.Identity.Web
         /// <param name="account">User IAccount for which to acquire a token.
         /// See <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="tenant">Specific tenant for which to acquire a token to access the scopes
+        /// <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
         private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
-            string? tenant,
+            string? authority,
             string? userFlow = null)
         {
             if (scopes == null)
@@ -503,40 +514,27 @@ namespace Microsoft.Identity.Web
             // Acquire an access token as a B2C authority
             if (_microsoftIdentityOptions.IsB2C)
             {
-                string authority = application.Authority.Replace(
+                string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
                     $"/{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                    .WithB2CAuthority(authority)
+                    .WithB2CAuthority(b2cAuthority)
                     .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
                 return result.AccessToken;
             }
-            else if (!string.IsNullOrWhiteSpace(tenant))
-            {
-                // Acquire an access token as another AAD authority
-                string authority = application.Authority.Replace(new Uri(application.Authority).PathAndQuery, $"/{tenant}/");
-                result = await application
-                    .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                    .WithAuthority(authority)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-                return result.AccessToken;
-            }
-            else
-            {
-                result = await application
-                   .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                   .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                   .ExecuteAsync()
-                   .ConfigureAwait(false);
-                return result.AccessToken;
-            }
+
+            result = await application
+                .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
+                .WithAuthority(authority)
+                .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                .ExecuteAsync()
+                .ConfigureAwait(false);
+            return result.AccessToken;
         }
 
         /// <summary>
