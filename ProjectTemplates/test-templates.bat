@@ -94,13 +94,6 @@ dotnet new webapi2 --auth IndividualB2C
 dotnet sln ..\..\tests.sln add webapi2-b2c.csproj
 cd ..
 
-echo "Test webapi2, b2c, calling a downstream web api"
-mkdir webapi2-b2c-callswebapi
-cd webapi2-b2c-callswebapi
-dotnet new webapi2 --auth IndividualB2C --called-api-url "https://localhost:44332/api/todolist" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
-dotnet sln ..\..\tests.sln add webapi2-b2c-callswebapi.csproj
-cd ..
-
 cd ..
 
 REM MVC Web app
@@ -269,15 +262,6 @@ dotnet new blazorwasm2 --auth IndividualB2C  --hosted
 dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-hosted.Shared.csproj
 dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-hosted.Server.csproj
 dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-hosted.Client.csproj
-cd ..
-
-echo "Test blazorwasm2, b2c, with hosted blazor web server web api, calling a downstream web api"
-mkdir blazorwasm2-b2c-callswebapi-hosted
-cd blazorwasm2-b2c-callswebapi-hosted
-dotnet new blazorwasm2 --auth IndividualB2C --called-api-url "https://localhost:44332/api/todolist" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read" --hosted
-dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-callswebapi-hosted.Shared.csproj
-dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-callswebapi-hosted.Server.csproj
-dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-callswebapi-hosted.Client.csproj
 cd ..
 
 cd ..

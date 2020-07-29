@@ -487,11 +487,11 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
+        "value": "( ((IndividualB2CAuth && !Hosted) || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
     },
     "GenerateGraph": {
         "type": "computed",
-        "value": "((IndividualB2CAuth || OrganizationalAuth) && CallsMicrosoftGraph)"
+        "value": "(OrganizationalAuth && CallsMicrosoftGraph)"
     },
     "GenerateApiOrGraph": {
         "type": "computed",
