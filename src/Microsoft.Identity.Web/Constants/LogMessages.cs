@@ -21,5 +21,7 @@ namespace Microsoft.Identity.Web
         public const string SessionCacheKeyNotFound = "Cache key {0} not found in session {1}. ";
         public const string SerializingSessionCache = "Serializing session {0}, cache key {1}. ";
         public const string ClearingSessionCache = "Clearing session {0}, cache key {1}. ";
+
+        public const string ErrorAcquiringTokenForOboForWebApi = "Error acquiring a token for obo for a web API - MsalUiRequiredException message is: {0} .";
     }
 }

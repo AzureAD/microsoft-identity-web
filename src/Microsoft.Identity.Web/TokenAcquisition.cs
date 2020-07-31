@@ -211,93 +211,82 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             ClaimsPrincipal? user = null)
         {
-            if (user == null && _httpContextAccessor.HttpContext != null)
-            {
-                user = _httpContextAccessor.HttpContext.User;
-            }
-
-            if (user == null)
-            {
-                try
-                {
-                    AuthenticationStateProvider? authenticationStateProvider =
-                        _serviceProvider.GetService(typeof(AuthenticationStateProvider))
-                        as AuthenticationStateProvider;
-
-                    if (authenticationStateProvider != null)
-                    {
-                        // AuthenticationState provider is only available in Blazor
-                        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
-                        user = state.User;
-                    }
-                }
-                catch
-                {
-                }
-            }
-
             if (scopes == null)
             {
                 throw new ArgumentNullException(nameof(scopes));
             }
 
-            // Use MSAL to get the right token to call the API
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-            string accessToken;
-            string authority;
+            user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(tenant))
-            {
-                authority = _application.Authority.Replace(new Uri(_application.Authority).PathAndQuery, $"/{tenant}/");
-            }
-            else
-            {
-                authority = _application.Authority;
-            }
+            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+            string? accessToken;
 
             try
             {
-                accessToken = await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+                // Access token will return if call is from a web API
+                accessToken = await GetTokenForWebApiForOboAsync(
                     _application,
-                    user,
-                    scopes,
                     authority,
-                    userFlow)
-                    .ConfigureAwait(false);
+                    scopes).ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    return accessToken;
+                }
+
+                // If access token is null, this is a web app
+                return await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+                     _application,
+                     user,
+                     scopes,
+                     authority,
+                     userFlow)
+                     .ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
-                // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
+                // GetAccessTokenForUserAsync is an abstraction that can be called from a Web App or a Web API
                 _logger.LogInformation(ex.Message);
 
-                // To get a token for a web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
-                // flow as this one only applies to web APIs.
+                // Case of the Web App: we let the MsalUiRequiredException be caught by the
+                // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
+                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray());
+            }
+        }
+
+        private async Task<string?> GetTokenForWebApiForOboAsync(
+            IConfidentialClientApplication application,
+            string authority,
+            IEnumerable<string> scopes)
+        {
+            try
+            {
+                // In web API, validatedToken will not be null
                 JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
 
-                // Case of web APIs: we need to do an on-behalf-of flow
+                // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (validatedToken != null)
                 {
                     // In the case the token is a JWE (encrypted token), we use the decrypted token.
                     string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
                                                 : validatedToken.InnerToken.RawData;
-                    var result = await _application
+                    var result = await application
                                         .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
                                         .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                                         .WithAuthority(authority)
                                         .ExecuteAsync()
                                         .ConfigureAwait(false);
-                    accessToken = result.AccessToken;
+                    return result.AccessToken;
                 }
 
-                // Case of the Web App: we let the MsalUiRequiredException be caught by the
-                // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
-                else
-                {
-                    throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray());
-                }
+                return null;
             }
-
-            return accessToken;
+            catch (MsalUiRequiredException ex)
+            {
+                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForOboForWebApi, ex.Message));
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -587,6 +576,53 @@ namespace Microsoft.Identity.Web
             // way to distinguish the case.
             // This is subject to change in the future
             return msalSeviceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+        }
+
+        private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
+        {
+            if (user == null && _httpContextAccessor.HttpContext != null)
+            {
+                user = _httpContextAccessor.HttpContext.User;
+            }
+
+            if (user == null)
+            {
+                try
+                {
+                    AuthenticationStateProvider? authenticationStateProvider =
+                        _serviceProvider.GetService(typeof(AuthenticationStateProvider))
+                        as AuthenticationStateProvider;
+
+                    if (authenticationStateProvider != null)
+                    {
+                        // AuthenticationState provider is only available in Blazor
+                        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
+                        user = state.User;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return user;
+        }
+
+        private string CreateAuthorityBasedOnTenantIfProvided(
+            IConfidentialClientApplication application,
+            string? tenant)
+        {
+            string authority;
+            if (!string.IsNullOrEmpty(tenant))
+            {
+                authority = application.Authority.Replace(new Uri(application.Authority).PathAndQuery, $"/{tenant}/");
+            }
+            else
+            {
+                authority = application.Authority;
+            }
+
+            return authority;
         }
     }
 }
