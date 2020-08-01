@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Resource
     /// <summary>
     /// Generic class that validates token issuer from the provided Azure AD authority.
     /// </summary>
-    internal class AadIssuerValidator
+    public class AadIssuerValidator
     {
         // TODO: separate AadIssuerValidator creation logic from the validation logic in order to unit test it
         private static readonly IDictionary<string, AadIssuerValidator> s_issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.Resource
         }
 
         /// <summary>
-        /// Validate the issuer for multi-tenant applications of various audience (Work and School account, or Work and School accounts +
+        /// Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
         /// Personal accounts).
         /// </summary>
         /// <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
         /// <exception cref="ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
-        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer. </exception>
+        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
         public string Validate(string actualIssuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
         {
             if (string.IsNullOrEmpty(actualIssuer))
@@ -169,7 +169,7 @@ namespace Microsoft.Identity.Web.Resource
 
         /// <summary>Gets the tenant ID from a token.</summary>
         /// <param name="securityToken">A JWT token.</param>
-        /// <returns>A string containing tenant ID, if found or <see cref="string.Empty"/>.</returns>
+        /// <returns>A string containing the tenant ID, if found or <see cref="string.Empty"/>.</returns>
         /// <remarks>Only <see cref="JwtSecurityToken"/> and <see cref="JsonWebToken"/> are acceptable types.</remarks>
         private static string GetTenantIdFromToken(SecurityToken securityToken)
         {
