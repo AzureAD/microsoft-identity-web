@@ -38,11 +38,11 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.TenantId, null, AzureAd, null)]
-        [InlineData(null, TestConstants.AadInstance, TestConstants.TenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData("", TestConstants.AadInstance, TestConstants.TenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData(TestConstants.ClientId, null, TestConstants.TenantId, null, null, AzureAd, MissingParam.Instance)]
-        [InlineData(TestConstants.ClientId, "", TestConstants.TenantId, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, AzureAd, null)]
+        [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData("", TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData(TestConstants.ClientId, null, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, "", TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
         [InlineData(TestConstants.ClientId, TestConstants.AadInstance, null, null, null, AzureAd, MissingParam.TenantId)]
         [InlineData(TestConstants.ClientId, TestConstants.AadInstance, "", null, null, AzureAd, MissingParam.TenantId)]
         [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]

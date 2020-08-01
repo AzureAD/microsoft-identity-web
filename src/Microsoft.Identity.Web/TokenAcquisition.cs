@@ -225,7 +225,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 // Access token will return if call is from a web API
-                accessToken = await GetTokenForWebApiForOboAsync(
+                accessToken = await GetTokenForWebApiToCallDownstreamApiAsync(
                     _application,
                     authority,
                     scopes).ConfigureAwait(false);
@@ -236,7 +236,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 // If access token is null, this is a web app
-                return await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+                return await GetAccessTokenForWebAppWithAccountFromCacheAsync(
                      _application,
                      user,
                      scopes,
@@ -255,7 +255,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<string?> GetTokenForWebApiForOboAsync(
+        private async Task<string?> GetTokenForWebApiToCallDownstreamApiAsync(
             IConfidentialClientApplication application,
             string authority,
             IEnumerable<string> scopes)
@@ -445,7 +445,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
-        private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
+        private async Task<string> GetAccessTokenForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
@@ -470,7 +470,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            return await GetAccessTokenOnBehalfOfUserFromCacheAsync(
+            return await GetAccessTokenForWebAppWithAccountFromCacheAsync(
                 application,
                 account,
                 scopes,
@@ -487,7 +487,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
-        private async Task<string> GetAccessTokenOnBehalfOfUserFromCacheAsync(
+        private async Task<string> GetAccessTokenForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
@@ -608,7 +608,7 @@ namespace Microsoft.Identity.Web
             return user;
         }
 
-        private string CreateAuthorityBasedOnTenantIfProvided(
+        internal /*for tests*/ string CreateAuthorityBasedOnTenantIfProvided(
             IConfidentialClientApplication application,
             string? tenant)
         {
