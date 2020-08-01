@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                string? userFlow = context.Principal?.Claims?.FirstOrDefault(c => c.Type == ClaimConstants.UserFlow)?.Value;
+                string? userFlow = context.Principal?.GetUserFlowId();
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
