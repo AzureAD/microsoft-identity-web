@@ -718,12 +718,12 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions">
             <summary>
-            Extensions for IServiceCollection for startup initialization of web APIs.
+            Extensions for IServerSideBlazorBuilder for startup initialization of web APIs.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions.AddMicrosoftIdentityConsentHandler(Microsoft.Extensions.DependencyInjection.IServerSideBlazorBuilder)">
             <summary>
-            Add the incremental consent and conditional access handler for blazor
+            Add the incremental consent and conditional access handler for Blazor
             server side pages.
             </summary>
             <param name="builder">Service side blazor builder.</param>
@@ -747,7 +747,7 @@
         </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.BaseUri">
             <summary>
-            Base uri to use in forming the redirect.
+            Base URI to use in forming the redirect.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.HandleException(System.Exception)">
@@ -1863,11 +1863,11 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
              <summary>
-             Adds both App and per-user session token caches.
+             Adds both application and per-user session token caches.
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1880,17 +1880,18 @@
              <code>
              app.UseSession(); // Before UseMvc()
              </code>
+             Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionTokenCaches(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
              <summary>
-             Adds both App and per-user session token caches.
+             Adds both application and per-user session token caches.
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1903,17 +1904,18 @@
              <code>
              app.UseSession(); // Before UseMvc()
              </code>
+             Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
              </remarks>
              <param name="builder">The authentication builder to add the session token caches to.</param>
              <returns>The builder to chain more commands.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
              <summary>
-             Adds an HTTP session based application token cache to the service collection.
+             Adds an HTTP session-based application token cache to the service collection.
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1926,17 +1928,18 @@
              <code>
              app.UseSession(); // Before UseMvc()
              </code>
+             Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionPerUserTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
              <summary>
-             Adds an HTTP session based per user token cache to the service collection.
+             Adds an HTTP session-based per-user token cache to the service collection.
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1949,6 +1952,7 @@
              <code>
              app.UseSession(); // Before UseMvc()
              </code>
+             Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>

@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
 
         private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private HttpContext CurrentHttpContext => _httpContextAccessor.HttpContext;
+        private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
@@ -270,9 +270,9 @@ namespace Microsoft.Identity.Web
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
                 _logger.LogInformation(ex.Message);
 
-                // To get a token for a web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
-                // flow as this one only applies to web APIs.
-                JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
+                // to get a token for a Web API on behalf of the user, but not necessarily with the on behalf of OAuth2.0
+                // flow as this one only applies to Web APIs.
+                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
 
                 // Case of web APIs: we need to do an on-behalf-of flow
                 if (validatedToken != null)
