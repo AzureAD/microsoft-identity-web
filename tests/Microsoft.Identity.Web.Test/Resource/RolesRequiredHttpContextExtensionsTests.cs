@@ -33,10 +33,9 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedStatusCode = (int)HttpStatusCode.Unauthorized;
 
             var httpContext = HttpContextUtilities.CreateHttpContext();
-            httpContext.ValidateAppRole(acceptedRoles);
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.ValidateAppRole(acceptedRoles));
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
@@ -48,17 +47,9 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
             var httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, actualRoles);
-            httpContext.ValidateAppRole(acceptedRoles);
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.ValidateAppRole(acceptedRoles));
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
-
-            httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, actualRoles);
-            httpContext.ValidateAppRole(acceptedRoles);
-            response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
@@ -75,15 +66,6 @@ namespace Microsoft.Identity.Web.Test.Resource
 
             httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, new[] { "acceptedRole2 acceptedRole1" });
             httpContext.ValidateAppRole("acceptedRole1", "acceptedRole2");
-        }
-
-        private static string GetBody(HttpResponse response)
-        {
-            byte[] buffer = new byte[response.Body.Length];
-            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
-            response.Body.Read(buffer, 0, buffer.Length);
-            string body = Encoding.Default.GetString(buffer);
-            return body;
         }
     }
 }

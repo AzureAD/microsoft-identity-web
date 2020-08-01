@@ -40,19 +40,21 @@ namespace Microsoft.Identity.Web.Resource
             else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
                 // Attempt with Roles claim
-                string[] rolesClaim = context.User.Claims.Where(
+                IEnumerable<string> rolesClaim = context.User.Claims.Where(
                     c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
-                    .SelectMany(c => c.Value.Split(' ')).ToArray();
+                    .SelectMany(c => c.Value.Split(' '));
 
-                if (rolesClaim == null || !rolesClaim.Intersect(acceptedRoles).Any())
+                if (!rolesClaim.Intersect(acceptedRoles).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(", ", acceptedRoles));
                     context.Response.WriteAsync(message);
+                    throw new UnauthorizedAccessException(message);
                 }
             }
         }
