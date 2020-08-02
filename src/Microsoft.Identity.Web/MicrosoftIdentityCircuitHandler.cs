@@ -15,12 +15,12 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for IServiceCollection for startup initialization of web APIs.
+    /// Extensions for IServerSideBlazorBuilder for startup initialization of web APIs.
     /// </summary>
     public static class MicrosoftIdentityBlazorServiceCollectionExtensions
     {
         /// <summary>
-        /// Add the incremental consent and conditional access handler for blazor
+        /// Add the incremental consent and conditional access handler for Blazor
         /// server side pages.
         /// </summary>
         /// <param name="builder">Service side blazor builder.</param>
@@ -55,10 +55,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Current user.
         /// </summary>
-        public ClaimsPrincipal User { get; internal set; }
+        public ClaimsPrincipal User { get; internal set; } = null!;
 
         /// <summary>
-        /// Base uri to use in forming the redirect.
+        /// Base URI to use in forming the redirect.
         /// </summary>
         public string? BaseUri { get; internal set; }
 
@@ -88,13 +88,13 @@ namespace Microsoft.Identity.Web
                     User);
 
                 string redirectUri = NavigationManager.Uri;
-                List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope] : new List<string>();
-                string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint] : string.Empty;
-                string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint] : string.Empty;
-                string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims] : string.Empty;
+                List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
+                string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
+                string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
+                string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
                 string url = $"{NavigationManager.BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
-                + $"&{Constants.Scope}={string.Join(" ", scope)}&{Constants.LoginHint}={loginHint}"
-                + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
+                    + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
+                    + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
 
                 NavigationManager.NavigateTo(url, true);
             }
@@ -104,9 +104,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        internal NavigationManager NavigationManager { get; set; }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        internal NavigationManager NavigationManager { get; set; } = null!;
     }
 
 #pragma warning disable SA1402 // File may only contain a single type

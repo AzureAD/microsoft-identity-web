@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string claims)
         {
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
-            Dictionary<string, string> properties = new Dictionary<string, string>
+            Dictionary<string, string?> properties = new Dictionary<string, string?>
             {
                 { Constants.Scope, scope },
                 { Constants.LoginHint, loginHint },

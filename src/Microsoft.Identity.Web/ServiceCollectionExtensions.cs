@@ -61,12 +61,12 @@ namespace Microsoft.Identity.Web
             if (isTokenAcquisitionSingleton)
             {
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
-                services.AddSingleton<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
+                services.AddSingleton<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
             else
             {
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
-                services.AddScoped<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
+                services.AddScoped<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
 
             return services;
