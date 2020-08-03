@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web.Resource
             else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
@@ -60,6 +61,7 @@ namespace Microsoft.Identity.Web.Resource
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
                     context.Response.WriteAsync(message);
+                    throw new UnauthorizedAccessException(message);
                 }
             }
         }
