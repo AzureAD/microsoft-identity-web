@@ -46,14 +46,14 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
-            var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes);
+            var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
 
             HttpResponse response = httpContext.Response;
             Assert.Equal(expectedStatusCode, response.StatusCode);
             Assert.Equal(expectedErrorMessage, GetBody(response));
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope3", "acceptedScope4" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope3", "acceptedScope4" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
             response = httpContext.Response;
             Assert.Equal(expectedStatusCode, response.StatusCode);
@@ -72,16 +72,16 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public void VerifyUserHasAnyAcceptedScope_MatchesAcceptedScopes_ExecutesSuccessfully()
         {
-            var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" });
+            var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1 acceptedScope2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1 acceptedScope2" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1", "acceptedScope2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2 acceptedScope1" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2 acceptedScope1" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1", "acceptedScope2");
         }
     }
