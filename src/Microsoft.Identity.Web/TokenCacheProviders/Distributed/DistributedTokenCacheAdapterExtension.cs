@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
-        public static IServiceCollection AddDistributedTokenCaches(
+        internal static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
             AddDistributedAppTokenCache(services);
@@ -25,9 +25,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         /// <summary>Adds both the app and per-user .NET Core distributed based token caches.</summary>
         /// <param name="builder">The Authentication builder to add to.</param>
-        /// <returns>A <see cref="AuthenticationBuilder"/> to chain.</returns>
-        public static AuthenticationBuilder AddDistributedTokenCaches(
-            this AuthenticationBuilder builder)
+        /// <returns>A <see cref="MicrosoftWebAppAuthenticationBuilder"/> to chain.</returns>
+        public static MicrosoftWebAppAuthenticationBuilder AddDistributedTokenCaches(
+            this MicrosoftWebAppAuthenticationBuilder builder)
         {
             if (builder == null)
             {

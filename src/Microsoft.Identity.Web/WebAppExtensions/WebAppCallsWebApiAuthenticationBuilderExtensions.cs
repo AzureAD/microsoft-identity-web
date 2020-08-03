@@ -35,8 +35,9 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this AuthenticationBuilder builder,
+        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
@@ -60,8 +61,9 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this AuthenticationBuilder builder,
+        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
             string configSectionName = Constants.AzureAd,
@@ -85,8 +87,9 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this AuthenticationBuilder builder,
+        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftWebAppAuthenticationBuilder builder,
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
@@ -107,74 +110,12 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
-            // (encapsulating MSAL.NET) are available through dependency injection
-            builder.Services.Configure(configureMicrosoftIdentityOptions);
-            builder.Services.Configure(configureConfidentialClientApplicationOptions);
-
-            builder.Services.AddHttpContextAccessor();
-
-            builder.Services.AddTokenAcquisition();
-
-            builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
-            {
-                options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-
-                // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
-                // It's required by MSAL.NET and automatically provided when users sign-in with work or school accounts
-                options.Scope.Add(OidcConstants.ScopeOfflineAccess);
-                if (initialScopes != null)
-                {
-                    foreach (string scope in initialScopes)
-                    {
-                        if (!options.Scope.Contains(scope))
-                        {
-                            options.Scope.Add(scope);
-                        }
-                    }
-                }
-
-                // Handling the auth redemption by MSAL.NET so that a token is available in the token cache
-                // where it will be usable from Controllers later (through the TokenAcquisition service)
-                var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
-                options.Events.OnAuthorizationCodeReceived = async context =>
-                {
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
-                    await codeReceivedHandler(context).ConfigureAwait(false);
-                };
-
-                // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
-                var onTokenValidatedHandler = options.Events.OnTokenValidated;
-                options.Events.OnTokenValidated = async context =>
-                {
-                        string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
-
-                        if (!string.IsNullOrEmpty(clientInfo))
-                        {
-                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
-
-                            if (clientInfoFromServer != null)
-                            {
-                                context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                            }
-                        }
-
-                        await onTokenValidatedHandler(context).ConfigureAwait(false);
-                };
-
-                // Handling the sign-out: removing the account from MSAL.NET cache
-                var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
-                options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
-                {
-                    // Remove the account from MSAL.NET token cache
-                    var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                    await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                    await signOutHandler(context).ConfigureAwait(false);
-                };
-            });
+            MicrosoftWebAppAuthenticationBuilder.CallsWebApiImplementation(
+                builder.Services,
+                initialScopes,
+                configureMicrosoftIdentityOptions,
+                openIdConnectScheme,
+                configureConfidentialClientApplicationOptions);
             return builder;
         }
     }

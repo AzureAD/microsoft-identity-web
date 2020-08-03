@@ -33,19 +33,23 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddMicrosoftWebApp(
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
-                builder.AddMicrosoftWebApp(
-                    options => configuration.Bind(configSectionName, options),
-                    null,
-                    openIdConnectScheme,
-                    cookieScheme,
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+        {
+            var microsoftWebAppAuthenticationBuilder = builder.AddMicrosoftWebApp(
+                options => configuration.Bind(configSectionName, options),
+                null,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+            microsoftWebAppAuthenticationBuilder.ConfigurationSection = configuration.GetSection(configSectionName);
+            return microsoftWebAppAuthenticationBuilder;
+        }
 
         /// <summary>
         /// Add authentication with Microsoft identity platform.
@@ -59,7 +63,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static AuthenticationBuilder AddMicrosoftWebApp(
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
@@ -187,7 +191,7 @@ namespace Microsoft.Identity.Web
                 }
             });
 
-            return builder;
+            return new MicrosoftWebAppAuthenticationBuilder(builder.Services, openIdConnectScheme, configureMicrosoftIdentityOptions);
         }
 
         internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MicrosoftIdentityOptions microsoftIdentityOptions)

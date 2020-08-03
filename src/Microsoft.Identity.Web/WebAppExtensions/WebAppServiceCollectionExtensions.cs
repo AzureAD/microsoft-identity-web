@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        public static AuthenticationBuilder AddMicrosoftWebAppAuthentication(
+        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -41,13 +41,12 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
-            builder.AddMicrosoftWebApp(
+            return builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
                 null,
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-            return builder;
         }
     }
 }

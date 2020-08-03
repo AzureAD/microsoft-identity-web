@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
-        public static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
+        internal static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
         {
             if (services == null)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="builder">The authentication builder to add the session token caches to.</param>
         /// <returns>The builder to chain more commands.</returns>
-        public static AuthenticationBuilder AddSessionTokenCaches(this AuthenticationBuilder builder)
+        public static MicrosoftWebAppAuthenticationBuilder AddSessionTokenCaches(this MicrosoftWebAppAuthenticationBuilder builder)
         {
             if (builder == null)
             {

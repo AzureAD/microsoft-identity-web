@@ -31,6 +31,13 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MigrationAid\Obsolete-LegacyTokenDecryptCertificateParameter.cs" />
+    <Compile Remove="MigrationAid\Obsolete-WebApiAuthenticationBuilderExtensions.cs" />
+    <Compile Remove="MigrationAid\Obsolete-WebApiServiceCollectionExtensions.cs" />
+    <Compile Remove="MigrationAid\Obsolete-WebAppAuthenticationBuilderExtensions.cs" />
+    <Compile Remove="MigrationAid\Obsolete-WebAppServiceCollectionExtensions.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
@@ -93,6 +100,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MigrationAid\" />
   </ItemGroup>
 
 </Project>

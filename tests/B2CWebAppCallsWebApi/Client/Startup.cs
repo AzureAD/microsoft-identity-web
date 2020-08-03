@@ -44,10 +44,10 @@ namespace WebApp_OpenIDConnect_DotNet
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftWebApp(Configuration, "AzureAdB2C")
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                     initialScopes: new string[] { Configuration["TodoList:TodoListScope"] },
-                     configSectionName: "AzureAdB2C");
-            services.AddInMemoryTokenCaches();
+                        .CallsWebApi(Configuration,
+                                     initialScopes: new string[] { Configuration["TodoList:TodoListScope"] },
+                                     configSectionName: "AzureAdB2C")
+                        .AddInMemoryTokenCaches();
 
             // Add APIs
             services.AddTodoListService(Configuration);
