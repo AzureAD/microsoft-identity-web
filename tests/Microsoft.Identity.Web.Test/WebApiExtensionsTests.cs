@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web.Test
             // Config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            config.Received(3).GetSection(ConfigSectionName);
+            config.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftWebApi_TestCommon(services, provider, false);
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web.Test
             // Config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            config.Received(3).GetSection(ConfigSectionName);
+            config.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftWebApi_TestCommon(services, provider, false);
         }

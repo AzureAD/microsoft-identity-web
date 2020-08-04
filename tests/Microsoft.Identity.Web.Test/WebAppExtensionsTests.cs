@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web.Test
             // Assert config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            configMock.Received(2).GetSection(ConfigSectionName);
+            configMock.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftWebApp_TestCommon(services, provider);
             AddMicrosoftWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web.Test
             // Assert config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            configMock.Received(2).GetSection(ConfigSectionName);
+            configMock.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftWebApp_TestCommon(services, provider);
             AddMicrosoftWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
@@ -241,7 +241,8 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             var builder = services.AddAuthentication()
-                .AddMicrosoftWebAppCallsWebApi(configMock, initialScopes, ConfigSectionName, OidcScheme);
+                .AddMicrosoftWebApp(configMock, ConfigSectionName, OidcScheme)
+                .CallsWebApi(initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {
                 options.Events ??= new OpenIdConnectEvents();
@@ -281,7 +282,8 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             var builder = services.AddAuthentication()
-                .AddMicrosoftWebAppCallsWebApi(initialScopes, _configureMsOptions, _configureAppOptions, OidcScheme);
+                .AddMicrosoftWebApp(_configureMsOptions, null, OidcScheme)
+                .CallsWebApi(_configureAppOptions, initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {
                 options.Events ??= new OpenIdConnectEvents();
@@ -317,7 +319,8 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddAuthentication()
-                .AddMicrosoftWebAppCallsWebApi(Substitute.For<IConfiguration>());
+                .AddMicrosoftWebApp(Substitute.For<IConfiguration>())
+                .CallsWebApi();
 
             var provider = services.BuildServiceProvider();
 
