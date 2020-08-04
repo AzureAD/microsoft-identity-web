@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
         /// to be provided.
         /// </remarks>
         [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
-        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+        private static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            MicrosoftWebAppAuthenticationBuilder.CallsWebApiImplementation(
+            MicrosoftWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(
                 builder.Services,
                 initialScopes,
                 configureMicrosoftIdentityOptions,

@@ -21,8 +21,9 @@ namespace Microsoft.Identity.Web
     public static partial class WebAppAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Add authentication with Microsoft identity platform.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// Add authentication to a Web app with Microsoft identity platform.
+        /// This method expects the configuration file will have a section, named "AzureAd" as default,
+        /// with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configuration">The configuration instance.</param>
@@ -32,8 +33,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
-        /// <returns>The authentication builder for chaining.</returns>
-        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebApp(
+        /// <returns>The <see cref="MicrosoftWebAppAuthenticationBuilderWithConfiguration"/> builder for chaining.</returns>
+        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -51,14 +52,51 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(nameof(configSectionName));
             }
 
-            var microsoftWebAppAuthenticationBuilder = builder.AddMicrosoftWebApp(
-                options => configuration.Bind(configSectionName, options),
-                null,
+            IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
+
+            return builder.AddMicrosoftWebApp(
+                configurationSection,
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-            microsoftWebAppAuthenticationBuilder.ConfigurationSection = configuration.GetSection(configSectionName);
-            return microsoftWebAppAuthenticationBuilder;
+        }
+
+        /// <summary>
+        /// Add authentication with Microsoft identity platform.
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configurationSection">The configuration section from which to get the options.</param>
+        /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenID Connect events.
+        /// </param>
+        /// <returns>The authentication builder for chaining.</returns>
+        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebApp(
+            this AuthenticationBuilder builder,
+            IConfigurationSection configurationSection,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configurationSection == null)
+            {
+                throw new ArgumentException(nameof(configurationSection));
+            }
+
+            return builder.AddMicrosoftWebAppWithConfiguration(
+                options => configurationSection.Bind(options),
+                null,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                configurationSection);
         }
 
         /// <summary>
@@ -86,6 +124,93 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
+            return builder.AddMicrosoftWebAppWithoutConfiguration(
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+        }
+
+        /// <summary>
+        /// Add authentication with Microsoft identity platform.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
+        /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenID Connect events.
+        /// </param>
+        /// <param name="configurationSection">Configuration section.</param>
+        /// <returns>The authentication builder for chaining.</returns>
+        private static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebAppWithConfiguration(
+                this AuthenticationBuilder builder,
+                Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+                Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
+                string openIdConnectScheme,
+                string cookieScheme,
+                bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                IConfigurationSection configurationSection)
+        {
+            AddMicrosoftWebAppInternal(
+                builder,
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+
+            return new MicrosoftWebAppAuthenticationBuilderWithConfiguration(
+                builder.Services,
+                openIdConnectScheme,
+                configureMicrosoftIdentityOptions,
+                configurationSection);
+        }
+
+        /// <summary>
+        /// Add authentication with Microsoft identity platform.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
+        /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenID Connect events.
+        /// </param>
+        /// <returns>The authentication builder for chaining.</returns>
+        private static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppWithoutConfiguration(
+        this AuthenticationBuilder builder,
+        Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+        Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
+        string openIdConnectScheme,
+        string cookieScheme,
+        bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+        {
+            AddMicrosoftWebAppInternal(
+                builder,
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+
+            return new MicrosoftWebAppAuthenticationBuilder(
+                builder.Services,
+                openIdConnectScheme,
+                configureMicrosoftIdentityOptions,
+                null);
+        }
+
+        private static void AddMicrosoftWebAppInternal(AuthenticationBuilder builder, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions, string openIdConnectScheme, string cookieScheme, bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             if (configureMicrosoftIdentityOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
@@ -106,102 +231,100 @@ namespace Microsoft.Identity.Web
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
-            {
-                PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
-                var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
-
-                options.SignInScheme = cookieScheme;
-
-                if (string.IsNullOrWhiteSpace(options.Authority))
                 {
-                    options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
-                }
+                    PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
-                // This is a Microsoft identity platform Web app
-                options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+                    options.SignInScheme = cookieScheme;
 
-                options.TokenValidationParameters = options.TokenValidationParameters.Clone();
-
-                // B2C doesn't have preferred_username claims
-                if (microsoftIdentityOptions.Value.IsB2C)
-                {
-                    options.TokenValidationParameters.NameClaimType = ClaimConstants.Name;
-                }
-                else
-                {
-                    options.TokenValidationParameters.NameClaimType = ClaimConstants.PreferredUserName;
-                }
-
-                // If the developer registered an IssuerValidator, do not overwrite it
-                if (options.TokenValidationParameters.IssuerValidator == null)
-                {
-                    // If you want to restrict the users that can sign-in to several organizations
-                    // Set the tenant value in the appsettings.json file to 'organizations', and add the
-                    // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
-                    options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
-                }
-
-                // Avoids having users being presented the select account dialog when they are already signed-in
-                // for instance when going through incremental consent
-                var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
-                options.Events.OnRedirectToIdentityProvider = async context =>
-                {
-                    var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
-                    if (!string.IsNullOrWhiteSpace(login))
+                    if (string.IsNullOrWhiteSpace(options.Authority))
                     {
-                        context.ProtocolMessage.LoginHint = login;
-                        context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
-                            OpenIdConnectParameterNames.DomainHint);
-
-                        // delete the login_hint and domainHint from the Properties when we are done otherwise
-                        // it will take up extra space in the cookie.
-                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
-                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                        options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
                     }
 
-                    context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
+                    // This is a Microsoft identity platform Web app
+                    options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                    // Additional claims
-                    if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                    options.TokenValidationParameters = options.TokenValidationParameters.Clone();
+
+                    // B2C doesn't have preferred_username claims
+                    if (microsoftIdentityOptions.Value.IsB2C)
                     {
-                        context.ProtocolMessage.SetParameter(
-                            OidcConstants.AdditionalClaims,
-                            context.Properties.Items[OidcConstants.AdditionalClaims]);
+                        options.TokenValidationParameters.NameClaimType = ClaimConstants.Name;
                     }
+                    else
+                    {
+                        options.TokenValidationParameters.NameClaimType = ClaimConstants.PreferredUserName;
+                    }
+
+                    // If the developer registered an IssuerValidator, do not overwrite it
+                    if (options.TokenValidationParameters.IssuerValidator == null)
+                    {
+                        // If you want to restrict the users that can sign-in to several organizations
+                        // Set the tenant value in the appsettings.json file to 'organizations', and add the
+                        // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
+                        options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
+                    }
+
+                    // Avoids having users being presented the select account dialog when they are already signed-in
+                    // for instance when going through incremental consent
+                    var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
+                    options.Events.OnRedirectToIdentityProvider = async context =>
+                    {
+                        var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
+                        if (!string.IsNullOrWhiteSpace(login))
+                        {
+                            context.ProtocolMessage.LoginHint = login;
+                            context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
+                                OpenIdConnectParameterNames.DomainHint);
+
+                            // delete the login_hint and domainHint from the Properties when we are done otherwise
+                            // it will take up extra space in the cookie.
+                            context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                            context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                        }
+
+                        context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
+
+                        // Additional claims
+                        if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                        {
+                            context.ProtocolMessage.SetParameter(
+                                OidcConstants.AdditionalClaims,
+                                context.Properties.Items[OidcConstants.AdditionalClaims]);
+                        }
+
+                        if (microsoftIdentityOptions.Value.IsB2C)
+                        {
+                            // When a new Challenge is returned using any B2C user flow different than susi, we must change
+                            // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
+                            await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
+                        }
+
+                        await redirectToIdpHandler(context).ConfigureAwait(false);
+                    };
 
                     if (microsoftIdentityOptions.Value.IsB2C)
                     {
-                        // When a new Challenge is returned using any B2C user flow different than susi, we must change
-                        // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                        await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
+                        var remoteFailureHandler = options.Events.OnRemoteFailure;
+                        options.Events.OnRemoteFailure = async context =>
+                        {
+                            // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
+                            // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
+                            // because password reset is not supported by a "sign-up or sign-in user flow".
+                            await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
+
+                            await remoteFailureHandler(context).ConfigureAwait(false);
+                        };
                     }
 
-                    await redirectToIdpHandler(context).ConfigureAwait(false);
-                };
-
-                if (microsoftIdentityOptions.Value.IsB2C)
-                {
-                    var remoteFailureHandler = options.Events.OnRemoteFailure;
-                    options.Events.OnRemoteFailure = async context =>
+                    if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
                     {
-                        // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
-                        // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
-                        // because password reset is not supported by a "sign-up or sign-in user flow".
-                        await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
+                        var diagnostics = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
 
-                        await remoteFailureHandler(context).ConfigureAwait(false);
-                    };
-                }
-
-                if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
-                {
-                    var diagnostics = serviceProvider.GetRequiredService<IOpenIdConnectMiddlewareDiagnostics>();
-
-                    diagnostics.Subscribe(options.Events);
-                }
-            });
-
-            return new MicrosoftWebAppAuthenticationBuilder(builder.Services, openIdConnectScheme, configureMicrosoftIdentityOptions);
+                        diagnostics.Subscribe(options.Events);
+                    }
+                });
         }
 
         internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MicrosoftIdentityOptions microsoftIdentityOptions)

@@ -28,11 +28,29 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApp(Configuration)
-                        .CallsWebApi()
-                        .AddInMemoryTokenCaches();
+                    .AddMicrosoftWebApp(Configuration.GetSection("AzureAd"))
+                    .CallsWebApi()
+                    .AddInMemoryTokenCaches();
+/* OR
+            services.AddMicrosoftWebAppAuthentication(Configuration)
+                    .CallsWebApi()
+                    .AddInMemoryTokenCaches();
 
-            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                               .AddMicrosoftWebApp(options =>
+                               {
+                                   Configuration.Bind("AzureAd", options);
+                                   // do something
+                               })
+                               .CallsWebApi(options =>
+                               {
+                                   Configuration.Bind("AzureAd", options);
+                                   // do something
+                               }
+                               )
+                               .AddInMemoryTokenCaches();
+*/
+                       services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
             services.AddRazorPages().AddMvcOptions(options =>
             {

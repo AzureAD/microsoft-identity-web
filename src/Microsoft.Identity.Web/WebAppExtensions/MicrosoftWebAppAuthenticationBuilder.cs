@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Authentication builder specific for Microsoft identity platform.
     /// </summary>
-    public class MicrosoftWebAppAuthenticationBuilder
+    public class MicrosoftWebAppAuthenticationBuilder : MicrosoftBaseAuthenticationBuilder
     {
         /// <summary>
         ///  Constructor.
@@ -25,12 +25,14 @@ namespace Microsoft.Identity.Web
         /// <param name="openIdConnectScheme">Defaut scheme used for OpenIdConnect.</param>
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
+        /// <param name="configurationSection">Optional configuration section.</param>
         internal MicrosoftWebAppAuthenticationBuilder(
             IServiceCollection services,
             string openIdConnectScheme,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions)
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            IConfigurationSection? configurationSection)
+            : base(services, configurationSection)
         {
-            Services = services;
             OpenIdConnectScheme = openIdConnectScheme;
             ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
 
@@ -40,56 +42,39 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        /// <summary>
-        /// The services being configured.
-        /// </summary>
-        public virtual IServiceCollection Services { get; private set; }
-
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
 
         private string OpenIdConnectScheme { get; set; }
 
-        internal IConfigurationSection? ConfigurationSection { get; set; }
-
         /// <summary>
-        /// Add MSAL support to the web app or web API.
+        /// The Web app calls a web api. This overrides enables you to specify the
+        /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
-        /// <param name="initialScopes">Optional initial scopes to request.</param>
-        /// <returns>The authentication builder for chaining.</returns>
-        public MicrosoftWebAppAuthenticationBuilder CallsWebApi(
-            IEnumerable<string>? initialScopes = null)
-        {
-            return CallsWebApi(
-                initialScopes,
-                options => ConfigurationSection.Bind(options));
-        }
-
-        /// <summary>
-        /// The Web app calls a web api.
-        /// </summary>
-        /// <param name="initialScopes">Initial scopes.</param>
         /// <param name="configureConfidentialClientApplicationOptions">Action to configure the
         /// MSAL.NET confidential client application options.</param>
+        /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>the builder itself for chaining.</returns>
-        public MicrosoftWebAppAuthenticationBuilder CallsWebApi(
-                   IEnumerable<string>? initialScopes,
-                   Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
+        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi(
+            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            IEnumerable<string>? initialScopes = null)
         {
             if (configureConfidentialClientApplicationOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            CallsWebApiImplementation(
+            WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
                 ConfigureMicrosoftIdentityOptions,
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
-            return this;
+            return new MicrososoftAppCallingWebApiAuthenticationBuilder(
+                Services,
+                ConfigurationSection);
         }
 
-        internal static void CallsWebApiImplementation(
+        internal static void WebAppCallsWebApiImplementation(
             IServiceCollection services,
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
