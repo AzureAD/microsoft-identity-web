@@ -129,17 +129,17 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipalWithTenantId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.TenantId, TestConstants.TenantId),
+                    new Claim(ClaimConstants.TenantId, TestConstants.GuestTenantId),
                 }));
             var claimsPrincipalWithTidAndTenantId = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tid, TestConstants.TenantIdAsGuid),
-                    new Claim(ClaimConstants.TenantId, TestConstants.TenantId),
+                    new Claim(ClaimConstants.TenantId, TestConstants.GuestTenantId),
                 }));
 
             Assert.Equal(TestConstants.TenantIdAsGuid, claimsPrincipalWithTid.GetTenantId());
-            Assert.Equal(TestConstants.TenantId, claimsPrincipalWithTenantId.GetTenantId());
+            Assert.Equal(TestConstants.GuestTenantId, claimsPrincipalWithTenantId.GetTenantId());
             Assert.Equal(TestConstants.TenantIdAsGuid, claimsPrincipalWithTidAndTenantId.GetTenantId());
         }
 

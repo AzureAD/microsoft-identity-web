@@ -20,7 +20,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string UserTwo = "User Two";
 
         public const string ClientId = "87f0ee88-8251-48b3-8825-e0c9563f5234";
-        public const string TenantId = "guest-tenant-id";
+        public const string GuestTenantId = "guest-tenant-id";
+        public const string HomeTenantId = "home-tenant-id";
         public const string TenantIdAsGuid = "da41245a5-11b3-996c-00a8-4d99re19f292";
         public const string ObjectIdAsGuid = "6364bb70-9521-3fa8-989d-c2c19ff90223";
         public const string Domain = "contoso.onmicrosoft.com";

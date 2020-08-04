@@ -28,7 +28,9 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             return httpContext;
         }
 
-        public static HttpContext CreateHttpContext(string[] userScopes)
+        public static HttpContext CreateHttpContext(
+            string[] userScopes,
+            string[] userRoles)
         {
             var httpContext = CreateHttpContext();
 
@@ -36,6 +38,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
                 new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Scope, string.Join(' ', userScopes)),
+                    new Claim(ClaimConstants.Roles, string.Join(' ', userRoles)),
                 }));
 
             return httpContext;

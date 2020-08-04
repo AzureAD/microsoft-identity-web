@@ -32,10 +32,9 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedStatusCode = (int)HttpStatusCode.Unauthorized;
 
             var httpContext = HttpContextUtilities.CreateHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes));
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
@@ -46,42 +45,25 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
-            var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes);
-            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
+            var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes, new string[] { });
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes));
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
-
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope3", "acceptedScope4" });
-            httpContext.VerifyUserHasAnyAcceptedScope(acceptedScopes);
-            response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
-        }
-
-        private static string GetBody(HttpResponse response)
-        {
-            byte[] buffer = new byte[response.Body.Length];
-            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
-            response.Body.Read(buffer, 0, buffer.Length);
-            string body = System.Text.Encoding.Default.GetString(buffer);
-            return body;
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
         public void VerifyUserHasAnyAcceptedScope_MatchesAcceptedScopes_ExecutesSuccessfully()
         {
-            var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" });
+            var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1 acceptedScope2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1 acceptedScope2" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1", "acceptedScope2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2 acceptedScope1" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope2 acceptedScope1" }, new string[] { });
             httpContext.VerifyUserHasAnyAcceptedScope("acceptedScope1", "acceptedScope2");
         }
     }

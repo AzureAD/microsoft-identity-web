@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -39,23 +40,21 @@ namespace Microsoft.Identity.Web.Resource
             else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
                 // Attempt with Roles claim
-                Claim? rolesClaim = context.User.FindFirst(ClaimConstants.Roles);
+                IEnumerable<string> rolesClaim = context.User.Claims.Where(
+                    c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
+                    .SelectMany(c => c.Value.Split(' '));
 
-                // Fallback to Role claim name
-                if (rolesClaim == null)
-                {
-                    rolesClaim = context.User.FindFirst(ClaimConstants.Role);
-                }
-
-                if (rolesClaim == null || !rolesClaim.Value.Split(' ').Intersect(acceptedRoles).Any())
+                if (!rolesClaim.Intersect(acceptedRoles).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(",", acceptedRoles));
+                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(", ", acceptedRoles));
                     context.Response.WriteAsync(message);
+                    throw new UnauthorizedAccessException(message);
                 }
             }
         }
