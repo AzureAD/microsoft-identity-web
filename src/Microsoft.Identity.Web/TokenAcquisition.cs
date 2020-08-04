@@ -263,7 +263,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 // In web API, validatedToken will not be null
-                JwtSecurityToken? validatedToken = CurrentHttpContext.GetTokenUsedToCallWebAPI();
+                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (validatedToken != null)
@@ -284,7 +284,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalUiRequiredException ex)
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForOboForWebApi, ex.Message));
+                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
                 throw ex;
             }
         }
@@ -562,11 +562,14 @@ namespace Microsoft.Identity.Web
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
 
-            var httpResponse = CurrentHttpContext.Response;
-            var headers = httpResponse.Headers;
-            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+            if (CurrentHttpContext != null)
+            {
+                var httpResponse = CurrentHttpContext.Response;
+                var headers = httpResponse.Headers;
+                httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
 
-            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+                headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+            }
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
@@ -580,7 +583,7 @@ namespace Microsoft.Identity.Web
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
-            if (user == null && _httpContextAccessor.HttpContext != null)
+            if (user == null && _httpContextAccessor.HttpContext?.User != null)
             {
                 user = _httpContextAccessor.HttpContext.User;
             }

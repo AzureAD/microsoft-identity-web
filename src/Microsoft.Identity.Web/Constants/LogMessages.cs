@@ -22,6 +22,6 @@ namespace Microsoft.Identity.Web
         public const string SerializingSessionCache = "Serializing session {0}, cache key {1}. ";
         public const string ClearingSessionCache = "Clearing session {0}, cache key {1}. ";
 
-        public const string ErrorAcquiringTokenForOboForWebApi = "Error acquiring a token for obo for a web API - MsalUiRequiredException message is: {0} .";
+        public const string ErrorAcquiringTokenForDownstreamWebApi = "Error acquiring a token for a downstream web API - MsalUiRequiredException message is: {0} .";
     }
 }
