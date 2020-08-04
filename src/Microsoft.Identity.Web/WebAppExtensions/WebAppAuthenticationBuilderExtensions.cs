@@ -41,6 +41,16 @@ namespace Microsoft.Identity.Web
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentException(nameof(configuration));
+            }
+
+            if (string.IsNullOrEmpty(configSectionName))
+            {
+                throw new ArgumentException(nameof(configSectionName));
+            }
+
             var microsoftWebAppAuthenticationBuilder = builder.AddMicrosoftWebApp(
                 options => configuration.Bind(configSectionName, options),
                 null,

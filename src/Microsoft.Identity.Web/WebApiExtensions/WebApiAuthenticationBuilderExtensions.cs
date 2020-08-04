@@ -38,11 +38,24 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            return builder.AddMicrosoftWebApi(
-                options => configuration.Bind(configSectionName, options),
-                options => configuration.Bind(configSectionName, options),
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (configSectionName == null)
+            {
+                throw new ArgumentNullException(nameof(configSectionName));
+            }
+
+            IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
+            var microsoftWebApiAuthenticationBuilder = builder.AddMicrosoftWebApi(
+                options => configurationSection.Bind(options),
+                options => configurationSection.Bind(options),
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+            microsoftWebApiAuthenticationBuilder.ConfigurationSection = configurationSection;
+            return microsoftWebApiAuthenticationBuilder;
         }
 
         /// <summary>
@@ -158,7 +171,11 @@ namespace Microsoft.Identity.Web
                 }
             });
 
-            return builder;
+            return new MicrosoftWebApiAuthenticationBuilder(
+                builder.Services,
+                jwtBearerScheme,
+                configureJwtBearerOptions,
+                configureMicrosoftIdentityOptions);
         }
     }
 }

@@ -31,10 +31,10 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions)
         {
             Services = services;
-            _openIdConnectScheme = openIdConnectScheme;
-            _configureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
+            OpenIdConnectScheme = openIdConnectScheme;
+            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
 
-            if (_configureMicrosoftIdentityOptions == null)
+            if (ConfigureMicrosoftIdentityOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
@@ -45,62 +45,23 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public virtual IServiceCollection Services { get; private set; }
 
-        private Action<MicrosoftIdentityOptions> _configureMicrosoftIdentityOptions { get; set; }
+        private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
 
-        private string _openIdConnectScheme { get; set; }
+        private string OpenIdConnectScheme { get; set; }
 
         internal IConfigurationSection? ConfigurationSection { get; set; }
 
         /// <summary>
         /// Add MSAL support to the web app or web API.
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="configuration">The configuration instance.</param>
-        /// <param name="configSectionName">The name of the configuration section with the necessary
-        /// settings to initialize authentication options.</param>
+        /// <param name="initialScopes">Optional initial scopes to request.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
-        /// to be provided.
-        /// </remarks>
-        public MicrosoftWebAppAuthenticationBuilder CallsWebApi()
-        {
-            return CallsWebApi(null);
-        }
-
-        /// <summary>
-        /// Add MSAL support to the web app or web API.
-        /// </summary>
-        /// <param name="configuration">The configuration instance.</param>
-        /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
-        /// <param name="configSectionName">The name of the configuration section with the necessary
-        /// settings to initialize authentication options.</param>
-        /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
         public MicrosoftWebAppAuthenticationBuilder CallsWebApi(
-            IEnumerable<string> initialScopes)
+            IEnumerable<string>? initialScopes = null)
         {
             return CallsWebApi(
                 initialScopes,
                 options => ConfigurationSection.Bind(options));
-        }
-
-        /// <summary>
-        /// Add MSAL support to the web app or web API.
-        /// </summary>
-        /// <param name="configurationSection">The configuration section instance from which to extract the values
-        /// </param>
-        /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
-        /// <param name="configSectionName">The name of the configuration section with the necessary
-        /// settings to initialize authentication options.</param>
-        /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
-        public MicrosoftWebAppAuthenticationBuilder CallsWebApi(
-            IConfigurationSection configurationSection,
-            IEnumerable<string> initialScopes)
-        {
-            return CallsWebApi(
-                initialScopes,
-                options => configurationSection.Bind(options));
         }
 
         /// <summary>
@@ -122,8 +83,8 @@ namespace Microsoft.Identity.Web
             CallsWebApiImplementation(
                 Services,
                 initialScopes,
-                _configureMicrosoftIdentityOptions,
-                _openIdConnectScheme,
+                ConfigureMicrosoftIdentityOptions,
+                OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
             return this;
         }

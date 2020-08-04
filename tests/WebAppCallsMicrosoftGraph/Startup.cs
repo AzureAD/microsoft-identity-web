@@ -29,8 +29,8 @@ namespace WebAppCallsMicrosoftGraph
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftWebApp(Configuration)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration);
-            services.AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 

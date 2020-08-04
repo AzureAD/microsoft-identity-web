@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using blazor.Data;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace blazor
 {
@@ -27,11 +28,11 @@ namespace blazor
         public void ConfigureServices(IServiceCollection services)
         {
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   scopes,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftWebApp(Configuration, "AzureAd")
+                        .CallsWebApi(scopes)
+                        .AddInMemoryTokenCaches();
+
             services.AddDownstreamWebApiService(Configuration);
             services.AddMicrosoftGraph(scopes,
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));

@@ -43,5 +43,20 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             builder.Services.AddInMemoryTokenCaches();
             return builder;
         }
+
+        /// <summary>Adds both the app and per-user in-memory token caches.</summary>
+        /// <param name="builder">The authentication builder to add to.</param>
+        /// <returns>the builder (for chaining).</returns>
+        public static MicrosoftWebApiAuthenticationBuilder AddInMemoryTokenCaches(
+            this MicrosoftWebApiAuthenticationBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.AddInMemoryTokenCaches();
+            return builder;
+        }
     }
 }

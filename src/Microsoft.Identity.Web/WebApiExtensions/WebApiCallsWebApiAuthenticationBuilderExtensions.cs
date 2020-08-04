@@ -26,6 +26,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">The section name in the config file (by default "AzureAd").</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
+        [Obsolete("Rather use MicrosoftWebApiAuthenticationBuilder.CallsWebApi")]
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -46,6 +47,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
+        [Obsolete("Rather use MicrosoftWebApiAuthenticationBuilder.CallsWebApi")]
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
@@ -67,26 +69,12 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
-            builder.Services.Configure(configureConfidentialClientApplicationOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);
 
-            builder.Services.AddTokenAcquisition();
-            builder.Services.AddHttpContextAccessor();
-
-            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
-            {
-                options.Events ??= new JwtBearerEvents();
-
-                var onTokenValidatedHandler = options.Events.OnTokenValidated;
-
-                options.Events.OnTokenValidated = async context =>
-                {
-                    await onTokenValidatedHandler(context).ConfigureAwait(false);
-                    context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
-                    context.Success();
-                };
-            });
+            MicrosoftWebApiAuthenticationBuilder.CallsWebApiImplementation(
+                builder.Services,
+                jwtBearerScheme,
+                configureConfidentialClientApplicationOptions);
 
             return builder;
         }
