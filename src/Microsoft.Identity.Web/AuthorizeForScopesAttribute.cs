@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
         /// <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
-        private MsalUiRequiredException? FindMsalUiRequiredExceptionIfAny(Exception exception)
+        internal /* for testing */ static MsalUiRequiredException? FindMsalUiRequiredExceptionIfAny(Exception exception)
         {
             MsalUiRequiredException? msalUiRequiredException = exception as MsalUiRequiredException;
             if (msalUiRequiredException != null)
