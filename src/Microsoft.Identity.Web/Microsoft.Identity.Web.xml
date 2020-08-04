@@ -1282,11 +1282,6 @@
             <param name="services">The services collection to add to.</param>
             <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(Microsoft.Identity.Web.MicrosoftWebAppAuthenticationBuilder)">
-            <summary>Adds both the app and per-user .NET Core distributed based token caches.</summary>
-            <param name="builder">The Authentication builder to add to.</param>
-            <returns>A <see cref="T:Microsoft.Identity.Web.MicrosoftWebAppAuthenticationBuilder"/> to chain.</returns>
-        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
             <param name="services">The services collection to add to.</param>
@@ -1380,16 +1375,6 @@
             <summary>Adds both the app and per-user in-memory token caches.</summary>
             <param name="services">The services collection to add to.</param>
             <returns>the services (for chaining).</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Identity.Web.MicrosoftWebAppAuthenticationBuilder)">
-            <summary>Adds both the app and per-user in-memory token caches.</summary>
-            <param name="builder">The authentication builder to add to.</param>
-            <returns>the builder (for chaining).</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder)">
-            <summary>Adds both the app and per-user in-memory token caches.</summary>
-            <param name="builder">The authentication builder to add to.</param>
-            <returns>the builder (for chaining).</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">
             <summary>
@@ -1595,30 +1580,6 @@
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionTokenCaches(Microsoft.Identity.Web.MicrosoftWebAppAuthenticationBuilder)">
-             <summary>
-             Adds both application and per-user session token caches.
-             </summary>
-             <remarks>
-             For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
-            
-             In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
-             <code>
-             services.AddSession(option =>
-             {
-                 option.Cookie.IsEssential = true;
-             });
-             </code>
-             In the method <c>public void Configure(IApplicationBuilder app, IHostingEnvironment env)</c> in Startup.cs, add the following:
-             <code>
-             app.UseSession(); // Before UseMvc()
-             </code>
-             Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
-             </remarks>
-             <param name="builder">The authentication builder to add the session token caches to.</param>
-             <returns>The builder to chain more commands.</returns>
-        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension.AddSessionAppTokenCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
              <summary>
              Adds an HTTP session-based application token cache to the service collection.
@@ -1672,7 +1633,7 @@
             Authentication builder for a web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
              Constructor.
             </summary>
@@ -1681,24 +1642,26 @@
             <param name="configureJwtBearerOptions">ACtion called to configure the JwtBearer options.</param>
             <param name="configureMicrosoftIdentityOptions">Action called to configure
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder.Services">
-            <summary>
-            The services being configured.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder.CallsWebApi">
-            <summary>
-            Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
-            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-            </summary>
-            <returns>The authentication builder to chain.</returns>
+            <param name="configurationSection">Configuration section from which to
+            get parameters.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilder.CallsWebApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             </summary>
             <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="T:Microsoft.Identity.Client.ConfidentialClientApplicationOptions"/>.</param>
+            <returns>The authentication builder to chain.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilderWithConfiguration">
+            <summary>
+            Builder for Web API authentication with configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftWebApiAuthenticationBuilderWithConfiguration.CallsWebApi">
+            <summary>
+            Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
             <returns>The authentication builder to chain.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions">
@@ -1714,6 +1677,19 @@
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
             <param name="configuration">The configuration instance.</param>
             <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+            <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+            <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the JWT bearer events.
+            </param>
+            <returns>The authentication builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddMicrosoftWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.Boolean)">
+            <summary>
+            Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
+            <param name="configurationSection">The configuration second from which to fill-in the options.</param>
             <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
             <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the JWT bearer events.

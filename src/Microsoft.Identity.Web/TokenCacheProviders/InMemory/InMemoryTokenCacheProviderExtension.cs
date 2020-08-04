@@ -15,6 +15,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>the services (for chaining).</returns>
+        [Obsolete("Rather use .CallsWebApi().AddInMemoryTokenCaches()")]
         internal static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
         {
@@ -27,36 +28,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             services.AddHttpContextAccessor();
             services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return services;
-        }
-
-        /// <summary>Adds both the app and per-user in-memory token caches.</summary>
-        /// <param name="builder">The authentication builder to add to.</param>
-        /// <returns>the builder (for chaining).</returns>
-        public static MicrosoftWebAppAuthenticationBuilder AddInMemoryTokenCaches(
-            this MicrosoftWebAppAuthenticationBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            builder.Services.AddInMemoryTokenCaches();
-            return builder;
-        }
-
-        /// <summary>Adds both the app and per-user in-memory token caches.</summary>
-        /// <param name="builder">The authentication builder to add to.</param>
-        /// <returns>the builder (for chaining).</returns>
-        public static MicrosoftWebApiAuthenticationBuilder AddInMemoryTokenCaches(
-            this MicrosoftWebApiAuthenticationBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            builder.Services.AddInMemoryTokenCaches();
-            return builder;
         }
     }
 }

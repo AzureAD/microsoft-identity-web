@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Authentication builder for a web API.
     /// </summary>
-    public class MicrosoftWebApiAuthenticationBuilder
+    public class MicrosoftWebApiAuthenticationBuilder : MicrosoftBaseAuthenticationBuilder
     {
         /// <summary>
         ///  Constructor.
@@ -23,13 +23,16 @@ namespace Microsoft.Identity.Web
         /// <param name="configureJwtBearerOptions">ACtion called to configure the JwtBearer options.</param>
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
+        /// <param name="configurationSection">Configuration section from which to
+        /// get parameters.</param>
         internal MicrosoftWebApiAuthenticationBuilder(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
             Action<JwtBearerOptions> configureJwtBearerOptions,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions)
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            IConfigurationSection? configurationSection)
+            : base(services, configurationSection)
         {
-            Services = services;
             JwtBearerAuthenticationScheme = jwtBearerAuthenticationScheme;
             ConfigureJwtBearerOptions = configureJwtBearerOptions;
             ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
@@ -47,35 +50,18 @@ namespace Microsoft.Identity.Web
             Services.Configure(configureMicrosoftIdentityOptions);
         }
 
-        /// <summary>
-        /// The services being configured.
-        /// </summary>
-        public virtual IServiceCollection Services { get; private set; }
-
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
 
         private string JwtBearerAuthenticationScheme { get; set; }
 
         private Action<JwtBearerOptions> ConfigureJwtBearerOptions { get; set; }
 
-        internal IConfigurationSection? ConfigurationSection { get; set; }
-
-        /// <summary>
-        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
-        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// </summary>
-        /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftWebApiAuthenticationBuilder CallsWebApi()
-        {
-            return CallsWebApi(options => ConfigurationSection.Bind(options));
-        }
-
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftWebApiAuthenticationBuilder CallsWebApi(
+        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
             if (configureConfidentialClientApplicationOptions == null)
@@ -88,7 +74,9 @@ namespace Microsoft.Identity.Web
                 JwtBearerAuthenticationScheme,
                 configureConfidentialClientApplicationOptions);
 
-            return this;
+            return new MicrososoftAppCallingWebApiAuthenticationBuilder(
+                Services,
+                ConfigurationSection);
         }
 
         internal static void CallsWebApiImplementation(
