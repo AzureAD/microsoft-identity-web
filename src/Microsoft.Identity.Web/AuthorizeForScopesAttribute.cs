@@ -49,10 +49,7 @@ namespace Microsoft.Identity.Web
         {
             if (context != null)
             {
-                MsalUiRequiredException? msalUiRequiredException =
-                    (context.Exception as MsalUiRequiredException)
-                    ?? (context.Exception?.InnerException as MsalUiRequiredException);
-
+                MsalUiRequiredException? msalUiRequiredException = FindMsalUiRequiredExceptionIfAny(context.Exception);
                 if (msalUiRequiredException != null &&
                     IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
                 {
@@ -106,6 +103,28 @@ namespace Microsoft.Identity.Web
             }
 
             base.OnException(context);
+        }
+
+        /// <summary>
+        /// Finds an MsalUiRequiredException in one of the inner exceptions.
+        /// </summary>
+        /// <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
+        /// <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
+        internal /* for testing */ static MsalUiRequiredException? FindMsalUiRequiredExceptionIfAny(Exception exception)
+        {
+            MsalUiRequiredException? msalUiRequiredException = exception as MsalUiRequiredException;
+            if (msalUiRequiredException != null)
+            {
+                return msalUiRequiredException;
+            }
+            else if (exception.InnerException != null)
+            {
+                return FindMsalUiRequiredExceptionIfAny(exception.InnerException);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
