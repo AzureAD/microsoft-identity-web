@@ -135,6 +135,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.NotNull(jwtOptions.Authority);
             Assert.NotNull(jwtOptions.TokenValidationParameters.IssuerValidator);
+            Assert.Equal(ClaimConstants.PreferredUserName, jwtOptions.TokenValidationParameters.NameClaimType);
             if (checkDecryptCertificate)
             {
                 Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKey);
