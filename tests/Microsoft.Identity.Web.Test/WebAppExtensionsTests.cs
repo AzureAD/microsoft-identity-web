@@ -233,6 +233,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task AddMicrosoftWebAppCallsWebApi_WithConfigNameParameters()
         {
             var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
             var initialScopes = new List<string>() { "custom_scope" };
             var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
             var authCodeReceivedFuncMock = Substitute.For<Func<AuthorizationCodeReceivedContext, Task>>();
@@ -260,7 +261,7 @@ namespace Microsoft.Identity.Web.Test
             provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
-            configMock.Received(2).GetSection(ConfigSectionName);
+            configMock.Received(1).GetSection(ConfigSectionName);
 
             var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
 
