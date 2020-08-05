@@ -1541,7 +1541,7 @@
             Creates an MSAL confidential client application.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
             </summary>
@@ -1552,7 +1552,7 @@
             on behalf of the user described in the claimsPrincipal.</param>
             <param name="userFlow">Azure AD B2C user flow to target.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenOnBehalfOfUserFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user which account is passed as an argument.
             </summary>
