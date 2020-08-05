@@ -32,30 +32,30 @@ namespace Microsoft.Identity.Web
         /// Add in memory token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public IServiceCollection AddInMemoryTokenCaches()
+        public MicrososoftAppCallingWebApiAuthenticationBuilder AddInMemoryTokenCaches()
         {
             Services.AddMemoryCache();
             Services.AddHttpContextAccessor();
             Services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
-            return Services;
+            return this;
         }
 
         /// <summary>
         /// Add distributed token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public IServiceCollection AddDistributedTokenCaches()
+        public MicrososoftAppCallingWebApiAuthenticationBuilder AddDistributedTokenCaches()
         {
             Services.AddDistributedAppTokenCache();
             Services.AddDistributedUserTokenCache();
-            return Services;
+            return this;
         }
 
         /// <summary>
         /// Add session token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public IServiceCollection AddSessionTokenCaches()
+        public MicrososoftAppCallingWebApiAuthenticationBuilder AddSessionTokenCaches()
         {
             // Add session if you are planning to use session based token cache
             var sessionStoreService = Services.FirstOrDefault(x => x.ServiceType.Name == "ISessionStore");
@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
                 return httpContext.Session;
             });
 
-            return Services;
+            return this;
         }
     }
 }

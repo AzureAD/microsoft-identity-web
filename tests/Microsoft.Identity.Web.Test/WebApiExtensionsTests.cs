@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApi(config, ConfigSectionName, JwtBearerScheme, true);
+                .AddMicrosoftIdentityPlatformWebApi(config, ConfigSectionName, JwtBearerScheme, true);
 
             var provider = services.BuildServiceProvider();
 
@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApi(config, ConfigSectionName, JwtBearerScheme, true);
+                .AddMicrosoftIdentityPlatformWebApi(config, ConfigSectionName, JwtBearerScheme, true);
 
             var provider = services.BuildServiceProvider();
 
@@ -233,7 +233,7 @@ namespace Microsoft.Identity.Web.Test
                 .AddLogging();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftWebApi(config, ConfigSectionName, JwtBearerScheme, subscribeToDiagnostics);
+                .AddMicrosoftIdentityPlatformWebApi(config, ConfigSectionName, JwtBearerScheme, subscribeToDiagnostics);
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
             services.AddSingleton<IJwtBearerMiddlewareDiagnostics>((provider) => diagnostics);

@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
 
             IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
 
-            return builder.AddMicrosoftWebApp(
+            return builder.AddMicrosoftIdentityPlatformWebApp(
                 configurationSection,
                 openIdConnectScheme,
                 cookieScheme,
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebApp(
+        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityPlatformWebApp(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,

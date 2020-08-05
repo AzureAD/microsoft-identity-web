@@ -28,29 +28,42 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApp(Configuration.GetSection("AzureAd"))
-                    .CallsWebApi()
-                    .AddInMemoryTokenCaches();
-/* OR
-            services.AddMicrosoftWebAppAuthentication(Configuration)
-                    .CallsWebApi()
-                    .AddInMemoryTokenCaches();
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                        .CallsWebApi()
+                           .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                               .AddMicrosoftWebApp(options =>
-                               {
-                                   Configuration.Bind("AzureAd", options);
-                                   // do something
-                               })
-                               .CallsWebApi(options =>
-                               {
-                                   Configuration.Bind("AzureAd", options);
-                                   // do something
-                               }
-                               )
-                               .AddInMemoryTokenCaches();
+            /*
+             *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                            .CallsWebApi()
+                                .AddInMemoryTokenCaches() // Change the builder
+
+                    .AddAuthentication()
+                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAd"))
+
 */
-                       services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
+
+
+            /* OR
+                        services.AddMicrosoftWebAppAuthentication(Configuration)
+                                .CallsWebApi()
+                                .AddInMemoryTokenCaches();
+
+                        services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                                           .AddMicrosoftWebApp(options =>
+                                           {
+                                               Configuration.Bind("AzureAd", options);
+                                               // do something
+                                           })
+                                           .CallsWebApi(options =>
+                                           {
+                                               Configuration.Bind("AzureAd", options);
+                                               // do something
+                                           }
+                                           )
+                                           .AddInMemoryTokenCaches();
+            */
+            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
             services.AddRazorPages().AddMvcOptions(options =>
             {

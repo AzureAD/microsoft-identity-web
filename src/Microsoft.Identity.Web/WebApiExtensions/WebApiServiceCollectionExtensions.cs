@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            return builder.AddMicrosoftWebApi(
+            return builder.AddMicrosoftIdentityPlatformWebApi(
                 configuration,
                 configSectionName,
                 jwtBearerScheme,

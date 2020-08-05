@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
+        public static MicrosoftWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityPlatformWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
