@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddDataProtection();
 
-            services.AddMicrosoftWebAppAuthentication(
+            services.AddMicrosoftIdentityPlatformWebAppAuthentication(
                 configMock,
                 ConfigSectionName,
                 OidcScheme,

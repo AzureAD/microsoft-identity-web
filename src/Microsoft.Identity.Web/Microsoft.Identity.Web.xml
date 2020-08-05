@@ -1676,7 +1676,7 @@
             Extensions for <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization of web APIs.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddMicrosoftWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddMicrosoftIdentityPlatformWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Boolean)">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -1852,7 +1852,7 @@
             </param>
             <returns>The <see cref="T:Microsoft.Identity.Web.MicrosoftWebAppAuthenticationBuilderWithConfiguration"/> builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityPlatformWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.

@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebAppAuthentication(
+        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityPlatformWebAppAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,

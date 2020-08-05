@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection()
                 .AddLogging();
 
-            services.AddMicrosoftWebApiAuthentication(config, ConfigSectionName, JwtBearerScheme, true);
+            services.AddMicrosoftIdentityPlatformWebApiAuthentication(config, ConfigSectionName, JwtBearerScheme, true);
 
             var provider = services.BuildServiceProvider();
 

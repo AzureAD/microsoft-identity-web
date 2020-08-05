@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftWebApiAuthentication(
+        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftIdentityPlatformWebApiAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
