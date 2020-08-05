@@ -28,6 +28,8 @@ namespace Microsoft.Identity.Web
         public const string MissingRoles = "IDW10202:The 'roles' or 'role' claim does not contain roles '{0}' or was not found. ";
         public const string MissingScopes = "IDW10203:The 'scope' or 'scp' claim does not contain scopes '{0}' or was not found. ";
         public const string UnauthenticatedUser = "IDW10204:The user is unauthenticated. The HttpContext does not contain any claims. ";
+        public const string BlazorServerBaseUriNotSet = "IDW10205: Using Blazor server but the base URI was not properly set. ";
+        public const string BlazorServerUserNotSet = "IDW10206: Using Blazor server but the user was not properly set. ";
 
         // Token Validation IDW10300 = "IDW10300:"
         public const string IssuerMetadataUrlIsRequired = "IDW10301: Azure AD Issuer metadata address URL is required. ";
