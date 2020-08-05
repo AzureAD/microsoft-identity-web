@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using System.Collections.Generic;
 using System.Linq;
 using TodoListService.Models;
@@ -36,7 +37,7 @@ namespace TodoListService.Controllers
         [Authorize(Policy = "ReadScope")]
         public IEnumerable<Todo> Get()
         {
-            string owner = User.Identity.Name;
+            string owner = User.GetDisplayName();
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
 
