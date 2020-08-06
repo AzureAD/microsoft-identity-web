@@ -565,22 +565,24 @@ namespace Microsoft.Identity.Web
 
             httpResponse ??= CurrentHttpContext?.Response;
 
-            if (httpResponse != null)
+            if (httpResponse == null)
             {
-                var headers = httpResponse.Headers;
-                httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
-
-                headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+                throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);
             }
+
+            var headers = httpResponse.Headers;
+            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
         }
 
-        private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
+        private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
         {
             // Normally app developers should not make decisions based on the internal AAD code
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalSeviceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+            return msalServiceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
         }
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)

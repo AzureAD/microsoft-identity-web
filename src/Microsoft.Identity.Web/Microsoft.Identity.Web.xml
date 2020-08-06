@@ -676,7 +676,7 @@
             the client can trigger an interaction with the user so the user can consent to more scopes.
             </summary>
             <param name="scopes">Scopes to consent to.</param>
-            <param name="msalSeviceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge.</param>
+            <param name="msalServiceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge.</param>
             <param name="httpResponse">The <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/> to update.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
         </member>
@@ -742,6 +742,12 @@
             Handler for Blazor specific APIs to handle incremental consent
             and conditional access.
             </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
+            </summary>
+            <param name="httpContextAccessor">Accessor for the current HttpContext, when available.</param>
         </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.IsBlazorServer">
             <summary>

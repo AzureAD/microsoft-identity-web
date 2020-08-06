@@ -9,7 +9,8 @@ namespace Microsoft.Identity.Web
     internal static class IDWebErrorMessage
     {
         // General IDW10000 = "IDW10000:"
-        public const string HttpContextIsNull = "IDW10000: HttpContext is null. ";
+        public const string HttpContextIsNull = "IDW10001: HttpContext is null. ";
+        public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse argument are null. Pass an HttpResponse argument. ";
 
         // Configuration IDW10100 = "IDW10100:"
         public const string ProvideEitherScopeKeySectionOrScopes = "IDW10101: Either provide the '{0}' or the '{1}' to the 'AuthorizeForScopes'. ";
