@@ -1,3 +1,9 @@
+0.2.3-preview
+============
+### New features:
+**`ReplyForbiddenWithWwwAuthenticateHeaderAsync` method in `ITokenAcquisition` now has an additional optional `HttpResponse` parameter**, which can be provided in cases when the current `HttpContext` is null.  See issue for details: [#414](https://github.com/AzureAD/microsoft-identity-web/issues/414).
+**Enable Micorosoft.Identity.Web to work with any version of .NET 5.0** by settting depencencies version to `5.0.0-*` for `JwtBearer` and `OpenIdConnect` dependencies**. See issue for details: [#380](https://github.com/AzureAD/microsoft-identity-web/issues/380).
+
 0.2.2-preview
 ============
 ### New features:
