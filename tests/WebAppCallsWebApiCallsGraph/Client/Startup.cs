@@ -44,7 +44,7 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddMicrosoftWebApp(Configuration, "AzureAd")
+              .AddMicrosoftIdentityPlatformWebApp(Configuration, "AzureAd")
                  .CallsWebApi()
                  .AddInMemoryTokenCaches();
 

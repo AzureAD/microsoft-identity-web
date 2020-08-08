@@ -1746,7 +1746,7 @@
             Extension for IServiceCollection for startup initialization of Web APIs.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddMicrosoftWebApiAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebApiServiceCollectionExtensions.AddMicrosoftIdentityPlatformWebApiAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.Boolean)">
             <summary>
             Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -1836,7 +1836,7 @@
             Extensions for the <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityPlatformWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication to a Web app with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default,
@@ -1963,7 +1963,7 @@
             Extension for IServiceCollection for startup initialization.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddMicrosoftWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebAppServiceCollectionExtensions.AddMicrosoftIdentityPlatformWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to

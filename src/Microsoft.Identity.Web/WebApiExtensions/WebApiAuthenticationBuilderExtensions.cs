@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftWebApi(
+        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftIdentityPlatformWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
