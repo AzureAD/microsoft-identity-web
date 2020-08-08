@@ -28,10 +28,10 @@
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0-*" />
   </ItemGroup>
 
-  <!--#if (Hosted) -->
+<!--#if (Hosted) -->
   <ItemGroup>
     <ProjectReference Include="..\Shared\ComponentsWebAssembly-CSharp.Shared.csproj" />
   </ItemGroup>
-  <!--#endif -->
+<!--#endif -->
 
 </Project>
