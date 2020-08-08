@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace TodoListService
 {

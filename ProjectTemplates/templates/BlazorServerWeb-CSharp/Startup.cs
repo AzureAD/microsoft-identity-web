@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 #if (OrganizationalAuth)
 #if (MultiOrgAuth)
@@ -75,12 +75,11 @@ namespace BlazorServerWeb_CSharp
 #if (GenerateApiOrGraph)
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
 #endif
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   scopes,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 #else
                     ;
 #endif
@@ -95,12 +94,11 @@ namespace BlazorServerWeb_CSharp
 #if (GenerateApi)
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
 #endif
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAdB2C")
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   scopes,
-                                                   "AzureAdB2C")
-                    .AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #else

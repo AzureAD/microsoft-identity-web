@@ -4,20 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
-#endif
-#if (OrganizationalAuth)
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-#if (MultiOrgAuth)
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-#endif
 using Microsoft.AspNetCore.Authorization;
-#endif
-#if (IndividualB2CAuth)
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.UI;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 using Microsoft.AspNetCore.Builder;
 #if (IndividualLocalAuth)
@@ -71,11 +61,11 @@ namespace Company.WebApplication1
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 #else
                     ;
 #endif
@@ -87,11 +77,11 @@ namespace Company.WebApplication1
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
 #endif
 #elif (IndividualB2CAuth)
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAdB2C")
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   "AzureAdB2C")
-                    .AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #else

@@ -1703,7 +1703,7 @@
             </param>
             <returns>The authentication builder to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddMicrosoftWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.WebApiAuthenticationBuilderExtensions.AddMicrosoftIdentityPlatformWebApi(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String,System.Boolean)">
             <summary>
             Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0).
             </summary>
