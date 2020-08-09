@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{CE6EE1B4-95FC-4284-AFE6-C6A4967AE7D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{CE6EE1B4-95FC-4284-AFE6-C6A4967AE7D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{3ABE0CB2-2049-400B-8117-582654367C52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{3ABE0CB2-2049-400B-8117-582654367C52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
