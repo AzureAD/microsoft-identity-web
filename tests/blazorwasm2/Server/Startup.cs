@@ -24,7 +24,7 @@ namespace blazorwasm2_singleOrg_hosted4.Server
         public void ConfigureServices(IServiceCollection services)
         {
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddMicrosoftIdentityPlatformWebApiAuthentication(Configuration, "AzureAd");
+            services.AddMicrosoftIdentityWebApiAuthentication(Configuration, "AzureAd");
 
             services.AddControllersWithViews();
             services.AddRazorPages();

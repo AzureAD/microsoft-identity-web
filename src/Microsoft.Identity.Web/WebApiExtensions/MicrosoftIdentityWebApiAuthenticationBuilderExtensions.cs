@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static partial class WebApiAuthenticationBuilderExtensions
+    public static partial class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityPlatformWebApi(
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
-            return new MicrosoftWebApiAuthenticationBuilderWithConfiguration(
+            return new MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
                 builder.Services,
                 jwtBearerScheme,
                 options => configurationSection.Bind(options),
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftIdentityPlatformWebApi(
+        public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Web
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
-            return new MicrosoftWebApiAuthenticationBuilder(
+            return new MicrosoftIdentityWebApiAuthenticationBuilder(
                 builder.Services,
                 jwtBearerScheme,
                 configureJwtBearerOptions,

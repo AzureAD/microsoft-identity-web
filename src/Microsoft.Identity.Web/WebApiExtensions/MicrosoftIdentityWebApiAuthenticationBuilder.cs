@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Authentication builder for a web API.
     /// </summary>
-    public class MicrosoftWebApiAuthenticationBuilder : MicrosoftBaseAuthenticationBuilder
+    public class MicrosoftIdentityWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
         /// <summary>
         ///  Constructor.
@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Configuration section from which to
         /// get parameters.</param>
-        internal MicrosoftWebApiAuthenticationBuilder(
+        internal MicrosoftIdentityWebApiAuthenticationBuilder(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi(
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder CallsWebApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
             if (configureConfidentialClientApplicationOptions == null)
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
                 JwtBearerAuthenticationScheme,
                 configureConfidentialClientApplicationOptions);
 
-            return new MicrososoftAppCallingWebApiAuthenticationBuilder(
+            return new MicrosoftIdentityAppCallingWebApiAuthenticationBuilder(
                 Services,
                 ConfigurationSection);
         }

@@ -9,20 +9,20 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Builder for a Microsoft web app authentication where configuration is
+    /// Builder for a Microsoft identity web app authentication where configuration is
     /// available for CallsWebApi.
     /// </summary>
-    public class MicrosoftWebAppAuthenticationBuilderWithConfiguration : MicrosoftWebAppAuthenticationBuilder
+    public class MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebAppAuthenticationBuilder
     {
         /// <summary>
         ///  Constructor.
         /// </summary>
         /// <param name="services"> The services being configured.</param>
-        /// <param name="openIdConnectScheme">Defaut scheme used for OpenIdConnect.</param>
+        /// <param name="openIdConnectScheme">Default scheme used for OpenIdConnect.</param>
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-        internal MicrosoftWebAppAuthenticationBuilderWithConfiguration(
+        internal MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
             IServiceCollection services,
             string openIdConnectScheme,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -36,11 +36,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add support for the Web app to acquire tokens to call an API.
+        /// Add support for the web app to acquire tokens to call an API.
         /// </summary>
         /// <param name="initialScopes">Optional initial scopes to request.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi(
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder CallsWebApi(
             IEnumerable<string>? initialScopes = null)
         {
             return CallsWebApi(

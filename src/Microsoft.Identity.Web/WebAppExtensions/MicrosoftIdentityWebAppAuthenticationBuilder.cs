@@ -14,19 +14,19 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication builder specific for Microsoft identity platform.
+    /// Authentication builder specific for Microsoft Identity.
     /// </summary>
-    public class MicrosoftWebAppAuthenticationBuilder : MicrosoftBaseAuthenticationBuilder
+    public class MicrosoftIdentityWebAppAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
         /// <summary>
         ///  Constructor.
         /// </summary>
         /// <param name="services"> The services being configured.</param>
-        /// <param name="openIdConnectScheme">Defaut scheme used for OpenIdConnect.</param>
+        /// <param name="openIdConnectScheme">Default scheme used for OpenIdConnect.</param>
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-        internal MicrosoftWebAppAuthenticationBuilder(
+        internal MicrosoftIdentityWebAppAuthenticationBuilder(
             IServiceCollection services,
             string openIdConnectScheme,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -47,14 +47,14 @@ namespace Microsoft.Identity.Web
         private string OpenIdConnectScheme { get; set; }
 
         /// <summary>
-        /// The Web app calls a web api. This overrides enables you to specify the
+        /// The Web app calls a Web API. This override enables you to specify the
         /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">Action to configure the
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
-        /// <returns>the builder itself for chaining.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi(
+        /// <returns>The builder itself for chaining.</returns>
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder CallsWebApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
                 ConfigureMicrosoftIdentityOptions,
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
-            return new MicrososoftAppCallingWebApiAuthenticationBuilder(
+            return new MicrosoftIdentityAppCallingWebApiAuthenticationBuilder(
                 Services,
                 ConfigurationSection);
         }

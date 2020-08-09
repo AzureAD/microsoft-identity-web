@@ -3,22 +3,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
-    public static class WebAppCallsWebApiAuthenticationBuilderExtensions
+    public static class MicrosoftIdentityWebAppCallsWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add MSAL support to the web app or web API.
@@ -35,9 +31,9 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
-        private static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftWebAppAuthenticationBuilder builder,
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().CallsWebApi")]
+        private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
@@ -61,9 +57,9 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
-        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftWebAppAuthenticationBuilder builder,
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().CallsWebApi")]
+        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
             string configSectionName = Constants.AzureAd,
@@ -87,9 +83,9 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use MicrosoftAuthenticationBuilder.CallsWebApi")]
-        public static MicrosoftWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftWebAppAuthenticationBuilder builder,
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().CallsWebApi")]
+        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
@@ -110,7 +106,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
             }
 
-            MicrosoftWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(
+            MicrosoftIdentityWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(
                 builder.Services,
                 initialScopes,
                 configureMicrosoftIdentityOptions,

@@ -17,11 +17,11 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Authentication builder returned by the CallsWebApi methods
-    /// enabling to decide token cache implementations.
+    /// enabling you to decide token cache implementations.
     /// </summary>
-    public class MicrososoftAppCallingWebApiAuthenticationBuilder : MicrosoftBaseAuthenticationBuilder
+    public class MicrosoftIdentityAppCallingWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
-        internal MicrososoftAppCallingWebApiAuthenticationBuilder(
+        internal MicrosoftIdentityAppCallingWebApiAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
             : base(services, configurationSection)
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// Add in memory token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder AddInMemoryTokenCaches()
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder AddInMemoryTokenCaches()
         {
             Services.AddMemoryCache();
             Services.AddHttpContextAccessor();
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
         /// Add distributed token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder AddDistributedTokenCaches()
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder AddDistributedTokenCaches()
         {
             Services.AddDistributedAppTokenCache();
             Services.AddDistributedUserTokenCache();
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
         /// Add session token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder AddSessionTokenCaches()
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder AddSessionTokenCaches()
         {
             // Add session if you are planning to use session based token cache
             var sessionStoreService = Services.FirstOrDefault(x => x.ServiceType.Name == "ISessionStore");

@@ -29,7 +29,7 @@ namespace blazor
         {
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration, "AzureAd")
+                    .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
                         .CallsWebApi(scopes)
                         .AddInMemoryTokenCaches();
 

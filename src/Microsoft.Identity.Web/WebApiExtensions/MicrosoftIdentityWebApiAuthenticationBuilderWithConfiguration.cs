@@ -11,9 +11,9 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Builder for Web API authentication with configuration.
     /// </summary>
-    public class MicrosoftWebApiAuthenticationBuilderWithConfiguration : MicrosoftWebApiAuthenticationBuilder
+    public class MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebApiAuthenticationBuilder
     {
-        internal MicrosoftWebApiAuthenticationBuilderWithConfiguration(
+        internal MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrososoftAppCallingWebApiAuthenticationBuilder CallsWebApi()
+        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder CallsWebApi()
         {
             return CallsWebApi(options => ConfigurationSection.Bind(options));
         }

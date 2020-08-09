@@ -28,7 +28,7 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
                         .CallsWebApi()
                            .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 

@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -15,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static partial class WebApiCallsWebApiAuthenticationBuilderExtensions
+    public static partial class MicrosoftIdentityWebApiCallsWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -26,7 +24,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">The section name in the config file (by default "AzureAd").</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use MicrosoftWebApiAuthenticationBuilder.CallsWebApi")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi().CallsWebApi")]
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -47,7 +45,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use MicrosoftWebApiAuthenticationBuilder.CallsWebApi")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi().CallsWebApi")]
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
@@ -71,7 +69,7 @@ namespace Microsoft.Identity.Web
 
             builder.Services.Configure(configureMicrosoftIdentityOptions);
 
-            MicrosoftWebApiAuthenticationBuilder.CallsWebApiImplementation(
+            MicrosoftIdentityWebApiAuthenticationBuilder.CallsWebApiImplementation(
                 builder.Services,
                 jwtBearerScheme,
                 configureConfidentialClientApplicationOptions);

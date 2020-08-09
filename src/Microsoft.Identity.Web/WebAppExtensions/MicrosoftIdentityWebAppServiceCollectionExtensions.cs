@@ -12,10 +12,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension for IServiceCollection for startup initialization.
     /// </summary>
-    public static partial class WebAppServiceCollectionExtensions
+    public static partial class MicrosoftIdentityWebAppServiceCollectionExtensions
     {
         /// <summary>
-        /// Add authentication with Microsoft identity platform.
+        /// Add authentication with Microsoft Identity.
         /// This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
         /// initialize the authentication options.
         /// </summary>
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        public static MicrosoftWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityPlatformWebAppAuthentication(
+        public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebAppAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
-            return builder.AddMicrosoftIdentityPlatformWebApp(
+            return builder.AddMicrosoftIdentityWebApp(
                 configuration,
                 configSectionName,
                 openIdConnectScheme,

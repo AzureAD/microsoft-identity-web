@@ -11,10 +11,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension for IServiceCollection for startup initialization of Web APIs.
     /// </summary>
-    public static partial class WebApiServiceCollectionExtensions
+    public static partial class MicrosoftIdentityWebApiServiceCollectionExtensions
     {
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0)
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0)
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="services">Service collection to which to add authentication.</param>
@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        public static MicrosoftWebApiAuthenticationBuilder AddMicrosoftIdentityPlatformWebApiAuthentication(
+        public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftIdentityWebApiAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
-            return builder.AddMicrosoftIdentityPlatformWebApi(
+            return builder.AddMicrosoftIdentityWebApi(
                 configuration,
                 configSectionName,
                 jwtBearerScheme,

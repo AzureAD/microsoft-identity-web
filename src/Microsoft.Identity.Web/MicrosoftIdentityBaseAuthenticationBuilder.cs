@@ -7,17 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Base class for Web app and Web API Microsoft authentication
+    /// Base class for Web app and Web API Microsoft Identity authentication
     /// builders.
     /// </summary>
-    public abstract class MicrosoftBaseAuthenticationBuilder
+    public abstract class MicrosoftIdentityBaseAuthenticationBuilder
     {
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="services">The services being configured.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-        protected MicrosoftBaseAuthenticationBuilder(
+        protected MicrosoftIdentityBaseAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
         {

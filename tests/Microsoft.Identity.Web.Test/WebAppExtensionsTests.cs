@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityPlatformWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddDataProtection();
 
-            services.AddMicrosoftIdentityPlatformWebAppAuthentication(
+            services.AddMicrosoftIdentityWebAppAuthentication(
                 configMock,
                 ConfigSectionName,
                 OidcScheme,
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityPlatformWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
 
             await AddMicrosoftWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -197,7 +197,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddDataProtection();
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityPlatformWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
 
             await AddMicrosoftWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
@@ -242,7 +242,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             var builder = services.AddAuthentication()
-                .AddMicrosoftIdentityPlatformWebApp(configMock, ConfigSectionName, OidcScheme)
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme)
                 .CallsWebApi(initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {
@@ -320,7 +320,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddAuthentication()
-                .AddMicrosoftIdentityPlatformWebApp(Substitute.For<IConfiguration>())
+                .AddMicrosoftIdentityWebApp(Substitute.For<IConfiguration>())
                 .CallsWebApi();
 
             var provider = services.BuildServiceProvider();

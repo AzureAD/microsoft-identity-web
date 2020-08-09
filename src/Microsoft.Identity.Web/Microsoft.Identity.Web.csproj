@@ -102,8 +102,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="MigrationAid\" />
-  </ItemGroup>
-
 </Project>
