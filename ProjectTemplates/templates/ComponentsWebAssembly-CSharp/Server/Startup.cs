@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authentication;
 #endif
 using Microsoft.AspNetCore.Builder;
 #if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 #if (RequiresHttps)
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -61,13 +61,11 @@ namespace ComponentsWebAssembly_CSharp.Server
                 .AddIdentityServerJwt();
 #endif
 #if (OrganizationalAuth)
-            // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAd")
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebApiCallsWebApi(Configuration,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
-
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 #else
                     ;
 #endif
@@ -79,11 +77,11 @@ namespace ComponentsWebAssembly_CSharp.Server
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
 #endif
 #elif (IndividualB2CAuth)
-            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAdB2C")
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                    .AddMicrosoftWebApiCallsWebApi(Configuration,
-                                                   "AzureAdB2C")
-                    .AddInMemoryTokenCaches();
+                        .CallsWebApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #else
