@@ -62,7 +62,7 @@ namespace Company.WebApplication1
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();
@@ -78,7 +78,7 @@ namespace Company.WebApplication1
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAdB2C"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();

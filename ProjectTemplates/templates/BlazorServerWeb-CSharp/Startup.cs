@@ -76,7 +76,7 @@ namespace BlazorServerWeb_CSharp
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
 #endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();
@@ -95,7 +95,7 @@ namespace BlazorServerWeb_CSharp
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
 #endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAdB2C"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();

@@ -62,7 +62,7 @@ namespace ComponentsWebAssembly_CSharp.Server
 #endif
 #if (OrganizationalAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();
@@ -78,7 +78,7 @@ namespace ComponentsWebAssembly_CSharp.Server
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAdB2C"))
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .CallsWebApi()
                         .AddInMemoryTokenCaches();

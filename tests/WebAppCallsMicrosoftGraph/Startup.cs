@@ -34,23 +34,23 @@ namespace WebAppCallsMicrosoftGraph
 
             /*
              *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityPlatformWebApp(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
                             .CallsWebApi()
                                 .AddInMemoryTokenCaches() // Change the builder
 
                     .AddAuthentication()
-                    .AddMicrosoftIdentityPlatformWebApi(Configuration.GetSection("AzureAd"))
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 
 */
 
 
             /* OR
-                        services.AddMicrosoftWebAppAuthentication(Configuration)
+                        services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
                                 .CallsWebApi()
                                 .AddInMemoryTokenCaches();
 
                         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                                           .AddMicrosoftWebApp(options =>
+                                           .AddMicrosoftIdentityWebApp(options =>
                                            {
                                                Configuration.Bind("AzureAd", options);
                                                // do something
