@@ -658,15 +658,18 @@
             cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String)">
             <summary>
             Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
             using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
             </summary>
-            <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+            <param name="scope">scope requested to access a protected API. For this flow (client credentials), the scope
             should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
             Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-            in the portal, and cannot be overridden in the application.</param>
+            in the portal, cannot be overridden in the application, and you can request a token for only one resource at a time (use
+            several call to get tokens for other resources).</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <returns>An access token for the app itself, based on its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
@@ -1224,15 +1227,18 @@
             you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
             OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String)">
             <summary>
             Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
             using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
             </summary>
-            <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+            <param name="scope">scope requested to access a protected API. For this flow (client credentials), the scope
             should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
             Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-            in the portal, and cannot be overridden in the application.</param>
+            in the portal, cannot be overridden in the application, and you can request a token for only one resource at a time (use
+            several call to get tokens for other resources).</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <returns>An access token for the app itself, based on its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.RemoveAccountAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.RedirectContext)">

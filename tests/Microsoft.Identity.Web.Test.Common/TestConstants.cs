@@ -78,10 +78,7 @@ namespace Microsoft.Identity.Web.Test.Common
             ProductionNotPrefEnvironmentAlias,
         };
 
-        public static readonly IEnumerable<string> s_scopesForApp = new[]
-        {
-            "https://graph.microsoft.com/.default",
-        };
+        public static readonly string s_scopeForApp = "https://graph.microsoft.com/.default";
 
         public static readonly IEnumerable<string> s_scopesForUser = new[]
         {

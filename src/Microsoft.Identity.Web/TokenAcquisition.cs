@@ -82,6 +82,16 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
+        /// meta-tenant identifiers which are not allowed in client credentials.
+        /// </summary>
+        private readonly string[] unwantedTenantIdentifiersInClientCredentials = new string[]
+        {
+            "common",
+            "organizations",
+            "consumers",
+        };
+
+        /// <summary>
         /// This handler is executed after the authorization code is received (once the user signs-in and consents) during the
         /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>Authorization code flow grant flow</a> in a web app.
         /// It uses the code to request an access token from the Microsoft Identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
@@ -293,25 +303,41 @@ namespace Microsoft.Identity.Web
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// <param name="scope">scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, and cannot be overridden in the application.</param>
+        /// in the portal, cannot be overridden in the application, and you can request a token for only one resource at a time (use
+        /// several call to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
-        public async Task<string> GetAccessTokenForAppAsync(IEnumerable<string> scopes)
+        public async Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null)
         {
-            if (scopes == null)
+            if (scope == null)
             {
-                throw new ArgumentNullException(nameof(scopes));
+                throw new ArgumentNullException(nameof(scope));
+            }
+
+            if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
+            }
+
+            if (!string.IsNullOrEmpty(tenant)
+                && unwantedTenantIdentifiersInClientCredentials.Any(u => u.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
             }
 
             // Use MSAL to get the right token to call the API
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
 
             AuthenticationResult result;
             result = await _application
-                   .AcquireTokenForClient(scopes.Except(_scopesRequestedByMsal))
+                   .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                   .WithAuthority(authority)
                    .ExecuteAsync()
                    .ConfigureAwait(false);
 
