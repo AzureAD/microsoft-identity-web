@@ -199,7 +199,11 @@ namespace Microsoft.Identity.Web.Resource
             return string.Empty;
         }
 
-        // The AAD "iss" claims contains the tenant ID in its value. The URI is {domain}/{tid}/v2.0
+        // The AAD "iss" claims contains the tenant ID in its value.
+        // The URI can be
+        // - {domain}/{tid}/v2.0
+        // - {domain}/{tid}/v2.0/
+        // - {domain}/{tfp}/{tid}/{userFlow}/v2.0/
         private static string GetTenantIdFromIss(string iss)
         {
             if (string.IsNullOrEmpty(iss))
@@ -209,9 +213,17 @@ namespace Microsoft.Identity.Web.Resource
 
             var uri = new Uri(iss);
 
-            if (uri.Segments.Length > 1)
+            if (uri.Segments.Length == 3)
             {
                 return uri.Segments[1].TrimEnd('/');
+            }
+
+            if (uri.Segments.Length == 5 && uri.Segments[1].TrimEnd('/') == ClaimConstants.Tfp)
+            {
+                throw new SecurityTokenInvalidIssuerException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        IDWebErrorMessage.B2CTfpIssuerNotSupported));
             }
 
             return string.Empty;
