@@ -1153,6 +1153,11 @@
             Scopes which are already requested by MSAL.NET. They should not be re-requested;.
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.TokenAcquisition._metaTenantIdentifiers">
+            <summary>
+            meta-tenant identifiers which are not allowed in client credentials.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext,System.Collections.Generic.IEnumerable{System.String})">
              <summary>
              This handler is executed after the authorization code is received (once the user signs-in and consents) during the

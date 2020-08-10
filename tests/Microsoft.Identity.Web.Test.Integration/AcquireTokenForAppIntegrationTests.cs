@@ -70,8 +70,11 @@ namespace Microsoft.Identity.Web.Test.Integration
             AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
         }
 
-        [Fact]
-        public async Task GetAccessTokenForApp_WithMetaTenant()
+        [Theory]
+        [InlineData(Constants.Common)]
+        [InlineData(Constants.Organizations)]
+        [InlineData(Constants.Consumers)]
+        public async Task GetAccessTokenForApp_WithMetaTenant(string metaTenant)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
@@ -79,7 +82,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
 
             async Task result() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, "organizations").ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message);

@@ -84,12 +84,14 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// meta-tenant identifiers which are not allowed in client credentials.
         /// </summary>
-        private readonly string[] unwantedTenantIdentifiersInClientCredentials = new string[]
-        {
-            "common",
-            "organizations",
-            "consumers",
-        };
+        private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
+            new[]
+            {
+                Constants.Common,
+                Constants.Organizations,
+                Constants.Consumers,
+            },
+            StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// This handler is executed after the authorization code is received (once the user signs-in and consents) during the
@@ -313,7 +315,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         public async Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null)
         {
-            if (scope == null)
+            if (string.IsNullOrEmpty(scope))
             {
                 throw new ArgumentNullException(nameof(scope));
             }
@@ -323,8 +325,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            if (!string.IsNullOrEmpty(tenant)
-                && unwantedTenantIdentifiersInClientCredentials.Any(u => u.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)))
+            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
             }
