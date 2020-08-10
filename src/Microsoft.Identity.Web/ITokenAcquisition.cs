@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, cannot be overridden in the application, and you can request a token for only one resource at a time (use
+        /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several call to get tokens for other resources).</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
