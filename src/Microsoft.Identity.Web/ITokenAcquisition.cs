@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         Task<string> GetAccessTokenForAppAsync(string scope, string? tenant);
 
