@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
-        /// <param name="scope">scope requested to access a protected API. For this flow (client credentials), the scope
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, cannot be overridden in the application, and you can request a token for only one resource at a time (use
