@@ -31,6 +31,7 @@ namespace Microsoft.Identity.Web
         public const string MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
         public const string Consumers = "consumers";
         public const string Organizations = "organizations";
+        public const string Common = "common";
 
         // ClientInfo
         public const string ClientInfo = "client_info";
