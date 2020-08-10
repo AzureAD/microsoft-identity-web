@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
 
             IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
 
-            return builder.AddMicrosoftWebApi(
+            return builder.AddMicrosoftIdentityWebApi(
                 configurationSection,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            AddMicrosoftWebApiImplementation(
+            AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
-            AddMicrosoftWebApiImplementation(
+            AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Web
                 null);
         }
 
-        private static void AddMicrosoftWebApiImplementation(AuthenticationBuilder builder, Action<JwtBearerOptions> configureJwtBearerOptions, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, string jwtBearerScheme, bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        private static void AddMicrosoftIdentityWebApiImplementation(AuthenticationBuilder builder, Action<JwtBearerOptions> configureJwtBearerOptions, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, string jwtBearerScheme, bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);

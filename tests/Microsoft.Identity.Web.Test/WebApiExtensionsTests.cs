@@ -193,7 +193,6 @@ namespace Microsoft.Identity.Web.Test
         {
             var scopeTypes = new[] { ClaimConstants.Scope, ClaimConstants.Scp, ClaimConstants.Roles, ClaimConstants.Role };
             var expectedExceptionMessage = IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken;
-            var scopeValue = "scope";
 
             var httpContext = HttpContextUtilities.CreateHttpContext();
             var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
@@ -210,7 +209,7 @@ namespace Microsoft.Identity.Web.Test
                 tokenValidatedContext.Principal = new ClaimsPrincipal(
                     new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(scopeType, scopeValue),
+                        new Claim(scopeType, Constants.Scope),
                     }));
                 await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
             }
@@ -308,7 +307,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigName()
         {
-            var config = Substitute.For<IConfiguration>();
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
@@ -317,7 +317,13 @@ namespace Microsoft.Identity.Web.Test
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
                 });
-            new AuthenticationBuilder(services).AddMicrosoftWebApiCallsWebApi(config, ConfigSectionName, JwtBearerScheme);
+
+            services.AddAuthentication(JwtBearerScheme)
+                .AddMicrosoftIdentityWebApi(
+                    configMock,
+                    ConfigSectionName,
+                    JwtBearerScheme)
+                        .CallsWebApi(_configureAppOptions);
 
             var provider = services.BuildServiceProvider();
 
@@ -325,7 +331,7 @@ namespace Microsoft.Identity.Web.Test
             provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
 
-            config.Received(2).GetSection(ConfigSectionName);
+            configMock.Received(1).GetSection(ConfigSectionName);
 
             await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
         }
@@ -340,8 +346,16 @@ namespace Microsoft.Identity.Web.Test
                     options.Events ??= new JwtBearerEvents();
                     options.Events.OnTokenValidated += tokenValidatedFuncMock;
                 });
-            new AuthenticationBuilder(services).AddMicrosoftWebApiCallsWebApi(_configureAppOptions, _configureMsOptions, JwtBearerScheme);
-
+            services.AddAuthentication(JwtBearerScheme)
+                .AddMicrosoftIdentityWebApi(
+                    (options) =>
+                {
+                    options.Events ??= new JwtBearerEvents();
+                    options.Events.OnTokenValidated += tokenValidatedFuncMock;
+                },
+                    _configureMsOptions,
+                    JwtBearerScheme)
+                    .CallsWebApi(_configureAppOptions);
             var provider = services.BuildServiceProvider();
 
             // Assert configure options actions added correctly
@@ -367,12 +381,16 @@ namespace Microsoft.Identity.Web.Test
             var jwtOptions = provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerScheme);
             var httpContext = HttpContextUtilities.CreateHttpContext();
             var authScheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
+
             var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, jwtOptions)
             {
                 SecurityToken = new JwtSecurityToken(),
-                Principal = new ClaimsPrincipal(),
             };
-
+            tokenValidatedContext.Principal = new ClaimsPrincipal(
+                new ClaimsIdentity(new Claim[]
+                {
+                        new Claim(ClaimConstants.Scope, Constants.Scope),
+                }));
             await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
 
             // Assert events called
