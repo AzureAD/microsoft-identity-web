@@ -14,7 +14,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication builder specific for Microsoft Identity.
+    /// Authentication builder specific for Microsoft identity platform.
     /// </summary>
     public class MicrosoftIdentityWebAppAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
-        public MicrosoftIdentityAppCallingWebApiAuthenticationBuilder CallsWebApi(
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder CallsWebApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
                 ConfigureMicrosoftIdentityOptions,
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
-            return new MicrosoftIdentityAppCallingWebApiAuthenticationBuilder(
+            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
                 Services,
                 ConfigurationSection);
         }

@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
     public static partial class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Add authentication to a web app with Microsoft Identity.
+        /// Add authentication to a web app with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default,
         /// with the necessary settings to initialize authentication options.
         /// </summary>
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add authentication with Microsoft Identity.
+        /// Add authentication with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add authentication with Microsoft Identity.
+        /// Add authentication with Microsoft identity platform.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
@@ -133,7 +133,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add authentication with Microsoft Identity.
+        /// Add authentication with Microsoft identity platform.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
@@ -170,7 +170,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add authentication with Microsoft Identity.
+        /// Add authentication with Microsoft identity platform.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>

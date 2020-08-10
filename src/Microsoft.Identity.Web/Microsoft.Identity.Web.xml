@@ -1816,25 +1816,25 @@
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallingWebApiAuthenticationBuilder">
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
             <summary>
             Authentication builder returned by the CallsWebApi methods
             enabling you to decide token cache implementations.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallingWebApiAuthenticationBuilder.AddInMemoryTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches">
             <summary>
             Add in memory token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallingWebApiAuthenticationBuilder.AddDistributedTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddDistributedTokenCaches">
             <summary>
             Add distributed token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallingWebApiAuthenticationBuilder.AddSessionTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddSessionTokenCaches">
             <summary>
             Add session token caches.
             </summary>
@@ -1842,7 +1842,7 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder">
             <summary>
-            Authentication builder specific for Microsoft Identity.
+            Authentication builder specific for Microsoft identity platform.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
@@ -1872,7 +1872,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
             <summary>
-            Add authentication to a web app with Microsoft Identity.
+            Add authentication to a web app with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default,
             with the necessary settings to initialize authentication options.
             </summary>
@@ -1888,7 +1888,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.String,System.Boolean)">
             <summary>
-            Add authentication with Microsoft Identity.
+            Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
             </summary>
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
@@ -1902,7 +1902,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
             <summary>
-            Add authentication with Microsoft Identity.
+            Add authentication with Microsoft identity platform.
             </summary>
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
             <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
@@ -1916,7 +1916,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebAppWithConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean,Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-            Add authentication with Microsoft Identity.
+            Add authentication with Microsoft identity platform.
             </summary>
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
             <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
@@ -1931,7 +1931,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
             <summary>
-            Add authentication with Microsoft Identity.
+            Add authentication with Microsoft identity platform.
             </summary>
             <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
             <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
@@ -1973,7 +1973,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions.AddMicrosoftIdentityWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
             <summary>
-            Add authentication with Microsoft Identity.
+            Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
             initialize the authentication options.
             </summary>

@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     public static partial class MicrosoftIdentityWebAppServiceCollectionExtensions
     {
         /// <summary>
-        /// Add authentication with Microsoft Identity.
+        /// Add authentication with Microsoft identity platform.
         /// This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
         /// initialize the authentication options.
         /// </summary>
