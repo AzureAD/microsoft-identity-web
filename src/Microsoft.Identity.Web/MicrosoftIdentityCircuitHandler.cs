@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -47,6 +49,19 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityConsentAndConditionalAccessHandler
 #pragma warning restore SA1402 // File may only contain a single type
     {
+        private ClaimsPrincipal? _user = null;
+        private string? _baseUri = null;
+        private IHttpContextAccessor _httpContextAccessor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">Accessor for the current HttpContext, when available.</param>
+        public MicrosoftIdentityConsentAndConditionalAccessHandler(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
         /// <summary>
         /// Boolean to determine if server is Blazor.
         /// </summary>
@@ -55,12 +70,47 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Current user.
         /// </summary>
-        public ClaimsPrincipal User { get; internal set; } = null!;
+        public ClaimsPrincipal User
+        {
+            get
+            {
+                return _user ??
+                    (!IsBlazorServer ? _httpContextAccessor.HttpContext.User :
+                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerUserNotSet));
+            }
+            set
+            {
+                _user = value;
+            }
+        }
 
         /// <summary>
         /// Base URI to use in forming the redirect.
         /// </summary>
-        public string? BaseUri { get; internal set; }
+        public string? BaseUri
+        {
+            get
+            {
+                return _baseUri ??
+                    (!IsBlazorServer ? CreateBaseUri(_httpContextAccessor.HttpContext.Request) :
+                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerBaseUriNotSet));
+           }
+            set
+            {
+                _baseUri = value;
+            }
+        }
+
+        private static string CreateBaseUri(HttpRequest request)
+        {
+            string baseUri = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}://{1}/{2}",
+                request.Scheme,
+                request.Host.ToString(),
+                request.PathBase.ToString());
+            return baseUri;
+        }
 
         /// <summary>
         /// For Blazor/Razor pages to process the exception from
@@ -92,7 +142,7 @@ namespace Microsoft.Identity.Web
                 string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
                 string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
                 string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
-                string url = $"{NavigationManager.BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
+                string url = $"{BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
                     + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
                     + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
 

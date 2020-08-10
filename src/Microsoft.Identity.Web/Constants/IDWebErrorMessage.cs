@@ -9,7 +9,8 @@ namespace Microsoft.Identity.Web
     internal static class IDWebErrorMessage
     {
         // General IDW10000 = "IDW10000:"
-        public const string HttpContextIsNull = "IDW10000: HttpContext is null. ";
+        public const string HttpContextIsNull = "IDW10001: HttpContext is null. ";
+        public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse argument are null. Pass an HttpResponse argument. ";
 
         // Configuration IDW10100 = "IDW10100:"
         public const string ProvideEitherScopeKeySectionOrScopes = "IDW10101: Either provide the '{0}' or the '{1}' to the 'AuthorizeForScopes'. ";
@@ -28,11 +29,14 @@ namespace Microsoft.Identity.Web
         public const string MissingRoles = "IDW10202:The 'roles' or 'role' claim does not contain roles '{0}' or was not found. ";
         public const string MissingScopes = "IDW10203:The 'scope' or 'scp' claim does not contain scopes '{0}' or was not found. ";
         public const string UnauthenticatedUser = "IDW10204:The user is unauthenticated. The HttpContext does not contain any claims. ";
+        public const string BlazorServerBaseUriNotSet = "IDW10205: Using Blazor server but the base URI was not properly set. ";
+        public const string BlazorServerUserNotSet = "IDW10206: Using Blazor server but the user was not properly set. ";
 
         // Token Validation IDW10300 = "IDW10300:"
         public const string IssuerMetadataUrlIsRequired = "IDW10301: Azure AD Issuer metadata address URL is required. ";
         public const string NoMetadataDocumentRetrieverProvided = "IDW10302: No metadata document retriever is provided. ";
         public const string IssuerDoesNotMatchValidIssuers = "IDW10303: Issuer: '{0}', does not match any of the valid issuers provided for this application. ";
+        public const string B2CTfpIssuerNotSupported = "IDW10304: Microsoft Identity Web does not support a B2C issuer with 'tfp' in the URI. See https://aka.ms/ms-id-web/b2c-issuer for details.";
 
         // Protocol IDW10400 = "IDW10400:"
         public const string TenantIdClaimNotPresentInToken = "IDW10401: Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform. ";

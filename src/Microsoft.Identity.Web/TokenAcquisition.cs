@@ -533,8 +533,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException)
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
@@ -562,23 +563,26 @@ namespace Microsoft.Identity.Web
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
 
-            if (CurrentHttpContext != null)
-            {
-                var httpResponse = CurrentHttpContext.Response;
-                var headers = httpResponse.Headers;
-                httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+            httpResponse ??= CurrentHttpContext?.Response;
 
-                headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+            if (httpResponse == null)
+            {
+                throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);
             }
+
+            var headers = httpResponse.Headers;
+            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
         }
 
-        private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalSeviceException)
+        private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
         {
             // Normally app developers should not make decisions based on the internal AAD code
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalSeviceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+            return msalServiceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
         }
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
