@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
         public const string ClientCredentialScopeParameterShouldEndInDotDefault =
        "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios.";
         public const string ClientCredentialTenantShouldBeTenanted =
-       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', 'organizations' or 'consumers'. See https://aka.ms/ms-id-web/daemon-scenarios.";
+       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios.";
 
         // MSAL IDW10500 = "IDW10500:"
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";

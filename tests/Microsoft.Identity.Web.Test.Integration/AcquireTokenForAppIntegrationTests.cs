@@ -71,7 +71,6 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
 
         [Theory]
-        [InlineData(Constants.Common)]
         [InlineData(Constants.Organizations)]
         [InlineData(Constants.Consumers)]
         public async Task GetAccessTokenForApp_WithMetaTenant(string metaTenant)

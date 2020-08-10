@@ -87,7 +87,6 @@ namespace Microsoft.Identity.Web
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
-                Constants.Common,
                 Constants.Organizations,
                 Constants.Consumers,
             },
@@ -310,8 +309,8 @@ namespace Microsoft.Identity.Web
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+        /// for multi tenant apps or daemons.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         public async Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null)
         {
