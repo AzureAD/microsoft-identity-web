@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Web
                     {
                         context.ProtocolMessage.DomainHint = domainHint;
 
-                        // delete the domainHint from the Properties when we are done otherwise
+                        // delete the domain_hint from the Properties when we are done otherwise
                         // it will take up extra space in the cookie.
                         context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                     }
