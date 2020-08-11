@@ -29,13 +29,13 @@ namespace WebAppCallsMicrosoftGraph
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                        .CallsWebApi()
+                        .EnableTokenAcquisitionToCallDownstreamApi()
                            .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 
             /*
              *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                            .CallsWebApi()
+                            .EnableTokenAcquisitionToCallDownstreamApi()
                                 .AddInMemoryTokenCaches() // Change the builder
 
                     .AddAuthentication()
@@ -46,7 +46,7 @@ namespace WebAppCallsMicrosoftGraph
 
             /* OR
                         services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
-                                .CallsWebApi()
+                                .EnableTokenAcquisitionToCallDownstreamApi()
                                 .AddInMemoryTokenCaches();
 
                         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -55,7 +55,7 @@ namespace WebAppCallsMicrosoftGraph
                                                Configuration.Bind("AzureAd", options);
                                                // do something
                                            })
-                                           .CallsWebApi(options =>
+                                           .EnableTokenAcquisitionToCallDownstreamApi(options =>
                                            {
                                                Configuration.Bind("AzureAd", options);
                                                // do something

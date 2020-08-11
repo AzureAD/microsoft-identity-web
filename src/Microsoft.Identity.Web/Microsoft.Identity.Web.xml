@@ -1736,17 +1736,17 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-             Constructor.
+            Constructor.
             </summary>
-            <param name="services"> The services being configured.</param>
-            <param name="jwtBearerAuthenticationScheme">Defaut scheme used for OpenIdConnect.</param>
+            <param name="services">The services being configured.</param>
+            <param name="jwtBearerAuthenticationScheme">Default scheme used for OpenIdConnect.</param>
             <param name="configureJwtBearerOptions">ACtion called to configure the JwtBearer options.</param>
             <param name="configureMicrosoftIdentityOptions">Action called to configure
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Configuration section from which to
             get parameters.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.CallsWebApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             </summary>
@@ -1802,7 +1802,7 @@
             Builder for Web API authentication with configuration.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.CallsWebApi">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.EnableTokenAcquisitionToCallDownstreamApi">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -1829,7 +1829,7 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
             <summary>
-            Authentication builder returned by the CallsWebApi methods
+            Authentication builder returned by the EnableTokenAcquisitionToCallDownstreamApi methods
             enabling you to decide token cache implementations.
             </summary>
         </member>
@@ -1866,7 +1866,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.CallsWebApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             The Web app calls a Web API. This override enables you to specify the
             ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
@@ -1957,12 +1957,12 @@
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration">
             <summary>
             Builder for a Microsoft identity web app authentication where configuration is
-            available for CallsWebApi.
+            available for EnableTokenAcquisitionToCallDownstreamApi.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-             Constructor.
+            Constructor.
             </summary>
             <param name="services"> The services being configured.</param>
             <param name="openIdConnectScheme">Default scheme used for OpenIdConnect.</param>
@@ -1970,7 +1970,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.CallsWebApi(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.EnableTokenAcquisitionToCallDownstreamApi(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             Add support for the web app to acquire tokens to call an API.
             </summary>

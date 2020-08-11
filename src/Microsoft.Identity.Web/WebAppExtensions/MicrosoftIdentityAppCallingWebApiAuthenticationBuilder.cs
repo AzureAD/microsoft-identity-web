@@ -16,7 +16,7 @@ using Microsoft.Identity.Web.TokenCacheProviders.Session;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication builder returned by the CallsWebApi methods
+    /// Authentication builder returned by the EnableTokenAcquisitionToCallDownstreamApi methods
     /// enabling you to decide token cache implementations.
     /// </summary>
     public class MicrosoftIdentityAppCallsWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
