@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebAppAuthenticationBuilder
     {
         /// <summary>
-        ///  Constructor.
+        /// Constructor.
         /// </summary>
         /// <param name="services"> The services being configured.</param>
         /// <param name="openIdConnectScheme">Default scheme used for OpenIdConnect.</param>

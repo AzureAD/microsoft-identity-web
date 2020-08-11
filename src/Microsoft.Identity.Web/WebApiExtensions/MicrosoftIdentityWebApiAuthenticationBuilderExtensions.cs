@@ -145,7 +145,12 @@ namespace Microsoft.Identity.Web
                 null);
         }
 
-        private static void AddMicrosoftIdentityWebApiImplementation(AuthenticationBuilder builder, Action<JwtBearerOptions> configureJwtBearerOptions, Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions, string jwtBearerScheme, bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        private static void AddMicrosoftIdentityWebApiImplementation(
+            AuthenticationBuilder builder,
+            Action<JwtBearerOptions> configureJwtBearerOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            string jwtBearerScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(configureMicrosoftIdentityOptions);

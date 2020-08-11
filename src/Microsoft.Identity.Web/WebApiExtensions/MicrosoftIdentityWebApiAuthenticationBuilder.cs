@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
         /// <summary>
-        ///  Constructor.
+        /// Constructor.
         /// </summary>
-        /// <param name="services"> The services being configured.</param>
-        /// <param name="jwtBearerAuthenticationScheme">Defaut scheme used for OpenIdConnect.</param>
+        /// <param name="services">The services being configured.</param>
+        /// <param name="jwtBearerAuthenticationScheme">Default scheme used for OpenIdConnect.</param>
         /// <param name="configureJwtBearerOptions">ACtion called to configure the JwtBearer options.</param>
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
