@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Builder for a Microsoft identity web app authentication where configuration is
-    /// available for CallsWebApi.
+    /// available for EnableTokenAcquisitionToCallDownstreamApi.
     /// </summary>
     public class MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebAppAuthenticationBuilder
     {
@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Optional initial scopes to request.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             IEnumerable<string>? initialScopes = null)
         {
             return EnableTokenAcquisitionToCallDownstreamApi(

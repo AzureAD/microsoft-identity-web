@@ -67,7 +67,7 @@ namespace WebAppCallsMicrosoftGraph
 
             /* OR
                         services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
-                                .CallsWebApi()
+                                .EnableTokenAcquisitionToCallDownstreamApi()
                                 .AddInMemoryTokenCaches();
 
                         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -76,7 +76,7 @@ namespace WebAppCallsMicrosoftGraph
                                                Configuration.Bind("AzureAd", options);
                                                // do something
                                            })
-                                           .CallsWebApi(options =>
+                                           .EnableTokenAcquisitionToCallDownstreamApi(options =>
                                            {
                                                Configuration.Bind("AzureAd", options);
                                                // do something

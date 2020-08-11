@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
         {
             return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection.Bind(options));
         }

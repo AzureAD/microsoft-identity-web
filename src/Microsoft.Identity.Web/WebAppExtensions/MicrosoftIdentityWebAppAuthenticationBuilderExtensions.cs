@@ -281,12 +281,19 @@ namespace Microsoft.Identity.Web
                         if (!string.IsNullOrWhiteSpace(login))
                         {
                             context.ProtocolMessage.LoginHint = login;
-                            context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
-                                OpenIdConnectParameterNames.DomainHint);
 
-                            // delete the login_hint and domainHint from the Properties when we are done otherwise
+                            // delete the login_hint from the Properties when we are done otherwise
                             // it will take up extra space in the cookie.
                             context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                        }
+
+                        var domainHint = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.DomainHint);
+                        if (!string.IsNullOrWhiteSpace(domainHint))
+                        {
+                            context.ProtocolMessage.DomainHint = domainHint;
+
+                            // delete the domain_hint from the Properties when we are done otherwise
+                            // it will take up extra space in the cookie.
                             context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                         }
 

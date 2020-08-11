@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
-        [Obsolete("Rather use .CallsWebApi().AddSessionTokenCaches()")]
+        [Obsolete("Rather use .EnableTokenAcquisitionToCallDownstreamApi().AddSessionTokenCaches()")]
         internal static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
         {
             if (services == null)

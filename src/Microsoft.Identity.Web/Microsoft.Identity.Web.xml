@@ -2058,7 +2058,7 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder">
             <summary>
-            Authentication builder returned by the CallsWebApi methods
+            Authentication builder returned by the EnableTokenAcquisitionToCallDownstreamApi methods
             enabling you to decide token cache implementations.
             </summary>
         </member>
@@ -2186,7 +2186,7 @@
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration">
             <summary>
             Builder for a Microsoft identity web app authentication where configuration is
-            available for CallsWebApi.
+            available for EnableTokenAcquisitionToCallDownstreamApi.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">

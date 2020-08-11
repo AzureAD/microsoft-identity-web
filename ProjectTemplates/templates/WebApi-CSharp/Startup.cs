@@ -38,7 +38,7 @@ namespace Company.WebApplication1
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                        .CallsWebApis()
+                        .EnableTokenAcquisitionToCallDownstreamApi()
 #if (GenerateApi)
                             .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("CalledApi"))
 #endif
@@ -53,7 +53,7 @@ namespace Company.WebApplication1
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                        .CallsWebApis()
+                        .EnableTokenAcquisitionToCallDownstreamApi()
                             .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("DownstreamApi"))
                             .AddInMemoryTokenCaches();
 #else
