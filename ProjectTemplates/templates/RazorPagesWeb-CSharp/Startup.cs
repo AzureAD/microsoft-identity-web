@@ -66,7 +66,7 @@ namespace Company.WebApplication1
 #if (GenerateApiOrGraph)
                         .CallsWebApis()
 #if (GenerateApi)
-                            .AddDownstreamApiService("DownstreamApi", configuration.GetSection("CalledApi"))
+                            .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("CalledApi"))
 #endif
 #if (GenerateGraph)
                             .AddMicrosoftGraphServiceClient(Configuration.GetSection("CalledApi"))
@@ -80,7 +80,7 @@ namespace Company.WebApplication1
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .CallsWebApis()
-                            .AddDownstreamApiService("DownstreamApi", configuration.GetSection("DownstreamApi"))
+                            .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("DownstreamApi"))
                             .AddInMemoryTokenCaches();
 #else
                     ;
