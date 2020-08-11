@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
                 ConfigureMicrosoftIdentityOptions,
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
-            return new MicrosoftIdentityAppCallsWebApisAuthenticationBuilder(
+            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
                 Services,
                 ConfigurationSection);
         }

@@ -38,8 +38,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Calls a Web API consuming JSon with some data and returns data.
         /// </summary>
-        /// <typeparam name="T1">Input type.</typeparam>
-        /// <typeparam name="T2">Output type.</typeparam>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <typeparam name="TOutput">Output type.</typeparam>
         /// <param name="optionsInstanceName">Name of the options instance describing the API. There can
         /// be several configuration namedsections mapped to a <see cref="CalledApiOptions"/>,
         /// each for one API. You can pass-in null, but in that case <paramref name="calledApiOptionsOverride"/>
@@ -51,12 +51,12 @@ namespace Microsoft.Identity.Web
         /// or Azure Signal R where the HttpContext is not available. In the other scenarios, the library
         /// will find the user itself.</param>
         /// <returns>The value returned by the API.</returns>
-        public Task<OutputType> CallWebApiForUserAsync<InputType, OutputType>(
+        public Task<TOutput> CallWebApiForUserAsync<TInput, TOutput>(
             string optionsInstanceName,
-            InputType input,
+            TInput input,
             Action<CalledApiOptions>? calledApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
-            where OutputType : class;
+            where TOutput : class;
 
         /// <summary>
         /// Calls the Web API for the app, with the required scopes.

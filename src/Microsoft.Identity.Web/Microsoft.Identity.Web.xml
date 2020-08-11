@@ -581,13 +581,13 @@
             <summary>
             Return the Api URL.
             </summary>
-            <returns>URL of the API</returns>
+            <returns>URL of the API.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.CalledApiOptions.GetScopes">
             <summary>
             Returns the scopes.
             </summary>
-            <returns>Scopes</returns>
+            <returns>Scopes.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApi">
             <summary>
@@ -623,7 +623,7 @@
             Extension methods to support downstream api services.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             Adds a named downstream API service related to a specific configuration section.
             </summary>
@@ -633,7 +633,7 @@
             <param name="configuration">Configuration.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.CalledApiOptions})">
+        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.CalledApiOptions})">
             <summary>
             Adds a named downstream API service initialized with delegates.
             </summary>
@@ -670,8 +670,8 @@
             <summary>
             Calls a Web API consuming JSon with some data and returns data.
             </summary>
-            <typeparam name="T1">Input type.</typeparam>
-            <typeparam name="T2">Output type.</typeparam>
+            <typeparam name="TInput">Input type.</typeparam>
+            <typeparam name="TOutput">Output type.</typeparam>
             <param name="optionsInstanceName">Name of the options instance describing the API. There can
             be several configuration namedsections mapped to a <see cref="T:Microsoft.Identity.Web.CalledApiOptions"/>,
             each for one API. You can pass-in null, but in that case <paramref name="calledApiOptionsOverride"/>
@@ -919,7 +919,7 @@
             to add support to call Microsoft Graph.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
             Add support to calls Microsoft graph. From a named option and a configuration section.
             </summary>
@@ -927,7 +927,7 @@
             <param name="configurationSection">Configuraiton section.</param>
             <returns>The builder to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.String)">
             <summary>
             Add support to calls Microsoft graph. From a base graph Url and a default scope.
             </summary>
@@ -936,7 +936,7 @@
             <param name="defaultScopes">Configuraiton section.</param>
             <returns>The builder to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftGraphOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftGraphOptions})">
             <summary>
             Add support to calls Microsoft graph. From a named options and a configuraiton method.
             </summary>
@@ -2056,25 +2056,25 @@
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder">
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
             <summary>
             Authentication builder returned by the EnableTokenAcquisitionToCallDownstreamApi methods
             enabling you to decide token cache implementations.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddInMemoryTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches">
             <summary>
             Add in memory token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddDistributedTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddDistributedTokenCaches">
             <summary>
             Add distributed token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddSessionTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddSessionTokenCaches">
             <summary>
             Add session token caches.
             </summary>

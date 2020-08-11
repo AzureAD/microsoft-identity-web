@@ -21,8 +21,8 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configurationSection">Configuraiton section.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddMicrosoftGraphServiceClient(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             IConfigurationSection configurationSection)
         {
             return builder.AddMicrosoftGraphServiceClient(
@@ -36,8 +36,8 @@ namespace Microsoft.Identity.Web
         /// <param name="graphBaseUrl">Named instance of option.</param>
         /// <param name="defaultScopes">Configuraiton section.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddMicrosoftGraphServiceClient(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string graphBaseUrl = "https://graph.microsoft.com/v1.0",
             string defaultScopes = "user.read")
         {
@@ -55,8 +55,8 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddMicrosoftGraphServiceClient(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Action<MicrosoftGraphOptions> configureMicrosoftGraphOptions)
         {
             if (builder == null)

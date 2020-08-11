@@ -283,7 +283,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             var builder = services.AddAuthentication()
-                .AddMicrosoftWebApp(_configureMsOptions, null, OidcScheme)
+                .AddMicrosoftIdentityWebApp(_configureMsOptions, null, OidcScheme)
                 .EnableTokenAcquisitionToCallDownstreamApi(_configureAppOptions, initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {

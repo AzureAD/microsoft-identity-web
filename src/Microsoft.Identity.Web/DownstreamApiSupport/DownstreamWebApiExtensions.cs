@@ -21,8 +21,8 @@ namespace Microsoft.Identity.Web
         /// This is the name which will be used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddDownstreamApiService(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApiService(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string optionsInstanceName,
             IConfiguration configuration)
         {
@@ -44,8 +44,8 @@ namespace Microsoft.Identity.Web
         /// This is the name which will be used when calling the service from controller/pages.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
         /// <returns>The builder for chaining.</returns>
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddDownstreamApiService(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApiService(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string optionsInstanceName,
             Action<CalledApiOptions> configureOptions)
         {

@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Return the Api URL.
         /// </summary>
-        /// <returns>URL of the API</returns>
+        /// <returns>URL of the API.</returns>
         public string GetApiUrl()
         {
             return BaseUrl?.TrimEnd('/') + $"/{RelativePath}";
@@ -80,6 +80,5 @@ namespace Microsoft.Identity.Web
         {
             return string.IsNullOrWhiteSpace(Scopes) ? new string[0] : Scopes.Split(' ');
         }
-
     }
 }

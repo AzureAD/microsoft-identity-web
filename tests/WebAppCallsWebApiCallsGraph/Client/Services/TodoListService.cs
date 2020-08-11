@@ -13,8 +13,8 @@ namespace TodoListClient.Services
 {
     public static class TodoListServiceExtensions
     {
-        public static MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddTodoListService(
-            this MicrosoftIdentityAppCallsWebApisAuthenticationBuilder builder, 
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddTodoListService(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder, 
             IConfiguration configuration)
         {
             builder.AddDownstreamApiService(TodoListService.ServiceName, configuration);
