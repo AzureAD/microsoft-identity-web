@@ -19,6 +19,6 @@ namespace Microsoft.Identity.Web
         /// Space separated scopes used to call Microsoft Graph,
         /// for instance <c>user.read mail.read</c>.
         /// </summary>
-        public string? InitialScopes { get; set; } = "user.read";
+        public string? Scopes { get; set; } = "user.read";
     }
 }

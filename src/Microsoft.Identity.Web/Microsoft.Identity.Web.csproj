@@ -32,9 +32,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="DownstreamApiSupport\DownstreamWebApi.cs" />
-    <Compile Remove="DownstreamApiSupport\DownstreamWebApiExtensions.cs" />
-    <Compile Remove="DownstreamApiSupport\IDownstreamWebApi.cs" />
     <Compile Remove="MigrationAid\Obsolete-LegacyTokenDecryptCertificateParameter.cs" />
     <Compile Remove="MigrationAid\Obsolete-WebApiAuthenticationBuilderExtensions.cs" />
     <Compile Remove="MigrationAid\Obsolete-WebApiServiceCollectionExtensions.cs" />
@@ -46,11 +43,7 @@
     <AdditionalFiles Include="..\..\stylecop.json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="DownstreamApiSupport\DownstreamWebApi.cs" />
-    <None Include="DownstreamApiSupport\DownstreamWebApiExtensions.cs" />
-    <None Include="DownstreamApiSupport\IDownstreamWebApi.cs" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <None Include="..\..\LICENSE">

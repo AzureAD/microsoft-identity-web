@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
                 options =>
                 {
                     options.BaseUrl = graphBaseUrl;
-                    options.InitialScopes = defaultScopes;
+                    options.Scopes = defaultScopes;
                 });
         }
 
@@ -74,13 +74,13 @@ namespace Microsoft.Identity.Web
                 var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
 
                 var microsoftGraphOptions = options.Value;
-                if (microsoftGraphOptions.InitialScopes == null)
+                if (microsoftGraphOptions.Scopes == null)
                 {
                     throw new ArgumentException("CalledApiScopes should not be null.");
                 }
 
                 string graphBaseUrl = microsoftGraphOptions.BaseUrl;
-                string[] initialScopes = microsoftGraphOptions.InitialScopes.Split(' ');
+                string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
 
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
                             new GraphServiceClient(new TokenAcquisitionCredentialProvider(tokenAquisitionService, initialScopes)) :

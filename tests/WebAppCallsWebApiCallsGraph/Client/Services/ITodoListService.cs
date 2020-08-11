@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TodoListService.Models;
+using TodoList.Models;
 
 namespace TodoListClient.Services
 {

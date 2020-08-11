@@ -26,15 +26,13 @@ namespace blazor
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
-                        .CallsWebApis(scopes)
+                        .CallsWebApis()
+                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                            .AddDownstreamApiService("CalledApi", Configuration.GetSection("CalledApi"))
                         .AddInMemoryTokenCaches();
 
-            services.AddDownstreamWebApiService(Configuration);
-            services.AddMicrosoftGraph(scopes,
-                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
             services.AddControllersWithViews()
                     .AddMicrosoftIdentityUI();
 

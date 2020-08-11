@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Threading.Tasks;
 using TodoListClient.Services;
-using TodoListService.Models;
+using TodoList.Models;
 
 namespace TodoListClient.Controllers
 {
@@ -14,13 +14,13 @@ namespace TodoListClient.Controllers
     {
         private ITodoListService _todoListService;
 
-        public TodoListController(ITodoListService todoListService)
+        public TodoListController(IDownstreamWebApi downstreamWebApi)
         {
-            _todoListService = todoListService;
+            _todoListService = new TodoListService(downstreamWebApi);
         }
 
         // GET: TodoList
-        [AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        [AuthorizeForScopes(ScopeKeySection = "TodoList:Scopes")]
         public async Task<ActionResult> Index()
         {
             return View(await _todoListService.GetAsync());
