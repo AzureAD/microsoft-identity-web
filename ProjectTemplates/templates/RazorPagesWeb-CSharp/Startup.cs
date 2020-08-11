@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 #endif
 using Microsoft.AspNetCore.Builder;
@@ -64,26 +64,24 @@ namespace Company.WebApplication1
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                        .CallsWebApi()
-                        .AddInMemoryTokenCaches();
-#else
-                    ;
-#endif
+                        .CallsWebApis()
 #if (GenerateApi)
-            services.AddDownstreamWebApiService(Configuration);
+                            .AddDownstreamApiService("DownstreamApi", configuration.GetSection("CalledApi"))
 #endif
 #if (GenerateGraph)
-            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
-                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
+                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("CalledApi"))
+#endif
+                            .AddInMemoryTokenCaches();
+#else
+                    ;
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                        .CallsWebApi()
-                        .AddInMemoryTokenCaches();
-
-            services.AddDownstreamWebApiService(Configuration);
+                        .CallsWebApis()
+                            .AddDownstreamApiService("DownstreamApi", configuration.GetSection("DownstreamApi"))
+                            .AddInMemoryTokenCaches();
 #else
                     ;
 #endif

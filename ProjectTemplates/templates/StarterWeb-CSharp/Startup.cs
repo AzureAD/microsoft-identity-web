@@ -64,26 +64,24 @@ namespace Company.WebApplication1
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                        .CallsWebApi()
-                        .AddInMemoryTokenCaches();
-#else
-                    ;
-#endif
+                        .CallsWebApis()
 #if (GenerateApi)
-            services.AddDownstreamWebApiService(Configuration);
+                            .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("CalledApi"))
 #endif
 #if (GenerateGraph)
-            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
-                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
+                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("CalledApi"))
+#endif
+                            .AddInMemoryTokenCaches();
+#else
+                    ;
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                        .CallsWebApi()
-                        .AddInMemoryTokenCaches();
-
-            services.AddDownstreamWebApiService(Configuration);
+                        .CallsWebApis()
+                            .AddDownstreamApiService("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                            .AddInMemoryTokenCaches();
 #else
                     ;
 #endif

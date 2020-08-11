@@ -54,7 +54,17 @@ namespace Company.WebApplication1.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            string downstreamApiResult = await _downstreamWebApi.CallWebApiAsync();
+            var response = await _downstreamWebApi.CallWebApiForUserAsync("CalledApi").ConfigureAwait(false);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                // Do something
+            }
+            else
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
