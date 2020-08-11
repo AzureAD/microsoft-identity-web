@@ -19,9 +19,9 @@ namespace Microsoft.Identity.Web
     /// Authentication builder returned by the CallsWebApi methods
     /// enabling you to decide token cache implementations.
     /// </summary>
-    public class MicrosoftIdentityAppCallsWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
+    public class MicrosoftIdentityAppCallsWebApisAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
-        internal MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+        internal MicrosoftIdentityAppCallsWebApisAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
             : base(services, configurationSection)
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// Add in memory token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddInMemoryTokenCaches()
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddInMemoryTokenCaches()
         {
             Services.AddMemoryCache();
             Services.AddHttpContextAccessor();
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
         /// Add distributed token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDistributedTokenCaches()
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddDistributedTokenCaches()
         {
             Services.AddDistributedAppTokenCache();
             Services.AddDistributedUserTokenCache();
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
         /// Add session token caches.
         /// </summary>
         /// <returns>the service collection.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddSessionTokenCaches()
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder AddSessionTokenCaches()
         {
             // Add session if you are planning to use session based token cache
             var sessionStoreService = Services.FirstOrDefault(x => x.ServiceType.Name == "ISessionStore");

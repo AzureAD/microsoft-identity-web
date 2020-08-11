@@ -40,10 +40,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Optional initial scopes to request.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder CallsWebApi(
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder CallsWebApis(
             IEnumerable<string>? initialScopes = null)
         {
-            return CallsWebApi(
+            return CallsWebApis(
                 options => ConfigurationSection.Bind(options),
                 initialScopes);
         }

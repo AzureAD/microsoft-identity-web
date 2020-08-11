@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder CallsWebApi(
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder CallsWebApis(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
             if (configureConfidentialClientApplicationOptions == null)
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
                 JwtBearerAuthenticationScheme,
                 configureConfidentialClientApplicationOptions);
 
-            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+            return new MicrosoftIdentityAppCallsWebApisAuthenticationBuilder(
                 Services,
                 ConfigurationSection);
         }

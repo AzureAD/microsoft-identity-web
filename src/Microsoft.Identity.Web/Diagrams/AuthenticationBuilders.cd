@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder">
+    <Position X="0.5" Y="3" Width="7.25" />
+    <Members>
+      <Method Name="CallsWebApiImplementation" Hidden="true" />
+      <Method Name="MicrosoftIdentityWebApiAuthenticationBuilder" Hidden="true" />
+    </Members>
+    <InheritanceLine Type="Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder" ManuallyRouted="true">
+      <Path>
+        <Point X="8.75" Y="2.247" />
+        <Point X="8.75" Y="2.715" />
+        <Point X="4.125" Y="2.715" />
+        <Point X="4.125" Y="3" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAABAAAAAgAAAAAAgAAACAAA=</HashCode>
+      <FileName>WebApiExtensions\MicrosoftIdentityWebApiAuthenticationBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions" Collapsed="true">
+    <Position X="15.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WebApiExtensions\MicrosoftIdentityWebApiAuthenticationBuilderExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration">
+    <Position X="0.75" Y="6.25" Width="4.5" />
+    <Members>
+      <Method Name="MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration" Hidden="true" />
+    </Members>
+    <InheritanceLine Type="Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder" FixedToPoint="true">
+      <Path>
+        <Point X="4.125" Y="5.069" />
+        <Point X="4.125" Y="5.875" />
+        <Point X="2.5" Y="5.875" />
+        <Point X="2.5" Y="6.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>WebApiExtensions\MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebApiServiceCollectionExtensions" Collapsed="true">
+    <Position X="17" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>WebApiExtensions\MicrosoftIdentityWebApiServiceCollectionExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder">
+    <Position X="13" Y="3" Width="4" />
+    <Members>
+      <Method Name="MicrosoftIdentityAppCallsWebApisAuthenticationBuilder" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAQAAAAAAAAgAAAAA=</HashCode>
+      <FileName>WebAppExtensions\MicrosoftIdentityAppCallingWebApiAuthenticationBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder">
+    <Position X="8" Y="3" Width="4.75" />
+    <Members>
+      <Method Name="MicrosoftIdentityWebAppAuthenticationBuilder" Hidden="true" />
+      <Method Name="WebAppCallsWebApiImplementation" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAIAAAAAAAAAAAAAAAAAAABAAgAAAAAAA=</HashCode>
+      <FileName>WebAppExtensions\MicrosoftIdentityWebAppAuthenticationBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions" Collapsed="true">
+    <Position X="15.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQBAQAAAAAAAAAAAAAAAABAABAAAAEAAAAA=</HashCode>
+      <FileName>WebAppExtensions\MicrosoftIdentityWebAppAuthenticationBuilderExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration">
+    <Position X="7.75" Y="6" Width="4.5" />
+    <Members>
+      <Method Name="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration" Hidden="true" />
+    </Members>
+    <InheritanceLine Type="Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder" FixedToPoint="true">
+      <Path>
+        <Point X="10.375" Y="4.877" />
+        <Point X="10.375" Y="5.625" />
+        <Point X="9.25" Y="5.625" />
+        <Point X="9.25" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>WebAppExtensions\MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions" Collapsed="true">
+    <Position X="17" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>WebAppExtensions\MicrosoftIdentityWebAppServiceCollectionExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder">
+    <Position X="5" Y="0.5" Width="7.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MicrosoftIdentityBaseAuthenticationBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

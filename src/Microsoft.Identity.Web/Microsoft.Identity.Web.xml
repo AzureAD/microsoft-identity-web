@@ -530,6 +530,27 @@
             </remarks>
             <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.CalledApiOptions">
+            <summary>
+            Options passed-in to call web APIs (Microsoft Graph or another API).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CalledApiOptions.CalledApiBaseUrl">
+            <summary>
+            Base URL for the called Web API. For instance <c>"https://graph.microsoft.com/v1.0/".</c>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CalledApiOptions.CalledApiScopes">
+            <summary>
+            Space separated scopes used to call the Web API.
+            For instance "user.read mail.read".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CalledApiOptions.HttpMethod">
+            <summary>
+            Http method used to call this API (by default Get).
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>
             Extension methods.
@@ -726,6 +747,67 @@
             <param name="context">RedirectContext passed-in to a <see cref="P:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftGraphOptions">
+            <summary>
+            Options passed-in to call Microsoft Graph.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftGraphOptions.BaseUrl">
+            <summary>
+            Base URL for the Microsoft Graph API. By default: <c>"https://graph.microsoft.com/v1.0/"</c>
+            but it can be changed to use the Microsoft Graph Beta endpoint or national cloud versions
+            of MicrosoftGraph.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftGraphOptions.InitialScopes">
+            <summary>
+            Space separated scopes used to call Microsoft Graph,
+            for instance <c>user.read mail.read</c>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions">
+            <summary>
+            Extensions methods on a MicrososoftAppCallingWebApiAuthenticationBuilder builder
+            to add support to call Microsoft Graph.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection)">
+            <summary>
+            Add support to calls Microsoft graph. From a named option and a configuration section.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="configurationSection">Configuraiton section.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.String,System.String)">
+            <summary>
+            Add support to calls Microsoft graph. From a base graph Url and a default scope.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="graphBaseUrl">Named instance of option.</param>
+            <param name="defaultScopes">Configuraiton section.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftGraphOptions})">
+            <summary>
+            Add support to calls Microsoft graph. From a named options and a configuraiton method.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider">
+            <summary>
+            Authentication provider based on MSAL.NET.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider.AuthenticateRequestAsync(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Adds a bearer header to an HttpRequestMessage.
+            </summary>
+            <param name="request">HttpRequest message to authenticate.</param>
+            <returns>A Task (as this is an async method).</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder">
             <summary>
@@ -1736,17 +1818,17 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-             Constructor.
+            Constructor.
             </summary>
-            <param name="services"> The services being configured.</param>
-            <param name="jwtBearerAuthenticationScheme">Defaut scheme used for OpenIdConnect.</param>
+            <param name="services">The services being configured.</param>
+            <param name="jwtBearerAuthenticationScheme">Default scheme used for OpenIdConnect.</param>
             <param name="configureJwtBearerOptions">ACtion called to configure the JwtBearer options.</param>
             <param name="configureMicrosoftIdentityOptions">Action called to configure
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Configuration section from which to
             get parameters.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.CallsWebApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.CallsWebApis(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             </summary>
@@ -1802,7 +1884,7 @@
             Builder for Web API authentication with configuration.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.CallsWebApi">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.CallsWebApis">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -1827,25 +1909,25 @@
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder">
             <summary>
             Authentication builder returned by the CallsWebApi methods
             enabling you to decide token cache implementations.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddInMemoryTokenCaches">
             <summary>
             Add in memory token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddDistributedTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddDistributedTokenCaches">
             <summary>
             Add distributed token caches.
             </summary>
             <returns>the service collection.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddSessionTokenCaches">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApisAuthenticationBuilder.AddSessionTokenCaches">
             <summary>
             Add session token caches.
             </summary>
@@ -1866,7 +1948,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.CallsWebApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.CallsWebApis(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             The Web app calls a Web API. This override enables you to specify the
             ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
@@ -1962,7 +2044,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-             Constructor.
+            Constructor.
             </summary>
             <param name="services"> The services being configured.</param>
             <param name="openIdConnectScheme">Default scheme used for OpenIdConnect.</param>
@@ -1970,7 +2052,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.CallsWebApi(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.CallsWebApis(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             Add support for the web app to acquire tokens to call an API.
             </summary>

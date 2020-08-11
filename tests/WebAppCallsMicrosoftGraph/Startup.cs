@@ -29,10 +29,13 @@ namespace WebAppCallsMicrosoftGraph
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                        .CallsWebApi()
+                        .CallsWebApis()
+                           .AddMicrosoftGraphServiceClient()
+                           .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                           .AddMicrosoftGraphServiceClient(options => options.BaseUrl = "https://graph.microsoft.com/beta")
                            .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 
-            /*
+/*
              *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
                             .CallsWebApi()
@@ -63,7 +66,6 @@ namespace WebAppCallsMicrosoftGraph
                                            )
                                            .AddInMemoryTokenCaches();
             */
-            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
             services.AddRazorPages().AddMvcOptions(options =>
             {

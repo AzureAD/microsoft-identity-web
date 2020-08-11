@@ -243,7 +243,7 @@ namespace Microsoft.Identity.Web.Test
 
             var builder = services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme)
-                .CallsWebApi(initialScopes);
+                .CallsWebApis(initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {
                 options.Events ??= new OpenIdConnectEvents();
@@ -284,7 +284,7 @@ namespace Microsoft.Identity.Web.Test
 
             var builder = services.AddAuthentication()
                 .AddMicrosoftWebApp(_configureMsOptions, null, OidcScheme)
-                .CallsWebApi(_configureAppOptions, initialScopes);
+                .CallsWebApis(_configureAppOptions, initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
             {
                 options.Events ??= new OpenIdConnectEvents();
@@ -321,7 +321,7 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(Substitute.For<IConfiguration>())
-                .CallsWebApi();
+                .CallsWebApis();
 
             var provider = services.BuildServiceProvider();
 
