@@ -266,23 +266,30 @@ namespace Microsoft.Identity.Web
                         options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
                     }
 
-                    // Avoids having users being presented the select account dialog when they are already signed-in
-                    // for instance when going through incremental consent
-                    var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
-                    options.Events.OnRedirectToIdentityProvider = async context =>
+                // Avoids having users being presented the select account dialog when they are already signed-in
+                // for instance when going through incremental consent
+                var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
+                options.Events.OnRedirectToIdentityProvider = async context =>
+                {
+                    var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
+                    if (!string.IsNullOrWhiteSpace(login))
                     {
-                        var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
-                        if (!string.IsNullOrWhiteSpace(login))
-                        {
-                            context.ProtocolMessage.LoginHint = login;
-                            context.ProtocolMessage.DomainHint = context.Properties.GetParameter<string>(
-                                OpenIdConnectParameterNames.DomainHint);
+                        context.ProtocolMessage.LoginHint = login;
 
-                            // delete the login_hint and domainHint from the Properties when we are done otherwise
-                            // it will take up extra space in the cookie.
-                            context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
-                            context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
-                        }
+                        // delete the login_hint from the Properties when we are done otherwise
+                        // it will take up extra space in the cookie.
+                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                    }
+
+                    var domainHint = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.DomainHint);
+                    if (!string.IsNullOrWhiteSpace(domainHint))
+                    {
+                        context.ProtocolMessage.DomainHint = domainHint;
+
+                        // delete the domain_hint from the Properties when we are done otherwise
+                        // it will take up extra space in the cookie.
+                        context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                    }
 
                         context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
 
