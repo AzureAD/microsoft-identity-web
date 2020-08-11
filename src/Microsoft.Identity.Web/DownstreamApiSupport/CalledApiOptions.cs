@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Returns the scopes.
         /// </summary>
-        /// <returns>Scopes</returns>
+        /// <returns>Scopes.</returns>
         public string[] GetScopes()
         {
             return string.IsNullOrWhiteSpace(Scopes) ? new string[0] : Scopes.Split(' ');

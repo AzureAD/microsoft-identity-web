@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,7 @@ namespace Microsoft.Identity.Web
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Rather use AddMicrosoftIdentityWebApi().CallsWebApi")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static AuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,

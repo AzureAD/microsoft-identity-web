@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
-        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder CallsWebApis(
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {

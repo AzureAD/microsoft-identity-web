@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -27,17 +28,31 @@ namespace WebAppCallsMicrosoftGraph
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                        .CallsWebApis(new string[] { "user.read" })
-                           .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
-                           .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 
-/*
-                            .AddMicrosoftGraphServiceClient()
-                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
-                            .AddMicrosoftGraphServiceClient(options => options.BaseUrl = "https://graph.microsoft.com/beta")
-*/
+            services.AddAuthentication()
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                           .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                           .AddInMemoryTokenCaches();
+
+
+            /*
+                        services.AddAuthentication()
+                                 .AddMicrosoftIdentityWebApp(
+                                        configureMicrosoftIdentityOptions: microsoftIdentityOptions => { },
+                                        configureCookieAuthenticationOptions: cookieOptions => { })
+                                    .EnableTokenAcquisitionToCallDownstreamApi(
+                                            configureConfidentialClientApplicationOptions: confidentialClientApplicationOptions => { },
+                                            initialScopes: new string[] { "user.read" })
+                                    .AddDistributedTokenCaches();
+            */
+
+
+            /*
+                                        .AddMicrosoftGraphServiceClient()
+                                        .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                                        .AddMicrosoftGraphServiceClient(options => options.BaseUrl = "https://graph.microsoft.com/beta")
+            */
             /*
                          *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))

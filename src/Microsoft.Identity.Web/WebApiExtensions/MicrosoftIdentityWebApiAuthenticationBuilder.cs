@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder CallsWebApis(
+        public MicrosoftIdentityAppCallsWebApisAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
             if (configureConfidentialClientApplicationOptions == null)

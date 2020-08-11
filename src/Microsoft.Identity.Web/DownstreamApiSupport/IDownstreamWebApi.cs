@@ -51,12 +51,12 @@ namespace Microsoft.Identity.Web
         /// or Azure Signal R where the HttpContext is not available. In the other scenarios, the library
         /// will find the user itself.</param>
         /// <returns>The value returned by the API.</returns>
-        public Task<T2> CallWebApiForUserAsync<T1, T2>(
+        public Task<OutputType> CallWebApiForUserAsync<InputType, OutputType>(
             string optionsInstanceName,
-            T1 input,
+            InputType input,
             Action<CalledApiOptions>? calledApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
-            where T2 : class;
+            where OutputType : class;
 
         /// <summary>
         /// Calls the Web API for the app, with the required scopes.

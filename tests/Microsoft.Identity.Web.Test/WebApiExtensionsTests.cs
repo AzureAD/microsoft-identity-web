@@ -323,7 +323,7 @@ namespace Microsoft.Identity.Web.Test
                     configMock,
                     ConfigSectionName,
                     JwtBearerScheme)
-                        .CallsWebApis(_configureAppOptions);
+                        .EnableTokenAcquisitionToCallDownstreamApi(_configureAppOptions);
 
             var provider = services.BuildServiceProvider();
 
@@ -355,7 +355,7 @@ namespace Microsoft.Identity.Web.Test
                 },
                     _configureMsOptions,
                     JwtBearerScheme)
-                    .CallsWebApis(_configureAppOptions);
+                    .EnableTokenAcquisitionToCallDownstreamApi(_configureAppOptions);
             var provider = services.BuildServiceProvider();
 
             // Assert configure options actions added correctly

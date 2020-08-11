@@ -1975,7 +1975,7 @@
             <param name="configurationSection">Configuration section from which to
             get parameters.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.CallsWebApis(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions})">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             </summary>
@@ -2031,7 +2031,7 @@
             Builder for Web API authentication with configuration.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.CallsWebApis">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration.EnableTokenAcquisitionToCallDownstreamApi">
             <summary>
             Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -2095,7 +2095,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.CallsWebApis(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             The Web app calls a Web API. This override enables you to specify the
             ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
@@ -2199,7 +2199,7 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.CallsWebApis(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.EnableTokenAcquisitionToCallDownstreamApi(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             Add support for the web app to acquire tokens to call an API.
             </summary>

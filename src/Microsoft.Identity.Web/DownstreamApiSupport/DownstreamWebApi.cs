@@ -105,12 +105,12 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<T2> CallWebApiForUserAsync<T1, T2>(
+        public async Task<OutputType> CallWebApiForUserAsync<InputType, OutputType>(
             string optionsInstanceName,
-            T1 input,
+            InputType input,
             Action<CalledApiOptions>? calledApiOptionsOverride,
             ClaimsPrincipal? user)
-            where T2 : class
+            where OutputType : class
         {
             StringContent? jsoncontent;
             if (input != null)
@@ -133,7 +133,7 @@ namespace Microsoft.Identity.Web
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                T2? output = JsonSerializer.Deserialize<T2>(content, _jsonOptions);
+                OutputType? output = JsonSerializer.Deserialize<OutputType>(content, _jsonOptions);
                 return output;
             }
             else
