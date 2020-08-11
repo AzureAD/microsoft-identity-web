@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
         /// <returns>The authentication builder for chaining.</returns>
-        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebApp(
+        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,

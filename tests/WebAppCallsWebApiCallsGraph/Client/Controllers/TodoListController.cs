@@ -7,6 +7,7 @@ using Microsoft.Identity.Web;
 using System.Threading.Tasks;
 using TodoListClient.Services;
 using TodoList.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TodoListClient.Controllers
 {

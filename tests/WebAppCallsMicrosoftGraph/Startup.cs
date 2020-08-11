@@ -29,22 +29,25 @@ namespace WebAppCallsMicrosoftGraph
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                        .CallsWebApis()
-                           .AddMicrosoftGraphServiceClient()
+                        .CallsWebApis(new string[] { "user.read" })
                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
-                           .AddMicrosoftGraphServiceClient(options => options.BaseUrl = "https://graph.microsoft.com/beta")
                            .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
 
 /*
-             *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                            .CallsWebApi()
-                                .AddInMemoryTokenCaches() // Change the builder
-
-                    .AddAuthentication()
-                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
-
+                            .AddMicrosoftGraphServiceClient()
+                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                            .AddMicrosoftGraphServiceClient(options => options.BaseUrl = "https://graph.microsoft.com/beta")
 */
+            /*
+                         *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+                                        .CallsWebApi()
+                                            .AddInMemoryTokenCaches() // Change the builder
+
+                                .AddAuthentication()
+                                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
+
+            */
 
 
             /* OR
