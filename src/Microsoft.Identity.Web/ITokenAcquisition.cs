@@ -37,12 +37,15 @@ namespace Microsoft.Identity.Web
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, and cannot be overridden in the application.</param>
+        /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// several calls to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
-        Task<string> GetAccessTokenForAppAsync(IEnumerable<string> scopes);
+        Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null);
 
         /// <summary>
         /// Used in Web APIs (which therefore cannot have an interaction with the user).

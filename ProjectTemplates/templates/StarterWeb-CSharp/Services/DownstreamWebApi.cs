@@ -48,6 +48,7 @@ namespace Company.WebApplication1
         /// <returns>A JSON string representing the result of calling the Web API</returns>
         public async Task<string> CallWebApiAsync(string relativeEndpoint = "", string[] requiredScopes = null)
         {
+            // Do not read directly from config.
             string[] scopes = requiredScopes ?? _configuration["CalledApi:CalledApiScopes"]?.Split(' ');
             string apiUrl = (_configuration["CalledApi:CalledApiUrl"] as string)?.TrimEnd('/') + $"/{relativeEndpoint}";
 
@@ -57,6 +58,9 @@ namespace Company.WebApplication1
 
             string apiResult;
             var response = await _httpClient.SendAsync(httpRequestMessage);
+
+
+            // Return the HttpReponse!!!
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 apiResult = await response.Content.ReadAsStringAsync();

@@ -38,7 +38,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
-        public static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
+        [Obsolete("Rather use .EnableTokenAcquisitionToCallDownstreamApi().AddSessionTokenCaches()")]
+        internal static IServiceCollection AddSessionTokenCaches(this IServiceCollection services)
         {
             if (services == null)
             {
@@ -79,39 +80,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             });
 
             return services;
-        }
-
-        /// <summary>
-        /// Adds both application and per-user session token caches.
-        /// </summary>
-        /// <remarks>
-        /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-        /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
-        ///
-        /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
-        /// <code>
-        /// services.AddSession(option =>
-        /// {
-        ///     option.Cookie.IsEssential = true;
-        /// });
-        /// </code>
-        /// In the method <c>public void Configure(IApplicationBuilder app, IHostingEnvironment env)</c> in Startup.cs, add the following:
-        /// <code>
-        /// app.UseSession(); // Before UseMvc()
-        /// </code>
-        /// Because session token caches are added with scoped lifetime, they should not be used when <c>TokenAcquisition</c> is also used as a singleton (for example, when using Microsoft Graph SDK).
-        /// </remarks>
-        /// <param name="builder">The authentication builder to add the session token caches to.</param>
-        /// <returns>The builder to chain more commands.</returns>
-        public static AuthenticationBuilder AddSessionTokenCaches(this AuthenticationBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            builder.Services.AddSessionTokenCaches();
-            return builder;
         }
 
         /// <summary>

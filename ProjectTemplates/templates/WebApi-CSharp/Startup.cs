@@ -9,15 +9,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 #endif
 using Microsoft.AspNetCore.Mvc;
 #if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication;
-#endif
-#if (OrganizationalAuth)
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-#endif
-#if (IndividualB2CAuth)
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 #endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,12 +35,11 @@ namespace Company.WebApplication1
         public void ConfigureServices(IServiceCollection services)
         {
 #if (OrganizationalAuth)
-            // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAd")
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                    .AddMicrosoftWebApiCallsWebApi(Configuration,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddInMemoryTokenCaches();
 
 #else
                     ;
@@ -59,11 +52,11 @@ namespace Company.WebApplication1
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
 #endif
 #elif (IndividualB2CAuth)
-            services.AddMicrosoftWebApiAuthentication(Configuration, "AzureAdB2C")
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                    .AddMicrosoftWebApiCallsWebApi(Configuration,
-                                                   "AzureAdB2C")
-                    .AddInMemoryTokenCaches();
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddDownstreamWebApiService(Configuration);
 #else

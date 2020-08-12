@@ -3,13 +3,13 @@
 
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using blazor.Data;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace blazor
 {
@@ -27,11 +27,11 @@ namespace blazor
         public void ConfigureServices(IServiceCollection services)
         {
             string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
-            services.AddMicrosoftWebAppAuthentication(Configuration, "AzureAd")
-                    .AddMicrosoftWebAppCallsWebApi(Configuration,
-                                                   scopes,
-                                                   "AzureAd")
-                    .AddInMemoryTokenCaches();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
+                        .EnableTokenAcquisitionToCallDownstreamApi(scopes)
+                        .AddInMemoryTokenCaches();
+
             services.AddDownstreamWebApiService(Configuration);
             services.AddMicrosoftGraph(scopes,
                                        Configuration.GetValue<string>("CalledApi:CalledApiUrl"));

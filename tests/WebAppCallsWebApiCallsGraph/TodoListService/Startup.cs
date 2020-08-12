@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace TodoListService
 {
@@ -33,9 +32,9 @@ namespace TodoListService
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApi(Configuration, "AzureAd")
-                    .AddMicrosoftWebApiCallsWebApi(Configuration);
-            services.AddInMemoryTokenCaches();
+                    .AddMicrosoftIdentityWebApi(Configuration, "AzureAd")
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddControllers();
         }

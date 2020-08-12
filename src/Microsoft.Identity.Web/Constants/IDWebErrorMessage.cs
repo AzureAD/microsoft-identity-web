@@ -42,6 +42,10 @@ namespace Microsoft.Identity.Web
         public const string TenantIdClaimNotPresentInToken = "IDW10401: Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform. ";
         public const string ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. ";
         public const string TokenIsNotJwtToken = "IDW10403: Token is not JWT token. ";
+        public const string ClientCredentialScopeParameterShouldEndInDotDefault =
+       "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios.";
+        public const string ClientCredentialTenantShouldBeTenanted =
+       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios.";
 
         // MSAL IDW10500 = "IDW10500:"
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";
