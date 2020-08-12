@@ -33,13 +33,13 @@ namespace Microsoft.Identity.Web
             IConfigurationSection? configurationSection)
             : base(services, configurationSection)
         {
-            OpenIdConnectScheme = openIdConnectScheme;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
             if (ConfigureMicrosoftIdentityOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
+
+            OpenIdConnectScheme = openIdConnectScheme;
+            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
         }
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
