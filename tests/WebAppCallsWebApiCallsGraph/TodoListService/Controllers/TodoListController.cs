@@ -76,7 +76,7 @@ namespace TodoListService.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
-            Todo todonew = new Todo() { Id = id, Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+            Todo todonew = new Todo() { Id = id, Owner = User.GetDisplayName(), Title = todo.Title };
             TodoStore.Add(id, todonew);
 
             return Ok(todo);
