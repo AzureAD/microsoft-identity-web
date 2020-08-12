@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
                 return _baseUri ??
                     (!IsBlazorServer ? CreateBaseUri(_httpContextAccessor.HttpContext.Request) :
                     throw new InvalidOperationException(IDWebErrorMessage.BlazorServerBaseUriNotSet));
-           }
+            }
             set
             {
                 _baseUri = value;
@@ -137,7 +137,21 @@ namespace Microsoft.Identity.Web
                     microsoftIdentityWebChallengeUserException.MsalUiRequiredException,
                     User);
 
-                string redirectUri = NavigationManager.Uri;
+                string redirectUri;
+                if (IsBlazorServer)
+                {
+                    redirectUri = NavigationManager.Uri;
+                }
+                else
+                {
+                    var request = _httpContextAccessor.HttpContext.Request;
+                    redirectUri = string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0}{1}",
+                        CreateBaseUri(request),
+                        request.Path.ToString());
+                }
+
                 List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
                 string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
                 string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
@@ -146,7 +160,14 @@ namespace Microsoft.Identity.Web
                     + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
                     + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
 
-                NavigationManager.NavigateTo(url, true);
+                if (IsBlazorServer)
+                {
+                    NavigationManager.NavigateTo(url, true);
+                }
+                else
+                {
+                    _httpContextAccessor.HttpContext.Response.Redirect(url);
+                }
             }
             else
             {
