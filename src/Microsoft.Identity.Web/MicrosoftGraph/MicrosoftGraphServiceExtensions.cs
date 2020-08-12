@@ -10,16 +10,16 @@ using Microsoft.Graph;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions methods on a MicrososoftAppCallingWebApiAuthenticationBuilder builder
+    /// Extensions methods on a MicrososoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
     /// </summary>
     public static class MicrosoftGraphServiceExtensions
     {
         /// <summary>
-        /// Add support to calls Microsoft graph. From a named option and a configuration section.
+        /// Add support to call Microsoft Graph. From a named option and a configuration section.
         /// </summary>
         /// <param name="builder">Builder.</param>
-        /// <param name="configurationSection">Configuraiton section.</param>
+        /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
@@ -30,16 +30,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add support to calls Microsoft graph. From a base graph Url and a default scope.
+        /// Add support to call Microsoft Graph. From a base Graph URL and a default scope.
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <param name="graphBaseUrl">Named instance of option.</param>
-        /// <param name="defaultScopes">Configuraiton section.</param>
+        /// <param name="defaultScopes">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
-            string graphBaseUrl = "https://graph.microsoft.com/v1.0",
-            string defaultScopes = "user.read")
+            string graphBaseUrl = Constants.GraphBaseUrlV1,
+            string defaultScopes = Constants.UserReadScope)
         {
             return builder.AddMicrosoftGraphServiceClient(
                 options =>
@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add support to calls Microsoft graph. From a named options and a configuraiton method.
+        /// Add support to call Microsoft Graph. From a named options and a configuration method.
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Web
                 var microsoftGraphOptions = options.Value;
                 if (microsoftGraphOptions.Scopes == null)
                 {
-                    throw new ArgumentException("CalledApiScopes should not be null.");
+                    throw new ArgumentException(IDWebErrorMessage.CalledApiScopesAreNull);
                 }
 
                 string graphBaseUrl = microsoftGraphOptions.BaseUrl;

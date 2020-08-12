@@ -61,5 +61,9 @@ namespace Microsoft.Identity.Web
 
         // Blazor challenge uri
         public const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
+
+        // Microsoft Graph
+        public const string UserReadScope = "user.read";
+        public const string GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0";
     }
 }
