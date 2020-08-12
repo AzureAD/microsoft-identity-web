@@ -30,7 +30,8 @@ namespace WebAppCallsMicrosoftGraph
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                           .AddInMemoryTokenCaches();  // Add a delegate overload. Should return the parent builder
+                           .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                           .AddInMemoryTokenCaches();
 
             /*
              *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -63,7 +64,6 @@ namespace WebAppCallsMicrosoftGraph
                                            )
                                            .AddInMemoryTokenCaches();
             */
-            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
 
             services.AddRazorPages().AddMvcOptions(options =>
             {
