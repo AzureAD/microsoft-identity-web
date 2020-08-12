@@ -34,19 +34,6 @@ namespace WebAppCallsMicrosoftGraph
                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
                            .AddInMemoryTokenCaches();
 
-
-            /*
-                        services.AddAuthentication()
-                                 .AddMicrosoftIdentityWebApp(
-                                        configureMicrosoftIdentityOptions: microsoftIdentityOptions => { },
-                                        configureCookieAuthenticationOptions: cookieOptions => { })
-                                    .EnableTokenAcquisitionToCallDownstreamApi(
-                                            configureConfidentialClientApplicationOptions: confidentialClientApplicationOptions => { },
-                                            initialScopes: new string[] { "user.read" })
-                                    .AddDistributedTokenCaches();
-            */
-
-
             /*
                                         .AddMicrosoftGraphServiceClient()
                                         .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
