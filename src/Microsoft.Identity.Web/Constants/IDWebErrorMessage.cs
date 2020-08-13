@@ -11,6 +11,7 @@ namespace Microsoft.Identity.Web
         // General IDW10000 = "IDW10000:"
         public const string HttpContextIsNull = "IDW10001: HttpContext is null. ";
         public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse argument are null. Pass an HttpResponse argument. ";
+        public const string InvalidHttpStatusCodeInResponse = "IDW10003: Invalid status code in the HttpResponseMessage. Status code: {0}, Error message: {1} .";
 
         // Configuration IDW10100 = "IDW10100:"
         public const string ProvideEitherScopeKeySectionOrScopes = "IDW10101: Either provide the '{0}' or the '{1}' to the 'AuthorizeForScopes'. ";
@@ -22,7 +23,8 @@ namespace Microsoft.Identity.Web
                "For instance, in the appsettings.json file. ";
         public const string BothClientSecretAndCertificateProvided = "IDW10105: Both client secret and client certificate, " +
                    "cannot be included in the configuration of the web app when calling a web API. ";
-        public const string ConfigurationOptionRequired = "The '{0}' option must be provided. ";
+        public const string ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. ";
+        public const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope or roles claim was found in the bearer token. ";

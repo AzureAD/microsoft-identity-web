@@ -1,35 +1,54 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
-using TodoListClient.Services;
 using TodoListService.Models;
 
 namespace TodoListClient.Controllers
 {
+    [Authorize]
+    [AuthorizeForScopes(ScopeKeySection = "TodoList:Scopes")]
     public class TodoListController : Controller
     {
-        private ITodoListService _todoListService;
+        private IDownstreamWebApi _downstreamWebApi;
+        private const string ServiceName = "TodoList";
 
         public TodoListController(IDownstreamWebApi downstreamWebApi)
         {
-            _todoListService = new Services.TodoListService(downstreamWebApi);
+            _downstreamWebApi = downstreamWebApi;
         }
 
         // GET: TodoList
-        [AuthorizeForScopes(ScopeKeySection = "TodoList:Scopes")]
         public async Task<ActionResult> Index()
         {
-            return View(await _todoListService.GetAsync());
+            var value = await _downstreamWebApi.CallWebApiForUserAsync<object, IEnumerable<Todo>>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.RelativePath = "api/todolist";
+                });
+            return View(value);
         }
 
         // GET: TodoList/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            return View(await _todoListService.GetAsync(id));
+            var value = await _downstreamWebApi.CallWebApiForUserAsync<object, Todo>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Get;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
+            return View(value);
         }
 
         // GET: TodoList/Create
@@ -44,14 +63,28 @@ namespace TodoListClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
         {
-            await _todoListService.AddAsync(todo);
+            await _downstreamWebApi.CallWebApiForUserAsync<Todo, Todo>(
+                ServiceName,
+                todo,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Post;
+                    options.RelativePath = "api/todolist";
+                });
             return RedirectToAction("Index");
         }
 
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await _todoListService.GetAsync(id);
+            Todo todo = await _downstreamWebApi.CallWebApiForUserAsync<object, Todo>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Get;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
 
             if (todo == null)
             {
@@ -66,14 +99,28 @@ namespace TodoListClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, [Bind("Id,Title,Owner")] Todo todo)
         {
-            await _todoListService.EditAsync(todo);
+            await _downstreamWebApi.CallWebApiForUserAsync<Todo, Todo>(
+                ServiceName,
+                todo,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Patch;
+                    options.RelativePath = $"api/todolist/{todo.Id}";
+                });
             return RedirectToAction("Index");
         }
 
         // GET: TodoList/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            Todo todo = await _todoListService.GetAsync(id);
+            Todo todo = await _downstreamWebApi.CallWebApiForUserAsync<object, Todo>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Get;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
 
             if (todo == null)
             {
@@ -88,7 +135,13 @@ namespace TodoListClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id, [Bind("Id,Title,Owner")] Todo todo)
         {
-            await _todoListService.DeleteAsync(id);
+            await _downstreamWebApi.CallWebApiForUserAsync(
+                ServiceName,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Delete;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
             return RedirectToAction("Index");
         }
     }
