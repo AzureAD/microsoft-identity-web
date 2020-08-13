@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web
     /// Options passed-in to call web APIs. To call Microsoft Graph, see rather
     /// <see cref="MicrosoftGraphOptions"/>.
     /// </summary>
-    public class CalledApiOptions
+    public class DownstreamApiOptions
     {
         /// <summary>
         /// Base URL for the called Web API. For instance <c>"https://graph.microsoft.com/beta/".</c>.
@@ -50,9 +50,9 @@ namespace Microsoft.Identity.Web
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
-        public CalledApiOptions Clone()
+        public DownstreamApiOptions Clone()
         {
-            return new CalledApiOptions
+            return new DownstreamApiOptions
             {
                 BaseUrl = BaseUrl,
                 RelativePath = RelativePath,
@@ -67,7 +67,9 @@ namespace Microsoft.Identity.Web
         /// Return the Api URL.
         /// </summary>
         /// <returns>URL of the API.</returns>
+#pragma warning disable CA1055 // Uri return values should not be strings
         public string GetApiUrl()
+#pragma warning restore CA1055 // Uri return values should not be strings
         {
             return BaseUrl?.TrimEnd('/') + $"/{RelativePath}";
         }

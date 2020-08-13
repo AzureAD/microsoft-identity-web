@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
-        private readonly IOptionsMonitor<CalledApiOptions> _namedOptions;
+        private readonly IOptionsMonitor<DownstreamApiOptions> _namedOptions;
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClient">Http client.</param>
         public DownstreamWebApi(
             ITokenAcquisition tokenAcquisition,
-            IOptionsMonitor<CalledApiOptions> namedOptions,
+            IOptionsMonitor<DownstreamApiOptions> namedOptions,
             HttpClient httpClient)
         {
             _tokenAcquisition = tokenAcquisition;
@@ -48,11 +48,11 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
             string optionsInstanceName,
-            Action<CalledApiOptions>? calledApiOptionsOverride,
+            Action<DownstreamApiOptions>? calledApiOptionsOverride,
             ClaimsPrincipal? user,
-            StringContent? content)
+            StringContent? requestContent)
         {
-            CalledApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledApiOptionsOverride);
+            DownstreamApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledApiOptionsOverride);
 
             // verify scopes is not null
             if (string.IsNullOrEmpty(effectiveOptions.Scopes))
@@ -66,9 +66,9 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(effectiveOptions.HttpMethod, effectiveOptions.GetApiUrl()))
             {
-                if (content != null)
+                if (requestContent != null)
                 {
-                    httpRequestMessage.Content = content;
+                    httpRequestMessage.Content = requestContent;
                 }
 
                 httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
@@ -83,12 +83,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ CalledApiOptions MergeOptions(
+        internal /* for tests */ DownstreamApiOptions MergeOptions(
             string optionsInstanceName,
-            Action<CalledApiOptions>? calledApiOptionsOverride)
+            Action<DownstreamApiOptions>? calledApiOptionsOverride)
         {
             // Gets the options from configuration (or default value)
-            CalledApiOptions options;
+            DownstreamApiOptions options;
             if (optionsInstanceName != null)
             {
                 options = _namedOptions.Get(optionsInstanceName);
@@ -99,17 +99,17 @@ namespace Microsoft.Identity.Web
             }
 
             // Give a chance to the called to override defaults for this call
-            CalledApiOptions clonedOptions = options.Clone();
+            DownstreamApiOptions clonedOptions = options.Clone();
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput> CallWebApiForUserAsync<TInput, TOutput>(
+        public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string optionsInstanceName,
             TInput input,
-            Action<CalledApiOptions>? calledApiOptionsOverride,
-            ClaimsPrincipal? user)
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            ClaimsPrincipal? user = null)
             where TOutput : class
         {
             StringContent? jsoncontent;
@@ -126,7 +126,7 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await CallWebApiForUserAsync(
                 optionsInstanceName,
-                calledApiOptionsOverride,
+                downstreamApiOptionsOverride,
                 user,
                 jsoncontent).ConfigureAwait(false);
 
@@ -146,10 +146,10 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string optionsInstanceName,
-            Action<CalledApiOptions>? calledApiOptionsOverride = null,
-            StringContent? content = null)
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            StringContent? requestContent = null)
         {
-            CalledApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledApiOptionsOverride);
+            DownstreamApiOptions effectiveOptions = MergeOptions(optionsInstanceName, downstreamApiOptionsOverride);
 
             if (effectiveOptions.Scopes == null)
             {

@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.Configure<CalledApiOptions>(optionsInstanceName, configuration);
+            builder.Services.Configure<DownstreamApiOptions>(optionsInstanceName, configuration);
             builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
             return builder;
         }
@@ -47,14 +47,14 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApiService(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string optionsInstanceName,
-            Action<CalledApiOptions> configureOptions)
+            Action<DownstreamApiOptions> configureOptions)
         {
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.Configure<CalledApiOptions>(optionsInstanceName, configureOptions);
+            builder.Services.Configure<DownstreamApiOptions>(optionsInstanceName, configureOptions);
 
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
