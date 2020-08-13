@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Graph;
@@ -9,7 +10,7 @@ using Microsoft.Graph;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication provider based on MSAL.NET.
+    /// Authentication provider based on ITokenAcquisition.
     /// </summary>
     internal class TokenAcquisitionCredentialProvider : IAuthenticationProvider
     {
@@ -30,8 +31,12 @@ namespace Microsoft.Identity.Web
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
             request.Headers.Add(
-                "Authorization",
-                $"Bearer {await _tokenAcquisition.GetAccessTokenForUserAsync(_initialScopes).ConfigureAwait(false)}");
+                Constants.Authorization,
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}{1}",
+                    Constants.Bearer,
+                    await _tokenAcquisition.GetAccessTokenForUserAsync(_initialScopes).ConfigureAwait(false)));
         }
     }
 }
