@@ -51,7 +51,9 @@ namespace Microsoft.Identity.Web
     {
         private ClaimsPrincipal? _user = null;
         private string? _baseUri = null;
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
         private IHttpContextAccessor _httpContextAccessor;
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
@@ -75,7 +77,9 @@ namespace Microsoft.Identity.Web
             get
             {
                 return _user ??
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     (!IsBlazorServer ? _httpContextAccessor.HttpContext.User :
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     throw new InvalidOperationException(IDWebErrorMessage.BlazorServerUserNotSet));
             }
             set
@@ -92,7 +96,9 @@ namespace Microsoft.Identity.Web
             get
             {
                 return _baseUri ??
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case
                     (!IsBlazorServer ? CreateBaseUri(_httpContextAccessor.HttpContext.Request) :
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case
                     throw new InvalidOperationException(IDWebErrorMessage.BlazorServerBaseUriNotSet));
             }
             set
@@ -144,7 +150,9 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     var request = _httpContextAccessor.HttpContext.Request;
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     redirectUri = string.Format(
                         CultureInfo.InvariantCulture,
                         "{0}{1}",
@@ -166,7 +174,9 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     _httpContextAccessor.HttpContext.Response.Redirect(url);
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                 }
             }
             else
