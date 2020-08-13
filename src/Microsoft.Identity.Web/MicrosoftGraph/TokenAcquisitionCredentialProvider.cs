@@ -9,7 +9,7 @@ using Microsoft.Graph;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication provider based on MSAL.NET.
+    /// Authentication provider based on ITokenAcquisition.
     /// </summary>
     internal class TokenAcquisitionCredentialProvider : IAuthenticationProvider
     {
