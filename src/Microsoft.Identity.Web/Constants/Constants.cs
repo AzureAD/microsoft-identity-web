@@ -58,8 +58,9 @@ namespace Microsoft.Identity.Web
         public const string Bearer = "Bearer";
         public const string LoginHint = "loginHint";
         public const string DomainHint = "domainHint";
+        public const string Authorization = "Authorization";
 
-        // Blazor challenge uri
+        // Blazor challenge URI
         public const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
 
         // Microsoft Graph

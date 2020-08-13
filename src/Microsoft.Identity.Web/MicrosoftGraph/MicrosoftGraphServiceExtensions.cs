@@ -10,7 +10,7 @@ using Microsoft.Graph;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions methods on a MicrososoftIdentityAppCallingWebApiAuthenticationBuilder builder
+    /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
     /// </summary>
     public static class MicrosoftGraphServiceExtensions
