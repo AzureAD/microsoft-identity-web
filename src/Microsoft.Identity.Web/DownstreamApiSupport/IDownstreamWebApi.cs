@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
         /// will find the user itself.</param>
         /// <returns>The value returned by the API.</returns>
         /// <example>
-        /// A list method that returns an IEnumerable&lt;Todo&gt;&gt;
+        /// A list method that returns an IEnumerable&lt;Todo&gt;&gt;.
         /// <code>
         /// public async Task&lt;IEnumerable&lt;Todo&gt;&gt; GetAsync()
         /// {

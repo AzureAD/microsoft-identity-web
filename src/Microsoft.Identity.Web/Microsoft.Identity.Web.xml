@@ -666,7 +666,54 @@
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal)" -->
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal)">
+             <summary>
+             Calls a Web API consuming JSon with some data and returns data.
+             </summary>
+             <typeparam name="TInput">Input type.</typeparam>
+             <typeparam name="TOutput">Output type.</typeparam>
+             <param name="optionsInstanceName">Name of the options instance describing the API. There can
+             be several configuration namedsections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamApiOptions"/>,
+             each for one API. You can pass-in null, but in that case <paramref name="downstreamApiOptionsOverride"/>
+             need to be set.</param>
+             <param name="input">Input parameter to the API.</param>
+             <param name="downstreamApiOptionsOverride">Overides the options proposed in the configuration described
+             by <paramref name="optionsInstanceName"/>.</param>
+             <param name="user">[Optional] claims representing a user. This is useful in scenarios like Blazor
+             or Azure Signal R where the HttpContext is not available. In the other scenarios, the library
+             will find the user itself.</param>
+             <returns>The value returned by the API.</returns>
+             <example>
+             A list method that returns an IEnumerable&lt;Todo&gt;&gt;.
+             <code>
+             public async Task&lt;IEnumerable&lt;Todo&gt;&gt; GetAsync()
+             {
+              return await _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;Todo&gt;&gt;(
+                     ServiceName,
+                     null,
+                     options =>
+                     {
+                       options.RelativePath = $"api/todolist";
+                     });
+             }
+             </code>
+            
+             Example of editing.
+             <code>
+             public async Task&lt;Todo&gt; EditAsync(Todo todo)
+             {
+               return await _downstreamWebApi.CallWebApiForUserAsync&lt;Todo, Todo&gt;(
+                     ServiceName,
+                     todo,
+                     options =>
+                     {
+                        options.HttpMethod = HttpMethod.Patch;
+                        options.RelativePath = $"api/todolist/{todo.Id}";
+                     });
+             }
+             </code>
+             </example>
+        </member>
         <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Net.Http.StringContent)">
             <summary>
             Calls the Web API for the app, with the required scopes.
