@@ -30,9 +30,9 @@ namespace blazor
                     .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
                         .EnableTokenAcquisitionToCallDownstreamApi()
                             .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                            .AddDownstreamWebApiService("CalledApi", Configuration.GetSection("CalledApi"))
                         .AddInMemoryTokenCaches();
 
-            services.AddDownstreamWebApiService(Configuration);
             services.AddControllersWithViews()
                     .AddMicrosoftIdentityUI();
 
