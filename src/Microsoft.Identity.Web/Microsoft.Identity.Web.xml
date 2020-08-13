@@ -727,6 +727,67 @@
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftGraphOptions">
+            <summary>
+            Options passed-in to call Microsoft Graph.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftGraphOptions.BaseUrl">
+            <summary>
+            Base URL for the Microsoft Graph API. By default: <c>"https://graph.microsoft.com/v1.0/"</c>
+            but it can be changed to use the Microsoft Graph Beta endpoint or national cloud versions
+            of MicrosoftGraph.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftGraphOptions.Scopes">
+            <summary>
+            Space separated scopes used to call Microsoft Graph,
+            for instance <c>user.read mail.read</c>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions">
+            <summary>
+            Extensions methods on a MicrososoftAppCallingWebApiAuthenticationBuilder builder
+            to add support to call Microsoft Graph.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection)">
+            <summary>
+            Add support to calls Microsoft graph. From a named option and a configuration section.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="configurationSection">Configuraiton section.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.String)">
+            <summary>
+            Add support to calls Microsoft graph. From a base graph Url and a default scope.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="graphBaseUrl">Named instance of option.</param>
+            <param name="defaultScopes">Configuraiton section.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftGraphOptions})">
+            <summary>
+            Add support to calls Microsoft graph. From a named options and a configuraiton method.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
+            <returns>The builder to chain.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider">
+            <summary>
+            Authentication provider based on MSAL.NET.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider.AuthenticateRequestAsync(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Adds a bearer header to an HttpRequestMessage.
+            </summary>
+            <param name="request">HttpRequest message to authenticate.</param>
+            <returns>A Task (as this is an async method).</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder">
             <summary>
             Base class for Web app and Web API Microsoft Identity authentication
