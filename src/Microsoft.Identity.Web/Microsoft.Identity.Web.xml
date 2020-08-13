@@ -530,6 +530,157 @@
             </remarks>
             <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.DownstreamApiOptions">
+            <summary>
+            Options passed-in to call web APIs. To call Microsoft Graph, see rather
+            <see cref="T:Microsoft.Identity.Web.MicrosoftGraphOptions"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.BaseUrl">
+            <summary>
+            Base URL for the called Web API. For instance <c>"https://graph.microsoft.com/beta/".</c>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.RelativePath">
+            <summary>
+            Path relative to the <see cref="P:Microsoft.Identity.Web.DownstreamApiOptions.BaseUrl"/> (for instance "me").
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.Scopes">
+            <summary>
+            Space separated scopes required to call the Web API.
+            For instance "user.read mail.read".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.Tenant">
+            <summary>
+            [Optional] tenant ID. This is used for specific scenarios where
+            the application needs to call a Web API on behalf of a user in several tenants.
+            It would mostly be used from code, not from the configuration.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.UserFlow">
+            <summary>
+            [Optional]. User flow (in the case of a B2C Web API). If not
+            specified, the B2C web API will be called with the default user flow from
+            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamApiOptions.HttpMethod">
+            <summary>
+            Http method used to call this API (by default Get).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamApiOptions.Clone">
+            <summary>
+            Clone the options (to be able to override them).
+            </summary>
+            <returns>A clone of the options.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamApiOptions.GetApiUrl">
+            <summary>
+            Return the Api URL.
+            </summary>
+            <returns>URL of the API.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamApiOptions.GetScopes">
+            <summary>
+            Returns the scopes.
+            </summary>
+            <returns>Scopes.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.DownstreamWebApi">
+            <summary>
+            Implementation for the downstream API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamApiOptions},System.Net.Http.HttpClient)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition service.</param>
+            <param name="namedOptions">Named options provider.</param>
+            <param name="httpClient">Http client.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.MergeOptions(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions})">
+            <summary>
+            Merge the options from configuration and override from caller.
+            </summary>
+            <param name="optionsInstanceName">Named configuration.</param>
+            <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Net.Http.StringContent)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.DownstreamApiServiceExtensions">
+            <summary>
+            Extension methods to support downstream api services.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds a named downstream API service related to a specific configuration section.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="optionsInstanceName">Name of the configuration for the service.
+            This is the name which will be used when calling the service from controller/pages.</param>
+            <param name="configuration">Configuration.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamApiServiceExtensions.AddDownstreamApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions})">
+            <summary>
+            Adds a named downstream API service initialized with delegates.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="optionsInstanceName">Name of the configuration for the service.
+            This is the name which will be used when calling the service from controller/pages.</param>
+            <param name="configureOptions">Action to configure the options.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.IDownstreamWebApi">
+            <summary>
+            Interface used to call a downstream web API, for instance from controllers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
+            <summary>
+            Calls the Web API for the user, based on a description of the
+            web API in the configuration.
+            </summary>
+            <param name="optionsInstanceName">Name of the options instance describing the API. There can
+            be several configuration namedsections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamApiOptions"/>,
+            each for one API. You can pass-in null, but in that case <paramref name="calledApiOptionsOverride"/>
+            need to be set.</param>
+            <param name="calledApiOptionsOverride">Overides the options proposed in the configuration described
+            by <paramref name="optionsInstanceName"/>.</param>
+            <param name="user">[Optional] claims representing a user. This is useful in scenarios like Blazor
+            or Azure Signal R where the HttpContext is not available. In the other scenarios, the library
+            will find the user itself.</param>
+            <param name="content">Http content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamApiOptions.HttpMethod"/> is
+            <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
+            <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Security.Claims.ClaimsPrincipal)" -->
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamApiOptions},System.Net.Http.StringContent)">
+            <summary>
+            Calls the Web API for the app, with the required scopes.
+            </summary>
+            <param name="optionsInstanceName">Name of the options instance describing the API. There can
+            be several configuration namedsections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamApiOptions"/>,
+            each for one API. You can pass-in null, but in that case <paramref name="downstreamApiOptionsOverride"/>
+            need to be set.</param>
+            <param name="downstreamApiOptionsOverride">Overides the options proposed in the configuration described
+            by <paramref name="optionsInstanceName"/>.</param>
+            <param name="content">Http content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamApiOptions.HttpMethod"/> is
+            <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
+            <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>
             Extension methods.
@@ -747,30 +898,30 @@
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions">
             <summary>
-            Extensions methods on a MicrososoftAppCallingWebApiAuthenticationBuilder builder
+            Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
             to add support to call Microsoft Graph.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
-            Add support to calls Microsoft graph. From a named option and a configuration section.
+            Add support to call Microsoft Graph. From a named option and a configuration section.
             </summary>
             <param name="builder">Builder.</param>
-            <param name="configurationSection">Configuraiton section.</param>
+            <param name="configurationSection">Configuration section.</param>
             <returns>The builder to chain.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.String)">
             <summary>
-            Add support to calls Microsoft graph. From a base graph Url and a default scope.
+            Add support to call Microsoft Graph. From a base Graph URL and a default scope.
             </summary>
             <param name="builder">Builder.</param>
             <param name="graphBaseUrl">Named instance of option.</param>
-            <param name="defaultScopes">Configuraiton section.</param>
+            <param name="defaultScopes">Configuration section.</param>
             <returns>The builder to chain.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftGraphServiceExtensions.AddMicrosoftGraphServiceClient(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftGraphOptions})">
             <summary>
-            Add support to calls Microsoft graph. From a named options and a configuraiton method.
+            Add support to call Microsoft Graph. From a named options and a configuration method.
             </summary>
             <param name="builder">Builder.</param>
             <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
@@ -778,7 +929,7 @@
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider">
             <summary>
-            Authentication provider based on MSAL.NET.
+            Authentication provider based on ITokenAcquisition.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionCredentialProvider.AuthenticateRequestAsync(System.Net.Http.HttpRequestMessage)">

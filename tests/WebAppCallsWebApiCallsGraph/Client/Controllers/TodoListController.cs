@@ -14,13 +14,13 @@ namespace TodoListClient.Controllers
     {
         private ITodoListService _todoListService;
 
-        public TodoListController(ITodoListService todoListService)
+        public TodoListController(IDownstreamWebApi downstreamWebApi)
         {
-            _todoListService = todoListService;
+            _todoListService = new Services.TodoListService(downstreamWebApi);
         }
 
         // GET: TodoList
-        [AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        [AuthorizeForScopes(ScopeKeySection = "TodoList:Scopes")]
         public async Task<ActionResult> Index()
         {
             return View(await _todoListService.GetAsync());

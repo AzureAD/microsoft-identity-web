@@ -2,14 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
@@ -19,10 +13,14 @@ namespace TodoListClient.Services
 {
     public static class TodoListServiceExtensions
     {
-        public static void AddTodoListService(this IServiceCollection services, IConfiguration configuration)
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddTodoListService(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder, 
+            IConfiguration configuration)
         {
+            builder.AddDownstreamApiService(TodoListService.ServiceName, configuration);
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            services.AddHttpClient<ITodoListService, TodoListService>();
+            builder.Services.AddHttpClient<ITodoListService, TodoListService>();
+            return builder;
         }
     }
 
@@ -30,130 +28,70 @@ namespace TodoListClient.Services
     /// <seealso cref="TodoListClient.Services.ITodoListService" />
     public class TodoListService : ITodoListService
     {
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly HttpClient _httpClient;
-        private readonly string _TodoListScope = string.Empty;
-        private readonly string _TodoListBaseAddress = string.Empty;
-        private readonly ITokenAcquisition _tokenAcquisition;
-        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
+        private readonly IDownstreamWebApi _downstreamWebApi;
+        public const string ServiceName = "TodoList";
 
-        public TodoListService(ITokenAcquisition tokenAcquisition, HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor contextAccessor)
+        public TodoListService(IDownstreamWebApi downstreamWebApi)
         {
-            _httpClient = httpClient;
-            _tokenAcquisition = tokenAcquisition;
-            _contextAccessor = contextAccessor;
-            _TodoListScope = configuration["TodoList:TodoListScope"];
-            _TodoListBaseAddress = configuration["TodoList:TodoListBaseAddress"];
+            _downstreamWebApi = downstreamWebApi;
         }
 
         public async Task<Todo> AddAsync(Todo todo)
         {
-            var httpRequestMessage = await PrepareAuthenticatedClient(
-              $"{ _TodoListBaseAddress}/api/todolist",
-              HttpMethod.Post);
-
-            var jsonRequest = JsonSerializer.Serialize(todo);
-            var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-            httpRequestMessage.Content = jsoncontent;
-
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                todo = JsonSerializer.Deserialize<Todo>(content, _jsonOptions);
-
-                return todo;
-            }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+            return await _downstreamWebApi.CallWebApiForUserAsync<Todo, Todo>(
+                ServiceName,
+                todo,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Post;
+                    options.RelativePath = "api/todolist";
+                });
         }
 
         public async Task DeleteAsync(int id)
         {
-            var httpRequestMessage = await PrepareAuthenticatedClient(
-               $"{ _TodoListBaseAddress}/api/todolist/{id}",
-               HttpMethod.Delete);
-
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                return;
-            }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+            await _downstreamWebApi.CallWebApiForUserAsync(
+                ServiceName,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Delete;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
         }
 
         public async Task<Todo> EditAsync(Todo todo)
         {
-            var httpRequestMessage = await PrepareAuthenticatedClient(
-                $"{ _TodoListBaseAddress}/api/todolist/{todo.Id}", 
-                HttpMethod.Patch);
-
-            var jsonRequest = JsonSerializer.Serialize(todo);
-            var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json-patch+json");
-
-            httpRequestMessage.Content = jsoncontent;
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                todo = JsonSerializer.Deserialize<Todo>(content, _jsonOptions);
-
-                return todo;
-            }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+            return await _downstreamWebApi.CallWebApiForUserAsync<Todo, Todo>(
+                ServiceName,
+                todo,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Patch;
+                    options.RelativePath = $"api/todolist/{todo.Id}";
+                });
         }
 
         public async Task<IEnumerable<Todo>> GetAsync()
         {
-            var httpRequestMessage = await PrepareAuthenticatedClient(
-                $"{ _TodoListBaseAddress}/api/todolist",
-                HttpMethod.Get);
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-            var content = await response.Content.ReadAsStringAsync();   
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                IEnumerable<Todo> todolist = JsonSerializer.Deserialize<IEnumerable<Todo>>(content, _jsonOptions);
-                return todolist;
-            }
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}. Cause: {content}");
+            return await _downstreamWebApi.CallWebApiForUserAsync<object, IEnumerable <Todo>>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.RelativePath = $"api/todolist";
+                });
         }
 
         public async Task<Todo> GetAsync(int id)
         {
-            var httpRequestMessage = await PrepareAuthenticatedClient(
-                $"{ _TodoListBaseAddress}/api/todolist/{id}",
-                HttpMethod.Get);
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                Todo todo = JsonSerializer.Deserialize<Todo>(content, _jsonOptions);
-
-                return todo;
-            }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
-        }
-
-        private async Task<HttpRequestMessage> PrepareAuthenticatedClient(
-            string url,
-            HttpMethod httpMethod)
-        {
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(new[] { _TodoListScope });
-            Debug.WriteLine($"access token-{accessToken}");
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(httpMethod, url);
-            httpRequestMessage.Headers.Add("Authorization", $"bearer {accessToken}");
-            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            return httpRequestMessage;
+            return await _downstreamWebApi.CallWebApiForUserAsync<object, Todo>(
+                ServiceName,
+                null,
+                options =>
+                {
+                    options.HttpMethod = HttpMethod.Get;
+                    options.RelativePath = $"api/todolist/{id}";
+                });
         }
     }
 }
