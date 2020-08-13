@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,8 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
 using NSubstitute.Extensions;
@@ -203,7 +206,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task AddMicrosoftWebApp_WithConfigActionParameters_B2cSpecificSetup()
+        public async Task AddMicrosoftIdentityWebApp_WithConfigActionParameters_B2cSpecificSetup()
         {
             _configureMsOptions = (options) =>
             {
@@ -230,7 +233,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task AddMicrosoftWebAppCallsWebApi_WithConfigNameParameters()
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParameters()
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
@@ -272,7 +275,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task AddMicrosoftWebAppCallsWebApi_WithConfigActionParameters()
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParameters()
         {
             var initialScopes = new List<string>() { "custom_scope" };
             var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
@@ -314,7 +317,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void AddMicrosoftWebAppCallsWebApi_NoScopes()
+        public void AddMicrosoftIdentityWebAppCallsWebApi_NoScopes()
         {
             // Arrange & Act
             var services = new ServiceCollection();
@@ -336,7 +339,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("http://localhost:123")]
         [InlineData("https://localhost:123")]
-        public async void AddMicrosoftWebApp_RedirectUri(string expectedUri)
+        public async void AddMicrosoftIdentityWebApp_RedirectUri(string expectedUri)
         {
             _configureMsOptions = (options) =>
             {
@@ -367,6 +370,21 @@ namespace Microsoft.Identity.Web.Test
             await oidcOptions.Events.RedirectToIdentityProviderForSignOut(redirectContext).ConfigureAwait(false);
 
             Assert.Equal(expectedUri, redirectContext.ProtocolMessage.RedirectUri);
+        }
+
+        [Fact]
+        public void AddMicrosoftIdentityWebApp_AddsInMemoryTokenCaches()
+        {
+            var services = new ServiceCollection();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(_configureMsOptions)
+                .EnableTokenAcquisitionToCallDownstreamApi(_configureAppOptions)
+                .AddInMemoryTokenCaches(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1));
+
+            // Assert correct services added
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MsalMemoryTokenCacheOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IMemoryCache));
+            Assert.Contains(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
         }
 
         private void AddMicrosoftIdentityWebApp_TestCommon(IServiceCollection services, ServiceProvider provider)
