@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
     /// </summary>
-    public static class MicrosoftGraphServiceExtensions
+    public static class MicrosoftGraphExtensions
     {
         /// <summary>
         /// Add support to call Microsoft Graph. From a named option and a configuration section.
@@ -21,11 +21,11 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             IConfigurationSection configurationSection)
         {
-            return builder.AddMicrosoftGraphServiceClient(
+            return builder.AddMicrosoftGraph(
                 options => configurationSection.Bind(options));
         }
 
@@ -36,12 +36,12 @@ namespace Microsoft.Identity.Web
         /// <param name="graphBaseUrl">Named instance of option.</param>
         /// <param name="defaultScopes">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string graphBaseUrl = Constants.GraphBaseUrlV1,
             string defaultScopes = Constants.UserReadScope)
         {
-            return builder.AddMicrosoftGraphServiceClient(
+            return builder.AddMicrosoftGraph(
                 options =>
                 {
                     options.BaseUrl = graphBaseUrl;
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configureMicrosoftGraphOptions">Method to configure the options.</param>
         /// <returns>The builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphServiceClient(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Action<MicrosoftGraphOptions> configureMicrosoftGraphOptions)
         {

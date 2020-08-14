@@ -29,7 +29,7 @@ namespace blazor
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                            .AddMicrosoftGraphServiceClient(Configuration.GetSection("GraphBeta"))
+                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                             .AddDownstreamWebApiService("CalledApi", Configuration.GetSection("CalledApi"))
                         .AddInMemoryTokenCaches();
 
