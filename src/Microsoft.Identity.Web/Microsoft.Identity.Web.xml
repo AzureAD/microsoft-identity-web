@@ -559,12 +559,12 @@
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
             <inheritdoc/>
         </member>
-        <member name="T:Microsoft.Identity.Web.DownstreamWebApiServiceExtensions">
+        <member name="T:Microsoft.Identity.Web.DownstreamWebApiExtensions">
             <summary>
             Extension methods to support downstream web API services.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiServiceExtensions.AddDownstreamWebApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             Adds a named downstream web API service related to a specific configuration section.
             </summary>
@@ -574,7 +574,7 @@
             <param name="configuration">Configuration.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiServiceExtensions.AddDownstreamWebApiService(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
             <summary>
             Adds a named downstream web API service initialized with delegates.
             </summary>

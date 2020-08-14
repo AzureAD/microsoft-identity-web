@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension methods to support downstream web API services.
     /// </summary>
-    public static class DownstreamWebApiServiceExtensions
+    public static class DownstreamWebApiExtensions
     {
         /// <summary>
         /// Adds a named downstream web API service related to a specific configuration section.
@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApiService(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
             IConfiguration configuration)
@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// This is the name which will be used when calling the service from controller/pages.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
         /// <returns>The builder for chaining.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApiService(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
             Action<DownstreamWebApiOptions> configureOptions)
