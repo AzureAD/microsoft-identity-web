@@ -14,7 +14,7 @@ namespace BlazorServerWeb_CSharp
 
     public static class DownstreamWebApiExtensions
     {
-        public static void AddDownstreamWebApiService(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDownstreamWebApi(this IServiceCollection services, IConfiguration configuration)
         {
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();

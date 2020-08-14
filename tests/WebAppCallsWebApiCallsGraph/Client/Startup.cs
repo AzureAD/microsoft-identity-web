@@ -44,7 +44,7 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
               .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
                  .EnableTokenAcquisitionToCallDownstreamApi()
-                     .AddDownstreamWebApiService("TodoList", Configuration.GetSection("TodoList"))
+                     .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
                      .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews(options =>
