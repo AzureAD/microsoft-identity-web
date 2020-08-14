@@ -72,35 +72,27 @@ namespace BlazorServerWeb_CSharp
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
-#if (GenerateApiOrGraph)
-            string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
-#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddInMemoryTokenCaches();
+#if (GenerateApi)
+                            .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+#endif
+#if (GenerateGraph)
+                            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+#endif
+                            .AddInMemoryTokenCaches();
 #else
                     ;
 #endif
-#if (GenerateApi)
-            services.AddDownstreamWebApiService(Configuration);
-#endif
-#if (GenerateGraph)
-            services.AddMicrosoftGraph(scopes,
-                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
-#endif
 #elif (IndividualB2CAuth)
-#if (GenerateApi)
-            string[] scopes = Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' ');
-#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddInMemoryTokenCaches();
-
-            services.AddDownstreamWebApiService(Configuration);
+                            .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                            .AddInMemoryTokenCaches();
 #else
                     ;
 #endif

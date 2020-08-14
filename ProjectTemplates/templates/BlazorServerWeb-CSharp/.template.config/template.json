@@ -131,24 +131,25 @@
         {
           "condition": "(!GenerateApi)",
             "exclude": [
-              "Services/DownstreamWebApi.cs",
               "Pages/CallWebApi.razor"
+            ]
+        },
+        {
+          "condition": "(!GenerateGraph)",
+          "exclude": [
+            "Shared/NavMenu.CallsMicrosoftGraph.razor",
+            "Pages/ShowProfile.razor"
             ]
         },
         {
           "condition": "(!GenerateApiOrGraph)",
           "rename": {
             "Shared/NavMenu.NoGraphOrApi.razor": "Shared/NavMenu.razor"
-          }
-        },
-        {
-          "condition": "(!GenerateGraph)",
+          },
           "exclude": [
-            "Services/MicrosoftGraphServiceExtensions.cs",
-            "Services/TokenAcquisitionCredentialProvider.cs",
             "Shared/NavMenu.CallsMicrosoftGraph.razor",
-            "Pages/ShowProfile.razor"
-            ]
+            "Shared/NavMenu.CallsWebApi.razor"
+          ]
         },
         {
           "condition": "(GenerateGraph)",
@@ -156,8 +157,9 @@
             "Shared/NavMenu.CallsMicrosoftGraph.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
-            "Shared/NavMenu.NoGraphOrApi.razor"
-            ]
+            "Shared/NavMenu.NoGraphOrApi.razor",
+            "Shared/NavMenu.CallsWebApi.razor"
+          ]
         },
         {
           "condition": "(GenerateApi)",
@@ -165,8 +167,9 @@
             "Shared/NavMenu.CallsWebApi.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
-            "Shared/NavMenu.NoGraphOrApi.razor"
-            ]
+            "Shared/NavMenu.NoGraphOrApi.razor",
+            "Shared/NavMenu.CallsMicrosoftGraph.razor"
+          ]
         }
       ]
     }
@@ -424,7 +427,7 @@
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\"))"
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/beta\" || CalledApiScopes != \"user.read\"))"
     },
     "GenerateGraph": {
         "type": "computed",

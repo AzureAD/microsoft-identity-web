@@ -65,25 +65,23 @@ namespace ComponentsWebAssembly_CSharp.Server
                     .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddInMemoryTokenCaches();
-#else
-                    ;
-#endif
 #if (GenerateApi)
-            services.AddDownstreamWebApiService(Configuration);
+                            .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
 #endif
 #if (GenerateGraph)
-            services.AddMicrosoftGraph(Configuration.GetValue<string>("CalledApi:CalledApiScopes")?.Split(' '),
-                                       Configuration.GetValue<string>("CalledApi:CalledApiUrl"));
+                            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+#endif
+                            .AddInMemoryTokenCaches();
+#else
+                    ;
 #endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddInMemoryTokenCaches();
-
-            services.AddDownstreamWebApiService(Configuration);
+                            .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                            .AddInMemoryTokenCaches();
 #else
                     ;
 #endif
