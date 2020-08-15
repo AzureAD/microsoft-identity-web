@@ -44,6 +44,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityOrganizationsUSWithV2 = AuthorityOrganizationsUSTenant + "/v2.0";
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
+        public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
 
         // B2C
         public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
@@ -88,6 +89,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string InvalidScopeError = "The scope user.read is not valid.";
         public const string InvalidScopeErrorcode = "AADSTS70011";
         public const string InvalidScope = "invalid_scope";
+        public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
         public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
