@@ -51,8 +51,8 @@ namespace Microsoft.Identity.Web.Test
         };
 
         private Action<MicrosoftGraphOptions> _configureMicrosoftGraphOptions = (options) =>
-        {eUr
-            options.BaseUrl = TestConstants.GraphBaslBeta;
+        {
+            options.BaseUrl = TestConstants.GraphBaseUrlBeta;
             options.Scopes = TestConstants.GraphScopes;
         };
 
@@ -440,6 +440,60 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(Constants.GraphBaseUrlV1, msGraphOptions.Value.BaseUrl);
                 Assert.Equal(Constants.UserReadScope, msGraphOptions.Value.Scopes);
                 Assert.Equal(msGraphOptions.Value.BaseUrl, graphServiceClient.BaseUrl);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddDownstreamWebApiOptionsTest(bool useDownstreamWebApiOptions)
+        {
+            Action<DownstreamWebApiOptions> configureDownstreamWebApiOptions = (options) =>
+           {
+               options.BaseUrl = TestConstants.GraphBaseUrlBeta;
+               options.Scopes = TestConstants.Scopes;
+               options.Tenant = TestConstants.TenantIdAsGuid;
+           };
+
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            if (useDownstreamWebApiOptions)
+            {
+                builder.AddDownstreamWebApi(ConfigSectionName, configureDownstreamWebApiOptions);
+            }
+            else
+            {
+                builder.AddDownstreamWebApi(ConfigSectionName, configMock);
+            }
+
+            var provider = services.BuildServiceProvider();
+            // Assert correct services added
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<DownstreamWebApiOptions>));
+
+            // Assert properties set
+            var downstreamWebApiOptions = provider.GetRequiredService<IOptionsSnapshot<DownstreamWebApiOptions>>();
+            IDownstreamWebApi downstreamWebApi = provider.GetRequiredService<IDownstreamWebApi>();
+
+            if (useDownstreamWebApiOptions)
+            {
+                Assert.Equal(TestConstants.GraphBaseUrlBeta, downstreamWebApiOptions.Get(ConfigSectionName).BaseUrl);
+                Assert.Equal(TestConstants.Scopes, downstreamWebApiOptions.Get(ConfigSectionName).Scopes);
+                Assert.Equal(TestConstants.TenantIdAsGuid, downstreamWebApiOptions.Get(ConfigSectionName).Tenant);
+            }
+            else
+            {
+                Assert.Equal(Constants.GraphBaseUrlV1, downstreamWebApiOptions.Get(ConfigSectionName).BaseUrl);
+                Assert.Null(downstreamWebApiOptions.Get(ConfigSectionName).Scopes);
+                Assert.Null(downstreamWebApiOptions.Get(ConfigSectionName).Tenant);
             }
         }
 
