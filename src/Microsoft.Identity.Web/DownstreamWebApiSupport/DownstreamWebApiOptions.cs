@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Base URL for the called downstream web API. For instance <c>"https://graph.microsoft.com/beta/".</c>.
         /// </summary>
-        public string BaseUrl { get; set; } = "https://graph.microsoft.com/v1.0";
+        public string BaseUrl { get; set; } = Constants.GraphBaseUrlV1;
 
         /// <summary>
         /// Path relative to the <see cref="BaseUrl"/> (for instance "me").

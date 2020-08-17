@@ -13,12 +13,12 @@ namespace Microsoft.Identity.Web
         /// but it can be changed to use the Microsoft Graph Beta endpoint or national cloud versions
         /// of MicrosoftGraph.
         /// </summary>
-        public string BaseUrl { get; set; } = "https://graph.microsoft.com/v1.0/";
+        public string BaseUrl { get; set; } = Constants.GraphBaseUrlV1;
 
         /// <summary>
         /// Space separated scopes used to call Microsoft Graph,
         /// for instance <c>user.read mail.read</c>.
         /// </summary>
-        public string? Scopes { get; set; } = "user.read";
+        public string? Scopes { get; set; } = Constants.UserReadScope;
     }
 }
