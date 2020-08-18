@@ -1,8 +1,39 @@
+0.3.0-preview
+============
+### API Breaking Changes:
+Before | After
+-- | --
+services.AddMicrosoftWebAppAuthentication() | services.AddMicrosoftIdentityWebAppAuthentication()
+services.AddAuthentication().AddMicrosoftWebApp() | services.AddAuthentication().AddMicrosoftIdentityWebApp()
+services.AddMicrosoftWebApiAuthentication() | services.AddMicrosoftIdentityWebApiAuthentication()
+services.AddAuthentication().AddMicrosoftWebApi() | services.AddAuthentication().AddMicrosoftIdentityWebApi()
+services.AddAuthentication().AddMicrosoftWebApp().AddMicrosoftWebAppCallsWebApi() | services.AddAuthentication().AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi()
+services.AddAuthentication().AddMicrosoftWebApi().AddMicrosoftWebApiCallsWebApi() | services.AddAuthentication().AddMicrosoftIdentityWebApi().EnableTokenAcquisitionToCallDownstreamApi()
+services.AddInMemoryTokenCaches() | .EnableTokenAcquisitionToCallDownstreamApi().AddInMemoryTokenCaches()
+services.AddDistributedTokenCaches() | .EnableTokenAcquisitionToCallDownstreamApi().AddDistributedTokenCaches()
+services.AddSessionTokenCaches() | .EnableTokenAcquisitionToCallDownstreamApi().AddSessionTokenCaches()
+services.AddMicrosoftGraph() | .EnableTokenAcquisitionToCallDownstreamApi().AddMicrosoftGraph()
+services.AddDownstreamApiService() | .EnableTokenAcquisitionToCallDownstreamApi().AddDownstreamApi()
+
+See issue [#378](https://github.com/AzureAD/microsoft-identity-web/issues/378) and the [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/0.3.0-preview) for more information on the new API.
+
+**`AddInMemoryTokenCaches` method now accepts an optional `MsalMemoryTokenCacheOptions` delegate parameter**.  See issue for details: [#426](https://github.com/AzureAD/microsoft-identity-web/issues/426).
+**`GetAccessTokenForAppAsync` method now accepts an optional `tenant` parameter**, which allows applications authorized in multiple tenants to request tokens.  See issue for details: [#413](https://github.com/AzureAD/microsoft-identity-web/issues/413).
+
+
+### New Features:
+**Microsoft Identity Web now provides methods that simplify calling Microsoft Graph and any downstream APIs**. See [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/0.3.0-preview) and issues for details: [#403](https://github.com/AzureAD/microsoft-identity-web/issues/403), [#427](https://github.com/AzureAD/microsoft-identity-web/issues/427).
+**Project templates, samples, and dev apps were updated to use the new public API**.  See issues for details: [#453](https://github.com/AzureAD/microsoft-identity-web/issues/453), [#418](https://github.com/AzureAD/microsoft-identity-web/issues/418).
+
+### Bug Fixes:
+**Previously domain hint was added to the request only if the login hint was present also**. The presence of domain and login hints is now validated separately. See issue for details: [#415](https://github.com/AzureAD/microsoft-identity-web/issues/415).
+**Fixed a `NullReferenceException` on `NavigationManager` that occurred on Blazor server with Azure SignalR when using a pre-rendering mode**. See issue for details: [#437](https://github.com/AzureAD/microsoft-identity-web/issues/437).
+
 0.2.3-preview
 ============
 ### New features:
 **`ReplyForbiddenWithWwwAuthenticateHeaderAsync` method in `ITokenAcquisition` now has an additional optional `HttpResponse` parameter**, which can be provided in cases when the current `HttpContext` is null.  See issue for details: [#414](https://github.com/AzureAD/microsoft-identity-web/issues/414).
-**Enable Micorosoft.Identity.Web to work with any version of .NET 5.0** by settting depencencies version to `5.0.0-*` for `JwtBearer` and `OpenIdConnect` dependencies**. See issue for details: [#380](https://github.com/AzureAD/microsoft-identity-web/issues/380).
+**Enable Micorosoft.Identity.Web to work with any version of .NET 5.0** by setting dependencies version to `5.0.0-*` for `JwtBearer` and `OpenIdConnect` dependencies**. See issue for details: [#380](https://github.com/AzureAD/microsoft-identity-web/issues/380).
 
 0.2.2-preview
 ============
