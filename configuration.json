@@ -1,0 +1,106 @@
+{
+    "Parameters": {
+        "B2C_Instance": "https://fabrikamb2c.b2clogin.com",
+        "B2C_Client_ClientId": "fdb91ff5-5ce6-41f3-bdbd-8267c817015d",
+        "B2C_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
+        "B2C_Client_Port": "5000",
+        "B2C_Domain": "fabrikamb2c.onmicrosoft.com",
+        "B2C_WebAPI_ClientId": "90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6",
+        "AAD_Domain": "msidentitysamplestesting.onmicrosoft.com",
+        "AAD_TenantId": "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab",
+        "AAD_Client_ClientId": "86699d80-dd21-476a-bcd1-7c1a3d471f75",
+        "AAD_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
+        "AAD_Client_Port": "44357"
+    },
+    "Projects": [
+        {
+            "ProjectRelativeFolder": "blazorserver2/blazorserver2-b2c",
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAdB2C:ClientId",
+                            "SetFrom": "B2C_Client_ClientId"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Domain",
+                            "SetFrom": "B2C_Domain"
+                        }
+                    ]
+                },
+                {
+                    "FileRelativePath": "Properties/launchSettings.json",
+                    "Properties": [
+                        {
+                            "Property": "iisSettings:iisExpress:sslPort",
+                            "SetFrom": "B2C_Client_Port"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ProjectRelativeFolder": "blazorserver2/blazorserver2-b2c-callswebapi",
+            "BasedOn": "blazorserver2/blazorserver2-b2c",
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAdB2C:ClientSecret",
+                            "SetFrom": "B2C_Client_ClientSecret"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ProjectRelativeFolder": "blazorserver2/blazorserver2-singleorg",
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAd:ClientId",
+                            "SetFrom": "AAD_Client_ClientId"
+                        },
+                        {
+                            "Property": "AzureAd:TenantId",
+                            "SetFrom": "AAD_TenantId"
+                        }
+                    ]
+                },
+                {
+                    "FileRelativePath": "Properties/launchSettings.json",
+                    "Properties": [
+                        {
+                            "Property": "iisSettings:iisExpress:sslPort",
+                            "SetFrom": "AAD_Client_Port"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ProjectRelativeFolder": "blazorserver2/blazorserver2-singleorg-callsgraph",
+            "BasedOn": "blazorserver2/blazorserver2-singleorg",
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAd:ClientSecret",
+                            "SetFrom": "AAD_Client_ClientSecret"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ProjectRelativeFolder": "blazorserver2/blazorserver2-singleorg-callswebapi",
+            "BasedOn": "blazorserver2/blazorserver2-singleorg-callsgraph"
+        }
+
+    ]
+}
