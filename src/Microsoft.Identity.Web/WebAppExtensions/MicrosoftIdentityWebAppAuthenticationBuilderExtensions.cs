@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
@@ -20,6 +21,63 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static partial class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
+        /// <summary>
+        /// Add authentication with Microsoft identity platform.
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenID Connect events.
+        /// </param>
+        /// <returns>The authentication builder for chaining.</returns>
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp()")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebApp(
+            this AuthenticationBuilder builder,
+            IConfiguration configuration,
+            string configSectionName = Constants.AzureAd,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
+                builder.AddMicrosoftIdentityWebApp(
+                    configuration,
+                    configSectionName,
+                    openIdConnectScheme,
+                    cookieScheme,
+                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+
+        /// <summary>
+        /// Add authentication with Microsoft identity platform.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
+        /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+        /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the OpenID Connect events.
+        /// </param>
+        /// <returns>The authentication builder for chaining.</returns>
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp()")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebApp(
+            this AuthenticationBuilder builder,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>
+            builder.AddMicrosoftIdentityWebApp(
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+
         /// <summary>
         /// Add authentication to a web app with Microsoft identity platform.
         /// This method expects the configuration file will have a section, named "AzureAd" as default,

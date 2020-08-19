@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,11 +33,11 @@ namespace Microsoft.Identity.Web
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
-            this AuthenticationBuilder builder,
-            IConfiguration configuration,
-            string configSectionName = Constants.AzureAd,
-            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
+        this AuthenticationBuilder builder,
+        IConfiguration configuration,
+        string configSectionName = Constants.AzureAd,
+        string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
+        bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             if (configuration == null)
             {
@@ -232,6 +233,60 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
+        /// </param>
+        /// <returns>The authentication builder to chain.</returns>
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi()")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
+            this AuthenticationBuilder builder,
+            IConfiguration configuration,
+            string configSectionName = Constants.AzureAd,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
+        {
+            return builder.AddMicrosoftIdentityWebApi(
+                configuration,
+                configSectionName,
+                jwtBearerScheme,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
+
+        /// <summary>
+        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
+        /// <param name="configureMicrosoftIdentityOptions">The action to configure the <see cref="MicrosoftIdentityOptions"/>.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
+        /// <returns>The authentication builder to chain.</returns>
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi()")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftWebApi(
+            this AuthenticationBuilder builder,
+            Action<JwtBearerOptions> configureJwtBearerOptions,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
+        {
+            return builder.AddMicrosoftIdentityWebApi(
+                configureJwtBearerOptions,
+                configureMicrosoftIdentityOptions,
+                jwtBearerScheme,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureOptions"><see cref="MsalMemoryTokenCacheOptions"/> to configure.</param>
         /// <returns>the service collection.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddInMemoryTokenCaches(
-            Action<MsalMemoryTokenCacheOptions>? configureOptions = null)
+        Action<MsalMemoryTokenCacheOptions>? configureOptions = null)
         {
             if (configureOptions != null)
             {

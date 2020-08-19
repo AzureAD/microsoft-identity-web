@@ -39,21 +39,21 @@ namespace Microsoft.Identity.Web
         public const string IssuerMetadataUrlIsRequired = "IDW10301: Azure AD Issuer metadata address URL is required. ";
         public const string NoMetadataDocumentRetrieverProvided = "IDW10302: No metadata document retriever is provided. ";
         public const string IssuerDoesNotMatchValidIssuers = "IDW10303: Issuer: '{0}', does not match any of the valid issuers provided for this application. ";
-        public const string B2CTfpIssuerNotSupported = "IDW10304: Microsoft Identity Web does not support a B2C issuer with 'tfp' in the URI. See https://aka.ms/ms-id-web/b2c-issuer for details.";
+        public const string B2CTfpIssuerNotSupported = "IDW10304: Microsoft Identity Web does not support a B2C issuer with 'tfp' in the URI. See https://aka.ms/ms-id-web/b2c-issuer for details. ";
 
         // Protocol IDW10400 = "IDW10400:"
         public const string TenantIdClaimNotPresentInToken = "IDW10401: Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform. ";
         public const string ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. ";
         public const string TokenIsNotJwtToken = "IDW10403: Token is not JWT token. ";
         public const string ClientCredentialScopeParameterShouldEndInDotDefault =
-       "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios.";
+       "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
         public const string ClientCredentialTenantShouldBeTenanted =
-       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios.";
+       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
 
         // MSAL IDW10500 = "IDW10500:"
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";
         public const string MicrosoftIdentityWebChallengeUserException = "IDW10502: An MsalUiRequiredException was thrown due to a challenge for the user. " +
-           "This has occurred in a Blazor page. You need to use `ConsentHandler.HandleException(ex)` to challenge the user. ";
+           "See https://aka.ms/ms-id-web/ca_incremental-consent. ";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";
