@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -34,6 +35,7 @@ namespace Microsoft.Identity.Web
         /// </param>
         /// <returns>The authentication builder to chain extension methods.</returns>
         [Obsolete("Rather use AddMicrosoftIdentityWebAppAuthentication()")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebAppAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,
