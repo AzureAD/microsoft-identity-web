@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
