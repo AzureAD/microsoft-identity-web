@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -33,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// </remarks>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IServiceCollection AddMicrosoftWebAppCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -44,7 +43,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            return builder.EnableTokenAcquisitionToCallDownstreamApi().Services;
+            return builder.EnableTokenAcquisitionToCallDownstreamApi();
         }
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder for chaining.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IServiceCollection AddMicrosoftWebAppCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
@@ -73,7 +72,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            return builder.EnableTokenAcquisitionToCallDownstreamApi(initialScopes).Services;
+            return builder.EnableTokenAcquisitionToCallDownstreamApi(initialScopes);
         }
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder for chaining.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IServiceCollection AddMicrosoftWebAppCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -103,7 +102,7 @@ namespace Microsoft.Identity.Web
 
             return builder.EnableTokenAcquisitionToCallDownstreamApi(
                 configureConfidentialClientApplicationOptions,
-                initialScopes).Services;
+                initialScopes);
         }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -26,7 +25,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IServiceCollection AddMicrosoftWebApiCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
@@ -37,7 +36,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            return builder.EnableTokenAcquisitionToCallDownstreamApi().Services;
+            return builder.EnableTokenAcquisitionToCallDownstreamApi();
         }
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IServiceCollection AddMicrosoftWebApiCallsWebApi(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -61,7 +60,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            return builder.EnableTokenAcquisitionToCallDownstreamApi(configureConfidentialClientApplicationOptions).Services;
+            return builder.EnableTokenAcquisitionToCallDownstreamApi(configureConfidentialClientApplicationOptions);
         }
     }
 }
