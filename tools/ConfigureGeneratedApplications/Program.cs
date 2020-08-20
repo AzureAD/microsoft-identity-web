@@ -88,7 +88,8 @@ namespace ConfigureGeneratedApplications
         private static int GetIndex(JsonElement element)
         {
             Type type = element.GetType();
-            object _idx = type.GetField("_idx", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(element);
+            object _idx = type.GetField("_idx", 
+                                        BindingFlags.NonPublic | BindingFlags.Instance).GetValue(element);
             return (int)_idx;
         }
 

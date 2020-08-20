@@ -38,7 +38,7 @@ namespace ConfigureGeneratedApplications.Model
         /// <returns></returns>
         public IEnumerable<File> GetMergedFiles(IEnumerable<Project> projects)
         {
-            IEnumerable<File> files = GetBasedOnProject(projects)?.Files ?? emptyFiles;
+            IEnumerable<File> files = GetBasedOnProject(projects)?.GetMergedFiles(projects) ?? emptyFiles;
             IEnumerable<File> allFiles = Files != null ? files.Union(Files) : files;
             var allFilesGrouped = allFiles.GroupBy(f => f.FileRelativePath);
             foreach(var fileGrouping in allFilesGrouped)
