@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
 
         public Task OnRemoteFailure(RemoteFailureContext context)
         {
-            context.HandleResponse();
+            //context.HandleResponse();
 
             context.Response.Redirect($"{context.Request.PathBase}/Test");
 
