@@ -44,6 +44,8 @@ namespace Microsoft.Identity.Web
         {
             context.HandleResponse();
 
+            context.Response.Redirect($"{context.Request.PathBase}/Test");
+
             // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
             // because password reset is not supported by a "sign-up or sign-in user flow".
             // Below is a sample error message:
