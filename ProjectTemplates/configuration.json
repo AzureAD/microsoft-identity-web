@@ -68,6 +68,10 @@
                         {
                             "Property": "AzureAd:TenantId",
                             "SetFrom": "AAD_TenantId"
+                        },
+                        {
+                            "Property": "AzureAd:Domain",
+                            "SetFrom": "AAD_Domain"
                         }
                     ]
                 },

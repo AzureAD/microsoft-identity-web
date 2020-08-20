@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DotNet Core Templates", "DotNet Core Templates", "{D845507B-00E8-4506-954E-519CBC0B9F83}"
 	ProjectSection(SolutionItems) = preProject
-		configuration.json = configuration.json
+		ProjectTemplates\configuration.json = ProjectTemplates\configuration.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B919DEC-2539-4357-8E89-8C0CC9889FB4}"
@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-singleOrg-hoste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-singleOrg-hosted4.Shared", "tests\blazorwasm2\Shared\blazorwasm2-singleOrg-hosted4.Shared.csproj", "{F18E5B8C-C6DA-4745-BF83-1CE40FCB95CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigureGeneratedApplications", "tools\ConfigureGeneratedApplications\ConfigureGeneratedApplications.csproj", "{BC82D226-478F-44C3-B48F-AA24597320B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigureGeneratedApplications", "tools\ConfigureGeneratedApplications\ConfigureGeneratedApplications.csproj", "{BC82D226-478F-44C3-B48F-AA24597320B7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{20CDB9B2-D237-413A-8E76-A973597748B0}"
 EndProject
