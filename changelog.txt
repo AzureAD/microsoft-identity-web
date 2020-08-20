@@ -1,6 +1,8 @@
 0.3.0-preview
 ============
 ### API Breaking Changes:
+See https://aka.ms/ms-id-web/0.3.0-preview for more specific details.
+
 Before | After
 -- | --
 services.AddMicrosoftWebAppAuthentication() | services.AddMicrosoftIdentityWebAppAuthentication()
