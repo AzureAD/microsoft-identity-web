@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApiAuthentication()")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApiAuthentication(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApiAuthentication(
             this IServiceCollection services,

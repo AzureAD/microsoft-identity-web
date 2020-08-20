@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilder builder,
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IEnumerable<string>? initialScopes,

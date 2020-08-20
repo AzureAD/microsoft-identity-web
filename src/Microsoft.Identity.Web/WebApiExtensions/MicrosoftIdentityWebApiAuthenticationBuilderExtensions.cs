@@ -235,6 +235,9 @@ namespace Microsoft.Identity.Web
                 });
         }
 
+#pragma warning disable SA1124 // Do not use regions
+        #region Obsolete methods
+
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -247,7 +250,8 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApi()")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
+#pragma warning restore SA1124 // Do not use regions
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
@@ -273,7 +277,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApi()")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
@@ -288,5 +292,6 @@ namespace Microsoft.Identity.Web
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
+        #endregion
     }
 }
