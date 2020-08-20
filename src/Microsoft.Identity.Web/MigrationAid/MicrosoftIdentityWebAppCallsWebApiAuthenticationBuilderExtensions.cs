@@ -60,6 +60,7 @@ namespace Microsoft.Identity.Web
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
         [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IConfiguration configuration,
@@ -86,6 +87,7 @@ namespace Microsoft.Identity.Web
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
         [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilder builder,
             IEnumerable<string>? initialScopes,
