@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the OpenIdConnect events.
         /// </param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebAppAuthentication()")]
+        [Obsolete("Rather use AddMicrosoftIdentityWebAppAuthentication(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebAppAuthentication(
             this IServiceCollection services,

@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">The section name in the config file (by default "AzureAd").</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="jwtBearerScheme">The scheme for the JWT bearer token.</param>
         /// <returns>The authentication builder to chain.</returns>
-        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebApiCallsWebApi(
             this MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration builder,

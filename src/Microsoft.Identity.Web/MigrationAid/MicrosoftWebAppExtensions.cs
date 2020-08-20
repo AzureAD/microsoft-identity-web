@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi()")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,

@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddSessionTokenCaches()
         {
             // Add session if you are planning to use session based token cache
-            var sessionStoreService = Services.FirstOrDefault(x => x.ServiceType.Name == "ISessionStore");
+            var sessionStoreService = Services.FirstOrDefault(x => x.ServiceType.Name == Constants.ISessionStore);
 
             // If not added already
             if (sessionStoreService == null)
