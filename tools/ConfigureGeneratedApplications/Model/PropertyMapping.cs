@@ -1,4 +1,7 @@
-﻿namespace ConfigureGeneratedApplications.Model
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+namespace ConfigureGeneratedApplications.Model
 {
     public class PropertyMapping
     {

@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -108,14 +111,6 @@ namespace ConfigureGeneratedApplications
                 string fileContent = System.IO.File.ReadAllText(filePath);
                 foreach(Replacement r in replacements)
                 {
-
-                    // Does not work.
-                    // string replacedString = fileContent.Substring(r.Index, r.Length);
-                    // if (replacedString != r.ReplaceFrom)
-                    // {
-                    //    throw new ApplicationException("there must be an error in this tool's implementation");
-                    //}
-                    // fileContent = fileContent.Substring(0, r.Index) + r.ReplaceBy + fileContent.Substring(r.Index + r.Length);
                     fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy);
                 }
 
