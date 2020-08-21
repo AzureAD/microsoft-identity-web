@@ -42,9 +42,7 @@ namespace Microsoft.Identity.Web
 
         public Task OnRemoteFailure(RemoteFailureContext context)
         {
-            //context.HandleResponse();
-
-            context.Response.Redirect($"{context.Request.PathBase}/Test");
+            context.HandleResponse();
 
             // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
             // because password reset is not supported by a "sign-up or sign-in user flow".
