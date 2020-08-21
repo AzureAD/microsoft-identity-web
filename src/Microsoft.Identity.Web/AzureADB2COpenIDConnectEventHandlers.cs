@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
             if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains(ErrorCodes.B2CForgottenPassword))
             {
                 // If the user clicked the reset password link, redirect to the reset password route
-                context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
+                // context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
             }
 
             // Access denied errors happen when a user cancels an action on the Azure Active Directory B2C UI. We just redirect back to
@@ -65,11 +65,11 @@ namespace Microsoft.Identity.Web
             // ', error_uri: 'error_uri is null'.
             else if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains(ErrorCodes.AccessDenied))
             {
-                context.Response.Redirect($"{context.Request.PathBase}/");
+                // context.Response.Redirect($"{context.Request.PathBase}/");
             }
             else
             {
-                context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/Error");
+                // context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/Error");
             }
 
             return Task.CompletedTask;
