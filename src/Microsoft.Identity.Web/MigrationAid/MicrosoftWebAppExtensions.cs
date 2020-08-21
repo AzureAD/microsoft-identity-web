@@ -1,27 +1,25 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization.
+    /// Extension methods for web apps.
     /// </summary>
-    public static class MicrosoftIdentityWebAppCallsWebApiAuthenticationBuilderExtensions
+    public static class MicrosoftWebAppExtensions
     {
         /// <summary>
         /// Add MSAL support to the web app or web API.
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
-        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> to which to add this configuration.</param>
         /// <param name="configuration">The configuration instance.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
         /// settings to initialize authentication options.</param>
@@ -32,25 +30,26 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method cannot be used with Azure AD B2C, as with B2C an initial scope needs
         /// to be provided.
         /// </remarks>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
-            return builder.AddMicrosoftWebAppCallsWebApi(
-                null,
-                options => configuration.Bind(configSectionName, options),
-                options => configuration.Bind(configSectionName, options),
-                openIdConnectScheme);
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.EnableTokenAcquisitionToCallDownstreamApi();
         }
 
         /// <summary>
         /// Add MSAL support to the web app or web API.
         /// </summary>
-        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> to which to add this configuration.</param>
         /// <param name="configuration">The configuration instance.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configSectionName">The name of the configuration section with the necessary
@@ -59,26 +58,27 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
-            return builder.AddMicrosoftWebAppCallsWebApi(
-                initialScopes,
-                options => configuration.Bind(configSectionName, options),
-                options => configuration.Bind(configSectionName, options),
-                openIdConnectScheme);
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.EnableTokenAcquisitionToCallDownstreamApi(initialScopes);
         }
 
         /// <summary>
         /// Add MSAL support to the web app or web API.
         /// </summary>
-        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="builder">The <see cref="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> to which to add this configuration.</param>
         /// <param name="initialScopes">Initial scopes to request at sign-in.</param>
         /// <param name="configureMicrosoftIdentityOptions">The action to set the <see cref="MicrosoftIdentityOptions"/>.</param>
         /// <param name="configureConfidentialClientApplicationOptions">The action to set the <see cref="ConfidentialClientApplicationOptions"/>.</param>
@@ -86,37 +86,23 @@ namespace Microsoft.Identity.Web
         /// (by default, <c>OpenIdConnectDefaults.AuthenticationScheme</c>). This can be specified when you want to support
         /// several OpenID Connect identity providers.</param>
         /// <returns>The authentication builder for chaining.</returns>
-        [Obsolete("Rather use AddMicrosoftIdentityWebApp().EnableTokenAcquisitionToCallDownstreamApi. See https://aka.ms/ms-id-web/0.3.0-preview")]
+        [Obsolete("Rather use EnableTokenAcquisitionToCallDownstreamApi(). See https://aka.ms/ms-id-web/0.3.0-preview")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
-            this MicrosoftIdentityWebAppAuthenticationBuilder builder,
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
+            this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
-            if (builder == null)
+            if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (configureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
-
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
-
-            MicrosoftIdentityWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(
-                builder.Services,
-                initialScopes,
-                configureMicrosoftIdentityOptions,
-                openIdConnectScheme,
-                configureConfidentialClientApplicationOptions);
-            return builder;
+            return builder.EnableTokenAcquisitionToCallDownstreamApi(
+                configureConfidentialClientApplicationOptions,
+                initialScopes);
         }
     }
 }
