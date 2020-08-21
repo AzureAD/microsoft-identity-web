@@ -47,7 +47,11 @@ namespace ConfigureGeneratedApplications.Model
                 yield return new File
                 {
                     FileRelativePath = fileGrouping.Key,
-                    Properties = fileGrouping.SelectMany(f => f.Properties).ToArray()
+                    Properties = fileGrouping.SelectMany(f => f.Properties).ToArray(),
+                    Replacements = fileGrouping.SelectMany(f => f.Replacements)
+                                               .Select(r => new Replacement(fileGrouping.Key,
+                                                                            0, 0, r.ReplaceFrom, r.ReplaceBy)
+                                                          ).ToArray()
                 };
             }
         }

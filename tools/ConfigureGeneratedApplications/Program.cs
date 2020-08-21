@@ -25,7 +25,8 @@ namespace ConfigureGeneratedApplications
             string folderToConfigure = args.Length > 1 ? args[1] :  defaultFolderToConfigure;
 
             string configurationFileContent = System.IO.File.ReadAllText(configurationFilePath);
-            Configuration configuration = JsonSerializer.Deserialize<Configuration>(configurationFileContent);
+            Configuration configuration = JsonSerializer.Deserialize<Configuration>(configurationFileContent,
+                                                                                    serializerOptionsWithComments);
 
             foreach(Project project in configuration.Projects)
             {
@@ -39,6 +40,11 @@ namespace ConfigureGeneratedApplications
 
 
         static List<Replacement> replacements = new List<Replacement>();
+
+        static JsonSerializerOptions serializerOptionsWithComments = new JsonSerializerOptions()
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
 
         private static void ProcessProject(string folderToConfigure, Configuration configuration, Project project)
         {
@@ -58,10 +64,8 @@ namespace ConfigureGeneratedApplications
             if (filePath.EndsWith(".json"))
             {
                 string fileContent = System.IO.File.ReadAllText(filePath);
-                JsonElement jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent, 
-                        new JsonSerializerOptions() 
-                        { ReadCommentHandling = JsonCommentHandling.Skip 
-                        });
+                JsonElement jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
+                                                                                  serializerOptionsWithComments);
 
                 foreach (PropertyMapping propertyMapping in file.Properties)
                 {
@@ -84,7 +88,15 @@ namespace ConfigureGeneratedApplications
 
                     AddReplacement(filePath, index, length, replaceFrom, replaceBy);
                 }
+            }
 
+            if (file.Replacements != null && file.Replacements.Any())
+            {
+                foreach(Replacement r in file.Replacements)
+                {
+                    r.FilePath = filePath;
+                }
+                replacements.AddRange(file.Replacements); 
             }
         }
 
