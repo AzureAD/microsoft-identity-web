@@ -266,6 +266,9 @@ cd ..
 
 cd ..
 
+echo "Configure the applications"
+..\..\..\..\tools\ConfigureGeneratedApplications\bin\Debug\net5.0\ConfigureGeneratedApplications.exe
+
 echo "Build the solution with all the projects created by applying the templates"
 dotnet build
 
@@ -276,3 +279,4 @@ cd ..
 dotnet new -u Microsoft.Identity.Web.ProjectTemplates
 cd ..
 cd ..
+
