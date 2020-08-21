@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using ConfigureGeneratedApplications.Model;
 using File = ConfigureGeneratedApplications.Model.File;
@@ -35,9 +36,26 @@ namespace ConfigureGeneratedApplications
 
             ProcessReplacements();
 
+            GenerateIssueMdText(configuration, defaultFolderToConfigure);
+
         }
 
+        private static void GenerateIssueMdText(Configuration configuration, string folder)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("## Test the generated templates");
+            builder.AppendLine("1. Build the Microsoft.Identity.Web.sln solution");
+            builder.AppendLine(@"2. Add secrets to the `ProjectTemplates\configuration.json` file");
+            builder.AppendLine(@"3. Run the ProjectTemplates\test-templates.bat file");
+            builder.AppendLine(@"4. Open the `ProjectTemplates\bin\Debug\tests\tests.sln` solution");
+            builder.AppendLine("5. Test the following projects");
+            foreach(Project p in configuration.Projects)
+            {
+                builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");
+            }
 
+            System.IO.File.WriteAllText(Path.Combine(folder, "issue.md"), builder.ToString());
+        }
 
         static List<Replacement> replacements = new List<Replacement>();
 
