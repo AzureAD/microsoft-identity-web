@@ -262,7 +262,7 @@ namespace Microsoft.Identity.Web
 
                 // Case of the Web App: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
-                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray());
+                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
             }
         }
 

@@ -141,7 +141,8 @@ namespace Microsoft.Identity.Web
                 var properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                     microsoftIdentityWebChallengeUserException.Scopes,
                     microsoftIdentityWebChallengeUserException.MsalUiRequiredException,
-                    User);
+                    User,
+                    microsoftIdentityWebChallengeUserException.Userflow);
 
                 string redirectUri;
                 if (IsBlazorServer)

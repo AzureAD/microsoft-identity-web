@@ -97,7 +97,8 @@ namespace Microsoft.Identity.Web
                     AuthenticationProperties properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                         incrementalConsentScopes,
                         msalUiRequiredException,
-                        context.HttpContext.User);
+                        context.HttpContext.User,
+                        UserFlow);
                     context.Result = new ChallengeResult(properties);
                 }
             }
