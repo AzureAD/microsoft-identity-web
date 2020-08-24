@@ -23,15 +23,16 @@
             <param name="scheme">Authentication scheme.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,System.String,System.String,System.String,System.String,System.String)">
             <summary>
             Challenges the user.
             </summary>
-            <param name="redirectUri">Redirect uri.</param>
+            <param name="redirectUri">Redirect URI.</param>
             <param name="scope">Scopes to request.</param>
             <param name="loginHint">Login hint.</param>
             <param name="domainHint">Domain hint.</param>
             <param name="claims">Claims.</param>
+            <param name="policy">AAD B2C policy.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(System.String)">

@@ -1173,7 +1173,14 @@
             Specified userflow.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.#ctor(Microsoft.Identity.Client.MsalUiRequiredException,System.String[],System.String)" -->
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.#ctor(Microsoft.Identity.Client.MsalUiRequiredException,System.String[],System.String)">
+            <summary>
+            Handles the user challenge for Blazor or Razor pages.
+            </summary>
+            <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
+            <param name="scopes">Scopes to request.</param>
+            <param name="userflow">Userflow used in B2C.</param>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiCallsWebApiAuthenticationBuilderExtensions">
             <summary>
             Extensions for <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization of web APIs.
