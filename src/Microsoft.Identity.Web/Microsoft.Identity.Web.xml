@@ -776,6 +776,7 @@
             <param name="scopes">Scopes to request.</param>
             <param name="ex"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> instance.</param>
             <param name="user">User.</param>
+            <param name="userflow">Userflow being invoked for AAD B2C.</param>
             <returns>AuthenticationProperties.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
