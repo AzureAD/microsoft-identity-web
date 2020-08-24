@@ -44,11 +44,13 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to request.</param>
         /// <param name="ex"><see cref="MsalUiRequiredException"/> instance.</param>
         /// <param name="user">User.</param>
+        /// <param name="userflow">Userflow being invoked for AAD B2C.</param>
         /// <returns>AuthenticationProperties.</returns>
         public static AuthenticationProperties BuildAuthenticationProperties(
             string[]? scopes,
             MsalUiRequiredException ex,
-            ClaimsPrincipal user)
+            ClaimsPrincipal user,
+            string? userflow = null)
         {
             if (ex == null)
             {
@@ -84,6 +86,12 @@ namespace Microsoft.Identity.Web
             if (!string.IsNullOrEmpty(ex.Claims))
             {
                 properties.Items.Add(OidcConstants.AdditionalClaims, ex.Claims);
+            }
+
+            // Include current userflow for B2C
+            if (!string.IsNullOrEmpty(userflow))
+            {
+                properties.Items.Add(OidcConstants.PolicyKey, userflow);
             }
 
             return properties;

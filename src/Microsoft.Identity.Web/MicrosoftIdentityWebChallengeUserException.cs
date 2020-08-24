@@ -24,19 +24,27 @@ namespace Microsoft.Identity.Web
         public string[] Scopes { get; set; }
 
         /// <summary>
+        /// Specified userflow.
+        /// </summary>
+        public string? Userflow { get; set; }
+
+        /// <summary>
         /// Handles the user challenge for Blazor or Razor pages.
         /// </summary>
         /// <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
         /// <param name="scopes">Scopes to request.</param>
+        /// <param name="userflow">Userflow used in B2C.</param>
         public MicrosoftIdentityWebChallengeUserException(
             MsalUiRequiredException msalUiRequiredException,
-            string[] scopes)
+            string[] scopes,
+            string? userflow = null)
             : base(
                   IDWebErrorMessage.MicrosoftIdentityWebChallengeUserException,
                   msalUiRequiredException)
         {
             MsalUiRequiredException = msalUiRequiredException;
             Scopes = scopes;
+            Userflow = userflow;
         }
     }
 }

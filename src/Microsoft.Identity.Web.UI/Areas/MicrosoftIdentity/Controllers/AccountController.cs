@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <summary>
         /// Challenges the user.
         /// </summary>
-        /// <param name="redirectUri">Redirect uri.</param>
+        /// <param name="redirectUri">Redirect URI.</param>
         /// <param name="scope">Scopes to request.</param>
         /// <param name="loginHint">Login hint.</param>
         /// <param name="domainHint">Domain hint.</param>

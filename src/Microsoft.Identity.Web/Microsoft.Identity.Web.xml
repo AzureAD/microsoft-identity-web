@@ -769,13 +769,14 @@
             <returns>Returns <c>true</c> if the issue can be solved by signing-in
             the user, and <c>false</c>, otherwise.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(System.String[],Microsoft.Identity.Client.MsalUiRequiredException,System.Security.Claims.ClaimsPrincipal)">
+        <member name="M:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(System.String[],Microsoft.Identity.Client.MsalUiRequiredException,System.Security.Claims.ClaimsPrincipal,System.String)">
             <summary>
             Build authentication properties needed for incremental consent.
             </summary>
             <param name="scopes">Scopes to request.</param>
             <param name="ex"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> instance.</param>
             <param name="user">User.</param>
+            <param name="userflow">Userflow being invoked for AAD B2C.</param>
             <returns>AuthenticationProperties.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
@@ -1167,13 +1168,12 @@
             Scopes to request.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.#ctor(Microsoft.Identity.Client.MsalUiRequiredException,System.String[])">
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Userflow">
             <summary>
-            Handles the user challenge for Blazor or Razor pages.
+            Specified userflow.
             </summary>
-            <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
-            <param name="scopes">Scopes to request.</param>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.#ctor(Microsoft.Identity.Client.MsalUiRequiredException,System.String[],System.String)" -->
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiCallsWebApiAuthenticationBuilderExtensions">
             <summary>
             Extensions for <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization of web APIs.
@@ -2306,35 +2306,6 @@
             Extensions for the <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
-            <summary>
-            Add authentication with Microsoft identity platform.
-            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-            </summary>
-            <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
-            <param name="configuration">The configuration instance.</param>
-            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
-            <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
-            <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
-            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-            Set to true if you want to debug, or just understand the OpenID Connect events.
-            </param>
-            <returns>The authentication builder for chaining.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
-            <summary>
-            Add authentication with Microsoft identity platform.
-            </summary>
-            <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
-            <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
-            <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
-            <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
-            <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
-            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-            Set to true if you want to debug, or just understand the OpenID Connect events.
-            </param>
-            <returns>The authentication builder for chaining.</returns>
-        </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication to a web app with Microsoft identity platform.
@@ -2395,6 +2366,35 @@
             <returns>The authentication builder for chaining.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            </summary>
+            <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
+            <param name="configureMicrosoftIdentityOptions">The action to configure <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>.</param>
+            <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
+            <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+            <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenID Connect events.
+            </param>
+            <returns>The authentication builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Add authentication with Microsoft identity platform.
+            This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+            </summary>
+            <param name="builder">The <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> to which to add this configuration.</param>
+            <param name="configuration">The configuration instance.</param>
+            <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+            <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
+            <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
+            Set to true if you want to debug, or just understand the OpenID Connect events.
+            </param>
+            <returns>The authentication builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             </summary>
