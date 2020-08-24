@@ -58,7 +58,8 @@ namespace Microsoft.Identity.Web
 
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(
                 effectiveOptions.GetScopes(),
-                effectiveOptions.Tenant)
+                effectiveOptions.Tenant,
+                effectiveOptions.UserFlow)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;
