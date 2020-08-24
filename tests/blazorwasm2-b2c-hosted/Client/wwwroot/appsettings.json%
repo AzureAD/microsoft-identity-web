@@ -1,7 +1,0 @@
-{
-  "AzureAdB2C": {
-    "Authority": "https://aadB2CInstance.b2clogin.com/qualified.domain.name/",
-    "ClientId": "33333333-3333-3333-33333333333333333",
-    "ValidateAuthority": false
-  }
-}
