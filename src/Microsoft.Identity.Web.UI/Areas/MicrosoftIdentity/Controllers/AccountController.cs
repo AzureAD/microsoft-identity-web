@@ -56,6 +56,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="loginHint">Login hint.</param>
         /// <param name="domainHint">Domain hint.</param>
         /// <param name="claims">Claims.</param>
+        /// <param name="policy">AAD B2C policy.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult Challenge(
@@ -63,7 +64,8 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string scope,
             string loginHint,
             string domainHint,
-            string claims)
+            string claims,
+            string policy)
         {
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
             Dictionary<string, string?> properties = new Dictionary<string, string?>
@@ -72,6 +74,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 { Constants.LoginHint, loginHint },
                 { Constants.DomainHint, domainHint },
                 { Constants.Claims, claims },
+                { Constants.Policy, policy },
             };
             AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties);
             authenticationProperties.RedirectUri = redirectUri;

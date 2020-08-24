@@ -165,9 +165,11 @@ namespace Microsoft.Identity.Web
                 string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
                 string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
                 string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
+                string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? (string)properties.Items[OidcConstants.PolicyKey]! : string.Empty;
                 string url = $"{BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
                     + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
-                    + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}";
+                    + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}"
+                    + $"&{OidcConstants.PolicyKey}={userflow}";
 
                 if (IsBlazorServer)
                 {

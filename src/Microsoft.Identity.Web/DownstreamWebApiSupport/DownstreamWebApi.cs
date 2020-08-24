@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
@@ -21,6 +22,7 @@ namespace Microsoft.Identity.Web
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
+        private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -32,14 +34,19 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisition">Token acquisition service.</param>
         /// <param name="namedDownstreamWebApiOptions">Named options provider.</param>
         /// <param name="httpClient">HTTP client.</param>
+        /// <param name="microsoftIdentityOptions">Configuration options.</param>
         public DownstreamWebApi(
             ITokenAcquisition tokenAcquisition,
             IOptionsMonitor<DownstreamWebApiOptions> namedDownstreamWebApiOptions,
-            HttpClient httpClient)
+            HttpClient httpClient,
+            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions)
         {
             _tokenAcquisition = tokenAcquisition;
             _namedDownstreamWebApiOptions = namedDownstreamWebApiOptions;
             _httpClient = httpClient;
+#pragma warning disable CA1062 // Validate arguments of public methods
+            _microsoftIdentityOptions = microsoftIdentityOptions.Value;
+#pragma warning restore CA1062 // Validate arguments of public methods
         }
 
         /// <inheritdoc/>
@@ -56,9 +63,20 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            string? userflow;
+            if (_microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
+            {
+                userflow = _microsoftIdentityOptions.DefaultUserFlow;
+            }
+            else
+            {
+                userflow = effectiveOptions.UserFlow;
+            }
+
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(
                 effectiveOptions.GetScopes(),
-                effectiveOptions.Tenant)
+                effectiveOptions.Tenant,
+                userflow)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;
