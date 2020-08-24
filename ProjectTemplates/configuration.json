@@ -2,7 +2,7 @@
     "Parameters": {
         "B2C_Instance": "https://fabrikamb2c.b2clogin.com",
         "B2C_Domain": "fabrikamb2c.onmicrosoft.com",
-        "B2C_Authority": "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/",
+        "B2C_Authority": "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
 
         "B2C_Client_ClientId": "fdb91ff5-5ce6-41f3-bdbd-8267c817015d",
         "B2C_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
