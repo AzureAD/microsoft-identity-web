@@ -58,10 +58,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
         /// </summary>
-        /// <param name="httpContextAccessor">Accessor for the current HttpContext, when available.</param>
-        public MicrosoftIdentityConsentAndConditionalAccessHandler(IHttpContextAccessor httpContextAccessor)
+        /// <param name="serviceProvider">Service provider to temptatively get the HttpContextAccessor for the current HttpContext, when available.</param>
+        public MicrosoftIdentityConsentAndConditionalAccessHandler(IServiceProvider serviceProvider)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
         }
 
         /// <summary>
