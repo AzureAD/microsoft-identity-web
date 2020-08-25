@@ -141,7 +141,10 @@ namespace ConfigureGeneratedApplications
                 string fileContent = System.IO.File.ReadAllText(filePath);
                 foreach(Replacement r in replacements)
                 {
-                    fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy);
+                    if (r.ReplaceFrom != "")
+                    {
+                        fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy);
+                    }
                 }
 
                 if (!System.IO.File.Exists(filePath + "%"))
