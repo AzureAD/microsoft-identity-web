@@ -61,10 +61,14 @@ namespace Company.WebApplication1
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
+#if (GenerateApiOrGraph)
+            string[] initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+
+#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
 #if (GenerateApi)
                             .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
 #endif

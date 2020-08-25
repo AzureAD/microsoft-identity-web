@@ -55,7 +55,7 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            var response = await _downstreamWebApi.CallWebApiForUserAsync("CalledApi").ConfigureAwait(false);
+            var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 string apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
