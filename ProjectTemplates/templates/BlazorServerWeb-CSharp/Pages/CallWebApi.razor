@@ -29,8 +29,8 @@ else
         try
         {
             response = await downstreamAPI.CallWebApiForUserAsync(
-                    "CalledApi",
-                    options => options.RelativePath = "me");
+                    "DownstreamApi",
+                    options => options.RelativePath = "");
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
