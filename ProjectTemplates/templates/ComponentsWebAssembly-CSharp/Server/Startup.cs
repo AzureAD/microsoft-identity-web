@@ -61,14 +61,10 @@ namespace ComponentsWebAssembly_CSharp.Server
                 .AddIdentityServerJwt();
 #endif
 #if (OrganizationalAuth)
-#if (GenerateApiOrGraph)
-            string[] initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
-
-#endif
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
 #if (GenerateApiOrGraph)
-                        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+                        .EnableTokenAcquisitionToCallDownstreamApi()
 #if (GenerateApi)
                             .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
 #endif
