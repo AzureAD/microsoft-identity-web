@@ -52,16 +52,16 @@ namespace Microsoft.Identity.Web
         private ClaimsPrincipal? _user = null;
         private string? _baseUri = null;
 #pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-        private IHttpContextAccessor _httpContextAccessor;
+        private IHttpContextAccessor? _httpContextAccessor;
 #pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
         /// </summary>
-        /// <param name="httpContextAccessor">Accessor for the current HttpContext, when available.</param>
-        public MicrosoftIdentityConsentAndConditionalAccessHandler(IHttpContextAccessor httpContextAccessor)
+        /// <param name="serviceProvider">Service provider to temptatively get the HttpContextAccessor for the current HttpContext, when available.</param>
+        public MicrosoftIdentityConsentAndConditionalAccessHandler(IServiceProvider serviceProvider)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
         }
 
         /// <summary>

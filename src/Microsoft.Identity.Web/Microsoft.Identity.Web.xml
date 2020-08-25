@@ -535,13 +535,14 @@
             Implementation for the downstream web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.HttpClient)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.HttpClient,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
             <summary>
             Constructor.
             </summary>
             <param name="tokenAcquisition">Token acquisition service.</param>
             <param name="namedDownstreamWebApiOptions">Named options provider.</param>
             <param name="httpClient">HTTP client.</param>
+            <param name="microsoftIdentityOptions">Configuration options.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
             <inheritdoc/>
@@ -1031,11 +1032,11 @@
             and conditional access.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.#ctor(System.IServiceProvider)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler"/> class.
             </summary>
-            <param name="httpContextAccessor">Accessor for the current HttpContext, when available.</param>
+            <param name="serviceProvider">Service provider to temptatively get the HttpContextAccessor for the current HttpContext, when available.</param>
         </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.IsBlazorServer">
             <summary>

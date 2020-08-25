@@ -11,6 +11,9 @@
         "B2C_WebApi_ClientId": "90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6",
         "B2C_WebApi_Port": "44332",
 
+        "B2C_Blazorwasm_ClientId": "25f7fc07-bb5b-49ad-8179-6d486d094ca6",
+        "B2C_HelloApi_ClientId": "93733604-cc77-4a3c-a604-87084dd55348",
+
         "AAD_Domain": "msidentitysamplestesting.onmicrosoft.com",
         "AAD_TenantId": "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab",
         "AAD_Authority": "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
@@ -135,7 +138,7 @@
                     "Properties": [
                         {
                             "Property": "AzureAdB2C:ClientId",
-                            "SetFrom": "B2C_Client_ClientId"
+                            "SetFrom": "B2C_Blazorwasm_ClientId"
                         },
                         {
                             "Property": "AzureAdB2C:Authority",
@@ -201,7 +204,7 @@
                     "Properties": [
                         {
                             "Property": "AzureAdB2C:ClientId",
-                            "SetFrom": "B2C_Client_ClientId"
+                            "SetFrom": "B2C_HelloApi_ClientId"
                         },
                         {
                             "Property": "AzureAdB2C:Authority",
@@ -223,7 +226,7 @@
                     "Replacements": [
                         {
                             "ReplaceFrom": "https://qualified.domain.name/api.id.uri/access_as_user",
-                            "ReplaceBy": "api://90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6/access_as_user"
+                            "ReplaceBy": "api://93733604-cc77-4a3c-a604-87084dd55348/user_impersonation"
                         }
                     ]
                 },
@@ -232,7 +235,7 @@
                     "Properties": [
                         {
                             "Property": "AzureAdB2C:ClientId",
-                            "SetFrom": "B2C_WebApi_ClientId"
+                            "SetFrom": "B2C_HelloApi_ClientId"
                         },
                         {
                             "Property": "AzureAdB2C:Domain",
