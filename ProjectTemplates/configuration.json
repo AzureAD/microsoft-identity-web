@@ -205,7 +205,7 @@
                     "Properties": [
                         {
                             "Property": "AzureAdB2C:ClientId",
-                            "SetFrom": "B2C_HelloApi_ClientId"
+                            "SetFrom": "B2C_Blazorwasm_ClientId"
                         },
                         {
                             "Property": "AzureAdB2C:Authority",
@@ -231,7 +231,7 @@
                     "Replacements": [
                         {
                             "ReplaceFrom": "https://qualified.domain.name/api.id.uri/access_as_user",
-                            "ReplaceBy": "api://93733604-cc77-4a3c-a604-87084dd55348/user_impersonation"
+                            "ReplaceBy": "https://fabrikamb2c.onmicrosoft.com/helloapi/user_impersonation"
                         }
                     ]
                 },
@@ -245,6 +245,10 @@
                         {
                             "Property": "AzureAdB2C:Domain",
                             "SetFrom": "B2C_Domain"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Instance",
+                            "SetFrom": "B2C_Instance"
                         }
                     ]
                 },
@@ -308,6 +312,10 @@
                         {
                             "Property": "AzureAd:Domain",
                             "SetFrom": "AAD_Domain"
+                        },
+                        {
+                            "Property": "AzureAd:TenantId",
+                            "SetFrom": "AAD_TenantId"
                         }
                     ]
                 },
@@ -406,6 +414,10 @@
                         {
                             "Property": "AzureAdB2C:Domain",
                             "SetFrom": "B2C_Domain"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Instance",
+                            "SetFrom": "B2C_Instance"
                         }
                     ]
                 },
@@ -433,6 +445,10 @@
                         {
                             "Property": "AzureAd:Domain",
                             "SetFrom": "AAD_Domain"
+                        },
+                        {
+                            "Property": "AzureAd:TenantId",
+                            "SetFrom": "AAD_TenantId"
                         }
                     ]
                 },
