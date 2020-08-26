@@ -245,6 +245,14 @@
                         {
                             "Property": "AzureAdB2C:Domain",
                             "SetFrom": "B2C_Domain"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Instance",
+                            "SetFrom": "B2C_Instance"
+                        },
+                        {
+                            "Property": "AzureAdB2C:SignUpSignInPolicyId",
+                            "SetFrom": "B2C_DefaultPolicy"
                         }
                     ]
                 },
@@ -308,6 +316,10 @@
                         {
                             "Property": "AzureAd:Domain",
                             "SetFrom": "AAD_Domain"
+                        },
+                        {
+                            "Property": "AzureAd:TenantId",
+                            "SetFrom": "AAD_TenantId"
                         }
                     ]
                 },
