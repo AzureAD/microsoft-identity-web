@@ -210,6 +210,10 @@
                         {
                             "Property": "AzureAdB2C:Authority",
                             "SetFrom": "B2C_Authority"
+                        },
+                        {
+                            "Property": "AzureAdB2C:SignUpSignInPolicyId",
+                            "SetFrom": "B2C_DefaultPolicy"
                         }
                     ]
                 },
