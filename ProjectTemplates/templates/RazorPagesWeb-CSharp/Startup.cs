@@ -58,6 +58,7 @@ namespace Company.WebApplication1
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
 #endif
+            services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 #elif (OrganizationalAuth)
@@ -80,10 +81,14 @@ namespace Company.WebApplication1
                     ;
 #endif
 #elif (IndividualB2CAuth)
+#if (GenerateApi)
+            string[] initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+
+#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
                             .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
                             .AddInMemoryTokenCaches();
 #else
@@ -114,9 +119,6 @@ namespace Company.WebApplication1
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-#if (IndividualLocalAuth)
-                app.UseDatabaseErrorPage();
-#endif
             }
             else
             {

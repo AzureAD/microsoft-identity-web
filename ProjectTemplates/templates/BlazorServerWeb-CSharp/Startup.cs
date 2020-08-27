@@ -91,10 +91,14 @@ namespace BlazorServerWeb_CSharp
                     ;
 #endif
 #elif (IndividualB2CAuth)
+#if (GenerateApi)
+            string[] initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+
+#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"))
 #if (GenerateApi)
-                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
                             .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
                             .AddInMemoryTokenCaches();
 #else
@@ -121,6 +125,7 @@ namespace BlazorServerWeb_CSharp
 #endif
 #if (IndividualLocalAuth)
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            services.AddDatabaseDeveloperPageExceptionFilter();
 #endif
             services.AddSingleton<WeatherForecastService>();
         }
@@ -131,9 +136,6 @@ namespace BlazorServerWeb_CSharp
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-#if (IndividualLocalAuth)
-                app.UseDatabaseErrorPage();
-#endif
             }
             else
             {

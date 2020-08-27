@@ -49,6 +49,8 @@ namespace ComponentsWebAssembly_CSharp.Server
 #else
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
 #endif
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -87,7 +89,6 @@ namespace ComponentsWebAssembly_CSharp.Server
 #endif
 #endif
 
-
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
@@ -98,9 +99,6 @@ namespace ComponentsWebAssembly_CSharp.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-#if (IndividualLocalAuth)
-                app.UseDatabaseErrorPage();
-#endif
                 app.UseWebAssemblyDebugging();
             }
             else
