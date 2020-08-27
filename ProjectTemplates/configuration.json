@@ -260,6 +260,15 @@
                             "SetFrom": "B2C_WebApi_Port"
                         }
                     ]
+                },
+                {
+                    "FileRelativePath": "Server/Controllers/WeatherForecastController.cs",
+                    "Replacements": [
+                        {
+                            "ReplaceFrom": "access_as_user",
+                            "ReplaceBy": "user_impersonation"
+                        }
+                    ]
                 }
             ]
         },
@@ -297,7 +306,7 @@
                     "FileRelativePath": "Client/Program.cs",
                     "Replacements": [
                         {
-                            "ReplaceFrom": "https://qualified.domain.name/api.id.uri/access_as_user",
+                            "ReplaceFrom": "api://api.id.uri/access_as_user",
                             "ReplaceBy": "api://a4c2469b-cf84-4145-8f5f-cb7bacf814bc/access_as_user"
                         }
                     ]
