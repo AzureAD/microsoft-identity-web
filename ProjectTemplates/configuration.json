@@ -340,7 +340,7 @@
             ]
         },
         {
-            "ProjectRelativeFolder": "blazorwasm2/blazorwasm2-singleorg-callsgraph-hosted",
+            "ProjectRelativeFolder": "blazorwasm2/blazorwasm2-singleorg-callswebapi-hosted",
             "BasedOn": "blazorwasm2/blazorwasm2-singleorg-hosted",
             "Files": [
                 {
@@ -355,8 +355,19 @@
             ]
         },
         {
-            "ProjectRelativeFolder": "blazorwasm2/blazorwasm2-singleorg-callswebapi-hosted",
-            "BasedOn": "blazorwasm2/blazorwasm2-singleorg-callsgraph-hosted"
+            "ProjectRelativeFolder": "blazorwasm2/blazorwasm2-singleorg-callsgraph-hosted",
+            "BasedOn": "blazorwasm2/blazorwasm2-singleorg-callswebapi-hosted",
+            "Files": [
+                {
+                    "FileRelativePath": "Server/appsettings.json",
+                    "Replacements": [
+                        {
+                            "ReplaceFrom": "https://graph.microsoft.com/v1.0/me",
+                            "ReplaceBy": "https://graph.microsoft.com/v1.0"
+                        }
+                    ]
+                }
+            ]
         },
 
         /*
