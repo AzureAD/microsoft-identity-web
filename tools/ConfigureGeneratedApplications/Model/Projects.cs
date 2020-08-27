@@ -42,7 +42,7 @@ namespace ConfigureGeneratedApplications.Model
             IEnumerable<File> files = GetBasedOnProject(projects)?.GetMergedFiles(projects) ?? emptyFiles;
             IEnumerable<File> allFiles = Files != null ? files.Union(Files) : files;
             var allFilesGrouped = allFiles.GroupBy(f => f.FileRelativePath);
-            foreach(var fileGrouping in allFilesGrouped)
+            foreach (var fileGrouping in allFilesGrouped)
             {
                 yield return new File
                 {
@@ -50,8 +50,7 @@ namespace ConfigureGeneratedApplications.Model
                     Properties = fileGrouping.SelectMany(f => f.Properties).ToArray(),
                     Replacements = fileGrouping.SelectMany(f => f.Replacements)
                                                .Select(r => new Replacement(fileGrouping.Key,
-                                                                            0, 0, r.ReplaceFrom, r.ReplaceBy)
-                                                          ).ToArray()
+                                                                            0, 0, r.ReplaceFrom, r.ReplaceBy)).ToArray()
                 };
             }
         }

@@ -23,13 +23,13 @@ namespace ConfigureGeneratedApplications
             string defaultFolderToConfigure = Path.Combine(repoRoot, @"ProjectTemplates\bin\Debug\tests");
 
             string configurationFilePath = args.Length > 0 ? args[0] : configurationDefaultFilePath;
-            string folderToConfigure = args.Length > 1 ? args[1] :  defaultFolderToConfigure;
+            string folderToConfigure = args.Length > 1 ? args[1] : defaultFolderToConfigure;
 
             string configurationFileContent = System.IO.File.ReadAllText(configurationFilePath);
             Configuration configuration = JsonSerializer.Deserialize<Configuration>(configurationFileContent,
                                                                                     serializerOptionsWithComments);
 
-            foreach(Project project in configuration.Projects)
+            foreach (Project project in configuration.Projects)
             {
                 ProcessProject(folderToConfigure, configuration, project);
             }
@@ -49,7 +49,7 @@ namespace ConfigureGeneratedApplications
             builder.AppendLine(@"3. Run the ProjectTemplates\test-templates.bat file");
             builder.AppendLine(@"4. Open the `ProjectTemplates\bin\Debug\tests\tests.sln` solution");
             builder.AppendLine("5. Test the following projects");
-            foreach(Project p in configuration.Projects)
+            foreach (Project p in configuration.Projects)
             {
                 builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");
             }
@@ -110,18 +110,18 @@ namespace ConfigureGeneratedApplications
 
             if (file.Replacements != null && file.Replacements.Any())
             {
-                foreach(Replacement r in file.Replacements)
+                foreach (Replacement r in file.Replacements)
                 {
                     r.FilePath = filePath;
                 }
-                replacements.AddRange(file.Replacements); 
+                replacements.AddRange(file.Replacements);
             }
         }
 
         private static int GetIndex(JsonElement element)
         {
             Type type = element.GetType();
-            object _idx = type.GetField("_idx", 
+            object _idx = type.GetField("_idx",
                                         BindingFlags.NonPublic | BindingFlags.Instance).GetValue(element);
             return (int)_idx;
         }
@@ -133,13 +133,13 @@ namespace ConfigureGeneratedApplications
 
         private static void ProcessReplacements()
         {
-            foreach(var replacementsPerFile in replacements.GroupBy(r => r.FilePath))
+            foreach (var replacementsPerFile in replacements.GroupBy(r => r.FilePath))
             {
                 string filePath = replacementsPerFile.Key;
                 IEnumerable<Replacement> replacements = replacementsPerFile.OrderByDescending(r => r.Index).ToArray();
 
                 string fileContent = System.IO.File.ReadAllText(filePath);
-                foreach(Replacement r in replacements)
+                foreach (Replacement r in replacements)
                 {
                     if (r.ReplaceFrom != "")
                     {
