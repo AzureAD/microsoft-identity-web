@@ -1,3 +1,8 @@
+0.3.1-preview
+============
+### Bug Fixes
+**In B2C web app scenarios, only signing-in users, the password reset and edit profile redirects were not working**. Microsoft Identity Web now only sends the `response_type` of only `idToken` when in the web app scenario. See issue on [password reset](https://github.com/AzureAD/microsoft-identity-web/issues/467) and [edit profile](https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/issues/399) for details.
+
 0.3.0-preview
 ============
 ### API Breaking Changes:
