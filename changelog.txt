@@ -10,7 +10,7 @@ See https://aka.ms/ms-id-web/0.3.0-preview for more specific details.
 
 Before | After
 -- | --
-services.AddMicrosoftWebAppAuthentication() | services.AddMicrosoftIdentityWebAppAuthdentication()
+services.AddMicrosoftWebAppAuthentication() | services.AddMicrosoftIdentityWebAppAuthentication()
 services.AddAuthentication().AddMicrosoftWebApp() | services.AddAuthentication().AddMicrosoftIdentityWebApp()
 services.AddMicrosoftWebApiAuthentication() | services.AddMicrosoftIdentityWebApiAuthentication()
 services.AddAuthentication().AddMicrosoftWebApi() | services.AddAuthentication().AddMicrosoftIdentityWebApi()
