@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -54,6 +55,15 @@ namespace Microsoft.Identity.Web
         internal bool IsB2C
         {
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
+        }
+
+        /// <summary>
+        /// Is considered to have client credentials if the attribute ClientCertificates
+        /// or ClientSecret is defined.
+        /// </summary>
+        internal bool HasClientCredentials
+        {
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any());
         }
 
         /// <summary>

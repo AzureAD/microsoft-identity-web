@@ -1105,6 +1105,12 @@
             Is considered B2C if the attribute SignUpSignInPolicyId is defined.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.HasClientCredentials">
+            <summary>
+            Is considered to have client credentials if the attribute ClientCertificates
+            or ClientSecret is defined.
+            </summary>
+        </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCertificates">
             <summary>
             Description of the certificates used to prove the identity of the Web app or Web API.
