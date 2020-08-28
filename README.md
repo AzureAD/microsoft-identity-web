@@ -47,7 +47,7 @@ Microsoft Identity Web is in preview.
 
 ## Where do I file issues
 
-This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-authentication-identity-web/issues).
+This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-identity-web/issues).
 
 ## Community Help and Support
 
