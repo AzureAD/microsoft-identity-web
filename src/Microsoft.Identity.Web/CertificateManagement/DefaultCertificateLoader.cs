@@ -28,19 +28,28 @@ namespace Microsoft.Identity.Web
                 switch (certificateDescription.SourceType)
                 {
                     case CertificateSource.KeyVault:
-                        certificateDescription.Certificate = LoadFromKeyVault(certificateDescription.Container!, certificateDescription.ReferenceOrValue!);
+                        certificateDescription.Certificate = LoadFromKeyVault(
+                            certificateDescription.Container!,
+                            certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.Base64Encoded:
-                        certificateDescription.Certificate = LoadFromBase64Encoded(certificateDescription.ReferenceOrValue!);
+                        certificateDescription.Certificate = LoadFromBase64Encoded(
+                            certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.Path:
-                        certificateDescription.Certificate = LoadFromPath(certificateDescription.Container!, certificateDescription.ReferenceOrValue!);
+                        certificateDescription.Certificate = LoadFromPath(
+                            certificateDescription.Container!,
+                            certificateDescription.ReferenceOrValue!);
                         break;
                     case CertificateSource.StoreWithThumbprint:
-                        certificateDescription.Certificate = LoadFromStoreWithThumbprint(certificateDescription.ReferenceOrValue!, certificateDescription.Container!);
+                        certificateDescription.Certificate = LoadFromStoreWithThumbprint(
+                            certificateDescription.ReferenceOrValue!,
+                            certificateDescription.Container!);
                         break;
                     case CertificateSource.StoreWithDistinguishedName:
-                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(certificateDescription.ReferenceOrValue!, certificateDescription.Container!);
+                        certificateDescription.Certificate = LoadFromStoreWithDistinguishedName(
+                            certificateDescription.ReferenceOrValue!,
+                            certificateDescription.Container!);
                         break;
                     default:
                         break;
@@ -108,7 +117,11 @@ namespace Microsoft.Identity.Web
                 return new X509Certificate2(pfx);
             }
 
-            throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.OnlyPkcs12IsSupported, secret.Properties.ContentType));
+            throw new NotSupportedException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    IDWebErrorMessage.OnlyPkcs12IsSupported,
+                    secret.Properties.ContentType));
         }
 
         private static X509Certificate2? LoadFromStoreWithThumbprint(
@@ -117,7 +130,10 @@ namespace Microsoft.Identity.Web
         {
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser;
             StoreName certificateStoreName = StoreName.My;
-            ParseStoreLocationAndName(storeDescription, ref certificateStoreLocation, ref certificateStoreName);
+            ParseStoreLocationAndName(
+                storeDescription,
+                ref certificateStoreLocation,
+                ref certificateStoreName);
 
             X509Certificate2? cert;
             using (X509Store x509Store = new X509Store(
@@ -139,7 +155,10 @@ namespace Microsoft.Identity.Web
         {
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser;
             StoreName certificateStoreName = StoreName.My;
-            ParseStoreLocationAndName(storeDescription, ref certificateStoreLocation, ref certificateStoreName);
+            ParseStoreLocationAndName(
+                storeDescription,
+                ref certificateStoreLocation,
+                ref certificateStoreName);
 
             X509Certificate2? cert;
             using (X509Store x509Store = new X509Store(
@@ -165,7 +184,10 @@ namespace Microsoft.Identity.Web
                 X509KeyStorageFlags.EphemeralKeySet);
         }
 
-        private static void ParseStoreLocationAndName(string storeDescription, ref StoreLocation certificateStoreLocation, ref StoreName certificateStoreName)
+        private static void ParseStoreLocationAndName(
+            string storeDescription,
+            ref StoreLocation certificateStoreLocation,
+            ref StoreName certificateStoreName)
         {
             string[] path = storeDescription.Split('/');
 

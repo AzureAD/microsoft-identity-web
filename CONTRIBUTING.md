@@ -1,16 +1,17 @@
-Microsoft Identity Web for .NET welcomes new contributors.  This document will guide you
-through the process.
+# Microsoft Identity Web for .NET welcomes new contributors.
 
-### Contributor License agreement
+This document will guide you through the process.
+
+## Contributor License agreement
 
 Please visit [https://cla.microsoft.com/](https://cla.microsoft.com/) and sign the Contributor License
 Agreement.  You only need to do that once. We can not look at your code until you've submitted this request.
 
-### Setup, Building and Testing
+## Setup, Building and Testing
 
 Please see the [Build & Run](https://github.com/AzureAD/microsoft-identity-web/wiki/build-and-test) wiki page.
 
-### Decide on which branch to create
+## Decide on which branch to create
 
 **Bug fixes for the current stable version need to go to 'master' branch.**
 
@@ -24,7 +25,7 @@ Especially do so if you plan to work on a major change in functionality.  Nothin
 frustrating than seeing your hard work go to waste because your vision
 does not align with our goals for the SDK.
 
-### Branch
+## Branch
 
 Okay, so you have decided on the proper branch.  Create a feature branch
 and start hacking:
@@ -33,8 +34,7 @@ and start hacking:
 $ git checkout -b my-feature-branch 
 ```
 
-
-### Commit
+## Commit
 
 Make sure git knows your name and email address:
 
@@ -87,8 +87,6 @@ $ git rebase upstream/v0.1  # or upstream/master
 
 It's all standard stuff, but please note that you won't be able to run integration tests locally because they connect to a KeyVault to fetch some test users and passwords. The CI will run them for you.
 
-
-
 ### Push
 
 ```
@@ -102,7 +100,6 @@ Pull requests are usually reviewed within a few days.  If there are comments
 to address, apply your changes in a separate commit and push that to your
 feature branch.  Post a comment in the pull request afterwards; GitHub does
 not send out notifications when you add commits.
-
 
 [on GitHub]: https://github.com/AzureAD/microsoft-identity-web
 [issue tracker]: https://github.com/AzureAD/microsoft-identity-web/issues

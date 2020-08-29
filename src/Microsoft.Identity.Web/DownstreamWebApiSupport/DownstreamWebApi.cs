@@ -135,38 +135,31 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null)
             where TOutput : class
         {
-            StringContent? jsoncontent;
-            if (input != null)
-            {
-                var jsonRequest = JsonSerializer.Serialize(input);
-                jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, Constants.ApplicationJson);
-            }
-            else
-            {
-                jsoncontent = null;
-            }
-
             HttpResponseMessage response = await CallWebApiForUserAsync(
                 optionsInstanceName,
                 downstreamWebApiOptionsOverride,
                 user,
-                jsoncontent).ConfigureAwait(false);
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
-                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                TOutput? output = JsonSerializer.Deserialize<TOutput>(content, _jsonOptions);
-                return output;
+                response.EnsureSuccessStatusCode();
             }
-            else
+            catch
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                throw new HttpRequestException(string.Format(
-                                    CultureInfo.InvariantCulture,
-                                    IDWebErrorMessage.InvalidHttpStatusCodeInResponse,
-                                    response.StatusCode,
-                                    error));
+
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
             }
+
+            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
         /// <inheritdoc/>
