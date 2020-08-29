@@ -1,0 +1,1 @@
+See https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.md
