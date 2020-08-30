@@ -1,6 +1,7 @@
 echo "Build and Install templates"
 cd bin
 cd Debug
+dotnet new -u Microsoft.DotNet.Web.ProjectTemplates
 dotnet new -i Microsoft.DotNet.Web.ProjectTemplates.5.0.5.0.0-ci.nupkg
 
 echo "Test templates"
