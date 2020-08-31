@@ -1,4 +1,5 @@
-﻿
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,7 @@ namespace IntegrationTest.ClientBuilder
             services.AddSingleton<MsalHttpClientFactory>();
             services.AddSingleton<MsalTokenCacheHandler>();
 
-            services.AddSingleton<IConfidentialClientApplication>(serviceProvider =>
+            services.AddSingleton(serviceProvider =>
             {
                 ClientApplicationBuilderOptions clientApplicationBuilderOptions = 
                     serviceProvider.GetRequiredService<IOptions<ClientApplicationBuilderOptions>>().Value;
