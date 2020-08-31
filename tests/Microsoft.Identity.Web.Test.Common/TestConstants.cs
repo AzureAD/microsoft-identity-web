@@ -37,6 +37,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityCommonTenant = AadInstance + "/common/";
         public const string AuthorityOrganizationsTenant = AadInstance + "/organizations/";
         public const string AuthorityOrganizationsUSTenant = "https://" + ProductionPrefNetworkUSEnvironment + "/organizations";
+        public const string Organizations = "organizations";
 
         public const string AuthorityWithTenantSpecified = AadInstance + "/" + TenantIdAsGuid;
         public const string AuthorityCommonTenantWithV2 = AadInstance + "/common/v2.0";

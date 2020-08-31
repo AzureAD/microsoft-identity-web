@@ -67,11 +67,14 @@ namespace IntegrationTest
             var labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(labResponse.App.AppId)
-               .WithAuthority(labResponse.Lab.Authority, "organizations")
+               .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
                .Build();
 
             AuthenticationResult authResult = await msalPublicClient
-                .AcquireTokenByUsernamePassword(s_scopes, labResponse.User.Upn, new NetworkCredential("", labResponse.User.GetOrFetchPassword()).SecurePassword)
+                .AcquireTokenByUsernamePassword(s_scopes, labResponse.User.Upn, 
+                new NetworkCredential(
+                    labResponse.User.Upn, 
+                    labResponse.User.GetOrFetchPassword()).SecurePassword)
                 .ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
 
