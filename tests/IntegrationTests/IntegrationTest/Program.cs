@@ -6,12 +6,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using IntegrationTest.ClientBuilder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Web.TokenCacheProviders;
 
 namespace IntegrationTest
 {
@@ -40,35 +42,64 @@ namespace IntegrationTest
                 loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
             });
 
-            services.AddMicrosoftIdentityConfidentialClient((clientApplicationBuilderOptions) =>
-            {
-                clientApplicationBuilderOptions.ClientId = TestConstants.ConfidentialClientId;
-                clientApplicationBuilderOptions.ClientSecret = keyVault.GetSecret(TestConstants.ConfidentialClientKeyVaultUri).Value;
-            });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(options =>
+                    { 
+                    },
+                    options =>
+                    {
+                        options.ClientId = TestConstants.ConfidentialClientId;
+                        options.TenantId = TestConstants.ConfidentialClientLabTenant;
+                        options.Instance = TestConstants.AadInstance;
+                        options.ClientSecret = keyVault.GetSecret(TestConstants.ConfidentialClientKeyVaultUri).Value;
+                    })
+                    .EnableTokenAcquisitionToCallDownstreamApi(options =>
+                    {
+                        options.ClientId = TestConstants.ConfidentialClientId;
+                        options.TenantId = TestConstants.ConfidentialClientLabTenant;
+                        options.Instance = TestConstants.AadInstance;
+                        options.ClientSecret = keyVault.GetSecret(TestConstants.ConfidentialClientKeyVaultUri).Value;
+                    })
+                    .AddInMemoryTokenCaches();
 
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            IServiceProvider serviceProvider = services.BuildServiceProvider();          
 
-            IConfidentialClientApplication confidentialClientApplication = serviceProvider.GetRequiredService<IConfidentialClientApplication>();
+            IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
 
             RunTestsAsync(
-                confidentialClientApplication,
-                serviceProvider.GetRequiredService<ILogger<Program>>()).ConfigureAwait(false).GetAwaiter().GetResult();
+                msalTokenCacheProvider,
+                serviceProvider.GetRequiredService<ILogger<Program>>(),
+                serviceProvider).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public static async Task RunTestsAsync(
-            IConfidentialClientApplication confidentialClientApplication,
-            ILogger<Program> logger)
+            IMsalTokenCacheProvider msalTokenCacheProvider,
+            ILogger<Program> logger,
+            IServiceProvider serviceProvider)
         {
-            var result = await AcquireTokenForLabUserAsync();
+            var result = await AcquireTokenForLabUserAsync(msalTokenCacheProvider);
+
+            ITokenAcquisition tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+
+            string token = await tokenAcquisition.GetAccessTokenForUserAsync(
+                s_scopes,
+                null,
+                null,
+                ClaimsPrincipalFactory.FromTenantIdAndObjectId(
+                    result.Account.HomeAccountId.TenantId,
+                    result.Account.HomeAccountId.ObjectId));
         }
 
-        private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
+        private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync(IMsalTokenCacheProvider msalTokenCacheProvider)
         {
             var labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(labResponse.App.AppId)
                .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
                .Build();
+
+            await msalTokenCacheProvider.InitializeAsync(msalPublicClient.UserTokenCache);
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(s_scopes, labResponse.User.Upn, 

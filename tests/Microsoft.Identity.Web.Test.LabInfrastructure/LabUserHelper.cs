@@ -82,8 +82,6 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         public static Task<LabResponse> GetSpecificUserAsync(string upn)
         {
             var query = new UserQuery();
-
-            // query.Upn = upn;
             return GetLabUserDataAsync(query);
         }
 
