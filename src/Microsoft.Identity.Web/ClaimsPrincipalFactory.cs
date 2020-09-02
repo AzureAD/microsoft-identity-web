@@ -38,8 +38,8 @@ namespace Microsoft.Identity.Web
             return new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimConstants.Tid, tenantId),
-                    new Claim(ClaimConstants.Oid, objectId),
+                    new Claim(ClaimConstants.UniqueTenantIdentifier, tenantId),
+                    new Claim(ClaimConstants.UniqueObjectIdentifier, objectId),
                 }));
         }
     }

@@ -1,57 +1,57 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
     public class LabResponse
     {
-        [JsonPropertyName("app")]
+        [JsonProperty("app")]
         public LabApp App { get; set; }
 
-        [JsonPropertyName("user")]
+        [JsonProperty("user")]
         public LabUser User { get; set; }
 
-        [JsonPropertyName("lab")]
+        [JsonProperty("lab")]
         public Lab Lab { get; set; }
     }
 
     public class LabApp
     {
-        [JsonPropertyName("appid")]
+        [JsonProperty("appid")]
         public string AppId { get; set; }
 
         // TODO: this is a list, but lab sends a string. Not used today, discuss with lab to return a list
-        [JsonPropertyName("redirecturi")]
+        [JsonProperty("redirecturi")]
         public string RedirectUri { get; set; }
 
-        [JsonPropertyName("signinaudience")]
+        [JsonProperty("signinaudience")]
         public string Audience { get; set; }
 
         // TODO: this is a list, but lab sends a string. Not used today, discuss with lab to return a list
-        [JsonPropertyName("authority")]
+        [JsonProperty("authority")]
         public string Authority { get; set; }
     }
 
     public class Lab
     {
-        [JsonPropertyName("tenantid")]
+        [JsonProperty("tenantid")]
         public string TenantId { get; set; }
 
-        [JsonPropertyName("federationprovider")]
+        [JsonProperty("federationprovider")]
         public FederationProvider FederationProvider { get; set; }
 
-        [JsonPropertyName("credentialvaultkeyname")]
+        [JsonProperty("credentialvaultkeyname")]
         public string CredentialVaultkeyName { get; set; }
 
-        [JsonPropertyName("authority")]
+        [JsonProperty("authority")]
         public string Authority { get; set; }
     }
 
     public class LabCredentialResponse
     {
-        [JsonPropertyName("Value")]
+        [JsonProperty("Value")]
         public string Secret { get; set; }
     }
 }
