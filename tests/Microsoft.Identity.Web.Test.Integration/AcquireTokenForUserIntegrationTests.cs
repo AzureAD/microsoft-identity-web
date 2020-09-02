@@ -42,7 +42,6 @@ namespace Microsoft.Identity.Web.Test.Integration
                  AllowAutoRedirect = false,
             });
 
-
             var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
 
             // Act

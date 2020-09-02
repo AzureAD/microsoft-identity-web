@@ -46,21 +46,21 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             {
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey ?? args.Account.HomeAccountId.Identifier, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
+                    await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
                 }
                 else
                 {
                     // No token in the cache. we can remove the cache entry
-                    await RemoveKeyAsync(args.SuggestedCacheKey ?? args.Account.HomeAccountId.Identifier).ConfigureAwait(false);
+                    await RemoveKeyAsync(args.SuggestedCacheKey).ConfigureAwait(false);
                 }
             }
         }
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            if (!string.IsNullOrEmpty(args.SuggestedCacheKey ?? args.Account.HomeAccountId.Identifier))
+            if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
             {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey ?? args.Account.HomeAccountId.Identifier).ConfigureAwait(false);
+                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey).ConfigureAwait(false);
                 args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
             }
         }

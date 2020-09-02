@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
 
 namespace IntegrationTestService.Controllers
 {
@@ -21,35 +22,18 @@ namespace IntegrationTestService.Controllers
         // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
 
-        private readonly IHttpContextAccessor _contextAccessor;
-
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
-            ITokenAcquisition tokenAcquisition,
-            IHttpContextAccessor httpContextAccessor)
+            ITokenAcquisition tokenAcquisition)
         {
             _tokenAcquisition = tokenAcquisition;
-            _contextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<WeatherForecast>> GetAsync()
+        public async Task<string> GetAsync()
         {
-            string token = await _tokenAcquisition.GetAccessTokenForUserAsync(
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 new string[] { "User.Read" }).ConfigureAwait(false);
-
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
         }
     }
 }
