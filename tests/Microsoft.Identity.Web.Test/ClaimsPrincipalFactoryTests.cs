@@ -4,30 +4,28 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
     public class ClaimsPrincipalFactoryTests
     {
-        private string _objectId = "objectId";
-        private string _tenantId = "tenantId";
-
         [Fact]
         public void FromTenantIdAndObjectId_NullParameters_ThrowsException()
         {
-            Assert.Throws<ArgumentNullException>("value", () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(_tenantId, null));
-            Assert.Throws<ArgumentNullException>("value", () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(null, _objectId));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(TestConstants.Utid, null));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(null, TestConstants.Uid));
         }
 
         [Fact]
         public void FromTenantIdAndObjectId_ValidParameters_ReturnsClaimsPrincipal()
         {
-            var claimsIdentityResult = ClaimsPrincipalFactory.FromTenantIdAndObjectId(_tenantId, _objectId).Identity as ClaimsIdentity;
+            var claimsIdentityResult = ClaimsPrincipalFactory.FromTenantIdAndObjectId(TestConstants.Utid, TestConstants.Uid).Identity as ClaimsIdentity;
             Assert.NotNull(claimsIdentityResult);
             Assert.Equal(2, claimsIdentityResult.Claims.Count());
-            Assert.Equal(_objectId, claimsIdentityResult.FindFirst(ClaimConstants.Oid)?.Value);
-            Assert.Equal(_tenantId, claimsIdentityResult.FindFirst(ClaimConstants.Tid)?.Value);
+            Assert.Equal(TestConstants.Uid, claimsIdentityResult.FindFirst(ClaimConstants.UniqueObjectIdentifier)?.Value);
+            Assert.Equal(TestConstants.Utid, claimsIdentityResult.FindFirst(ClaimConstants.UniqueTenantIdentifier)?.Value);
         }
     }
 }

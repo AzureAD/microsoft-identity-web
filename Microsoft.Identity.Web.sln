@@ -77,6 +77,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-b2c-hosted.Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-b2c-hosted.Server", "tests\blazorwasm2-b2c-hosted\Server\blazorwasm2-b2c-hosted.Server.csproj", "{69ECC686-3077-4E46-97F6-D287A4821FD4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{3EF671C3-7BD5-4125-8A98-EC34549BCDDD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTestService", "tests\IntegrationTests\IntegrationTestService\IntegrationTestService.csproj", "{D3C5B5F5-617E-4206-B9EF-915A27AF6863}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +171,10 @@ Global
 		{69ECC686-3077-4E46-97F6-D287A4821FD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69ECC686-3077-4E46-97F6-D287A4821FD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69ECC686-3077-4E46-97F6-D287A4821FD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3C5B5F5-617E-4206-B9EF-915A27AF6863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3C5B5F5-617E-4206-B9EF-915A27AF6863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3C5B5F5-617E-4206-B9EF-915A27AF6863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3C5B5F5-617E-4206-B9EF-915A27AF6863}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -198,6 +206,8 @@ Global
 		{C6C1DF09-2A56-4A43-B74D-05587563847E} = {E571B66E-C693-445D-9DF8-A4C2CB9B69CD}
 		{31AE5E2D-F2C3-4038-83F9-9AE6068F4742} = {E571B66E-C693-445D-9DF8-A4C2CB9B69CD}
 		{69ECC686-3077-4E46-97F6-D287A4821FD4} = {E571B66E-C693-445D-9DF8-A4C2CB9B69CD}
+		{3EF671C3-7BD5-4125-8A98-EC34549BCDDD} = {79310504-1334-4F14-93C4-1240913224BA}
+		{D3C5B5F5-617E-4206-B9EF-915A27AF6863} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

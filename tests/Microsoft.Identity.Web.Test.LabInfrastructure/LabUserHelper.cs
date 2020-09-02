@@ -30,16 +30,16 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
                 return s_userCache[query];
             }
 
-            var user = await s_labService.GetLabResponseAsync(query).ConfigureAwait(false);
-            if (user == null)
+            var response = await s_labService.GetLabResponseAsync(query).ConfigureAwait(false);
+            if (response == null)
             {
                 throw new LabUserNotFoundException(query, "Found no users for the given query.");
             }
 
             Debug.WriteLine("User cache miss");
-            s_userCache.Add(query, user);
+            s_userCache.Add(query, response);
 
-            return user;
+            return response;
         }
 
         public static Task<LabResponse> GetDefaultUserAsync()
@@ -82,8 +82,6 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
         public static Task<LabResponse> GetSpecificUserAsync(string upn)
         {
             var query = new UserQuery();
-
-            // query.Upn = upn;
             return GetLabUserDataAsync(query);
         }
 
