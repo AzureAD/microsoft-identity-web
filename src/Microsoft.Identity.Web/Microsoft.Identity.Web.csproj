@@ -2,7 +2,7 @@
   <PropertyGroup>
 
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">0.2.0-localbuild</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">0.4.0-localbuild</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(ClientSemVer)</Version>
 
@@ -94,7 +94,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Graph" Version="3.9.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.17.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164">
       <PrivateAssets>all</PrivateAssets>
