@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
@@ -27,14 +28,19 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             _keyVault = new KeyVaultSecretsProvider();
+            string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
-            services.Configure<MicrosoftIdentityOptions>(options => 
-            { 
-                 options.ClientSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
+            services.Configure<MicrosoftIdentityOptions>(options =>
+            {
+                options.ClientSecret = ccaSecret;
+            });
+            services.Configure<ConfidentialClientApplicationOptions>(options =>
+            {
+                options.ClientSecret = ccaSecret;
             });
             services.AddRazorPages(options =>
             {
