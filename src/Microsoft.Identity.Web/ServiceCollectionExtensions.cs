@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for IServiceCollection for startup initialization of Web APIs.
+    /// Extensions for IServiceCollection for startup initialization of web APIs.
     /// </summary>
     public static class ServiceCollectionExtensions
     {

@@ -249,7 +249,7 @@ namespace Microsoft.Identity.Web
                         options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions.Value);
                     }
 
-                    // This is a Microsoft identity platform Web app
+                    // This is a Microsoft identity platform web app
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
                     options.TokenValidationParameters = options.TokenValidationParameters.Clone();

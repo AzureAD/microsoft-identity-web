@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
         /// <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
         /// <param name="scopes">scopes to request access to.</param>
         /// <example>
-        /// From the configuration of the Authentication of the ASP.NET Core Web API:
+        /// From the configuration of the Authentication of the ASP.NET Core web API:
         /// <code>OpenIdConnectOptions options;</code>
         ///
         /// Subscribe to the authorization code received event:
@@ -171,20 +171,20 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Typically used from a Web App or WebAPI controller, this method retrieves an access token
+        /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
-        /// 1) the token cache (for Web Apps and Web APIs) if a token exists in the cache
+        /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in Web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
+        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
-        /// <remarks>Calling this method from a Web API supposes that you have previously called,
+        /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
+        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         [Obsolete("This method has been deprecated, please use the GetAccessTokenForUserAsync() method instead.")]
@@ -196,11 +196,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Typically used from a Web App or WebAPI controller, this method retrieves an access token
+        /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
-        /// 1) the token cache (for Web Apps and Web APis) if a token exists in the cache
+        /// 1) the token cache (for web apps and web APis) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in Web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
+        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -208,12 +208,12 @@ namespace Microsoft.Identity.Web
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
-        /// user (in a web app), or the user for which the token was received (in a Web API)
+        /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a Web App supposes that
+        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
@@ -257,10 +257,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalUiRequiredException ex)
             {
-                // GetAccessTokenForUserAsync is an abstraction that can be called from a Web App or a Web API
+                // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
                 _logger.LogInformation(ex.Message);
 
-                // Case of the Web App: we let the MsalUiRequiredException be caught by the
+                // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
             }

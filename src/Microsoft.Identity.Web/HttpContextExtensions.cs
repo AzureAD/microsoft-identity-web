@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Get the parsed information about the token used to call the Web API.
+        /// Get the parsed information about the token used to call the web API.
         /// </summary>
         /// <param name="httpContext">HTTP context associated with the current request.</param>
         /// <returns><see cref="JwtSecurityToken"/> used to call the web API.</returns>

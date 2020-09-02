@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Builder for Web API authentication with configuration.
+    /// Builder for web API authentication with configuration.
     /// </summary>
     public class MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebApiAuthenticationBuilder
     {

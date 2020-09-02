@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension for IServiceCollection for startup initialization of Web APIs.
+    /// Extension for IServiceCollection for startup initialization of web APIs.
     /// </summary>
     public static partial class MicrosoftIdentityWebApiServiceCollectionExtensions
     {

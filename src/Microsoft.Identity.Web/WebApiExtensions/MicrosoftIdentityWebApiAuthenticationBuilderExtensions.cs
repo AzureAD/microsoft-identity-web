@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>
@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
                         options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
                     }
 
-                    // This is a Microsoft identity platform Web API
+                    // This is a Microsoft identity platform web API
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
                     options.TokenValidationParameters = options.TokenValidationParameters.Clone();
@@ -211,12 +211,12 @@ namespace Microsoft.Identity.Web
                         options.Events = new JwtBearerEvents();
                     }
 
-                    // When an access token for our own Web API is validated, we add it to MSAL.NET's cache so that it can
+                    // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.
                     var tokenValidatedHandler = options.Events.OnTokenValidated;
                     options.Events.OnTokenValidated = async context =>
                     {
-                        // This check is required to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned.
+                        // This check is required to ensure that the web API only accepts tokens from tenants where it has been consented and provisioned.
                         if (!context.Principal.Claims.Any(x => x.Type == ClaimConstants.Scope)
                         && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Scp)
                         && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
@@ -270,7 +270,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Protects the Web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureJwtBearerOptions">The action to configure <see cref="JwtBearerOptions"/>.</param>

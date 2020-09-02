@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
         private string OpenIdConnectScheme { get; set; }
 
         /// <summary>
-        /// The Web app calls a Web API. This override enables you to specify the
+        /// The web app calls a web API. This override enables you to specify the
         /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">Action to configure the

@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     public interface ITokenAcquisition
     {
         /// <summary>
-        /// Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
         /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web
         Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null);
 
         /// <summary>
-        /// Used in Web APIs (which therefore cannot have an interaction with the user).
+        /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
         /// the client can trigger an interaction with the user so the user can consent to more scopes.
         /// </summary>
