@@ -14,8 +14,9 @@
     <Company>Microsoft Corporation</Company>
     <Product>Microsoft Identity Web</Product>
     <Description>
-      This package enables ASP.NET Core Web apps and Web APIs to use the Microsoft identity platform (formerly Azure AD v2.0).
-      This package is specifically used for web applications, which sign-in users, and protected web APIs, call Microsoft Graph Beta API.
+      This package enables ASP.NET Core web apps and web APIs to use the Microsoft identity platform (formerly Azure AD v2.0).
+      This package is specifically used for web applications, which sign-in users and call Microsoft Graph Beta, and for protected web APIs
+      that call Microsoft Graph Beta.
     </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -37,8 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\Constants.cs" Link="Constants.cs" />
-    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphExtensions.cs" Link="MicrosoftGraphExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphOptions.cs" Link="MicrosoftGraphOptions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionCredentialProvider.cs" Link="TokenAcquisitionCredentialProvider.cs" />
