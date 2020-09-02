@@ -37,7 +37,7 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
+        // The Web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
 
 #if (GenerateApi)
@@ -55,15 +55,15 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                string apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 // Do something
             }
             else
             {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
             }
 

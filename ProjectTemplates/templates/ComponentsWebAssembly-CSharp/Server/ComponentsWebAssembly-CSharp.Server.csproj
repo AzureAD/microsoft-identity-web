@@ -4,7 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="0.3.*-*" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="0.4.*-*" />
+    <!--#if (GenerateGraph) -->
+    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="0.4.*-*" />
+    <!--#endif -->
   </ItemGroup>
 
   <PropertyGroup>

@@ -32,9 +32,17 @@ namespace Microsoft.Identity.Web
                 !string.IsNullOrEmpty(userFlow) &&
                 !string.Equals(userFlow, defaultUserFlow, StringComparison.OrdinalIgnoreCase))
             {
-                context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.CodeIdToken;
                 context.ProtocolMessage.IssuerAddress = BuildIssuerAddress(context, defaultUserFlow, userFlow);
                 context.Properties.Items.Remove(OidcConstants.PolicyKey);
+
+                if (!Options.HasClientCredentials)
+                {
+                    context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.IdToken;
+                }
+                else
+                {
+                    context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                }
             }
 
             return Task.CompletedTask;
