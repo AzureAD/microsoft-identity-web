@@ -32,6 +32,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string DomainHint = "domain_hint";
         public const string Claims = "additional_claims";
         public const string PreferredUsername = "preferred_username";
+        public const string Value = "value";
 
         public const string AadInstance = "https://login.microsoftonline.com";
         public const string AuthorityCommonTenant = AadInstance + "/common/";
