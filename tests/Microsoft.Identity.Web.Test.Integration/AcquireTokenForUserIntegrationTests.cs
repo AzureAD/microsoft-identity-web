@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
+#if !FROM_GITHUB_ACTION
     public class AcquireTokenForUserIntegrationTests : IClassFixture<WebApplicationFactory<IntegrationTestService.Startup>>
     {
         private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
@@ -85,4 +86,5 @@ namespace Microsoft.Identity.Web.Test.Integration
             return authResult;
         }
     }
+#endif //FROM_GITHUB_ACTION
 }
