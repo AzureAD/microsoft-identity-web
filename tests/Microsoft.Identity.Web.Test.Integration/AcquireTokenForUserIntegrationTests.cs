@@ -69,18 +69,18 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
         {
-            var labResponse = await LabUserHelper.GetSpecificUserAsync("fIDLAB@msidlab4.com").ConfigureAwait(false);
+            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser).ConfigureAwait(false);
             var msalPublicClient = PublicClientApplicationBuilder
-               .Create("c0485386-1e9a-4663-bc96-7ab30656de7f")
+               .Create(TestConstants.OBOClientSideClientId)
                .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
                .Build();
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" },
-                "fIDLAB@msidlab4.com",
+                TestConstants.OBOUser,
                 new NetworkCredential(
-                    "fIDLAB@msidlab4.com",
+                    TestConstants.OBOUser,
                     labResponse.User.GetOrFetchPassword()).SecurePassword)
                 .ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);

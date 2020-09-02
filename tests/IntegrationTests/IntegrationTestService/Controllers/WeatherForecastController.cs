@@ -28,15 +28,12 @@ namespace IntegrationTestService.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
             ITokenAcquisition tokenAcquisition,
             IHttpContextAccessor httpContextAccessor)
         {
             _tokenAcquisition = tokenAcquisition;
             _contextAccessor = httpContextAccessor;
-            _logger = logger;
         }
 
         [HttpGet]
