@@ -25,9 +25,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             _factory = factory;
         }
 
-        private const string Authority = "https://login.microsoftonline.com/organizations/";
-        private static readonly string[] s_scopes = { "User.Read" }; //{new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default"};
-
         [Fact]
         public async Task GetTokenForUserAsync()
         {
@@ -65,6 +62,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
 
             // Assert
+            Assert.True(response.IsSuccessStatusCode);
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
