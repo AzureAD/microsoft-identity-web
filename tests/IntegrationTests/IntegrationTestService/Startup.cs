@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.LabInfrastructure;
 
 namespace IntegrationTestService
 {
@@ -19,14 +21,21 @@ namespace IntegrationTestService
         }
 
         public IConfiguration Configuration { get; }
+        private KeyVaultSecretsProvider _keyVault;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            _keyVault = new KeyVaultSecretsProvider();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
+            services.Configure<MicrosoftIdentityOptions>(options => 
+            { 
+                 options.ClientSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
+            });
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/SecurePage");

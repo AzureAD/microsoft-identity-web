@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
-        public const string OBOClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/TodoListServiceV2-OBO";
+        public const string OBOClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/TodoListServiceV2-OBO/";
         public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
         public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
