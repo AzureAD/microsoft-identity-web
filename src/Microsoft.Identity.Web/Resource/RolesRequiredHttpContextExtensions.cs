@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
     /// Extension class providing the extension methods for <see cref="HttpContent"/> that
-    /// can be used in Web APIs to validate the roles in controller actions.
+    /// can be used in web APIs to validate the roles in controller actions.
     /// </summary>
     public static class RolesRequiredHttpContextExtensions
     {

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Diagnostics for the JwtBearer middleware (used in Web APIs).
+    /// Diagnostics for the JwtBearer middleware (used in web APIs).
     /// </summary>
     public class JwtBearerMiddlewareDiagnostics : IJwtBearerMiddlewareDiagnostics
     {

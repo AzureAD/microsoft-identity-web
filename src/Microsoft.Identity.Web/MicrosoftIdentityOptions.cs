@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Description of the certificates used to prove the identity of the Web app or Web API.
+        /// Description of the certificates used to prove the identity of the web app or web API.
         /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web
         public IEnumerable<CertificateDescription>? ClientCertificates { get; set; }
 
         /// <summary>
-        /// Description of the certificates used to decrypt an encrypted token in a Web API.
+        /// Description of the certificates used to decrypt an encrypted token in a web API.
         /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:

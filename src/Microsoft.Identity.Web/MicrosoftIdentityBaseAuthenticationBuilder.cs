@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Base class for Web app and Web API Microsoft Identity authentication
+    /// Base class for web app and web API Microsoft Identity authentication
     /// builders.
     /// </summary>
     public abstract class MicrosoftIdentityBaseAuthenticationBuilder

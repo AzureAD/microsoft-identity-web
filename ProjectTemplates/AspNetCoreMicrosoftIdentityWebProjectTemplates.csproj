@@ -8,13 +8,13 @@
 
     <PackageType>Template</PackageType>
     <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>
-    <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
+    <Title>ASP.NET Core web app and web API templates with Microsoft identity platform</Title>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Company>Microsoft</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Authors>Microsoft</Authors>
     <Description>
-      Templates to use when creating a web app that signs in users or a protected Web API
+      Templates to use when creating a web app that signs in users or a protected web API
       with the Microsoft identity platform (and call downstream APIs)
     </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Helper methods to handle incremental consent and conditional access in
-    /// a Web app.
+    /// a web app.
     /// </summary>
     internal static class IncrementalConsentAndConditionalAccessHelper
     {
