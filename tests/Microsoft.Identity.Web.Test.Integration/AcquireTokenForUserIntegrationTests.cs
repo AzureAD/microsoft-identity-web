@@ -24,10 +24,10 @@ namespace Microsoft.Identity.Web.Test.Integration
             _factory = factory;
         }
 
-        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
-
-        [Fact]
-        public async Task GetTokenForUserAsync()
+        [Theory]
+        [InlineData("/SecurePage/GetTokenAsync")]
+        [InlineData("/SecurePage/CallDownstreamWebApiAsync")]
+        public async Task GetTokenForUserAsync(string webApiUrl)
         {
             // Arrange
             IServiceProvider serviceProvider = null;
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Act
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                HttpMethod.Get, "/SecurePage"))
+                HttpMethod.Get, webApiUrl))
             {
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,

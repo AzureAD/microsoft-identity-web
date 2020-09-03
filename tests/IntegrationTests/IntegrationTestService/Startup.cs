@@ -33,7 +33,8 @@ namespace IntegrationTestService
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
-            .AddInMemoryTokenCaches();
+                .AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
+                .AddInMemoryTokenCaches();
             services.Configure<MicrosoftIdentityOptions>(options =>
             {
                 options.ClientSecret = ccaSecret;
