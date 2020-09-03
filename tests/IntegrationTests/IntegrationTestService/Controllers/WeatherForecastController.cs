@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace IntegrationTestService.Controllers
 {
@@ -33,7 +34,7 @@ namespace IntegrationTestService.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
-                new string[] { "User.Read" }).ConfigureAwait(false);
+                TestConstants.s_userReadScope).ConfigureAwait(false);
         }
     }
 }

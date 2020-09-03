@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task result() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopesForUser.FirstOrDefault()).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.FirstOrDefault()).ConfigureAwait(false);
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
 
