@@ -19,12 +19,12 @@ namespace Microsoft.Identity.Web.Test.Integration
 #if !FROM_GITHUB_ACTION
     public class AcquireTokenForUserIntegrationTests : IClassFixture<WebApplicationFactory<IntegrationTestService.Startup>>
     {
-        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
-
         public AcquireTokenForUserIntegrationTests(WebApplicationFactory<IntegrationTestService.Startup> factory)
         {
             _factory = factory;
         }
+
+        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
 
         [Fact]
         public async Task GetTokenForUserAsync()
@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
-                new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" },
+                TestConstants.OBOApiScope,
                 TestConstants.OBOUser,
                 new NetworkCredential(
                     TestConstants.OBOUser,
