@@ -33,7 +33,9 @@ namespace IntegrationTestService
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
-                .AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
+                .AddDownstreamWebApi(
+                TestConstants.SectionNameCalledApi,
+                Configuration.GetSection(TestConstants.SectionNameCalledApi))
                 .AddInMemoryTokenCaches();
             services.Configure<MicrosoftIdentityOptions>(options =>
             {

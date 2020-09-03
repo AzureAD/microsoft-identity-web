@@ -31,18 +31,18 @@ namespace IntegrationTestService.Controllers
             _tokenAcquisition = tokenAcquisition;
         }
 
-        [HttpGet("/SecurePage/GetTokenAsync")]
+        [HttpGet(TestConstants.SecurePageGetTokenAsync)]
         public async Task<string> GetTokenAsync()
         {
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 TestConstants.s_userReadScope).ConfigureAwait(false);
         }
 
-        [HttpGet("/SecurePage/CallDownstreamWebApiAsync")]
+        [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]
         public async Task<HttpResponseMessage> CallDownstreamWebApiAsync()
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            return await _downstreamWebApi.CallWebApiForUserAsync("CalledApi");
+            return await _downstreamWebApi.CallWebApiForUserAsync(TestConstants.SectionNameCalledApi);
         }
     }
 }

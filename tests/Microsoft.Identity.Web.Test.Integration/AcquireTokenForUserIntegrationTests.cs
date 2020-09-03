@@ -24,9 +24,11 @@ namespace Microsoft.Identity.Web.Test.Integration
             _factory = factory;
         }
 
+        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
+
         [Theory]
-        [InlineData("/SecurePage/GetTokenAsync")]
-        [InlineData("/SecurePage/CallDownstreamWebApiAsync")]
+        [InlineData(TestConstants.SecurePageGetTokenAsync)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         public async Task GetTokenForUserAsync(string webApiUrl)
         {
             // Arrange
