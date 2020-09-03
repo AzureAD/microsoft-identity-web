@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
     /// Diagnostics used in the OpenID Connect middleware
-    /// (used in web Apps).
+    /// (used in web apps).
     /// </summary>
     public class OpenIdConnectMiddlewareDiagnostics : IOpenIdConnectMiddlewareDiagnostics
     {
