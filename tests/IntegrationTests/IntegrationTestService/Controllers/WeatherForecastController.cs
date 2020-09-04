@@ -20,7 +20,7 @@ namespace IntegrationTestService.Controllers
         private IDownstreamWebApi _downstreamWebApi;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
-        // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
+        // The web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
 
         public WeatherForecastController(
