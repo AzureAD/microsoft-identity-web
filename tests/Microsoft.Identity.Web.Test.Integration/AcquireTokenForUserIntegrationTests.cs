@@ -7,11 +7,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using IntegrationTestService;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
@@ -29,7 +32,13 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Theory]
         [InlineData(TestConstants.SecurePageGetTokenAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
-        public async Task GetTokenForUserAsync(string webApiUrl)
+        //[InlineData(TestConstants.SecurePageGetTokenAsync, CacheType.DistributedInMemory)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApi, CacheType.DistributedInMemory)]
+        [InlineData(TestConstants.SecurePageGetTokenAsync, CacheType.DistributedTokenCaches)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, CacheType.DistributedTokenCaches)]
+        public async Task GetTokenForUserAsync(
+            string webApiUrl,
+            CacheType cacheType = CacheType.InMemory)
         {
             // Arrange
             IServiceProvider serviceProvider = null;
@@ -37,6 +46,19 @@ namespace Microsoft.Identity.Web.Test.Integration
             {
                 builder.ConfigureServices(services =>
                 {
+                    if (cacheType == CacheType.DistributedMemoryCache)
+                    {
+                        services.AddDistributedMemoryCache();
+                    }
+                    else if (cacheType == CacheType.DistributedTokenCaches)
+                    {
+                        services.AddDistributedTokenCaches();
+                    }
+                    else
+                    {
+                        services.AddInMemoryTokenCaches();
+                    }
+
                     serviceProvider = services.BuildServiceProvider();
                 });
             })

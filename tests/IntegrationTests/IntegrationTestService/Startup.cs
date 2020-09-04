@@ -30,13 +30,13 @@ namespace IntegrationTestService
             _keyVault = new KeyVaultSecretsProvider();
             string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
-            .EnableTokenAcquisitionToCallDownstreamApi()
-                .AddDownstreamWebApi(
-                TestConstants.SectionNameCalledApi,
-                Configuration.GetSection(TestConstants.SectionNameCalledApi))
-                .AddInMemoryTokenCaches();
+            var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                                  .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
+                                  .EnableTokenAcquisitionToCallDownstreamApi()
+                                        .AddDownstreamWebApi(
+                                            TestConstants.SectionNameCalledApi,
+                                            Configuration.GetSection(TestConstants.SectionNameCalledApi));
+
             services.Configure<MicrosoftIdentityOptions>(options =>
             {
                 options.ClientSecret = ccaSecret;

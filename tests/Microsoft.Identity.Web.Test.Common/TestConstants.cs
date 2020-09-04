@@ -127,4 +127,11 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePageCallDownstreamWebApi = "/SecurePage/CallDownstreamWebApiAsync";
         public const string SectionNameCalledApi = "CalledApi";
     }
+    public enum CacheType
+    {
+        None,
+        InMemory,
+        DistributedMemoryCache,
+        DistributedTokenCaches,
+    }
 }
