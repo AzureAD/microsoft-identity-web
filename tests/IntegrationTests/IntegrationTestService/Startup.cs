@@ -35,7 +35,8 @@ namespace IntegrationTestService
                                   .EnableTokenAcquisitionToCallDownstreamApi()
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
-                                            Configuration.GetSection(TestConstants.SectionNameCalledApi));
+                                            Configuration.GetSection(TestConstants.SectionNameCalledApi))
+                                        .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
             services.Configure<MicrosoftIdentityOptions>(options =>
             {

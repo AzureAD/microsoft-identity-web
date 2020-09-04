@@ -22,23 +22,25 @@ namespace Microsoft.Identity.Web.Test.Integration
 #if !FROM_GITHUB_ACTION
     public class AcquireTokenForUserIntegrationTests : IClassFixture<WebApplicationFactory<IntegrationTestService.Startup>>
     {
-        public AcquireTokenForUserIntegrationTests(WebApplicationFactory<IntegrationTestService.Startup> factory)
+        public AcquireTokenForUserIntegrationTests(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
         }
 
-        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
+        private readonly WebApplicationFactory<Startup> _factory;
 
         [Theory]
         [InlineData(TestConstants.SecurePageGetTokenAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
-        //[InlineData(TestConstants.SecurePageGetTokenAsync, CacheType.DistributedInMemory)]
-        //[InlineData(TestConstants.SecurePageCallDownstreamWebApi, CacheType.DistributedInMemory)]
-        [InlineData(TestConstants.SecurePageGetTokenAsync, CacheType.DistributedTokenCaches)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, CacheType.DistributedTokenCaches)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
         public async Task GetTokenForUserAsync(
             string webApiUrl,
-            CacheType cacheType = CacheType.InMemory)
+            bool addInMemoryTokenCache = true)
         {
             // Arrange
             IServiceProvider serviceProvider = null;
@@ -46,17 +48,18 @@ namespace Microsoft.Identity.Web.Test.Integration
             {
                 builder.ConfigureServices(services =>
                 {
-                    if (cacheType == CacheType.DistributedMemoryCache)
+                    if (!addInMemoryTokenCache)
                     {
                         services.AddDistributedMemoryCache();
-                    }
-                    else if (cacheType == CacheType.DistributedTokenCaches)
-                    {
+#pragma warning disable CS0618 // Type or member is obsolete
                         services.AddDistributedTokenCaches();
+#pragma warning restore CS0618 // Type or member is obsolete
                     }
                     else
                     {
+#pragma warning disable CS0618 // Type or member is obsolete
                         services.AddInMemoryTokenCaches();
+#pragma warning restore CS0618 // Type or member is obsolete
                     }
 
                     serviceProvider = services.BuildServiceProvider();
