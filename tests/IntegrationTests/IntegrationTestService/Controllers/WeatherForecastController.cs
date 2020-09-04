@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -54,7 +51,7 @@ namespace IntegrationTestService.Controllers
         public async Task<string> CallDownstreamWebApiGenericAsync()
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, User>(
+            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
                 options => { options.RelativePath = "me"; });
