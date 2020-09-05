@@ -1653,7 +1653,7 @@
             you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
             OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal)">
             <summary>
             Typically used from a web app or web API controller, this method retrieves an access token
             for a downstream API using;
@@ -1708,7 +1708,7 @@
             Creates an MSAL confidential client application.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
             </summary>
@@ -1719,7 +1719,7 @@
             on behalf of the user described in the claimsPrincipal.</param>
             <param name="userFlow">Azure AD B2C user flow to target.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Gets an access token for a downstream API on behalf of the user which account is passed as an argument.
             </summary>
@@ -1741,6 +1741,29 @@
             <param name="msalServiceException">The <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> that triggered the challenge.</param>
             <param name="httpResponse">The <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/> to update.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Typically used from a web app or web API controller, this method retrieves an access token
+            for a downstream API using;
+            1) the token cache (for web apps and web APis) if a token exists in the cache
+            2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+            in web APIs, for the user account that is ascertained from claims are provided in the <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/>
+            instance of the current HttpContext.
+            </summary>
+            <param name="scopes">Scopes to request for the downstream API to call.</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+            <param name="userFlow">Azure AD B2C user flow to target.</param>
+            <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+            user (in a web app), or the user for which the token was received (in a web API)
+            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+            <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
+            <remarks>Calling this method from a web API supposes that you have previously called,
+            in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
+            passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+            you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
+            OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
             <summary>
