@@ -43,7 +43,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             bool addInMemoryTokenCache = true)
         {
             // Arrange
-            IServiceProvider serviceProvider = null;
             var client = _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
@@ -62,7 +61,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 #pragma warning restore CS0618 // Type or member is obsolete
                     }
 
-                    serviceProvider = services.BuildServiceProvider();
+                    services.BuildServiceProvider();
                 });
             })
             .CreateClient(new WebApplicationFactoryClientOptions

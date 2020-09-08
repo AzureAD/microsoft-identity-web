@@ -128,5 +128,14 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
         public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";
+
+        // Selenium Automation
+        public const string WebSubmitId = "idSIButton9";
+        public const string WebUPNInputId = "i0116";
+        public const string WebPasswordId = "i0118";
+        public const string ConsentAcceptId = "idBtn_Accept";
+        public const string StaySignedInNoId = "idBtn_Back";
+        public const string PhotoLabel = "photo";
+        public const string Headless = "headless";
     }
 }
