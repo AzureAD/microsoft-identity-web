@@ -34,6 +34,25 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null);
 
         /// <summary>
+        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// </summary>
+        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="userFlow">Azure AD B2C UserFlow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
+        Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null);
+
+        /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
