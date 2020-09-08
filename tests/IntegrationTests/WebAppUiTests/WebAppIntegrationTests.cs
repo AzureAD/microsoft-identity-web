@@ -13,7 +13,7 @@ using Xunit;
 namespace WebAppUiTests
 {
 #if !FROM_GITHUB_ACTION
-    public class AutomatedUiTests
+    public class WebAppIntegrationTests
     {
         [Fact]
         public async Task ChallengeUser_SignInSucceedsTestAsync()
