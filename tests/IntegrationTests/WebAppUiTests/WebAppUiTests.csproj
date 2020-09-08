@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj" />
     <ProjectReference Include="..\..\WebAppCallsMicrosoftGraph\WebAppCallsMicrosoftGraph.csproj" />
   </ItemGroup>
 
