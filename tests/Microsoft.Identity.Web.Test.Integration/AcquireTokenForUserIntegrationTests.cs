@@ -7,11 +7,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using IntegrationTestService;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
@@ -19,15 +22,25 @@ namespace Microsoft.Identity.Web.Test.Integration
 #if !FROM_GITHUB_ACTION
     public class AcquireTokenForUserIntegrationTests : IClassFixture<WebApplicationFactory<IntegrationTestService.Startup>>
     {
-        private readonly WebApplicationFactory<IntegrationTestService.Startup> _factory;
-
-        public AcquireTokenForUserIntegrationTests(WebApplicationFactory<IntegrationTestService.Startup> factory)
+        public AcquireTokenForUserIntegrationTests(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
         }
 
-        [Fact]
-        public async Task GetTokenForUserAsync()
+        private readonly WebApplicationFactory<Startup> _factory;
+
+        [Theory]
+        [InlineData(TestConstants.SecurePageGetTokenAsync)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        public async Task GetTokenForUserAsync(
+            string webApiUrl,
+            bool addInMemoryTokenCache = true)
         {
             // Arrange
             IServiceProvider serviceProvider = null;
@@ -35,6 +48,20 @@ namespace Microsoft.Identity.Web.Test.Integration
             {
                 builder.ConfigureServices(services =>
                 {
+                    if (!addInMemoryTokenCache)
+                    {
+                        services.AddDistributedMemoryCache();
+#pragma warning disable CS0618 // Type or member is obsolete
+                        services.AddDistributedTokenCaches();
+#pragma warning restore CS0618 // Type or member is obsolete
+                    }
+                    else
+                    {
+#pragma warning disable CS0618 // Type or member is obsolete
+                        services.AddInMemoryTokenCaches();
+#pragma warning restore CS0618 // Type or member is obsolete
+                    }
+
                     serviceProvider = services.BuildServiceProvider();
                 });
             })
@@ -48,7 +75,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Act
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                HttpMethod.Get, "/SecurePage"))
+                HttpMethod.Get, webApiUrl))
             {
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
@@ -75,7 +102,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
-                new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" },
+                TestConstants.OBOApiScope,
                 TestConstants.OBOUser,
                 new NetworkCredential(
                     TestConstants.OBOUser,

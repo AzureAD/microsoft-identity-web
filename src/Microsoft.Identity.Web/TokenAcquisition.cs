@@ -216,14 +216,54 @@ namespace Microsoft.Identity.Web
         /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
-        public async Task<string> GetAccessTokenForUserAsync(
+        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
             string? tenant = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null)
         {
-            AuthenticationResult result = await GetAuthenticationResultForUserAsync(scopes, tenant, userFlow, user).ConfigureAwait(false);
-            return result.AccessToken;
+            if (scopes == null)
+            {
+                throw new ArgumentNullException(nameof(scopes));
+            }
+
+            user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
+
+            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+            AuthenticationResult? authenticationResult;
+
+            try
+            {
+                // Access token will return if call is from a web API
+                authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+                    _application,
+                    authority,
+                    scopes).ConfigureAwait(false);
+
+                if (authenticationResult != null)
+                {
+                    return authenticationResult;
+                }
+
+                // If access token is null, this is a web app
+                return await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+                     _application,
+                     user,
+                     scopes,
+                     authority,
+                     userFlow)
+                     .ConfigureAwait(false);
+            }
+            catch (MsalUiRequiredException ex)
+            {
+                // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
+                _logger.LogInformation(ex.Message);
+
+                // Case of the web app: we let the MsalUiRequiredException be caught by the
+                // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
+                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
+            }
         }
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
@@ -618,50 +658,35 @@ namespace Microsoft.Identity.Web
             return authority;
         }
 
-        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenant = null, string? userFlow = null, ClaimsPrincipal? user = null)
+        /// <summary>
+        /// Typically used from a web app or web API controller, this method retrieves an access token
+        /// for a downstream API using;
+        /// 1) the token cache (for web apps and web APis) if a token exists in the cache
+        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
+        /// instance of the current HttpContext.
+        /// </summary>
+        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
+        /// <remarks>Calling this method from a web API supposes that you have previously called,
+        /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
+        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
+        /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
+        public async Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenant = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null)
         {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-
-            user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
-
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
-            AuthenticationResult? authenticationResult;
-
-            try
-            {
-                // Access token will return if call is from a web API
-                authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
-                    _application,
-                    authority,
-                    scopes).ConfigureAwait(false);
-
-                if (authenticationResult != null)
-                {
-                    return authenticationResult;
-                }
-
-                // If access token is null, this is a web app
-                return await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
-                     _application,
-                     user,
-                     scopes,
-                     authority,
-                     userFlow)
-                     .ConfigureAwait(false);
-            }
-            catch (MsalUiRequiredException ex)
-            {
-                // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
-                _logger.LogInformation(ex.Message);
-
-                // Case of the web app: we let the MsalUiRequiredException be caught by the
-                // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
-                throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
-            }
+            AuthenticationResult result = await GetAuthenticationResultForUserAsync(scopes, tenant, userFlow, user).ConfigureAwait(false);
+            return result.AccessToken;
         }
     }
 }
