@@ -12,6 +12,7 @@ using Xunit;
 
 namespace WebAppUiTests
 {
+#if !FROM_GITHUB_ACTION
     public class AutomatedUiTests
     {
         [Fact]
@@ -19,6 +20,9 @@ namespace WebAppUiTests
         {
             // Arrange
             ChromeOptions options = new ChromeOptions();
+            // ~2x faster, no visual rendering
+            // comment-out below when debugging to see the UI automation
+            options.AddArguments("headless");
             IWebDriver driver = new ChromeDriver(options);
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
@@ -28,22 +32,23 @@ namespace WebAppUiTests
             // Act
             driver.Navigate()
                .GoToUrl("https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin");
-            PerformLogin(driver, labResponse);
+            PerformLogin(driver, labResponse.User);
 
             // Assert
-            Assert.Contains("Hello idlab1@msidlab4.onmicrosoft.com!", driver.PageSource);
+            Assert.Contains(labResponse.User.Upn, driver.PageSource);
             Assert.Contains("photo", driver.PageSource);
+            driver.Quit();
             driver.Dispose();
         }
 
         private static void PerformLogin(
             IWebDriver driver,
-            LabResponse response)
+            LabUser user)
         {
             UserInformationFieldIds fields = new UserInformationFieldIds();
 
-            EnterUsername(driver, response.User, fields);
-            EnterPassword(driver, response.User, fields);
+            EnterUsername(driver, user, fields);
+            EnterPassword(driver, user, fields);
             HandleStaySignedInPrompt(driver);
         }
 
@@ -52,6 +57,7 @@ namespace WebAppUiTests
             LabUser user,
             UserInformationFieldIds fields)
         {
+            // Lab user needs to be a guest in the msidentity-samples-testing tenant
             Trace.WriteLine(string.Format("Logging in ... Entering user name: {0}", user.Upn));
 
             driver.FindElement(By.Id(fields.AADUsernameInputId)).SendKeys(user.Upn.Contains("EXT") ? user.HomeUPN : user.Upn);
@@ -82,4 +88,5 @@ namespace WebAppUiTests
             acceptBtn?.Click();
         }
     }
+#endif //FROM_GITHUB_ACTION
 }
