@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
@@ -18,6 +19,8 @@ namespace WebAppUiTests
         [Fact]
         public async Task ChallengeUser_SignInSucceedsTestAsync()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; } 
+
             // Arrange
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
