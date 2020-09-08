@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
-
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
