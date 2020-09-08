@@ -19,24 +19,24 @@ namespace WebAppUiTests
         public async Task ChallengeUser_SignInSucceedsTestAsync()
         {
             // Arrange
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+
             ChromeOptions options = new ChromeOptions();
             // ~2x faster, no visual rendering
             // comment-out below when debugging to see the UI automation
-            options.AddArguments("headless");
-            IWebDriver driver = new ChromeDriver(options);
-            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
-
-            Trace.WriteLine("Starting Selenium automation: web app sign-in & call Graph");
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            options.AddArguments(TestConstants.Headless);
+            IWebDriver driver = new ChromeDriver(options);                  
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);            
 
             // Act
+            Trace.WriteLine("Starting Selenium automation: web app sign-in & call Graph");
             driver.Navigate()
                .GoToUrl("https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin");
             PerformLogin(driver, labResponse.User);
 
             // Assert
             Assert.Contains(labResponse.User.Upn, driver.PageSource);
-            Assert.Contains("photo", driver.PageSource);
+            Assert.Contains(TestConstants.PhotoLabel, driver.PageSource);
             driver.Quit();
             driver.Dispose();
         }
