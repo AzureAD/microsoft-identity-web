@@ -668,7 +668,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
