@@ -1,3 +1,16 @@
+0.4.0-preview
+============
+### New Features:
+**`ITokenAcquisition` now exposes the `AuthenticationResult` for the user from MSAL**. See issue [#543](https://github.com/AzureAD/microsoft-identity-web/issues/543) for details.
+**Now, to use Microsoft GraphServiceClient, you need to reference Microsoft.Identity.Web.MicrosoftGraph or Microsoft.Identity.Web.MicrosoftGraphBeta**. See issue [#506](https://github.com/AzureAD/microsoft-identity-web/issues/506) for details.
+
+### Bug Fixes:
+**`CallWebApiForUserAsync` handles a successful response better**. See issue [#503](https://github.com/AzureAD/microsoft-identity-web/issues/429) for details.
+**Microsoft Identity Web can now handle two schemes in web APIs**. See issues [#429](https://github.com/AzureAD/microsoft-identity-web/issues/429), [#468](https://github.com/AzureAD/microsoft-identity-web/issues/468), and [#474](https://github.com/AzureAD/microsoft-identity-web/issues/474) for details.
+
+### Fundamentals:
+**Add integration test coverage for web app and web API scenarios**. Issues [#97](https://github.com/AzureAD/microsoft-identity-web/issues/97), [#95](https://github.com/AzureAD/microsoft-identity-web/issues/95), and [#102](https://github.com/AzureAD/microsoft-identity-web/issues/102).
+
 0.3.1-preview
 ============
 ### Bug Fixes
