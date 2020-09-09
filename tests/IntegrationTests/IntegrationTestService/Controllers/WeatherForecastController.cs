@@ -33,11 +33,18 @@ namespace IntegrationTestService.Controllers
             _graphServiceClient = graphServiceClient;
         }
 
-        [HttpGet(TestConstants.SecurePageGetTokenAsync)]
+        [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
         public async Task<string> GetTokenAsync()
         {
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 TestConstants.s_userReadScope).ConfigureAwait(false);
+        }
+
+        [HttpGet(TestConstants.SecurePageGetTokenForAppAsync)]
+        public async Task<string> GetTokenForAppAsync()
+        {
+            return await _tokenAcquisition.GetAccessTokenForAppAsync(
+                TestConstants.s_scopeForApp).ConfigureAwait(false);
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]

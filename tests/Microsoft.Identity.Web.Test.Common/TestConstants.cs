@@ -123,7 +123,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string KeyVaultReference = "AzureADIdentityDivisionTestAgentCert";
 
         // Integration tests
-        public const string SecurePageGetTokenAsync = "/SecurePage/GetTokenAsync";
+        public const string SecurePageGetTokenForUserAsync = "/SecurePage/GetTokenForUserAsync";
+        public const string SecurePageGetTokenForAppAsync = "/SecurePage/GetTokenForAppAsync";
         public const string SecurePageCallDownstreamWebApi = "/SecurePage/CallDownstreamWebApiAsync";
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
         public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
