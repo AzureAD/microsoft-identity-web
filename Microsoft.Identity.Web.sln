@@ -87,6 +87,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Micr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppUiTests", "tests\IntegrationTests\WebAppUiTests\WebAppUiTests.csproj", "{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Perf.Benchmark", "tests\Perf\Microsoft.Identity.Web.Perf.Benchmark\Microsoft.Identity.Web.Perf.Benchmark.csproj", "{3C91F382-EDF8-45A3-B50D-330234C4C7C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Perf", "Perf", "{9B8BE2D5-9E66-450F-94AB-8E8DD954C62C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +197,10 @@ Global
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C91F382-EDF8-45A3-B50D-330234C4C7C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C91F382-EDF8-45A3-B50D-330234C4C7C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C91F382-EDF8-45A3-B50D-330234C4C7C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C91F382-EDF8-45A3-B50D-330234C4C7C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -227,6 +235,8 @@ Global
 		{3EF671C3-7BD5-4125-8A98-EC34549BCDDD} = {79310504-1334-4F14-93C4-1240913224BA}
 		{D3C5B5F5-617E-4206-B9EF-915A27AF6863} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
+		{3C91F382-EDF8-45A3-B50D-330234C4C7C3} = {9B8BE2D5-9E66-450F-94AB-8E8DD954C62C}
+		{9B8BE2D5-9E66-450F-94AB-8E8DD954C62C} = {79310504-1334-4F14-93C4-1240913224BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}
