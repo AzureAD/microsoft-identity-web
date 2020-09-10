@@ -40,18 +40,56 @@ In a Developer Command Prompt:
 `cd ..\..`
 
 Then perform the following steps. They are different depending on whether you test the templates from the repo, or from a NuGet package that you downloaded (release build)
-|**If you are testing the templates from the local repo** |  **If you are testing the templates from a NuGet package**
-|:----	|:---|
-| 6. Delete the NuGet packages from ProjectTemplates\bin\Debug (to be sure to test the right one) | 6. clean the repo to be sure to start clean. Ignore the ChromeDriver.exe if it cannot be removed. 
-`del ProjectTemplates\bin\Debug\*.nupkg` | `git clean -xdf` |
-| 7. Build the repo. This builds everything and generates the NuGet packages |  7. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the `ProjectTemplates\bin\Debug` folder of the repo. The version should be the same as the value of `ClientSemVer` you set in step 2. Above. For instance if you downloaded the `Packages.zip` file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: |
-`dotnet pack Microsoft.Identity.Web.sln` | `mkdir ProjectTemplates\bin\Debug` `copy %UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug`|
-8. Go to the ProjetTemplates folder | 8. Go to the ProjetTemplates folder
-`cd ProjectTemplates`| `cd ProjectTemplates`
-9. Ensure that the NuGet packages that will be picked-up are the ones generated from the build for the repo. For this you can select the corresponding folders in the Visual Studio NuGet package options UI, or just uncomment the following 3 lines from the NuGet.Config file:| 9. Ensure that the NuGet packages that will be restored in the test projects are the ones generated from the release build. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just add a line corresponding to the folder where your NuGet packages are, in the NuGet.Config file (change:
-[nugetconfig](https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L22-L24) | [nugetconfig](https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L28) 
-10. From ProjectTemplates folder, run the `Test-templates.bat` script: | 10. From ProjectTemplates folder, run the `Test-templates.bat`  script with an argument to tell the script to pick-up the existing `Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg` file instead of regenerating it. 
- `Test-templates.bat`| `Test-templates.bat DontGenerate`|
+<<table border = "2">
+<tr>
+    <th>If you are testing the templates from the local repo</th>
+    <th>If you are testing the templates from a NuGet package</th>
+</tr>
+<tr>
+    <td>6. Delete the NuGet packages from ProjectTemplates\bin\Debug (to be sure to test the right one)</td>
+    <td>6. clean the repo to be sure to start clean. Ignore the ChromeDriver.exe if it cannot be removed.</td>
+</tr>
+<tr>
+    <td><code>del ProjectTemplates\bin\Debug\*.nupkg</code></td>
+    <td><code>git clean -xdf</code></td>
+</tr>
+<tr>
+    <td>7. Build the repo. This builds everything and generates the NuGet packages</td>
+    <td>7. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the <code>ProjectTemplates\bin\Debug</code> folder of the repo. 
+    
+The version should be the same as the value of <code>ClientSemVer</code> you set in step For instance if you downloaded the <code>Packages.zip</code> file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: </td>
+</tr>
+<tr>
+    <td><code>dotnet pack Microsoft.Identity.Web.sln</code></td>
+    <td><code>mkdir ProjectTemplates\bin\Debug 
+    
+copy %UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
+</tr>
+<tr>
+    <td>8. Go to the ProjetTemplates folder</td>
+    <td>8. Go to the ProjetTemplates folder</td>
+</tr>
+<tr>
+    <td><code>cd ProjectTemplates</code></td>
+    <td><code>cd ProjectTemplates</code></td>
+</tr>
+<tr>
+    <td>9. Ensure that the NuGet packages that will be picked-up are the ones generated from the build for the repo. For this you can select the corresponding folders in the Visual Studio NuGet package options UI, or just uncomment the following 3 lines from the NuGet.Config file:</td>
+    <td>9. Ensure that the NuGet packages that will be restored in the test projects are the ones generated from the release build. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just add a line corresponding to the folder where your NuGet packages are, in the NuGet.Config file (change:</td>
+</tr>
+<tr>
+    <td><p><a href="https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L22-L24">nugetconfig</a></td>
+    <td><p><a href="https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L28">nugetconfig</a></td>
+</tr>
+<tr>
+    <td>10. From ProjectTemplates folder, run the <code>Test-templates.bat</code> script:</td>
+    <td>10. From ProjectTemplates folder, run the <code>Test-templates.bat</code> script with an argument to tell the script to pick-up the existing <code>Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg</code> file instead of regenerating it. </td>
+</tr>
+<tr>
+    <td><code>Test-templates.bat</code></td>
+    <td><code>Test-templates.bat DontGenerate</code></td>
+</tr>
+</table>
 
 
 11. Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
@@ -74,9 +112,3 @@ Test each project in the solution:
 		○ Note that we could do with testing the B2C-calls-web-api against the Web api deployed in Azure, but testing it against our test project has the interest of enabling debugging
 	
 	- To test the web apis templates …. TBD …
-
-
-
-
-
-
