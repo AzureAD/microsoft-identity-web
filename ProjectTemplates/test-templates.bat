@@ -8,7 +8,9 @@ echo "Ensure the tool to configure the templates is built"
 dotnet build ..\tools\ConfigureGeneratedApplications
 
 echo "Build and Install templates"
+if "%1" == "" (
 dotnet pack AspNetCoreMicrosoftIdentityWebProjectTemplates.csproj
+)
 cd bin
 cd Debug
 dotnet new -u %TemplateNugetPackageName%
