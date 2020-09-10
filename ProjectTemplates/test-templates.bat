@@ -1,8 +1,18 @@
+echo "Ensure ClientSemVer"
+if "%ClientSemVer%" == "" (
+set ClientSemVer=0.4.0-preview
+)
+Set TemplateNugetPackageName="Microsoft.Identity.Web.ProjectTemplates"
+
+echo "Ensure the tool to configure the templates is built"
+dotnet build ..\tools\ConfigureGeneratedApplications
+
 echo "Build and Install templates"
 dotnet pack AspNetCoreMicrosoftIdentityWebProjectTemplates.csproj
 cd bin
 cd Debug
-dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.4.0-preview.nupkg
+dotnet new -u %TemplateNugetPackageName%
+dotnet new -i %TemplateNugetPackageName%.%ClientSemVer%.nupkg
 
 echo "Test templates"
 mkdir tests
