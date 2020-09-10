@@ -44,8 +44,8 @@ namespace ConfigureGeneratedApplications
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("## Test the generated templates");
-            builder.AppendLine(@"2. Use `TESTING.md` file for steps for testing locally and for testing a release");
-            builder.AppendLine("5. Test the following projects:");
+            builder.AppendLine(@"1. Use `TESTING.md` file for steps for testing locally and for testing a release.");
+            builder.AppendLine("2. Test the following projects: ");
             foreach (Project p in configuration.Projects)
             {
                 builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");
