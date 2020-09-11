@@ -68,5 +68,9 @@ namespace Microsoft.Identity.Web
         // Microsoft Graph
         public const string UserReadScope = "user.read";
         public const string GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0";
+
+        // Telemetry headers
+        public const string TelemetryHeaderKey = "x-client-brkrver";
+        public const string IDWebSku = "IDWeb";
     }
 }

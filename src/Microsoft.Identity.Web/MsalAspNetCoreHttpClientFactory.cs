@@ -17,7 +17,9 @@ namespace Microsoft.Identity.Web
 
         public HttpClient GetHttpClient()
         {
-            return _httpClientFactory.CreateClient();
+            HttpClient httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Add(Constants.TelemetryHeaderKey, Constants.IDWebSku);
+            return httpClient;
         }
     }
 }
