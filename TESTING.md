@@ -31,13 +31,16 @@ In a Developer Command Prompt:
    `cd ProjectTemplates`
 
 4. Add client secrets to the Configuration.json file
+   
    `"B2C_Client_ClientSecret": "sercret_goes_here",`
+   
    `"AAD_Client_ClientSecret": "sercret_goes_here",`
+   
    `"AAD_WebApi_ClientSecret": "sercret_goes_here"`
 	        
 5. Go back to the root of the repo
 
-   `cd ..\..`
+   `cd ..`
 
    Then perform the following steps. They are different depending on whether you test the templates from the repo, or from a NuGet package that you downloaded (release build)
    <table border = "2">
@@ -61,9 +64,9 @@ In a Developer Command Prompt:
     </tr>
     <tr>
         <td><code>dotnet pack Microsoft.Identity.Web.sln</code></td>
-        <td><code>mkdir ProjectTemplates\bin\Debug 
+        <td><code>mkdir ProjectTemplates\bin\Debug
         
-    copy %UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
+    copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
     </tr>
     <tr>
         <td>8. Go to the ProjetTemplates folder</td>
@@ -74,12 +77,15 @@ In a Developer Command Prompt:
         <td><code>cd ProjectTemplates</code></td>
     </tr>
     <tr>
-        <td>9. Ensure that the NuGet packages that will be picked-up are the ones generated from the <b>build for the repo</b>. For this you can select the corresponding folders in the Visual Studio NuGet package options UI, or just uncomment the following 3 lines from the NuGet.Config file:</td>
-        <td>9. Ensure that the NuGet packages that will be restored in the test projects are the ones <b>generated from the release build</b>. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just add a line corresponding to the folder where your NuGet packages are, in the NuGet.Config file (change:</td>
+        <td>9. Ensure that the NuGet packages that will be picked-up are the ones generated from the <b>build for the repo</b>. For this you can select the corresponding folders in the Visual Studio NuGet package options UI, or just copy the <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/ProjectTemplates/nuget.config.local-build#L22-L24">Nuget.config.local-build file</a> to nuget.config into the same folder</td>
+        <td>9. Ensure that the NuGet packages that will be restored in the test projects are the ones <b>generated from the release build</b>. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just copy the <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/ProjectTemplates/nuget.config.release-build">Nuget.config.release-build </a> file to nuget.config into the same folder</td>
     </tr>
     <tr>
-        <td><p><a href="https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L22-L24">Nuget.config Lines 22-24</a></td>
-        <td><p><a href="https://github.com/AzureAD/microsoft-identity-web/blob/f211a9ea80a34402b290b15f933d53b9b54c62e7/ProjectTemplates/nuget.config#L28">Nuget.config Line 28</a></td>
+        <td>
+        <p>
+        <code>copy nuget.config.local-build nuget.config</code>
+        </td>
+        <td><p><code>copy nuget.config.release-build nuget.config</code></td>
     </tr>
     <tr>
         <td>10. From ProjectTemplates folder, run the <code>Test-templates.bat</code> script:</td>
