@@ -35,7 +35,7 @@ In a Developer Command Prompt:
    `"B2C_Client_ClientSecret": "sercret_goes_here",`
    
    `"AAD_Client_ClientSecret": "sercret_goes_here",`
-   
+  
    `"AAD_WebApi_ClientSecret": "sercret_goes_here"`
 	        
 5. Go back to the root of the repo
@@ -98,7 +98,7 @@ In a Developer Command Prompt:
    </table>
 
 
-11. Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
+1.  Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
 
 ## How to test the configured projects manually?
 
