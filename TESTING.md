@@ -98,7 +98,7 @@ In a Developer Command Prompt:
    </table>
 
 
-1.  Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
+11.  Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
 
 ## How to test the configured projects manually?
 
