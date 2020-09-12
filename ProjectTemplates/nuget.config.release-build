@@ -16,6 +16,7 @@
         See: nuget.exe help update
     -->
     <packageSources>
+        <clear/>
         <add key="NuGet official package source" value="https://api.nuget.org/v3/index.json" />
         
         <!-- Test with the latest version of Microsoft.Identity.Web available from the repo [built with dotnet pack] -->
