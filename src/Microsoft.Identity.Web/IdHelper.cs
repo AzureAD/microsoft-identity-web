@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -29,9 +30,9 @@ namespace Microsoft.Identity.Web
                return version[1];
            });
 
-        public static string GetIdWebVersion()
+        public static string CreateTelemetryInfo()
         {
-            return s_idWebVersion.Value;
+            return string.Format(CultureInfo.InvariantCulture, Constants.IDWebSku + s_idWebVersion.Value);
         }
     }
 }

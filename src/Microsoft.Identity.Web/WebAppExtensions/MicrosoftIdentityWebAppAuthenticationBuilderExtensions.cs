@@ -299,7 +299,7 @@ namespace Microsoft.Identity.Web
                         }
 
                         context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
-                        context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, Constants.IDWebSku + IdHelper.GetIdWebVersion());
+                        context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
 
                         // Additional claims
                         if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
