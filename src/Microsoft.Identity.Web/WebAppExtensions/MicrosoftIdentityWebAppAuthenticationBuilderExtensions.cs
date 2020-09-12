@@ -299,7 +299,7 @@ namespace Microsoft.Identity.Web
                         }
 
                         context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
-                        context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, Constants.IDWebSku);
+                        context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, Constants.IDWebSku + IdHelper.GetIdWebVersion());
 
                         // Additional claims
                         if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
@@ -307,7 +307,7 @@ namespace Microsoft.Identity.Web
                             context.ProtocolMessage.SetParameter(
                                 OidcConstants.AdditionalClaims,
                                 context.Properties.Items[OidcConstants.AdditionalClaims]);
-                        }                       
+                        }
 
                         if (microsoftIdentityOptions.Value.IsB2C)
                         {

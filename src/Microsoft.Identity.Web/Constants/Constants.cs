@@ -71,6 +71,6 @@ namespace Microsoft.Identity.Web
 
         // Telemetry headers
         public const string TelemetryHeaderKey = "x-client-brkrver";
-        public const string IDWebSku = "IDWeb";
+        public const string IDWebSku = "IDWeb.";
     }
 }
