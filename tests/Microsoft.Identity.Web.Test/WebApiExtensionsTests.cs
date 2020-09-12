@@ -209,7 +209,7 @@ namespace Microsoft.Identity.Web.Test
                 tokenValidatedContext.Principal = new ClaimsPrincipal(
                     new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(scopeType, Constants.Scope),
+                        new Claim(scopeType, IDWebConstants.Scope),
                     }));
                 await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
             }
@@ -389,7 +389,7 @@ namespace Microsoft.Identity.Web.Test
             tokenValidatedContext.Principal = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[]
                 {
-                        new Claim(ClaimConstants.Scope, Constants.Scope),
+                        new Claim(ClaimConstants.Scope, IDWebConstants.Scope),
                 }));
             await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
 

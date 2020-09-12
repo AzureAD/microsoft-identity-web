@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = Constants.AzureAd,
+            string configSectionName = IDWebConstants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
@@ -434,7 +434,7 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = Constants.AzureAd,
+            string configSectionName = IDWebConstants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false) =>

@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "{0} {1}",
-                    Constants.Bearer,
+                    IDWebConstants.Bearer,
                     await _tokenAcquisition.GetAccessTokenForUserAsync(_initialScopes).ConfigureAwait(false)));
         }
     }

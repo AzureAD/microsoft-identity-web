@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    var authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
@@ -531,7 +531,7 @@ namespace Microsoft.Identity.Web
             {
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
+                    $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
@@ -582,7 +582,7 @@ namespace Microsoft.Identity.Web
             IDictionary<string, string> parameters = new Dictionary<string, string>()
                 {
                     { Constants.ConsentUrl, consentUrl },
-                    { Constants.Claims, msalServiceException.Claims },
+                    { IDWebConstants.Claims, msalServiceException.Claims },
                     { Constants.Scopes, string.Join(",", scopes) },
                     { Constants.ProposedAction, proposedAction },
                 };
@@ -599,7 +599,7 @@ namespace Microsoft.Identity.Web
             var headers = httpResponse.Headers;
             httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
 
-            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{IDWebConstants.Bearer} {parameterString}");
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

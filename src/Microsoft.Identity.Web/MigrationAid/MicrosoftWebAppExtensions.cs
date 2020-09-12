@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftWebAppCallsWebApi(
             MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
-            string configSectionName = Constants.AzureAd,
+            string configSectionName = IDWebConstants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             if (builder is null)
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
             this MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration builder,
             IConfiguration configuration,
             IEnumerable<string> initialScopes,
-            string configSectionName = Constants.AzureAd,
+            string configSectionName = IDWebConstants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme)
         {
             if (builder is null)

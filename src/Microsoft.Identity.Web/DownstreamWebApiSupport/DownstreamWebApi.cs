@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "{0} {1}",
-                        Constants.Bearer,
+                        IDWebConstants.Bearer,
                         accessToken));
                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
@@ -190,7 +190,7 @@ namespace Microsoft.Identity.Web
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "{0} {1}",
-                        Constants.Bearer,
+                        IDWebConstants.Bearer,
                         accessToken));
                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }

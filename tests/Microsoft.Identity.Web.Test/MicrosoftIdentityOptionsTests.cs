@@ -11,8 +11,8 @@ namespace Microsoft.Identity.Web.Test
     public class MicrosoftIdentityOptionsTests
     {
         private MicrosoftIdentityOptions microsoftIdentityOptions;
-        private const string AzureAd = Constants.AzureAd;
-        private const string AzureAdB2C = Constants.AzureAdB2C;
+        private const string AzureAd = IDWebConstants.AzureAd;
+        private const string AzureAdB2C = IDWebConstants.AzureAdB2C;
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()

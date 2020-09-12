@@ -161,14 +161,14 @@ namespace Microsoft.Identity.Web
                         request.Path.ToString());
                 }
 
-                List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
-                string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
-                string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
-                string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
+                List<string> scope = properties.Parameters.ContainsKey(IDWebConstants.Scope) ? (List<string>)properties.Parameters[IDWebConstants.Scope]! : new List<string>();
+                string loginHint = properties.Parameters.ContainsKey(IDWebConstants.LoginHint) ? (string)properties.Parameters[IDWebConstants.LoginHint]! : string.Empty;
+                string domainHint = properties.Parameters.ContainsKey(IDWebConstants.DomainHint) ? (string)properties.Parameters[IDWebConstants.DomainHint]! : string.Empty;
+                string claims = properties.Parameters.ContainsKey(IDWebConstants.Claims) ? (string)properties.Parameters[IDWebConstants.Claims]! : string.Empty;
                 string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? (string)properties.Items[OidcConstants.PolicyKey]! : string.Empty;
                 string url = $"{BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
-                    + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
-                    + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}"
+                    + $"&{IDWebConstants.Scope}={string.Join(" ", scope!)}&{IDWebConstants.LoginHint}={loginHint}"
+                    + $"&{IDWebConstants.DomainHint}={domainHint}&{IDWebConstants.Claims}={claims}"
                     + $"&{OidcConstants.PolicyKey}={userflow}";
 
                 if (IsBlazorServer)

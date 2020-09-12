@@ -44,20 +44,12 @@ namespace Microsoft.Identity.Web
         // Miscellaneous
         public const string UserAgent = "User-Agent";
         public const string JwtSecurityTokenUsedToCallWebApi = "JwtSecurityTokenUsedToCallWebAPI";
-        public const string AzureAd = "AzureAd";
-        public const string AzureAdB2C = "AzureAdB2C";
         public const string PreferredUserName = "preferred_username";
         public const string NameClaim = "name";
-        public const string Tfp = "tfp";
         public const string Consent = "consent";
         public const string ConsentUrl = "consentUri";
-        public const string Claims = "claims";
         public const string Scopes = "scopes";
-        public const string Scope = "scope";
         public const string ProposedAction = "proposedAction";
-        public const string Bearer = "Bearer";
-        public const string LoginHint = "loginHint";
-        public const string DomainHint = "domainHint";
         public const string Authorization = "Authorization";
         public const string ApplicationJson = "application/json";
         public const string ISessionStore = "ISessionStore";

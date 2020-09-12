@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "{0} {1}",
-                        Constants.Bearer,
+                        IDWebConstants.Bearer,
                         result.AccessToken));
 
                 response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);

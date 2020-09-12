@@ -482,6 +482,52 @@
             General constants.
             </summary>
         </member>
+        <member name="T:Microsoft.Identity.Web.IDWebConstants">
+            <summary>
+            Commonly used constants for Microsoft Identity Web.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.LoginHint">
+            <summary>
+            LoginHint.
+            Represents the preferred_username claim in the ID token.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.DomainHint">
+            <summary>
+            DomainHint.
+            Determined by the tenant Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.Claims">
+            <summary>
+            Claims.
+            Determined from the signed-in user.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.Bearer">
+            <summary>
+            Bearer.
+            Predominant type of access token used with OAuth 2.0.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.AzureAd">
+            <summary>
+            AzureAd.
+            Configuration section name for AzureAd.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.AzureAdB2C">
+            <summary>
+            AzureAdB2C.
+            Configuration section name for AzureAdB2C.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IDWebConstants.Scope">
+            <summary>
+            Scope.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
             <summary>
             Constants related to the error messages.
@@ -866,11 +912,11 @@
             </summary>
             <param name="scopes">Scopes to request for the downstream API to call.</param>
             <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
-            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
             <param name="userFlow">Azure AD B2C UserFlow to target.</param>
             <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
             user (in a web app), or the user for which the token was received (in a web API)
-            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <returns>An <see cref="T:Microsoft.Identity.Client.AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String)">
@@ -1768,11 +1814,11 @@
             </summary>
             <param name="scopes">Scopes to request for the downstream API to call.</param>
             <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <param name="userFlow">Azure AD B2C user flow to target.</param>
             <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
             user (in a web app), or the user for which the token was received (in a web API)
-            cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
             <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
             <remarks>Calling this method from a web API supposes that you have previously called,
             in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method

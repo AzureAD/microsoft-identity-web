@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
         this AuthenticationBuilder builder,
         IConfiguration configuration,
-        string configSectionName = Constants.AzureAd,
+        string configSectionName = IDWebConstants.AzureAd,
         string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
         bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
@@ -258,7 +258,7 @@ namespace Microsoft.Identity.Web
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftWebApi(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            string configSectionName = Constants.AzureAd,
+            string configSectionName = IDWebConstants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
