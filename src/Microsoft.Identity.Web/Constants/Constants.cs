@@ -101,5 +101,9 @@ namespace Microsoft.Identity.Web
         // Microsoft Graph
         internal const string UserReadScope = "user.read";
         internal const string GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0";
+
+        // Telemetry headers
+        internal const string TelemetryHeaderKey = "x-client-brkrver";
+        internal const string IDWebSku = "IDWeb.";
     }
 }
