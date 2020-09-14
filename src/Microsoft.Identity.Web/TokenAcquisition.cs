@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    var authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
 
@@ -430,7 +430,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{_applicationOptions.Instance}{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
@@ -531,7 +531,7 @@ namespace Microsoft.Identity.Web
             {
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/{Constants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
+                    $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 result = await application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)

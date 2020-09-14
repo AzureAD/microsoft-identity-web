@@ -479,7 +479,48 @@
         </member>
         <member name="T:Microsoft.Identity.Web.Constants">
             <summary>
-            General constants.
+            General constants for Microsoft Identity Web.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.LoginHint">
+            <summary>
+            LoginHint.
+            Represents the preferred_username claim in the ID token.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.DomainHint">
+            <summary>
+            DomainHint.
+            Determined by the tenant Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.Claims">
+            <summary>
+            Claims.
+            Determined from the signed-in user.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.Bearer">
+            <summary>
+            Bearer.
+            Predominant type of access token used with OAuth 2.0.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.AzureAd">
+            <summary>
+            AzureAd.
+            Configuration section name for AzureAd.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.AzureAdB2C">
+            <summary>
+            AzureAdB2C.
+            Configuration section name for AzureAdB2C.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Constants.Scope">
+            <summary>
+            Scope.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
