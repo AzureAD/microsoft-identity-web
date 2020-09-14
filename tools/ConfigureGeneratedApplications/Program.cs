@@ -44,11 +44,8 @@ namespace ConfigureGeneratedApplications
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("## Test the generated templates");
-            builder.AppendLine("1. Build the Microsoft.Identity.Web.sln solution");
-            builder.AppendLine(@"2. Add secrets to the `ProjectTemplates\configuration.json` file");
-            builder.AppendLine(@"3. Run the ProjectTemplates\test-templates.bat file");
-            builder.AppendLine(@"4. Open the `ProjectTemplates\bin\Debug\tests\tests.sln` solution");
-            builder.AppendLine("5. Test the following projects");
+            builder.AppendLine(@"1. Use `TESTING.md` file for steps for testing locally and for testing a release.");
+            builder.AppendLine("2. Test the following projects: ");
             foreach (Project p in configuration.Projects)
             {
                 builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");

@@ -1,8 +1,21 @@
+echo "Ensure ClientSemVer"
+if "%ClientSemVer%" == "" (
+set ClientSemVer=0.4.0-preview
+)
+Set TemplateNugetPackageName="Microsoft.Identity.Web.ProjectTemplates"
+
+REM: Uncomment the 2 following lines to test ASP.NET Core SDK templates
+REM ClientSemVer="5.0.5.0.0-ci"
+REM TemplateNugetPackageName="Microsoft.DotNet.Web.ProjectTemplates"
+
+echo "Ensure the tool to configure the templates is built"
+dotnet build ..\tools\ConfigureGeneratedApplications
+
 echo "Build and Install templates"
 cd bin
 cd Debug
-dotnet new -u Microsoft.DotNet.Web.ProjectTemplates
-dotnet new -i Microsoft.DotNet.Web.ProjectTemplates.5.0.5.0.0-ci.nupkg
+dotnet new -u %TemplateNugetPackageName%
+dotnet new -i %TemplateNugetPackageName%.%ClientSemVer%.nupkg
 
 echo "Test templates"
 mkdir tests
