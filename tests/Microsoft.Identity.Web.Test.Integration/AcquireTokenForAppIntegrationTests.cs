@@ -160,9 +160,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     ClientSecret = _ccaSecret,
                 }));
             services.AddLogging();
-#pragma warning disable CS0618 // Type or member is obsolete
             services.AddInMemoryTokenCaches();
-#pragma warning restore CS0618 // Type or member is obsolete
             services.AddHttpClient();
             _provider = services.BuildServiceProvider();
         }
