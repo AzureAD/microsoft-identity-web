@@ -457,9 +457,14 @@ namespace Microsoft.Identity.Web
                 _applicationOptions.Instance += "/";
             }
 
+            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
+            {
+                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
+            }
+
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
-                _applicationOptions.ClientSecret,
-                _microsoftIdentityOptions.ClientCertificates);
+                 _applicationOptions.ClientSecret,
+                 _microsoftIdentityOptions.ClientCertificates);
 
             try
             {
