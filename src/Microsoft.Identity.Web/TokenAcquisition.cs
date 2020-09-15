@@ -241,40 +241,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
-            IConfidentialClientApplication application,
-            string authority,
-            IEnumerable<string> scopes)
-        {
-            try
-            {
-                // In web API, validatedToken will not be null
-                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
-
-                // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
-                if (validatedToken != null)
-                {
-                    // In the case the token is a JWE (encrypted token), we use the decrypted token.
-                    string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
-                                                : validatedToken.InnerToken.RawData;
-                    var result = await application
-                                        .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
-                                        .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                                        .WithAuthority(authority)
-                                        .ExecuteAsync()
-                                        .ConfigureAwait(false);
-                    return result;
-                }
-
-                return null;
-            }
-            catch (MsalUiRequiredException ex)
-            {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
-                throw ex;
-            }
-        }
-
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -320,6 +286,87 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Typically used from a web app or web API controller, this method retrieves an access token
+        /// for a downstream API using;
+        /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
+        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+        /// in web APIs, for the user account that is ascertained from the claims provided in the <see cref="HttpContext.User"/>
+        /// instance of the current HttpContext.
+        /// </summary>
+        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
+        /// <remarks>Calling this method from a web API supposes that you have previously called,
+        /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
+        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
+        /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
+        public async Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenant = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null)
+        {
+            AuthenticationResult result = await GetAuthenticationResultForUserAsync(scopes, tenant, userFlow, user).ConfigureAwait(false);
+            return result.AccessToken;
+        }
+
+        /// <summary>
+        /// Used in web APIs (no user interaction).
+        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        {
+            // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
+            string proposedAction = Constants.Consent;
+            if (msalServiceException.ErrorCode == MsalError.InvalidGrantError)
+            {
+                if (AcceptedTokenVersionMismatch(msalServiceException))
+                {
+                    throw msalServiceException;
+                }
+            }
+
+            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+
+            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
+                + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
+                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
+
+            IDictionary<string, string> parameters = new Dictionary<string, string>()
+                {
+                    { Constants.ConsentUrl, consentUrl },
+                    { Constants.Claims, msalServiceException.Claims },
+                    { Constants.Scopes, string.Join(",", scopes) },
+                    { Constants.ProposedAction, proposedAction },
+                };
+
+            string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
+
+            httpResponse ??= CurrentHttpContext?.Response;
+
+            if (httpResponse == null)
+            {
+                throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);
+            }
+
+            var headers = httpResponse.Headers;
+            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+
+            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
+        }
+
+        /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache.
         /// </summary>
         /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
@@ -352,7 +399,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Creates an MSAL confidential client application if needed.
+        /// Creates an MSAL confidential client application, if needed.
         /// </summary>
         private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
@@ -385,9 +432,14 @@ namespace Microsoft.Identity.Web
                 _applicationOptions.Instance += "/";
             }
 
+            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
+            {
+                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
+            }
+
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
-                _applicationOptions.ClientSecret,
-                _microsoftIdentityOptions.ClientCertificates);
+                 _applicationOptions.ClientSecret,
+                 _microsoftIdentityOptions.ClientCertificates);
 
             try
             {
@@ -437,6 +489,40 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+           IConfidentialClientApplication application,
+           string authority,
+           IEnumerable<string> scopes)
+        {
+            try
+            {
+                // In web API, validatedToken will not be null
+                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
+
+                // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
+                if (validatedToken != null)
+                {
+                    // In the case the token is a JWE (encrypted token), we use the decrypted token.
+                    string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
+                                                : validatedToken.InnerToken.RawData;
+                    var result = await application
+                                        .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
+                                        .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                                        .WithAuthority(authority)
+                                        .ExecuteAsync()
+                                        .ConfigureAwait(false);
+                    return result;
+                }
+
+                return null;
+            }
+            catch (MsalUiRequiredException ex)
+            {
+                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
         /// </summary>
@@ -479,7 +565,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets an access token for a downstream API on behalf of the user which account is passed as an argument.
+        /// Gets an access token for a downstream API on behalf of the user whose account is passed as an argument.
         /// </summary>
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="account">User IAccount for which to acquire a token.
@@ -525,56 +611,6 @@ namespace Microsoft.Identity.Web
                 .ExecuteAsync()
                 .ConfigureAwait(false);
             return result;
-        }
-
-        /// <summary>
-        /// Used in web APIs (which therefore cannot have an interaction with the user).
-        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating 'WWW-Authenticate' header so that
-        /// the client can trigger an interaction with the user so that the user consents to more scopes.
-        /// </summary>
-        /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
-        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
-        {
-            // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
-            string proposedAction = Constants.Consent;
-            if (msalServiceException.ErrorCode == MsalError.InvalidGrantError)
-            {
-                if (AcceptedTokenVersionMismatch(msalServiceException))
-                {
-                    throw msalServiceException;
-                }
-            }
-
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-
-            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
-                + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
-                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
-
-            IDictionary<string, string> parameters = new Dictionary<string, string>()
-                {
-                    { Constants.ConsentUrl, consentUrl },
-                    { Constants.Claims, msalServiceException.Claims },
-                    { Constants.Scopes, string.Join(",", scopes) },
-                    { Constants.ProposedAction, proposedAction },
-                };
-
-            string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
-
-            httpResponse ??= CurrentHttpContext?.Response;
-
-            if (httpResponse == null)
-            {
-                throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);
-            }
-
-            var headers = httpResponse.Headers;
-            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
-
-            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -631,37 +667,6 @@ namespace Microsoft.Identity.Web
             }
 
             return authority;
-        }
-
-        /// <summary>
-        /// Typically used from a web app or web API controller, this method retrieves an access token
-        /// for a downstream API using;
-        /// 1) the token cache (for web apps and web APis) if a token exists in the cache
-        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
-        /// instance of the current HttpContext.
-        /// </summary>
-        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-        /// <param name="userFlow">Azure AD B2C user flow to target.</param>
-        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
-        /// user (in a web app), or the user for which the token was received (in a web API)
-        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-        /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
-        /// <remarks>Calling this method from a web API supposes that you have previously called,
-        /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
-        /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
-        /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
-        public async Task<string> GetAccessTokenForUserAsync(
-            IEnumerable<string> scopes,
-            string? tenant = null,
-            string? userFlow = null,
-            ClaimsPrincipal? user = null)
-        {
-            AuthenticationResult result = await GetAuthenticationResultForUserAsync(scopes, tenant, userFlow, user).ConfigureAwait(false);
-            return result.AccessToken;
         }
     }
 }
