@@ -697,7 +697,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
 #pragma warning disable xUnit1004 // Test methods should not be skipped
-        [Fact(Skip = "Different behavior locally w/same .net core versions & in Github. Needs investigation. ")]
+        [Fact(Skip = "see issue: https://github.com/AzureAD/microsoft-identity-web/issues/583 ")]
 #pragma warning restore xUnit1004 // Test methods should not be skipped
         public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
         {

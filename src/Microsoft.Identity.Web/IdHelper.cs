@@ -17,7 +17,9 @@ namespace Microsoft.Identity.Web
                string fullVersion = typeof(IdHelper).GetTypeInfo().Assembly.FullName;
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                var regex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+");
+#pragma warning disable CS8604
                Match? match = regex.Match(fullVersion);
+#pragma warning restore CS8604
                if (!match.Success)
                {
                    return string.Empty;
