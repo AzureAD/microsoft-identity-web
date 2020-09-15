@@ -42,10 +42,6 @@ namespace IntegrationTestService
             {
                 options.ClientSecret = ccaSecret;
             });
-            services.Configure<ConfidentialClientApplicationOptions>(options =>
-            {
-                options.ClientSecret = ccaSecret;
-            });
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/SecurePage");
