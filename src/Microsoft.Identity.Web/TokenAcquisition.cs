@@ -173,31 +173,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
-        /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
-        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
-        /// instance of the current HttpContext.
-        /// </summary>
-        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-        /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
-        /// <remarks>Calling this method from a web API supposes that you have previously called,
-        /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
-        /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
-        /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
-        [Obsolete("This method has been deprecated, please use the GetAccessTokenForUserAsync() method instead.")]
-        public async Task<string> GetAccessTokenOnBehalfOfUserAsync(
-            IEnumerable<string> scopes,
-            string? tenant = null)
-        {
-            return await GetAccessTokenForUserAsync(scopes, tenant).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Typically used from a web app or web API controller, this method retrieves an access token
-        /// for a downstream API using;
         /// 1) the token cache (for web apps and web APis) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
         /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
