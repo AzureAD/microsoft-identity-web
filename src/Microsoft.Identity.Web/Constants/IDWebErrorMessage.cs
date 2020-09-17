@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     {
         // General IDW10000 = "IDW10000:"
         public const string HttpContextIsNull = "IDW10001: HttpContext is null. ";
-        public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse argument are null. Pass an HttpResponse argument. ";
+        public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. ";
 
         // Configuration IDW10100 = "IDW10100:"
         public const string ProvideEitherScopeKeySectionOrScopes = "IDW10101: Either provide the '{0}' or the '{1}' to the 'AuthorizeForScopes'. ";
@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         // Protocol IDW10400 = "IDW10400:"
         public const string TenantIdClaimNotPresentInToken = "IDW10401: Neither `tid` nor `tenantId` claim is present in the token obtained from Microsoft identity platform. ";
         public const string ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. ";
-        public const string TokenIsNotJwtToken = "IDW10403: Token is not JWT token. ";
+        public const string TokenIsNotJwtToken = "IDW10403: Token is not a JWT token. ";
         public const string ClientCredentialScopeParameterShouldEndInDotDefault =
        "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
         public const string ClientCredentialTenantShouldBeTenanted =

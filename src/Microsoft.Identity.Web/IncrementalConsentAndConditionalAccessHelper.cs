@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
     internal static class IncrementalConsentAndConditionalAccessHelper
     {
         /// <summary>
-        /// Can the exception be solved by re-signing-in the users?.
+        /// Can the exception be solved by re-signing-in the user?.
         /// </summary>
         /// <param name="ex">Exception from which the decision will be made.</param>
         /// <returns>Returns <c>true</c> if the issue can be solved by signing-in

@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
     internal class DefaultCertificateLoader : ICertificateLoader
     {
         /// <summary>
-        /// Load the certificate from the description if needed.
+        /// Load the certificate from the description, if needed.
         /// </summary>
         /// <param name="certificateDescription">Description of the certificate.</param>
         public void LoadIfNeeded(CertificateDescription certificateDescription)

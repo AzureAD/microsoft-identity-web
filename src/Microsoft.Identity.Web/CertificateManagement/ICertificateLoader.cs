@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web
     internal interface ICertificateLoader
     {
         /// <summary>
-        /// Load the certificate from the description if needed.
+        /// Load the certificate from the description, if needed.
         /// </summary>
         /// <param name="certificateDescription">Description of the certificate.</param>
         void LoadIfNeeded(CertificateDescription certificateDescription);
