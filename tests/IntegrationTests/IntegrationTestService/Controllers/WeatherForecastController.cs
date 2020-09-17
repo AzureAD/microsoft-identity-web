@@ -3,6 +3,7 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
@@ -13,7 +14,7 @@ using Microsoft.Identity.Web.Test.Common;
 namespace IntegrationTestService.Controllers
 {
     [ApiController]
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     [Route("SecurePage")]
     public class WeatherForecastController : ControllerBase
     {
