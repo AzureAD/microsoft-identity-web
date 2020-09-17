@@ -27,7 +27,7 @@ namespace blazor
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
+                    .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
                         .EnableTokenAcquisitionToCallDownstreamApi()
                             .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                             .AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
@@ -45,6 +45,7 @@ namespace blazor
             services.AddRazorPages();
             services.AddServerSideBlazor()
                        .AddMicrosoftIdentityConsentHandler();
+            services.AddSignalR().AddAzureSignalR();
             services.AddSingleton<WeatherForecastService>();
         }
 

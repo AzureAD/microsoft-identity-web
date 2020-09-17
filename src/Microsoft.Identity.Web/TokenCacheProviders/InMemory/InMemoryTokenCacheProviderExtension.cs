@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
@@ -15,7 +14,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>the services (for chaining).</returns>
-        [Obsolete("Rather use .EnableTokenAcquisitionToCallDownstreamApi().AddInMemoryTokenCaches()")]
         internal static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
         {

@@ -13,9 +13,13 @@ namespace Microsoft.Identity.Web
         private static readonly Lazy<string> s_idWebVersion = new Lazy<string>(
            () =>
            {
-               string? fullVersion = typeof(IdHelper).GetTypeInfo().Assembly.FullName;
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+               string fullVersion = typeof(IdHelper).GetTypeInfo().Assembly.FullName;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                var regex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+");
-               var match = regex.Match(fullVersion);
+#pragma warning disable CS8604
+               Match? match = regex.Match(fullVersion);
+#pragma warning restore CS8604
                if (!match.Success)
                {
                    return string.Empty;

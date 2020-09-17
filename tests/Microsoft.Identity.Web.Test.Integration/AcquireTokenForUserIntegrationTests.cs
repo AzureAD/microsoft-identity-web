@@ -50,15 +50,11 @@ namespace Microsoft.Identity.Web.Test.Integration
                     if (!addInMemoryTokenCache)
                     {
                         services.AddDistributedMemoryCache();
-#pragma warning disable CS0618 // Type or member is obsolete
                         services.AddDistributedTokenCaches();
-#pragma warning restore CS0618 // Type or member is obsolete
                     }
                     else
                     {
-#pragma warning disable CS0618 // Type or member is obsolete
                         services.AddInMemoryTokenCaches();
-#pragma warning restore CS0618 // Type or member is obsolete
                     }
 
                     services.BuildServiceProvider();
