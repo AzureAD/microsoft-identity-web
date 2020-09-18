@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a Base64 encoded value.
+        /// Creates a certificate description from a Base64 encoded value.
         /// </summary>
         /// <param name="base64EncodedValue">Base64 encoded certificate value.</param>
         /// <returns>A certificate description.</returns>
@@ -56,9 +56,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from path on disk.
+        /// Creates a certificate description from path on disk.
         /// </summary>
-        /// <param name="path">Path were to find the certificate file.</param>
+        /// <param name="path">Path where to find the certificate file.</param>
         /// <param name="password">Certificate password.</param>
         /// <returns>A certificate description.</returns>
         public static CertificateDescription FromPath(string path, string? password = null)
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a thumbprint and store location (Certificate Manager on Windows for instance).
+        /// Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
         /// </summary>
         /// <param name="certificateThumbprint">Certificate thumbprint.</param>
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
@@ -92,8 +92,8 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Create a certificate description from a certificate distinguished name (such as CN=name)
-        /// and store location (Certificate Manager on Windows for instance).
+        /// Creates a certificate description from a certificate distinguished name (such as CN=name)
+        /// and store location (Certificate Manager on Windows, for instance).
         /// </summary>
         /// <param name="certificateDistinguishedName">Certificate distinguished named.</param>
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
@@ -177,14 +177,14 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// URL of the Key Vault for instance https://msidentitywebsamples.vault.azure.net.
+        /// URL of the Key Vault, for instance https://msidentitywebsamples.vault.azure.net.
         /// </summary>
         public string? KeyVaultUrl { get; set; }
 
         /// <summary>
         /// Certificate store path, for instance "CurrentUser/My".
         /// </summary>
-        /// <remarks>This property should only be used in conjunction with DistinguishName or Thumbprint.</remarks>
+        /// <remarks>This property should only be used in conjunction with DistinguishedName or Thumbprint.</remarks>
         public string? CertificateStorePath { get; set; }
 
         /// <summary>

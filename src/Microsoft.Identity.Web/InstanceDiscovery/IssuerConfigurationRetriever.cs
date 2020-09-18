@@ -22,8 +22,7 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         /// A <see cref="Task{IssuerMetadata}"/> that, when completed, returns <see cref="IssuerMetadata"/> from the configuration.
         /// </returns>
         /// <exception cref="ArgumentNullException">address - Azure AD Issuer metadata address URL is required
-        /// or
-        /// retriever - No metadata document retriever is provided.</exception>
+        /// or retriever - No metadata document retriever is provided.</exception>
         public async Task<IssuerMetadata> GetConfigurationAsync(string address, IDocumentRetriever retriever, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(address))

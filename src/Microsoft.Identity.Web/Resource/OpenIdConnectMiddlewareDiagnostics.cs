@@ -28,50 +28,60 @@ namespace Microsoft.Identity.Web.Resource
             _logger = logger;
         }
 
-        // Summary:
-        //     Invoked before redirecting to the identity provider to authenticate. This can
-        //     be used to set ProtocolMessage.State that will be persisted through the authentication
-        //     process. The ProtocolMessage can also be used to add or customize parameters
-        //     sent to the identity provider.
+        /// <summary>
+        ///  Invoked before redirecting to the identity provider to authenticate. This can
+        ///  be used to set ProtocolMessage.State that will be persisted through the authentication
+        ///  process. The ProtocolMessage can also be used to add or customize parameters
+        ///  sent to the identity provider.
+        /// </summary>
         private Func<RedirectContext, Task> s_onRedirectToIdentityProvider = null!;
 
-        // Summary:
-        //     Invoked when a protocol message is first received.
+        /// <summary>
+        /// Invoked when a protocol message is first received.
+        /// </summary>
         private Func<MessageReceivedContext, Task> s_onMessageReceived = null!;
 
-        // Summary:
-        //     Invoked after security token validation if an authorization code is present in
-        //     the protocol message.
+        /// <summary>
+        ///  Invoked after security token validation if an authorization code is present
+        ///  in the protocol message.
+        /// </summary>
         private Func<AuthorizationCodeReceivedContext, Task> s_onAuthorizationCodeReceived = null!;
 
-        // Summary:
-        //     Invoked after "authorization code" is redeemed for tokens at the token endpoint.
+        /// <summary>
+        /// Invoked after "authorization code" is redeemed for tokens at the token endpoint.
+        /// </summary>
         private Func<TokenResponseReceivedContext, Task> s_onTokenResponseReceived = null!;
 
-        // Summary:
-        //     Invoked when an IdToken has been validated and produced an AuthenticationTicket.
+        /// <summary>
+        /// Invoked when an IdToken has been validated and produced an AuthenticationTicket.
+        /// </summary>
         private Func<TokenValidatedContext, Task> s_onTokenValidated = null!;
 
-        // Summary:
-        //     Invoked when user information is retrieved from the UserInfoEndpoint.
+        /// <summary>
+        /// Invoked when user information is retrieved from the UserInfoEndpoint.
+        /// </summary>
         private Func<UserInformationReceivedContext, Task> s_onUserInformationReceived = null!;
 
-        // Summary:
-        //     Invoked if exceptions are thrown during request processing. The exceptions will
-        //     be re-thrown after this event unless suppressed.
+        /// <summary>
+        /// Invoked if exceptions are thrown during request processing. The exceptions will
+        /// be re-thrown after this event unless suppressed.
+        /// </summary>
         private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed = null!;
 
-        // Summary:
-        //     Invoked when a request is received on the RemoteSignOutPath.
+        /// <summary>
+        /// Invoked when a request is received on the RemoteSignOutPath.
+        /// </summary>
         private Func<RemoteSignOutContext, Task> s_onRemoteSignOut = null!;
 
-        // Summary:
-        //     Invoked before redirecting to the identity provider to sign out.
+        /// <summary>
+        /// Invoked before redirecting to the identity provider to sign out.
+        /// </summary>
         private Func<RedirectContext, Task> s_onRedirectToIdentityProviderForSignOut = null!;
 
-        // Summary:
-        //     Invoked before redirecting to the Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions.SignedOutRedirectUri
-        //     at the end of a remote sign-out flow.
+        /// <summary>
+        /// Invoked before redirecting to the Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions.SignedOutRedirectUri
+        /// at the end of a remote sign-out flow.
+        /// </summary>
         private Func<RemoteSignOutContext, Task> s_onSignedOutCallbackRedirect = null!;
 
         /// <summary>

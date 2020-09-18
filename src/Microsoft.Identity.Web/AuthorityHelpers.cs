@@ -15,7 +15,6 @@ namespace Microsoft.Identity.Web
             var domain = options.Domain;
             var tenantId = options.TenantId;
 
-            // If there are user flows, then it must build a B2C authority
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
