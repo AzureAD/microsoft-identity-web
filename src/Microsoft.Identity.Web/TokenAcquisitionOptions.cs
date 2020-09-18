@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options passed-in to create the token acquisition object with calls into MSAL .NET.
+    /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
     public class TokenAcquisitionOptions
     {

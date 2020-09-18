@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
-        /// todo.
+        ///  Options passed-in to create the token acquisition object which calls into MSAL .NET.
         /// </summary>
         public TokenAcquisitionOptions TokenAcquisitionOptions { get; set; } = new TokenAcquisitionOptions();
 
