@@ -604,7 +604,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(OidcScheme, configuredOidcOptions.Name);
 
             // Assert properties set
-            Assert.Equal(OpenIdConnectResponseType.CodeIdToken, oidcOptions.ResponseType);
+            Assert.Equal(OpenIdConnectResponseType.Code, oidcOptions.ResponseType);
             Assert.Contains(OidcConstants.ScopeOfflineAccess, oidcOptions.Scope);
             Assert.All(initialScopes, scope => Assert.Contains(scope, oidcOptions.Scope));
         }
