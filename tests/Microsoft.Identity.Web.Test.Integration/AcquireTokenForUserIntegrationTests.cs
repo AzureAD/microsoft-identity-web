@@ -85,6 +85,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
+            Assert.Equal(TestConstants.s_correlationId, result.CorrelationId);
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()

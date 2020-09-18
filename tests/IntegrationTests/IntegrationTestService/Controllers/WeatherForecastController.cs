@@ -54,7 +54,11 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => { options.RelativePath = "me"; });
+                options => { 
+                    options.RelativePath = "me";
+                    options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                    options.TokenAcquisitionOptions.ExtraQueryParameters = TestConstants.ExtraQueryParameters;
+                });
             return user.DisplayName;
         }
 
