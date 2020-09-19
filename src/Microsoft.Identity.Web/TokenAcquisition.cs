@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
-        /// meta-tenant identifiers which are not allowed in client credentials.
+        /// Meta-tenant identifiers which are not allowed in client credentials.
         /// </summary>
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
@@ -93,8 +93,8 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// This handler is executed after the authorization code is received (once the user signs-in and consents) during the
-        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>Authorization code flow grant flow</a> in a web app.
-        /// It uses the code to request an access token from the Microsoft Identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
+        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>Authorization code flow</a> in a web app.
+        /// It uses the code to request an access token from the Microsoft identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
         /// The access token (and refresh token) provided in the <see cref="AuthorizationCodeReceivedContext"/>, once added to the cache, are then used to acquire more tokens using the
         /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a> for the signed-in user's account,
         /// in order to call to downstream APIs.

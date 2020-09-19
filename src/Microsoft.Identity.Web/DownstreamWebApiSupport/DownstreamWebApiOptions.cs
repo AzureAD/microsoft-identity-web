@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Options passed-in to call downstream web APIs. To call Microsoft Graph, see rather
-    /// <c>MicrosoftGraphOptions"</c> in the <c>Microsoft.Identity.Web.MicrosoftGraph</c> assembly.
+    /// <c>MicrosoftGraphOptions</c> in the <c>Microsoft.Identity.Web.MicrosoftGraph</c> assembly.
     /// </summary>
     public class DownstreamWebApiOptions
     {
