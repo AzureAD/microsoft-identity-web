@@ -28,7 +28,6 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             _keyVault = new KeyVaultSecretsProvider();
-            string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
@@ -39,10 +38,6 @@ namespace IntegrationTestService
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
-            services.Configure<MicrosoftIdentityOptions>(options =>
-            {
-                options.ClientSecret = ccaSecret;
-            });
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/SecurePage");
