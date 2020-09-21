@@ -1657,6 +1657,13 @@
             Sets Extra Query Parameters for the query string in the HTTP authentication request.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.ForceRefresh">
+            <summary>
+            Specifies if the token request will ignore the access token in the token cache
+            and will attempt to acquire a new access token.
+            If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionOptions.Clone">
             <summary>
             Clone the options (to be able to override them).

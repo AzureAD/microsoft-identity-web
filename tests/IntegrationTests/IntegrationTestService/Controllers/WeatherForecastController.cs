@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -56,8 +57,6 @@ namespace IntegrationTestService.Controllers
                 null,
                 options => { 
                     options.RelativePath = "me";
-                    options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
-                    options.TokenAcquisitionOptions.ExtraQueryParameters = TestConstants.ExtraQueryParameters;
                 });
             return user.DisplayName;
         }
@@ -67,6 +66,23 @@ namespace IntegrationTestService.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
+            return user.DisplayName;
+        }
+
+        [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        public async Task<string> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
+        {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
+                TestConstants.SectionNameCalledApi,
+                null,
+                options => {
+                    options.RelativePath = "me";
+                    options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                    options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
+                    { { "slice", "testslice" } };
+                    options.TokenAcquisitionOptions.ForceRefresh = true;
+                });
             return user.DisplayName;
         }
     }
