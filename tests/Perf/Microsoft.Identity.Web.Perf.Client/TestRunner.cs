@@ -15,26 +15,23 @@ namespace Microsoft.Identity.Web.Perf.Client
     public class TestRunner
     {
         private IConfiguration Configuration;
-        private string[] Tokens;
         private string NamePrefix = "MIWTestUser";
         private int UsersToSimulate;
 
         public TestRunner(IConfiguration configuration)
         {
             Configuration = configuration;
-            UsersToSimulate = Int32.Parse(configuration["UsersToSimulate"]);
-            Tokens = new string[UsersToSimulate + 1];
+            UsersToSimulate = int.Parse(configuration["UsersToSimulate"]);
         }
 
         public async Task Run()
         {
             Console.WriteLine($"Initialzing tokens for {UsersToSimulate} users");
-            await InitTokens();
-            
+
             var client = new HttpClient();
             client.BaseAddress = new Uri(Configuration["IntegrationTestServicesBaseUri"]);
 
-            var durationInMinutes = Int32.Parse(Configuration["DurationInMinutes"]);
+            var durationInMinutes = int.Parse(Configuration["DurationInMinutes"]);
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             while (DateTime.Now < finishTime)
             {
@@ -44,44 +41,39 @@ namespace Microsoft.Identity.Web.Perf.Client
                     using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                         HttpMethod.Get, Configuration["TestUri"]))
                     {
+                        var authResult = await AcquireToken($"{NamePrefix}{i}@{Configuration["TenantDomain"]}");
                         httpRequestMessage.Headers.Add(
                             "Authorization",
                             string.Format(
                                 CultureInfo.InvariantCulture,
                                 "{0} {1}",
                                 "Bearer",
-                                Tokens[i]));
+                                authResult.AccessToken));
 
                         response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
                     }
 
-                    Console.WriteLine($"Response {i} {response.IsSuccessStatusCode}");
+                    Console.WriteLine($"After response. User {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
                     if (!response.IsSuccessStatusCode)
                     {
-                        throw new Exception("Response was not success.");
+                        Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                        Console.WriteLine(response.ReasonPhrase);
+                        Console.WriteLine(await response.Content.ReadAsStringAsync());
                     }
                 }
             }
         }
 
-        private async Task InitTokens()
-        {
-            for (int suffix = 1; suffix <= UsersToSimulate; suffix++)
-            {
-                var result = await AcquireToken($"{NamePrefix}{suffix}@{Configuration["TenantDomain"]}");
-                Tokens[suffix] = result.AccessToken;
-            }
-        }
-
         private async Task<AuthenticationResult> AcquireToken(string upn)
         {
-            var msalPublicClient = PublicClientApplicationBuilder
-               .Create(Configuration["ClientId"])
-               .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
-               .Build();
             AuthenticationResult authResult = null;
             try
             {
+                var msalPublicClient = PublicClientApplicationBuilder
+                   .Create(Configuration["ClientId"])
+                   .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
+                   .Build();
+
                 authResult = await msalPublicClient
                     .AcquireTokenByUsernamePassword(
                     new string[] { Configuration["ApiScopes"] },
