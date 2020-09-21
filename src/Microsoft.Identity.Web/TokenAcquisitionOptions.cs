@@ -26,6 +26,8 @@ namespace Microsoft.Identity.Web
         /// Specifies if the token request will ignore the access token in the token cache
         /// and will attempt to acquire a new access token.
         /// If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
+        /// Use this option with care and only when needed, for instance, if you know that conditional access policies have changed,
+        /// for it induces performance degradation, as the token cache is not utilized.
         /// </summary>
         public bool ForceRefresh { get; set; } = false;
 
