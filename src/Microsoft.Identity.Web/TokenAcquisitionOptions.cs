@@ -23,6 +23,13 @@ namespace Microsoft.Identity.Web
         public Dictionary<string, string>? ExtraQueryParameters { get; set; } = null;
 
         /// <summary>
+        /// Specifies if the token request will ignore the access token in the token cache
+        /// and will attempt to acquire a new access token.
+        /// If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
+        /// </summary>
+        public bool ForceRefresh { get; set; } = false;
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -32,6 +39,7 @@ namespace Microsoft.Identity.Web
             {
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
+                ForceRefresh = ForceRefresh,
             };
         }
     }

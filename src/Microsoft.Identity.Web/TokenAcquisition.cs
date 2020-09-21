@@ -290,6 +290,7 @@ namespace Microsoft.Identity.Web
             {
                 builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
             }
 
             result = await builder.ExecuteAsync()
@@ -630,6 +631,7 @@ namespace Microsoft.Identity.Web
             {
                 builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
             }
 
             // Acquire an access token as a B2C authority
