@@ -25,8 +25,8 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
                         Job.Default
                             .WithId("Job-TokenAcquisitionTests")
                             .WithLaunchCount(1)
-                            //.WithInvocationCount(1)
-                            //.WithIterationCount(1)
+                            //.WithInvocationCount(4)
+                            //.WithIterationCount(2)
                             //.WithWarmupCount(0)
                             //.WithUnrollFactor(1)
                             ));
