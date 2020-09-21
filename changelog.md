@@ -1,3 +1,18 @@
+1.0.0
+===========
+### New Features:
+**Some constant values used in Microsoft Identity Web are available as public constants**. See feature request [#548](https://github.com/AzureAD/microsoft-identity-web/issues/548) for details.
+**Microsoft Identity Web now sends basic telemetry data (sku and version) to AAD and AAD B2C**. See issue [#327](https://github.com/AzureAD/microsoft-identity-web/issues/327) for details.
+**Implement `TokenAcquisitionOptions` which enable developers to customize the token aquisition integration with MSAL .NET**. Current options available are extra query parameters, force refresh, and correlation id. See issues [#561](https://github.com/AzureAD/microsoft-identity-web/issues/561), [#494](https://github.com/AzureAD/microsoft-identity-web/issues/494), and [#532](https://github.com/AzureAD/microsoft-identity-web/issues/532).
+
+### Bug Fixes:
+**Microsoft Identity Web now uses a scoped service for TokenAcquisitionServices when calling Microsoft Graph**. Previously a Singleton was used and this caused an infinite loop in Blazor server applications, as Blazor requires scoped services. See issues [#573](https://github.com/AzureAD/microsoft-identity-web/issues/573) and [#531](https://github.com/AzureAD/microsoft-identity-web/issues/531) for details.
+**Now developers can specify the client secret in the web API scenario either in Microsoft Identity Options or in the Confidential Client Application Options**, previously it had to be set in both. See issue [#536](https://github.com/AzureAD/microsoft-identity-web/issues/536) for details.
+**Web apps calling web APIs no longer require a `response_type` of `id_token`, so it no longer needs to be checked in the AAD portal app registration**. See issue [#589](https://github.com/AzureAD/microsoft-identity-web/issues/589).
+
+### Fundamentals:
+**Remove obsolete attributes for the 1.0.0 (GA) version**. See issue [#584](https://github.com/AzureAD/microsoft-identity-web/issues/584) for details.
+
 0.4.0-preview
 ============
 ### New Features:
