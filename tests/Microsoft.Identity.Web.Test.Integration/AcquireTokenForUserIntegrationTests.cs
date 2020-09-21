@@ -16,7 +16,6 @@ using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using Microsoft.Rest;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
@@ -36,7 +35,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
-        // [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
+        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
         // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
