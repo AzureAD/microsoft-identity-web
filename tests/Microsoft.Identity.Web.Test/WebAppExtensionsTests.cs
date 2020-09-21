@@ -481,7 +481,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert properties set
             var downstreamWebApiOptions = provider.GetRequiredService<IOptionsSnapshot<DownstreamWebApiOptions>>();
-            IDownstreamWebApi downstreamWebApi = provider.GetRequiredService<IDownstreamWebApi>();
+            provider.GetRequiredService<IDownstreamWebApi>();
 
             if (useDownstreamWebApiOptions)
             {

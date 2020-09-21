@@ -47,6 +47,11 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
+        ///  Options passed-in to create the token acquisition object which calls into MSAL .NET.
+        /// </summary>
+        public TokenAcquisitionOptions TokenAcquisitionOptions { get; set; } = new TokenAcquisitionOptions();
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -60,6 +65,7 @@ namespace Microsoft.Identity.Web
                 Tenant = Tenant,
                 UserFlow = UserFlow,
                 HttpMethod = HttpMethod,
+                TokenAcquisitionOptions = TokenAcquisitionOptions.Clone(),
             };
         }
 

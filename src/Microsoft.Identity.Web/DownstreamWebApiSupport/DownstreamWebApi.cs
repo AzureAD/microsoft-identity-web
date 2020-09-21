@@ -74,7 +74,9 @@ namespace Microsoft.Identity.Web
             string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(
                 effectiveOptions.GetScopes(),
                 effectiveOptions.Tenant,
-                userflow)
+                userflow,
+                user,
+                effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;
@@ -175,7 +177,8 @@ namespace Microsoft.Identity.Web
 
             string accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(
                 effectiveOptions.Scopes,
-                effectiveOptions.Tenant)
+                effectiveOptions.Tenant,
+                effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;
