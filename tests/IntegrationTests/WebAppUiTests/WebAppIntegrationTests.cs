@@ -28,8 +28,8 @@ namespace WebAppUiTests
             // ~2x faster, no visual rendering
             // comment-out below when debugging to see the UI automation
             options.AddArguments(TestConstants.Headless);
-            IWebDriver driver = new ChromeDriver(options);                  
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);            
+            using IWebDriver driver = new ChromeDriver(options);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
 
             // Act
             Trace.WriteLine("Starting Selenium automation: web app sign-in & call Graph");
