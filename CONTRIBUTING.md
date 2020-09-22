@@ -19,7 +19,7 @@ If you need to contribute to a different branch, please contact us first (open a
 
 All details after this point is standard - make sure your commits have nice messages, and prefer rebase to merge.
 
-In case of doubt, please open an issue in the [issue tracker][https://github.com/AzureAD/microsoft-identity-web/issues].
+In case of doubt, please open an issue in the [issue tracker](https://github.com/AzureAD/microsoft-identity-web/issues).
 
 Especially do so if you plan to work on a major change in functionality.  Nothing is more
 frustrating than seeing your hard work go to waste because your vision
