@@ -29,7 +29,7 @@ namespace IntegrationTestService
             _keyVault = new KeyVaultSecretsProvider();
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                                  .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
+                                  .AddMicrosoftIdentityWebApi(Configuration)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
                                     .AddInMemoryTokenCaches()
                                         .AddDownstreamWebApi(
