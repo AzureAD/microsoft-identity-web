@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         HttpMethod.Get, Configuration["TestUri"]))
                     {
                         var authResult = await AcquireToken(i);
+                        httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
                         httpRequestMessage.Headers.Add(
                             "Authorization",
                             string.Format(
@@ -65,7 +67,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
                     }
 
-                    Console.WriteLine($"After response. User {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                    Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
                     if (!response.IsSuccessStatusCode)
                     {
                         Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
