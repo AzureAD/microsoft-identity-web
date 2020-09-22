@@ -17,11 +17,18 @@ namespace Microsoft.Identity.Web.Perf.Client
         private IConfiguration Configuration;
         private string NamePrefix = "MIWTestUser";
         private int UsersToSimulate;
+        private IPublicClientApplication MsalPublicClient;
+        private string[] userAccountIdentifiers;
 
         public TestRunner(IConfiguration configuration)
         {
             Configuration = configuration;
             UsersToSimulate = int.Parse(configuration["UsersToSimulate"]);
+            userAccountIdentifiers = new string[UsersToSimulate + 1];
+            MsalPublicClient = PublicClientApplicationBuilder
+               .Create(Configuration["ClientId"])
+               .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
+               .Build();
         }
 
         public async Task Run()
@@ -41,7 +48,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                     using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                         HttpMethod.Get, Configuration["TestUri"]))
                     {
-                        var authResult = await AcquireToken($"{NamePrefix}{i}@{Configuration["TenantDomain"]}");
+                        var authResult = await AcquireToken(i);
                         httpRequestMessage.Headers.Add(
                             "Authorization",
                             string.Format(
@@ -64,25 +71,46 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
         }
 
-        private async Task<AuthenticationResult> AcquireToken(string upn)
+        private async Task<AuthenticationResult> AcquireToken(int userIndex)
         {
+            var scopes = new string[] { Configuration["ApiScopes"] };
+            var upn = $"{NamePrefix}{userIndex}@{Configuration["TenantDomain"]}";
+
             AuthenticationResult authResult = null;
             try
             {
-                var msalPublicClient = PublicClientApplicationBuilder
-                   .Create(Configuration["ClientId"])
-                   .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
-                   .Build();
+                var userIdentifier = userAccountIdentifiers[userIndex];
+                
+                if (!string.IsNullOrEmpty(userIdentifier))
+                {
+                    var account = await MsalPublicClient.GetAccountAsync(userIdentifier).ConfigureAwait(false);
 
-                authResult = await msalPublicClient
-                    .AcquireTokenByUsernamePassword(
-                    new string[] { Configuration["ApiScopes"] },
-                    upn,
-                    new NetworkCredential(
+                    if (account != null)
+                    {
+                        try
+                        {
+                            authResult = await MsalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                        }
+                        catch (MsalUiRequiredException)
+                        {
+                            // No token for the account. Will proceed below
+                        }
+                    }
+                }
+
+                if (authResult == null)
+                {
+                    authResult = await MsalPublicClient.AcquireTokenByUsernamePassword(
+                        scopes,
                         upn,
-                        Configuration["UserPassword"]).SecurePassword)
-                    .ExecuteAsync(CancellationToken.None)
-                    .ConfigureAwait(false);
+                        new NetworkCredential(
+                            upn,
+                            Configuration["UserPassword"]).SecurePassword)
+                        .ExecuteAsync(CancellationToken.None)
+                        .ConfigureAwait(false);
+                    
+                    userAccountIdentifiers[userIndex] = authResult.Account.HomeAccountId.Identifier;
+                }
             }
             catch (Exception ex)
             {
