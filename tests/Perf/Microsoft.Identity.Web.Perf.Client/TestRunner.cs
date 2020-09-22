@@ -44,6 +44,11 @@ namespace Microsoft.Identity.Web.Perf.Client
             {
                 for (int i = 1; i <= UsersToSimulate; i++)
                 {
+                    if (DateTime.Now < finishTime)
+                    {
+                        break;
+                    }
+
                     HttpResponseMessage response;
                     using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                         HttpMethod.Get, Configuration["TestUri"]))
