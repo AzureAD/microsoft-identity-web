@@ -79,8 +79,8 @@ namespace IntegrationTestService.Controllers
                 options => {
                     options.RelativePath = "me";
                     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
-                    options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
-                    { { "slice", "testslice" } };
+                    /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
+                    { { "slice", "testslice" } };*/ // doesn't work w/build automation
                     options.TokenAcquisitionOptions.ForceRefresh = true;
                 });
             return user.DisplayName;
