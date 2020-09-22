@@ -14,11 +14,7 @@ Quick links:
 
 ## Nuget package
 
-<!--
-Released     | Nightly
------------------------------|-------------------------
- [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/) | TBD!
--->
+ [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)
 
 ## Build Status
 
@@ -32,18 +28,15 @@ The Microsoft Identity Web roadmap is available from [Roadmap](https://github.co
 
 ### Support SLA
 
-Microsoft Identity Web is in preview.
-
 - Major versions are supported for twelve months after the release of the next major version.
 - Minor versions older than N-1 are not supported.
   > Minor versions are bugfixes or features with non-breaking (additive) API changes.  It is expected apps can upgrade.  Therefore, we will not patch old minor versions of the library. You should also confirm, in issue repros, that you are using the latest minor version before the Microsoft Identity Web team spends time investigating an issue.
-- Microsoft Identity Web is expected to become Generally Available in the last quarter of the 2020 calendar year.
 
 ## Using Microsoft Identity Web
 
 - The conceptual documentation is currently available from the [Wiki pages](https://github.com/AzureAD/microsoft-identity-web/wiki).
-- Code samples are available for [Web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
-  and [Web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
+- Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
+  and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
 
 ## Where do I file issues
 

@@ -1,4 +1,4 @@
-# Microsoft Identity Web for .NET welcomes new contributors.
+# Microsoft Identity Web for .NET welcomes new contributors
 
 This document will guide you through the process.
 
@@ -19,7 +19,7 @@ If you need to contribute to a different branch, please contact us first (open a
 
 All details after this point is standard - make sure your commits have nice messages, and prefer rebase to merge.
 
-In case of doubt, please open an issue in the [issue tracker][].
+In case of doubt, please open an issue in the [issue tracker][https://github.com/AzureAD/microsoft-identity-web/issues].
 
 Especially do so if you plan to work on a major change in functionality.  Nothing is more
 frustrating than seeing your hard work go to waste because your vision
@@ -31,7 +31,7 @@ Okay, so you have decided on the proper branch.  Create a feature branch
 and start hacking:
 
 ```
-$ git checkout -b my-feature-branch 
+$ git checkout -b my-feature-branch
 ```
 
 ## Commit
@@ -72,7 +72,6 @@ run `git shortlog` or `git log --oneline`.
 
 Check the output of `git log --oneline files_that_you_changed` to find out
 what directories your changes touch.
-
 
 ### Rebase
 
