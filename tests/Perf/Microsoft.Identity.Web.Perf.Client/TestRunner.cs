@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         private IConfiguration Configuration;
         private string NamePrefix = "MIWTestUser";
         private int UsersToSimulate;
-        private IPublicClientApplication MsalPublicClient;
+        private IPublicClientApplication _msalPublicClient;
         private string[] userAccountIdentifiers;
 
         public TestRunner(IConfiguration configuration)
@@ -26,10 +26,11 @@ namespace Microsoft.Identity.Web.Perf.Client
             Configuration = configuration;
             UsersToSimulate = int.Parse(configuration["UsersToSimulate"]);
             userAccountIdentifiers = new string[UsersToSimulate + 1];
-            MsalPublicClient = PublicClientApplicationBuilder
+            _msalPublicClient = PublicClientApplicationBuilder
                .Create(Configuration["ClientId"])
                .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
                .Build();
+            TokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
         }
 
         public async Task Run()
@@ -45,8 +46,10 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             var durationInMinutes = int.Parse(Configuration["DurationInMinutes"]);
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
+            TimeSpan elapsedTime = TimeSpan.Zero;
+            int counter = 0;
             while (DateTime.Now < finishTime)
-            {
+            { 
                 for (int i = 1; i <= UsersToSimulate; i++)
                 {
                     if (DateTime.Now < finishTime)
@@ -55,7 +58,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                             HttpMethod.Get, Configuration["TestUri"]))
                         {
-                            var authResult = await AcquireToken(i);
+                            var authResult = await AcquireTokenAsync(i);
                             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
                             httpRequestMessage.Headers.Add(
                                 "Authorization",
@@ -65,7 +68,10 @@ namespace Microsoft.Identity.Web.Perf.Client
                                     "Bearer",
                                     authResult.AccessToken));
 
+                            DateTime start = DateTime.Now;
                             response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                            elapsedTime += DateTime.Now - start;
+                            counter++;
                         }
 
                         Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
@@ -78,9 +84,13 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
                 }
             }
+
+            Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
+            Console.WriteLine($"Total number of requests: {counter} ");
+            Console.WriteLine($"Average time per request: {elapsedTime.Seconds / counter} ");
         }
 
-        private async Task<AuthenticationResult> AcquireToken(int userIndex)
+        private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
         {
             var scopes = new string[] { Configuration["ApiScopes"] };
             var upn = $"{NamePrefix}{userIndex}@{Configuration["TenantDomain"]}";
@@ -88,42 +98,32 @@ namespace Microsoft.Identity.Web.Perf.Client
             AuthenticationResult authResult = null;
             try
             {
-                var userIdentifier = userAccountIdentifiers[userIndex];
-                
-                if (!string.IsNullOrEmpty(userIdentifier))
-                {
-                    var account = await MsalPublicClient.GetAccountAsync(userIdentifier).ConfigureAwait(false);
+                var userIdentifier = userAccountIdentifiers[userIndex];                
 
-                    if (account != null)
-                    {
-                        try
-                        {
-                            authResult = await MsalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
-                        }
-                        catch (MsalUiRequiredException)
-                        {
-                            // No token for the account. Will proceed below
-                        }
-                    }
+                try
+                {
+                    var account = await _msalPublicClient.GetAccountAsync(userIdentifier).ConfigureAwait(false);
+
+                    return await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
                 }
-
-                if (authResult == null)
+                catch (MsalUiRequiredException)
                 {
-                    authResult = await MsalPublicClient.AcquireTokenByUsernamePassword(
-                        scopes,
-                        upn,
-                        new NetworkCredential(
-                            upn,
-                            Configuration["UserPassword"]).SecurePassword)
-                        .ExecuteAsync(CancellationToken.None)
-                        .ConfigureAwait(false);
-                    
+                    authResult = await _msalPublicClient.AcquireTokenByUsernamePassword(
+                                                        scopes,
+                                                        upn,
+                                                        new NetworkCredential(
+                                                           upn,
+                                                           Configuration["UserPassword"]).SecurePassword)
+                                                       .ExecuteAsync(CancellationToken.None)
+                                                       .ConfigureAwait(false);
+
                     userAccountIdentifiers[userIndex] = authResult.Account.HomeAccountId.Identifier;
+                    return authResult;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception in AcquireToken: {ex}");
+                Console.WriteLine($"Exception in AcquireTokenAsync: {ex}");
             }
             return authResult;
         }
