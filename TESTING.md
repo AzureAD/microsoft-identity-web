@@ -57,11 +57,14 @@ In a Developer Command Prompt:
     </tr>
     <tr>
         <td>6. Delete the NuGet packages from ProjectTemplates\bin\Debug (to be sure to test the right one)</td>
-        <td>6. clean the repo to be sure to start clean. Ignore the ChromeDriver.exe if it cannot be removed.</td>
+        <td>6. Do a git clone of the repostitory into a short file path. </td>
     </tr>
     <tr>
         <td><code>del ProjectTemplates\bin\Debug\*.nupkg</code></td>
-        <td><code>git clean -xdf</code></td>
+        <td><code>cd C:\ </code><br />
+        <code>mdkir git</code><br />
+        <code>cd C:\git</code><br />
+        <code>git clone https://github.com/AzureAD/microsoft-identity-web idweb</code></td>
     </tr>
     <tr>
         <td>7. Build the repo. This builds everything and generates the NuGet packages</td>
@@ -72,7 +75,7 @@ In a Developer Command Prompt:
     <tr>
         <td><code>dotnet pack Microsoft.Identity.Web.sln</code></td>
         <td><code>mkdir ProjectTemplates\bin\Debug
-        
+
     copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
     </tr>
     <tr>
