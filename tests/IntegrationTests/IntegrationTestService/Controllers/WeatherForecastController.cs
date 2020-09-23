@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
@@ -23,15 +25,24 @@ namespace IntegrationTestService.Controllers
         private readonly GraphServiceClient _graphServiceClient;
         // The web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
+        private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(
             IDownstreamWebApi downstreamWebApi,
             ITokenAcquisition tokenAcquisition,
-            GraphServiceClient graphServiceClient)
+            GraphServiceClient graphServiceClient,
+            ILogger<WeatherForecastController> logger)
         {
             _downstreamWebApi = downstreamWebApi;
             _tokenAcquisition = tokenAcquisition;
             _graphServiceClient = graphServiceClient;
+            _logger = logger;
+        }
+
+        [HttpGet(TestConstants.SecurePageGetEmpty)]
+        public string GetEmpty()
+        {
+            return "Success.";
         }
 
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]

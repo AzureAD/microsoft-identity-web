@@ -36,7 +36,11 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             Console.WriteLine($"Initialzing tokens for {UsersToSimulate} users");
 
-            var client = new HttpClient();
+            // Configuring the http client to trust the self-signed certificate
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            var client = new HttpClient(httpClientHandler);
             client.BaseAddress = new Uri(Configuration["IntegrationTestServicesBaseUri"]);
 
             var durationInMinutes = int.Parse(Configuration["DurationInMinutes"]);
@@ -47,32 +51,30 @@ namespace Microsoft.Identity.Web.Perf.Client
                 {
                     if (DateTime.Now < finishTime)
                     {
-                        break;
-                    }
+                        HttpResponseMessage response;
+                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                            HttpMethod.Get, Configuration["TestUri"]))
+                        {
+                            var authResult = await AcquireToken(i);
+                            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+                            httpRequestMessage.Headers.Add(
+                                "Authorization",
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "{0} {1}",
+                                    "Bearer",
+                                    authResult.AccessToken));
 
-                    HttpResponseMessage response;
-                    using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                        HttpMethod.Get, Configuration["TestUri"]))
-                    {
-                        var authResult = await AcquireToken(i);
-                        httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                        httpRequestMessage.Headers.Add(
-                            "Authorization",
-                            string.Format(
-                                CultureInfo.InvariantCulture,
-                                "{0} {1}",
-                                "Bearer",
-                                authResult.AccessToken));
+                            response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                        }
 
-                        response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                    }
-
-                    Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
-                        Console.WriteLine(response.ReasonPhrase);
-                        Console.WriteLine(await response.Content.ReadAsStringAsync());
+                        Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                            Console.WriteLine(response.ReasonPhrase);
+                            Console.WriteLine(await response.Content.ReadAsStringAsync());
+                        }
                     }
                 }
             }
