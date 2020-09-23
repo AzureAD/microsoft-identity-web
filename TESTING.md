@@ -61,7 +61,8 @@ In a Developer Command Prompt:
     </tr>
     <tr>
         <td><code>del ProjectTemplates\bin\Debug\*.nupkg</code></td>
-        <td><code>cd C:\ mdkir git</code><br />
+        <td><code>cd C:\ </code><br />
+        <code>mdkir git</code><br />
         <code>cd C:\git</code><br />
         <code>git clone https://github.com/AzureAD/microsoft-identity-web idweb</code></td>
     </tr>
