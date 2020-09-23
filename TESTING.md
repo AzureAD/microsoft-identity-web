@@ -1,11 +1,11 @@
-# How to test the Microsoft.identity.Web project templates (locally or from a NuGet package)
+# How to test the Microsoft.Identity.Web project templates (locally or from a NuGet package)
 
 ## Introduction
 
 ### When to use this article
 
 - Before we release Microsoft.Identity.Web project templates (usually for each release of Microsoft.Identity.Web), we want to make sure that we test them from the release build.
-- Before we commit changes in the project templates (under ProjectTemplates\templates) in the Microsoft.Identity.Web repo, we want to make sure that we test them in depth from the repo. Changes can be changes of Major versions of package reference of Microsoft.Identity.Web, sync from ASP.NET Core templates. This can also help detecting product bugs so we can do the same before releases of Microsoft.Identity.Web.
+- Before we commit changes in the project templates (under ProjectTemplates\templates) in the Microsoft.Identity.Web repo, we want to make sure that we test them in depth from the repo. Changes can be changes of major versions of package references of Microsoft.Identity.Web, sync from ASP.NET Core templates. This can also help detecting product bugs so we can do the same before releases of Microsoft.Identity.Web.
 
 ### When not to use this article
 
@@ -17,7 +17,7 @@ In this article you will:
 
 - Configure the version of the templates to test by setting the ClientSemVer environment variable.
 - Run a script that will:
-  - Generate C# projects corresponding to all the templates in various configurations (no auth, single-org, single-org calling graph, single-org calling web API, Individual B2C, Individual B2C calling Web API (for the Web API and the Blazorwasm hosted templates as B2C does not support OBO)).
+  - Generate C# projects corresponding to all the templates in various configurations (no auth, single-org, single-org calling graph, single-org calling web API, Individual B2C, Individual B2C calling web API (for the web API and the Blazorwasm hosted templates, as B2C does not support OBO)).
   - Configure the projects with existing Azure AD and B2C apps and client secrets. This is done by a configuration file named `configuration.json`. You will need to add the client secrets (see below).
   - Build the generated projects (which are grouped in a solution named `test.sln`).
 - Manually test (for now) the generated projects.
@@ -76,8 +76,8 @@ In a Developer Command Prompt:
     copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
     </tr>
     <tr>
-        <td>8. Go to the ProjetTemplates folder</td>
-        <td>8. Go to the ProjetTemplates folder</td>
+        <td>8. Go to the ProjectTemplates folder</td>
+        <td>8. Go to the ProjectTemplates folder</td>
     </tr>
     <tr>
         <td><code>cd ProjectTemplates</code></td>
@@ -117,8 +117,8 @@ Once the projects are generated from the templates, test them manually.
 Test each project in the solution:
 
 - Starting by the no-auth (we don't want to break this scenario)
-- Then the AAD simple, AAD with Graph, and AAD with Web api (the API is really graph so no need to start a web api)
+- Then the AAD simple, AAD with Graph, and AAD with web API (the API is really graph so no need to start a web API)
 - Then the B2C simple templates
 - To test the B2C-calls-web-api templates, you'll need to run the TodoListService of the B2CWebAppCallsWebApi test app in the Microsoft.Identity.Web solution
-  - Note that we could do with testing the B2C-calls-web-api against the Web api deployed in Azure, but testing it against our test project has the interest of enabling debugging
+  - Note that we could do with testing the B2C-calls-web-api against the web API deployed in Azure, but testing it against our test project has the interest of enabling debugging
 - To test the web apis templates … TBD …
