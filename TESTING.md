@@ -73,7 +73,9 @@ In a Developer Command Prompt:
     </tr>
     <tr>
         <td><code>dotnet pack Microsoft.Identity.Web.sln</code></td>
-        <td><code></code></td>
+        <td><code>mkdir ProjectTemplates\bin\Debug
+
+    copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
     </tr>
     <tr>
         <td>8. Go to the ProjectTemplates folder</td>
