@@ -21,17 +21,16 @@ namespace IntegrationTestService
         }
 
         public IConfiguration Configuration { get; }
-        private KeyVaultSecretsProvider _keyVault;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            _keyVault = new KeyVaultSecretsProvider();
+            KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                    .AddInMemoryTokenCaches()
+                                    .AddInMemoryTokenCaches(memoryCacheOptions:options => { options.SizeLimit = (long)1e9; })
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))

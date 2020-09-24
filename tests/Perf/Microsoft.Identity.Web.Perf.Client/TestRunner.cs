@@ -1,5 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -15,7 +17,7 @@ using Microsoft.Identity.Web.Test.Common;
 namespace Microsoft.Identity.Web.Perf.Client
 {
     public class TestRunner
-    {        
+    {
         private const string NamePrefix = "MIWTestUser";
         private readonly IConfiguration _configuration;
         private readonly int _usersToSimulate;
@@ -51,7 +53,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
             while (DateTime.Now < finishTime)
-            { 
+            {
                 for (int i = 1; i <= _usersToSimulate; i++)
                 {
                     if (DateTime.Now < finishTime)
@@ -99,38 +101,27 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             AuthenticationResult authResult = null;
             try
-            {
-                var userIdentifier = _userAccountIdentifiers[userIndex];
-
-                if (!string.IsNullOrEmpty(userIdentifier))
+            {               
+                try
                 {
-                    var account = await _msalPublicClient.GetAccountAsync(userIdentifier).ConfigureAwait(false);
+                    var account = await _msalPublicClient.GetAccountAsync(_userAccountIdentifiers[userIndex]).ConfigureAwait(false);
 
-                    if (account != null)
-                    {
-                        try
-                        {
-                            authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
-                        }
-                        catch (MsalUiRequiredException)
-                        {
-                            // No token for the account. Will proceed below
-                        }
-                    }
+                    authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                    return authResult;
                 }
-
-                if (authResult == null)
+                catch (MsalUiRequiredException)
                 {
                     authResult = await _msalPublicClient.AcquireTokenByUsernamePassword(
-                        scopes,
-                        upn,
-                        new NetworkCredential(
-                            upn,
-                            _configuration["UserPassword"]).SecurePassword)
-                        .ExecuteAsync(CancellationToken.None)
-                        .ConfigureAwait(false);
+                                                        scopes,
+                                                        upn,
+                                                        new NetworkCredential(
+                                                            upn,
+                                                            _configuration["UserPassword"]).SecurePassword)
+                                                        .ExecuteAsync(CancellationToken.None)
+                                                        .ConfigureAwait(false);
 
                     _userAccountIdentifiers[userIndex] = authResult.Account.HomeAccountId.Identifier;
+                    return authResult;
                 }
             }
             catch (Exception ex)
