@@ -30,17 +30,18 @@ namespace Microsoft.Identity.Web.Test.Integration
         private readonly WebApplicationFactory<Startup> _factory;
 
         [Theory]
+        [InlineData(TestConstants.SecurePageGetTokenForAppAsync)]
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
-        //[InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
-        //[InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-        //[InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
-        //[InlineData(TestConstants.SecurePageGetTokenAsync, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
-        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+        [InlineData(TestConstants.SecurePageGetTokenForUserAsync, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
         public async Task GetTokenForUserAsync(
-            string webApiUrl,
-            bool addInMemoryTokenCache = true)
+                string webApiUrl,
+                bool addInMemoryTokenCache = true)
         {
             // Arrange
             var client = _factory.WithWebHostBuilder(builder =>
@@ -62,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             })
             .CreateClient(new WebApplicationFactoryClientOptions
             {
-                 AllowAutoRedirect = false,
+                AllowAutoRedirect = false,
             });
 
             var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
