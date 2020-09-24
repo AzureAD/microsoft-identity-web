@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -29,6 +30,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             _msalPublicClient = PublicClientApplicationBuilder
                .Create(_configuration["ClientId"])
                .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
+               .WithLogging(Log, LogLevel.Info, false)
                .Build();
             TokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
         }
@@ -136,6 +138,15 @@ namespace Microsoft.Identity.Web.Perf.Client
                 Console.WriteLine($"Exception in AcquireTokenAsync: {ex}");
             }
             return authResult;
+        }
+
+        private static void Log(LogLevel level, string message, bool containsPii)
+        {
+            string logs = ($"{level} {message}");
+            StringBuilder sb = new StringBuilder();
+            sb.Append(logs);
+            File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalLogs.txt", sb.ToString());
+            sb.Clear();
         }
     }
 }
