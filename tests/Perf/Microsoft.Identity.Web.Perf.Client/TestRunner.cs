@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public async Task Run()
         {
-            Console.WriteLine($"Initialzing tokens for {_usersToSimulate} users");
+            Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
 
             // Configuring the http client to trust the self-signed certificate
             var httpClientHandler = new HttpClientHandler();
@@ -50,6 +50,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
+            int loopCounter = 1;
             while (DateTime.Now < finishTime)
             { 
                 for (int i = 1; i <= _usersToSimulate; i++)
@@ -76,7 +77,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                             requestsCounter++;
                         }
 
-                        Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                        Console.WriteLine($"Response received for user {i}. Loop: {loopCounter}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
                         if (!response.IsSuccessStatusCode)
                         {
                             Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
@@ -85,6 +86,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         }
                     }
                 }
+                loopCounter++;
             }
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");

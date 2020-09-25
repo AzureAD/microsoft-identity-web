@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Web.TokenCacheProviders;
 
 namespace IntegrationTestService
 {
@@ -36,6 +38,11 @@ namespace IntegrationTestService
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
+
+            // Replaces MsalMemoryTokenCacheProvider for benchmarking purposes
+            ServiceDescriptor msalMemoryCacheService = services.FirstOrDefault(s => s.ServiceType == typeof(IMsalTokenCacheProvider));
+            services.Remove(msalMemoryCacheService);
+            services.AddSingleton<IMsalTokenCacheProvider, BenchmarkMsalMemoryTokenCacheProvider>();
 
             services.AddRazorPages(options =>
             {

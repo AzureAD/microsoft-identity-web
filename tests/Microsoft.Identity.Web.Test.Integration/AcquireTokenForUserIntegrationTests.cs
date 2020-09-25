@@ -31,12 +31,13 @@ namespace Microsoft.Identity.Web.Test.Integration
         private readonly WebApplicationFactory<Startup> _factory;
 
         [Theory]
-        [InlineData(TestConstants.SecurePageGetTokenAsync)]
+        [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
+        [InlineData(TestConstants.SecurePageGetTokenForAppAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
+        [InlineData(TestConstants.SecurePageGetTokenForUserAsync, false)]
         // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
         // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
