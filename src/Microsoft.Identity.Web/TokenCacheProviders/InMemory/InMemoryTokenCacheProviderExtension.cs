@@ -17,15 +17,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <param name="setupAction">TODO.</param>
         /// <returns>the services (for chaining).</returns>
         internal static IServiceCollection AddInMemoryTokenCaches(
-            this IServiceCollection services,
-            Action<MemoryCacheOptions>? setupAction = null)
+            this IServiceCollection services)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
 
-            services.AddMemoryCache(setupAction);
+            services.AddMemoryCache();
             services.AddHttpContextAccessor();
             services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return services;
