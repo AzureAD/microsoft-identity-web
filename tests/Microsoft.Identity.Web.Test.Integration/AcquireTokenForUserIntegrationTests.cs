@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using IntegrationTestService;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
@@ -35,10 +36,11 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
-        [InlineData(TestConstants.SecurePageGetTokenForUserAsync, false)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
-        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
         public async Task GetTokenForUserAsync(
                 string webApiUrl,
                 bool addInMemoryTokenCache = true)
@@ -80,7 +82,6 @@ namespace Microsoft.Identity.Web.Test.Integration
                         "{0} {1}",
                         Constants.Bearer,
                         result.AccessToken));
-
                 response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
 

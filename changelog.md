@@ -1,11 +1,33 @@
+1.0.0
+===========
+
+### New Features:
+**Some constant values used in Microsoft Identity Web are available as public constants**. See feature request [#548](https://github.com/AzureAD/microsoft-identity-web/issues/548) for details.
+
+**Microsoft Identity Web now sends basic telemetry data (sku and version) to AAD and AAD B2C**. See issue [#327](https://github.com/AzureAD/microsoft-identity-web/issues/327) for details.
+
+**Implement `TokenAcquisitionOptions` which enable developers to customize the token aquisition integration with MSAL .NET**. Current options available are extra query parameters, force refresh, and correlation id. See issues [#561](https://github.com/AzureAD/microsoft-identity-web/issues/561), [#494](https://github.com/AzureAD/microsoft-identity-web/issues/494), and [#532](https://github.com/AzureAD/microsoft-identity-web/issues/532).
+
+### Bug Fixes:
+**Microsoft Identity Web now uses a scoped service for TokenAcquisitionServices when calling Microsoft Graph**. Previously a Singleton was used and this caused an infinite loop in Blazor server applications, as Blazor requires scoped services. See issues [#573](https://github.com/AzureAD/microsoft-identity-web/issues/573) and [#531](https://github.com/AzureAD/microsoft-identity-web/issues/531) for details.
+
+**Now developers can specify the client secret in the web API scenario either in Microsoft Identity Options or in the Confidential Client Application Options**, previously it had to be set in both. See issue [#536](https://github.com/AzureAD/microsoft-identity-web/issues/536) for details.
+
+**Web apps calling web APIs no longer require a `response_type` of `id_token`, so it no longer needs to be checked in the AAD portal app registration**. See issue [#589](https://github.com/AzureAD/microsoft-identity-web/issues/589).
+
+### Fundamentals:
+**Remove obsolete attributes for the 1.0.0 (GA) version**. See issue [#584](https://github.com/AzureAD/microsoft-identity-web/issues/584) for details.
+
 0.4.0-preview
 ============
 ### New Features:
 **`ITokenAcquisition` now exposes the `AuthenticationResult` for the user from MSAL**. See issue [#543](https://github.com/AzureAD/microsoft-identity-web/issues/543) for details.
+
 **Now, to use Microsoft GraphServiceClient, you need to reference Microsoft.Identity.Web.MicrosoftGraph or Microsoft.Identity.Web.MicrosoftGraphBeta**. See issue [#506](https://github.com/AzureAD/microsoft-identity-web/issues/506) for details.
 
 ### Bug Fixes:
 **`CallWebApiForUserAsync` handles a successful response better**. See issue [#503](https://github.com/AzureAD/microsoft-identity-web/issues/429) for details.
+
 **Microsoft Identity Web can now handle two schemes in web APIs**. See issues [#429](https://github.com/AzureAD/microsoft-identity-web/issues/429), [#468](https://github.com/AzureAD/microsoft-identity-web/issues/468), and [#474](https://github.com/AzureAD/microsoft-identity-web/issues/474) for details.
 
 ### Fundamentals:
@@ -38,21 +60,25 @@ services.AddDownstreamApiService() | .EnableTokenAcquisitionToCallDownstreamApi(
 See issue [#378](https://github.com/AzureAD/microsoft-identity-web/issues/378) and the [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/0.3.0-preview) for more information on the new API.
 
 **`AddInMemoryTokenCaches` method now accepts an optional `MsalMemoryTokenCacheOptions` delegate parameter**.  See issue for details: [#426](https://github.com/AzureAD/microsoft-identity-web/issues/426).
+
 **`GetAccessTokenForAppAsync` method now accepts an optional `tenant` parameter**, which allows applications authorized in multiple tenants to request tokens.  See issue for details: [#413](https://github.com/AzureAD/microsoft-identity-web/issues/413).
 
 
 ### New Features:
 **Microsoft Identity Web now provides methods that simplify calling Microsoft Graph and any downstream APIs**. See [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/0.3.0-preview) and issues for details: [#403](https://github.com/AzureAD/microsoft-identity-web/issues/403), [#427](https://github.com/AzureAD/microsoft-identity-web/issues/427).
+
 **Project templates, samples, and dev apps were updated to use the new public API**.  See issues for details: [#453](https://github.com/AzureAD/microsoft-identity-web/issues/453), [#418](https://github.com/AzureAD/microsoft-identity-web/issues/418).
 
 ### Bug Fixes:
 **Previously domain hint was added to the request only if the login hint was present also**. The presence of domain and login hints is now validated separately. See issue for details: [#415](https://github.com/AzureAD/microsoft-identity-web/issues/415).
+
 **Fixed a `NullReferenceException` on `NavigationManager` that occurred on Blazor server with Azure SignalR when using a pre-rendering mode**. See issue for details: [#437](https://github.com/AzureAD/microsoft-identity-web/issues/437).
 
 0.2.3-preview
 ============
 ### New features:
 **`ReplyForbiddenWithWwwAuthenticateHeaderAsync` method in `ITokenAcquisition` now has an additional optional `HttpResponse` parameter**, which can be provided in cases when the current `HttpContext` is null.  See issue for details: [#414](https://github.com/AzureAD/microsoft-identity-web/issues/414).
+
 **Enable Micorosoft.Identity.Web to work with any version of .NET 5.0** by setting dependencies version to `5.0.0-*` for `JwtBearer` and `OpenIdConnect` dependencies**. See issue for details: [#380](https://github.com/AzureAD/microsoft-identity-web/issues/380).
 
 0.2.2-preview
@@ -62,26 +88,39 @@ See issue [#378](https://github.com/AzureAD/microsoft-identity-web/issues/378) a
 
 ### Bug fixes:
 **Starting in 0.2.1-preview, a `MicrosoftIdentityWebChallengeUserException` was added, but customers might use the `MsalUiRequiredException`, for instance by the Graph SDK**. See issue for details: [#398](https://github.com/AzureAD/microsoft-identity-web/issues/398).
+
 **In a multi-tenant scenario, when calling a downstream API, Microsoft Identity Web was not returning the token for the specific tenant ID**. The correct token based on the tenant, if specified, is returned. See issues for details: [#344](https://github.com/AzureAD/microsoft-identity-web/issues/344) and [MSAL .NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/1965).
+
 **When the scopes provided are invalid, an exception will be thrown in addition to recording a response back to the controller**. This ensures the controller does not continue processing as authentication is not possible. See issue for details: [#389](https://github.com/AzureAD/microsoft-identity-web/issues/389).
+
 **When calling a downstream web API, Microsoft Identity Web now checks the token from the HttpContext instead of doing an acquire token silent call.** This will save on cycles as MSAL .NET already does the necessary cache look up. See issue for details: [#381](https://github.com/AzureAD/microsoft-identity-web/issues/381).
+
 **When validating the application roles, only the first role claim was used, which would result in a failure with multiple roles**. Microsoft Identity Web now uses all the roles and throws an exception if the roles are invalid. See issue for details: [#374](https://github.com/AzureAD/microsoft-identity-web/issues/374).
+
 **A more descriptive exception is thrown when a B2C issuer claim contains `tfp`**. See [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/Azure-AD-B2C-issuer-claim-support) and issue for details: [#274](https://github.com/AzureAD/microsoft-identity-web/issues/274).
 
 0.2.1-preview
 ============
 ### New features:
 **Microsoft Identity Web now supports the ComponentsWebAssembly-CSharp project templates from ASP.NET Core**. See issue for details: [#320](https://github.com/AzureAD/microsoft-identity-web/issues/320).
+
 **Microsoft Identity Web now supports the BlazorServerWeb-CSharp project templates from ASP .NET Core**. See issue for details: [#319](https://github.com/AzureAD/microsoft-identity-web/issues/319).
+
 **When using Azure AD B2C, developers can now specify which policy/user flow to use to acquire the token**. Microsoft Identity Web now exposes a user flow parameter, which allows developers to specify the policy/user flow to use with looking for tokens in the cache. See issue for details: [#27](https://github.com/AzureAD/microsoft-identity-web/issues/27).
 
 ### Bug fixes:
 **Fixes `NullReferenceException` when acquiring a user token because of a null `HttpContext`**. This applies to scenarios like server-side Blazor apps, long-running processes, daemon apps. See issues for details: [#157](https://github.com/AzureAD/microsoft-identity-web/issues/157), [#10](https://github.com/AzureAD/microsoft-identity-web/issues/10), [#38](https://github.com/AzureAD/microsoft-identity-web/issues/38).
+
 **When encountering a challenge from a Blazor page, Microsoft Identity Web could not handle the challenge in the same way it does for an MVC or Razor page**. The challenge from a Blazor page is now handled corrected. See issue for details: [#360](https://github.com/AzureAD/microsoft-identity-web/issues/360).
+
 **When acquiring a token for a user in a server side Blazor app, a null reference exception was encountered because the `CurrentHttpContext` was null**. Microsoft Identity Web now uses a Blazor specific class `AuthenticationStateProvider` to determine the current user. See issue for details: [#157](https://github.com/AzureAD/microsoft-identity-web/issues/157).
+
 **In the templates, `CallWebApi` is an async method and now named accordingly, `CallWebApiAsync`**. See issue for details: [#357](https://github.com/AzureAD/microsoft-identity-web/issues/357).
+
 **Microsoft Identity Web now creates a `HttpRequestMessage` to append the authorization header with the bearer token**. See issue for details: [350](https://github.com/AzureAD/microsoft-identity-web/issues/350).
+
 **In the case of no authentication, the templates no longer support the usage of `--call-graph` and `--call-webapi-url`**. See issue for details: [337](https://github.com/AzureAD/microsoft-identity-web/issues/337).
+
 **Now that Microsoft Identity Web can specify the AAD B2C tokens by user flow, the correct method, `GetAccountAsync()` can be called for confidential clients**. See issue for details: [#295](https://github.com/AzureAD/microsoft-identity-web/issues/295).
 
 ### Fundamentals:
@@ -107,34 +146,52 @@ services.AddProtectedWebApi() | services.AddAuthentication().AddMicrosoftWebApi(
 
 ### New Features:
 **Microsoft Identity Web implements the C# 8.0 nullable standard**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/15).
+
 **Microsoft Identity Web now validates the app roles for a web API, for example a web API called by a daemon application**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/131).
+
 **Microsoft Identity Web now supports .NET 5.0**, in addition to .NET Core 3.1. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/194).
+
 **The project templates now have an option to generate the call to a downstream web API, or a call to Microsoft Graph**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/196).
+
 **Microsoft Identity Web now has the ability to specify custom cookie options in the `AddMicrosoftWebApp` methods**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/237).
 
 ### Bug Fixes:
 **When accessing KeyVault, storage flags need to be used, as there is no user profile**. The correct storage flags are now used. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/219).
+
 **Uses the recommended workaround for the clients incompatible with the `SameSite=None` cookie attribute**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/238).
+
 **Fixed a dependency injection anti-pattern when resolving `ITokenAcquisition`**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/240).
+
 **The `TokenValidationParameters` are now cloned before using**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/241).
+
 **Microsoft Identity Web now throws a `SecurityTokenValidationException`**, when there is an invalid audience. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/242).
+
 **Microsoft Identity Web no longer throws an exception if the user sets the custom audiences**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/243).
+
 **Removed multiple calls to `HandleCodeRedemption` in `TokenAcquisition`**. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/246).
+
 **Fixes to the `MsalSessionTokenCacheProvider`**, such as removing the static lock object and removing the session commit. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/252).
+
 **In the `AccountController`, Microsoft Identity Web now uses `IOptions` instead of `IOptionsMonitor`**, for consistency. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/232).
+
 **Microsoft Identity Web no longer calls the `BuildServiceProvider` in the configuration methods** and uses a more appropriate `Configure` overload that provides the required `IServiceProvider` instance. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/234).
+
 **Microsoft Identity Web now uses the `SuggestedCacheKey`** returned in the `TokenCacheNotificationArgs` from MSAL to determine the correct cache key. This enables the removal of several lines of code and the use of the `HttpContext.User`. See issue [235](https://github.com/AzureAD/microsoft-identity-web/issues/235), [248](https://github.com/AzureAD/microsoft-identity-web/issues/248), [273](https://github.com/AzureAD/microsoft-identity-web/issues/273), and [222](https://github.com/AzureAD/microsoft-identity-web/issues/222) for details.
+
 **Microsoft Identity Web now retrieves the `client_info` data directly from the protocol message**. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/245).
 
 0.1.5-preview
 ============
 ### New Features:
 **Microsoft Identity Web supports certificates.** The developer can now use client and token decryption certificates, which can be retrieved from a variety of sources, like Azure Key Vault, certificate store, a Base54 encoded string, and more. The location of the certificate can be specified in a configuration file or programmatically. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/165) and [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/Using-certificates) for more details.
+
 **Microsoft Identity Web now allows specifying if the x5c claim (the public key of the certificate) should be sent to the STS.** Sending the x5c enables easy certificate rollover. To enable this behavior set the `SendX5C` property in the configuration file. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/197) for more details.
+
 **Microsoft Identity Web provides an option to force redirect URIs to use the HTTPS scheme,** which can be useful in certain scenarios, like app deployment in a container. To enable this behavior set `ForceHttpsRedirectUris` property in the configuration file. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/175) for more details.
 
 ### Bug Fixes:
 **Microsoft Identity Web uses `System.Text.Json` namespace instead of `Newtonsoft.Json` for working with JSON.** See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/182) for more details.
+
 **The documentation now correctly specifies that `ClaimsPrincipalExtensions.GetNameIdentifierId` returns a `uid` claim value.** See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/171) for more details.
 
 0.1.4-preview
@@ -144,16 +201,19 @@ New Features:
 
 Bug Fixes:
 **When logging in with an unauthorized account, the user was redirected to `/Account/AccessDenied` which did not exist**. Microsoft Identity Web UI now properly sets the path on the scheme with the same name. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/117).
+
 **In the context of a guest account, Microsoft Identity Web used the `loginHint` to determine the guest account for accessing the MSAL .NET cache**. Now, Microsoft Identity Web retrieves `user_info` from the authorization server and is able to determine the unique object identifier for guest accounts. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/18).
 
 0.1.3-preview
 ============
 New Features:
 **Microsoft Identity Web now allows developers to not pass any scope value in `AddWebAppCallsProtectedWebApi`**. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/14).
+
 **When working with containers or reverse proxies, being able to specify the redirectUri and postLogoutRedirectUri is important.** Microsoft Identity Web now allows the setting of the RedirectUri and PostLogoutRedirectUri as part of the `MicrosoftIdentityOptions`. See [Issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/115).
 
 Bug Fixes:
 **The AddProtectedWebApiCallsProtectedWebApi method registers an event handler for OnTokenValidated without preserving any existing registered event handlers.** Now events are chained correctly. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/154).
+
 **Depending on the endpoint, v1.0 or v2.0, and if the application is B2C or not, the default format of the `aud` value in the token will be different.** Microsoft Identity Web now looks at these parameters to validate the audience.
 
 0.1.2-preview
@@ -163,6 +223,7 @@ New Features:
 
 Bug Fixes:
 Performance improvement: **AadIssuerValidator class now caches the authority aliases under the correct cache key**. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/51) for more details.
+
 **When not including the ClientSecret in appsettings.json, a null reference exception was thrown when acquiring the authorization code with MSAL.NET**. Microsoft Identity Web now checks all the required options and responds with actionable error messages if any are missing. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/66) for more details.
 
 0.1.1-preview
@@ -172,6 +233,7 @@ New Features:
 
 Bug Fixes:
 **`AddSignIn()` now provides a more robust processing of authorities accepting them to end in `/` or not**. [See issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/19)
+
 **Setting the `ValidAudiences` in `AddProtectedWebApi()` now accepts any custom audience (any string)**. [See issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/52)
 
 0.1.0-preview

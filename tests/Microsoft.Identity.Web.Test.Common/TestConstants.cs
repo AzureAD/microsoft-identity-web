@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web.Test.Common
@@ -131,6 +132,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePageGetTokenForAppAsync = "/SecurePage/GetTokenForAppAsync";
         public const string SecurePageCallDownstreamWebApi = "/SecurePage/CallDownstreamWebApiAsync";
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
+        public const string SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
         public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";
 
@@ -142,5 +144,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string StaySignedInNoId = "idBtn_Back";
         public const string PhotoLabel = "photo";
         public const string Headless = "headless";
+
+        // TokenAcqusitionOptions
+        public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
     }
 }
