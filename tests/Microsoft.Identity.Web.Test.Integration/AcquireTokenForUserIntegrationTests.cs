@@ -37,10 +37,9 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
-        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserAsync(
                 string webApiUrl,
                 bool addInMemoryTokenCache = true)
