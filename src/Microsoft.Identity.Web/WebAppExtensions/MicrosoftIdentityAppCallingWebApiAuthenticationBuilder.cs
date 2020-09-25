@@ -44,7 +44,14 @@ namespace Microsoft.Identity.Web
                 Services.Configure(configureOptions);
             }
 
-            Services.AddMemoryCache(memoryCacheOptions);
+            if (memoryCacheOptions != null)
+            {
+                Services.AddMemoryCache(memoryCacheOptions);
+            }
+            else
+            {
+                Services.AddMemoryCache();
+            }
             Services.AddHttpContextAccessor();
             Services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return this;

@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             _configuration = configuration;
             _usersToSimulate = int.Parse(configuration["UsersToSimulate"]);
             _userAccountIdentifiers = new string[_usersToSimulate + 1];
-            
+
         }
 
         public async Task Run()
@@ -41,9 +41,12 @@ namespace Microsoft.Identity.Web.Perf.Client
             Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
 
             IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
-            foreach(var account in accounts)
+            foreach (var account in accounts)
             {
-                _userAccountIdentifiers[account.Key] = account.Value;
+                if (account.Key < _userAccountIdentifiers.Length)
+                {
+                    _userAccountIdentifiers[account.Key] = account.Value;
+                }
             }
 
             // Configuring the http client to trust the self-signed certificate
@@ -86,7 +89,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                             response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
                             elapsedTime += DateTime.Now - start;
                             requestsCounter++;
-                            if( authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                            if (authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
                             {
                                 tokenReturnedFromCache++;
                                 fromCache = true;
@@ -94,7 +97,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         }
 
                         Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
-                        
+
                         if (!response.IsSuccessStatusCode)
                         {
                             Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");

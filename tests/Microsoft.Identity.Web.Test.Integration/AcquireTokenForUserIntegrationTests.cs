@@ -30,7 +30,8 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory]
+        [Theory(Skip = "re-enable after merge to master as the API needs to be different for integration and perf"+
+            " because of the variability on cache, and the tenant")]
         [InlineData(TestConstants.SecurePageGetTokenForAppAsync)]
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
