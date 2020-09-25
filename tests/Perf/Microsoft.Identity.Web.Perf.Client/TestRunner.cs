@@ -24,6 +24,8 @@ namespace Microsoft.Identity.Web.Perf.Client
         private readonly int _usersToSimulate;
         private readonly IPublicClientApplication _msalPublicClient;
         private readonly string[] _userAccountIdentifiers;
+        private TimeSpan elapsedTimeInMsalCacheLookup;
+        private int numberOfMsalCacheLookups;
 
         public TestRunner(IConfiguration configuration)
         {
@@ -58,10 +60,12 @@ namespace Microsoft.Identity.Web.Perf.Client
             client.BaseAddress = new Uri(_configuration["IntegrationTestServicesBaseUri"]);
 
             var durationInMinutes = int.Parse(_configuration["DurationInMinutes"]);
+            DateTime startOverall = DateTime.Now;
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
             int loop = 0;
+            int tokenReturnedFromCache = 0;
             while (DateTime.Now < finishTime)
             {
                 loop++;
@@ -69,6 +73,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 {
                     if (DateTime.Now < finishTime)
                     {
+                        bool fromCache = false;
                         HttpResponseMessage response;
                         using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                             HttpMethod.Get, _configuration["TestUri"]))
@@ -87,9 +92,15 @@ namespace Microsoft.Identity.Web.Perf.Client
                             response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
                             elapsedTime += DateTime.Now - start;
                             requestsCounter++;
+                            if( authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                            {
+                                tokenReturnedFromCache++;
+                                fromCache = true;
+                            }
                         }
 
                         Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                        Console.WriteLine($"MSAL Token cache used: {fromCache}");
                         if (!response.IsSuccessStatusCode)
                         {
                             Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
@@ -102,7 +113,15 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
             Console.WriteLine($"Total number of requests: {requestsCounter} ");
-            Console.WriteLine($"Average time per request: {elapsedTime.Seconds / requestsCounter} ");
+            Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
+            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
+            Console.WriteLine($"Number of MSAL cache look-ups: {numberOfMsalCacheLookups} ");
+            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / numberOfMsalCacheLookups}");
+            var totalAccounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
+            Console.WriteLine($"Total number of accounts in the MSAL cache: {totalAccounts.Count()}");
+            Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
+            Console.WriteLine($"Start time: {startOverall}");
+            Console.WriteLine($"End time: {DateTime.Now}");
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
@@ -119,7 +138,10 @@ namespace Microsoft.Identity.Web.Perf.Client
                     IAccount account = null;
                     if (identifier != null)
                     {
+                        DateTime start = DateTime.Now;
                         account = await _msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
+                        elapsedTimeInMsalCacheLookup += DateTime.Now - start;
+                        numberOfMsalCacheLookups++;
                     }
 
                     authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);

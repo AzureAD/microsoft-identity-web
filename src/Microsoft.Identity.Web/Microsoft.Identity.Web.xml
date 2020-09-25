@@ -1771,10 +1771,9 @@
             Extension class used to add an in-memory token cache serializer to MSAL.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Extensions.Caching.Memory.MemoryCacheOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>Adds both the app and per-user in-memory token caches.</summary>
             <param name="services">The services collection to add to.</param>
-            <param name="setupAction">TODO.</param>
             <returns>the services (for chaining).</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">

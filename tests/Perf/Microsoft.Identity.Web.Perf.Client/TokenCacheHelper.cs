@@ -21,9 +21,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             lock (s_fileLock)
             {
                 args.TokenCache.DeserializeMsalV3(File.Exists(s_cacheFilePath)
-                        ? ProtectedData.Unprotect(File.ReadAllBytes(s_cacheFilePath),
-                                                 null,
-                                                 DataProtectionScope.CurrentUser)
+                        ? File.ReadAllBytes(s_cacheFilePath)
                         : null);
             }
         }
@@ -37,9 +35,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 {
                     // reflect changesgs in the persistent store
                     File.WriteAllBytes(s_cacheFilePath,
-                                       ProtectedData.Protect(args.TokenCache.SerializeMsalV3(),
-                                                             null,
-                                                             DataProtectionScope.CurrentUser));
+                                       args.TokenCache.SerializeMsalV3());
                 }
             }
         }
