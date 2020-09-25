@@ -26,11 +26,13 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
+            services.AddDistributedMemoryCache();
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                    .AddInMemoryTokenCaches(memoryCacheOptions:options => { options.SizeLimit = (long)1e9; })
+                                    .AddDistributedTokenCaches()  
+                                    //.AddInMemoryTokenCaches(memoryCacheOptions:options => { options.SizeLimit = (long)1e9; })
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))

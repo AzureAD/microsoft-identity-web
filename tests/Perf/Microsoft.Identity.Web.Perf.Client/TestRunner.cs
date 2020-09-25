@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -39,7 +40,15 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public async Task Run()
         {
-            Console.WriteLine($"Initialzing tokens for {_usersToSimulate} users");
+            Console.WriteLine($"Initializing tokens for {_usersToSimulate} users");
+
+            var accounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
+
+            int index = 1;
+            foreach (var account in accounts)
+            {
+                _userAccountIdentifiers[index++] = account.HomeAccountId.Identifier;
+            }
 
             // Configuring the http client to trust the self-signed certificate
             var httpClientHandler = new HttpClientHandler();
@@ -52,8 +61,10 @@ namespace Microsoft.Identity.Web.Perf.Client
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
+            int loop = 0;
             while (DateTime.Now < finishTime)
             {
+                loop++;
                 for (int i = 1; i <= _usersToSimulate; i++)
                 {
                     if (DateTime.Now < finishTime)
@@ -78,10 +89,10 @@ namespace Microsoft.Identity.Web.Perf.Client
                             requestsCounter++;
                         }
 
-                        Console.WriteLine($"Response received for user {i}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                            Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
                             Console.WriteLine(response.ReasonPhrase);
                             Console.WriteLine(await response.Content.ReadAsStringAsync());
                         }
@@ -101,10 +112,15 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             AuthenticationResult authResult = null;
             try
-            {               
+            {
                 try
                 {
-                    var account = await _msalPublicClient.GetAccountAsync(_userAccountIdentifiers[userIndex]).ConfigureAwait(false);
+                    var identifier = _userAccountIdentifiers[userIndex];
+                    IAccount account = null;
+                    if (identifier != null)
+                    {
+                        account = await _msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
+                    }
 
                     authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
                     return authResult;
