@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -37,19 +38,17 @@ namespace Microsoft.Identity.Web.Perf.Client
                .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
                .WithLogging(Log, LogLevel.Info, false)
                .Build();
-            TokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
+            ScalableTokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
         }
 
         public async Task Run()
         {
             Console.WriteLine($"Initializing tokens for {_usersToSimulate} users");
 
-            var accounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
-
-            int index = 1;
-            foreach (var account in accounts)
+            IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
+            foreach(var account in accounts)
             {
-                _userAccountIdentifiers[index++] = account.HomeAccountId.Identifier;
+                _userAccountIdentifiers[account.Key] = account.Value;
             }
 
             // Configuring the http client to trust the self-signed certificate

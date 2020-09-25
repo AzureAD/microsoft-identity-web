@@ -14,16 +14,11 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// </summary>
         public static readonly string s_cacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalcache.bin3";
 
-        private static readonly object s_fileLock = new object();
-
         public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
-            lock (s_fileLock)
-            {
                 args.TokenCache.DeserializeMsalV3(File.Exists(s_cacheFilePath)
                         ? File.ReadAllBytes(s_cacheFilePath)
                         : null);
-            }
         }
 
         public static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -31,12 +26,9 @@ namespace Microsoft.Identity.Web.Perf.Client
             // if the access operation resulted in a cache update
             if (args.HasStateChanged)
             {
-                lock (s_fileLock)
-                {
                     // reflect changesgs in the persistent store
                     File.WriteAllBytes(s_cacheFilePath,
                                        args.TokenCache.SerializeMsalV3());
-                }
             }
         }
 
