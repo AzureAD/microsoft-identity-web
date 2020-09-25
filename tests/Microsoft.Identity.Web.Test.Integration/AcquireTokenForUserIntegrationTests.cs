@@ -30,17 +30,17 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory]
-        [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
+        [Theory(Skip = "re-enable after merge to master as the API needs to be different for integration and perf"+
+            " because of the variability on cache, and the tenant")]
         [InlineData(TestConstants.SecurePageGetTokenForAppAsync)]
+        [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+       // [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePageGetTokenForUserAsync, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
-        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+       // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+       // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+       // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserAsync(
                 string webApiUrl,
                 bool addInMemoryTokenCache = true)

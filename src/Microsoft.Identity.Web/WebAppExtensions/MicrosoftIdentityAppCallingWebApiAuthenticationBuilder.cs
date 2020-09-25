@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -32,16 +33,25 @@ namespace Microsoft.Identity.Web
         /// Add in memory token caches.
         /// </summary>
         /// <param name="configureOptions"><see cref="MsalMemoryTokenCacheOptions"/> to configure.</param>
+        /// <param name="memoryCacheOptions">TODO.</param>
         /// <returns>the service collection.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddInMemoryTokenCaches(
-        Action<MsalMemoryTokenCacheOptions>? configureOptions = null)
+        Action<MsalMemoryTokenCacheOptions>? configureOptions = null,
+        Action<MemoryCacheOptions>? memoryCacheOptions = null)
         {
             if (configureOptions != null)
             {
                 Services.Configure(configureOptions);
             }
 
-            Services.AddMemoryCache();
+            if (memoryCacheOptions != null)
+            {
+                Services.AddMemoryCache(memoryCacheOptions);
+            }
+            else
+            {
+                Services.AddMemoryCache();
+            }
             Services.AddHttpContextAccessor();
             Services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return this;

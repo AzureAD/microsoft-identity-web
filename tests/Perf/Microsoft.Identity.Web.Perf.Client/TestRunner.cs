@@ -1,7 +1,11 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,29 +19,35 @@ using Microsoft.Identity.Web.Test.Common;
 namespace Microsoft.Identity.Web.Perf.Client
 {
     public class TestRunner
-    {        
+    {
         private const string NamePrefix = "MIWTestUser";
         private readonly IConfiguration _configuration;
         private readonly int _usersToSimulate;
         private readonly IPublicClientApplication _msalPublicClient;
         private readonly string[] _userAccountIdentifiers;
+        private TimeSpan elapsedTimeInMsalCacheLookup;
+        private int numberOfMsalCacheLookups;
 
         public TestRunner(IConfiguration configuration)
         {
             _configuration = configuration;
             _usersToSimulate = int.Parse(configuration["UsersToSimulate"]);
             _userAccountIdentifiers = new string[_usersToSimulate + 1];
-            _msalPublicClient = PublicClientApplicationBuilder
-               .Create(_configuration["ClientId"])
-               .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
-               .WithLogging(Log, LogLevel.Info, false)
-               .Build();
-            TokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
+
         }
 
         public async Task Run()
         {
             Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
+
+            IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
+            foreach (var account in accounts)
+            {
+                if (account.Key < _userAccountIdentifiers.Length)
+                {
+                    _userAccountIdentifiers[account.Key] = account.Value;
+                }
+            }
 
             // Configuring the http client to trust the self-signed certificate
             var httpClientHandler = new HttpClientHandler();
@@ -47,16 +57,20 @@ namespace Microsoft.Identity.Web.Perf.Client
             client.BaseAddress = new Uri(_configuration["IntegrationTestServicesBaseUri"]);
 
             var durationInMinutes = int.Parse(_configuration["DurationInMinutes"]);
+            DateTime startOverall = DateTime.Now;
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
-            int loopCounter = 1;
+            int loop = 0;
+            int tokenReturnedFromCache = 0;
             while (DateTime.Now < finishTime)
-            { 
+            {
+                loop++;
                 for (int i = 1; i <= _usersToSimulate; i++)
                 {
                     if (DateTime.Now < finishTime)
                     {
+                        bool fromCache = false;
                         HttpResponseMessage response;
                         using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                             HttpMethod.Get, _configuration["TestUri"]))
@@ -75,23 +89,36 @@ namespace Microsoft.Identity.Web.Perf.Client
                             response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
                             elapsedTime += DateTime.Now - start;
                             requestsCounter++;
+                            if (authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                            {
+                                tokenReturnedFromCache++;
+                                fromCache = true;
+                            }
                         }
 
-                        Console.WriteLine($"Response received for user {i}. Loop: {loopCounter}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
+                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
+
                         if (!response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine($"Response was not successfull. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                            Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
                             Console.WriteLine(response.ReasonPhrase);
                             Console.WriteLine(await response.Content.ReadAsStringAsync());
                         }
                     }
                 }
-                loopCounter++;
             }
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
             Console.WriteLine($"Total number of requests: {requestsCounter} ");
-            Console.WriteLine($"Average time per request: {elapsedTime.Seconds / requestsCounter} ");
+            Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
+            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
+            Console.WriteLine($"Number of MSAL cache look-ups: {numberOfMsalCacheLookups} ");
+            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / numberOfMsalCacheLookups}");
+            var totalAccounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
+            Console.WriteLine($"Total number of accounts in the MSAL cache: {totalAccounts.Count()}");
+            Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
+            Console.WriteLine($"Start time: {startOverall}");
+            Console.WriteLine($"End time: {DateTime.Now}");
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
@@ -99,40 +126,44 @@ namespace Microsoft.Identity.Web.Perf.Client
             var scopes = new string[] { _configuration["ApiScopes"] };
             var upn = $"{NamePrefix}{userIndex}@{_configuration["TenantDomain"]}";
 
+            var _msalPublicClient = PublicClientApplicationBuilder
+                           .Create(_configuration["ClientId"])
+                           .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
+                           .WithLogging(Log, LogLevel.Info, false)
+                           .Build();
+            ScalableTokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
+
             AuthenticationResult authResult = null;
             try
             {
-                var userIdentifier = _userAccountIdentifiers[userIndex];
-
-                if (!string.IsNullOrEmpty(userIdentifier))
+                try
                 {
-                    var account = await _msalPublicClient.GetAccountAsync(userIdentifier).ConfigureAwait(false);
-
-                    if (account != null)
+                    var identifier = _userAccountIdentifiers[userIndex];
+                    IAccount account = null;
+                    if (identifier != null)
                     {
-                        try
-                        {
-                            authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
-                        }
-                        catch (MsalUiRequiredException)
-                        {
-                            // No token for the account. Will proceed below
-                        }
+                        DateTime start = DateTime.Now;
+                        account = await _msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
+                        elapsedTimeInMsalCacheLookup += DateTime.Now - start;
+                        numberOfMsalCacheLookups++;
                     }
-                }
 
-                if (authResult == null)
+                    authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                    return authResult;
+                }
+                catch (MsalUiRequiredException)
                 {
                     authResult = await _msalPublicClient.AcquireTokenByUsernamePassword(
-                        scopes,
-                        upn,
-                        new NetworkCredential(
-                            upn,
-                            _configuration["UserPassword"]).SecurePassword)
-                        .ExecuteAsync(CancellationToken.None)
-                        .ConfigureAwait(false);
+                                                        scopes,
+                                                        upn,
+                                                        new NetworkCredential(
+                                                            upn,
+                                                            _configuration["UserPassword"]).SecurePassword)
+                                                        .ExecuteAsync(CancellationToken.None)
+                                                        .ConfigureAwait(false);
 
                     _userAccountIdentifiers[userIndex] = authResult.Account.HomeAccountId.Identifier;
+                    return authResult;
                 }
             }
             catch (Exception ex)
