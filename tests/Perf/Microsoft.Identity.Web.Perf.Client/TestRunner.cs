@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public async Task Run()
         {
-            Console.WriteLine($"Initializing tokens for {_usersToSimulate} users");
+            Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
 
             IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
             foreach(var account in accounts)
@@ -93,8 +93,8 @@ namespace Microsoft.Identity.Web.Perf.Client
                             }
                         }
 
-                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}");
-                        Console.WriteLine($"MSAL Token cache used: {fromCache}");
+                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
+                        
                         if (!response.IsSuccessStatusCode)
                         {
                             Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");

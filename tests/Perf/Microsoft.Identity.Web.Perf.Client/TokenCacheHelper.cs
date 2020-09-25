@@ -1,8 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.IO;
-using System.Security.Cryptography;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.Perf.Client
@@ -16,9 +15,9 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
-                args.TokenCache.DeserializeMsalV3(File.Exists(s_cacheFilePath)
-                        ? File.ReadAllBytes(s_cacheFilePath)
-                        : null);
+            args.TokenCache.DeserializeMsalV3(File.Exists(s_cacheFilePath)
+                    ? File.ReadAllBytes(s_cacheFilePath)
+                    : null);
         }
 
         public static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -26,9 +25,9 @@ namespace Microsoft.Identity.Web.Perf.Client
             // if the access operation resulted in a cache update
             if (args.HasStateChanged)
             {
-                    // reflect changesgs in the persistent store
-                    File.WriteAllBytes(s_cacheFilePath,
-                                       args.TokenCache.SerializeMsalV3());
+                // reflect changesgs in the persistent store
+                File.WriteAllBytes(s_cacheFilePath,
+                                   args.TokenCache.SerializeMsalV3());
             }
         }
 
