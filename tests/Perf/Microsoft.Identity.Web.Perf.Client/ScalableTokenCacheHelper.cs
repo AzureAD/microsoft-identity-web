@@ -11,6 +11,10 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.Perf.Client
 {
+    /// <summary>
+    /// Token cache writing on disk one cache per account
+    /// WARNING: this version is not encrypted
+    /// </summary>
     static class ScalableTokenCacheHelper
     {
         /// <summary>
@@ -19,8 +23,15 @@ namespace Microsoft.Identity.Web.Perf.Client
         public static readonly string s_cacheFileFolder = 
             Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
             "TokenCaches");
+
+        /// <summary>
+        /// Path to the mapping between upn and home account identifier
+        /// </summary>
         public static readonly string s_cacheKeysFolder = s_cacheFileFolder + "Keys";
 
+        /// <summary>
+        /// Creating the folders for the token cache and its key, if needed
+        /// </summary>
         static ScalableTokenCacheHelper()
         {
             if (!Directory.Exists(s_cacheFileFolder))
@@ -33,6 +44,11 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
         }
 
+        /// <summary>
+        /// Gets the mapping between a user number and its own home identifier (tid.oid)
+        /// </summary>
+        /// <remarks>this is encoded in the file names of the cache key folder</remarks>
+        /// <returns></returns>
         public static Dictionary<int, string> GetAccountIdsByUserNumber()
         {
             int start = "MIWTestUser".Length;
@@ -61,6 +77,10 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private static string GetCacheFilePath(TokenCacheNotificationArgs args)
         {
+            // TODO
+            // Here there is a bug in MSAL that sometimes we have the SuggestedCacheKey which is the
+            // home account identifier, but we don't have the Account ?? (in AcquireTokenForUsernamePassword)
+            // whereas we have passed-in an account
             string suggestedKey = args.SuggestedCacheKey ?? args.Account.HomeAccountId.Identifier;
             if (suggestedKey == null)
             {
@@ -84,6 +104,12 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
         }
 
+        /// <summary>
+        /// Writes (if not already there) a file which names is the concatenation of the
+        /// upn and the home account identifier. This is useful to map a user number to
+        /// its home account id
+        /// </summary>
+        /// <param name="args"></param>
         private static void WriteKey(TokenCacheNotificationArgs args)
         {
             if (args.Account != null)
