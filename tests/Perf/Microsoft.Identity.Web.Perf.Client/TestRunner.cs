@@ -33,12 +33,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             _configuration = configuration;
             _usersToSimulate = int.Parse(configuration["UsersToSimulate"]);
             _userAccountIdentifiers = new string[_usersToSimulate + 1];
-            _msalPublicClient = PublicClientApplicationBuilder
-               .Create(_configuration["ClientId"])
-               .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
-               .WithLogging(Log, LogLevel.Info, false)
-               .Build();
-            ScalableTokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
+            
         }
 
         public async Task Run()
@@ -127,6 +122,13 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             var scopes = new string[] { _configuration["ApiScopes"] };
             var upn = $"{NamePrefix}{userIndex}@{_configuration["TenantDomain"]}";
+
+            var _msalPublicClient = PublicClientApplicationBuilder
+                           .Create(_configuration["ClientId"])
+                           .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
+                           .WithLogging(Log, LogLevel.Info, false)
+                           .Build();
+            ScalableTokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
 
             AuthenticationResult authResult = null;
             try
