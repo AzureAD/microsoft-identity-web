@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public async Task Run()
         {
-            Console.WriteLine($"Initializing tokens for {_usersToSimulate} users");
+            Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
 
             var accounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
 
@@ -109,6 +109,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         }
                     }
                 }
+                loopCounter++;
             }
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
