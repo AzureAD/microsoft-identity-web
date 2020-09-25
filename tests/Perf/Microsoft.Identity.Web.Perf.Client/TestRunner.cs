@@ -22,23 +22,22 @@ namespace Microsoft.Identity.Web.Perf.Client
     {
         private const string NamePrefix = "MIWTestUser";
         private readonly IConfiguration _configuration;
-        private readonly int _usersToSimulate;
-        private readonly IPublicClientApplication _msalPublicClient;
         private readonly string[] _userAccountIdentifiers;
         private TimeSpan elapsedTimeInMsalCacheLookup;
-        private int numberOfMsalCacheLookups;
+        private int userStartIndex;
+        private int userEndIndex;
 
         public TestRunner(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _usersToSimulate = int.Parse(configuration["UsersToSimulate"]);
-            _userAccountIdentifiers = new string[_usersToSimulate + 1];
-
+            _configuration = configuration;            
+            userStartIndex = int.Parse(configuration["UsersStartIndex"]);
+            userEndIndex = int.Parse(configuration["UsersEndIndex"]);
+            _userAccountIdentifiers = new string[userEndIndex + 1];
         }
 
         public async Task Run()
         {
-            Console.WriteLine($"Starting testing with {_usersToSimulate} users.");
+            Console.WriteLine($"Starting testing with {userEndIndex - userStartIndex} users.");
 
             IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
             foreach (var account in accounts)
@@ -63,10 +62,10 @@ namespace Microsoft.Identity.Web.Perf.Client
             int requestsCounter = 0;
             int loop = 0;
             int tokenReturnedFromCache = 0;
-            while (DateTime.Now < finishTime)
+            while (DateTime.Now < finishTime && !Console.KeyAvailable)
             {
                 loop++;
-                for (int i = 1; i <= _usersToSimulate; i++)
+                for (int i = userStartIndex; i <=userEndIndex; i++)
                 {
                     if (DateTime.Now < finishTime)
                     {
@@ -109,14 +108,12 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
+            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
             Console.WriteLine($"Total number of requests: {requestsCounter} ");
             Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
-            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
-            Console.WriteLine($"Number of MSAL cache look-ups: {numberOfMsalCacheLookups} ");
-            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / numberOfMsalCacheLookups}");
-            var totalAccounts = await _msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
-            Console.WriteLine($"Total number of accounts in the MSAL cache: {totalAccounts.Count()}");
             Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
+            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
+            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache}");
             Console.WriteLine($"Start time: {startOverall}");
             Console.WriteLine($"End time: {DateTime.Now}");
         }
@@ -145,7 +142,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                         DateTime start = DateTime.Now;
                         account = await _msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
                         elapsedTimeInMsalCacheLookup += DateTime.Now - start;
-                        numberOfMsalCacheLookups++;
                     }
 
                     authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
