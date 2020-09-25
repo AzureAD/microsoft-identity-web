@@ -46,12 +46,6 @@ namespace IntegrationTestService.Controllers
             return "Success.";
         }
 
-        [HttpGet(TestConstants.SecurePageGetEmpty)]
-        public string GetEmpty()
-        {
-            return "Success.";
-        }
-
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
         public async Task<string> GetTokenAsync()
         {
