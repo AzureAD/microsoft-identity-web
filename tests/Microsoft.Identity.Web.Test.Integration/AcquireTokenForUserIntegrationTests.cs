@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+       // [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]

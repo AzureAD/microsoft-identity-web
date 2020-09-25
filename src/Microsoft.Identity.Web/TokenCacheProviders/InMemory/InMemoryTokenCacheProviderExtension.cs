@@ -14,7 +14,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
     {
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
-        /// <param name="setupAction">TODO.</param>
         /// <returns>the services (for chaining).</returns>
         internal static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
