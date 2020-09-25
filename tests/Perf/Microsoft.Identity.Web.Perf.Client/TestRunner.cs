@@ -109,7 +109,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                         }
                     }
                 }
-                loopCounter++;
             }
 
             Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
