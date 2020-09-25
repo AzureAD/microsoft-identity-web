@@ -2108,11 +2108,12 @@
             enabling you to decide token cache implementations.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches(System.Action{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches(System.Action{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions},System.Action{Microsoft.Extensions.Caching.Memory.MemoryCacheOptions})">
             <summary>
             Add in memory token caches.
             </summary>
             <param name="configureOptions"><see cref="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions"/> to configure.</param>
+            <param name="memoryCacheOptions">TODO.</param>
             <returns>the service collection.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddDistributedTokenCaches">
