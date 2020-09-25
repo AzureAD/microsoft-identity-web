@@ -26,12 +26,14 @@ namespace Microsoft.Identity.Web
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
-            ClaimsPrincipal? user = null);
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
@@ -45,12 +47,14 @@ namespace Microsoft.Identity.Web
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
-            ClaimsPrincipal? user = null);
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -63,8 +67,12 @@ namespace Microsoft.Identity.Web
         /// several calls to get tokens for other resources).</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
-        Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null);
+        Task<string> GetAccessTokenForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).

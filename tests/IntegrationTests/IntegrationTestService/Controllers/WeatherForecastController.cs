@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -45,6 +46,12 @@ namespace IntegrationTestService.Controllers
             return "Success.";
         }
 
+        [HttpGet(TestConstants.SecurePageGetEmpty)]
+        public string GetEmpty()
+        {
+            return "Success.";
+        }
+
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
         public async Task<string> GetTokenAsync()
         {
@@ -73,7 +80,9 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => { options.RelativePath = "me"; });
+                options => { 
+                    options.RelativePath = "me";
+                });
             return user.DisplayName;
         }
 
@@ -82,6 +91,23 @@ namespace IntegrationTestService.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
+            return user.DisplayName;
+        }
+
+        [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        public async Task<string> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
+        {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
+                TestConstants.SectionNameCalledApi,
+                null,
+                options => {
+                    options.RelativePath = "me";
+                    options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                    /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
+                    { { "slice", "testslice" } };*/ // doesn't work w/build automation
+                    options.TokenAcquisitionOptions.ForceRefresh = true;
+                });
             return user.DisplayName;
         }
     }

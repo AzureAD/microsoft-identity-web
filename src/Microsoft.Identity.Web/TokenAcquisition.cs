@@ -31,7 +31,6 @@ namespace Microsoft.Identity.Web
     {
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
-
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private IConfidentialClientApplication? _application;
@@ -82,7 +81,7 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
-        /// meta-tenant identifiers which are not allowed in client credentials.
+        /// Meta-tenant identifiers which are not allowed in client credentials.
         /// </summary>
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
@@ -94,8 +93,8 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// This handler is executed after the authorization code is received (once the user signs-in and consents) during the
-        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>Authorization code flow grant flow</a> in a web app.
-        /// It uses the code to request an access token from the Microsoft Identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
+        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>authorization code flow</a> in a web app.
+        /// It uses the code to request an access token from the Microsoft identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
         /// The access token (and refresh token) provided in the <see cref="AuthorizationCodeReceivedContext"/>, once added to the cache, are then used to acquire more tokens using the
         /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a> for the signed-in user's account,
         /// in order to call to downstream APIs.
@@ -138,7 +137,6 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                string? userFlow = context.Principal?.GetUserFlowId();
                 _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
@@ -150,6 +148,7 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
+                    string? userFlow = context.Principal?.GetUserFlowId();
                     var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
@@ -173,18 +172,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
-        /// 1) the token cache (for web apps and web APis) if a token exists in the cache
+        /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in web APIs, for the user account that is ascertained from claims are provided in the <see cref="HttpContext.User"/>
+        /// in web APIs, for the user account that is ascertained from claims provided in the <see cref="HttpContext.User"/>
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
-        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
-        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition options object which calls into MSAL .NET.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
@@ -195,7 +195,8 @@ namespace Microsoft.Identity.Web
             IEnumerable<string> scopes,
             string? tenant = null,
             string? userFlow = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             if (scopes == null)
             {
@@ -214,7 +215,8 @@ namespace Microsoft.Identity.Web
                 authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
                     _application,
                     authority,
-                    scopes).ConfigureAwait(false);
+                    scopes,
+                    tokenAcquisitionOptions).ConfigureAwait(false);
 
                 if (authenticationResult != null)
                 {
@@ -248,12 +250,16 @@ namespace Microsoft.Identity.Web
         /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
         /// for multi tenant apps or daemons.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
-        public async Task<string> GetAccessTokenForAppAsync(string scope, string? tenant = null)
+        public async Task<string> GetAccessTokenForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             if (string.IsNullOrEmpty(scope))
             {
@@ -275,12 +281,20 @@ namespace Microsoft.Identity.Web
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
 
             AuthenticationResult result;
-            result = await _application
+            var builder = _application
                    .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                   .WithAuthority(authority)
-                   .ExecuteAsync()
-                   .ConfigureAwait(false);
+                   .WithAuthority(authority);
+
+            if (tokenAcquisitionOptions != null)
+            {
+                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
+            }
+
+            result = await builder.ExecuteAsync()
+                                  .ConfigureAwait(false);
 
             return result.AccessToken;
         }
@@ -300,6 +314,7 @@ namespace Microsoft.Identity.Web
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
@@ -310,9 +325,16 @@ namespace Microsoft.Identity.Web
             IEnumerable<string> scopes,
             string? tenant = null,
             string? userFlow = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            AuthenticationResult result = await GetAuthenticationResultForUserAsync(scopes, tenant, userFlow, user).ConfigureAwait(false);
+            AuthenticationResult result =
+                await GetAuthenticationResultForUserAsync(
+                scopes,
+                tenant,
+                userFlow,
+                user,
+                tokenAcquisitionOptions).ConfigureAwait(false);
             return result.AccessToken;
         }
 
@@ -492,7 +514,8 @@ namespace Microsoft.Identity.Web
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string authority,
-           IEnumerable<string> scopes)
+           IEnumerable<string> scopes,
+           TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             try
             {
@@ -505,13 +528,21 @@ namespace Microsoft.Identity.Web
                     // In the case the token is a JWE (encrypted token), we use the decrypted token.
                     string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
                                                 : validatedToken.InnerToken.RawData;
-                    var result = await application
-                                        .AcquireTokenOnBehalfOf(scopes.Except(_scopesRequestedByMsal), new UserAssertion(tokenUsedToCallTheWebApi))
+                    var builder = application
+                                        .AcquireTokenOnBehalfOf(
+                                            scopes.Except(_scopesRequestedByMsal),
+                                            new UserAssertion(tokenUsedToCallTheWebApi))
                                         .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                                        .WithAuthority(authority)
-                                        .ExecuteAsync()
-                                        .ConfigureAwait(false);
-                    return result;
+                                        .WithAuthority(authority);
+
+                    if (tokenAcquisitionOptions != null)
+                    {
+                        builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                    }
+
+                    return await builder.ExecuteAsync()
+                           .ConfigureAwait(false);
                 }
 
                 return null;
@@ -532,12 +563,14 @@ namespace Microsoft.Identity.Web
         /// <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
             string? authority,
-            string? userFlow = null)
+            string? userFlow = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             IAccount? account = null;
             if (_microsoftIdentityOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
@@ -561,7 +594,9 @@ namespace Microsoft.Identity.Web
                 application,
                 account,
                 scopes,
-                authority).ConfigureAwait(false);
+                authority,
+                userFlow,
+                tokenAcquisitionOptions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -574,19 +609,31 @@ namespace Microsoft.Identity.Web
         /// <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
             string? authority,
-            string? userFlow = null)
+            string? userFlow = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             if (scopes == null)
             {
                 throw new ArgumentNullException(nameof(scopes));
             }
 
-            AuthenticationResult result;
+            var builder = application
+                    .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
+
+            if (tokenAcquisitionOptions != null)
+            {
+                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
+            }
+
             // Acquire an access token as a B2C authority
             if (_microsoftIdentityOptions.IsB2C)
             {
@@ -594,23 +641,16 @@ namespace Microsoft.Identity.Web
                     new Uri(application.Authority).PathAndQuery,
                     $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
-                result = await application
-                    .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                    .WithB2CAuthority(b2cAuthority)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-
-                return result;
+                builder.WithB2CAuthority(b2cAuthority)
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
+            }
+            else
+            {
+                builder.WithAuthority(authority);
             }
 
-            result = await application
-                .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                .WithAuthority(authority)
-                .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                .ExecuteAsync()
-                .ConfigureAwait(false);
-            return result;
+            return await builder.ExecuteAsync()
+                                  .ConfigureAwait(false);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

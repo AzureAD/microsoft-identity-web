@@ -41,7 +41,14 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
-                    context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                    if (Options.IsB2C)
+                    {
+                        context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                    }
+                    else
+                    {
+                        context.ProtocolMessage.ResponseType = OpenIdConnectResponseType.Code;
+                    }
                 }
             }
 

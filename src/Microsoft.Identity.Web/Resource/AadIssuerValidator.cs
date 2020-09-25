@@ -74,8 +74,8 @@ namespace Microsoft.Identity.Web.Resource
         /// Personal accounts).
         /// </summary>
         /// <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
-        /// <param name="securityToken">Received Security Token.</param>
-        /// <param name="validationParameters">Token Validation parameters.</param>
+        /// <param name="securityToken">Received security token.</param>
+        /// <param name="validationParameters">Token validation parameters.</param>
         /// <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
         /// authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
         /// accepts both V1 and V2 tokens).
@@ -124,7 +124,6 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             // If a valid issuer is not found, throw
-            // brentsch - todo, create a list of all the possible valid issuers in TokenValidationParameters
             throw new SecurityTokenInvalidIssuerException(
                 string.Format(
                     CultureInfo.InvariantCulture,

@@ -20,11 +20,11 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="calledDownstreamWebApiOptionsOverride"/>
-        /// need to be set.</param>
+        /// needs to be set.</param>
         /// <param name="calledDownstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
-        /// <param name="user">[Optional] Claims representing a user. This is useful platforms like Blazor
-        /// or Azure Signal R where the HttpContext is not available. In other platforms, the library
+        /// <param name="user">[Optional] Claims representing a user. This is useful on platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
         /// <param name="content">HTTP context in the case where <see cref="DownstreamWebApiOptions.HttpMethod"/> is
         /// <see cref="HttpMethod.Patch"/>, <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
@@ -43,12 +43,12 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-        /// need to be set.</param>
+        /// needs to be set.</param>
         /// <param name="input">Input parameter to the downstream web API.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
-        /// or Azure Signal R where the HttpContext is not available. In other platforms, the library
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         /// <example>
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-        /// need to be set.</param>
+        /// needs to be set.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="content">HTTP content in the case where <see cref="DownstreamWebApiOptions.HttpMethod"/> is
