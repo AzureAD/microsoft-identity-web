@@ -60,70 +60,54 @@ namespace Microsoft.Identity.Web.Perf.Client
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
-            int authRequestFailureCount = 0;
             int loop = 0;
             int tokenReturnedFromCache = 0;
-            while (true) // DateTime.Now < finishTime)
+            while (DateTime.Now < finishTime)
             {
                 loop++;
                 for (int i = userStartIndex; i <=userEndIndex; i++)
                 {
-                    try
+                    if (DateTime.Now < finishTime)
                     {
-                        if (DateTime.Now < finishTime)
+                        bool fromCache = false;
+                        HttpResponseMessage response;
+                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                            HttpMethod.Get, _configuration["TestUri"]))
                         {
-                            bool fromCache = false;
-                            HttpResponseMessage response;
-                            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                                HttpMethod.Get, _configuration["TestUri"]))
+                            var authResult = await AcquireTokenAsync(i);
+                            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+                            httpRequestMessage.Headers.Add(
+                                "Authorization",
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "{0} {1}",
+                                    "Bearer",
+                                    authResult.AccessToken));
+
+                            DateTime start = DateTime.Now;
+                            response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                            elapsedTime += DateTime.Now - start;
+                            requestsCounter++;
+                            if (authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
                             {
-                                var authResult = await AcquireTokenAsync(i);
-                                if (authResult == null)
-                                {
-                                    authRequestFailureCount++;
-                                    continue;
-                                }
-
-                                httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                                httpRequestMessage.Headers.Add(
-                                    "Authorization",
-                                    string.Format(
-                                        CultureInfo.InvariantCulture,
-                                        "{0} {1}",
-                                        "Bearer",
-                                        authResult?.AccessToken));
-
-                                DateTime start = DateTime.Now;
-                                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                                elapsedTime += DateTime.Now - start;
-                                requestsCounter++;
-                                if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
-                                {
-                                    tokenReturnedFromCache++;
-                                    fromCache = true;
-                                }
-                            }
-
-                            Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
-
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
-                                Console.WriteLine(response.ReasonPhrase);
-                                Console.WriteLine(await response.Content.ReadAsStringAsync());
+                                tokenReturnedFromCache++;
+                                fromCache = true;
                             }
                         }
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine($"Exception in TestRunner at {i}/{userEndIndex - userStartIndex}: {ex.Message}");
-                        Console.WriteLine($"{ex}");
+
+                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                            Console.WriteLine(response.ReasonPhrase);
+                            Console.WriteLine(await response.Content.ReadAsStringAsync());
+                        }
                     }
                 }
 
                 Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
                 Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
-                Console.WriteLine($"Total number of AuthRequest Failures: {authRequestFailureCount}");
                 Console.WriteLine($"Total number of requests: {requestsCounter} ");
                 Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
                 Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
@@ -135,7 +119,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 if(Console.KeyAvailable)
                 {
                     ConsoleKeyInfo keyInfo = Console.ReadKey();
-                    if ((keyInfo.Modifiers == ConsoleModifiers.Control && (keyInfo.Key == ConsoleKey.X || keyInfo.Key == ConsoleKey.C )) || keyInfo.Key == ConsoleKey.Escape)
+                    if ((keyInfo.Modifiers == ConsoleModifiers.Control && keyInfo.Key == ConsoleKey.X) || keyInfo.Key == ConsoleKey.Escape)
                     {
                         break;
                     }
