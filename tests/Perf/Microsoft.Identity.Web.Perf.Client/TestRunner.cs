@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 {
                     try
                     {
-                        if (DateTime.Now < finishTime)
+                        // (DateTime.Now < finishTime)
                         {
                             bool fromCache = false;
                             HttpResponseMessage response;
