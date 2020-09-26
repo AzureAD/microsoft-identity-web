@@ -1,7 +1,0 @@
-{
-  "profiles": {
-    "Microsoft.Identity.Web.Perf.Client": {
-      "commandName": "Project"
-    }
-  }
-}
