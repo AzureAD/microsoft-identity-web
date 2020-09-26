@@ -39,6 +39,8 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             Console.WriteLine($"Starting testing with {userEndIndex - userStartIndex} users.");
 
+            // Try loading from cache
+            ScalableTokenCacheHelper.LoadCache();
             IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
             foreach (var account in accounts)
             {
@@ -64,6 +66,10 @@ namespace Microsoft.Identity.Web.Perf.Client
             int catchAllFailureCount = 0;
             int loop = 0;
             int tokenReturnedFromCache = 0;
+
+
+
+
             while (true) // DateTime.Now < finishTime)
             {
                 loop++;
@@ -124,10 +130,12 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
 
                     Console.Title = $"{i} of ({userStartIndex} - {userEndIndex}), Loop: {loop}, " +
-                        $"Time: {elapsedTime.TotalMinutes.ToString("0.00")} min, " +
+                        $"Time: {(startOverall - DateTime.Now).TotalMinutes:0.00}, " +
                         $"Cache: {tokenReturnedFromCache}: {fromCache}, Req: {requestsCounter}, " +
                         $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
                 }
+
+                ScalableTokenCacheHelper.PersistCache();
 
                 Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
                 Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");

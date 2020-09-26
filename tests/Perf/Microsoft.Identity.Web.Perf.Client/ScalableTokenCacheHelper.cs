@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Identity.Client;
+using Newtonsoft.Json;
 
 namespace Microsoft.Identity.Web.Perf.Client
 {
@@ -24,14 +26,49 @@ namespace Microsoft.Identity.Web.Perf.Client
             Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
             "TokenCaches");
 
-        private static readonly Dictionary<string, byte[]> s_tokenCache = new Dictionary<string, byte[]>();
-        private static readonly Dictionary<string, string> s_tokenCacheKeys = new Dictionary<string, string>();
-        private static string s_emptyContent = " ";
-
         /// <summary>
         /// Path to the mapping between upn and home account identifier
         /// </summary>
-        public static readonly string s_cacheKeysFolder = s_cacheFileFolder + "Keys";
+        //public static readonly string s_cacheKeysFolder = s_cacheFileFolder + "Keys";
+        private static string s_cache_filename = s_cacheFileFolder + "\\cache.dat";
+        private static string s_cache_filenameKeys = s_cacheFileFolder + "\\keys.dat";
+
+        private static Dictionary<string, byte[]> s_tokenCache = new Dictionary<string, byte[]>();
+        private static Dictionary<string, string> s_tokenCacheKeys = new Dictionary<string, string>();
+        private static string s_emptyContent = " ";
+
+        internal static void PersistCache()
+        {
+            if (!Directory.Exists(s_cacheFileFolder))
+            {
+                Directory.CreateDirectory(s_cacheFileFolder);
+            }
+
+            string content = JsonConvert.SerializeObject(s_tokenCache);
+            File.WriteAllText(s_cache_filename, content);
+
+            string contentKeys = JsonConvert.SerializeObject(s_tokenCacheKeys);
+            File.WriteAllText(s_cache_filenameKeys, contentKeys);
+        }
+
+        internal static void LoadCache()
+        {
+            if (!Directory.Exists(s_cacheFileFolder))
+            {
+                Directory.CreateDirectory(s_cacheFileFolder);
+            }
+
+            if (!File.Exists(s_cache_filename) || !File.Exists(s_cache_filenameKeys))
+            {
+                return;
+            }
+
+            string content = File.ReadAllText(s_cache_filename);
+            s_tokenCache = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(content);
+
+            string contentKeys = File.ReadAllText(s_cache_filenameKeys);
+            s_tokenCacheKeys = JsonConvert.DeserializeObject<Dictionary<string, string>>(contentKeys);
+        }
 
         /// <summary>
         /// Creating the folders for the token cache and its key, if needed
