@@ -78,39 +78,38 @@ namespace Microsoft.Identity.Web.Perf.Client
                     bool fromCache = false;
                     try
                     {
-                        // (DateTime.Now < finishTime)
-                        //{
-                            
-                            HttpResponseMessage response;
-                            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                                HttpMethod.Get, _configuration["TestUri"]))
+                        HttpResponseMessage response;
+                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _configuration["TestUri"]))
+                        {
+                            var authResult = await AcquireTokenAsync(i);
+                            if (authResult == null)
                             {
-                                var authResult = await AcquireTokenAsync(i);
-                                if (authResult == null)
-                                {
-                                    authRequestFailureCount++;
-                                    continue;
-                                }
+                                authRequestFailureCount++;
+                                continue;
+                            }
 
-                                httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                                httpRequestMessage.Headers.Add(
-                                    "Authorization",
-                                    string.Format(
-                                        CultureInfo.InvariantCulture,
-                                        "{0} {1}",
-                                        "Bearer",
-                                        authResult?.AccessToken));
+                            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+                            httpRequestMessage.Headers.Add(
+                                "Authorization",
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "{0} {1}",
+                                    "Bearer",
+                                    authResult?.AccessToken));
 
-                                DateTime start = DateTime.Now;
-                                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                                elapsedTime += DateTime.Now - start;
-                                requestsCounter++;
-                                if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
-                                {
-                                    tokenReturnedFromCache++;
-                                    fromCache = true;
-                                }
-                            //}
+                            DateTime start = DateTime.Now;
+                            response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                            elapsedTime += DateTime.Now - start;
+                            requestsCounter++;
+                            if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                            {
+                                tokenReturnedFromCache++;
+                                fromCache = true;
+                            }
+                            else
+                            {
+                                ScalableTokenCacheHelper.PersistCache();
+                            }
 
                             Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
 
