@@ -89,7 +89,17 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private static void SetCacheContent(string cacheFilePath, byte[] content)
         {
-            s_tokenCache.TryAdd(cacheFilePath, content);
+            if (s_tokenCache.ContainsKey(cacheFilePath))
+            {
+                if (s_tokenCache[cacheFilePath] != content)
+                {
+                    s_tokenCache[cacheFilePath] = content;
+                }
+            }
+            else
+            {
+                s_tokenCache.TryAdd(cacheFilePath, content);
+            }
         }
 
         private static string GetCacheFilePath(TokenCacheNotificationArgs args)
@@ -103,7 +113,9 @@ namespace Microsoft.Identity.Web.Perf.Client
             {
                 return null;
             }
-            return Path.Combine(s_cacheFileFolder, suggestedKey);
+
+            return suggestedKey;
+            // return Path.Combine(s_cacheFileFolder, suggestedKey);
         }
 
         public static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -132,8 +144,10 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             if (args.Account != null)
             {
-                string keyPath = Path.Combine(s_cacheKeysFolder, 
-                    args.Account.Username + "-" + args.Account.HomeAccountId.Identifier);
+                string keyPath = args.Account.Username + "-" + args.Account.HomeAccountId.Identifier;
+                
+                // Path.Combine(s_cacheKeysFolder, 
+                // args.Account.Username + "-" + args.Account.HomeAccountId.Identifier);
 
                 if (!s_tokenCacheKeys.ContainsKey(keyPath))
                 {

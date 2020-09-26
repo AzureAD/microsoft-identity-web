@@ -61,6 +61,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
             int authRequestFailureCount = 0;
+            int catchAllFailureCount = 0;
             int loop = 0;
             int tokenReturnedFromCache = 0;
             while (true) // DateTime.Now < finishTime)
@@ -68,11 +69,12 @@ namespace Microsoft.Identity.Web.Perf.Client
                 loop++;
                 for (int i = userStartIndex; i <=userEndIndex; i++)
                 {
+                    bool fromCache = false;
                     try
                     {
                         // (DateTime.Now < finishTime)
-                        {
-                            bool fromCache = false;
+                        //{
+                            
                             HttpResponseMessage response;
                             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                                 HttpMethod.Get, _configuration["TestUri"]))
@@ -102,7 +104,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                                     tokenReturnedFromCache++;
                                     fromCache = true;
                                 }
-                            }
+                            //}
 
                             Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
 
@@ -116,9 +118,15 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
                     catch(Exception ex)
                     {
+                        catchAllFailureCount++;
                         Console.WriteLine($"Exception in TestRunner at {i}/{userEndIndex - userStartIndex}: {ex.Message}");
                         Console.WriteLine($"{ex}");
                     }
+
+                    Console.Title = $"{i} of ({userStartIndex} - {userEndIndex}), Loop: {loop}, " +
+                        $"Time: {elapsedTime.TotalMinutes.ToString("0.00")} min, " +
+                        $"Cache: {tokenReturnedFromCache}: {fromCache}, Req: {requestsCounter}, " +
+                        $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
                 }
 
                 Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
@@ -131,6 +139,8 @@ namespace Microsoft.Identity.Web.Perf.Client
                 Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache}");
                 Console.WriteLine($"Start time: {startOverall}");
                 Console.WriteLine($"Current time: {DateTime.Now}");
+
+                
 
                 if(Console.KeyAvailable)
                 {
