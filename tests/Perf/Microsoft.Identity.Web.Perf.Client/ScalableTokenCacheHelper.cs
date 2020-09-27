@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
@@ -37,18 +38,35 @@ namespace Microsoft.Identity.Web.Perf.Client
         private static Dictionary<string, string> s_tokenCacheKeys = new Dictionary<string, string>();
         private static string s_emptyContent = " ";
 
+        private static volatile bool s_isPersisting = false; 
+
         internal static void PersistCache()
         {
-            if (!Directory.Exists(s_cacheFileFolder))
+            if(s_isPersisting)
             {
-                Directory.CreateDirectory(s_cacheFileFolder);
+                return;
             }
+            s_isPersisting = true;
 
-            string content = JsonConvert.SerializeObject(s_tokenCache);
-            File.WriteAllText(s_cache_filename, content);
+            try
+            {
+                Console.Write("Persisting Cache ..");
+                if (!Directory.Exists(s_cacheFileFolder))
+                {
+                    Directory.CreateDirectory(s_cacheFileFolder);
+                }
 
-            string contentKeys = JsonConvert.SerializeObject(s_tokenCacheKeys);
-            File.WriteAllText(s_cache_filenameKeys, contentKeys);
+                string content = JsonConvert.SerializeObject(s_tokenCache);
+                File.WriteAllText(s_cache_filename, content);
+
+                string contentKeys = JsonConvert.SerializeObject(s_tokenCacheKeys);
+                File.WriteAllText(s_cache_filenameKeys, contentKeys);
+                Console.WriteLine(". done");
+            }
+            finally
+            {
+                s_isPersisting = false;
+            }
         }
 
         internal static void LoadCache()
