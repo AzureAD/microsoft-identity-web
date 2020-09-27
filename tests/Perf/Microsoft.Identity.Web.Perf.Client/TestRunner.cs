@@ -73,8 +73,8 @@ namespace Microsoft.Identity.Web.Perf.Client
             while (true) // DateTime.Now < finishTime)
             {
                 loop++;
-                //Parallel.For(userStartIndex, userEndIndex, async (i, state) =>   
-                for (int i = userStartIndex; i <=userEndIndex; i++)
+                Parallel.For(userStartIndex, userEndIndex, async (i, state) =>   
+                // for (int i = userStartIndex; i <=userEndIndex; i++)
                 {
                     bool fromCache = false;
                     try
@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         $"Time: {(DateTime.Now - startOverall).TotalMinutes:0.00}, " +
                         $"Cache: {tokenReturnedFromCache}: {fromCache}, Req: {requestsCounter}, " +
                         $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
-                } //);
+                } );
 
                 ScalableTokenCacheHelper.PersistCache();
 
@@ -153,7 +153,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 Console.WriteLine($"Start time: {startOverall}");
                 Console.WriteLine($"Current time: {DateTime.Now}");
 
-                
+                Thread.Sleep(2000);
 
                 if(Console.KeyAvailable)
                 {

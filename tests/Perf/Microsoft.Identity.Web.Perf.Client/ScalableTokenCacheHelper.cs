@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,8 +35,8 @@ namespace Microsoft.Identity.Web.Perf.Client
         private static string s_cache_filename = s_cacheFileFolder + "\\cache.dat";
         private static string s_cache_filenameKeys = s_cacheFileFolder + "\\keys.dat";
 
-        private static Dictionary<string, byte[]> s_tokenCache = new Dictionary<string, byte[]>();
-        private static Dictionary<string, string> s_tokenCacheKeys = new Dictionary<string, string>();
+        private static ConcurrentDictionary<string, byte[]> s_tokenCache = new ConcurrentDictionary<string, byte[]>();
+        private static ConcurrentDictionary<string, string> s_tokenCacheKeys = new ConcurrentDictionary<string, string>();
         private static string s_emptyContent = " ";
 
         private static volatile bool s_isPersisting = false; 
@@ -82,10 +83,10 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
 
             string content = File.ReadAllText(s_cache_filename);
-            s_tokenCache = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(content);
+            s_tokenCache = JsonConvert.DeserializeObject<ConcurrentDictionary<string, byte[]>>(content);
 
             string contentKeys = File.ReadAllText(s_cache_filenameKeys);
-            s_tokenCacheKeys = JsonConvert.DeserializeObject<Dictionary<string, string>>(contentKeys);
+            s_tokenCacheKeys = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(contentKeys);
         }
 
         /// <summary>
