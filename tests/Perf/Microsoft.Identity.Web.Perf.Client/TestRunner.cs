@@ -140,7 +140,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                         $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
                 } );
 
-                ScalableTokenCacheHelper.PersistCache();
+                // ScalableTokenCacheHelper.PersistCache();
 
                 Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
                 Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
