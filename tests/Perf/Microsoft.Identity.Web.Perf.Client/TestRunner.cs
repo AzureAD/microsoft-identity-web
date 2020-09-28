@@ -67,14 +67,14 @@ namespace Microsoft.Identity.Web.Perf.Client
             int loop = 0;
             int tokenReturnedFromCache = 0;
 
+            bool cancelProcessing = false;
 
+            StringBuilder exceptionsDuringRun = new StringBuilder();
 
-
-            while (true) // DateTime.Now < finishTime)
+            while (!cancelProcessing)
             {
                 loop++;
-                // Parallel.For(userStartIndex, userEndIndex, async (i, state) =>   
-                for (int i = userStartIndex; i <=userEndIndex; i++)
+                for (int i = userStartIndex; i <= userEndIndex; i++)
                 {
                     bool fromCache = false;
                     try
@@ -86,7 +86,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                             if (authResult == null)
                             {
                                 authRequestFailureCount++;
-                                // continue;
                             }
                             else
                             {
@@ -116,7 +115,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                                     }
                                 }
 
-                                Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
+                                // Console.Write(".");
 
                                 if (!response.IsSuccessStatusCode)
                                 {
@@ -130,50 +129,50 @@ namespace Microsoft.Identity.Web.Perf.Client
                     catch (Exception ex)
                     {
                         catchAllFailureCount++;
-                        Console.WriteLine($"Exception in TestRunner at {i}/{userEndIndex - userStartIndex}: {ex.Message}");
-                        Console.WriteLine($"{ex}");
+                        Console.WriteLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+
+                        exceptionsDuringRun.AppendLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        exceptionsDuringRun.AppendLine($"{ex}");
                     }
 
                     Console.Title = $"{i} of ({userStartIndex} - {userEndIndex}), Loop: {loop}, " +
                         $"Time: {(DateTime.Now - startOverall).TotalMinutes:0.00}, " +
                         $"Cache: {tokenReturnedFromCache}: {fromCache}, Req: {requestsCounter}, " +
                         $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
-                } // );
 
-                // ScalableTokenCacheHelper.PersistCache();
-
-                Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
-                Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
-                Console.WriteLine($"Total number of AuthRequest Failures: {authRequestFailureCount}");
-                Console.WriteLine($"Total number of requests: {requestsCounter} ");
-                Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
-                Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
-                Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
-                Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache}");
-                Console.WriteLine($"Start time: {startOverall}");
-                Console.WriteLine($"Current time: {DateTime.Now}");
-
-                Thread.Sleep(2000);
-
-                if(Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo keyInfo = Console.ReadKey();
-                    if ((keyInfo.Modifiers == ConsoleModifiers.Control && (keyInfo.Key == ConsoleKey.X || keyInfo.Key == ConsoleKey.C )) || keyInfo.Key == ConsoleKey.Escape)
+                    if (Console.KeyAvailable)
                     {
-                        break;
+                        ConsoleKeyInfo keyInfo = Console.ReadKey();
+                        if ((keyInfo.Modifiers == ConsoleModifiers.Control && (keyInfo.Key == ConsoleKey.X || keyInfo.Key == ConsoleKey.C)) || keyInfo.Key == ConsoleKey.Escape)
+                        {
+                            cancelProcessing = true;
+                            break;
+                        }
                     }
+                }
+
+                UpdateConsoleProgress(startOverall, elapsedTime, requestsCounter, tokenReturnedFromCache, authRequestFailureCount, catchAllFailureCount);
+
+                ScalableTokenCacheHelper.PersistCache();
+
+                if (DateTime.Now >= finishTime)
+                {
+                    cancelProcessing = true;
                 }
             }
 
-            Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
-            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
-            Console.WriteLine($"Total number of requests: {requestsCounter} ");
-            Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
-            Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
-            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
-            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache}");
-            Console.WriteLine($"Start time: {startOverall}");
-            Console.WriteLine($"End time: {DateTime.Now}");
+            File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
+            Console.WriteLine("Test run complete");
+        }
+
+        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, 
+            int tokenReturnedFromCache, int authRequestFailureCount, int catchAllFailureCount)
+        {
+            Console.WriteLine($"\nRun-time time: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}. WebAPI Time: {elapsedTime}");
+            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
+            Console.WriteLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
+            Console.WriteLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.00}");
+            Console.WriteLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.00}. (Total: {elapsedTimeInMsalCacheLookup})");
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)

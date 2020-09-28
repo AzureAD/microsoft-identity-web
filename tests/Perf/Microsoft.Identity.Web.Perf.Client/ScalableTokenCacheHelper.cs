@@ -51,7 +51,6 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             try
             {
-                Console.Write("Persisting Cache ..");
                 if (!Directory.Exists(s_cacheFileFolder))
                 {
                     Directory.CreateDirectory(s_cacheFileFolder);
@@ -62,7 +61,6 @@ namespace Microsoft.Identity.Web.Perf.Client
 
                 string contentKeys = JsonConvert.SerializeObject(s_tokenCacheKeys);
                 File.WriteAllText(s_cache_filenameKeys, contentKeys);
-                Console.WriteLine(". done");
             }
             finally
             {
@@ -94,14 +92,6 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// </summary>
         static ScalableTokenCacheHelper()
         {
-            //if (!Directory.Exists(s_cacheFileFolder))
-            //{
-            //    Directory.CreateDirectory(s_cacheFileFolder);
-            //}
-            //if (!Directory.Exists(s_cacheKeysFolder))
-            //{
-            //    Directory.CreateDirectory(s_cacheKeysFolder);
-            //}
         }
 
         /// <summary>
@@ -114,7 +104,6 @@ namespace Microsoft.Identity.Web.Perf.Client
             int start = "MIWTestUser".Length;
             Dictionary<int, string> accountIdByUserNumber = new Dictionary<int, string>();
 
-            //foreach(string filePath in Directory.EnumerateFiles(s_cacheKeysFolder))
             foreach(string filePath in s_tokenCacheKeys.Keys)
             {
                 string fileName = Path.GetFileName(filePath);
@@ -132,9 +121,6 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             string cacheFilePath = GetCacheFilePath(args);
             args.TokenCache.DeserializeMsalV3(GetCacheContent(cacheFilePath));
-            //args.TokenCache.DeserializeMsalV3(File.Exists(cacheFilePath)
-            //        ? File.ReadAllBytes(cacheFilePath)
-            //        : null);
         }
 
         private static byte[] GetCacheContent(string cacheFilePath)
@@ -171,7 +157,6 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
 
             return suggestedKey;
-            // return Path.Combine(s_cacheFileFolder, suggestedKey);
         }
 
         public static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -183,12 +168,10 @@ namespace Microsoft.Identity.Web.Perf.Client
 
                 // reflect changesgs in the persistent store
                 SetCacheContent(cacheFilePath, args.TokenCache.SerializeMsalV3());
-                //File.WriteAllBytes(cacheFilePath, args.TokenCache.SerializeMsalV3());
 
                 WriteKey(args);
             }
         }
-
 
         /// <summary>
         /// Writes (if not already there) a file which names is the concatenation of the
@@ -201,19 +184,11 @@ namespace Microsoft.Identity.Web.Perf.Client
             if (args.Account != null)
             {
                 string keyPath = args.Account.Username + "-" + args.Account.HomeAccountId.Identifier;
-                
-                // Path.Combine(s_cacheKeysFolder, 
-                // args.Account.Username + "-" + args.Account.HomeAccountId.Identifier);
 
                 if (!s_tokenCacheKeys.ContainsKey(keyPath))
                 {
                     s_tokenCacheKeys.TryAdd(keyPath, s_emptyContent);
                 }
-                
-                //if (!File.Exists(keyPath))
-                //{
-                //    File.WriteAllText(keyPath, " ");
-                //}
             }
         }
 
