@@ -31,7 +31,6 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// <summary>
         /// Path to the mapping between upn and home account identifier
         /// </summary>
-        //public static readonly string s_cacheKeysFolder = s_cacheFileFolder + "Keys";
         private static string s_cache_filename = s_cacheFileFolder + "\\cache.dat";
         private static string s_cache_filenameKeys = s_cacheFileFolder + "\\keys.dat";
 

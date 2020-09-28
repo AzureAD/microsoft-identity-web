@@ -135,9 +135,9 @@ namespace Microsoft.Identity.Web.Perf.Client
                         exceptionsDuringRun.AppendLine($"{ex}");
                     }
 
-                    Console.Title = $"{i} of ({userStartIndex} - {userEndIndex}), Loop: {loop}, " +
+                    Console.Title = $"[{userStartIndex} - {userEndIndex}] #: {i}, Loop: {loop}, " +
                         $"Time: {(DateTime.Now - startOverall).TotalMinutes:0.00}, " +
-                        $"Cache: {tokenReturnedFromCache}: {fromCache}, Req: {requestsCounter}, " +
+                        $"Req: {requestsCounter}, Cache: {tokenReturnedFromCache}: {fromCache}, " +
                         $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
 
                     if (Console.KeyAvailable)
@@ -168,11 +168,12 @@ namespace Microsoft.Identity.Web.Perf.Client
         private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, 
             int tokenReturnedFromCache, int authRequestFailureCount, int catchAllFailureCount)
         {
-            Console.WriteLine($"\nRun-time time: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}. WebAPI Time: {elapsedTime}");
+            Console.WriteLine($"Run-time time: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}");
+            Console.WriteLine($"WebAPI Time: {elapsedTime}");
             Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
             Console.WriteLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
-            Console.WriteLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.00}");
-            Console.WriteLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.00}. (Total: {elapsedTimeInMsalCacheLookup})");
+            Console.WriteLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.0000}");
+            Console.WriteLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.0000}. (Total: {elapsedTimeInMsalCacheLookup})");
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
