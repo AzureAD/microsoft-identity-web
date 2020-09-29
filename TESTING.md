@@ -118,4 +118,5 @@ Test each project in the solution:
 - Then the B2C simple templates
 - To test the B2C-calls-web-api templates, you'll need to run the TodoListService of the B2CWebAppCallsWebApi test app in the Microsoft.Identity.Web solution
   - Note that we could do with testing the B2C-calls-web-api against the web API deployed in Azure, but testing it against our test project has the interest of enabling debugging
+  - Also, run the TodoListService under IIS Express.
 - To test the web APIs templates … TBD …
