@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Graph;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 
 namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWebAssembly_CSharp.Server.Controllers
@@ -15,6 +17,7 @@ namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWeb
         static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
 
         private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly ILogger<CallWebApiController> _logger;
 
         public CallWebApiController(ILogger<CallWebApiController> logger,
                               IDownstreamWebApi downstreamWebApi)
