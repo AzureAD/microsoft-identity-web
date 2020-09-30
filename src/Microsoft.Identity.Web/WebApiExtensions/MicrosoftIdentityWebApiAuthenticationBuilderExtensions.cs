@@ -179,20 +179,20 @@ namespace Microsoft.Identity.Web
                     // This is a Microsoft identity platform web API
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                    options.TokenValidationParameters = options.TokenValidationParameters.Clone();
+                    var validationParameters = options.TokenValidationParameters.Clone();
 
-                    if (options.TokenValidationParameters.AudienceValidator == null
-                     && options.TokenValidationParameters.ValidAudience == null
-                     && options.TokenValidationParameters.ValidAudiences == null)
+                    if (validationParameters.AudienceValidator == null
+                     && validationParameters.ValidAudience == null
+                     && validationParameters.ValidAudiences == null)
                     {
                         RegisterValidAudience registerAudience = new RegisterValidAudience();
                         registerAudience.RegisterAudienceValidation(
-                            options.TokenValidationParameters,
+                            validationParameters,
                             microsoftIdentityOptions);
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.IssuerValidator == null)
+                    if (validationParameters.IssuerValidator == null)
                     {
                         // Instead of using the default validation (validating against a single tenant, as we do in line of business apps),
                         // we inject our own multi-tenant validation logic (which even accepts both v1.0 and v2.0 tokens)
