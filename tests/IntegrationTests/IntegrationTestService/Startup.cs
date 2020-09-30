@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Linq;
+using IntegrationTestService.EventSource;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
-using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 
 namespace IntegrationTestService
 {
@@ -28,22 +28,33 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
-            services.AddDistributedMemoryCache();
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                    .AddDistributedTokenCaches()  
-                                    //.AddInMemoryTokenCaches(memoryCacheOptions:options => { options.SizeLimit = (long)1e9; })
+                                    .AddDistributedTokenCaches()
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
-            // Replaces MsalMemoryTokenCacheProvider for benchmarking purposes
-            ServiceDescriptor msalMemoryCacheService = services.FirstOrDefault(s => s.ServiceType == typeof(IMsalTokenCacheProvider));
-            services.Remove(msalMemoryCacheService);
-            services.AddSingleton<IMsalTokenCacheProvider, BenchmarkMsalMemoryTokenCacheProvider>();
+            // Replace existing cache provider with benchmark one
+            //services.AddBenchmarkInMemoryTokenCaches();
+            services.AddBenchmarkDistributedTokenCaches();
+            
+            // Add custom event counters to the App Insights collection
+            services.ConfigureTelemetryModule<EventCounterCollectionModule>((module, o) =>
+                {
+                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheItemCounterName));
+                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheWriteCounterName));
+                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheReadCounterName));
+                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheRemoveCounterName));
+                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "requests-per-second"));
+                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "total-requests"));
+                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "current-requests"));
+                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "failed-requests"));
+                }
+            );
 
             services.AddRazorPages(options =>
             {
