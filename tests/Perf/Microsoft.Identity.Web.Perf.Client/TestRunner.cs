@@ -39,6 +39,8 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             Console.WriteLine($"Starting testing with {userEndIndex - userStartIndex} users.");
 
+            // Try loading from cache
+            ScalableTokenCacheHelper.LoadCache();
             IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
             foreach (var account in accounts)
             {
@@ -60,62 +62,118 @@ namespace Microsoft.Identity.Web.Perf.Client
             var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
+            int authRequestFailureCount = 0;
+            int catchAllFailureCount = 0;
             int loop = 0;
             int tokenReturnedFromCache = 0;
-            while (DateTime.Now < finishTime && !Console.KeyAvailable)
+
+            bool cancelProcessing = false;
+
+            StringBuilder exceptionsDuringRun = new StringBuilder();
+
+            while (!cancelProcessing)
             {
                 loop++;
-                for (int i = userStartIndex; i <=userEndIndex; i++)
+                for (int i = userStartIndex; i <= userEndIndex; i++)
                 {
-                    if (DateTime.Now < finishTime)
+                    bool fromCache = false;
+                    try
                     {
-                        bool fromCache = false;
                         HttpResponseMessage response;
-                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                            HttpMethod.Get, _configuration["TestUri"]))
+                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _configuration["TestUri"]))
                         {
-                            var authResult = await AcquireTokenAsync(i);
-                            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                            httpRequestMessage.Headers.Add(
-                                "Authorization",
-                                string.Format(
-                                    CultureInfo.InvariantCulture,
-                                    "{0} {1}",
-                                    "Bearer",
-                                    authResult.AccessToken));
-
-                            DateTime start = DateTime.Now;
-                            response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                            elapsedTime += DateTime.Now - start;
-                            requestsCounter++;
-                            if (authResult.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                            AuthenticationResult authResult = await AcquireTokenAsync(i);
+                            if (authResult == null)
                             {
-                                tokenReturnedFromCache++;
-                                fromCache = true;
+                                authRequestFailureCount++;
+                            }
+                            else
+                            {
+                                httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+                                httpRequestMessage.Headers.Add(
+                                    "Authorization",
+                                    string.Format(
+                                        CultureInfo.InvariantCulture,
+                                        "{0} {1}",
+                                        "Bearer",
+                                        authResult?.AccessToken));
+
+                                DateTime start = DateTime.Now;
+                                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                                elapsedTime += DateTime.Now - start;
+                                requestsCounter++;
+                                if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
+                                {
+                                    tokenReturnedFromCache++;
+                                    fromCache = true;
+                                }
+                                else
+                                {
+                                    if (i % 10 == 0)
+                                    {
+                                        ScalableTokenCacheHelper.PersistCache();
+                                    }
+                                }
+
+                                // Console.Write(".");
+
+                                if (!response.IsSuccessStatusCode)
+                                {
+                                    Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                                    Console.WriteLine(response.ReasonPhrase);
+                                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        catchAllFailureCount++;
+                        Console.WriteLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
 
-                        Console.WriteLine($"Response received for user {i}. Loop Number {loop}. IsSuccessStatusCode: {response.IsSuccessStatusCode}. MSAL Token cache used: {fromCache}");
+                        exceptionsDuringRun.AppendLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        exceptionsDuringRun.AppendLine($"{ex}");
+                    }
 
-                        if (!response.IsSuccessStatusCode)
+                    Console.Title = $"[{userStartIndex} - {userEndIndex}] #: {i}, Loop: {loop}, " +
+                        $"Time: {(DateTime.Now - startOverall).TotalMinutes:0.00}, " +
+                        $"Req: {requestsCounter}, Cache: {tokenReturnedFromCache}: {fromCache}, " +
+                        $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
+
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo keyInfo = Console.ReadKey();
+                        if ((keyInfo.Modifiers == ConsoleModifiers.Control && (keyInfo.Key == ConsoleKey.X || keyInfo.Key == ConsoleKey.C)) || keyInfo.Key == ConsoleKey.Escape)
                         {
-                            Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
-                            Console.WriteLine(response.ReasonPhrase);
-                            Console.WriteLine(await response.Content.ReadAsStringAsync());
+                            cancelProcessing = true;
+                            break;
                         }
                     }
                 }
+
+                UpdateConsoleProgress(startOverall, elapsedTime, requestsCounter, tokenReturnedFromCache, authRequestFailureCount, catchAllFailureCount);
+
+                ScalableTokenCacheHelper.PersistCache();
+
+                if (DateTime.Now >= finishTime)
+                {
+                    cancelProcessing = true;
+                }
             }
 
-            Console.WriteLine($"Total elapse time calling the web API: {elapsedTime} ");
-            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}");
-            Console.WriteLine($"Total number of requests: {requestsCounter} ");
-            Console.WriteLine($"Average time per request: {elapsedTime.TotalSeconds / requestsCounter} ");
-            Console.WriteLine($"Total number of tokens returned from the MSAL cache based on auth result: {tokenReturnedFromCache}");
-            Console.WriteLine($"Time spent in MSAL cache lookup: {elapsedTimeInMsalCacheLookup} ");
-            Console.WriteLine($"Average time per lookup: {elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache}");
-            Console.WriteLine($"Start time: {startOverall}");
-            Console.WriteLine($"End time: {DateTime.Now}");
+            File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
+            Console.WriteLine("Test run complete");
+        }
+
+        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, 
+            int tokenReturnedFromCache, int authRequestFailureCount, int catchAllFailureCount)
+        {
+            Console.WriteLine($"Run-time time: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}");
+            Console.WriteLine($"WebAPI Time: {elapsedTime}");
+            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
+            Console.WriteLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
+            Console.WriteLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.0000}");
+            Console.WriteLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.0000}. (Total: {elapsedTimeInMsalCacheLookup})");
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
@@ -169,13 +227,47 @@ namespace Microsoft.Identity.Web.Perf.Client
             return authResult;
         }
 
+        private static string s_msallogfile = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalLogs.txt";
+        private static StringBuilder s_log = new StringBuilder();
+        private static volatile bool s_isLogging = false;
+        private static object s_logLock = new object();
+
         private static void Log(LogLevel level, string message, bool containsPii)
         {
-            string logs = ($"{level} {message}");
-            StringBuilder sb = new StringBuilder();
-            sb.Append(logs);
-            File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalLogs.txt", sb.ToString());
-            sb.Clear();
+            StringBuilder tempBuilder = new StringBuilder();
+            bool writeToDisk = false;
+            lock (s_logLock)
+            {
+                string logs = ($"{level} {message}");
+                if (!s_isLogging)
+                {
+                    s_isLogging = true;
+                    writeToDisk = true;
+                    tempBuilder.Append(s_log);
+                    tempBuilder.Append(logs);
+                    s_log.Clear();
+                }
+                else
+                {
+                    s_log.Append(logs);
+                }
+            }
+            
+            if(!writeToDisk)
+            {
+                return;
+            }
+
+            s_isLogging = true;
+            try
+            {
+                File.AppendAllText(s_msallogfile, tempBuilder.ToString());
+                tempBuilder.Clear();
+            }
+            finally
+            {
+                s_isLogging = false;
+            }
         }
     }
 }

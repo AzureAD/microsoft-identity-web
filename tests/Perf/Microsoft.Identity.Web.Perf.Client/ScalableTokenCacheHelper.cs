@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Identity.Client;
+using Newtonsoft.Json;
 
 namespace Microsoft.Identity.Web.Perf.Client
 {
@@ -27,21 +31,66 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// <summary>
         /// Path to the mapping between upn and home account identifier
         /// </summary>
-        public static readonly string s_cacheKeysFolder = s_cacheFileFolder + "Keys";
+        private static string s_cache_filename = s_cacheFileFolder + "\\cache.dat";
+        private static string s_cache_filenameKeys = s_cacheFileFolder + "\\keys.dat";
+
+        private static ConcurrentDictionary<string, byte[]> s_tokenCache = new ConcurrentDictionary<string, byte[]>();
+        private static ConcurrentDictionary<string, string> s_tokenCacheKeys = new ConcurrentDictionary<string, string>();
+        private static string s_emptyContent = " ";
+
+        private static volatile bool s_isPersisting = false; 
+
+        internal static void PersistCache()
+        {
+            if(s_isPersisting)
+            {
+                return;
+            }
+            s_isPersisting = true;
+
+            try
+            {
+                if (!Directory.Exists(s_cacheFileFolder))
+                {
+                    Directory.CreateDirectory(s_cacheFileFolder);
+                }
+
+                string content = JsonConvert.SerializeObject(s_tokenCache);
+                File.WriteAllText(s_cache_filename, content);
+
+                string contentKeys = JsonConvert.SerializeObject(s_tokenCacheKeys);
+                File.WriteAllText(s_cache_filenameKeys, contentKeys);
+            }
+            finally
+            {
+                s_isPersisting = false;
+            }
+        }
+
+        internal static void LoadCache()
+        {
+            if (!Directory.Exists(s_cacheFileFolder))
+            {
+                Directory.CreateDirectory(s_cacheFileFolder);
+            }
+
+            if (!File.Exists(s_cache_filename) || !File.Exists(s_cache_filenameKeys))
+            {
+                return;
+            }
+
+            string content = File.ReadAllText(s_cache_filename);
+            s_tokenCache = JsonConvert.DeserializeObject<ConcurrentDictionary<string, byte[]>>(content);
+
+            string contentKeys = File.ReadAllText(s_cache_filenameKeys);
+            s_tokenCacheKeys = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(contentKeys);
+        }
 
         /// <summary>
         /// Creating the folders for the token cache and its key, if needed
         /// </summary>
         static ScalableTokenCacheHelper()
         {
-            if (!Directory.Exists(s_cacheFileFolder))
-            {
-                Directory.CreateDirectory(s_cacheFileFolder);
-            }
-            if (!Directory.Exists(s_cacheKeysFolder))
-            {
-                Directory.CreateDirectory(s_cacheKeysFolder);
-            }
         }
 
         /// <summary>
@@ -54,7 +103,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             int start = "MIWTestUser".Length;
             Dictionary<int, string> accountIdByUserNumber = new Dictionary<int, string>();
 
-            foreach(string filePath in Directory.EnumerateFiles(s_cacheKeysFolder))
+            foreach(string filePath in s_tokenCacheKeys.Keys)
             {
                 string fileName = Path.GetFileName(filePath);
                 string[] segments = fileName.Split('-');
@@ -70,9 +119,28 @@ namespace Microsoft.Identity.Web.Perf.Client
         public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
             string cacheFilePath = GetCacheFilePath(args);
-            args.TokenCache.DeserializeMsalV3(File.Exists(cacheFilePath)
-                    ? File.ReadAllBytes(cacheFilePath)
-                    : null);
+            args.TokenCache.DeserializeMsalV3(GetCacheContent(cacheFilePath));
+        }
+
+        private static byte[] GetCacheContent(string cacheFilePath)
+        {
+            s_tokenCache.TryGetValue(cacheFilePath, out byte[] value);
+            return value;
+        }
+
+        private static void SetCacheContent(string cacheFilePath, byte[] content)
+        {
+            if (s_tokenCache.ContainsKey(cacheFilePath))
+            {
+                if (s_tokenCache[cacheFilePath] != content)
+                {
+                    s_tokenCache[cacheFilePath] = content;
+                }
+            }
+            else
+            {
+                s_tokenCache.TryAdd(cacheFilePath, content);
+            }
         }
 
         private static string GetCacheFilePath(TokenCacheNotificationArgs args)
@@ -86,7 +154,8 @@ namespace Microsoft.Identity.Web.Perf.Client
             {
                 return null;
             }
-            return Path.Combine(s_cacheFileFolder, suggestedKey);
+
+            return suggestedKey;
         }
 
         public static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -97,8 +166,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 string cacheFilePath = GetCacheFilePath(args);
 
                 // reflect changesgs in the persistent store
-                File.WriteAllBytes(cacheFilePath,
-                                       args.TokenCache.SerializeMsalV3());
+                SetCacheContent(cacheFilePath, args.TokenCache.SerializeMsalV3());
 
                 WriteKey(args);
             }
@@ -114,11 +182,11 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             if (args.Account != null)
             {
-                string keyPath = Path.Combine(s_cacheKeysFolder, 
-                    args.Account.Username + "-" + args.Account.HomeAccountId.Identifier);
-                if (!File.Exists(keyPath))
+                string keyPath = args.Account.Username + "-" + args.Account.HomeAccountId.Identifier;
+
+                if (!s_tokenCacheKeys.ContainsKey(keyPath))
                 {
-                    File.WriteAllText(keyPath, " ");
+                    s_tokenCacheKeys.TryAdd(keyPath, s_emptyContent);
                 }
             }
         }
