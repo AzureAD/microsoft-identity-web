@@ -205,19 +205,19 @@
           ]
         },
         {
-            "condition": "(!IndividualLocalAuth || !Hosted)",
-            "exclude": [
-                "Server/Areas/Identity/Pages/Shared/_LoginPartial.cshtml",
-                "Server/Controllers/OidcConfigurationController.cs",
-                "Server/Models/ApplicationUser.cs"
-            ]
+          "condition": "(!IndividualLocalAuth || !Hosted)",
+          "exclude": [
+            "Server/Areas/Identity/Pages/Shared/_LoginPartial.cshtml",
+            "Server/Controllers/OidcConfigurationController.cs",
+            "Server/Models/ApplicationUser.cs"
+          ]
         },
-         {
+        {
           "condition": "(!GenerateApi)",
-            "exclude": [
-              "Client/Pages/CallWebApi.razor",
-              "Server/Controllers/CallWebApiController.cs"
-            ]
+          "exclude": [
+            "Client/Pages/CallWebApi.razor",
+            "Server/Controllers/CallWebApiController.cs"
+          ]
         },
         {
           "condition": "(!GenerateGraph)",
