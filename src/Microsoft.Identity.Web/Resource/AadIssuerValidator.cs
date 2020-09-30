@@ -174,7 +174,13 @@ namespace Microsoft.Identity.Web.Resource
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tenantId))
+                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tid))
+                {
+                    return (string)tid;
+                }
+
+                jwtSecurityToken.Payload.TryGetValue(ClaimConstants.TenantId, out object? tenantId);
+                if (tenantId != null)
                 {
                     return (string)tenantId;
                 }

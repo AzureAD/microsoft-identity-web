@@ -99,20 +99,12 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Validate_IssuerMatchedInValidIssuer_ReturnsIssuer(bool shortTidClaim)
+        [InlineData(TestConstants.ClaimNameTid)]
+        [InlineData(ClaimConstants.TenantId)]
+        public void Validate_IssuerMatchedInValidIssuer_ReturnsIssuer(string tidClaimType)
         {
             var validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim tidClaim;
-            if (shortTidClaim)
-            {
-                tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
-            }
-            else
-            {
-                tidClaim = new Claim(ClaimConstants.TenantId, TestConstants.TenantIdAsGuid);
-            }
+            var tidClaim = new Claim(tidClaimType, TestConstants.TenantIdAsGuid);
 
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
@@ -123,20 +115,12 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Validate_IssuerMatchedInValidIssuers_ReturnsIssuer(bool shortTidClaim)
+        [InlineData(TestConstants.ClaimNameTid)]
+        [InlineData(ClaimConstants.TenantId)]
+        public void Validate_IssuerMatchedInValidIssuers_ReturnsIssuer(string tidClaimType)
         {
             var validator = new AadIssuerValidator(TestConstants.s_aliases);
-            Claim tidClaim;
-            if (shortTidClaim)
-            {
-                tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
-            }
-            else
-            {
-                tidClaim = new Claim(ClaimConstants.TenantId, TestConstants.TenantIdAsGuid);
-            }
+            var tidClaim = new Claim(tidClaimType, TestConstants.TenantIdAsGuid);
 
             var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
             var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
