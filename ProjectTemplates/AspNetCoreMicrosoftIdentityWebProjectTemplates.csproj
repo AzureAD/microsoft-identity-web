@@ -36,11 +36,4 @@
     <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
     <Compile Remove="**\*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="templates\ComponentsWebAssembly-CSharp\Client\Pages\CallWebApi.razor" />
-    <None Remove="templates\ComponentsWebAssembly-CSharp\Client\Pages\ShowProfile.razor" />
-    <None Remove="templates\ComponentsWebAssembly-CSharp\Client\Shared\NavMenu.CallsMicrosoftGraph.razor" />
-    <None Remove="templates\ComponentsWebAssembly-CSharp\Client\Shared\NavMenu.CallsWebApi.razor" />
-  </ItemGroup>
 </Project>
