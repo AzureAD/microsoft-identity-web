@@ -74,13 +74,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
-            {
-                AbsoluteExpirationRelativeToNow = _cacheOptions.AbsoluteExpirationRelativeToNow,
-                Size = bytes?.Length,
-            };
-
-            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
+            _memoryCache.Set(cacheKey, bytes, _cacheOptions.AbsoluteExpirationRelativeToNow);
             return Task.CompletedTask;
         }
     }

@@ -28,20 +28,25 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
+            string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                    .AddDistributedTokenCaches()
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
+            services.Configure<MicrosoftIdentityOptions>(options =>
+            {
+                options.ClientSecret = ccaSecret;
+            });
+
             // Replace existing cache provider with benchmark one
-            //services.AddBenchmarkInMemoryTokenCaches();
-            services.AddBenchmarkDistributedTokenCaches();
-            
+            // services.AddBenchmarkInMemoryTokenCaches();
+            // services.AddBenchmarkDistributedTokenCaches();
+
             // Add custom event counters to the App Insights collection
             services.ConfigureTelemetryModule<EventCounterCollectionModule>((module, o) =>
                 {
