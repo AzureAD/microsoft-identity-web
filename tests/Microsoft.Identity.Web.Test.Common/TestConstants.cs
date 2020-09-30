@@ -142,5 +142,12 @@ namespace Microsoft.Identity.Web.Test.Common
 
         // TokenAcqusitionOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
+
+        // AadIssuerValidation
+        public const string AadAuthority = "aadAuthority";
+        public const string InvalidAuthorityFormat = "login.microsoft.com";
+        public const string ActualIssuer = "actualIssuer";
+        public const string SecurityToken = "securityToken";
+        public const string ValidationParameters = "validationParameters";
     }
 }

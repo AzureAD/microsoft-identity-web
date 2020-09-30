@@ -191,6 +191,12 @@ namespace Microsoft.Identity.Web.Resource
                     return tid;
                 }
 
+                jsonWebToken.TryGetPayloadValue(ClaimConstants.TenantId, out string? tenantId);
+                if (tenantId != null)
+                {
+                    return tenantId;
+                }
+
                 // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jsonWebToken.Issuer);
             }
