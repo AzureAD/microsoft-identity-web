@@ -227,10 +227,20 @@
             "Server/Controllers/ShowProfileController.cs"
             ]
         },
-        {
-          "condition": "(!GenerateApiOrGraph)",
+         {
+          "condition": "(!GenerateApiOrGraph && Hosted)",
           "rename": {
             "Client/Shared/NavMenu.NoGraphOrApi.razor": "Client/Shared/NavMenu.razor"
+          },
+          "exclude": [
+            "Client/Shared/NavMenu.CallsMicrosoftGraph.razor",
+            "Client/Shared/NavMenu.CallsWebApi.razor"
+          ]
+        },
+        {
+          "condition": "(!GenerateApiOrGraph && !Hosted)",
+          "rename": {
+            "Client/Shared/NavMenu.NoGraphOrApi.razor": "Shared/NavMenu.razor"
           },
           "exclude": [
             "Client/Shared/NavMenu.CallsMicrosoftGraph.razor",
