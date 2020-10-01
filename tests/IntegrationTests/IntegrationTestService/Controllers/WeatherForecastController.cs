@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
@@ -28,8 +27,7 @@ namespace IntegrationTestService.Controllers
         public WeatherForecastController(
             IDownstreamWebApi downstreamWebApi,
             ITokenAcquisition tokenAcquisition,
-            GraphServiceClient graphServiceClient,
-            ILogger<WeatherForecastController> logger)
+            GraphServiceClient graphServiceClient)
         {
             _downstreamWebApi = downstreamWebApi;
             _tokenAcquisition = tokenAcquisition;

@@ -29,7 +29,7 @@ namespace IntegrationTestService
             string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                                  .AddMicrosoftIdentityWebApi(Configuration)
+                                  .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
