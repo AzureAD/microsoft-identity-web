@@ -186,6 +186,11 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.HttpMethod,
                 effectiveOptions.GetApiUrl()))
             {
+                if (requestContent != null)
+                {
+                    httpRequestMessage.Content = requestContent;
+                }
+
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
                     string.Format(
