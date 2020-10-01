@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using IntegrationTestService.EventSource;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
-using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 
 namespace IntegrationTestService
 {
@@ -42,24 +40,6 @@ namespace IntegrationTestService
             {
                 options.ClientSecret = ccaSecret;
             });
-
-            // Replace existing cache provider with benchmark one
-            // services.AddBenchmarkInMemoryTokenCaches();
-            // services.AddBenchmarkDistributedTokenCaches();
-
-            // Add custom event counters to the App Insights collection
-            services.ConfigureTelemetryModule<EventCounterCollectionModule>((module, o) =>
-                {
-                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheItemCounterName));
-                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheWriteCounterName));
-                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheReadCounterName));
-                    module.Counters.Add(new EventCounterCollectionRequest(MemoryCacheEventSource.EventSourceName, MemoryCacheEventSource.CacheRemoveCounterName));
-                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "requests-per-second"));
-                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "total-requests"));
-                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "current-requests"));
-                    module.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "failed-requests"));
-                }
-            );
 
             services.AddRazorPages(options =>
             {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntegrationTestService.Controllers
+namespace PerformanceTestService.Controllers
 {
     [Route("[controller]")]
     [ApiController]

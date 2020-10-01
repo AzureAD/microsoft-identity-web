@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +24,6 @@ namespace IntegrationTestService.Controllers
         private readonly GraphServiceClient _graphServiceClient;
         // The web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
-        private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(
             IDownstreamWebApi downstreamWebApi,
@@ -37,13 +34,6 @@ namespace IntegrationTestService.Controllers
             _downstreamWebApi = downstreamWebApi;
             _tokenAcquisition = tokenAcquisition;
             _graphServiceClient = graphServiceClient;
-            _logger = logger;
-        }
-
-        [HttpGet(TestConstants.SecurePageGetEmpty)]
-        public string GetEmpty()
-        {
-            return "Success.";
         }
 
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
@@ -51,13 +41,6 @@ namespace IntegrationTestService.Controllers
         {
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 TestConstants.s_userReadScope).ConfigureAwait(false);
-        }
-
-        [HttpGet(TestConstants.SecurePageGetTokenForAppAsync)]
-        public async Task<string> GetTokenForAppAsync()
-        {
-            return await _tokenAcquisition.GetAccessTokenForAppAsync(
-                TestConstants.s_scopeForApp).ConfigureAwait(false);
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]

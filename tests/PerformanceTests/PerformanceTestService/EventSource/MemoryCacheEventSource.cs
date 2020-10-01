@@ -1,7 +1,10 @@
-﻿using System.Diagnostics.Tracing;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Diagnostics.Tracing;
 using System.Threading;
 
-namespace IntegrationTestService
+namespace PerformanceTestService
 {
     /// <summary>
     /// Enables sending in-memory cache related counters.

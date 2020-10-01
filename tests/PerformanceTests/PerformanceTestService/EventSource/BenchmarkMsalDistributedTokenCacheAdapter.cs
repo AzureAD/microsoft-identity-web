@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
-namespace IntegrationTestService.EventSource
+namespace PerformanceTestService.EventSource
 {
     /// <summary>
     /// Adds benchmarking counters on top of <see cref="MsalDistributedTokenCacheAdapter"/>.

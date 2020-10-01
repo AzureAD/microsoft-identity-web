@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
 
-namespace IntegrationTestService.Controllers
+namespace PerformanceTestService.Controllers
 {
     [Route("[controller]")]
     [ApiController]

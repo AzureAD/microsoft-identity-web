@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web.TokenCacheProviders;
 
-namespace IntegrationTestService.EventSource
+namespace PerformanceTestService.EventSource
 {
     public static class ServiceExtensions
     {

@@ -30,17 +30,15 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory(Skip = "re-enable after merge to master as the API needs to be different for integration and perf"+
-            " because of the variability on cache, and the tenant")]
-        [InlineData(TestConstants.SecurePageGetTokenForAppAsync)]
+        [Theory]
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-       // [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-       // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
-       // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-       // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserAsync(
                 string webApiUrl,
                 bool addInMemoryTokenCache = true)
@@ -50,14 +48,14 @@ namespace Microsoft.Identity.Web.Test.Integration
             {
                 builder.ConfigureServices(services =>
                 {
-                    if (!addInMemoryTokenCache)
+                    if (addInMemoryTokenCache)
                     {
-                        services.AddDistributedMemoryCache();
-                        services.AddDistributedTokenCaches();
+                        services.AddInMemoryTokenCaches();
                     }
                     else
                     {
-                        services.AddInMemoryTokenCaches();
+                        services.AddDistributedMemoryCache();
+                        services.AddDistributedTokenCaches();
                     }
 
                     services.BuildServiceProvider();

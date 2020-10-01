@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
-namespace IntegrationTestService
+namespace PerformanceTestService
 {
     /// <summary>
     /// Adds benchmarking counters on top of <see cref="MsalMemoryTokenCacheProvider"/>.
