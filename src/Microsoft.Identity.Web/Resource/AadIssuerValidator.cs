@@ -174,7 +174,13 @@ namespace Microsoft.Identity.Web.Resource
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tenantId))
+                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tid))
+                {
+                    return (string)tid;
+                }
+
+                jwtSecurityToken.Payload.TryGetValue(ClaimConstants.TenantId, out object? tenantId);
+                if (tenantId != null)
                 {
                     return (string)tenantId;
                 }
@@ -189,6 +195,12 @@ namespace Microsoft.Identity.Web.Resource
                 if (tid != null)
                 {
                     return tid;
+                }
+
+                jsonWebToken.TryGetPayloadValue(ClaimConstants.TenantId, out string? tenantId);
+                if (tenantId != null)
+                {
+                    return tenantId;
                 }
 
                 // Since B2C doesn't have "tid" as default, get it from issuer

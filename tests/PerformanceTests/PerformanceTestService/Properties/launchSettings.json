@@ -1,11 +1,11 @@
-{
+﻿{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:62162",
-      "sslPort": 44306
+      "applicationUrl": "http://localhost:53569",
+      "sslPort": 44367
     }
   },
   "profiles": {
@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IntegrationTestService": {
+    "PerformanceTestService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",

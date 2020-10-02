@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
@@ -22,12 +21,11 @@ namespace IntegrationTestService
         }
 
         public IConfiguration Configuration { get; }
-        private KeyVaultSecretsProvider _keyVault;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            _keyVault = new KeyVaultSecretsProvider();
+            KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
             string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -42,6 +40,7 @@ namespace IntegrationTestService
             {
                 options.ClientSecret = ccaSecret;
             });
+
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/SecurePage");

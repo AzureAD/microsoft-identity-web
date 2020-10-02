@@ -179,8 +179,6 @@ namespace Microsoft.Identity.Web
                     // This is a Microsoft identity platform web API
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                    options.TokenValidationParameters = options.TokenValidationParameters.Clone();
-
                     if (options.TokenValidationParameters.AudienceValidator == null
                      && options.TokenValidationParameters.ValidAudience == null
                      && options.TokenValidationParameters.ValidAudiences == null)

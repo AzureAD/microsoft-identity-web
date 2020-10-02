@@ -124,7 +124,12 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string KeyVaultReference = "AzureADIdentityDivisionTestAgentCert";
 
         // Integration tests
-        public const string SecurePageGetTokenAsync = "/SecurePage/GetTokenAsync";
+        public const string EmptyGetEmpty = "/Empty/GetEmpty";
+        public const string TokenAcquisitionGetEmpty = "/TokenAcquisition/GetEmpty";
+        public const string GraphClientGetEmpty = "/GraphClient/GetEmpty";
+        public const string SecurePageGetEmpty = "/SecurePage/GetEmpty";
+        public const string SecurePageGetTokenForUserAsync = "/SecurePage/GetTokenForUserAsync";
+        public const string SecurePageGetTokenForAppAsync = "/SecurePage/GetTokenForAppAsync";
         public const string SecurePageCallDownstreamWebApi = "/SecurePage/CallDownstreamWebApiAsync";
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
         public const string SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
@@ -142,5 +147,12 @@ namespace Microsoft.Identity.Web.Test.Common
 
         // TokenAcqusitionOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
+
+        // AadIssuerValidation
+        public const string AadAuthority = "aadAuthority";
+        public const string InvalidAuthorityFormat = "login.microsoft.com";
+        public const string ActualIssuer = "actualIssuer";
+        public const string SecurityToken = "securityToken";
+        public const string ValidationParameters = "validationParameters";
     }
 }
