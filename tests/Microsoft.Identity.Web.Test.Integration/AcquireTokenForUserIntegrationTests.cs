@@ -31,32 +31,31 @@ namespace Microsoft.Identity.Web.Test.Integration
         private readonly WebApplicationFactory<Startup> _factory;
 
         [Theory]
-        [InlineData(TestConstants.SecurePageGetTokenAsync)]
+        [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePageGetTokenAsync, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        // [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
-        // [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserAsync(
-            string webApiUrl,
-            bool addInMemoryTokenCache = true)
+                string webApiUrl,
+                bool addInMemoryTokenCache = true)
         {
             // Arrange
             var client = _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
                 {
-                    if (!addInMemoryTokenCache)
+                    if (addInMemoryTokenCache)
                     {
-                        services.AddDistributedMemoryCache();
-                        services.AddDistributedTokenCaches();
+                        services.AddInMemoryTokenCaches();
                     }
                     else
                     {
-                        services.AddInMemoryTokenCaches();
+                        services.AddDistributedMemoryCache();
+                        services.AddDistributedTokenCaches();
                     }
 
                     services.BuildServiceProvider();
@@ -64,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             })
             .CreateClient(new WebApplicationFactoryClientOptions
             {
-                 AllowAutoRedirect = false,
+                AllowAutoRedirect = false,
             });
 
             var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
