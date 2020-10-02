@@ -98,6 +98,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Perf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestService", "tests\PerformanceTests\PerformanceTestService\PerformanceTestService.csproj", "{3AA1208A-3F05-4420-A9C6-B5B7C09EFE4A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "blazorwasm2-b2c", "blazorwasm2-b2c", "{48C0BCBC-2490-4AC6-B931-48516524E809}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-b2c", "tests\blazorwasm-b2c\blazorwasm2-b2c.csproj", "{8A189B4F-10AF-45D7-9CF0-6029BB953500}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +220,10 @@ Global
 		{3AA1208A-3F05-4420-A9C6-B5B7C09EFE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AA1208A-3F05-4420-A9C6-B5B7C09EFE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AA1208A-3F05-4420-A9C6-B5B7C09EFE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,6 +262,8 @@ Global
 		{9B8BE2D5-9E66-450F-94AB-8E8DD954C62C} = {79310504-1334-4F14-93C4-1240913224BA}
 		{DE4BDA66-2918-4DB1-804A-4D5A8D7BAB3C} = {9B8BE2D5-9E66-450F-94AB-8E8DD954C62C}
 		{3AA1208A-3F05-4420-A9C6-B5B7C09EFE4A} = {9B8BE2D5-9E66-450F-94AB-8E8DD954C62C}
+		{48C0BCBC-2490-4AC6-B931-48516524E809} = {79310504-1334-4F14-93C4-1240913224BA}
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500} = {48C0BCBC-2490-4AC6-B931-48516524E809}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}
