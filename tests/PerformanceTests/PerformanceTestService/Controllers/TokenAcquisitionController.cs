@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace PerformanceTestService.Controllers
 {
@@ -16,7 +20,7 @@ namespace PerformanceTestService.Controllers
             _tokenAcquisition = tokenAcquisition;
         }
 
-        [HttpGet]
+        [HttpGet(TestConstants.TokenAcquisitionGetEmpty)]
         public string Index()
         {
             return "Success.";

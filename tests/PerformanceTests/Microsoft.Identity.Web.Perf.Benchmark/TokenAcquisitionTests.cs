@@ -57,10 +57,10 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         public void GetAccessTokenForUserAsync()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForUserAsync);
-            HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();
+            HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();    
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed.");
+                throw new Exception($"GetAccessTokenForUserAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
             HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed.");
+                throw new Exception($"GetAccessTokenForAppAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
             }
         }
 

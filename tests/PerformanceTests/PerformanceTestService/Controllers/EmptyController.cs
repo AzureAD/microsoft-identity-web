@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace PerformanceTestService.Controllers
 {
@@ -8,7 +12,7 @@ namespace PerformanceTestService.Controllers
     [Authorize]
     public class EmptyController : Controller
     {
-        [HttpGet]
+        [HttpGet(TestConstants.EmptyGetEmpty)]
         public string Index()
         {
             return "Success.";

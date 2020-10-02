@@ -115,8 +115,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                                     }
                                 }
 
-                                // Console.Write(".");
-
                                 if (!response.IsSuccessStatusCode)
                                 {
                                     Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
