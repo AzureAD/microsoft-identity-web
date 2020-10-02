@@ -87,6 +87,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Micr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppUiTests", "tests\IntegrationTests\WebAppUiTests\WebAppUiTests.csproj", "{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "blazorwasm2-b2c", "blazorwasm2-b2c", "{48C0BCBC-2490-4AC6-B931-48516524E809}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazorwasm2-b2c", "tests\blazorwasm-b2c\blazorwasm2-b2c.csproj", "{8A189B4F-10AF-45D7-9CF0-6029BB953500}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +197,10 @@ Global
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -227,6 +235,8 @@ Global
 		{3EF671C3-7BD5-4125-8A98-EC34549BCDDD} = {79310504-1334-4F14-93C4-1240913224BA}
 		{D3C5B5F5-617E-4206-B9EF-915A27AF6863} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
 		{25C82DF8-F0C8-4B6C-B8BA-6018C40ADE6F} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
+		{48C0BCBC-2490-4AC6-B931-48516524E809} = {79310504-1334-4F14-93C4-1240913224BA}
+		{8A189B4F-10AF-45D7-9CF0-6029BB953500} = {48C0BCBC-2490-4AC6-B931-48516524E809}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}
