@@ -388,10 +388,13 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(_configureMsOptions)
                 .EnableTokenAcquisitionToCallDownstreamApi(_configureAppOptions)
-                .AddInMemoryTokenCaches(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1));
+                .AddInMemoryTokenCaches(
+                    options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1),
+                    memoryCacheOptions: options => { options.SizeLimit = (long)1e9; });
 
             // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MsalMemoryTokenCacheOptions>));
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MemoryCacheOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IMemoryCache));
             Assert.Contains(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
         }
