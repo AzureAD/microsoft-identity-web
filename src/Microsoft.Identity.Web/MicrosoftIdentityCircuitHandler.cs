@@ -114,8 +114,8 @@ namespace Microsoft.Identity.Web
                 "{0}://{1}/{2}",
                 request.Scheme,
                 request.Host.ToString(),
-                request.PathBase.ToString().Trim('/'));
-            return baseUri;
+                request.PathBase.ToString().TrimStart('/'));
+            return baseUri.TrimEnd('/');
         }
 
         /// <summary>
