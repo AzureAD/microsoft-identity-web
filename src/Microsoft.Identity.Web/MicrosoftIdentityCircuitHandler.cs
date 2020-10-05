@@ -114,8 +114,8 @@ namespace Microsoft.Identity.Web
                 "{0}://{1}/{2}",
                 request.Scheme,
                 request.Host.ToString(),
-                request.PathBase.ToString());
-            return baseUri;
+                request.PathBase.ToString().TrimStart('/'));
+            return baseUri.TrimEnd('/');
         }
 
         /// <summary>
@@ -156,9 +156,9 @@ namespace Microsoft.Identity.Web
 #pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
                     redirectUri = string.Format(
                         CultureInfo.InvariantCulture,
-                        "{0}{1}",
+                        "{0}/{1}",
                         CreateBaseUri(request),
-                        request.Path.ToString());
+                        request.Path.ToString().TrimStart('/'));
                 }
 
                 List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
@@ -166,7 +166,7 @@ namespace Microsoft.Identity.Web
                 string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
                 string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
                 string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? (string)properties.Items[OidcConstants.PolicyKey]! : string.Empty;
-                string url = $"{BaseUri}{Constants.BlazorChallengeUri}{redirectUri}"
+                string url = $"{BaseUri}/{Constants.BlazorChallengeUri}{redirectUri}"
                     + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
                     + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}"
                     + $"&{OidcConstants.PolicyKey}={userflow}";
@@ -213,7 +213,7 @@ namespace Microsoft.Identity.Web
             var state = await Provider.GetAuthenticationStateAsync().ConfigureAwait(false);
             Service.User = state.User;
             Service.IsBlazorServer = true;
-            Service.BaseUri = Manager.BaseUri;
+            Service.BaseUri = Manager.BaseUri.TrimEnd('/');
             Service.NavigationManager = Manager;
             await base.OnCircuitOpenedAsync(circuit, cancellationToken).ConfigureAwait(false);
         }
