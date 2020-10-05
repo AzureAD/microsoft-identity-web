@@ -25,21 +25,21 @@ namespace Microsoft.Identity.Web
         /// Space separated scopes required to call the downstream web API.
         /// For instance "user.read mail.read".
         /// </summary>
-        public string? Scopes { get; set; } = null;
+        public string? Scopes { get; set; }
 
         /// <summary>
         /// [Optional] tenant ID. This is used for specific scenarios where
         /// the application needs to call a downstream web API on  behalf of a user in several tenants.
         /// It would mostly be used from code, not from the configuration.
         /// </summary>
-        public string? Tenant { get; set; } = null;
+        public string? Tenant { get; set; }
 
         /// <summary>
         /// [Optional]. User flow (in the case of a B2C downstream web API). If not
         /// specified, the B2C downstream web API will be called with the default user flow from
         /// <see cref="MicrosoftIdentityOptions.DefaultUserFlow"/>.
         /// </summary>
-        public string? UserFlow { get; set; } = null;
+        public string? UserFlow { get; set; }
 
         /// <summary>
         /// HTTP method used to call this downstream web API (by default Get).

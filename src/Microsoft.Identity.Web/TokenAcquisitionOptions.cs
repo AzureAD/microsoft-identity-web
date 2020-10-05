@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Sets Extra Query Parameters for the query string in the HTTP authentication request.
         /// </summary>
-        public Dictionary<string, string>? ExtraQueryParameters { get; set; } = null;
+        public Dictionary<string, string>? ExtraQueryParameters { get; set; }
 
         /// <summary>
         /// Specifies if the token request will ignore the access token in the token cache
@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// Use this option with care and only when needed, for instance, if you know that conditional access policies have changed,
         /// for it induces performance degradation, as the token cache is not utilized.
         /// </summary>
-        public bool ForceRefresh { get; set; } = false;
+        public bool ForceRefresh { get; set; }
 
         /// <summary>
         /// Clone the options (to be able to override them).

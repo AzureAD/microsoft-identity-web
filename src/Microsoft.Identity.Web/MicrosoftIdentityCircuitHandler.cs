@@ -49,8 +49,8 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityConsentAndConditionalAccessHandler
 #pragma warning restore SA1402 // File may only contain a single type
     {
-        private ClaimsPrincipal? _user = null;
-        private string? _baseUri = null;
+        private ClaimsPrincipal? _user;
+        private string? _baseUri;
 #pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
         private IHttpContextAccessor? _httpContextAccessor;
 #pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
