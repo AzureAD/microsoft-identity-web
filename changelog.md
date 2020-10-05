@@ -1,6 +1,21 @@
+1.1.0
+===========
+### New Features:
+**When using the InMemory token cache, Microsoft Identity Web enabled developers to `MemoryCacheOption`**, this can improve performance. See issue [#639](https://github.com/AzureAD/microsoft-identity-web/issues/639).
+
+### Bug Fixes:
+**The `.Clone()` in TokenValidationParameters has been removed as it is not needed**. See issue [#635](https://github.com/AzureAD/microsoft-identity-web/issues/635) for details.
+**The `RequestContent` parameter in DownstreamWebApi is now being used as the `HttpRequestMessage.Content` if available**.See issue [#618](https://github.com/AzureAD/microsoft-identity-web/issues/618).
+**Microsoft Identity Web now checks for the tenantId long-claim in AadIssuerValidator.GetTenantIdFromToken**. See issue [#617](https://github.com/AzureAD/microsoft-identity-web/issues/617) for details.
+**In the blazorwasm-hosted templates, the Call Graph and Call Downstream Web Api options are now surfaced as separate pages and separate entries in the vertical menu**. See issue [509](https://github.com/AzureAD/microsoft-identity-web/issues/509).
+**In `MicrosoftIdentityConsentAndConditionalAccessHandler.HandleException`, the redirect uri could be malformed, containing an extra `/`**. This has been fixed. See issue [#626](https://github.com/AzureAD/microsoft-identity-web/issues/626) for details.
+
+### Fundamentals:
+**Microsoft Identity Web has completed initial performance and load testing**. See [wiki article](https://github.com/AzureAD/microsoft-identity-web/wiki/performance) and issue [#88](https://github.com/AzureAD/microsoft-identity-web/issues/88) for details.
+**Microsoft Identity Web dependencies are updated to the latest respective versions**. Also the blazorwasm template dependencies have been updated as well. See issues [#641](https://github.com/AzureAD/microsoft-identity-web/issues/641) and [#631](https://github.com/AzureAD/microsoft-identity-web/issues/631) for details.
+
 1.0.0
 ===========
-
 ### New Features:
 **Some constant values used in Microsoft Identity Web are available as public constants**. See feature request [#548](https://github.com/AzureAD/microsoft-identity-web/issues/548) for details.
 
