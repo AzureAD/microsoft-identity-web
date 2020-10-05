@@ -699,9 +699,7 @@ namespace Microsoft.Identity.Web.Test
             return configSection;
         }
 
-#pragma warning disable xUnit1004 // Test methods should not be skipped
-        [Fact(Skip = "see issue: https://github.com/AzureAD/microsoft-identity-web/issues/583 ")]
-#pragma warning restore xUnit1004 // Test methods should not be skipped
+        [Fact]
         public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
         {
             // If the number of public properties of OpenIdConnectOptions changes,
