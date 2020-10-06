@@ -706,7 +706,7 @@ namespace Microsoft.Identity.Web.Test
             // then, the PopulateOpenIdOptionsFromMicrosoftIdentityOptions method
             // needs to be updated. For this uncomment the 2 lines below, and run the test
             // then diff the files to find what are the new properties
-            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.Instance).Length;
+            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 
             int expectedNumberOfProperties;
 #if DOTNET_CORE_31
