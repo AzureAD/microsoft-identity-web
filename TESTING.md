@@ -18,6 +18,8 @@ In this article you will:
 
 ## How to generate the test projects
 
+> If testing a release build, start with step 6 in "Testing the templates from a Nuget package", then go to step 4, and add the secrets.
+
 In a Developer Command Prompt:
 
 1. cd to the root of the repo (for instance `cd C:\gh\microsoft-identity-web`)
