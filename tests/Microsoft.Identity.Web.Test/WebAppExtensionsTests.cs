@@ -699,23 +699,21 @@ namespace Microsoft.Identity.Web.Test
             return configSection;
         }
 
-#pragma warning disable xUnit1004 // Test methods should not be skipped
-        [Fact(Skip = "see issue: https://github.com/AzureAD/microsoft-identity-web/issues/583 ")]
-#pragma warning restore xUnit1004 // Test methods should not be skipped
+        [Fact]
         public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
         {
             // If the number of public properties of OpenIdConnectOptions changes,
             // then, the PopulateOpenIdOptionsFromMicrosoftIdentityOptions method
             // needs to be updated. For this uncomment the 2 lines below, and run the test
             // then diff the files to find what are the new properties
-            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties().Length;
+            int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 
             int expectedNumberOfProperties;
 #if DOTNET_CORE_31
             expectedNumberOfProperties = 54;
             // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #elif DOTNET_50
-            expectedNumberOfProperties = 56;
+            expectedNumberOfProperties = 57;
             // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #endif
             Assert.Equal(expectedNumberOfProperties, numberOfProperties);
