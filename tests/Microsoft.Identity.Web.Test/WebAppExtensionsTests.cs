@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web.Test
             // Assert config bind actions added correctly
             provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
             provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
-            configMock.Received(1).GetSection(ConfigSectionName);
+            configMock.Received(2).GetSection(ConfigSectionName);
 
             AddMicrosoftIdentityWebApp_TestCommon(services, provider);
             AddMicrosoftIdentityWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
