@@ -64,15 +64,13 @@ In a Developer Command Prompt:
     </tr>
     <tr>
         <td>7. Build the repo. This builds everything and generates the NuGet packages</td>
-        <td>7. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the <code>ProjectTemplates\bin\Debug</code> folder of the repo. 
+        <td>7. Build the repo. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the <code>ProjectTemplates\bin\Debug</code> folder of the repo.
         
     The version should be the same as the value of <code>ClientSemVer</code> you set in step For instance if you downloaded the <code>Packages.zip</code> file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: </td>
     </tr>
     <tr>
         <td><code>dotnet pack Microsoft.Identity.Web.sln</code></td>
-        <td><code>mkdir ProjectTemplates\bin\Debug
-
-    copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
+        <td><code>copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug</code></td>
     </tr>
     <tr>
         <td>8. Go to the ProjectTemplates folder</td>
