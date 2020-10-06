@@ -24,7 +24,7 @@ In a Developer Command Prompt:
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.0.0`
+   `Set ClientSemVer=1.1.0`
 
 3. Change the directory to ProjectTemplates
 
