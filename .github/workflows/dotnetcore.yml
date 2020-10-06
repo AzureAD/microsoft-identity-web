@@ -26,4 +26,4 @@ jobs:
         dotnet-version: ${{ matrix.dotNetInstallVersion }}
 
     - name: Build with .NET ${{ matrix.dotNetRunVersion }}
-      run: dotnet test -f ${{ matrix.dotNetRunVersion }} -p:FROM_GITHUB_ACTION=true --configuration Debug ${{ matrix.solution }}
+      run: dotnet test -f ${{ matrix.dotNetRunVersion }} -p:FROM_GITHUB_ACTION=true --configuration Release ${{ matrix.solution }}
