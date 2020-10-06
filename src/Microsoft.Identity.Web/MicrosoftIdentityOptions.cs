@@ -111,6 +111,6 @@ namespace Microsoft.Identity.Web
         /// (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
         /// </summary>
         /// The default is <c>false.</c>
-        public bool SendX5C { get; set; } = false;
+        public bool SendX5C { get; set; }
     }
 }
