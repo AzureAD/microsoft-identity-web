@@ -385,6 +385,7 @@ namespace Microsoft.Identity.Web
 #if DOTNET_50_AND_ABOVE
             options.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
             options.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
+            options.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
 #endif
             options.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             options.BackchannelHttpHandler = microsoftIdentityOptions.BackchannelHttpHandler;
