@@ -38,7 +38,7 @@ namespace WebAppUiTests
             PerformLogin(driver, labResponse.User);
 
             // Assert
-            Assert.Contains(labResponse.User.Upn, driver.PageSource);
+            Assert.Contains("someuser", driver.PageSource);
             Assert.Contains(TestConstants.PhotoLabel, driver.PageSource);
             driver.Quit();
             driver.Dispose();
