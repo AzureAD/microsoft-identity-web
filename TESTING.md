@@ -14,8 +14,11 @@ In this article you will:
   - Generate C# projects corresponding to all the templates in various configurations (no auth, single-org, single-org calling graph, single-org calling web API, Individual B2C, Individual B2C calling web API (for the web API and the Blazorwasm hosted templates, as B2C does not support OBO)).
   - Configure the projects with existing Azure AD and B2C apps and client secrets. This is done by a configuration file named `configuration.json`. You will need to add the client secrets (see below).
   - Build the generated projects (which are grouped in a solution named `test.sln`).
-- [Manually test (for now) the generated projects](How-to-test-the-configured-projects-manually).
-
+- [Manually test (for now) the generated projects](#How-to-test-the-configured-projects-manually).
+- Test projects based on the templates can be generated from two sources:
+    - A [NuGet package created from a release build](#How-to-generate-the-test-projects-from-a-NuGet-Package)
+    - The [repo directly](#How-to-generate-the-test-projects-for-testing-templates-from-the-local-repo)
+  
 ## How to generate the test projects from a NuGet Package
 > For example, testing for a release with a build from AzureDevOps. 
 
@@ -39,11 +42,11 @@ In a Developer Command Prompt:
 
 4. Add client secrets (or your own config file) to the Configuration.json file
 
-   `"B2C_Client_ClientSecret": "sercret_goes_here",`
+   `"B2C_Client_ClientSecret": "secret_goes_here",`
 
-   `"AAD_Client_ClientSecret": "sercret_goes_here",`
+   `"AAD_Client_ClientSecret": "secret_goes_here",`
   
-   `"AAD_WebApi_ClientSecret": "sercret_goes_here"`
+   `"AAD_WebApi_ClientSecret": "secret_goes_here"`
 
 5. Build the repo. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the `ProjectTemplates\bin\Debug` folder of the repo.
 
@@ -74,11 +77,11 @@ In a Developer Command Prompt:
 
 3. Add client secrets to the Configuration.json file
 
-   `"B2C_Client_ClientSecret": "sercret_goes_here",`
+   `"B2C_Client_ClientSecret": "secret_goes_here",`
 
-   `"AAD_Client_ClientSecret": "sercret_goes_here",`
+   `"AAD_Client_ClientSecret": "secret_goes_here",`
   
-   `"AAD_WebApi_ClientSecret": "sercret_goes_here"`
+   `"AAD_WebApi_ClientSecret": "secret_goes_here"`
 
 4.  Delete the NuGet packages from `ProjectTemplates\bin\Debug` (to be sure to test the right one)
 
