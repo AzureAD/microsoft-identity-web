@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
@@ -99,6 +100,14 @@ namespace Microsoft.Identity.Web
                         msalUiRequiredException,
                         context.HttpContext.User,
                         UserFlow);
+
+                    if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers["x-ReturnUrl"])
+                        || !string.IsNullOrEmpty(context.HttpContext.Request.Query["x-ReturnUrl"])))
+                    {
+                        properties.RedirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers["x-ReturnUrl"]) ? context.HttpContext.Request.Headers["x-ReturnUrl"]
+                            : context.HttpContext.Request.Query["x-ReturnUrl"];
+                    }
+
                     context.Result = new ChallengeResult(properties);
                 }
             }
@@ -126,6 +135,11 @@ namespace Microsoft.Identity.Web
             {
                 return null;
             }
+        }
+        private static bool IsAjaxRequest(HttpRequest request)
+        {
+            return string.Equals(request.Query["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal) ||
+                string.Equals(request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal);
         }
     }
 }
