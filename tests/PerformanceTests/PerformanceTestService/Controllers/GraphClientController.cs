@@ -21,7 +21,7 @@ namespace PerformanceTestService.Controllers
         }
 
         [HttpGet(TestConstants.GraphClientGetEmpty)]
-        public string Index()
+        public string GetEmpty()
         {
             return "Success.";
         }

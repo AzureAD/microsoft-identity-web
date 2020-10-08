@@ -1,22 +1,48 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 namespace PerformanceTestService.EventSource
 {
     /// <summary>
-    /// Adds benchmarking counters on top of <see cref="MsalDistributedTokenCacheAdapter"/>.
+    /// <see cref="MsalDistributedTokenCacheAdapter"/> with added benchmarking counters.
     /// </summary>
-    public class BenchmarkMsalDistributedTokenCacheAdapter : MsalDistributedTokenCacheAdapter
+    public class BenchmarkMsalDistributedTokenCacheAdapter : MsalAbstractTokenCacheProvider
     {
+        /// <summary>
+        /// .NET Core memory cache.
+        /// </summary>
+        private readonly IDistributedCache _distributedCache;
+
+        /// <summary>
+        /// MSAL memory token cache options.
+        /// </summary>
+        private readonly MsalDistributedTokenCacheAdapterOptions _cacheOptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BenchmarkMsalDistributedTokenCacheAdapter"/> class.
+        /// </summary>
+        /// <param name="memoryCache">Distributed cache instance to use.</param>
+        /// <param name="cacheOptions">Options for the token cache.</param>
+
         public BenchmarkMsalDistributedTokenCacheAdapter(
             IDistributedCache memoryCache,
-            IOptions<MsalDistributedTokenCacheAdapterOptions> cacheOptions) : base(memoryCache, cacheOptions)
+            IOptions<MsalDistributedTokenCacheAdapterOptions> cacheOptions)
         {
+            if (cacheOptions == null)
+            {
+                throw new ArgumentNullException(nameof(cacheOptions));
+            }
+
+            _distributedCache = memoryCache;
+            _cacheOptions = cacheOptions.Value;
         }
 
         /// <summary>
@@ -27,8 +53,14 @@ namespace PerformanceTestService.EventSource
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
+            var bytes = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);           
+            await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
+            
             MemoryCacheEventSource.Log.IncrementRemoveCount();
-            await base.RemoveKeyAsync(cacheKey);
+            if (bytes != null)
+            {
+                MemoryCacheEventSource.Log.DecrementSize(bytes.Length);
+            }
         }
 
         /// <summary>
@@ -40,8 +72,18 @@ namespace PerformanceTestService.EventSource
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
+            var stopwatch = Stopwatch.StartNew();
+            var bytes = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
+            stopwatch.Stop();
+
             MemoryCacheEventSource.Log.IncrementReadCount();
-            return await base.ReadCacheBytesAsync(cacheKey);
+            MemoryCacheEventSource.Log.AddReadDuration(stopwatch.Elapsed.TotalMilliseconds);
+            if (bytes == null)
+            {
+                MemoryCacheEventSource.Log.IncrementReadMissCount();
+            }
+
+            return bytes;
         }
 
         /// <summary>
@@ -52,8 +94,16 @@ namespace PerformanceTestService.EventSource
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
+            var stopwatch = Stopwatch.StartNew();
+            await _distributedCache.SetAsync(cacheKey, bytes, _cacheOptions).ConfigureAwait(false);
+            stopwatch.Stop();
+
             MemoryCacheEventSource.Log.IncrementWriteCount();
-            await base.WriteCacheBytesAsync(cacheKey, bytes);
+            MemoryCacheEventSource.Log.AddWriteDuration(stopwatch.Elapsed.TotalMilliseconds);
+            if (bytes != null)
+            {
+                MemoryCacheEventSource.Log.IncrementSize(bytes.Length);
+            }
         }
     }
 }

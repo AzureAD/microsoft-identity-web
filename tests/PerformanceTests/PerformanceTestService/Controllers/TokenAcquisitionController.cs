@@ -21,7 +21,7 @@ namespace PerformanceTestService.Controllers
         }
 
         [HttpGet(TestConstants.TokenAcquisitionGetEmpty)]
-        public string Index()
+        public string GetEmpty()
         {
             return "Success.";
         }
