@@ -4,7 +4,7 @@
     Layout = null;
 }
 
-<h1>Controller Action decorated with [AuthorizeForScopes] Attribute called by regular and ajax method succesfully!</h1>
+<h1>Controller Action decorated with [AuthorizeForScopes] Attribute called by regular and ajax method successfully!</h1>
 
 <p>
     When user consent is needed, the above attribute will throw exception to challenge user to authenticate which is a redirect to Identity Provider,
@@ -16,7 +16,7 @@
     to obtain the redirect url anyway.
 </p>
 <p>
-    Fix: Similar as CookieAuthenticationHandler, The framework(both OpenIdConnectHandler and AuthorizeForScopes Attribute) check if the challenge is for
+    Fix: Similar as CookieAuthenticationHandler, The framework (both OpenIdConnectHandler and AuthorizeForScopes Attribute) check if the challenge is for
     ajax request, if it is:
     <ul>
         <li>

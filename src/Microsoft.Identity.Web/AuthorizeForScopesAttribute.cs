@@ -101,11 +101,11 @@ namespace Microsoft.Identity.Web
                         context.HttpContext.User,
                         UserFlow);
 
-                    if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers["x-ReturnUrl"])
-                        || !string.IsNullOrEmpty(context.HttpContext.Request.Query["x-ReturnUrl"])))
+                    if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl])
+                        || !string.IsNullOrEmpty(context.HttpContext.Request.Query[Constants.XReturnUrl])))
                     {
-                        properties.RedirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers["x-ReturnUrl"]) ? context.HttpContext.Request.Headers["x-ReturnUrl"]
-                            : context.HttpContext.Request.Query["x-ReturnUrl"];
+                        properties.RedirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
+                            : context.HttpContext.Request.Query[Constants.XReturnUrl];
                     }
 
                     context.Result = new ChallengeResult(properties);
@@ -138,8 +138,8 @@ namespace Microsoft.Identity.Web
         }
         private static bool IsAjaxRequest(HttpRequest request)
         {
-            return string.Equals(request.Query["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal) ||
-                string.Equals(request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.Ordinal);
+            return string.Equals(request.Query[Constants.XRequestedWith], Constants.XmlHttpRequest, StringComparison.Ordinal) ||
+                string.Equals(request.Headers[Constants.XRequestedWith], Constants.XmlHttpRequest, StringComparison.Ordinal);
         }
     }
 }
