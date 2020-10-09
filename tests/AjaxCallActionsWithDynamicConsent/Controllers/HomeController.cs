@@ -26,10 +26,10 @@ namespace AjaxCallActionsWithDynamicConsent.Controllers
             return View();
         }
 
-        [AuthorizeForScopes(Scopes = new[] { "https://ccbcc.sharepoint.com/AllSites.Read" })]
+        [AuthorizeForScopes(Scopes = new[] { "user.read" })]
         public async Task<IActionResult> AjaxAction()
         {
-            var aToken = await GetAccessTokenforResource("https://ccbcc.sharepoint.com/AllSites.Read");
+            var aToken = await GetAccessTokenforResource("user.read");
             return View();
         }
 
