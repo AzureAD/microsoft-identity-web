@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// <returns>A Task (as this is an async method).</returns>
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
-            // In case of a retry there already can be a authorization header; replace it with new one to avoid using expired token
+            // In case of a retry there is already an authorization header; replace it with new one to avoid using expired token
             if (request.Headers.Contains(Constants.Authorization))
             {
                 request.Headers.Remove(Constants.Authorization);
