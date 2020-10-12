@@ -229,6 +229,8 @@ namespace Microsoft.Identity.Web
 
             builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
 
+            builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
                 builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
@@ -267,7 +269,11 @@ namespace Microsoft.Identity.Web
                         // If you want to restrict the users that can sign-in to several organizations
                         // Set the tenant value in the appsettings.json file to 'organizations', and add the
                         // issuers you want to accept to options.TokenValidationParameters.ValidIssuers collection
-                        options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
+                        MicrosoftIdentityIssuerValidatorFactory microsoftIdentityIssuerValidatorFactory =
+                        serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
+
+                        options.TokenValidationParameters.IssuerValidator =
+                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
 
                     // Avoids having users being presented the select account dialog when they are already signed-in

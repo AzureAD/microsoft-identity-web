@@ -159,6 +159,7 @@ namespace Microsoft.Identity.Web
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
+            builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
@@ -194,7 +195,11 @@ namespace Microsoft.Identity.Web
                     {
                         // Instead of using the default validation (validating against a single tenant, as we do in line of business apps),
                         // we inject our own multi-tenant validation logic (which even accepts both v1.0 and v2.0 tokens)
-                        options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetIssuerValidator(options.Authority).Validate;
+                        MicrosoftIdentityIssuerValidatorFactory microsoftIdentityIssuerValidatorFactory =
+                        serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
+
+                        options.TokenValidationParameters.IssuerValidator =
+                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token

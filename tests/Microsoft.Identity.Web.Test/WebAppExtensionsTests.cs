@@ -427,6 +427,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftGraphOptions>));
+            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert properties set
             var msGraphOptions = provider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
@@ -481,6 +482,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<DownstreamWebApiOptions>));
+            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert properties set
             var downstreamWebApiOptions = provider.GetRequiredService<IOptionsSnapshot<DownstreamWebApiOptions>>();
@@ -506,6 +508,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>));
+            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert properties set
             var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
@@ -600,6 +603,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<ConfidentialClientApplicationOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
+            Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert OIDC options added correctly
             var configuredOidcOptions = provider.GetService<IConfigureOptions<OpenIdConnectOptions>>() as ConfigureNamedOptions<OpenIdConnectOptions>;
