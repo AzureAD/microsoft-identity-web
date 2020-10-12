@@ -1203,14 +1203,6 @@
             A list of all Issuers across the various Azure AD instances.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
-            <summary>
-            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
-            </summary>
-            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
-            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        </member>
         <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
             <summary>
             Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
@@ -1297,6 +1289,19 @@
             </summary>
             <param name="events">Events to subscribe to.</param>
             <returns><see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents"/> for chaining.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory">
+            <summary>
+            Factory class for creating the IssuerValidator per authority.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
+            <summary>
+            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics">
             <summary>

@@ -2,14 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Resource
@@ -19,54 +15,14 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     public class AadIssuerValidator
     {
-        // TODO: separate AadIssuerValidator creation logic from the validation logic in order to unit test it
-        private static readonly IDictionary<string, AadIssuerValidator> s_issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
-
-        private static readonly ConfigurationManager<IssuerMetadata> s_configManager = new ConfigurationManager<IssuerMetadata>(Constants.AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
-
         /// <summary>
         /// A list of all Issuers across the various Azure AD instances.
         /// </summary>
         private readonly ISet<string> _issuerAliases;
 
-        internal /* internal for test */ AadIssuerValidator(IEnumerable<string> aliases)
+        internal /*internal for tests*/ AadIssuerValidator(IEnumerable<string> aliases)
         {
             _issuerAliases = new HashSet<string>(aliases, StringComparer.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Gets an <see cref="AadIssuerValidator"/> for an authority.
-        /// </summary>
-        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-        /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
-        /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
-        {
-            if (string.IsNullOrEmpty(aadAuthority))
-            {
-                throw new ArgumentNullException(nameof(aadAuthority));
-            }
-
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
-
-            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
-            {
-                return aadIssuerValidator;
-            }
-
-            // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-            IssuerMetadata issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            // Add issuer aliases of the chosen authority to the cache
-            IEnumerable<string> aliases = issuerMetadata.Metadata
-                .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
-                .SelectMany(m => m.Aliases)
-                .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
-                .Distinct();
-            s_issuerValidators[authorityHost] = new AadIssuerValidator(aliases);
-
-            return s_issuerValidators[authorityHost];
         }
 
         /// <summary>

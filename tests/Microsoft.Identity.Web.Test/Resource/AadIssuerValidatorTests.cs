@@ -16,18 +16,25 @@ namespace Microsoft.Identity.Web.Test.Resource
 {
     public class AadIssuerValidatorTests
     {
+        private readonly MicrosoftIdentityIssuerValidatorFactory _issuerValidatorFactory;
+
+        public AadIssuerValidatorTests()
+        {
+            _issuerValidatorFactory = new MicrosoftIdentityIssuerValidatorFactory();
+        }
+
         [Fact]
         public void GetIssuerValidator_NullOrEmptyAuthority_ThrowsException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => AadIssuerValidator.GetIssuerValidator(string.Empty));
+            var exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(string.Empty));
 
-            exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => AadIssuerValidator.GetIssuerValidator(null));
+            exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(null));
         }
 
         [Fact]
         public void GetIssuerValidator_InvalidAuthority_ReturnsValidatorBasedOnFallbackAuthority()
         {
-            var validator = AadIssuerValidator.GetIssuerValidator(TestConstants.InvalidAuthorityFormat);
+            var validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.InvalidAuthorityFormat);
 
             Assert.NotNull(validator);
         }
@@ -37,7 +44,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var authorityInAliases = TestConstants.AuthorityCommonTenantWithV2;
 
-            var validator = AadIssuerValidator.GetIssuerValidator(authorityInAliases);
+            var validator = _issuerValidatorFactory.GetAadIssuerValidator(authorityInAliases);
 
             Assert.NotNull(validator);
         }
@@ -47,7 +54,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var authorityNotInAliases = TestConstants.B2CAuthorityWithV2;
 
-            var validator = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            var validator = _issuerValidatorFactory.GetAadIssuerValidator(authorityNotInAliases);
 
             Assert.NotNull(validator);
         }
@@ -57,8 +64,8 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var authorityNotInAliases = TestConstants.AuthorityWithTenantSpecifiedWithV2;
 
-            var validator1 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
-            var validator2 = AadIssuerValidator.GetIssuerValidator(authorityNotInAliases);
+            var validator1 = _issuerValidatorFactory.GetAadIssuerValidator(authorityNotInAliases);
+            var validator2 = _issuerValidatorFactory.GetAadIssuerValidator(authorityNotInAliases);
 
             Assert.Same(validator1, validator2);
         }
@@ -250,7 +257,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSignUpSignInUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             validator.Validate(
                 TestConstants.B2CIssuer,
@@ -271,7 +278,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.B2CTenantAsGuid);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer, claims: new[] { issClaim, tfpClaim, tidClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             validator.Validate(
                 TestConstants.B2CIssuer,
@@ -291,7 +298,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSignUpSignInUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuer2, claims: new[] { issClaim, tfpClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
@@ -313,7 +320,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSignUpSignInUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: issuerWithInvalidTid, claims: new[] { issClaim, tfpClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
@@ -334,7 +341,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim tfpClaim = new Claim(TestConstants.ClaimNameTfp, TestConstants.B2CSignUpSignInUserFlow);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CCustomDomainIssuer, claims: new[] { issClaim, tfpClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CCustomDomainAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CCustomDomainAuthorityWithV2);
 
             validator.Validate(
                 TestConstants.B2CCustomDomainIssuer,
@@ -351,7 +358,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             Claim issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.B2CIssuerTfp);
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.B2CIssuerTfp, claims: new[] { issClaim });
 
-            AadIssuerValidator validator = AadIssuerValidator.GetIssuerValidator(TestConstants.B2CAuthorityWithV2);
+            AadIssuerValidator validator = _issuerValidatorFactory.GetAadIssuerValidator(TestConstants.B2CAuthorityWithV2);
 
             var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
                 validator.Validate(
