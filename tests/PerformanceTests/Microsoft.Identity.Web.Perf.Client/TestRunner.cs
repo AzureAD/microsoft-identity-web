@@ -12,7 +12,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 
@@ -20,18 +19,17 @@ namespace Microsoft.Identity.Web.Perf.Client
 {
     public class TestRunner
     {
-        private const string NamePrefix = "MIWTestUser";
-        private readonly IConfiguration _configuration;
+        private readonly TestRunnerOptions _options;
         private readonly string[] _userAccountIdentifiers;
         private TimeSpan elapsedTimeInMsalCacheLookup;
         private int userStartIndex;
         private int userEndIndex;
 
-        public TestRunner(IConfiguration configuration)
+        public TestRunner(TestRunnerOptions options)
         {
-            _configuration = configuration;            
-            userStartIndex = int.Parse(configuration["UsersStartIndex"]);
-            userEndIndex = int.Parse(configuration["UsersEndIndex"]);
+            _options = options;
+            userStartIndex = options.UserNumberToStart;
+            userEndIndex = options.UserNumberToStart + options.UsersCountToTest;
             _userAccountIdentifiers = new string[userEndIndex + 1];
         }
 
@@ -55,11 +53,10 @@ namespace Microsoft.Identity.Web.Perf.Client
             httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
             var client = new HttpClient(httpClientHandler);
-            client.BaseAddress = new Uri(_configuration["IntegrationTestServicesBaseUri"]);
+            client.BaseAddress = new Uri(_options.TestServiceBaseUri);
 
-            var durationInMinutes = int.Parse(_configuration["DurationInMinutes"]);
             DateTime startOverall = DateTime.Now;
-            var finishTime = DateTime.Now.AddMinutes(durationInMinutes);
+            var finishTime = DateTime.Now.AddMinutes(_options.RuntimeInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
             int authRequestFailureCount = 0;
@@ -80,7 +77,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                     try
                     {
                         HttpResponseMessage response;
-                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _configuration["TestUri"]))
+                        using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _options.TestUri))
                         {
                             AuthenticationResult authResult = await AcquireTokenAsync(i);
                             if (authResult == null)
@@ -176,11 +173,11 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
         {
-            var scopes = new string[] { _configuration["ApiScopes"] };
-            var upn = $"{NamePrefix}{userIndex}@{_configuration["TenantDomain"]}";
+            var scopes = new string[] { _options.ApiScopes };
+            var upn = $"{_options.UsernamePrefix}{userIndex}@{_options.TenantDomain}";
 
             var _msalPublicClient = PublicClientApplicationBuilder
-                           .Create(_configuration["ClientId"])
+                           .Create(_options.ClientId)
                            .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
                            .WithLogging(Log, LogLevel.Info, false)
                            .Build();
@@ -210,7 +207,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                                                         upn,
                                                         new NetworkCredential(
                                                             upn,
-                                                            _configuration["UserPassword"]).SecurePassword)
+                                                            _options.UserPassword).SecurePassword)
                                                         .ExecuteAsync(CancellationToken.None)
                                                         .ConfigureAwait(false);
 
