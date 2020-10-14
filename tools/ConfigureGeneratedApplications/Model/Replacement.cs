@@ -5,6 +5,11 @@ namespace ConfigureGeneratedApplications.Model
 {
     public class Replacement
     {
+        public Replacement()
+        {
+
+        }
+
         public Replacement(string filePath, int index, int length, string replaceFrom, string replaceBy)
         {
             FilePath = filePath;
