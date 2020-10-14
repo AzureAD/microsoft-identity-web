@@ -23,6 +23,12 @@ namespace Microsoft.Identity.Web
         public Dictionary<string, string>? ExtraQueryParameters { get; set; }
 
         /// <summary>
+        /// A string with one or multiple claims to request.
+        /// Normally used with Conditional Access.
+        /// </summary>
+        public string? Claims { get; set; }
+
+        /// <summary>
         /// Specifies if the token request will ignore the access token in the token cache
         /// and will attempt to acquire a new access token.
         /// If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
@@ -42,6 +48,7 @@ namespace Microsoft.Identity.Web
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
+                Claims = Claims,
             };
         }
     }
