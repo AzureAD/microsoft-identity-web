@@ -29,7 +29,7 @@ namespace PerformanceTestService.Controllers
         }
 
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
-        public async Task<string> GetTokenAsync()
+        public async Task<string> GetTokenForUserAsync()
         {
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 TestConstants.s_userReadScope).ConfigureAwait(false);

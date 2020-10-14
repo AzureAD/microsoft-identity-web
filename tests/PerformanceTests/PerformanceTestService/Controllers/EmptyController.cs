@@ -13,7 +13,7 @@ namespace PerformanceTestService.Controllers
     public class EmptyController : Controller
     {
         [HttpGet(TestConstants.EmptyGetEmpty)]
-        public string Index()
+        public string GetEmpty()
         {
             return "Success.";
         }
