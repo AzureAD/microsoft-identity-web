@@ -7,7 +7,7 @@ This document will guide you through the process.
 Please visit [https://cla.microsoft.com/](https://cla.microsoft.com/) and sign the Contributor License
 Agreement.  You only need to do that once. We can not look at your code until you've submitted this request.
 
-## FORK
+## Fork
 
 Fork the project [on GitHub](https://github.com/AzureAD/microsoft-identity-web) and check out
 your copy.
