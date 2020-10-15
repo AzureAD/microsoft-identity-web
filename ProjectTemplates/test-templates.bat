@@ -279,7 +279,7 @@ cd ..
 cd ..
 
 echo "Configure the applications"
-..\..\..\..\tools\ConfigureGeneratedApplications\bin\Debug\net5.0\ConfigureGeneratedApplications.exe
+..\..\..\..\tools\ConfigureGeneratedApplications\bin\Debug\netcoreapp3.1\ConfigureGeneratedApplications.exe
 
 echo "Build the solution with all the projects created by applying the templates"
 dotnet build

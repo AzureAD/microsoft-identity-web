@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -96,7 +97,7 @@ namespace ConfigureGeneratedApplications
                         element = prop.Value;
                     }
 
-                    string replaceFrom = element.ValueKind == JsonValueKind.Number ? element.GetInt32().ToString() : element.ToString();
+                    string replaceFrom = element.ValueKind == JsonValueKind.Number ? element.GetInt32().ToString(CultureInfo.InvariantCulture) : element.ToString();
                     int index = GetIndex(element);
                     int length = replaceFrom.Length;
                     string replaceBy = configuration.GetParameterValue(propertyMapping.SetFrom);
