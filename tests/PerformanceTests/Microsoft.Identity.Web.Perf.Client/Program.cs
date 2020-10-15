@@ -15,9 +15,11 @@ namespace Microsoft.Identity.Web.Perf.Client
             IConfiguration Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
+            var options = new TestRunnerOptions();
+            Configuration.Bind("TestRunner", options);
             try
             {
-                await new TestRunner(Configuration).Run();
+                await new TestRunner(options).Run();
             }
             catch (Exception ex)
             {
