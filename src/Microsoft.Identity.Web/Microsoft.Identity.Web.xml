@@ -778,6 +778,57 @@
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationBuilderExtensions">
+            <summary>
+            Extension methods.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationBuilderExtensions.AddAppServiceAuthentication(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.AppServiceAuthenticationOptions})">
+            <summary>
+            Add the appServiceAuthentication.
+            </summary>
+            <param name="builder">Authentication builder</param>
+            <param name="configureOptions">Delegate to configure the options</param>
+            <returns>the builder to chain</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationDefaults">
+            <summary>
+            Default values related to AppServiceAuthentication authentication handler.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.AppServiceAuthenticationDefaults.AuthenticationScheme">
+            <summary>
+            The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationHandler">
+            <summary>
+            App service authentication handler.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.AppServiceAuthenticationOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,Microsoft.AspNetCore.Authentication.ISystemClock)">
+            <summary>
+            Constructor for the AppServiceAuthenticationHandler.
+            Note the parameters are required by the base class.
+            </summary>
+            <param name="options">App service authentication options</param>
+            <param name="logger">Logger factory</param>
+            <param name="encoder">URL encoder</param>
+            <param name="clock">System clock</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationHandler.IsAppServiceAuthenticationEnabled">
+            <summary>
+            Is AppService authentication enabled ?.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationHandler.HandleAuthenticateAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationOptions">
+            <summary>
+            Options for Azure AppService authentication.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>
             Extension methods.
@@ -991,6 +1042,15 @@
             </summary>
             <param name="context">RedirectContext passed-in to a <see cref="P:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
             OpenID Connect event.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromRefreshToken(System.String,System.String[])">
+            <summary>
+            Adds a token to the cache from a refresh token (acquired from app services authentication
+            for instance).
+            </summary>
+            <param name="refreshToken">Refresh tokens.</param>
+            <param name="scopes">Scopes to request.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder">
