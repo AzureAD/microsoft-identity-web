@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -144,47 +145,79 @@ namespace Microsoft.Identity.Web
                     User,
                     microsoftIdentityWebChallengeUserException.Userflow);
 
-                string redirectUri;
-                if (IsBlazorServer)
-                {
-                    redirectUri = NavigationManager.Uri;
-                }
-                else
-                {
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                    var request = _httpContextAccessor.HttpContext.Request;
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                    redirectUri = string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0}/{1}",
-                        CreateBaseUri(request),
-                        request.Path.ToString().TrimStart('/'));
-                }
-
-                List<string> scope = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
-                string loginHint = properties.Parameters.ContainsKey(Constants.LoginHint) ? (string)properties.Parameters[Constants.LoginHint]! : string.Empty;
-                string domainHint = properties.Parameters.ContainsKey(Constants.DomainHint) ? (string)properties.Parameters[Constants.DomainHint]! : string.Empty;
+                List<string> scopes = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
                 string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
                 string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? (string)properties.Items[OidcConstants.PolicyKey]! : string.Empty;
-                string url = $"{BaseUri}/{Constants.BlazorChallengeUri}{redirectUri}"
-                    + $"&{Constants.Scope}={string.Join(" ", scope!)}&{Constants.LoginHint}={loginHint}"
-                    + $"&{Constants.DomainHint}={domainHint}&{Constants.Claims}={claims}"
-                    + $"&{OidcConstants.PolicyKey}={userflow}";
 
-                if (IsBlazorServer)
-                {
-                    NavigationManager.NavigateTo(url, true);
-                }
-                else
-                {
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                    _httpContextAccessor.HttpContext.Response.Redirect(url);
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                }
+                ChallengeUser(
+                    scopes.ToArray(),
+                    claims,
+                    userflow);
             }
             else
             {
                 throw exception;
+            }
+        }
+
+        /// <summary>
+        /// Forces the user to consent to specific scopes and perform
+        /// Conditional Access to get specific claims. Use on a Razor/Blazor
+        /// page or controller to proactively ensure the scopes and/or claims
+        /// before acquiring a token. The other mechanism <see cref="HandleException(Exception)"/>
+        /// ensures claims and scopes requested by Azure AD after a failed token acquisition attempt.
+        /// See https://aka.ms/ms-id-web/ca_incremental-consent for details.
+        /// </summary>
+        /// <param name="scopes">Scopes to request.</param>
+        /// <param name="claims">Claims to ensure.</param>
+        /// <param name="userflow">Userflow being invoked for AAD B2C.</param>
+        public void ChallengeUser(
+            string[]? scopes,
+            string? claims = null,
+            string? userflow = null)
+        {
+            IEnumerable<string> effectiveScopes = scopes ?? new string[0];
+
+            string[] additionalBuiltInScopes =
+            {
+                 OidcConstants.ScopeOpenId,
+                 OidcConstants.ScopeOfflineAccess,
+                 OidcConstants.ScopeProfile,
+            };
+
+            effectiveScopes = effectiveScopes.Union(additionalBuiltInScopes).ToArray();
+
+            string redirectUri;
+            if (IsBlazorServer)
+            {
+                redirectUri = NavigationManager.Uri;
+            }
+            else
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
+                var request = _httpContextAccessor.HttpContext.Request;
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
+                redirectUri = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}/{1}",
+                    CreateBaseUri(request),
+                    request.Path.ToString().TrimStart('/'));
+            }
+
+            string url = $"{BaseUri}/{Constants.BlazorChallengeUri}{redirectUri}"
+                + $"&{Constants.Scope}={string.Join(" ", effectiveScopes!)}&{Constants.LoginHint}={User.GetLoginHint()}"
+                + $"&{Constants.DomainHint}={User.GetDomainHint()}&{Constants.Claims}={claims}"
+                + $"&{OidcConstants.PolicyKey}={userflow}";
+
+            if (IsBlazorServer)
+            {
+                NavigationManager.NavigateTo(url, true);
+            }
+            else
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
+                _httpContextAccessor.HttpContext.Response.Redirect(url);
+#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
             }
         }
 
