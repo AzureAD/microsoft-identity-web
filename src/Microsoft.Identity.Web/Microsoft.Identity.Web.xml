@@ -1065,6 +1065,14 @@
             </summary>
             <param name="exception">Exception.</param>
         </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.ChallengeUser(System.String[],System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="scopes"></param>
+            <param name="claims"></param>
+            <param name="userflow"></param>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityOptions">
             <summary>
             Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
