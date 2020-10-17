@@ -27,13 +27,8 @@ namespace TodoListClient.Controllers
         // GET: TodoList
         public async Task<ActionResult> Index()
         {
-            var value = await _downstreamWebApi.CallWebApiForUserAsync<object, IEnumerable<Todo>>(
-                ServiceName,
-                null,
-                options =>
-                {
-                    options.RelativePath = "api/todolist";
-                });
+            var value = await _downstreamWebApi.GetWebApiForUserAsync<IEnumerable<Todo>>(ServiceName, "api/todolist");
+
             return View(value);
         }
 
