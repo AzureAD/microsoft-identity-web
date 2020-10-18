@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewData["Title"] = "View";
+    Microsoft.AspNetCore.Http.HttpContext httpContext = ViewData["HttpContext"] as Microsoft.AspNetCore.Http.HttpContext;
+}
+
+<h1>Headers</h1>
+
+<table>
+    <thead>
+    <td>Name</td>
+    <td>Value</td>
+    </thead>
+    <tbody>
+        @{
+            foreach (var header in httpContext.Request.Headers)
+            {
+                <tr>
+                    <td>@header.Key</td>
+                    <td>@header.Value</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+<h1>Environment</h1>
+
+<table>
+    <thead>
+    <td>Name</td>
+    <td>Value</td>
+    </thead>
+    <tbody>
+        @{
+            System.Collections.IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+
+            foreach (string environmentVariable in environmentVariables.Keys)
+            {
+                <tr>
+                    <td>@environmentVariable</td>
+                    <td>@environmentVariables[environmentVariable]</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

@@ -1,7 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -20,6 +24,37 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
+
+        /*
+        private readonly GraphServiceClient _graphServiceClient;
+ 
+                public HomeController(ILogger<HomeController> logger, GraphServiceClient graphServiceClient)
+                {
+                    _logger = logger;
+                    _graphServiceClient = graphServiceClient;
+                }
+
+                public async Task<IActionResult> Index()
+                {
+                    var user = await _graphServiceClient.Me.Request().GetAsync();
+
+                    try
+                    {
+                        using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
+                        {
+                            byte[] photoByte = ((MemoryStream)photoStream).ToArray();
+                            ViewData["photo"] = Convert.ToBase64String(photoByte);
+                        }
+                        ViewData["name"] = user.DisplayName;
+                    }
+                    catch (Exception)
+                    {
+                        ViewData["photo"] = null;
+                    }
+
+                    return View();
+                }
+        */
 
         public IActionResult Privacy()
         {

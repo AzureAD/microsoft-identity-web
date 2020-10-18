@@ -31,18 +31,13 @@ namespace WebApplication1
             IdentityModelEventSource.ShowPII = true;
 
             var builder = services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
-                .AddAppServiceAuthentication(options => { });
-
-
-            //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            //        .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-            //        ;
-            /*
-                                                .EnableTokenAcquisitionToCallDownstreamApi()
-                                                   .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                                                   .AddInMemoryTokenCaches();
-            */
-
+                .AddAppServiceAuthentication()
+/*
+                 .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
+                    .AddInMemoryTokenCaches();
+*/
+;
             services.AddRazorPages().AddMvcOptions(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
@@ -57,7 +52,7 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (true && env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
