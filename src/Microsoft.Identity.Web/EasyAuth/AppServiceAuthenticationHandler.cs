@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
@@ -41,25 +42,52 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
             {
-                // Try another handler
-                return Task.FromResult(AuthenticateResult.NoResult());
+                string? idToken = GetIdToken();
+                string? idp = GetIdp();
+
+                if (idToken != null && idp != null)
+                {
+                    JsonWebToken jsonWebToken = new JsonWebToken(idToken);
+                    ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+                        jsonWebToken.Claims,
+                        idp,
+                        "name",
+                        ClaimsIdentity.DefaultRoleClaimType));
+
+                    AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServiceAuthenticationDefaults.AuthenticationScheme);
+                    AuthenticateResult success = AuthenticateResult.Success(ticket);
+                    return Task<AuthenticateResult>.FromResult<AuthenticateResult>(success);
+                }
             }
 
-            string idToken = Context.Request.Headers[EasyAuthIdTokenHeader];
-            string idp = Context.Request.Headers[EasyAuthIdpTokenHeader];
+            // Try another handler
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
 
-            JsonWebToken jsonWebToken = new JsonWebToken(idToken);
-            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
-                jsonWebToken.Claims,
-                idp,
-                "name",
-                ClaimsIdentity.DefaultRoleClaimType));
+        private string? GetIdp()
+        {
+            string? idp = Context.Request.Headers[EasyAuthIdpTokenHeader];
+#if DEBUG
+            if (string.IsNullOrEmpty(idp))
+            {
+                idp = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdpTokenHeader);
+            }
+#endif
+            return idp;
+        }
 
-            AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServiceAuthenticationDefaults.AuthenticationScheme);
-            AuthenticateResult success = AuthenticateResult.Success(ticket);
-            return Task<AuthenticateResult>.FromResult<AuthenticateResult>(success);
+        private string? GetIdToken()
+        {
+            string? idToken = Context.Request.Headers[EasyAuthIdTokenHeader];
+#if DEBUG
+            if (string.IsNullOrEmpty(idToken))
+            {
+                idToken = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdpTokenHeader);
+            }
+#endif
+            return idToken;
         }
     }
 }

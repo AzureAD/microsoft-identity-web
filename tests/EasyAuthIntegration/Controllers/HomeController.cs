@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
+using Microsoft.Identity.Web;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -14,6 +15,7 @@ namespace WebApplication1.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -25,9 +27,27 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+
+        /*
+        private readonly ITokenAcquisition _tokenAcquision;
+
+        public HomeController(ILogger<HomeController> logger, ITokenAcquisition tokenAcquision)
+        {
+            _logger = logger;
+            _tokenAcquision = tokenAcquision;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            string token = await _tokenAcquision.GetAccessTokenForUserAsync(new string[] { "user.read" });
+            ViewData["name"] = token;
+            return View();
+        }
+        */
+
         /*
         private readonly GraphServiceClient _graphServiceClient;
- 
+
                 public HomeController(ILogger<HomeController> logger, GraphServiceClient graphServiceClient)
                 {
                     _logger = logger;

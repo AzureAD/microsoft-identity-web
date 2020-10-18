@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace Microsoft.Identity.Web
 {
@@ -29,6 +30,10 @@ namespace Microsoft.Identity.Web
                 AppServiceAuthenticationDefaults.AuthenticationScheme,
                 AppServiceAuthenticationDefaults.AuthenticationScheme,
                 options => { });
+
+            builder.Services.AddHttpClient();
+            //builder.Services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
+            //builder.Services.AddInMemoryTokenCaches();
 
             return builder;
         }

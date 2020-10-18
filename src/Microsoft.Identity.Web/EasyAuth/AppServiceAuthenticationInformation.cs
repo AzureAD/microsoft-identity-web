@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Identity.Web
 {
@@ -18,6 +20,9 @@ namespace Microsoft.Identity.Web
         private const string EasyAuthLogoutPathEnvironementVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         private const string EasyAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         private const string EasyAuthAzureActiveDirectory = "AzureActiveDirectory";
+
+        // Artificially added by Microsoft.Identity.Web to help debugging Easy Auth. See the Debug controller of the test app
+        private const string EasyAuthDebugHeadersEnvironementVariable = "EASY_AUTH_LOCAL_DEBUG ";
 
         /// <summary>
         /// Is AppService authentication enabled?.
@@ -40,6 +45,50 @@ namespace Microsoft.Identity.Web
             {
                 return Environment.GetEnvironmentVariable(EasyAuthLogoutPathEnvironementVariable);
             }
+        }
+
+        /// <summary>
+        /// ClientID of the Easy Auth web site.
+        /// </summary>
+        internal static string? ClientId
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable(EasyAuthClientIdEnvironmentVariable);
+            }
+        }
+
+        /// <summary>
+        /// ClientID of the Easy Auth web site.
+        /// </summary>
+        internal static string? ClientSecret
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable(EasyAuthClientSecretEnvironmentVariable);
+            }
+        }
+
+        /// <summary>
+        /// ClientID of the Easy Auth web site.
+        /// </summary>
+        internal static string? Issuer
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable(EasyAuthOpenIdIssuerEnvironmentVariable);
+            }
+        }
+
+        /// <summary>
+        /// Get headers from environement to help debugging easy auth authentication.
+        /// </summary>
+        internal static string? GetDebugHeader(string header)
+        {
+            string? headerPlusValue = Environment.GetEnvironmentVariable(EasyAuthDebugHeadersEnvironementVariable)
+                ?.Split(';')
+                ?.FirstOrDefault(h => h.StartsWith(header));
+            return headerPlusValue?.Substring(header.Length + 1);
         }
     }
 }

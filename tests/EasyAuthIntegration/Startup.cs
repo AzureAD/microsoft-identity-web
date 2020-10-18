@@ -38,6 +38,7 @@ namespace WebApplication1
                     .AddInMemoryTokenCaches();
 */
 ;
+
             services.AddRazorPages().AddMvcOptions(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()

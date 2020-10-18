@@ -833,10 +833,55 @@
             Logout URL for Easy Auth web sites.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.ClientId">
+            <summary>
+            ClientID of the Easy Auth web site.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.ClientSecret">
+            <summary>
+            ClientID of the Easy Auth web site.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.Issuer">
+            <summary>
+            ClientID of the Easy Auth web site.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationInformation.GetDebugHeader(System.String)">
+            <summary>
+            Get headers from environement to help debugging easy auth authentication.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationOptions">
             <summary>
             Options for Azure AppService authentication.
             </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition">
+            <summary>
+            Implementation of ITokenAcquisition for App services authentication (EasyAuth).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Net.Http.IHttpClientFactory)">
+            <summary>
+            Constructor of the AppServicesAuthenticationTokenAcquisition.
+            </summary>
+            <param name="tokenCacheProvider">The App token cache provider.</param>
+            <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
+            <param name="httpClientFactory">HTTP client factory.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>

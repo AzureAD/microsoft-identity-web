@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewData["Title"] = "View";
+    Microsoft.AspNetCore.Http.HttpContext httpContext = ViewData["HttpContext"] as Microsoft.AspNetCore.Http.HttpContext;
+
+    string[] importantEnvironmentVariables = new string[] {
+    "WEBSITE_AUTH_ENABLED", "WEBSITE_AUTH_OPENID_ISSUER", "WEBSITE_AUTH_CLIENT_ID",
+    "WEBSITE_AUTH_CLIENT_SECRET", "WEBSITE_AUTH_LOGOUT_PATH", "WEBSITE_AUTH_DEFAULT_PROVIDER"};
+
+    string[] importantHeaders = new string[]{"X-MS-TOKEN-AAD-ID-TOKEN", "X-MS-CLIENT-PRINCIPAL-IDP", "X-MS-TOKEN-AAD-REFRESH-TOKEN"};
+}
+
+
+<h1>Debug</h1>
+
+To debug locally the application as if it was deployed in App services
+
+1. In a console Window, type the following:
+
+@{
+ foreach(string environmentVariable in importantEnvironmentVariables)
+ {
+    <p>set @environmentVariable="@Environment.GetEnvironmentVariable(environmentVariable)"</p>
+ }
+
+ List<string> headers = new List<string>();
+ foreach(string header in importantHeaders)
+ {
+  headers.Add($"{header}={httpContext.Request.Headers[header]}");
+ }
+
+    <p>set EASY_AUTH_LOCAL_DEBUG="@string.Join(";",  headers)"</p>
+}
+
+
+2. Run Visual Studio from this console Window (devenv Microsoft.Identity.Web.sln)
+
+<h1>All headers</h1>
+
+<table>
+    <thead>
+    <td>Name</td>
+    <td>Value</td>
+    </thead>
+    <tbody>
+        @{
+            foreach (var header in httpContext.Request.Headers)
+            {
+            <tr>
+                <td>@header.Key</td>
+                <td>@header.Value</td>
+            </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+<h1>All environment variables</h1>
+
+<table>
+    <thead>
+    <td>Name</td>
+    <td>Value</td>
+    </thead>
+    <tbody>
+        @{
+            System.Collections.IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+
+            foreach (string environmentVariable in environmentVariables.Keys)
+            {
+            <tr>
+                <td>@environmentVariable</td>
+                <td>@environmentVariables[environmentVariable]</td>
+            </tr>
+            }
+        }
+    </tbody>
+</table>
+
