@@ -50,14 +50,5 @@ namespace Microsoft.Identity.Web
         /// OpenID Connect event.</param>
         /// <returns>A <see cref="Task"/> that represents a completed remove from cache operation.</returns>
         Task RemoveAccountAsync(RedirectContext context);
-
-        /// <summary>
-        /// Adds a token to the cache from a refresh token (acquired from app services authentication
-        /// for instance).
-        /// </summary>
-        /// <param name="refreshToken">Refresh tokens.</param>
-        /// <param name="scopes">Scopes to request.</param>
-        /// <returns>A <see cref="Task"/> that represents a completed remove from cache operation.</returns>
-        Task AddAccountToCacheFromRefreshToken(string refreshToken, string[] scopes);
     }
 }

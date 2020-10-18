@@ -708,36 +708,5 @@ namespace Microsoft.Identity.Web
 
             return authority;
         }
-
-        // <inheritdoc>
-        public async Task AddAccountToCacheFromRefreshToken(string refreshToken, string[] scopes)
-        {
-
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-
-            try
-            {
-                _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-
-#pragma warning disable CS8600, CS8602 // Converting null literal or possible null value to non-nullable type.
-                IByRefreshToken byRefreshToken = _application as IByRefreshToken;
-                _ = await byRefreshToken.AcquireTokenByRefreshToken(scopes, refreshToken)
-#pragma warning restore CS8602, CS8602 // Dereference of a possibly null reference.
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-            }
-            catch (MsalException ex)
-            {
-                _logger.LogInformation(
-                    ex,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode));
-                throw;
-            }
-        }
     }
 }

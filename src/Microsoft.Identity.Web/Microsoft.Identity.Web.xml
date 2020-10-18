@@ -1053,15 +1053,6 @@
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromRefreshToken(System.String,System.String[])">
-            <summary>
-            Adds a token to the cache from a refresh token (acquired from app services authentication
-            for instance).
-            </summary>
-            <param name="refreshToken">Refresh tokens.</param>
-            <param name="scopes">Scopes to request.</param>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove from cache operation.</returns>
-        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder">
             <summary>
             Base class for web app and web API Microsoft Identity authentication
@@ -1690,7 +1681,7 @@
             Creates an MSAL confidential client application.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheOrEasyAuthAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <summary>
             Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
             </summary>
@@ -1702,12 +1693,13 @@
             <param name="userFlow">Azure AD B2C user flow to target.</param>
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAcquireTokenBuilder``1(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.AbstractClientAppBaseAcquireTokenParameterBuilder{``0},System.Collections.Generic.IEnumerable{System.String},System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <summary>
-            Gets an access token for a downstream API on behalf of the user.
+            Gets an access token for a downstream API on behalf of the user whose account is passed as an argument.
             </summary>
             <param name="application"><see cref="T:Microsoft.Identity.Client.IConfidentialClientApplication"/>.</param>
-            <param name="builder">AcquireToken builder.</param>
+            <param name="account">User IAccount for which to acquire a token.
+            See <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</param>
             <param name="scopes">Scopes for the downstream API to call.</param>
             <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
             on behalf of the user.</param>
