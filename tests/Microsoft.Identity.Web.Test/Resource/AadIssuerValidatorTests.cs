@@ -4,7 +4,9 @@
 using System;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -17,10 +19,14 @@ namespace Microsoft.Identity.Web.Test.Resource
     public class AadIssuerValidatorTests
     {
         private readonly MicrosoftIdentityIssuerValidatorFactory _issuerValidatorFactory;
+        private IHttpClientFactory _httpClientFactory;
 
         public AadIssuerValidatorTests()
         {
-            _issuerValidatorFactory = new MicrosoftIdentityIssuerValidatorFactory();
+            _httpClientFactory = new HttpClientFactoryTest();
+            _issuerValidatorFactory = new MicrosoftIdentityIssuerValidatorFactory(
+                null,
+                _httpClientFactory);
         }
 
         [Fact]

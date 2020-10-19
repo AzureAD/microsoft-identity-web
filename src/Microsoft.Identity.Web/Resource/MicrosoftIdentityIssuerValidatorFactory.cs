@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Resource
             new ConfigurationManager<IssuerMetadata>(
                 Constants.AzureADIssuerMetadataUrl,
                 new IssuerConfigurationRetriever(),
-                httpClientFactory?.CreateClient(aadIssuerValidatorOptions.Value.HttpClientFactoryName));
+                httpClientFactory?.CreateClient(aadIssuerValidatorOptions?.Value?.HttpClientFactoryName));
         }
 
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
