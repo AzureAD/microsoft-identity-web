@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdpTokenHeader);
+                idToken = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdTokenHeader);
             }
 #endif
             return idToken;

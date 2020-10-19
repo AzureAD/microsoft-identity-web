@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
@@ -17,6 +19,7 @@ namespace WebApplication1.Controllers
         private readonly ILogger<HomeController> _logger;
 
 
+        /*
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
@@ -26,7 +29,7 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-
+        */
 
         /*
         private readonly ITokenAcquisition _tokenAcquision;
@@ -46,6 +49,23 @@ namespace WebApplication1.Controllers
         */
 
         /*
+        private readonly IDownstreamWebApi _downstreamWebApi;
+
+        public HomeController(ILogger<HomeController> logger, IDownstreamWebApi downstreamWebApi)
+        {
+            _logger = logger;
+            _downstreamWebApi = downstreamWebApi;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            HttpResponseMessage response = await _downstreamWebApi.CallWebApiForUserAsync("GraphBeta");
+            ViewData["name"] = await response.Content.ReadAsStringAsync();
+            return View();
+        }
+        */
+
+
         private readonly GraphServiceClient _graphServiceClient;
 
                 public HomeController(ILogger<HomeController> logger, GraphServiceClient graphServiceClient)
@@ -74,7 +94,7 @@ namespace WebApplication1.Controllers
 
                     return View();
                 }
-        */
+
 
         public IActionResult Privacy()
         {

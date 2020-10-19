@@ -68,12 +68,14 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
+            // We could use MSI
             if (scope is null)
             {
                 throw new ArgumentNullException(nameof(scope));
             }
 
-            AuthenticationResult result = await _confidentialClientApplication.AcquireTokenForClient(new string[] { scope })
+            var app = await GetOrCreateApplication();
+            AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
 
@@ -81,63 +83,34 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (scopes is null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-
-            AuthenticationResult result = await GetAuthenticationResultForUserAsync(
-                scopes,
-                tenantId,
-                userFlow,
-                user,
-                tokenAcquisitionOptions).ConfigureAwait(false);
-            return result.AccessToken;
+            string accessToken = GetAccessToken(CurrentHttpContext.Request.Headers);
+            return Task.FromResult(accessToken);
         }
 
-        private string? GetRefreshToken(IHeaderDictionary? headers)
+        private string? GetAccessToken(IHeaderDictionary? headers)
         {
-            const string easyAuthRefreshTokenHeader = "X-MS-TOKEN-AAD-REFRESH-TOKEN";
+            const string easyAuthAccessTokenHeader = "X-MS-TOKEN-AAD-ACCESS-TOKEN";
 
-            string? refreshToken = null;
+            string? accessToken = null;
             if (headers != null)
             {
-                refreshToken = headers[easyAuthRefreshTokenHeader];
+                accessToken = headers[easyAuthAccessTokenHeader];
             }
 #if DEBUG
-            if (string.IsNullOrEmpty(refreshToken))
+            if (string.IsNullOrEmpty(accessToken))
             {
-                refreshToken = AppServiceAuthenticationInformation.GetDebugHeader(easyAuthRefreshTokenHeader);
+                accessToken = AppServiceAuthenticationInformation.GetDebugHeader(easyAuthAccessTokenHeader);
             }
 #endif
-            return refreshToken;
+            return accessToken;
         }
 
         /// <inheritdoc/>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (scopes is null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-
-            string? refreshToken = GetRefreshToken(CurrentHttpContext?.Request?.Headers);
-            if (refreshToken != null)
-            {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                IByRefreshToken byRefreshToken = _confidentialClientApplication as IByRefreshToken;
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                AuthenticationResult result = await byRefreshToken.AcquireTokenByRefreshToken(scopes, refreshToken)
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>

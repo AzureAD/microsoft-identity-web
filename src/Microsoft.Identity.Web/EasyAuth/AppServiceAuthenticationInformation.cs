@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         private const string EasyAuthAzureActiveDirectory = "AzureActiveDirectory";
 
         // Artificially added by Microsoft.Identity.Web to help debugging Easy Auth. See the Debug controller of the test app
-        private const string EasyAuthDebugHeadersEnvironementVariable = "EASY_AUTH_LOCAL_DEBUG ";
+        private const string EasyAuthDebugHeadersEnvironementVariable = "EASY_AUTH_LOCAL_DEBUG";
 
         /// <summary>
         /// Is AppService authentication enabled?.

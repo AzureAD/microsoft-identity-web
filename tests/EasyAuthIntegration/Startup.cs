@@ -30,14 +30,10 @@ namespace WebApplication1
         {
             IdentityModelEventSource.ShowPII = true;
 
-            var builder = services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
-                .AddAppServiceAuthentication()
-/*
+            services.AddMicrosoftIdentityWebAppAuthentication(Configuration.GetSection("AzureAD"))
                  .EnableTokenAcquisitionToCallDownstreamApi()
                     .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                     .AddInMemoryTokenCaches();
-*/
-;
 
             services.AddRazorPages().AddMvcOptions(options =>
             {

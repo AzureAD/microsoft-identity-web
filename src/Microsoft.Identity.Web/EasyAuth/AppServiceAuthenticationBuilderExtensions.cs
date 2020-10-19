@@ -32,8 +32,7 @@ namespace Microsoft.Identity.Web
                 options => { });
 
             builder.Services.AddHttpClient();
-            //builder.Services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
-            //builder.Services.AddInMemoryTokenCaches();
+            builder.Services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
 
             return builder;
         }

@@ -154,13 +154,21 @@ namespace Microsoft.Identity.Web
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 IConfigurationSection configurationSection)
         {
-            AddMicrosoftIdentityWebAppInternal(
-                builder,
-                configureMicrosoftIdentityOptions,
-                configureCookieAuthenticationOptions,
-                openIdConnectScheme,
-                cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+            if (!AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            {
+                AddMicrosoftIdentityWebAppInternal(
+                    builder,
+                    configureMicrosoftIdentityOptions,
+                    configureCookieAuthenticationOptions,
+                    openIdConnectScheme,
+                    cookieScheme,
+                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+            }
+            else
+            {
+               builder.Services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
+                   .AddAppServiceAuthentication();
+            }
 
             return new MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
                 builder.Services,
@@ -189,13 +197,21 @@ namespace Microsoft.Identity.Web
         string cookieScheme,
         bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
-            AddMicrosoftIdentityWebAppInternal(
+            if (!AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            {
+                AddMicrosoftIdentityWebAppInternal(
                 builder,
                 configureMicrosoftIdentityOptions,
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+            }
+            else
+            {
+                builder.Services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
+                  .AddAppServiceAuthentication();
+            }
 
             return new MicrosoftIdentityWebAppAuthenticationBuilder(
                 builder.Services,

@@ -7,7 +7,7 @@
     "WEBSITE_AUTH_ENABLED", "WEBSITE_AUTH_OPENID_ISSUER", "WEBSITE_AUTH_CLIENT_ID",
     "WEBSITE_AUTH_CLIENT_SECRET", "WEBSITE_AUTH_LOGOUT_PATH", "WEBSITE_AUTH_DEFAULT_PROVIDER"};
 
-    string[] importantHeaders = new string[]{"X-MS-TOKEN-AAD-ID-TOKEN", "X-MS-CLIENT-PRINCIPAL-IDP", "X-MS-TOKEN-AAD-REFRESH-TOKEN"};
+    string[] importantHeaders = new string[] { "X-MS-TOKEN-AAD-ID-TOKEN", "X-MS-CLIENT-PRINCIPAL-IDP", "X-MS-TOKEN-AAD-ACCESS-TOKEN" };
 }
 
 
@@ -15,21 +15,21 @@
 
 To debug locally the application as if it was deployed in App services
 
-1. In a console Window, type the following:
+1. In the lauchsettings.json, in the environmentVariables section, paste the following:
 
 @{
- foreach(string environmentVariable in importantEnvironmentVariables)
- {
-    <p>set @environmentVariable="@Environment.GetEnvironmentVariable(environmentVariable)"</p>
- }
+    foreach (string environmentVariable in importantEnvironmentVariables)
+    {
+        <div>"@environmentVariable": "@Environment.GetEnvironmentVariable(environmentVariable)"</div>
+    }
 
- List<string> headers = new List<string>();
- foreach(string header in importantHeaders)
- {
-  headers.Add($"{header}={httpContext.Request.Headers[header]}");
- }
+    List<string> headers = new List<string>();
+    foreach (string header in importantHeaders)
+    {
+        headers.Add($"{header}={httpContext.Request.Headers[header]}");
+    }
 
-    <p>set EASY_AUTH_LOCAL_DEBUG="@string.Join(";",  headers)"</p>
+    <div>"EASY_AUTH_LOCAL_DEBUG": "@string.Join(";", headers)"</div>
 }
 
 
@@ -46,10 +46,10 @@ To debug locally the application as if it was deployed in App services
         @{
             foreach (var header in httpContext.Request.Headers)
             {
-            <tr>
-                <td>@header.Key</td>
-                <td>@header.Value</td>
-            </tr>
+                <tr>
+                    <td>@header.Key</td>
+                    <td>@header.Value</td>
+                </tr>
             }
         }
     </tbody>
@@ -69,10 +69,10 @@ To debug locally the application as if it was deployed in App services
 
             foreach (string environmentVariable in environmentVariables.Keys)
             {
-            <tr>
-                <td>@environmentVariable</td>
-                <td>@environmentVariables[environmentVariable]</td>
-            </tr>
+                <tr>
+                    <td>@environmentVariable</td>
+                    <td>@environmentVariables[environmentVariable]</td>
+                </tr>
             }
         }
     </tbody>
