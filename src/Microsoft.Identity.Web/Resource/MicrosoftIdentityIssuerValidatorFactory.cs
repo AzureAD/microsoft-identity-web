@@ -5,6 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.Protocols;
 
@@ -15,9 +17,20 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     internal class MicrosoftIdentityIssuerValidatorFactory
     {
+        public MicrosoftIdentityIssuerValidatorFactory(
+            IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
+            IHttpClientFactory httpClientFactory)
+        {
+            _configManager =
+            new ConfigurationManager<IssuerMetadata>(
+                Constants.AzureADIssuerMetadataUrl,
+                new IssuerConfigurationRetriever(),
+                httpClientFactory?.CreateClient(aadIssuerValidatorOptions.Value.HttpClientFactoryName));
+        }
+
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
-        private readonly ConfigurationManager<IssuerMetadata> _configManager = new ConfigurationManager<IssuerMetadata>(Constants.AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
+        private readonly ConfigurationManager<IssuerMetadata> _configManager;
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.

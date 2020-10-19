@@ -37,6 +37,12 @@ namespace TodoListService
                         .AddInMemoryTokenCaches();
 
             services.AddControllers();
+
+            services.Configure<AadIssuerValidatorOptions>(options => { options.HttpClientFactoryName = "cats" ; });
+            services.AddHttpClient("cats", c =>
+            {
+                // configure things here
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
