@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -15,7 +14,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Implementation for the downstream web API.
     /// </summary>
-    public class DownstreamWebApi : IDownstreamWebApi
+    public partial class DownstreamWebApi : IDownstreamWebApi
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
@@ -128,41 +127,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
-            string optionsInstanceName,
-            TInput input,
-            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
-            where TOutput : class
-        {
-            HttpResponseMessage response = await CallWebApiForUserAsync(
-                optionsInstanceName,
-                downstreamWebApiOptionsOverride,
-                user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch
-            {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
-            }
-
-            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return default;
-            }
-
-            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        }
-
-        /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string optionsInstanceName,
             Action<DownstreamWebApiOptions>? downstreamApiOptionsOverride = null,
@@ -202,6 +166,48 @@ namespace Microsoft.Identity.Web
             }
 
             return response;
+        }
+
+        /// <inheritdoc/>
+        public async Task PostWebApiForUserAsync(
+            string serviceName,
+            string relativePath,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            ClaimsPrincipal? user = null)
+        {
+            await CallWebApiForUserAsync(
+                serviceName,
+                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Post),
+                user,
+                null).ConfigureAwait(false);
+        }
+
+        private static Action<DownstreamWebApiOptions> PrepareOptions(
+           string relativePath,
+           Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride,
+           HttpMethod httpMethod)
+        {
+            Action<DownstreamWebApiOptions> downstreamWebApiOptions;
+
+            if (downstreamWebApiOptionsOverride == null)
+            {
+                downstreamWebApiOptions = options =>
+                {
+                    options.HttpMethod = httpMethod;
+                    options.RelativePath = relativePath;
+                };
+            }
+            else
+            {
+                downstreamWebApiOptions = options =>
+                {
+                    downstreamWebApiOptionsOverride(options);
+                    options.HttpMethod = httpMethod;
+                    options.RelativePath = relativePath;
+                };
+            }
+
+            return downstreamWebApiOptions;
         }
     }
 }
