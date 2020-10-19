@@ -27,7 +27,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList
         public async Task<ActionResult> Index()
         {
-            var value = await _downstreamWebApi.GetWebApiForUserAsync<IEnumerable<Todo>>(ServiceName, "api/todolist");
+            var value = await _downstreamWebApi.GetForUserAsync<IEnumerable<Todo>>(ServiceName, "api/todolist");
 
             return View(value);
         }
@@ -35,7 +35,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var value = await _downstreamWebApi.GetWebApiForUserAsync<Todo>(
+            var value = await _downstreamWebApi.GetForUserAsync<Todo>(
                 ServiceName,
                 $"api/todolist/{id}");
             return View(value);
@@ -53,14 +53,14 @@ namespace TodoListClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
         {
-            await _downstreamWebApi.PostWebApiForUserAsync<Todo, Todo>(ServiceName, "api/todolist", todo);
+            await _downstreamWebApi.PostForUserAsync<Todo, Todo>(ServiceName, "api/todolist", todo);
             return RedirectToAction("Index");
         }
 
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await _downstreamWebApi.GetWebApiForUserAsync<Todo>(
+            Todo todo = await _downstreamWebApi.GetForUserAsync<Todo>(
                 ServiceName,
                 $"api/todolist/{id}");
 
@@ -91,7 +91,7 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            Todo todo = await _downstreamWebApi.GetWebApiForUserAsync<Todo>(
+            Todo todo = await _downstreamWebApi.GetForUserAsync<Todo>(
                 ServiceName,
                 $"api/todolist/{id}");
 

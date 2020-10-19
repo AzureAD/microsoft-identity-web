@@ -102,8 +102,8 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public Task<TOutput?> GetWebApiForUserAsync<TOutput>(
+        /// <returns>A strongly typed response from the web API.</returns>
+        public Task<TOutput?> GetForUserAsync<TOutput>(
             string serviceName,
             string relativePath,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
+        /// <returns>A Task.</returns>
         public Task PostWebApiForUserAsync(
             string serviceName,
             string relativePath,
@@ -141,17 +141,17 @@ namespace Microsoft.Identity.Web
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
-        /// <param name="data">Data.</param>
+        /// <param name="inputData">Input data sent to the API.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public Task<TOutput?> PostWebApiForUserAsync<TOutput, TInput>(
+        /// <returns>A strongly typed response from the web API.</returns>
+        public Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
-            TInput data,
+            TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
             where TOutput : class;
@@ -165,17 +165,17 @@ namespace Microsoft.Identity.Web
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
-        /// <param name="data">Data.</param>
+        /// <param name="inputData">Input data sent to the API.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        public Task PutWebApiForUserAsync<TInput>(
+        public Task PutForUserAsync<TInput>(
             string serviceName,
             string relativePath,
-            TInput data,
+            TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null);
 
@@ -190,17 +190,17 @@ namespace Microsoft.Identity.Web
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
-        /// <param name="data">Data.</param>
+        /// <param name="inputData">Input data sent to the API.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public Task<TOutput?> PutWebApiForUserAsync<TOutput, TInput>(
+        /// <returns>A strongly typed response from the web API.</returns>
+        public Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
-            TInput data,
+            TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
             where TOutput : class;
@@ -234,16 +234,16 @@ namespace Microsoft.Identity.Web
         /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
         /// needs to be set.</param>
-        /// <param name="input">Input.</param>
+        /// <param name="inputData">Input data.</param>
         /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        public Task GetWebApiForUserAsync<TInput>(
+        public Task GetForUserAsync<TInput>(
             string serviceName,
-            TInput input,
+            TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null);
 

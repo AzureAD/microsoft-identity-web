@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> GetWebApiForUserAsync<TOutput>(
+        public async Task<TOutput?> GetForUserAsync<TOutput>(
             string serviceName,
             string relativePath,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> PostWebApiForUserAsync<TOutput, TInput>(
+        public async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
             TInput data,
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task PutWebApiForUserAsync<TInput>(
+        public async Task PutForUserAsync<TInput>(
             string serviceName,
             string relativePath,
             TInput data,
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> PutWebApiForUserAsync<TOutput, TInput>(
+        public async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
             TInput data,
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task GetWebApiForUserAsync<TInput>(
+        public async Task GetForUserAsync<TInput>(
             string serviceName,
             TInput input,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
