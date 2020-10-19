@@ -5,7 +5,6 @@ using System;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.Identity.Web
 {
@@ -118,9 +117,12 @@ namespace Microsoft.Identity.Web
         /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
         /// needs to be set.</param>
-        /// <param name="relativePath"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
+        /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public Task PostWebApiForUserAsync(
             string serviceName,
@@ -132,14 +134,20 @@ namespace Microsoft.Identity.Web
         /// Calls the web API with an HttpPost, providing strongly typed input and getting
         /// strongly typed output.
         /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
-        /// <param name="serviceName"></param>
-        /// <param name="relativePath"></param>
-        /// <param name="data"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <typeparam name="TOutput">Output type.</typeparam>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
+        /// <param name="data">Data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
         public Task<TOutput?> PostWebApiForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
@@ -151,13 +159,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Calls the web API endpoint with an HttpPut, providing strongly typed input data.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <param name="serviceName"></param>
-        /// <param name="relativePath"></param>
-        /// <param name="data"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
+        /// <param name="data">Data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
         public Task PutWebApiForUserAsync<TInput>(
             string serviceName,
             string relativePath,
@@ -169,14 +183,20 @@ namespace Microsoft.Identity.Web
         /// Calls the web API endpoint with an HttpPut, provinding strongly typed input data
         /// and getting back strongly typed data.
         /// </summary>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <typeparam name="TInput"></typeparam>
-        /// <param name="serviceName"></param>
-        /// <param name="relativePath"></param>
-        /// <param name="data"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <typeparam name="TOutput">Output type.</typeparam>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
+        /// <param name="data">Data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
         public Task<TOutput?> PutWebApiForUserAsync<TOutput, TInput>(
             string serviceName,
             string relativePath,
@@ -189,10 +209,17 @@ namespace Microsoft.Identity.Web
         /// Call a web API endpoint with an HttpGet,
         /// and return strongly typed data.
         /// </summary>
-        /// <param name="serviceName"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <typeparam name="TOutput">Output type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
         public Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
@@ -202,12 +229,18 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Call a web API with a strongly typed input, with an HttpGet.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <param name="serviceName"></param>
-        /// <param name="input"></param>
-        /// <param name="downstreamWebApiOptionsOverride"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="input">Input.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
         public Task GetWebApiForUserAsync<TInput>(
             string serviceName,
             TInput input,

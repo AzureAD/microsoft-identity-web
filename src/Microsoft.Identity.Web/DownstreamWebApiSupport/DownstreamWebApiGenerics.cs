@@ -2,18 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// 
+    /// Extensions for the downstream web API.
     /// </summary>
     public partial class DownstreamWebApi
     {
@@ -160,6 +158,5 @@ namespace Microsoft.Identity.Web
 
             return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
-
     }
 }

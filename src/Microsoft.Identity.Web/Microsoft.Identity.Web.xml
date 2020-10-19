@@ -578,6 +578,9 @@
             <summary>
             Implementation for the downstream web API.
             </summary>
+            <summary>
+            Extensions for the downstream web API.
+            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.HttpClient,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
             <summary>
@@ -598,10 +601,31 @@
             <param name="optionsInstanceName">Named configuration.</param>
             <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.PostWebApiForUserAsync(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
             <inheritdoc/>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.GetWebApiForUserAsync``1(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.PostWebApiForUserAsync``2(System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.PutWebApiForUserAsync``1(System.String,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.PutWebApiForUserAsync``2(System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``1(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.GetWebApiForUserAsync``1(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
             <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApiExtensions">
@@ -763,6 +787,97 @@
              }
              </code>
              </example>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.GetWebApiForUserAsync``1(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Get a strongly typed response from the web API.
+            </summary>
+            <typeparam name="TOutput">Output type.</typeparam>
+            <param name="serviceName">Name of the service describing the downstream web API. There can
+            be several configuration named sections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamWebApiOptions"/>,
+            each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+            needs to be set.</param>
+            <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
+            <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+            by <paramref name="serviceName"/>.</param>
+            <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+            or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+            will find the user from the HttpContext.</param>
+            <returns>The value returned by the downstream web API.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.PostWebApiForUserAsync(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Sends an HttpPost to the web API.
+            </summary>
+            <param name="serviceName">Name of the service describing the downstream web API. There can
+            be several configuration named sections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamWebApiOptions"/>,
+            each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+            needs to be set.</param>
+            <param name="relativePath"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns>The value returned by the downstream web API.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.PostWebApiForUserAsync``2(System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Calls the web API with an HttpPost, providing strongly typed input and getting
+            strongly typed output.
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <typeparam name="TInput"></typeparam>
+            <param name="serviceName"></param>
+            <param name="relativePath"></param>
+            <param name="data"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.PutWebApiForUserAsync``1(System.String,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Calls the web API endpoint with an HttpPut, providing strongly typed input data.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <param name="serviceName"></param>
+            <param name="relativePath"></param>
+            <param name="data"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.PutWebApiForUserAsync``2(System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Calls the web API endpoint with an HttpPut, provinding strongly typed input data
+            and getting back strongly typed data.
+            </summary>
+            <typeparam name="TOutput"></typeparam>
+            <typeparam name="TInput"></typeparam>
+            <param name="serviceName"></param>
+            <param name="relativePath"></param>
+            <param name="data"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync``1(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Call a web API endpoint with an HttpGet,
+            and return strongly typed data.
+            </summary>
+            <param name="serviceName"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.GetWebApiForUserAsync``1(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Call a web API with a strongly typed input, with an HttpGet.
+            </summary>
+            <typeparam name="TInput"></typeparam>
+            <param name="serviceName"></param>
+            <param name="input"></param>
+            <param name="downstreamWebApiOptionsOverride"></param>
+            <param name="user"></param>
+            <returns></returns>
         </member>
         <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
             <summary>
