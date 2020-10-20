@@ -9,9 +9,9 @@ namespace Microsoft.Identity.Web
     public class AadIssuerValidatorOptions
     {
         /// <summary>
-        /// Sets the name of the HttpClientFactory to use with the configuration manager.
-        /// Needed when setting up a proxy.
+        /// Sets the name of the HttpClient to get from the IHttpClientFactory for use with the configuration manager.
+        /// Needed when customizing the client such as configuring a proxy.
         /// </summary>
-        public string? HttpClientFactoryName { get; set; } = null!;
+        public string? HttpClientName { get; set; } = null!;
     }
 }
