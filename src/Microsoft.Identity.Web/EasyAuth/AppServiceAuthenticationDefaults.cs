@@ -4,7 +4,7 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Default values related to AppServiceAuthentication authentication handler.
+    /// Default values related to AppServiceAuthentication handler.
     /// </summary>
     public class AppServiceAuthenticationDefaults
     {
