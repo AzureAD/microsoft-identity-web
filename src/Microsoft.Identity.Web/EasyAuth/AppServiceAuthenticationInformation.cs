@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// ClientID of the Easy Auth web site.
+        /// Issuer of the Easy Auth web site.
         /// </summary>
         internal static string? Issuer
         {
