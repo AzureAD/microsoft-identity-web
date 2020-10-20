@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,10 +30,11 @@ namespace WebApplication1
         {
             IdentityModelEventSource.ShowPII = true;
 
-            services.AddMicrosoftIdentityWebAppAuthentication(Configuration.GetSection("AzureAD"))
-                 .EnableTokenAcquisitionToCallDownstreamApi()
-                    .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                    .AddInMemoryTokenCaches();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                           .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
+                           .AddInMemoryTokenCaches();
 
             services.AddRazorPages().AddMvcOptions(options =>
             {
