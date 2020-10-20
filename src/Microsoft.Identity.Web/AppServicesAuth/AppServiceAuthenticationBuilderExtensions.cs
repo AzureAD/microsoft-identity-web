@@ -2,14 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods related to App Service authentication (Easy Auth).
+    /// Extension methods related to App Services authentication (Easy Auth).
     /// </summary>
     public static class AppServiceAuthenticationBuilderExtensions
     {

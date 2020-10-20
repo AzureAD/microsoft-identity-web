@@ -36,8 +36,8 @@ namespace Microsoft.Identity.Web
         }
 
         // Constants
-        private const string EasyAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
-        private const string EasyAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
+        private const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         /// <inheritdoc/>
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
                     ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
                         jsonWebToken.Claims,
                         idp,
-                        "name", // v1.0
+                        Constants.NameClaim, // v1.0
                         ClaimsIdentity.DefaultRoleClaimType));
 
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServiceAuthenticationDefaults.AuthenticationScheme);
@@ -68,11 +68,11 @@ namespace Microsoft.Identity.Web
 
         private string? GetIdp()
         {
-            string? idp = Context.Request.Headers[EasyAuthIdpTokenHeader];
+            string? idp = Context.Request.Headers[AppServicesAuthIdpTokenHeader];
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(EasyAuthIdpTokenHeader);
+                idp = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -80,11 +80,11 @@ namespace Microsoft.Identity.Web
 
         private string? GetIdToken()
         {
-            string? idToken = Context.Request.Headers[EasyAuthIdTokenHeader];
+            string? idToken = Context.Request.Headers[AppServicesAuthIdTokenHeader];
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(EasyAuthIdTokenHeader);
+                idToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;
