@@ -7,9 +7,9 @@ using System.Linq;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Information about the App Service configuration on the host.
+    /// Information about the App Services configuration on the host.
     /// </summary>
-    public static class AppServiceAuthenticationInformation
+    public static class AppServicesAuthenticationInformation
     {
         // Environment variables.
         private const string AppServicesAuthEnabledEnvironmentVariable = "WEBSITE_AUTH_ENABLED";            // True
@@ -24,9 +24,9 @@ namespace Microsoft.Identity.Web
         private const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
 
         /// <summary>
-        /// Is AppService authentication enabled?.
+        /// Is App Services authentication enabled?.
         /// </summary>
-        public static bool IsAppServiceAadAuthenticationEnabled
+        public static bool IsAppServicesAadAuthenticationEnabled
         {
             get
             {
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
 
 #if DEBUG
         /// <summary>
-        /// Get headers from environment to help debugging App Services auth authentication.
+        /// Get headers from environment to help debugging App Services authentication.
         /// </summary>
         internal static string? SimulateGetttingHeaderFromDebugEnvironmentVariable(string header)
         {

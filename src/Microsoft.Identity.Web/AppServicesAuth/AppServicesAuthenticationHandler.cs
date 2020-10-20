@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// App service authentication handler.
     /// </summary>
-    public class AppServiceAuthenticationHandler : AuthenticationHandler<AppServiceAuthenticationOptions>
+    public class AppServicesAuthenticationHandler : AuthenticationHandler<AppServicesAuthenticationOptions>
     {
         /// <summary>
         /// Constructor for the AppServiceAuthenticationHandler.
@@ -26,8 +26,8 @@ namespace Microsoft.Identity.Web
         /// <param name="logger">Logger factory.</param>
         /// <param name="encoder">URL encoder.</param>
         /// <param name="clock">System clock.</param>
-        public AppServiceAuthenticationHandler(
-              IOptionsMonitor<AppServiceAuthenticationOptions> options,
+        public AppServicesAuthenticationHandler(
+              IOptionsMonitor<AppServicesAuthenticationOptions> options,
               ILoggerFactory logger,
               UrlEncoder encoder,
               ISystemClock clock)
@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
                 string? idToken = GetIdToken();
                 string? idp = GetIdp();
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+                idp = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+                idToken = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;

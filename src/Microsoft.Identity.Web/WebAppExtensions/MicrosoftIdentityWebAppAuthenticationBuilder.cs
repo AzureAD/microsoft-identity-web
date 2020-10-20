@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
 
             services.AddHttpContextAccessor();
 
-            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
                 services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
             }

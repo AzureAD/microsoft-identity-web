@@ -52,9 +52,9 @@ namespace Microsoft.Identity.Web
             {
                 ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions()
                 {
-                    ClientId = AppServiceAuthenticationInformation.ClientId,
-                    ClientSecret = AppServiceAuthenticationInformation.ClientSecret,
-                    Instance = AppServiceAuthenticationInformation.Issuer,
+                    ClientId = AppServicesAuthenticationInformation.ClientId,
+                    ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
+                    Instance = AppServicesAuthenticationInformation.Issuer,
                 };
                 _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
                     .WithHttpClientFactory(_httpClientFactory)
@@ -94,12 +94,12 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            string? accessToken = GetAccessToken(CurrentHttpContext?.Request.Headers);
+            string accessToken = GetAccessToken(CurrentHttpContext?.Request.Headers);
 
             return await Task.FromResult(accessToken).ConfigureAwait(false);
         }
 
-        private string? GetAccessToken(IHeaderDictionary? headers)
+        private string GetAccessToken(IHeaderDictionary? headers)
         {
             const string AppServicesAuthAccessTokenHeader = "X-MS-TOKEN-AAD-ACCESS-TOKEN";
 
@@ -111,10 +111,15 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(accessToken))
             {
-                accessToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthAccessTokenHeader);
+                accessToken = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthAccessTokenHeader);
             }
 #endif
-            return accessToken;
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                return accessToken;
+            }
+
+            return string.Empty;
         }
 
         /// <inheritdoc/>
