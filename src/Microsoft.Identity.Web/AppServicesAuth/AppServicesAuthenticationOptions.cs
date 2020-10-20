@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options for Azure AppService authentication.
+    /// Options for Azure App Services authentication.
     /// </summary>
-    public class AppServiceAuthenticationOptions : AuthenticationSchemeOptions
+    public class AppServicesAuthenticationOptions : AuthenticationSchemeOptions
     {
     }
 }

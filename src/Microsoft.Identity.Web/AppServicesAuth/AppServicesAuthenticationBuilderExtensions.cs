@@ -2,23 +2,20 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods related to App Service authentication (Easy Auth).
+    /// Extension methods related to App Services authentication (Easy Auth).
     /// </summary>
-    public static class AppServiceAuthenticationBuilderExtensions
+    public static class AppServicesAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add authentication with App Services.
         /// </summary>
         /// <param name="builder">Authentication builder.</param>
         /// <returns>The builder, to chain commands.</returns>
-        public static AuthenticationBuilder AddAppServiceAuthentication(
+        public static AuthenticationBuilder AddAppServicesAuthentication(
              this AuthenticationBuilder builder)
         {
             if (builder is null)
@@ -26,9 +23,9 @@ namespace Microsoft.Identity.Web
                 throw new System.ArgumentNullException(nameof(builder));
             }
 
-            builder.AddScheme<AppServiceAuthenticationOptions, AppServiceAuthenticationHandler>(
-                AppServiceAuthenticationDefaults.AuthenticationScheme,
-                AppServiceAuthenticationDefaults.AuthenticationScheme,
+            builder.AddScheme<AppServicesAuthenticationOptions, AppServicesAuthenticationHandler>(
+                AppServicesAuthenticationDefaults.AuthenticationScheme,
+                AppServicesAuthenticationDefaults.AuthenticationScheme,
                 options => { });
 
             return builder;

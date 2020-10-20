@@ -13,14 +13,14 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Implementation of ITokenAcquisition for App services authentication (EasyAuth).
+    /// Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
     /// </summary>
     public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
-        private IConfidentialClientApplication _confidentialClientApplication;
-        private IHttpContextAccessor _httpContextAccessor;
-        private IMsalHttpClientFactory _httpClientFactory;
-        private IMsalTokenCacheProvider _tokenCacheProvider;
+        private IConfidentialClientApplication? _confidentialClientApplication;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMsalHttpClientFactory _httpClientFactory;
+        private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private HttpContext? CurrentHttpContext
         {
@@ -36,7 +36,10 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenCacheProvider">The App token cache provider.</param>
         /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
-        public AppServicesAuthenticationTokenAcquisition(IMsalTokenCacheProvider tokenCacheProvider,  IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory)
+        public AppServicesAuthenticationTokenAcquisition(
+            IMsalTokenCacheProvider tokenCacheProvider,
+            IHttpContextAccessor httpContextAccessor,
+            IHttpClientFactory httpClientFactory)
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
@@ -49,9 +52,9 @@ namespace Microsoft.Identity.Web
             {
                 ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions()
                 {
-                    ClientId = AppServiceAuthenticationInformation.ClientId,
-                    ClientSecret = AppServiceAuthenticationInformation.ClientSecret,
-                    Instance = AppServiceAuthenticationInformation.Issuer,
+                    ClientId = AppServicesAuthenticationInformation.ClientId,
+                    ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
+                    Instance = AppServicesAuthenticationInformation.Issuer,
                 };
                 _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
                     .WithHttpClientFactory(_httpClientFactory)
@@ -59,6 +62,7 @@ namespace Microsoft.Identity.Web
                 await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.UserTokenCache).ConfigureAwait(false);
             }
+
             return _confidentialClientApplication;
         }
 
@@ -74,7 +78,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scope));
             }
 
-            var app = await GetOrCreateApplication();
+            var app = await GetOrCreateApplication().ConfigureAwait(false);
             AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
@@ -83,28 +87,39 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public async Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            string accessToken = GetAccessToken(CurrentHttpContext.Request.Headers);
-            return Task.FromResult(accessToken);
+            string accessToken = GetAccessToken(CurrentHttpContext?.Request.Headers);
+
+            return await Task.FromResult(accessToken).ConfigureAwait(false);
         }
 
-        private string? GetAccessToken(IHeaderDictionary? headers)
+        private string GetAccessToken(IHeaderDictionary? headers)
         {
-            const string easyAuthAccessTokenHeader = "X-MS-TOKEN-AAD-ACCESS-TOKEN";
+            const string AppServicesAuthAccessTokenHeader = "X-MS-TOKEN-AAD-ACCESS-TOKEN";
 
             string? accessToken = null;
             if (headers != null)
             {
-                accessToken = headers[easyAuthAccessTokenHeader];
+                accessToken = headers[AppServicesAuthAccessTokenHeader];
             }
 #if DEBUG
             if (string.IsNullOrEmpty(accessToken))
             {
-                accessToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(easyAuthAccessTokenHeader);
+                accessToken = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthAccessTokenHeader);
             }
 #endif
-            return accessToken;
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                return accessToken;
+            }
+
+            return string.Empty;
         }
 
         /// <inheritdoc/>

@@ -47,14 +47,14 @@ namespace Microsoft.Identity.Web
                 options =>
                 {
                     ConfigurationSection.Bind(options);
-                    if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+                    if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
                     {
-                        options.ClientId = AppServiceAuthenticationInformation.ClientId;
-                        options.ClientSecret = AppServiceAuthenticationInformation.ClientSecret;
-                        options.Instance = AppServiceAuthenticationInformation.Issuer;
+                        options.ClientId = AppServicesAuthenticationInformation.ClientId;
+                        options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
+                        options.Instance = AppServicesAuthenticationInformation.Issuer;
                     }
-                    Services.AddHttpClient();
 
+                    Services.AddHttpClient();
                 },
                 initialScopes);
         }

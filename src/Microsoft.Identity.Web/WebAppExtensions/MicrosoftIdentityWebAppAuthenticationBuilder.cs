@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
 
             services.AddHttpContextAccessor();
 
-            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
                 services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
             }
@@ -152,8 +152,8 @@ namespace Microsoft.Identity.Web
                        {
                              // Remove the account from MSAL.NET token cache
                              var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                           await signOutHandler(context).ConfigureAwait(false);
+                             await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                             await signOutHandler(context).ConfigureAwait(false);
                        };
                    });
             }

@@ -6,11 +6,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Default values related to AppServiceAuthentication handler.
     /// </summary>
-    public class AppServiceAuthenticationDefaults
+    public class AppServicesAuthenticationDefaults
     {
         /// <summary>
         /// The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
         /// </summary>
-        public const string AuthenticationScheme = "EasyAuth";
+        public const string AuthenticationScheme = "AppServicesAuthentication";
     }
 }

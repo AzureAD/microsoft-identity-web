@@ -92,9 +92,9 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         [HttpGet("{scheme?}")]
         public IActionResult SignOut([FromRoute] string scheme)
         {
-            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
-                return LocalRedirect(AppServiceAuthenticationInformation.LogoutUrl);
+                return LocalRedirect(AppServicesAuthenticationInformation.LogoutUrl);
             }
             else
             {
