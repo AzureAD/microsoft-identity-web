@@ -43,7 +43,7 @@ To debug locally the application as if it was deployed in App services:
         headers.Add($"{header}={Model.HttpContext.Request.Headers[header]}");
     }
 
-    <div style="margin-left:2cm">"EASY_AUTH_LOCAL_DEBUG": "@string.Join(";", headers)"</div>
+    <div style="margin-left:2cm">"APP_SERVICES_AUTH_LOCAL_DEBUG": "@string.Join(";", headers)"</div>
 }
     }
 

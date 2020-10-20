@@ -123,6 +123,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             throw new NotImplementedException();
@@ -134,5 +135,7 @@ namespace Microsoft.Identity.Web
             // Not implmented for the moment
             throw new NotImplementedException();
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
     }
 }

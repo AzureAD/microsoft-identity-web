@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
@@ -50,10 +49,12 @@ namespace Microsoft.Identity.Web
                 if (idToken != null && idp != null)
                 {
                     JsonWebToken jsonWebToken = new JsonWebToken(idToken);
+                    bool isAadV1Token = jsonWebToken.Claims
+                        .Any(c => c.Type == Constants.Version && c.Value == Constants.V1);
                     ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
                         jsonWebToken.Claims,
                         idp,
-                        Constants.NameClaim, // v1.0
+                        isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
                         ClaimsIdentity.DefaultRoleClaimType));
 
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);
