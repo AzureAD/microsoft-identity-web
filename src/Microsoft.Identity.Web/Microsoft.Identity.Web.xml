@@ -17,6 +17,111 @@
             <param name="account">The <see cref="T:Microsoft.Identity.Client.IAccount"/> instance.</param>
             <returns>A <see cref="T:System.Security.Claims.ClaimsPrincipal"/> built from <see cref="T:Microsoft.Identity.Client.IAccount"/>.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions">
+            <summary>
+            Extension methods related to App Services authentication (Easy Auth).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions.AddAppServicesAuthentication(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
+            <summary>
+            Add authentication with App Services.
+            </summary>
+            <param name="builder">Authentication builder.</param>
+            <returns>The builder, to chain commands.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationDefaults">
+            <summary>
+            Default values related to AppServiceAuthentication handler.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.AppServicesAuthenticationDefaults.AuthenticationScheme">
+            <summary>
+            The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationHandler">
+            <summary>
+            App service authentication handler.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.AppServicesAuthenticationOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,Microsoft.AspNetCore.Authentication.ISystemClock)">
+            <summary>
+            Constructor for the AppServiceAuthenticationHandler.
+            Note the parameters are required by the base class.
+            </summary>
+            <param name="options">App service authentication options.</param>
+            <param name="logger">Logger factory.</param>
+            <param name="encoder">URL encoder.</param>
+            <param name="clock">System clock.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationHandler.HandleAuthenticateAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationInformation">
+            <summary>
+            Information about the App Services configuration on the host.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled">
+            <summary>
+            Is App Services authentication enabled?.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.LogoutUrl">
+            <summary>
+            Logout URL for App Services Auth web sites.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.ClientId">
+            <summary>
+            ClientID of the App Services Auth web site.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.ClientSecret">
+            <summary>
+            Client secret of the App Services Auth web site.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.Issuer">
+            <summary>
+            Issuer of the App Services Auth web site.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(System.String)">
+            <summary>
+            Get headers from environment to help debugging App Services authentication.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationOptions">
+            <summary>
+            Options for Azure App Services authentication.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition">
+            <summary>
+            Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Net.Http.IHttpClientFactory)">
+            <summary>
+            Constructor of the AppServicesAuthenticationTokenAcquisition.
+            </summary>
+            <param name="tokenCacheProvider">The App token cache provider.</param>
+            <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
+            <param name="httpClientFactory">HTTP client factory.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <inheritdoc/>
+        </member>
         <member name="T:Microsoft.Identity.Web.AuthorizeForScopesAttribute">
             <summary>
             Filter used on a controller action to trigger incremental consent.
@@ -777,111 +882,6 @@
             <param name="content">HTTP content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationBuilderExtensions">
-            <summary>
-            Extension methods related to App Service authentication (Easy Auth).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationBuilderExtensions.AddAppServiceAuthentication(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
-            <summary>
-            Add authentication with App services.
-            </summary>
-            <param name="builder">Authentication build.</param>
-            <returns>The builder, to chain commands.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationDefaults">
-            <summary>
-            Default values related to AppServiceAuthentication authentication handler.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.AppServiceAuthenticationDefaults.AuthenticationScheme">
-            <summary>
-            The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationHandler">
-            <summary>
-            App service authentication handler.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.AppServiceAuthenticationOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,Microsoft.AspNetCore.Authentication.ISystemClock)">
-            <summary>
-            Constructor for the AppServiceAuthenticationHandler.
-            Note the parameters are required by the base class.
-            </summary>
-            <param name="options">App service authentication options.</param>
-            <param name="logger">Logger factory.</param>
-            <param name="encoder">URL encoder.</param>
-            <param name="clock">System clock.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationHandler.HandleAuthenticateAsync">
-            <inheritdoc/>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationInformation">
-            <summary>
-            Information about the AppService configuration on the host.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled">
-            <summary>
-            Is AppService authentication enabled?.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.LogoutUrl">
-            <summary>
-            Logout URL for Easy Auth web sites.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.ClientId">
-            <summary>
-            ClientID of the Easy Auth web site.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.ClientSecret">
-            <summary>
-            ClientID of the Easy Auth web site.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServiceAuthenticationInformation.Issuer">
-            <summary>
-            ClientID of the Easy Auth web site.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(System.String)">
-            <summary>
-            Get headers from environement to help debugging easy auth authentication.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServiceAuthenticationOptions">
-            <summary>
-            Options for Azure AppService authentication.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition">
-            <summary>
-            Implementation of ITokenAcquisition for App services authentication (EasyAuth).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Net.Http.IHttpClientFactory)">
-            <summary>
-            Constructor of the AppServicesAuthenticationTokenAcquisition.
-            </summary>
-            <param name="tokenCacheProvider">The App token cache provider.</param>
-            <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-            <param name="httpClientFactory">HTTP client factory.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
-            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>

@@ -1,0 +1,51 @@
+﻿@page
+@model WebAppCallsMicrosoftGraph.Pages.DebuggingModel
+@{
+    string[] importantEnvironmentVariables = new string[] {
+    "WEBSITE_AUTH_ENABLED", "WEBSITE_AUTH_OPENID_ISSUER", "WEBSITE_AUTH_CLIENT_ID",
+    "WEBSITE_AUTH_CLIENT_SECRET", "WEBSITE_AUTH_LOGOUT_PATH", "WEBSITE_AUTH_DEFAULT_PROVIDER"};
+
+    string[] importantHeaders = new string[] { "X-MS-TOKEN-AAD-ID-TOKEN", "X-MS-CLIENT-PRINCIPAL-IDP", "X-MS-TOKEN-AAD-ACCESS-TOKEN" };
+}
+
+
+<h1>Debug</h1>
+
+To debug locally the application as if it was deployed in App services:
+<ol>
+    <li>
+        Run the application with Easy auth as deployed, but at the baseUrl/Debugging address (for instance: <a href='https://mdidwebtestforeasyauthintegration.azurewebsites.net/Debugging'>https://mdidwebtestforeasyauthintegration.azurewebsites.net/Debugging</a>)
+    </li>
+    <li>
+        Copy the following JSon blob into the <b>lauchsettings.json</b> for the profile of your choice, in the <b>environmentVariables</b> section, paste the following:
+    </li>
+
+    <li>
+        Run Visual Studio with debugging with the profile for which you have added the environement variables.
+    </li>
+</ol>
+
+<div>
+    "environmentVariables": {
+</div>
+<div style="margin-left:2cm">
+    "ASPNETCORE_ENVIRONMENT": "Development"
+</div>
+@{
+    foreach (string environmentVariable in importantEnvironmentVariables)
+    {
+        <div style="margin-left:2cm">"@environmentVariable": "@Environment.GetEnvironmentVariable(environmentVariable)"</div>
+    }
+
+    List<string> headers = new List<string>();
+    foreach (string header in importantHeaders)
+    {
+        headers.Add($"{header}={Model.HttpContext.Request.Headers[header]}");
+    }
+
+    <div style="margin-left:2cm">"EASY_AUTH_LOCAL_DEBUG": "@string.Join(";", headers)"</div>
+}
+    }
+
+
+
