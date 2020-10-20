@@ -44,7 +44,18 @@ namespace Microsoft.Identity.Web
             IEnumerable<string>? initialScopes = null)
         {
             return EnableTokenAcquisitionToCallDownstreamApi(
-                options => ConfigurationSection.Bind(options),
+                options =>
+                {
+                    ConfigurationSection.Bind(options);
+                    if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
+                    {
+                        options.ClientId = AppServicesAuthenticationInformation.ClientId;
+                        options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
+                        options.Instance = AppServicesAuthenticationInformation.Issuer;
+                    }
+
+                    Services.AddHttpClient();
+                },
                 initialScopes);
         }
     }

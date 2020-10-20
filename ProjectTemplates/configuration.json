@@ -5,7 +5,6 @@
         "B2C_Authority": "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
 
         "B2C_Client_ClientId": "fdb91ff5-5ce6-41f3-bdbd-8267c817015d",
-        "B2C_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
         "B2C_Client_Port": "44365",
 
         "B2C_WebApi_ClientId": "90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6",
@@ -19,11 +18,12 @@
         "AAD_Authority": "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
 
         "AAD_Client_ClientId": "86699d80-dd21-476a-bcd1-7c1a3d471f75",
-        "AAD_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
         "AAD_Client_Port": "44357",
 
         "AAD_WebApi_ClientId": "a4c2469b-cf84-4145-8f5f-cb7bacf814bc",
         "AAD_WebApi_Port": "44351",
+        "B2C_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
+        "AAD_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
         "AAD_WebApi_ClientSecret": "[Copy the client secret added to the app from the Azure portal]"
     },
     "Projects": [

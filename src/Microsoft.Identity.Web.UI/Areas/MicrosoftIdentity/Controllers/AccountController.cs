@@ -92,15 +92,22 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         [HttpGet("{scheme?}")]
         public IActionResult SignOut([FromRoute] string scheme)
         {
-            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            var callbackUrl = Url.Page("/Account/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
-            return SignOut(
-                 new AuthenticationProperties
-                 {
-                     RedirectUri = callbackUrl,
-                 },
-                 CookieAuthenticationDefaults.AuthenticationScheme,
-                 scheme);
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
+            {
+                return LocalRedirect(AppServicesAuthenticationInformation.LogoutUrl);
+            }
+            else
+            {
+                scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+                var callbackUrl = Url.Page("/Account/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
+                return SignOut(
+                     new AuthenticationProperties
+                     {
+                         RedirectUri = callbackUrl,
+                     },
+                     CookieAuthenticationDefaults.AuthenticationScheme,
+                     scheme);
+            }
         }
 
         /// <summary>

@@ -94,6 +94,7 @@ namespace Microsoft.Identity.Web
         internal const string Authorization = "Authorization";
         internal const string ApplicationJson = "application/json";
         internal const string ISessionStore = "ISessionStore";
+        internal const string True = "True";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

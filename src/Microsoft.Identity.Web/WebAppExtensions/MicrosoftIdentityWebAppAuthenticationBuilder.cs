@@ -88,68 +88,75 @@ namespace Microsoft.Identity.Web
 
             services.AddHttpContextAccessor();
 
-            services.AddTokenAcquisition();
+            if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
+            {
+                services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
+            }
+            else
+            {
+                services.AddTokenAcquisition();
 
-            services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                 .Configure<IServiceProvider>((options, serviceProvider) =>
-                 {
-                     options.ResponseType = OpenIdConnectResponseType.Code;
-                     options.UsePkce = false;
+                services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                   .Configure<IServiceProvider>((options, serviceProvider) =>
+                   {
+                       options.ResponseType = OpenIdConnectResponseType.Code;
+                       options.UsePkce = false;
 
-                     // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
-                     // It's required by MSAL.NET and automatically provided when users sign-in with work or school accounts
-                     options.Scope.Add(OidcConstants.ScopeOfflineAccess);
-                     if (initialScopes != null)
-                     {
-                         foreach (string scope in initialScopes)
-                         {
-                             if (!options.Scope.Contains(scope))
-                             {
-                                 options.Scope.Add(scope);
-                             }
-                         }
-                     }
+                       // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
+                       // It's required by MSAL.NET and automatically provided when users sign-in with work or school accounts
+                       options.Scope.Add(OidcConstants.ScopeOfflineAccess);
+                       if (initialScopes != null)
+                       {
+                           foreach (string scope in initialScopes)
+                           {
+                               if (!options.Scope.Contains(scope))
+                               {
+                                   options.Scope.Add(scope);
+                               }
+                           }
+                       }
 
-                     // Handling the auth redemption by MSAL.NET so that a token is available in the token cache
-                     // where it will be usable from Controllers later (through the TokenAcquisition service)
-                     var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
-                     options.Events.OnAuthorizationCodeReceived = async context =>
-                     {
-                         var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                         await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
-                         await codeReceivedHandler(context).ConfigureAwait(false);
-                     };
+                       // Handling the auth redemption by MSAL.NET so that a token is available in the token cache
+                       // where it will be usable from Controllers later (through the TokenAcquisition service)
+                       var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
+                       options.Events.OnAuthorizationCodeReceived = async context =>
+                       {
+                           var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                           await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
+                           await codeReceivedHandler(context).ConfigureAwait(false);
+                       };
 
-                     // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
-                     var onTokenValidatedHandler = options.Events.OnTokenValidated;
-                     options.Events.OnTokenValidated = async context =>
-                     {
-                         string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                       // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
+                       var onTokenValidatedHandler = options.Events.OnTokenValidated;
+                       options.Events.OnTokenValidated = async context =>
+                       {
+                           string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
-                         if (!string.IsNullOrEmpty(clientInfo))
-                         {
-                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
+                           if (!string.IsNullOrEmpty(clientInfo))
+                           {
+                               ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                             if (clientInfoFromServer != null)
-                             {
-                                 context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                 context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                             }
-                         }
+                               if (clientInfoFromServer != null)
+                               {
+                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                               }
+                           }
 
-                         await onTokenValidatedHandler(context).ConfigureAwait(false);
-                     };
+                           await onTokenValidatedHandler(context).ConfigureAwait(false);
+                       };
 
-                     // Handling the sign-out: removing the account from MSAL.NET cache
-                     var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
-                     options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
-                     {
-                         // Remove the account from MSAL.NET token cache
-                         var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                         await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                         await signOutHandler(context).ConfigureAwait(false);
-                     };
-                 });
+                       // Handling the sign-out: removing the account from MSAL.NET cache
+                       var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
+                       options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
+                       {
+                             // Remove the account from MSAL.NET token cache
+                             var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                             await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                             await signOutHandler(context).ConfigureAwait(false);
+                       };
+                   });
+            }
         }
     }
 }
