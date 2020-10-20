@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
                         Constants.NameClaim, // v1.0
                         ClaimsIdentity.DefaultRoleClaimType));
 
-                    AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServiceAuthenticationDefaults.AuthenticationScheme);
+                    AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);
                     AuthenticateResult success = AuthenticateResult.Success(ticket);
                     return Task<AuthenticateResult>.FromResult<AuthenticateResult>(success);
                 }

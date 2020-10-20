@@ -53,8 +53,8 @@ namespace Microsoft.Identity.Web
                         options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
                         options.Instance = AppServicesAuthenticationInformation.Issuer;
                     }
-                    Services.AddHttpClient();
 
+                    Services.AddHttpClient();
                 },
                 initialScopes);
         }
