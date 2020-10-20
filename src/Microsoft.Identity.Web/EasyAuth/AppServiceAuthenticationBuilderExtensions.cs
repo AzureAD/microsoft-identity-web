@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
     public static class AppServiceAuthenticationBuilderExtensions
     {
         /// <summary>
-        /// Add authentication with App services.
+        /// Add authentication with App Services.
         /// </summary>
         /// <param name="builder">Authentication build.</param>
         /// <returns>The builder, to chain commands.</returns>
