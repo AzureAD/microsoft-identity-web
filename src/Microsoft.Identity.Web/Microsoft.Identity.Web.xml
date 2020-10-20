@@ -1216,11 +1216,16 @@
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.ChallengeUser(System.String[],System.String,System.String)">
             <summary>
-            
+            Forces the user to consent to specific scopes and perform
+            Conditional Access to get specific claims. Use on a Razor/Blazor
+            page or controller to proactively ensure the scopes and/or claims
+            before acquiring a token. The other mechanism <see cref="M:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler.HandleException(System.Exception)"/>
+            ensures claims and scopes requested by Azure AD after a failed token acquisition attempt.
+            See https://aka.ms/ms-id-web/ca_incremental-consent for details.
             </summary>
-            <param name="scopes"></param>
-            <param name="claims"></param>
-            <param name="userflow"></param>
+            <param name="scopes">Scopes to request.</param>
+            <param name="claims">Claims to ensure.</param>
+            <param name="userflow">Userflow being invoked for AAD B2C.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityOptions">
             <summary>
@@ -1817,6 +1822,12 @@
         <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.ExtraQueryParameters">
             <summary>
             Sets Extra Query Parameters for the query string in the HTTP authentication request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.Claims">
+            <summary>
+            A string with one or multiple claims to request.
+            Normally used with Conditional Access.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.ForceRefresh">
