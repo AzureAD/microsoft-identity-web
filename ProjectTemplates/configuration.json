@@ -22,9 +22,9 @@
 
         "AAD_WebApi_ClientId": "a4c2469b-cf84-4145-8f5f-cb7bacf814bc",
         "AAD_WebApi_Port": "44351",
-        "B2C_Client_ClientSecret": "X330F3#92!z614M4",
-        "AAD_Client_ClientSecret": "fvHwfoLA8Zls6Huj5MBUQUDrJ5HXrauFQKDd2CacxJQ=",
-        "AAD_WebApi_ClientSecret": "DuJFu_DB_L_MiR5c4cEuv_d.VGr3WZ~9gS"
+        "B2C_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
+        "AAD_Client_ClientSecret": "[Copy the client secret added to the app from the Azure portal]",
+        "AAD_WebApi_ClientSecret": "[Copy the client secret added to the app from the Azure portal]"
     },
     "Projects": [
         {
