@@ -31,9 +31,6 @@ namespace Microsoft.Identity.Web
                 AppServiceAuthenticationDefaults.AuthenticationScheme,
                 options => { });
 
-            builder.Services.AddHttpClient();
-            builder.Services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
-
             return builder;
         }
     }

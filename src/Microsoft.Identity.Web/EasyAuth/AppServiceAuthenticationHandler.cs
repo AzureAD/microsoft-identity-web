@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
                     ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
                         jsonWebToken.Claims,
                         idp,
-                        "name",
+                        "name", // v1.0
                         ClaimsIdentity.DefaultRoleClaimType));
 
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServiceAuthenticationDefaults.AuthenticationScheme);
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdpTokenHeader);
+                idp = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(EasyAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = AppServiceAuthenticationInformation.GetDebugHeader(EasyAuthIdTokenHeader);
+                idToken = AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(EasyAuthIdTokenHeader);
             }
 #endif
             return idToken;

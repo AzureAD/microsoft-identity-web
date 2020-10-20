@@ -18,82 +18,35 @@ namespace WebApplication1.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-
-        /*
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-        */
-
-        /*
-        private readonly ITokenAcquisition _tokenAcquision;
-
-        public HomeController(ILogger<HomeController> logger, ITokenAcquisition tokenAcquision)
-        {
-            _logger = logger;
-            _tokenAcquision = tokenAcquision;
-        }
-
-        public async Task<IActionResult> Index()
-        {
-            string token = await _tokenAcquision.GetAccessTokenForUserAsync(new string[] { "user.read" });
-            ViewData["name"] = token;
-            return View();
-        }
-        */
-
-        /*
-        private readonly IDownstreamWebApi _downstreamWebApi;
-
-        public HomeController(ILogger<HomeController> logger, IDownstreamWebApi downstreamWebApi)
-        {
-            _logger = logger;
-            _downstreamWebApi = downstreamWebApi;
-        }
-
-        public async Task<IActionResult> Index()
-        {
-            HttpResponseMessage response = await _downstreamWebApi.CallWebApiForUserAsync("GraphBeta");
-            ViewData["name"] = await response.Content.ReadAsStringAsync();
-            return View();
-        }
-        */
-
-
         private readonly GraphServiceClient _graphServiceClient;
 
-                public HomeController(ILogger<HomeController> logger, GraphServiceClient graphServiceClient)
+        public HomeController(ILogger<HomeController> logger, GraphServiceClient graphServiceClient)
+        {
+            _logger = logger;
+            _graphServiceClient = graphServiceClient;
+        }
+
+        [AuthorizeForScopes(Scopes = new[] { "user.read" })]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+
+            try
+            {
+                using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
                 {
-                    _logger = logger;
-                    _graphServiceClient = graphServiceClient;
+                    byte[] photoByte = ((MemoryStream)photoStream).ToArray();
+                    ViewData["photo"] = Convert.ToBase64String(photoByte);
                 }
+                ViewData["name"] = user.DisplayName;
+            }
+            catch (Exception)
+            {
+                ViewData["photo"] = null;
+            }
 
-                public async Task<IActionResult> Index()
-                {
-                    var user = await _graphServiceClient.Me.Request().GetAsync();
-
-                    try
-                    {
-                        using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
-                        {
-                            byte[] photoByte = ((MemoryStream)photoStream).ToArray();
-                            ViewData["photo"] = Convert.ToBase64String(photoByte);
-                        }
-                        ViewData["name"] = user.DisplayName;
-                    }
-                    catch (Exception)
-                    {
-                        ViewData["photo"] = null;
-                    }
-
-                    return View();
-                }
+            return View();
+        }
 
 
         public IActionResult Privacy()

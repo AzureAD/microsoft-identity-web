@@ -154,21 +154,13 @@ namespace Microsoft.Identity.Web
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 IConfigurationSection configurationSection)
         {
-            if (!AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
-            {
-                AddMicrosoftIdentityWebAppInternal(
-                    builder,
-                    configureMicrosoftIdentityOptions,
-                    configureCookieAuthenticationOptions,
-                    openIdConnectScheme,
-                    cookieScheme,
-                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
-            }
-            else
-            {
-               builder.Services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
-                   .AddAppServiceAuthentication();
-            }
+            AddMicrosoftIdentityWebAppInternal(
+                builder,
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
 
             return new MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
                 builder.Services,
@@ -250,6 +242,13 @@ namespace Microsoft.Identity.Web
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
                 builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
+            }
+
+            if (AppServiceAuthenticationInformation.IsAppServiceAadAuthenticationEnabled)
+            {
+                builder.Services.AddAuthentication(AppServiceAuthenticationDefaults.AuthenticationScheme)
+                    .AddAppServiceAuthentication();
+                return;
             }
 
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });

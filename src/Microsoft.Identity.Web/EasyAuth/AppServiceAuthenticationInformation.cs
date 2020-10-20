@@ -17,12 +17,12 @@ namespace Microsoft.Identity.Web
         private const string EasyAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER"; // for instance https://sts.windows.net/<tenantId>/
         private const string EasyAuthClientIdEnvironmentVariable = "WEBSITE_AUTH_CLIENT_ID";         // A GUID
         private const string EasyAuthClientSecretEnvironmentVariable = "WEBSITE_AUTH_CLIENT_SECRET"; // A string
-        private const string EasyAuthLogoutPathEnvironementVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
+        private const string EasyAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         private const string EasyAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         private const string EasyAuthAzureActiveDirectory = "AzureActiveDirectory";
 
         // Artificially added by Microsoft.Identity.Web to help debugging Easy Auth. See the Debug controller of the test app
-        private const string EasyAuthDebugHeadersEnvironementVariable = "EASY_AUTH_LOCAL_DEBUG";
+        private const string EasyAuthDebugHeadersEnvironmentVariable = "EASY_AUTH_LOCAL_DEBUG";
 
         /// <summary>
         /// Is AppService authentication enabled?.
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EasyAuthEnabledEnvironmentVariable))
+                return (Environment.GetEnvironmentVariable(EasyAuthEnabledEnvironmentVariable) == "True")
                     && Environment.GetEnvironmentVariable(EasyAuthIdentityProviderEnvironmentVariable) == EasyAuthAzureActiveDirectory;
             }
         }
@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return Environment.GetEnvironmentVariable(EasyAuthLogoutPathEnvironementVariable);
+                return Environment.GetEnvironmentVariable(EasyAuthLogoutPathEnvironmentVariable);
             }
         }
 
@@ -80,15 +80,17 @@ namespace Microsoft.Identity.Web
             }
         }
 
+#if DEBUG
         /// <summary>
         /// Get headers from environement to help debugging easy auth authentication.
         /// </summary>
-        internal static string? GetDebugHeader(string header)
+        internal static string? SimulateGetttingHeaderFromDebugEnvironmentVariable(string header)
         {
-            string? headerPlusValue = Environment.GetEnvironmentVariable(EasyAuthDebugHeadersEnvironementVariable)
+            string? headerPlusValue = Environment.GetEnvironmentVariable(EasyAuthDebugHeadersEnvironmentVariable)
                 ?.Split(';')
                 ?.FirstOrDefault(h => h.StartsWith(header));
             return headerPlusValue?.Substring(header.Length + 1);
         }
+#endif
     }
 }

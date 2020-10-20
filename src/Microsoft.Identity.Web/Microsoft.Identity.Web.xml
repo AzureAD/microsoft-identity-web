@@ -848,7 +848,7 @@
             ClientID of the Easy Auth web site.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationInformation.GetDebugHeader(System.String)">
+        <member name="M:Microsoft.Identity.Web.AppServiceAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(System.String)">
             <summary>
             Get headers from environement to help debugging easy auth authentication.
             </summary>
