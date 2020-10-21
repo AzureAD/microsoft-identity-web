@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             builder.Services.AddOptions<MicrosoftGraphOptions>().Configure(configureMicrosoftGraphOptions);
 
-            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
                 var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
@@ -109,7 +109,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
@@ -134,7 +134,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
