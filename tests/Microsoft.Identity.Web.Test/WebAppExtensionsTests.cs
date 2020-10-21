@@ -413,7 +413,6 @@ namespace Microsoft.Identity.Web.Test
             string[] initialScopes = new string[] { };
 
             builder.AddMicrosoftGraph(authProvider => new GraphServiceClient(authProvider), initialScopes);
-
         }
 
         [Fact]
@@ -430,7 +429,6 @@ namespace Microsoft.Identity.Web.Test
             string[] initialScopes = new string[] { };
 
             builder.AddMicrosoftGraphAppOnly(authProvider => new GraphServiceClient(authProvider));
-
         }
 
         [Theory]
