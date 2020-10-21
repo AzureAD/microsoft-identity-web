@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Globalization;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -39,6 +38,13 @@ namespace Microsoft.Identity.Web
             if (msalAuthProviderOption != null) {
                 scopes = msalAuthProviderOption.Scopes ?? scopes;
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
+            }
+
+            if (scopes == null)
+            {
+                throw new ArgumentNullException(
+                    "scopes",
+                    "You need to either pass-in scopes to AddMicrosoftGraph, in the appsettings.json file, or with .WithScopes() on the graph queries. See https://aka.ms/msal-net/microsoftGraph");
             }
 
             string token;

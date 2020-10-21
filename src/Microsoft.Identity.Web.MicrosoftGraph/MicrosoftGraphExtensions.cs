@@ -98,7 +98,6 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder</param>
         /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient</param>
         /// <param name="initialScopes">Initial scopes</param>
-        /// <param name="appOnly">Initial scopes</param>
         /// <returns></returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
