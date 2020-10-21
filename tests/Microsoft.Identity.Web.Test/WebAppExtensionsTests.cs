@@ -399,6 +399,40 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
         }
 
+        [Fact]
+        public void AddMicrosoftGraphUsingFactoryFunction()
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+            string[] initialScopes = new string[] { };
+
+            builder.AddMicrosoftGraph(authProvider => new GraphServiceClient(authProvider), initialScopes);
+
+        }
+
+        [Fact]
+        public void AddMicrosoftGraphAppOnlyUsingFactoryFunction()
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+            string[] initialScopes = new string[] { };
+
+            builder.AddMicrosoftGraphAppOnly(authProvider => new GraphServiceClient(authProvider));
+
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
