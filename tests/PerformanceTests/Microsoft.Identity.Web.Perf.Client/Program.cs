@@ -11,14 +11,15 @@ namespace Microsoft.Identity.Web.Perf.Client
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Test run start.");
-            IConfiguration Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-            var options = new TestRunnerOptions();
-            Configuration.Bind("TestRunner", options);
+            Console.WriteLine("Test run start. Press Esc to stop.");
             try
             {
+                IConfiguration configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .Build();
+                var options = new TestRunnerOptions();
+                configuration.Bind("TestRunner", options);
+
                 await new TestRunner(options).Run();
             }
             catch (Exception ex)
