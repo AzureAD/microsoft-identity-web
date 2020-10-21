@@ -1690,6 +1690,17 @@
             <remarks>When the scopes don't match, the response is a 403 (Forbidden),
             because the user is authenticated (hence not 401), but not authorized.</remarks>
         </member>
+        <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
+            <summary>
+            Options passed-in to create the AadIssuerValidator object.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AadIssuerValidatorOptions.HttpClientName">
+            <summary>
+            Sets the name of the HttpClient to get from the IHttpClientFactory for use with the configuration manager.
+            Needed when customizing the client such as configuring a proxy.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.ServiceCollectionExtensions">
             <summary>
             Extensions for IServiceCollection for startup initialization of web APIs.
