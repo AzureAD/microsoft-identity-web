@@ -38,9 +38,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\BaseRequestExtensions.cs" Link="BaseRequestExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphExtensions.cs" Link="MicrosoftGraphExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphOptions.cs" Link="MicrosoftGraphOptions.cs" />
-    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionCredentialProvider.cs" Link="TokenAcquisitionCredentialProvider.cs" />
+    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionAuthenticationProvider.cs" Link="TokenAcquisitionAuthenticationProvider.cs" />
+    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionAuthenticationProviderOption.cs" Link="TokenAcquisitionAuthenticationProviderOption.cs" />
   </ItemGroup>
 
   <ItemGroup>
