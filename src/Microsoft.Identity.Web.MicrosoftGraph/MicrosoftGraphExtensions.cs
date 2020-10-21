@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -67,7 +70,7 @@ namespace Microsoft.Identity.Web
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             builder.Services.AddOptions<MicrosoftGraphOptions>().Configure(configureMicrosoftGraphOptions);
 
-            builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
                 var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
@@ -82,9 +85,60 @@ namespace Microsoft.Identity.Web
                 string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
 
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                            new GraphServiceClient(new TokenAcquisitionCredentialProvider(tokenAquisitionService, initialScopes)) :
-                            new GraphServiceClient(graphBaseUrl, new TokenAcquisitionCredentialProvider(tokenAquisitionService, initialScopes));
+                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
+                            new GraphServiceClient(graphBaseUrl, new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
                 return client;
+            });
+            return builder;
+        }
+
+        /// <summary>
+        /// Add support to call Microsoft Graph.  
+        /// </summary>
+        /// <param name="builder">Builder</param>
+        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient</param>
+        /// <param name="initialScopes">Initial scopes</param>
+        /// <param name="appOnly">Initial scopes</param>
+        /// <returns></returns>
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
+            Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory, IEnumerable<string> initialScopes)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            {
+                ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+            });
+            return builder;
+        }
+
+
+        /// <summary>
+        /// Add support to call Microsoft Graph.  
+        /// </summary>
+        /// <param name="builder">Builder</param>
+        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient</param>
+        /// <returns></returns>
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphAppOnly(
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
+            Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.AddSingleton<GraphServiceClient, GraphServiceClient>(serviceProvider =>
+            {
+                ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
             });
             return builder;
         }
