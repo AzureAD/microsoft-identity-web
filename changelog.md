@@ -1,3 +1,21 @@
+1.2.0
+==========
+### New Features:
+**Microsoft Identity Web now supports App Services Authentication with Azure AD**. See https://aka.ms/ms-id-web/AppServicesAuth and issue [#8](https://github.com/AzureAD/microsoft-identity-web/issues/8) for details.
+
+**Microsoft Identity Web now supports a variety of generic extension methods for use with the downstream web API calls**. See issue [#537](https://github.com/AzureAD/microsoft-identity-web/issues/537) for details.
+
+**To better support Conditional Access scenarios, TokenAcquisitionOptions now have a Claims property**. See issue [#677](https://github.com/AzureAD/microsoft-identity-web/issues/677) for details.
+
+**Using AJAX to make calls to a .NET Core application is now possible with Microsoft Identity Web**. See issues [#642](https://github.com/AzureAD/microsoft-identity-web/issues/642) and [#603](https://github.com/AzureAD/microsoft-identity-web/issues/603).
+
+### Bug Fixes:
+**The Microsoft.Identity.Web.UI dll now includes strong name validation**. See issue [#682](https://github.com/AzureAD/microsoft-identity-web/issues/682).
+
+**The AadIssuerValidator class no longer has a static ConfigurationManager, and is instead an injectable singleton**. See issue [#402](https://github.com/AzureAD/microsoft-identity-web/issues/402) for details.
+
+**Microsoft Identity Web would try to add to the authorization header, at times, resulting in a format exception**. Now the existing header is removed and replaced with the current one. See issue [#673](https://github.com/AzureAD/microsoft-identity-web/issues/673) for details.
+
 1.1.0
 ===========
 ### New Features:
