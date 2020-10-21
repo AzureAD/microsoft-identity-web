@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         public HttpClient CreateClient(string name)
         {
-            SocketsHttpHandler socketsHttpHandler = new SocketsHttpHandler();
+            using SocketsHttpHandler socketsHttpHandler = new SocketsHttpHandler();
             socketsHttpHandler.UseProxy = true;
             return new HttpClient(socketsHttpHandler);
         }
