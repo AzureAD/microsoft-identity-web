@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {

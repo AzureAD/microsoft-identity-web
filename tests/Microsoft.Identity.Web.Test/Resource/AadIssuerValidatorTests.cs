@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;

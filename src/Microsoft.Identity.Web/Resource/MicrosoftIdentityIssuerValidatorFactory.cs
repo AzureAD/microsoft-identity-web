@@ -21,11 +21,21 @@ namespace Microsoft.Identity.Web.Resource
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            _configManager =
-            new ConfigurationManager<IssuerMetadata>(
-                Constants.AzureADIssuerMetadataUrl,
-                new IssuerConfigurationRetriever(),
-                httpClientFactory?.CreateClient(aadIssuerValidatorOptions?.Value?.HttpClientName));
+            if (aadIssuerValidatorOptions?.Value?.HttpClientName != null)
+            {
+                _configManager =
+                new ConfigurationManager<IssuerMetadata>(
+                    Constants.AzureADIssuerMetadataUrl,
+                    new IssuerConfigurationRetriever(),
+                    httpClientFactory.CreateClient(aadIssuerValidatorOptions.Value.HttpClientName));
+            }
+            else
+           {
+                _configManager =
+                new ConfigurationManager<IssuerMetadata>(
+                    Constants.AzureADIssuerMetadataUrl,
+                    new IssuerConfigurationRetriever());
+            }
         }
 
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();

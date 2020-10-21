@@ -12,6 +12,6 @@ namespace Microsoft.Identity.Web
         /// Sets the name of the HttpClient to get from the IHttpClientFactory for use with the configuration manager.
         /// Needed when customizing the client such as configuring a proxy.
         /// </summary>
-        public string? HttpClientName { get; set; } = null!;
+        public string? HttpClientName { get; set; }
     }
 }
