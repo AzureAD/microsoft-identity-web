@@ -3,24 +3,24 @@
 ### New Features:
 **Microsoft Identity Web now supports App Services Authentication with Azure AD**. See https://aka.ms/ms-id-web/AppServicesAuth and issue [#8](https://github.com/AzureAD/microsoft-identity-web/issues/8) for details.
 
-**Microsoft Identity Web now enables the usage of the GraphServiceClient to call the Graph APIs with app only permissions**. See https://aka.ms/msal-net/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
+**Microsoft Identity Web now enables the usage of the `GraphServiceClient` to call the Graph APIs with app only permissions**. See https://aka.ms/msal-net/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
 
 **Microsoft Identity Web now supports a variety of generic extension methods for use with the downstream web API calls**. See issue [#537](https://github.com/AzureAD/microsoft-identity-web/issues/537) for details.
 
-**To better support Conditional Access scenarios, TokenAcquisitionOptions now have a Claims property**. See issue [#677](https://github.com/AzureAD/microsoft-identity-web/issues/677) for details.
+**To better support Conditional Access scenarios, `TokenAcquisitionOptions` now have a `Claims` property**. See issue [#677](https://github.com/AzureAD/microsoft-identity-web/issues/677) for details.
 
 **Using AJAX to make calls to a .NET Core application is now possible with Microsoft Identity Web**. See issues [#642](https://github.com/AzureAD/microsoft-identity-web/issues/642) and [#603](https://github.com/AzureAD/microsoft-identity-web/issues/603).
 
-**In order to enable web APIs called by daemon applications to handle tokens without a roles claim, Microsoft Identity Web now exposes a boolean property in MicrosoftIdentityOptions**. See issue [#707](https://github.com/AzureAD/microsoft-identity-web/issues/707) for details.
+**In order to enable web APIs called by daemon applications to handle tokens without a roles claim, Microsoft Identity Web now exposes a boolean property in `MicrosoftIdentityOptions`**. See issue [#707](https://github.com/AzureAD/microsoft-identity-web/issues/707) for details.
 
 ### Bug Fixes:
-**The Microsoft.Identity.Web.UI dll now includes strong name validation**. See issue [#682](https://github.com/AzureAD/microsoft-identity-web/issues/682).
+**The Microsoft.Identity.Web.UI DLL now includes strong name validation**. See issue [#682](https://github.com/AzureAD/microsoft-identity-web/issues/682).
 
-**The AadIssuerValidator class no longer has a static ConfigurationManager, and is instead an injectable singleton**. See issue [#402](https://github.com/AzureAD/microsoft-identity-web/issues/402) for details.
+**The `AadIssuerValidator` class no longer has a static `ConfigurationManager`, and is instead an injectable singleton**. See issue [#402](https://github.com/AzureAD/microsoft-identity-web/issues/402) for details.
 
 **Microsoft Identity Web would try to add to the authorization header, at times, resulting in a format exception**. Now the existing header is removed and replaced with the current one. See issue [#673](https://github.com/AzureAD/microsoft-identity-web/issues/673) for details.
 
-**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the IHttpClientFactory to include a name option which will be passed to CreateClient via the AadIssuerValidatorOptions**. See https://aka.ms/ms-identity-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
+**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the `IHttpClientFactory` to include a name option which will be passed to `CreateClient` via the `AadIssuerValidatorOptions`**. See https://aka.ms/ms-identity-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
 
 1.1.0
 ===========
