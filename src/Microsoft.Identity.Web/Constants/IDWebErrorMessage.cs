@@ -64,5 +64,8 @@ namespace Microsoft.Identity.Web
         public const string InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. " +
             "StoreLocation must be one of 'CurrentUser', 'CurrentMachine'. " +
             "StoreName must be empty or one of '{0}'. ";
+
+        // Obsolete messages IDW10800 = "IDW10800:"
+        public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0";
     }
 }

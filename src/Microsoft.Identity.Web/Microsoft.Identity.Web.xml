@@ -1473,6 +1473,13 @@
             <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
             <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
         </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
+            <summary>
+            This method is no longer static and now Obsolete.
+            </summary>
+            <param name="aadAuthority">Aad authority.</param>
+            <returns>NotImplementedException.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
             <summary>
             Interface implemented by diagnostics for the JWT Bearer middleware.
@@ -1541,6 +1548,13 @@
             <summary>
             Factory class for creating the IssuerValidator per authority.
             </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.AadIssuerValidatorOptions},System.Net.Http.IHttpClientFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory"/> class.
+            </summary>
+            <param name="aadIssuerValidatorOptions">Options passed-in to create the AadIssuerValidator object.</param>
+            <param name="httpClientFactory">HttpClientFactory.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
             <summary>
