@@ -195,5 +195,16 @@ namespace Microsoft.Identity.Web.Resource
 
             return string.Empty;
         }
+
+        /// <summary>
+        /// This method is no longer static and now Obsolete.
+        /// </summary>
+        /// <param name="aadAuthority">Aad authority.</param>
+        /// <returns>NotImplementedException.</returns>
+        [Obsolete(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete, true)]
+        public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
+        {
+            throw new NotImplementedException(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete);
+        }
     }
 }
