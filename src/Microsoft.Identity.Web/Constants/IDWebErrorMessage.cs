@@ -33,6 +33,7 @@ namespace Microsoft.Identity.Web
         public const string BlazorServerBaseUriNotSet = "IDW10205: Using Blazor server but the base URI was not properly set. ";
         public const string BlazorServerUserNotSet = "IDW10206: Using Blazor server but the user was not properly set. ";
         public const string CalledApiScopesAreNull = "IDW10207: The CalledApiScopes cannot be null. ";
+        public const string ScopesRequiredToCallMicrosoftGraph = "IDW10208: You need to either pass-in scopes to AddMicrosoftGraph, in the appsettings.json file, or with .WithScopes() on the Graph queries. See https://aka.ms/msal-net/microsoftGraph. ";
 
         // Token Validation IDW10300 = "IDW10300:"
         public const string IssuerMetadataUrlIsRequired = "IDW10301: Azure AD Issuer metadata address URL is required. ";

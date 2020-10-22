@@ -43,14 +43,14 @@ namespace Microsoft.Identity.Web
             if (scopes == null)
             {
                 throw new ArgumentNullException(
-                    "scopes",
-                    "You need to either pass-in scopes to AddMicrosoftGraph, in the appsettings.json file, or with .WithScopes() on the graph queries. See https://aka.ms/msal-net/microsoftGraph");
+                    Constants.Scopes,
+                    IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
             string token;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope).ConfigureAwait(false);
             }
             else
             {
