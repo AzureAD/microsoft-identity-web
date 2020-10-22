@@ -85,8 +85,13 @@ namespace Microsoft.Identity.Web
                 string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
 
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
-                            new GraphServiceClient(graphBaseUrl, new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
+                                tokenAquisitionService,
+                                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
+                            new GraphServiceClient(graphBaseUrl,
+                                new TokenAcquisitionAuthenticationProvider(
+                                    tokenAquisitionService,
+                                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
                 return client;
             });
             return builder;
@@ -95,11 +100,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Add support to call Microsoft Graph.  
         /// </summary>
-        /// <param name="builder">Builder</param>
-        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient</param>
-        /// <param name="initialScopes">Initial scopes</param>
-        /// <param name="appOnly">Initial scopes</param>
-        /// <returns></returns>
+        /// <param name="builder">Builder.</param>
+        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient.</param>
+        /// <param name="initialScopes">Initial scopes.</param>
+        /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory, IEnumerable<string> initialScopes)
@@ -113,7 +117,9 @@ namespace Microsoft.Identity.Web
             {
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
-                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
+                    tokenAquisitionService,
+                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
             });
             return builder;
         }
@@ -122,9 +128,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Add support to call Microsoft Graph.  
         /// </summary>
-        /// <param name="builder">Builder</param>
-        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient</param>
-        /// <returns></returns>
+        /// <param name="builder">Builder.</param>
+        /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient.</param>
+        /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraphAppOnly(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory)
@@ -138,7 +144,9 @@ namespace Microsoft.Identity.Web
             {
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
-                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(tokenAquisitionService, new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
+                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
+                    tokenAquisitionService,
+                    new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
             });
             return builder;
         }

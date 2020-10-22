@@ -219,13 +219,16 @@ namespace Microsoft.Identity.Web
                     var tokenValidatedHandler = options.Events.OnTokenValidated;
                     options.Events.OnTokenValidated = async context =>
                     {
-                        // This check is required to ensure that the web API only accepts tokens from tenants where it has been consented and provisioned.
-                        if (!context.Principal.Claims.Any(x => x.Type == ClaimConstants.Scope)
-                        && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Scp)
-                        && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
-                        && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
+                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)
                         {
-                            throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
+                            // This check is required to ensure that the web API only accepts tokens from tenants where it has been consented and provisioned.
+                            if (!context.Principal.Claims.Any(x => x.Type == ClaimConstants.Scope)
+                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Scp)
+                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
+                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
+                            {
+                                throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
+                            }
                         }
 
                         await tokenValidatedHandler(context).ConfigureAwait(false);
