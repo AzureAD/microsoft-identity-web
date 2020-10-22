@@ -197,7 +197,7 @@ namespace Microsoft.Identity.Web.Resource
         }
 
         /// <summary>
-        /// This method is no longer static and now Obsolete.
+        /// This method is now Obsolete.
         /// </summary>
         /// <param name="aadAuthority">Aad authority.</param>
         /// <returns>NotImplementedException.</returns>
