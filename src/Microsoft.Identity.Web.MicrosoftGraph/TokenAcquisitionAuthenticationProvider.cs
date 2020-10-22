@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Globalization;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -41,10 +40,17 @@ namespace Microsoft.Identity.Web
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
             }
 
+            if (scopes == null)
+            {
+                throw new ArgumentNullException(
+                    Constants.Scopes,
+                    IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
+            }
+
             string token;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope).ConfigureAwait(false);
             }
             else
             {
