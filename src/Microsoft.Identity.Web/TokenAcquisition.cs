@@ -206,7 +206,11 @@ namespace Microsoft.Identity.Web
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _logger.LogInformation("The tenant used to create the authority is: {0}", tenant);
+
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+            _logger.LogInformation("The authority is: {0}", authority);
+
             AuthenticationResult? authenticationResult;
 
             try
