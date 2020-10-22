@@ -112,5 +112,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool SendX5C { get; set; }
+
+        /// <summary>
+        /// Daemon applications can validate a token based on roles, or using the ACL-based authorization
+        /// pattern to control tokens without a roles claim. If using ACL-based authorization,
+        /// Microsoft Identity Web will not throw if roles or scopes are not in the Claims.
+        /// For details see https://aka.ms/ms-identity-web/daemon-ACL.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool AllowWebApiToBeAuthorizedByACL { get; set; }
     }
 }
