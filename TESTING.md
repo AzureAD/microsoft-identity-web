@@ -38,9 +38,9 @@ In a Developer Command Prompt:
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.1.0`
+   `Set ClientSemVer=1.2.0`
 
-4. Add client secrets (or your own config file) to the Configuration.json file
+4. cd to ProjectTemplates and add the client secrets (or your own config file) to the Configuration.json file
 
    `"B2C_Client_ClientSecret": "secret_goes_here",`
 
@@ -48,22 +48,26 @@ In a Developer Command Prompt:
   
    `"AAD_WebApi_ClientSecret": "secret_goes_here"`
 
-5. Build the repo. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the `ProjectTemplates\bin\Debug` folder of the repo.
+5. Build the repo. 
+
+    `dotnet build Microsoft.Identity.Web.sln`
+
+6. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the `ProjectTemplates\bin\Debug` folder of the repo.
 
     The version should be the same as the value of `ClientSemVer` you set earlier. Also, if you downloaded the `Packages.zip` file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: 
     `copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug`
 
-6. Go to the ProjectTemplates folder `cd ProjectTemplates`
+7. Go to the ProjectTemplates folder `cd ProjectTemplates`
 
-7. Ensure that the NuGet packages that will be restored in the test projects are the ones <b>generated from the release build</b>. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just copy the <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/ProjectTemplates/nuget.config.release-build">Nuget.config.release-build </a> file to nuget.config into the same folder:
+8. Ensure that the NuGet packages that will be restored in the test projects are the ones <b>generated from the release build</b>. For this you can select the corresponding folder in the Visual Studio NuGet package options UI, or just copy the <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/ProjectTemplates/nuget.config.release-build">Nuget.config.release-build </a> file to nuget.config into the same folder:
 
     `copy nuget.config.release-build nuget.config`
 
-8. From ProjectTemplates folder, run the `Test-templates.bat` script with an argument to tell the script to pick-up the existing `Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg` file instead of regenerating it.
+9. From ProjectTemplates folder, run the `Test-templates.bat` script with an argument to tell the script to pick-up the existing `Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg` file instead of regenerating it.
 
     `Test-templates.bat DontGenerate`
     
-11. Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
+10. Don't commit the changes to the `configuration.json` (secrets) and the `NuGet.Config` (folder to pick-up NuGet packages from, as they depend on your local disk layout).
 
 ## How to generate the test projects for testing templates from the local repo
 
@@ -73,7 +77,7 @@ In a Developer Command Prompt:
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.1.0`
+   `Set ClientSemVer=1.2.0`
 
 3. Add client secrets to the Configuration.json file
 
