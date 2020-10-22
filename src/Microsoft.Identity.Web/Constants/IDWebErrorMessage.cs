@@ -66,6 +66,6 @@ namespace Microsoft.Identity.Web
             "StoreName must be empty or one of '{0}'. ";
 
         // Obsolete messages IDW10800 = "IDW10800:"
-        public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. ";
+        public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0";
     }
 }
