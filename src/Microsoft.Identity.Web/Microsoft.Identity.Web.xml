@@ -1475,7 +1475,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
             <summary>
-            This method is no longer static and now Obsolete.
+            This method is now Obsolete.
             </summary>
             <param name="aadAuthority">Aad authority.</param>
             <returns>NotImplementedException.</returns>
