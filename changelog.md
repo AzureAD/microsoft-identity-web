@@ -3,7 +3,7 @@
 ### New Features:
 **Microsoft Identity Web now supports App Services Authentication with Azure AD**. See https://aka.ms/ms-id-web/AppServicesAuth and issue [#8](https://github.com/AzureAD/microsoft-identity-web/issues/8) for details.
 
-**Microsoft Identity Web now enables the usage of the `GraphServiceClient` to call the Graph APIs with app only permissions**. See https://aka.ms/msal-net/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
+**Microsoft Identity Web now enables the usage of the `GraphServiceClient` to call the Graph APIs with app only permissions**. See https://aka.ms/ms-id-web/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
 
 **Microsoft Identity Web now supports a variety of generic extension methods for use with the downstream web API calls**. See issue [#537](https://github.com/AzureAD/microsoft-identity-web/issues/537) for details.
 
