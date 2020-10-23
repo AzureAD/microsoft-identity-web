@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
     /// Extension class providing the extension methods for <see cref="HttpContent"/> that
-    /// can be used in Web APIs to validate scopes in controller actions.
+    /// can be used in web APIs to validate scopes in controller actions.
     /// </summary>
     public static class ScopesRequiredHttpContextExtensions
     {
@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web.Resource
             else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
@@ -58,8 +59,9 @@ namespace Microsoft.Identity.Web.Resource
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = string.Format(CultureInfo.InvariantCulture, LogMessages.MissingScopes, string.Join(",", acceptedScopes));
+                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
                     context.Response.WriteAsync(message);
+                    throw new UnauthorizedAccessException(message);
                 }
             }
         }

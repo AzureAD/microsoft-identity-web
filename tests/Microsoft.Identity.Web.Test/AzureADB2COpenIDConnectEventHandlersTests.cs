@@ -26,22 +26,43 @@ namespace Microsoft.Identity.Web.Test
             _authScheme = new AuthenticationScheme(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme, typeof(OpenIdConnectHandler));
         }
 
-        [Fact]
-        public async void OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async void OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext(bool hasClientCredentials)
         {
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
+            if (hasClientCredentials)
+            {
+                options.ClientSecret = TestConstants.ClientSecret;
+            }
+
             var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, options);
             var httpContext = HttpContextUtilities.CreateHttpContext();
             var authProperties = new AuthenticationProperties();
             authProperties.Items.Add(OidcConstants.PolicyKey, CustomUserFlow);
-            var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties) { ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer } };
+            var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage()
+                {
+                    IssuerAddress = _defaultIssuer,
+                    Scope = TestConstants.Scopes,
+                },
+            };
 
             await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
-            Assert.Equal(OpenIdConnectScope.OpenIdProfile, context.ProtocolMessage.Scope);
-            Assert.Equal(OpenIdConnectResponseType.IdToken, context.ProtocolMessage.ResponseType);
+            Assert.Equal(TestConstants.Scopes, context.ProtocolMessage.Scope);
             Assert.Equal(_customIssuer, context.ProtocolMessage.IssuerAddress, true);
             Assert.False(context.Properties.Items.ContainsKey(OidcConstants.PolicyKey));
+            if (hasClientCredentials)
+            {
+                Assert.Equal(OpenIdConnectResponseType.CodeIdToken, context.ProtocolMessage.ResponseType);
+            }
+            else
+            {
+                Assert.Equal(OpenIdConnectResponseType.IdToken, context.ProtocolMessage.ResponseType);
+            }
         }
 
         [Fact]

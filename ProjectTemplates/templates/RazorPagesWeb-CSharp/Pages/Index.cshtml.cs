@@ -7,9 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +18,8 @@ using Microsoft.Extensions.Logging;
 namespace Company.WebApplication1.Pages
 {
 #if (GenerateApiOrGraph)
-    [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
-#endif 
+    [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+#endif
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -37,13 +36,19 @@ namespace Company.WebApplication1.Pages
 
         public async Task OnGet()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
-
-            // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me",
-            //                                                             new string[] {"user.read"});
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                ViewData["ApiResult"] = apiResult;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
         }
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public IndexModel(ILogger<IndexModel> logger,

@@ -10,14 +10,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
 using Microsoft.Extensions.Logging;
+#if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.Identity.Web.Resource;
+#endif
+
 namespace Company.WebApplication1.Controllers
 {
 #if (!NoAuth)
@@ -34,8 +36,8 @@ namespace Company.WebApplication1.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
+        // The Web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
+        static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
 
 #if (GenerateApi)
         private readonly IDownstreamWebApi _downstreamWebApi;
@@ -52,9 +54,17 @@ namespace Company.WebApplication1.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
-            string downstreamApiResult = await _downstreamWebApi.CallWebApi();
-            // You can also specify the relative endpoint and the scopes
-            // downstreamApiResult = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                // Do something
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -66,7 +76,7 @@ namespace Company.WebApplication1.Controllers
             .ToArray();
         }
 
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
@@ -100,8 +110,10 @@ namespace Company.WebApplication1.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+#if (OrganizationalAuth || IndividualB2CAuth)
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
+#endif
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

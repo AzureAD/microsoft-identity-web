@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
-        public static IServiceCollection AddDistributedTokenCaches(
+        internal static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
             AddDistributedAppTokenCache(services);
@@ -23,25 +23,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             return services;
         }
 
-        /// <summary>Adds both the app and per-user .NET Core distributed based token caches.</summary>
-        /// <param name="builder">The Authentication builder to add to.</param>
-        /// <returns>A <see cref="AuthenticationBuilder"/> to chain.</returns>
-        public static AuthenticationBuilder AddDistributedTokenCaches(
-            this AuthenticationBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException("builder");
-            }
-
-            builder.Services.AddDistributedTokenCaches();
-            return builder;
-        }
-
         /// <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
-        public static IServiceCollection AddDistributedAppTokenCache(
+        internal static IServiceCollection AddDistributedAppTokenCache(
             this IServiceCollection services)
         {
             if (services == null)
@@ -57,7 +42,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>Adds the  .NET Core distributed cache based per user token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
-        public static IServiceCollection AddDistributedUserTokenCache(
+        internal static IServiceCollection AddDistributedUserTokenCache(
             this IServiceCollection services)
         {
             if (services == null)

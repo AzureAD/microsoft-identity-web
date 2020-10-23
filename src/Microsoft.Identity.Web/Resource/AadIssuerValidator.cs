@@ -2,14 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Resource
@@ -17,65 +13,25 @@ namespace Microsoft.Identity.Web.Resource
     /// <summary>
     /// Generic class that validates token issuer from the provided Azure AD authority.
     /// </summary>
-    internal class AadIssuerValidator
+    public class AadIssuerValidator
     {
-        // TODO: separate AadIssuerValidator creation logic from the validation logic in order to unit test it
-        private static readonly IDictionary<string, AadIssuerValidator> s_issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
-
-        private static readonly ConfigurationManager<IssuerMetadata> s_configManager = new ConfigurationManager<IssuerMetadata>(Constants.AzureADIssuerMetadataUrl, new IssuerConfigurationRetriever());
-
         /// <summary>
         /// A list of all Issuers across the various Azure AD instances.
         /// </summary>
         private readonly ISet<string> _issuerAliases;
 
-        internal /* internal for test */ AadIssuerValidator(IEnumerable<string> aliases)
+        internal /*internal for tests*/ AadIssuerValidator(IEnumerable<string> aliases)
         {
             _issuerAliases = new HashSet<string>(aliases, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// Gets an <see cref="AadIssuerValidator"/> for an authority.
-        /// </summary>
-        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-        /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
-        /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
-        {
-            if (string.IsNullOrEmpty(aadAuthority))
-            {
-                throw new ArgumentNullException(nameof(aadAuthority));
-            }
-
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
-
-            if (s_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
-            {
-                return aadIssuerValidator;
-            }
-
-            // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-            IssuerMetadata issuerMetadata = s_configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            // Add issuer aliases of the chosen authority to the cache
-            IEnumerable<string> aliases = issuerMetadata.Metadata
-                .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
-                .SelectMany(m => m.Aliases)
-                .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
-                .Distinct();
-            s_issuerValidators[authorityHost] = new AadIssuerValidator(aliases);
-
-            return s_issuerValidators[authorityHost];
-        }
-
-        /// <summary>
-        /// Validate the issuer for multi-tenant applications of various audience (Work and School account, or Work and School accounts +
+        /// Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
         /// Personal accounts).
         /// </summary>
         /// <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
-        /// <param name="securityToken">Received Security Token.</param>
-        /// <param name="validationParameters">Token Validation parameters.</param>
+        /// <param name="securityToken">Received security token.</param>
+        /// <param name="validationParameters">Token validation parameters.</param>
         /// <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
         /// authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
         /// accepts both V1 and V2 tokens).
@@ -83,7 +39,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
         /// <exception cref="ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
-        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer. </exception>
+        /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
         public string Validate(string actualIssuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
         {
             if (string.IsNullOrEmpty(actualIssuer))
@@ -124,7 +80,6 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             // If a valid issuer is not found, throw
-            // brentsch - todo, create a list of all the possible valid issuers in TokenValidationParameters
             throw new SecurityTokenInvalidIssuerException(
                 string.Format(
                     CultureInfo.InvariantCulture,
@@ -169,13 +124,19 @@ namespace Microsoft.Identity.Web.Resource
 
         /// <summary>Gets the tenant ID from a token.</summary>
         /// <param name="securityToken">A JWT token.</param>
-        /// <returns>A string containing tenant ID, if found or <see cref="string.Empty"/>.</returns>
+        /// <returns>A string containing the tenant ID, if found or <see cref="string.Empty"/>.</returns>
         /// <remarks>Only <see cref="JwtSecurityToken"/> and <see cref="JsonWebToken"/> are acceptable types.</remarks>
         private static string GetTenantIdFromToken(SecurityToken securityToken)
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tenantId))
+                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tid))
+                {
+                    return (string)tid;
+                }
+
+                jwtSecurityToken.Payload.TryGetValue(ClaimConstants.TenantId, out object? tenantId);
+                if (tenantId != null)
                 {
                     return (string)tenantId;
                 }
@@ -192,6 +153,12 @@ namespace Microsoft.Identity.Web.Resource
                     return tid;
                 }
 
+                jsonWebToken.TryGetPayloadValue(ClaimConstants.TenantId, out string? tenantId);
+                if (tenantId != null)
+                {
+                    return tenantId;
+                }
+
                 // Since B2C doesn't have "tid" as default, get it from issuer
                 return GetTenantIdFromIss(jsonWebToken.Issuer);
             }
@@ -199,7 +166,11 @@ namespace Microsoft.Identity.Web.Resource
             return string.Empty;
         }
 
-        // The AAD "iss" claims contains the tenant ID in its value. The URI is {domain}/{tid}/v2.0
+        // The AAD "iss" claims contains the tenant ID in its value.
+        // The URI can be
+        // - {domain}/{tid}/v2.0
+        // - {domain}/{tid}/v2.0/
+        // - {domain}/{tfp}/{tid}/{userFlow}/v2.0/
         private static string GetTenantIdFromIss(string iss)
         {
             if (string.IsNullOrEmpty(iss))
@@ -209,12 +180,31 @@ namespace Microsoft.Identity.Web.Resource
 
             var uri = new Uri(iss);
 
-            if (uri.Segments.Length > 1)
+            if (uri.Segments.Length == 3)
             {
                 return uri.Segments[1].TrimEnd('/');
             }
 
+            if (uri.Segments.Length == 5 && uri.Segments[1].TrimEnd('/') == ClaimConstants.Tfp)
+            {
+                throw new SecurityTokenInvalidIssuerException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        IDWebErrorMessage.B2CTfpIssuerNotSupported));
+            }
+
             return string.Empty;
+        }
+
+        /// <summary>
+        /// This method is now Obsolete.
+        /// </summary>
+        /// <param name="aadAuthority">Aad authority.</param>
+        /// <returns>NotImplementedException.</returns>
+        [Obsolete(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete, true)]
+        public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
+        {
+            throw new NotImplementedException(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete);
         }
     }
 }

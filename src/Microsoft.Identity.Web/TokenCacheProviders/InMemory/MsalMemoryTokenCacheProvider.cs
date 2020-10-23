@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// cache.
         /// </summary>
         /// <param name="cacheKey">token cache key.</param>
+        /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override Task RemoveKeyAsync(string cacheKey)
         {
             _memoryCache.Remove(cacheKey);
@@ -70,9 +71,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <param name="bytes">Bytes to write.</param>
+        /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
-            _memoryCache.Set(cacheKey, bytes, _cacheOptions.AbsoluteExpirationRelativeToNow);
+            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = _cacheOptions.AbsoluteExpirationRelativeToNow,
+                Size = bytes?.Length,
+            };
+
+            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
             return Task.CompletedTask;
         }
     }

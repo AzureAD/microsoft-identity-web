@@ -11,9 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Net;
 using System.Net.Http;
-using Company.WebApplication1.Services;
 #endif
-#if (CallsMicrosoftGraph)
+#if (GenerateGraph)
 using Microsoft.Graph;
 #endif
 using Microsoft.AspNetCore.Mvc;
@@ -39,17 +38,23 @@ namespace Company.WebApplication1.Controllers
             _downstreamWebApi = downstreamWebApi;
        }
 
-        [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
         public async Task<IActionResult> Index()
         {
-            ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi();
-
-            // You can also specify the relative endpoint and the scopes
-            // ViewData["ApiResult"] = await _downstreamWebApi.CallWebApi("me", new string[] {"user.read"});
-            
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                ViewData["ApiResult"] = apiResult;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
             return View();
         }
-#elseif (CallsMicrosoftGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public HomeController(ILogger<HomeController> logger,
@@ -59,12 +64,12 @@ namespace Company.WebApplication1.Controllers
             _graphServiceClient = graphServiceClient;
        }
 
-        [AuthorizeForScopes(ScopeKeySection = "CalledApi:CalledApiScopes")]
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
         public async Task<IActionResult> Index()
         {
             var user = await _graphServiceClient.Me.Request().GetAsync();
             ViewData["ApiResult"] = user.DisplayName;
-            
+
             return View();
         }
 #else

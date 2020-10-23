@@ -18,6 +18,7 @@ namespace Microsoft.Identity.Web.UI
         /// Adds a controller and Razor pages for the accounts management.
         /// </summary>
         /// <param name="builder">MVC builder.</param>
+        /// <returns>MVC builder for chaining.</returns>
         public static IMvcBuilder AddMicrosoftIdentityUI(this IMvcBuilder builder)
         {
             if (builder == null)

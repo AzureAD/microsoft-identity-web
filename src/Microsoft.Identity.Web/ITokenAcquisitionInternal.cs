@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     internal interface ITokenAcquisitionInternal : ITokenAcquisition
     {
         /// <summary>
-        /// In a Web App, adds, to the MSAL.NET cache, the account of the user authenticating to the Web App, when the authorization code is received (after the user
+        /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received (after the user
         /// signed-in and consented)
         /// An On-behalf-of token contained in the <see cref="AuthorizationCodeReceivedContext"/> is added to the cache, so that it can then be used to acquire another token on-behalf-of the
         /// same user in order to call to downstream APIs.
@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to request.</param>
         /// <returns>A <see cref="Task"/> that represents a completed add to cache operation.</returns>
         /// <example>
-        /// From the configuration of the Authentication of the ASP.NET Core Web API:
+        /// From the configuration of the Authentication of the ASP.NET Core web API:
         /// <code>OpenIdConnectOptions options;</code>
         ///
         /// Subscribe to the authorization code received event:

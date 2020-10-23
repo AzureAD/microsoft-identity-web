@@ -23,6 +23,18 @@
             <param name="scheme">Authentication scheme.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Challenges the user.
+            </summary>
+            <param name="redirectUri">Redirect URI.</param>
+            <param name="scope">Scopes to request.</param>
+            <param name="loginHint">Login hint.</param>
+            <param name="domainHint">Domain hint.</param>
+            <param name="claims">Claims.</param>
+            <param name="policy">AAD B2C policy.</param>
+            <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(System.String)">
             <summary>
             Handles the user sign-out.
@@ -88,6 +100,11 @@
             </summary>
             <returns>A Sign Out page or Home page.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.UI.Constants">
+            <summary>
+            General constants.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.UI.ServiceCollectionExtensions">
             <summary>
             Extension method on <see cref="T:Microsoft.Extensions.DependencyInjection.IMvcBuilder"/> to add UI
@@ -99,6 +116,7 @@
             Adds a controller and Razor pages for the accounts management.
             </summary>
             <param name="builder">MVC builder.</param>
+            <returns>MVC builder for chaining.</returns>
         </member>
     </members>
 </doc>

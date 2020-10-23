@@ -4,9 +4,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TodoListService.Models;
 
 namespace TodoListService.Controllers
@@ -15,6 +17,7 @@ namespace TodoListService.Controllers
     [Route("api/[controller]")]
     public class TodoListController : Controller
     {
+        private readonly ITokenAcquisition _tokenAcquisition;
         // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
 
@@ -23,9 +26,12 @@ namespace TodoListService.Controllers
 
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public TodoListController(IHttpContextAccessor contextAccessor)
+        public TodoListController(
+            IHttpContextAccessor contextAccessor,
+            ITokenAcquisition tokenAcquisition)
         {
             _contextAccessor = contextAccessor;
+            _tokenAcquisition = tokenAcquisition;
 
             // Pre-populate with sample data
             if (TodoStore.Count == 0)
@@ -37,10 +43,15 @@ namespace TodoListService.Controllers
 
         // GET: api/values
         [HttpGet]
-        public IEnumerable<Todo> Get()
+        public async Task<IEnumerable<Todo>> GetAsync()
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.Identity.Name;
+            string owner = User.GetDisplayName();
+            // Below is for testing multi-tenants
+            // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
+            // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
+            
+            await Task.FromResult(0); // fix CS1998 while the lines about the 2 tokens are commented out.
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
 
@@ -65,7 +76,7 @@ namespace TodoListService.Controllers
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
-            Todo todonew = new Todo() { Id = id, Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+            Todo todonew = new Todo() { Id = id, Owner = User.GetDisplayName(), Title = todo.Title };
             TodoStore.Add(id, todonew);
 
             return Ok(todo);

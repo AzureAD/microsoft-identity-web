@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web.Test.Common
@@ -20,7 +21,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string UserTwo = "User Two";
 
         public const string ClientId = "87f0ee88-8251-48b3-8825-e0c9563f5234";
-        public const string TenantId = "guest-tenant-id";
+        public const string GuestTenantId = "guest-tenant-id";
+        public const string HomeTenantId = "home-tenant-id";
         public const string TenantIdAsGuid = "da41245a5-11b3-996c-00a8-4d99re19f292";
         public const string ObjectIdAsGuid = "6364bb70-9521-3fa8-989d-c2c19ff90223";
         public const string Domain = "contoso.onmicrosoft.com";
@@ -31,11 +33,13 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string DomainHint = "domain_hint";
         public const string Claims = "additional_claims";
         public const string PreferredUsername = "preferred_username";
+        public const string Value = "value";
 
         public const string AadInstance = "https://login.microsoftonline.com";
         public const string AuthorityCommonTenant = AadInstance + "/common/";
         public const string AuthorityOrganizationsTenant = AadInstance + "/organizations/";
         public const string AuthorityOrganizationsUSTenant = "https://" + ProductionPrefNetworkUSEnvironment + "/organizations";
+        public const string Organizations = "organizations";
 
         public const string AuthorityWithTenantSpecified = AadInstance + "/" + TenantIdAsGuid;
         public const string AuthorityCommonTenantWithV2 = AadInstance + "/common/v2.0";
@@ -43,6 +47,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityOrganizationsUSWithV2 = AuthorityOrganizationsUSTenant + "/v2.0";
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
+        public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
 
         // B2C
         public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
@@ -54,6 +59,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CInstance = "https://fabrikamb2c.b2clogin.com";
         public const string B2CInstance2 = "https://catb2c.b2clogin.com";
         public const string B2CCustomDomainInstance = "https://catsAreAmazing.com";
+        public const string ClientSecret = "catsarecool";
 
         public const string B2CAuthority = B2CInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;
         public const string B2CAuthorityWithV2 = B2CAuthority + "/v2.0";
@@ -63,6 +69,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";
         public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";
         public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";
+        public const string Scopes = "openid profile offline_access api://someapi";
+        public const string B2CIssuerTfp = B2CInstance + "/" + ClaimConstants.Tfp + "/" + B2CTenantAsGuid + "/" + B2CSignUpSignInUserFlow + "/v2.0";
 
         // Claims
         public const string ClaimNameTid = "tid";
@@ -75,12 +83,9 @@ namespace Microsoft.Identity.Web.Test.Common
             ProductionNotPrefEnvironmentAlias,
         };
 
-        public static readonly IEnumerable<string> s_scopesForApp = new[]
-        {
-            "https://graph.microsoft.com/.default",
-        };
+        public static readonly string s_scopeForApp = "https://graph.microsoft.com/.default";
 
-        public static readonly IEnumerable<string> s_scopesForUser = new[]
+        public static readonly IEnumerable<string> s_userReadScope = new[]
         {
             "user.read",
         };
@@ -88,11 +93,16 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string InvalidScopeError = "The scope user.read is not valid.";
         public const string InvalidScopeErrorcode = "AADSTS70011";
         public const string InvalidScope = "invalid_scope";
+        public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
+        public const string OBOClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/TodoListServiceV2-OBO/";
         public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
         public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+        public const string OBOUser = "fIDLAB@msidlab4.com";
+        public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
+        public static string[] OBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj
@@ -112,5 +122,37 @@ namespace Microsoft.Identity.Web.Test.Common
             ;
         public const string KeyVaultContainer = "https://buildautomation.vault.azure.net";
         public const string KeyVaultReference = "AzureADIdentityDivisionTestAgentCert";
+
+        // Integration tests
+        public const string EmptyGetEmpty = "/Empty/GetEmpty";
+        public const string TokenAcquisitionGetEmpty = "/TokenAcquisition/GetEmpty";
+        public const string GraphClientGetEmpty = "/GraphClient/GetEmpty";
+        public const string SecurePageGetEmpty = "/SecurePage/GetEmpty";
+        public const string SecurePageGetTokenForUserAsync = "/SecurePage/GetTokenForUserAsync";
+        public const string SecurePageGetTokenForAppAsync = "/SecurePage/GetTokenForAppAsync";
+        public const string SecurePageCallDownstreamWebApi = "/SecurePage/CallDownstreamWebApiAsync";
+        public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
+        public const string SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
+        public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
+        public const string SectionNameCalledApi = "CalledApi";
+
+        // Selenium Automation
+        public const string WebSubmitId = "idSIButton9";
+        public const string WebUPNInputId = "i0116";
+        public const string WebPasswordId = "i0118";
+        public const string ConsentAcceptId = "idBtn_Accept";
+        public const string StaySignedInNoId = "idBtn_Back";
+        public const string PhotoLabel = "photo";
+        public const string Headless = "headless";
+
+        // TokenAcqusitionOptions
+        public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
+
+        // AadIssuerValidation
+        public const string AadAuthority = "aadAuthority";
+        public const string InvalidAuthorityFormat = "login.microsoft.com";
+        public const string ActualIssuer = "actualIssuer";
+        public const string SecurityToken = "securityToken";
+        public const string ValidationParameters = "validationParameters";
     }
 }

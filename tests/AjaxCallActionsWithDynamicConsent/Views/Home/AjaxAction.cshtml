@@ -1,0 +1,34 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<h1>Controller Action decorated with [AuthorizeForScopes] Attribute called by regular and ajax method successfully!</h1>
+
+<p>
+    When user consent is needed, the above attribute will throw exception to challenge user to authenticate which is a redirect to Identity Provider,
+    if the framework does not emit a 401, ajax call will be "transparently" redirect to the Identity Provider and causing CORS.
+</p>
+<p>
+    Developer can add logic in OnRedirectToIdentityProvider to avoid that but it is not trivia for the average developer to figure out the cause of
+    CORS error initially and will spend time to investigate the issue themselves, and they will need to duplicate the portion of the code from framework
+    to obtain the redirect url anyway.
+</p>
+<p>
+    Fix: Similar as CookieAuthenticationHandler, The framework (both OpenIdConnectHandler and AuthorizeForScopes Attribute) check if the challenge is for
+    ajax request, if it is:
+    <ul>
+        <li>
+            (1) In challengeresult within AuthorizeForScopes Attribute, set the AuthenticationProperties.RedirectUri to the request header or query value
+            with custom key such as "x-ReturnUrl" if they exist, so it can be saved and passed to the Identity Provider with state parameter and passed back.
+            This will be used after the challenge is done to navigate to the proper location where user agent originally initiated ajax request.
+        </li>
+        <li>(2) After the Redirect URL for Identity Provider is calculated, the handler will return a 401 with this redirect url in the header location.</li>
+        <li>
+            (3) This need to be properly documented so if user is doing incremental consent or experiencing expiration/challenge originated from ajax call can
+            proactively send a proper return url to navigate to after challenge is done when they intitially constructed the ajax request.
+        </li>
+    </ul>
+    The non-ajax request will keep the existing logic.
+</p>

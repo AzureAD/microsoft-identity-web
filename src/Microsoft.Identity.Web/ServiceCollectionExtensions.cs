@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions for IServiceCollection for startup initialization of Web APIs.
+    /// Extensions for IServiceCollection for startup initialization of web APIs.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Web
         /// Add the token acquisition service.
         /// </summary>
         /// <param name="services">Service collection.</param>
-        /// <param name="isTokenAcquisitionSingleton"></param>
-        /// <returns>the service collection.</returns>
+        /// <param name="isTokenAcquisitionSingleton">Specifies if an instance of <see cref="ITokenAcquisition"/> should be a singleton.</param>
+        /// <returns>The service collection.</returns>
         /// <example>
-        /// This method is typically called from the Startup.ConfigureServices(IServiceCollection services)
+        /// This method is typically called from the <c>ConfigureServices(IServiceCollection services)</c> in Startup.cs.
         /// Note that the implementation of the token cache can be chosen separately.
         ///
         /// <code>
@@ -27,8 +27,7 @@ namespace Microsoft.Identity.Web
         /// services.AddTokenAcquisition()
         /// .AddDistributedMemoryCache()
         /// .AddSession()
-        /// .AddSessionBasedTokenCache()
-        ///  ;
+        /// .AddSessionBasedTokenCache();
         /// </code>
         /// </example>
         public static IServiceCollection AddTokenAcquisition(
@@ -62,12 +61,12 @@ namespace Microsoft.Identity.Web
             if (isTokenAcquisitionSingleton)
             {
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
-                services.AddSingleton<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
+                services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
             else
             {
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
-                services.AddScoped<ITokenAcquisitionInternal>(s => (ITokenAcquisitionInternal)s.GetService<ITokenAcquisition>());
+                services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
 
             return services;

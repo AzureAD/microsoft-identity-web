@@ -30,11 +30,22 @@ namespace TodoListService
             // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
             // JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
+            
+
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftWebApi(Configuration, "AzureAd");
+                    .AddMicrosoftIdentityWebApi(Configuration, "AzureAd")
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddInMemoryTokenCaches();
 
             services.AddControllers();
+
+            // below code is how customers would use a proxy
+            //services.Configure<AadIssuerValidatorOptions>(options => { options.HttpClientName = "cats"; });
+            //services.AddHttpClient("cats", c =>
+            //{
+            //    // configure things here
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

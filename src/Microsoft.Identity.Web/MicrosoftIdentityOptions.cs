@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -57,7 +58,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Description of the certificates used to prove the identity of the Web app or Web API.
+        /// Is considered to have client credentials if the attribute ClientCertificates
+        /// or ClientSecret is defined.
+        /// </summary>
+        internal bool HasClientCredentials
+        {
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any());
+        }
+
+        /// <summary>
+        /// Description of the certificates used to prove the identity of the web app or web API.
         /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
@@ -75,7 +85,7 @@ namespace Microsoft.Identity.Web
         public IEnumerable<CertificateDescription>? ClientCertificates { get; set; }
 
         /// <summary>
-        /// Description of the certificates used to decrypt an encrypted token in a Web API.
+        /// Description of the certificates used to decrypt an encrypted token in a web API.
         /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
@@ -101,6 +111,15 @@ namespace Microsoft.Identity.Web
         /// (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
         /// </summary>
         /// The default is <c>false.</c>
-        public bool SendX5C { get; set; } = false;
+        public bool SendX5C { get; set; }
+
+        /// <summary>
+        /// Daemon applications can validate a token based on roles, or using the ACL-based authorization
+        /// pattern to control tokens without a roles claim. If using ACL-based authorization,
+        /// Microsoft Identity Web will not throw if roles or scopes are not in the Claims.
+        /// For details see https://aka.ms/ms-identity-web/daemon-ACL.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool AllowWebApiToBeAuthorizedByACL { get; set; }
     }
 }

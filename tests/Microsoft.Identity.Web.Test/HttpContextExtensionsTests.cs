@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web.Test
 {
     public class HttpContextExtensionsTests
     {
-        private const string WebApiTokenKeyName = "JwtSecurityTokenUsedToCallWebAPI";
+        private const string WebApiTokenKeyName = Constants.JwtSecurityTokenUsedToCallWebApi;
 
         [Fact]
         public void StoreTokenUsedToCallWebAPI()

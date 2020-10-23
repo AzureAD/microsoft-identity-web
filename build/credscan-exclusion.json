@@ -1,7 +1,10 @@
 {
     "tool": "Credential Scanner",
     "suppressions": [
-     
+      {
+        "file": "ErrorCodes.cs",
+        "_justification": "Constant contains the word Password as it is for the B2C password reset string value constant."
+    }
     ]
   }
   

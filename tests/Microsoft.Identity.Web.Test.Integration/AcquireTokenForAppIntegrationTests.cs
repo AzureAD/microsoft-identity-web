@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -61,12 +62,30 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act
             string token =
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopesForApp).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(token);
 
             AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
+        }
+
+        [Theory]
+        [InlineData(Constants.Organizations)]
+        [InlineData(Constants.Consumers)]
+        public async Task GetAccessTokenForApp_WithMetaTenant(string metaTenant)
+        {
+            // Arrange
+            InitializeTokenAcquisitionObjects();
+
+            Assert.Equal(0, _msalTestTokenCacheProvider.Count);
+
+            async Task result() =>
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
+
+            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message);
+            Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
         [Fact]
@@ -77,13 +96,11 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task result() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopesForUser).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.FirstOrDefault()).ConfigureAwait(false);
 
-            MsalServiceException ex = await Assert.ThrowsAsync<MsalServiceException>(result).ConfigureAwait(false);
+            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
 
-            Assert.Contains(TestConstants.InvalidScopeError, ex.Message);
-            Assert.Equal(TestConstants.InvalidScope, ex.ErrorCode);
-            Assert.StartsWith(TestConstants.InvalidScopeErrorcode, ex.Message);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex.Message);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
@@ -107,7 +124,8 @@ namespace Microsoft.Identity.Web.Test.Integration
                 microsoftIdentityOptions,
                 ccOptions,
                 httpClientFactory,
-                logger);
+                logger,
+                _provider);
         }
 
         private static IHttpContextAccessor CreateMockHttpContextAccessor()

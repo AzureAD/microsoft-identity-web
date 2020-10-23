@@ -28,11 +28,42 @@ namespace WebAppCallsMicrosoftGraph
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftWebApp(Configuration)
-                    .AddMicrosoftWebAppCallsWebApi(Configuration);
-            services.AddInMemoryTokenCaches();
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+                        .EnableTokenAcquisitionToCallDownstreamApi()
+                           .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
+                           .AddInMemoryTokenCaches();
 
-            services.AddMicrosoftGraph(Configuration, new string[] { "user.read" });
+            /*
+             *   services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+                            .EnableTokenAcquisitionToCallDownstreamApi()
+                                .AddInMemoryTokenCaches() // Change the builder
+
+                    .AddAuthentication()
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
+
+*/
+
+
+            /* OR
+                        services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
+                                .EnableTokenAcquisitionToCallDownstreamApi()
+                                .AddInMemoryTokenCaches();
+
+                        services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                                           .AddMicrosoftIdentityWebApp(options =>
+                                           {
+                                               Configuration.Bind("AzureAd", options);
+                                               // do something
+                                           })
+                                           .EnableTokenAcquisitionToCallDownstreamApi(options =>
+                                           {
+                                               Configuration.Bind("AzureAd", options);
+                                               // do something
+                                           }
+                                           )
+                                           .AddInMemoryTokenCaches();
+            */
 
             services.AddRazorPages().AddMvcOptions(options =>
             {

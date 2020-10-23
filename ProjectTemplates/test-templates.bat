@@ -1,193 +1,294 @@
+echo "Ensure ClientSemVer"
+if "%ClientSemVer%" == "" (
+set ClientSemVer=1.2.0
+)
+Set TemplateNugetPackageName="Microsoft.Identity.Web.ProjectTemplates"
+
+echo "Ensure the tool to configure the templates is built"
+dotnet build ..\tools\ConfigureGeneratedApplications
+
 echo "Build and Install templates"
+if "%1" == "" (
 dotnet pack AspNetCoreMicrosoftIdentityWebProjectTemplates.csproj
+)
 cd bin
 cd Debug
-dotnet new -i Microsoft.Identity.Web.ProjectTemplates.0.2.0-preview.nupkg
+dotnet new -u %TemplateNugetPackageName%
+dotnet new -i %TemplateNugetPackageName%.%ClientSemVer%.nupkg
 
 echo "Test templates"
 mkdir tests
 cd tests
-dotnet new sln
+dotnet new sln --name tests
 
-echo " Test Web app (No Auth)"
-mkdir webapp-noauth
-cd webapp-noauth
+REM Razor web app
+mkdir webapp2
+cd webapp2
+echo "Test webapp2, no auth"
+mkdir webapp2-noauth
+cd webapp2-noauth
 dotnet new webapp2
-dotnet sln ..\tests.sln add webapp-noauth.csproj
+dotnet sln ..\..\tests.sln add webapp2-noauth.csproj
 cd ..
 
-echo " Test Web app (No Auth)"
-mkdir mvcwebapp-noauth
-cd mvcwebapp-noauth
-dotnet new mvc2
-dotnet sln ..\tests.sln add mvcwebapp-noauth.csproj
-cd ..
-
-echo " Test Web API (No auth)"
-mkdir webapi-noauth
-cd webapi-noauth
-dotnet new webapi2
-dotnet sln ..\tests.sln add webapi-noauth.csproj
-cd ..
-
-
-echo " Test Web app (Microsoft identity platform, MVC, Single Org)"
-mkdir mvcwebapp
-cd mvcwebapp
-dotnet new mvc2 --auth SingleOrg
-dotnet sln ..\tests.sln add mvcwebapp.csproj
-cd ..
-
-echo " Test Web app (Microsoft identity platform, MVC, Multiple Orgs)"
-mkdir mvcwebapp-multi-org
-cd mvcwebapp-multi-org
-dotnet new mvc2 --auth MultiOrg
-dotnet sln ..\tests.sln add mvcwebapp-multi-org.csproj
-cd ..
-
-echo " Test Web app (MVC, Azure AD B2C)"
-mkdir mvcwebapp-b2c
-cd mvcwebapp-b2c
-dotnet new mvc2 --auth  IndividualB2C
-dotnet sln ..\tests.sln add mvcwebapp-b2c.csproj
-cd ..
-
-
-echo " Test Web app calling Web API (Microsoft identity platform, MVC, Single Org)"
-mkdir mvcwebapp-api
-cd mvcwebapp-api
-dotnet new mvc2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add mvcwebapp-api.csproj
-cd ..
-
-echo " Test Web app calling Web API  (Microsoft identity platform, MVC, Multiple Orgs)"
-mkdir mvcwebapp-multi-org-api
-cd mvcwebapp-multi-org-api
-dotnet new mvc2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add mvcwebapp-multi-org-api.csproj
-cd ..
-
-
-echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Single Orgs)"
-mkdir mvcwebapp-graph
-cd mvcwebapp-graph
-dotnet new mvc2 --auth SingleOrg --calls-graph --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add mvcwebapp-graph.csproj
-cd ..
-
-echo " Test Web app calling Microsoft Graph (Microsoft identity platform, MVC, Multiple Orgs)"
-mkdir mvcwebapp-multi-org-graph
-cd mvcwebapp-multi-org-graph
-dotnet new mvc2 --auth MultiOrg --calls-graph --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add mvcwebapp-multi-org-graph.csproj
-cd ..
-
-
-echo " Test Web app calling Web API  (MVC, Azure AD B2C)"
-mkdir mvcwebapp-b2c-api
-cd mvcwebapp-b2c-api
-dotnet new mvc2 --auth  IndividualB2C --called-api-url "https://localhost:44332" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
-dotnet sln ..\tests.sln add mvcwebapp-b2c-api.csproj
-cd ..
-
-
-echo " Test Web app (Microsoft identity platform, Razor, Single Org)"
-mkdir webapp
-cd webapp
+echo "Test webapp2, single-org"
+mkdir webapp2-singleorg
+cd webapp2-singleorg
 dotnet new webapp2 --auth SingleOrg
-dotnet sln ..\tests.sln add webapp.csproj
+dotnet sln ..\..\tests.sln add webapp2-singleorg.csproj
 cd ..
 
-echo " Test Web app (Microsoft identity platform, Razor, Multiple Orgs)"
-mkdir webapp-multi-org
-cd webapp-multi-org
-dotnet new webapp2 --auth MultiOrg
-dotnet sln ..\tests.sln add webapp-multi-org.csproj
+echo "Test webapp2, single-org, calling microsoft graph"
+mkdir webapp2-singleorg-callsgraph
+cd webapp2-singleorg-callsgraph
+dotnet new webapp2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add webapp2-singleorg-callsgraph.csproj
 cd ..
 
-echo " Test Web app (Razor, Azure AD B2C)"
-mkdir webapp-b2c
-cd webapp-b2c
-dotnet new webapp2 --auth  IndividualB2C
-dotnet sln ..\tests.sln add webapp-b2c.csproj
+echo "Test webapp2, single-org, calling a downstream web api"
+mkdir webapp2-singleorg-callswebapi
+cd webapp2-singleorg-callswebapi
+dotnet new webapp2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add webapp2-singleorg-callswebapi.csproj
 cd ..
 
-echo " Test Web app calling Web API  (Microsoft identity platform, Razor, Single Org)"
-mkdir webapp-api
-cd webapp-api
-dotnet new webapp2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add webapp-api.csproj
+echo "Test webapp2, b2c"
+mkdir webapp2-b2c
+cd webapp2-b2c
+dotnet new webapp2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add webapp2-b2c.csproj
 cd ..
 
-echo " Test Web app calling Web API  (Microsoft identity platform, Razor, Multiple Orgs)"
-mkdir webapp-multi-org-api
-cd webapp-multi-org-api
-dotnet new webapp2 --auth MultiOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add webapp-multi-org-api.csproj
+echo "Test webapp2, b2c, calling a downstream web api"
+mkdir webapp2-b2c-callswebapi
+cd webapp2-b2c-callswebapi
+dotnet new webapp2 --auth IndividualB2C --called-api-url "https://localhost:44332/api/todolist" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
+dotnet sln ..\..\tests.sln add webapp2-b2c-callswebapi.csproj
 cd ..
 
-echo " Test Web app calling Web API (Razor, Azure AD B2C)"
-mkdir webapp-b2c-api
-cd webapp-b2c-api
-dotnet new webapp2 --auth  IndividualB2C --called-api-url "https://localhost:44332" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
-dotnet sln ..\tests.sln add webapp-b2c-api.csproj
 cd ..
 
-echo " Test Web app calling Microsoft Graph (Microsoft identity platform, Razor, Single Org)"
-mkdir webapp-graph
-cd webapp-graph
-dotnet new webapp2 --auth SingleOrg --calls-graph --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add webapp-graph.csproj
+REM Web api
+mkdir webapi2
+cd webapi2
+echo "Test webapi2, no auth"
+mkdir webapi2-noauth
+cd webapi2-noauth
+dotnet new webapi2
+dotnet sln ..\..\tests.sln add webapi2-noauth.csproj
 cd ..
 
-echo " Test Web app calling Microsoft Graph (Microsoft identity platform, Razor, Single Org)"
-mkdir webapp-graph-multiorg
-cd webapp-graph-multiorg
-dotnet new webapp2 --auth MultiOrg --calls-graph --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add webapp-graph-multiorg.csproj
-cd ..
-
-
-echo " Test Web API  (Microsoft identity platform, SingleOrg)"
-mkdir webapi
-cd webapi
+echo "Test webapi2, single-org"
+mkdir webapi2-singleorg
+cd webapi2-singleorg
 dotnet new webapi2 --auth SingleOrg
-dotnet sln ..\tests.sln add webapi.csproj
+dotnet sln ..\..\tests.sln add webapi2-singleorg.csproj
 cd ..
 
-echo " Test Web API  (AzureAD B2C)"
-mkdir webapi-b2c
-cd webapi-b2c
-dotnet new webapi2 --auth IndividualB2C
-dotnet sln ..\tests.sln add webapi-b2c.csproj
-cd ..
-
-echo " Test Web API calling Web API (Microsoft identity platform, SingleOrg)"
-mkdir webapi-api
-cd webapi-api
-dotnet new webapi2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta" --called-api-scopes "user.read"
-dotnet sln ..\tests.sln add webapi-api.csproj
-cd ..
-
-echo " Test Web API calling Web API (AzureAD B2C)"
-mkdir webapi-b2c-api
-cd webapi-b2c-api
-dotnet new webapi2 --auth IndividualB2C --called-api-url "https://localhost:44332" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
-dotnet sln ..\tests.sln add webapi-b2c-api.csproj
-cd ..
-
-echo " Test Web API calling Graph (Microsoft identity platform, SingleOrg)"
-mkdir webapi-graph
-cd webapi-graph
+echo "Test webapi2, single-org, calling microsoft graph"
+mkdir webapi2-singleorg-callsgraph
+cd webapi2-singleorg-callsgraph
 dotnet new webapi2 --auth SingleOrg --calls-graph
-dotnet sln ..\tests.sln add webapi-graph.csproj
+dotnet sln ..\..\tests.sln add webapi2-singleorg-callsgraph.csproj
 cd ..
+
+echo "Test webapi2, single-org, calling a downstream web api"
+mkdir webapi2-singleorg-callswebapi
+cd webapi2-singleorg-callswebapi
+dotnet new webapi2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add webapi2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test webapi2, b2c"
+mkdir webapi2-b2c
+cd webapi2-b2c
+dotnet new webapi2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add webapi2-b2c.csproj
+cd ..
+
+cd ..
+
+REM MVC Web app
+mkdir mvc2
+cd mvc2
+echo "Test mvc2, no auth"
+mkdir mvc2-noauth
+cd mvc2-noauth
+dotnet new mvc2
+dotnet sln ..\..\tests.sln add mvc2-noauth.csproj
+cd ..
+
+echo "Test mvc2, single-org"
+mkdir mvc2-singleorg
+cd mvc2-singleorg
+dotnet new mvc2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add mvc2-singleorg.csproj
+cd ..
+
+echo "Test mvc2, single-org, calling microsoft graph"
+mkdir mvc2-singleorg-callsgraph
+cd mvc2-singleorg-callsgraph
+dotnet new mvc2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add mvc2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test mvc2, single-org, calling a downstream web api"
+mkdir mvc2-singleorg-callswebapi
+cd mvc2-singleorg-callswebapi
+dotnet new mvc2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add mvc2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test mvc2, b2c"
+mkdir mvc2-b2c
+cd mvc2-b2c
+dotnet new mvc2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add mvc2-b2c.csproj
+cd ..
+
+echo "Test mvc2, b2c, calling a downstream web api"
+mkdir mvc2-b2c-callswebapi
+cd mvc2-b2c-callswebapi
+dotnet new mvc2 --auth IndividualB2C --called-api-url "https://localhost:44332/api/todolist" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
+dotnet sln ..\..\tests.sln add mvc2-b2c-callswebapi.csproj
+cd ..
+
+cd ..
+
+REM Blazor server app
+mkdir blazorserver2
+cd blazorserver2
+echo "Test blazorserver2, no auth"
+mkdir blazorserver2-noauth
+cd blazorserver2-noauth
+dotnet new blazorserver2
+dotnet sln ..\..\tests.sln add blazorserver2-noauth.csproj
+cd ..
+
+echo "Test blazorserver2, single-org"
+mkdir blazorserver2-singleorg
+cd blazorserver2-singleorg
+dotnet new blazorserver2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add blazorserver2-singleorg.csproj
+cd ..
+
+echo "Test blazorserver2, single-org, calling microsoft graph"
+mkdir blazorserver2-singleorg-callsgraph
+cd blazorserver2-singleorg-callsgraph
+dotnet new blazorserver2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add blazorserver2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test blazorserver2, single-org, calling a downstream web api"
+mkdir blazorserver2-singleorg-callswebapi
+cd blazorserver2-singleorg-callswebapi
+dotnet new blazorserver2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add blazorserver2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test blazorserver2, b2c"
+mkdir blazorserver2-b2c
+cd blazorserver2-b2c
+dotnet new blazorserver2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add blazorserver2-b2c.csproj
+cd ..
+
+echo "Test blazorserver2, b2c, calling a downstream web api"
+mkdir blazorserver2-b2c-callswebapi
+cd blazorserver2-b2c-callswebapi
+dotnet new blazorserver2 --auth IndividualB2C --called-api-url "https://localhost:44332/api/todolist" --called-api-scopes "https://fabrikamb2c.onmicrosoft.com/tasks/read"
+dotnet sln ..\..\tests.sln add blazorserver2-b2c-callswebapi.csproj
+cd ..
+
+cd ..
+
+REM Blazor web assembly app
+mkdir blazorwasm2
+cd blazorwasm2
+echo "Test blazorwasm2, no auth"
+mkdir blazorwasm2-noauth
+cd blazorwasm2-noauth
+dotnet new blazorwasm2
+dotnet sln ..\..\tests.sln add blazorwasm2-noauth.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org"
+mkdir blazorwasm2-singleorg
+cd blazorwasm2-singleorg
+dotnet new blazorwasm2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org, calling microsoft graph"
+mkdir blazorwasm2-singleorg-callsgraph
+cd blazorwasm2-singleorg-callsgraph
+dotnet new blazorwasm2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org, calling a downstream web api"
+mkdir blazorwasm2-singleorg-callswebapi
+cd blazorwasm2-singleorg-callswebapi
+dotnet new blazorwasm2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add blazorwasm2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org, with hosted blazor web server web api"
+mkdir blazorwasm2-singleorg-hosted
+cd blazorwasm2-singleorg-hosted
+dotnet new blazorwasm2 --auth SingleOrg  --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org, with hosted blazor web server web api, calling microsoft graph"
+mkdir blazorwasm2-singleorg-callsgraph-hosted
+cd blazorwasm2-singleorg-callsgraph-hosted
+dotnet new blazorwasm2 --auth SingleOrg --calls-graph --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-callsgraph-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-callsgraph-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-callsgraph-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, single-org, with hosted blazor web server web api, calling a downstream web api"
+mkdir blazorwasm2-singleorg-callswebapi-hosted
+cd blazorwasm2-singleorg-callswebapi-hosted
+dotnet new blazorwasm2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read" --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-singleorg-callswebapi-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-singleorg-callswebapi-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-singleorg-callswebapi-hosted.Client.csproj
+cd ..
+
+echo "Test blazorwasm2, b2c"
+mkdir blazorwasm2-b2c
+cd blazorwasm2-b2c
+dotnet new blazorwasm2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add blazorwasm2-b2c.csproj
+cd ..
+
+echo "Test blazorwasm2, b2c, with hosted blazor web server web api"
+mkdir blazorwasm2-b2c-hosted
+cd blazorwasm2-b2c-hosted
+dotnet new blazorwasm2 --auth IndividualB2C  --hosted
+dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-hosted.Shared.csproj
+dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-hosted.Server.csproj
+dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-hosted.Client.csproj
+cd ..
+
+cd ..
+
+echo "Configure the applications"
+..\..\..\..\tools\ConfigureGeneratedApplications\bin\Debug\netcoreapp3.1\ConfigureGeneratedApplications.exe
 
 echo "Build the solution with all the projects created by applying the templates"
 dotnet build
+
+
 
 echo "Uninstall templates"
 cd ..
 dotnet new -u Microsoft.Identity.Web.ProjectTemplates
 cd ..
 cd ..
+

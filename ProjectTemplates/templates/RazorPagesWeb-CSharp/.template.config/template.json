@@ -94,19 +94,6 @@
           "exclude": [
             "Data/SqlServer/**"
           ]
-        },
-        {
-          "condition": "(!GenerateApi)",
-            "exclude": [
-                "Services/DownstreamWebApi.cs"
-            ]
-        },
-        {
-          "condition": "(!CallsMicrosoftGraph)",
-          "exclude": [
-             "Services/MicrosoftGraphServiceExtensions.cs",
-             "Services/TokenAcquisitionCredentialProvider.cs"
-            ]
         }
       ]
     }
@@ -336,16 +323,16 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "netcoreapp5.0",
-          "description": "Target netcoreapp5.0"
+          "choice": "net5.0",
+          "description": "Target net5.0"
         },
         {
           "choice": "netcoreapp3.1",
           "description": "Target netcoreapp3.1"
         }
       ],
-      "replaces": "netcoreapp5.0",
-      "defaultValue": "netcoreapp5.0"
+      "replaces": "net5.0",
+      "defaultValue": "net5.0"
     },
     "copyrightYear": {
       "type": "generated",
@@ -359,28 +346,32 @@
         "type": "parameter",
         "datatype": "string",
         "replaces": "[WebApiUrl]",
-        "defaultValue" : "https://graph.microsoft.com/v1.0/me",
-        "description": "URL of the API to call from the web app."
+        "defaultValue" : "https://graph.microsoft.com/v1.0",
+        "description": "URL of the API to call from the web app. This option only applies if --auth SingleOrg, --auth MultiOrg or --auth IndividualB2C is specified."
     },
     "CallsMicrosoftGraph": {
         "type": "parameter",
         "datatype": "bool",
         "defaultValue": "false",
-        "description": "Specifies if the web app calls Microsoft Graph."
+        "description": "Specifies if the web app calls Microsoft Graph. This option only applies if --auth SingleOrg or --auth MultiOrg is specified."
     },
     "CalledApiScopes": {
       "type": "parameter",
       "datatype": "string",
       "replaces" :  "user.read",
-      "description": "Scopes to request to call the API from the web app."
+      "description": "Scopes to request to call the API from the web app. This option only applies if --auth SingleOrg, --auth MultiOrg or --auth IndividualB2C is specified."
     },
     "GenerateApi": {
         "type": "computed",
-        "value": "(CalledApiUrl != \"https://graph.microsoft.com/v1.0/me\" || CalledApiScopes != \"user.read\")"
+        "value": "((IndividualB2CAuth || OrganizationalAuth) && (CalledApiUrl != \"https://graph.microsoft.com/v1.0\" || CalledApiScopes != \"user.read\"))"
+    },
+    "GenerateGraph": {
+        "type": "computed",
+        "value": "(OrganizationalAuth && CallsMicrosoftGraph)"
     },
     "GenerateApiOrGraph": {
         "type": "computed",
-        "value": "(GenerateApi || CallsMicrosoftGraph)"
+        "value": "(GenerateApi || GenerateGraph)"
     }
   },
   "primaryOutputs": [
@@ -390,19 +381,6 @@
   ],
   "defaultName": "WebApplication",
   "postActions": [
-  {
-     "condition": "(CallsMicrosoftGraph)",
-     "actionId": "B17581D1-C5C9-4489-8F0A-004BE667B814",
-     "description": "Adds Microsoft Graph package.",
-    "manualInstructions": [
-    ],
-    "args": {
-        "referenceType": "package",
-        "reference": "Microsoft.Graph",
-        "version": "3.8.0"
-    },
-   "continueOnError": true
-  },
     {
       "condition": "(!skipRestore)",
       "description": "Restore NuGet packages required by this project.",

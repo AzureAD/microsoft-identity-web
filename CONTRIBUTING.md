@@ -1,16 +1,30 @@
-Microsoft Identity Web for .NET welcomes new contributors.  This document will guide you
-through the process.
+# Microsoft Identity Web for .NET welcomes new contributors
 
-### Contributor License agreement
+This document will guide you through the process.
+
+## Contributor License agreement
 
 Please visit [https://cla.microsoft.com/](https://cla.microsoft.com/) and sign the Contributor License
 Agreement.  You only need to do that once. We can not look at your code until you've submitted this request.
 
-### Setup, Building and Testing
+## Fork
+
+Fork the project [on GitHub](https://github.com/AzureAD/microsoft-identity-web) and check out
+your copy.
+
+Example for Microsoft Identity Web:
+
+```
+$ git clone git@github.com:username/microsoft-identity-web.git
+$ cd microsoft-identity-web
+$ git remote add upstream git@github.com:AzureAD/microsoft-identity-web.git
+```
+
+## Setup, Building and Testing
 
 Please see the [Build & Run](https://github.com/AzureAD/microsoft-identity-web/wiki/build-and-test) wiki page.
 
-### Decide on which branch to create
+## Decide on which branch to create
 
 **Bug fixes for the current stable version need to go to 'master' branch.**
 
@@ -18,23 +32,22 @@ If you need to contribute to a different branch, please contact us first (open a
 
 All details after this point is standard - make sure your commits have nice messages, and prefer rebase to merge.
 
-In case of doubt, please open an issue in the [issue tracker][].
+In case of doubt, please open an issue in the [issue tracker](https://github.com/AzureAD/microsoft-identity-web/issues).
 
 Especially do so if you plan to work on a major change in functionality.  Nothing is more
 frustrating than seeing your hard work go to waste because your vision
 does not align with our goals for the SDK.
 
-### Branch
+## Branch
 
 Okay, so you have decided on the proper branch.  Create a feature branch
 and start hacking:
 
 ```
-$ git checkout -b my-feature-branch 
+$ git checkout -b my-feature-branch
 ```
 
-
-### Commit
+## Commit
 
 Make sure git knows your name and email address:
 
@@ -73,7 +86,6 @@ run `git shortlog` or `git log --oneline`.
 Check the output of `git log --oneline files_that_you_changed` to find out
 what directories your changes touch.
 
-
 ### Rebase
 
 Use `git rebase` (not `git merge`) to sync your work from time to time.
@@ -86,8 +98,6 @@ $ git rebase upstream/v0.1  # or upstream/master
 ### Tests
 
 It's all standard stuff, but please note that you won't be able to run integration tests locally because they connect to a KeyVault to fetch some test users and passwords. The CI will run them for you.
-
-
 
 ### Push
 
@@ -102,7 +112,6 @@ Pull requests are usually reviewed within a few days.  If there are comments
 to address, apply your changes in a separate commit and push that to your
 feature branch.  Post a comment in the pull request afterwards; GitHub does
 not send out notifications when you add commits.
-
 
 [on GitHub]: https://github.com/AzureAD/microsoft-identity-web
 [issue tracker]: https://github.com/AzureAD/microsoft-identity-web/issues

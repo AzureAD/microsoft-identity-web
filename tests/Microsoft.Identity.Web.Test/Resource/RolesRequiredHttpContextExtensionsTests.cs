@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -32,10 +33,9 @@ namespace Microsoft.Identity.Web.Test.Resource
             var expectedStatusCode = (int)HttpStatusCode.Unauthorized;
 
             var httpContext = HttpContextUtilities.CreateHttpContext();
-            httpContext.ValidateAppRole(acceptedRoles);
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.ValidateAppRole(acceptedRoles));
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
@@ -43,46 +43,29 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             var acceptedRoles = new[] { "access_as_application", "access_as_application_for_write" };
             var actualRoles = new[] { "access_as_application_for_read_all_directory", "access_as_application_for_read" };
-            var expectedErrorMessage = $"The 'roles' or 'role' claim does not contain roles '{string.Join(",", acceptedRoles)}' or was not found";
+            var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(", ", acceptedRoles));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
-            var httpContext = HttpContextUtilities.CreateHttpContext(actualRoles);
-            httpContext.ValidateAppRole(acceptedRoles);
+            var httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, actualRoles);
+            Assert.Throws<UnauthorizedAccessException>(() => httpContext.ValidateAppRole(acceptedRoles));
 
-            HttpResponse response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
-
-            httpContext = HttpContextUtilities.CreateHttpContext(actualRoles);
-            httpContext.ValidateAppRole(acceptedRoles);
-            response = httpContext.Response;
-            Assert.Equal(expectedStatusCode, response.StatusCode);
-            Assert.Equal(expectedErrorMessage, GetBody(response));
+            Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
         [Fact]
         public void VerifyAppHasAnyAcceptedRole_MatchesAcceptedRoles_ExecutesSuccessfully()
         {
-            var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedRole1" });
+            var httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, new[] { "acceptedRole1" });
             httpContext.ValidateAppRole("acceptedRole1");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedRole1 acceptedRole2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, new[] { "acceptedRole1 acceptedRole2" });
             httpContext.ValidateAppRole("acceptedRole2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedRole2" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, new[] { "acceptedRole2" });
             httpContext.ValidateAppRole("acceptedRole1", "acceptedRole2");
 
-            httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedRole2 acceptedRole1" });
+            httpContext = HttpContextUtilities.CreateHttpContext(new string[] { }, new[] { "acceptedRole2 acceptedRole1" });
             httpContext.ValidateAppRole("acceptedRole1", "acceptedRole2");
-        }
-
-        private static string GetBody(HttpResponse response)
-        {
-            byte[] buffer = new byte[response.Body.Length];
-            response.Body.Seek(0, System.IO.SeekOrigin.Begin);
-            response.Body.Read(buffer, 0, buffer.Length);
-            string body = Encoding.Default.GetString(buffer);
-            return body;
         }
     }
 }

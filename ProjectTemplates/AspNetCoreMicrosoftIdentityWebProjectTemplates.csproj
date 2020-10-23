@@ -2,26 +2,27 @@
 
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">0.2.0-preview</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.2.0</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <PackageVersion>$(ClientSemVer)</PackageVersion>
-    
+
     <PackageType>Template</PackageType>
     <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>
-    <Title>ASP.NET Core Web app and Web API templates with Microsoft identity platform</Title>
+    <Title>ASP.NET Core web app and web API templates with Microsoft identity platform</Title>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Company>Microsoft</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Authors>Microsoft</Authors>
     <Description>
-      Templates to use when creating a web app that signs in users or a protected Web API
-      with the Microsoft identity platform (and call downstream APIs)</Description>
+      Templates to use when creating a web app that signs in users or a protected web API
+      with the Microsoft identity platform (and call downstream APIs)
+    </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
-    <PackageReleaseNotes>The changelog is available at https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.txt and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
-    <PackageTags>dotnet-new;templates;Microsoft;Microsoft identity platform;Microsoft.Identity.Web</PackageTags>
-     <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
+    <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
+    <PackageTags>dotnet-new;templates;Microsoft;Microsoft Identity Web;Microsoft identity platform;Microsoft.Identity.Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization</PackageTags>
+    <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>content</ContentTargetFolders>
@@ -41,5 +42,4 @@
     <None Remove="ProvisionAadApp\**" />
     <None Remove="Provisionning\**" />
   </ItemGroup>
-
 </Project>

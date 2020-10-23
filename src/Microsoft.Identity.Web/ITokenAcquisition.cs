@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
@@ -14,36 +15,77 @@ namespace Microsoft.Identity.Web
     public interface ITokenAcquisition
     {
         /// <summary>
-        /// Typically used from an ASP.NET Core Web App or Web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
         /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="userFlow">Azure AD B2C UserFlow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? tenantId = null);
+        Task<string> GetAccessTokenForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+
+        /// <summary>
+        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// </summary>
+        /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="userFlow">Azure AD B2C UserFlow to target.</param>
+        /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
+        /// user (in a web app), or the user for which the token was received (in a web API)
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
+        Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-        /// in the portal, and cannot be overridden in the application.</param>
+        /// in the portal, cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// several calls to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
-        Task<string> GetAccessTokenForAppAsync(IEnumerable<string> scopes);
+        Task<string> GetAccessTokenForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
-        /// Used in Web APIs (which therefore cannot have an interaction with the user).
+        /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
         /// the client can trigger an interaction with the user so the user can consent to more scopes.
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalSeviceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
+        /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
-            MsalUiRequiredException msalSeviceException);
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null);
     }
 }
