@@ -207,9 +207,15 @@ namespace Microsoft.Identity.Web
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             _logger.LogInformation("MSIdWeb: The tenant used to create the authority is: {0}", tenant);
+            _logger.LogInformation(
+                "MSIdWeb: From the cca builder is: Authority: {0}, ClientId: `{1}`, TenantId: `{2}`",
+                _application.Authority,
+                _application.AppConfig.ClientId,
+                _application.AppConfig.TenantId);
 
+            _logger.LogInformation("MSIdWeb: The tenant parameter passed to CreateAuthority... is: {0}", tenant);
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
-            _logger.LogInformation("MSIdWeb: The authority is: {0}", authority);
+            _logger.LogInformation("MSIdWeb: The computed authority is: {0}", authority);
 
             AuthenticationResult? authenticationResult;
 
@@ -490,6 +496,7 @@ namespace Microsoft.Identity.Web
                 else
                 {
                     authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
+                    _logger.LogInformation("MSIdWeb: Creating the cca, with authority: {0}", authority);
                     builder.WithAuthority(authority);
                 }
 
