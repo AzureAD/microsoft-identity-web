@@ -20,7 +20,7 @@
 
 **Microsoft Identity Web would try to add to the authorization header, at times, resulting in a format exception**. Now the existing header is removed and replaced with the current one. See issue [#673](https://github.com/AzureAD/microsoft-identity-web/issues/673) for details.
 
-**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the `IHttpClientFactory` to include a name option which will be passed to `CreateClient` via the `AadIssuerValidatorOptions`**. See https://aka.ms/ms-identity-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
+**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the `IHttpClientFactory` to include a name option which will be passed to `CreateClient` via the `AadIssuerValidatorOptions`**. See https://aka.ms/ms-id-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
 
 1.1.0
 ===========
