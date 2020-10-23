@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
