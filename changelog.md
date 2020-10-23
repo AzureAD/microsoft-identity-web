@@ -3,7 +3,7 @@
 ### New Features:
 **Microsoft Identity Web now supports App Services Authentication with Azure AD**. See https://aka.ms/ms-id-web/AppServicesAuth and issue [#8](https://github.com/AzureAD/microsoft-identity-web/issues/8) for details.
 
-**Microsoft Identity Web now enables the usage of the `GraphServiceClient` to call the Graph APIs with app only permissions**. See https://aka.ms/msal-net/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
+**Microsoft Identity Web now enables the usage of the `GraphServiceClient` to call the Graph APIs with app only permissions**. See https://aka.ms/ms-id-web/microsoftGraph and issue [#654](https://github.com/AzureAD/microsoft-identity-web/issues/654) for details.
 
 **Microsoft Identity Web now supports a variety of generic extension methods for use with the downstream web API calls**. See issue [#537](https://github.com/AzureAD/microsoft-identity-web/issues/537) for details.
 
@@ -20,7 +20,7 @@
 
 **Microsoft Identity Web would try to add to the authorization header, at times, resulting in a format exception**. Now the existing header is removed and replaced with the current one. See issue [#673](https://github.com/AzureAD/microsoft-identity-web/issues/673) for details.
 
-**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the `IHttpClientFactory` to include a name option which will be passed to `CreateClient` via the `AadIssuerValidatorOptions`**. See https://aka.ms/ms-identity-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
+**In order to enable developers to use a backchannel proxy, Microsoft Identity Web now enables developers to configure the `IHttpClientFactory` to include a name option which will be passed to `CreateClient` via the `AadIssuerValidatorOptions`**. See https://aka.ms/ms-id-web/proxy and issue [#551](https://github.com/AzureAD/microsoft-identity-web/issues/551) for more details.
 
 1.1.0
 ===========
