@@ -438,7 +438,7 @@ namespace Microsoft.Identity.Web
         {
             if (_application == null)
             {
-                _application = await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                 return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             }
 
             return _application;
@@ -507,6 +507,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 IConfidentialClientApplication app = builder.Build();
+                _application = app;
                 // Initialize token cache providers
                 await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
