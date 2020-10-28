@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
             // ', error_uri: 'error_uri is null'.
             else if (context.Failure is OpenIdConnectProtocolException && context.Failure.Message.Contains(ErrorCodes.AccessDenied))
             {
-                context.Response.Redirect($"{context.Request.PathBase}/");
+                context.Response.Redirect(context.Properties.RedirectUri);
             }
             else
             {

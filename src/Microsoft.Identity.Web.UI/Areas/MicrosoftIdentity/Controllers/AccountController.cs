@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 {
@@ -42,9 +44,9 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         public IActionResult SignIn([FromRoute] string scheme)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            var redirectUrl = Url.Content("~/");
+
             return Challenge(
-                new AuthenticationProperties { RedirectUri = redirectUrl },
+                new AuthenticationProperties { RedirectUri = GetRedirectUrl(HttpContext.Request.Headers[HeaderNames.Referer]) },
                 scheme);
         }
 
@@ -120,8 +122,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
 
-            var redirectUrl = Url.Content("~/");
-            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            var properties = new AuthenticationProperties { RedirectUri = GetRedirectUrl(HttpContext.Request.Headers[HeaderNames.Referer]) };
             properties.Items[Constants.Policy] = _options.Value?.ResetPasswordPolicyId;
             return Challenge(properties, scheme);
         }
@@ -141,10 +142,11 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 return Challenge(scheme);
             }
 
-            var redirectUrl = Url.Content("~/");
-            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            var properties = new AuthenticationProperties { RedirectUri = GetRedirectUrl(HttpContext.Request.Headers[HeaderNames.Referer]) };
             properties.Items[Constants.Policy] = _options.Value?.EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
+
+        private string GetRedirectUrl(string referrer) => string.IsNullOrEmpty(referrer) ? Url.Content("~/") : new Uri(referrer).LocalPath;
     }
 }
