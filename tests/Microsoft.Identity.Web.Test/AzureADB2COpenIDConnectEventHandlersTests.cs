@@ -101,19 +101,20 @@ namespace Microsoft.Identity.Web.Test
         public async void OnRemoteFailure_Cancel_RedirectsSuccessfully()
         {
             var httpContext = Substitute.For<HttpContext>();
-            httpContext.Request.PathBase = PathBase;
             var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, new MicrosoftIdentityOptions());
 
             var cancelException = "'access_denied', error_description: 'AADB2C90091: The user has canceled entering self-asserted information. Correlation ID: d01c8878-0732-4eb2-beb8-da82a57432e0 Timestamp: 2018-03-05 02:56:49Z ', error_uri: 'error_uri is null'";
 
-            await handler.OnRemoteFailure(
-                new RemoteFailureContext(
-                    httpContext,
-                    _authScheme,
-                    new OpenIdConnectOptions(),
-                    new OpenIdConnectProtocolException(cancelException))).ConfigureAwait(false);
+            var remoteFailureContext = new RemoteFailureContext(
+                httpContext,
+                _authScheme,
+                new OpenIdConnectOptions(),
+                new OpenIdConnectProtocolException(cancelException));
+            remoteFailureContext.Properties = new AuthenticationProperties { RedirectUri = PathBase };
 
-            httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/");
+            await handler.OnRemoteFailure(remoteFailureContext).ConfigureAwait(false);
+
+            httpContext.Response.Received().Redirect(remoteFailureContext.Properties.RedirectUri);
         }
 
         [Fact]
