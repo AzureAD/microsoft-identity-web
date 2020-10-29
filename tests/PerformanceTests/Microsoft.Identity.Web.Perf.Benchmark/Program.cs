@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.Emit;
 
 namespace Microsoft.Identity.Web.Perf.Benchmark
 {

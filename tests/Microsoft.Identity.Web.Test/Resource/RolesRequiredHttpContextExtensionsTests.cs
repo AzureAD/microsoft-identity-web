@@ -4,7 +4,6 @@
 using System;
 using System.Globalization;
 using System.Net;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;

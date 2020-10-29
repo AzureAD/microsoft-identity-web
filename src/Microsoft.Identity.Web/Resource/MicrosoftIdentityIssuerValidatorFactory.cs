@@ -15,13 +15,18 @@ namespace Microsoft.Identity.Web.Resource
     /// <summary>
     /// Factory class for creating the IssuerValidator per authority.
     /// </summary>
-    internal class MicrosoftIdentityIssuerValidatorFactory
+    public class MicrosoftIdentityIssuerValidatorFactory
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityIssuerValidatorFactory"/> class.
+        /// </summary>
+        /// <param name="aadIssuerValidatorOptions">Options passed-in to create the AadIssuerValidator object.</param>
+        /// <param name="httpClientFactory">HttpClientFactory.</param>
         public MicrosoftIdentityIssuerValidatorFactory(
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            if (aadIssuerValidatorOptions?.Value?.HttpClientName != null)
+            if (aadIssuerValidatorOptions?.Value?.HttpClientName != null && httpClientFactory != null)
             {
                 _configManager =
                 new ConfigurationManager<IssuerMetadata>(

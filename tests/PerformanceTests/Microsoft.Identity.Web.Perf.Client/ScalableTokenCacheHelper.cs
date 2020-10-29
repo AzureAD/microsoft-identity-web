@@ -1,15 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 
@@ -38,15 +33,25 @@ namespace Microsoft.Identity.Web.Perf.Client
         private static ConcurrentDictionary<string, string> s_tokenCacheKeys = new ConcurrentDictionary<string, string>();
         private static string s_emptyContent = " ";
 
-        private static volatile bool s_isPersisting = false; 
+        private static volatile bool s_isPersisting = false;
+        private static object s_persistLock = new object();
 
         internal static void PersistCache()
         {
-            if(s_isPersisting)
+            if (s_isPersisting)
             {
                 return;
             }
-            s_isPersisting = true;
+
+            lock (s_persistLock)
+            {
+                if (s_isPersisting)
+                {
+                    return;
+                }
+
+                s_isPersisting = true;
+            }
 
             try
             {
