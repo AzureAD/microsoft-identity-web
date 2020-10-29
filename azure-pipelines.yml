@@ -1,0 +1,45 @@
+trigger:
+- master
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+      - master
+
+jobs:
+- job: "Sonar"
+  pool:
+    vmImage: 'windows-latest'
+    demands:
+    - msbuild
+  steps:
+    - template: build/template-install-dotnet-core.yaml
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'SonarCloud-microsoft_identity_web'
+        organization: 'azuread'
+        scannerMode: 'MSBuild'
+        projectKey: 'AzureAD_microsoft-identity-web'
+        projectName: 'microsoft-identity-web'
+        extraProperties: |
+          sonar.exclusions=tests\**
+    - task: DotNetCoreCLI@2
+      inputs:
+        projects: 'Microsoft.Identity.Web.sln'
+        command: 'restore'
+    - task: VSBuild@1
+      inputs:
+        solution: Microsoft.Identity.Web-without-blasorwasm2-sample.sln
+        vsVersion: '16.0'
+        msbuildArgs: '/p:TargetFramework=netcoreapp3.1'
+    - task: DotNetCoreCLI@2
+      displayName: 'Run unit tests'
+      inputs:
+        command: test
+        projects: 'tests/Microsoft.Identity.Web.Test*.csproj'
+        arguments: '--no-build --no-restore --collect "Code coverage"'
+    - task: SonarCloudAnalyze@1
+    - task: SonarCloudPublish@1
+      inputs:
+        pollingTimeoutSec: '300'
