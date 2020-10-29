@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -21,20 +22,38 @@ namespace Microsoft.Identity.Web.Perf.Client
         private readonly TestRunnerOptions _options;
         private readonly string[] _userAccountIdentifiers;
         private TimeSpan elapsedTimeInMsalCacheLookup;
-        private int userStartIndex;
-        private int userEndIndex;
+
+        private readonly DateTime _processingStartTime;
+        private readonly DateTime _processingEndTime;
+        private HttpClient _httpClient;
 
         public TestRunner(TestRunnerOptions options)
         {
             _options = options;
-            userStartIndex = options.UserNumberToStart;
-            userEndIndex = options.UserNumberToStart + options.UsersCountToTest;
-            _userAccountIdentifiers = new string[userEndIndex + 1];
+            _processingStartTime = DateTime.Now;
+            _processingEndTime = DateTime.Now.AddMinutes(options.RuntimeInMinutes);
+            _userAccountIdentifiers = new string[options.NumberOfUsersToTest + _options.StartUserIndex];
+
+            // Configuring the HTTP client to trust the self-signed certificate
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            _httpClient = new HttpClient(httpClientHandler);
+            _httpClient.BaseAddress = new Uri(options.TestServiceBaseUri);
         }
 
         public async Task Run()
         {
-            Console.WriteLine($"Starting testing with {userEndIndex - userStartIndex} users.");
+            Console.WriteLine($"Starting test with {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
+
+            if (_options.RunIndefinitely)
+            {
+                Console.WriteLine("Running indefinitely.");
+            }
+            else
+            {
+                Console.WriteLine($"Running for {_options.RuntimeInMinutes} minutes.");
+            }
 
             // Try loading from cache
             ScalableTokenCacheHelper.LoadCache();
@@ -47,32 +66,112 @@ namespace Microsoft.Identity.Web.Perf.Client
                 }
             }
 
-            // Configuring the http client to trust the self-signed certificate
-            var httpClientHandler = new HttpClientHandler();
-            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            IEnumerable<Task> CreateTasks()
+            {
+                var tokenSource = new CancellationTokenSource();
 
-            var client = new HttpClient(httpClientHandler);
-            client.BaseAddress = new Uri(_options.TestServiceBaseUri);
+                if (!_options.RunIndefinitely)
+                {
+                    yield return CreateStopProcessingByTimeoutTask(tokenSource);
+                }
+                yield return CreateStopProcessingByUserRequestTask(tokenSource);
+                foreach (Task task in CreateSendRequestsTasks(tokenSource))
+                {
+                    yield return task;
+                }
+            }
+
+            await Task.WhenAll(CreateTasks());
+        }
+
+        /// <summary>
+        /// Until cancelled, continously checks if processing duration has elapsed.
+        /// If so, cancells other tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
+        private Task CreateStopProcessingByTimeoutTask(CancellationTokenSource tokenSource)
+        {
+            return Task.Run(async () =>
+            {
+                while (!tokenSource.Token.IsCancellationRequested && DateTime.Now < _processingEndTime)
+                {
+                    await Task.Delay(_options.TimeCheckDelayInMilliseconds);
+                }
+
+                tokenSource.Cancel();
+                Console.WriteLine("Processing stopped. Duration elapsed.");
+            }, tokenSource.Token);
+        }
+
+        /// <summary>
+        /// Until cancelled, continously checks if user requested cancellation.
+        /// If so, cancells other tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
+        private Task CreateStopProcessingByUserRequestTask(CancellationTokenSource tokenSource)
+        {
+            return Task.Run(async () =>
+            {
+                while (!tokenSource.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(_options.UserInputCheckDelayInMilliseconds);
+
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                        if (keyInfo.Key == ConsoleKey.Escape)
+                        {
+                            tokenSource.Cancel();
+                            Console.WriteLine("Processing stopped. User cancelled.");
+                        }
+                    }
+                }
+            }, tokenSource.Token);
+        }
+
+        /// <summary>
+        /// Creates tasks that send requests.
+        /// Divides the number of users to test equally by the specified number of parallel tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this send request operation.</returns>
+        private IEnumerable<Task> CreateSendRequestsTasks(CancellationTokenSource tokenSource)
+        {
+            var batchSize = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
+                ? 1 
+                : (_options.NumberOfUsersToTest / _options.NumberOfParallelTasks);
+            
+            var numberOfParallelTasks = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
+                ? _options.NumberOfUsersToTest 
+                : _options.NumberOfParallelTasks;
+            
+            foreach (int batchNumber in Enumerable.Range(0, numberOfParallelTasks))
+            {
+                var startIndex = batchNumber * batchSize + _options.StartUserIndex;
+                var endIndex = startIndex + batchSize - 1;
+                endIndex = (endIndex + batchSize) <= _options.StartUserIndex + _options.NumberOfUsersToTest ? endIndex : _options.StartUserIndex + _options.NumberOfUsersToTest - 1;
+                yield return Task.Factory.StartNew(() => SendRequestsAsync(startIndex, endIndex, tokenSource.Token), tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            }
+        }
+
+        private async Task SendRequestsAsync(int userStartIndex, int userEndIndex, CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Task started for users {userStartIndex} to {userEndIndex}.");
 
             DateTime startOverall = DateTime.Now;
-            var finishTime = DateTime.Now.AddMinutes(_options.RuntimeInMinutes);
             TimeSpan elapsedTime = TimeSpan.Zero;
             int requestsCounter = 0;
             int authRequestFailureCount = 0;
             int catchAllFailureCount = 0;
-            int loop = 0;
             int tokenReturnedFromCache = 0;
-
-            bool cancelProcessing = false;
-
             StringBuilder exceptionsDuringRun = new StringBuilder();
 
-            while (!cancelProcessing)
+
+            int loop = 0;
+            while (!cancellationToken.IsCancellationRequested)
             {
                 loop++;
-                for (int i = userStartIndex; i <= userEndIndex; i++)
+                for (int i = userStartIndex; i <= userEndIndex && !cancellationToken.IsCancellationRequested; i++)
                 {
-                    bool fromCache = false;
                     try
                     {
                         HttpResponseMessage response;
@@ -95,13 +194,12 @@ namespace Microsoft.Identity.Web.Perf.Client
                                         authResult?.AccessToken));
 
                                 DateTime start = DateTime.Now;
-                                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
                                 elapsedTime += DateTime.Now - start;
                                 requestsCounter++;
                                 if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
                                 {
                                     tokenReturnedFromCache++;
-                                    fromCache = true;
                                 }
                                 else
                                 {
@@ -113,9 +211,10 @@ namespace Microsoft.Identity.Web.Perf.Client
 
                                 if (!response.IsSuccessStatusCode)
                                 {
-                                    Console.WriteLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
-                                    Console.WriteLine(response.ReasonPhrase);
-                                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                                    var sb = new StringBuilder();
+                                    sb.AppendLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                                    sb.AppendLine(await response.Content.ReadAsStringAsync());
+                                    Console.WriteLine(sb);
                                 }
                             }
                         }
@@ -128,46 +227,29 @@ namespace Microsoft.Identity.Web.Perf.Client
                         exceptionsDuringRun.AppendLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
                         exceptionsDuringRun.AppendLine($"{ex}");
                     }
-
-                    Console.Title = $"[{userStartIndex} - {userEndIndex}] #: {i}, Loop: {loop}, " +
-                        $"Time: {(DateTime.Now - startOverall).TotalMinutes:0.00}, " +
-                        $"Req: {requestsCounter}, Cache: {tokenReturnedFromCache}: {fromCache}, " +
-                        $"AuthFail: {authRequestFailureCount}, Fail: {catchAllFailureCount}";
-
-                    if (Console.KeyAvailable)
-                    {
-                        ConsoleKeyInfo keyInfo = Console.ReadKey();
-                        if ((keyInfo.Modifiers == ConsoleModifiers.Control && (keyInfo.Key == ConsoleKey.X || keyInfo.Key == ConsoleKey.C)) || keyInfo.Key == ConsoleKey.Escape)
-                        {
-                            cancelProcessing = true;
-                            break;
-                        }
-                    }
                 }
 
-                UpdateConsoleProgress(startOverall, elapsedTime, requestsCounter, tokenReturnedFromCache, authRequestFailureCount, catchAllFailureCount);
+                UpdateConsoleProgress(startOverall, elapsedTime, requestsCounter, tokenReturnedFromCache, authRequestFailureCount, catchAllFailureCount, userStartIndex, userEndIndex, loop);
 
                 ScalableTokenCacheHelper.PersistCache();
 
-                if (DateTime.Now >= finishTime)
-                {
-                    cancelProcessing = true;
-                }
+                //File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
             }
-
-            File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
-            Console.WriteLine("Test run complete");
         }
 
-        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, 
-            int tokenReturnedFromCache, int authRequestFailureCount, int catchAllFailureCount)
+        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, int tokenReturnedFromCache,
+            int authRequestFailureCount, int catchAllFailureCount, int userStartIndex, int userEndIndex, int loop)
         {
-            Console.WriteLine($"Run-time time: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}");
-            Console.WriteLine($"WebAPI Time: {elapsedTime}");
-            Console.WriteLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
-            Console.WriteLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
-            Console.WriteLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.0000}");
-            Console.WriteLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.0000}. (Total: {elapsedTimeInMsalCacheLookup})");
+            var sb = new StringBuilder();
+            sb.AppendLine("------------------------------------------------------------------------");
+            sb.AppendLine($"Runtime: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}");
+            sb.AppendLine($"Loop: {loop}");
+            sb.AppendLine($"WebAPI Time: {elapsedTime}");
+            sb.AppendLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
+            sb.AppendLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
+            sb.AppendLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.0000}");
+            sb.AppendLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.0000}. (Total: {elapsedTimeInMsalCacheLookup})");
+            Console.WriteLine(sb);
         }
 
         private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
@@ -175,12 +257,18 @@ namespace Microsoft.Identity.Web.Perf.Client
             var scopes = new string[] { _options.ApiScopes };
             var upn = $"{_options.UsernamePrefix}{userIndex}@{_options.TenantDomain}";
 
-            var _msalPublicClient = PublicClientApplicationBuilder
+            var builder = PublicClientApplicationBuilder
                            .Create(_options.ClientId)
-                           .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations)
-                           .WithLogging(Log, LogLevel.Info, false)
-                           .Build();
-            ScalableTokenCacheHelper.EnableSerialization(_msalPublicClient.UserTokenCache);
+                           .WithAuthority(TestConstants.AadInstance, TestConstants.Organizations);
+
+            if (_options.EnableMsalLogging)
+            {
+                builder.WithLogging(Log, LogLevel.Info, false);
+            }
+
+            var msalPublicClient = builder.Build();
+
+            ScalableTokenCacheHelper.EnableSerialization(msalPublicClient.UserTokenCache);
 
             AuthenticationResult authResult = null;
             try
@@ -192,16 +280,16 @@ namespace Microsoft.Identity.Web.Perf.Client
                     if (identifier != null)
                     {
                         DateTime start = DateTime.Now;
-                        account = await _msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
+                        account = await msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
                         elapsedTimeInMsalCacheLookup += DateTime.Now - start;
                     }
 
-                    authResult = await _msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                    authResult = await msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
                     return authResult;
                 }
                 catch (MsalUiRequiredException)
                 {
-                    authResult = await _msalPublicClient.AcquireTokenByUsernamePassword(
+                    authResult = await msalPublicClient.AcquireTokenByUsernamePassword(
                                                         scopes,
                                                         upn,
                                                         new NetworkCredential(
@@ -246,8 +334,8 @@ namespace Microsoft.Identity.Web.Perf.Client
                     s_log.Append(logs);
                 }
             }
-            
-            if(!writeToDisk)
+
+            if (!writeToDisk)
             {
                 return;
             }

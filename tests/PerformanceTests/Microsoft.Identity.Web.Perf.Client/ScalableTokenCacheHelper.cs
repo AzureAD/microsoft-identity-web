@@ -33,15 +33,25 @@ namespace Microsoft.Identity.Web.Perf.Client
         private static ConcurrentDictionary<string, string> s_tokenCacheKeys = new ConcurrentDictionary<string, string>();
         private static string s_emptyContent = " ";
 
-        private static volatile bool s_isPersisting = false; 
+        private static volatile bool s_isPersisting = false;
+        private static object s_persistLock = new object();
 
         internal static void PersistCache()
         {
-            if(s_isPersisting)
+            if (s_isPersisting)
             {
                 return;
             }
-            s_isPersisting = true;
+
+            lock (s_persistLock)
+            {
+                if (s_isPersisting)
+                {
+                    return;
+                }
+
+                s_isPersisting = true;
+            }
 
             try
             {
