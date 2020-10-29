@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -69,56 +70,92 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             IEnumerable<Task> CreateTasks()
             {
-                // Checks if processing end time has passed
-                yield return Task.Run(
-                    async () =>
-                    {
-                        while (_continueProcessing && DateTime.Now < _processingEndTime)
-                        {
-                            await Task.Delay(30000);
-                        }
+                var tokenSource = new CancellationTokenSource();
 
-                        StopProcessing();
-                        Console.WriteLine("Processing stopped. Duration elapsed.");
-                    });
-
-                // Checks if stop was requested by user
-                yield return Task.Run(
-                    async () =>
-                    {
-                        while (_continueProcessing)
-                        {
-                            await Task.Delay(1000);
-
-                            if (Console.KeyAvailable)
-                            {
-                                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                                if (keyInfo.Key == ConsoleKey.Escape)
-                                {
-                                    StopProcessing();
-                                    Console.WriteLine("Processing stopped. User cancelled.");
-                                }
-                            }
-                        }
-
-                    });
-
-                // Chunk the number of users that needs to be tested and create specified number of tasks
-                var chunkSize = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks ? 1 : (_options.NumberOfUsersToTest / _options.NumberOfParallelTasks);
-                var numberOfParallelTasks = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks ? _options.NumberOfUsersToTest : _options.NumberOfParallelTasks;
-                foreach (int chunkNumber in Enumerable.Range(0, numberOfParallelTasks))
+                if (!_options.RunIndefinitely)
                 {
-                    var startIndex = chunkNumber * chunkSize + _options.StartUserIndex;
-                    var endIndex = startIndex + chunkSize - 1;
-                    endIndex = (endIndex + chunkSize) <= _options.StartUserIndex + _options.NumberOfUsersToTest ? endIndex : _options.StartUserIndex + _options.NumberOfUsersToTest - 1;
-                    yield return Task.Factory.StartNew(() => SendRequestsAsync(startIndex, endIndex), TaskCreationOptions.LongRunning).Unwrap();
+                    yield return CreateStopProcessingByTimeoutTask(tokenSource);
+                }
+                yield return CreateStopProcessingByUserRequestTask(tokenSource);
+                foreach (Task task in CreateSendRequestsTasks(tokenSource))
+                {
+                    yield return task;
                 }
             }
 
             await Task.WhenAll(CreateTasks());
         }
 
-        private async Task SendRequestsAsync(int userStartIndex, int userEndIndex)
+        /// <summary>
+        /// Until cancelled, continously checks if processing duration has elapsed.
+        /// If so, cancells other tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
+        private Task CreateStopProcessingByTimeoutTask(CancellationTokenSource tokenSource)
+        {
+            return Task.Run(async () =>
+            {
+                while (!tokenSource.Token.IsCancellationRequested && DateTime.Now < _processingEndTime)
+                {
+                    await Task.Delay(_options.TimeCheckDelayInMilliseconds);
+                }
+
+                tokenSource.Cancel();
+                Console.WriteLine("Processing stopped. Duration elapsed.");
+            }, tokenSource.Token);
+        }
+
+        /// <summary>
+        /// Until cancelled, continously checks if user requested cancellation.
+        /// If so, cancells other tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
+        private Task CreateStopProcessingByUserRequestTask(CancellationTokenSource tokenSource)
+        {
+            return Task.Run(async () =>
+            {
+                while (!tokenSource.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(_options.UserInputCheckDelayInMilliseconds);
+
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                        if (keyInfo.Key == ConsoleKey.Escape)
+                        {
+                            tokenSource.Cancel();
+                            Console.WriteLine("Processing stopped. User cancelled.");
+                        }
+                    }
+                }
+            }, tokenSource.Token);
+        }
+
+        /// <summary>
+        /// Creates tasks that send requests.
+        /// Divides the number of users to test equally by the specified number of parallel tasks.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> that represents this send request operation.</returns>
+        private IEnumerable<Task> CreateSendRequestsTasks(CancellationTokenSource tokenSource)
+        {
+            var batchSize = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
+                ? 1 
+                : (_options.NumberOfUsersToTest / _options.NumberOfParallelTasks);
+            
+            var numberOfParallelTasks = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
+                ? _options.NumberOfUsersToTest 
+                : _options.NumberOfParallelTasks;
+            
+            foreach (int batchNumber in Enumerable.Range(0, numberOfParallelTasks))
+            {
+                var startIndex = batchNumber * batchSize + _options.StartUserIndex;
+                var endIndex = startIndex + batchSize - 1;
+                endIndex = (endIndex + batchSize) <= _options.StartUserIndex + _options.NumberOfUsersToTest ? endIndex : _options.StartUserIndex + _options.NumberOfUsersToTest - 1;
+                yield return Task.Factory.StartNew(() => SendRequestsAsync(startIndex, endIndex, tokenSource.Token), tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            }
+        }
+
+        private async Task SendRequestsAsync(int userStartIndex, int userEndIndex, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Task started for users {userStartIndex} to {userEndIndex}.");
 
@@ -132,7 +169,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
 
             int loop = 0;
-            while (_continueProcessing)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 loop++;
                 for (int i = userStartIndex; i <= userEndIndex && _continueProcessing; i++)
@@ -204,7 +241,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private void StopProcessing() => Interlocked.Exchange(ref _continueProcessingInt, 0);
 
-        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, int tokenReturnedFromCache, 
+        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, int tokenReturnedFromCache,
             int authRequestFailureCount, int catchAllFailureCount, int userStartIndex, int userEndIndex, int loop)
         {
             var sb = new StringBuilder();

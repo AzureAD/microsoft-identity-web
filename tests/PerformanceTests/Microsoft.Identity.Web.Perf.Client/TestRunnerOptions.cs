@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         public string TestUri { get; set; }
         public int RuntimeInMinutes { get; set; } = 1;
         public bool RunIndefinitely { get; set; } = false;
-        public int RequestDelayInMilliseconds { get; set; } = 1;
+        public int RequestDelayInMilliseconds { get; set; } = 10;
         public int StartUserIndex { get; set; } = 1;
         public int NumberOfUsersToTest { get; set; } = 1;
         public string UserPassword { get; set; }
@@ -19,5 +19,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         public string ClientId { get; set; }
         public bool EnableMsalLogging { get; set; } = true;
         public int NumberOfParallelTasks { get; set; } = 1;
+        public int TimeCheckDelayInMilliseconds { get; set; } = 30000;
+        public int UserInputCheckDelayInMilliseconds { get; set; } = 1000;
     }
 }
