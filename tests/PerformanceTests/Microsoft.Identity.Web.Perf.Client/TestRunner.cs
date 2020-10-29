@@ -25,8 +25,6 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private readonly DateTime _processingStartTime;
         private readonly DateTime _processingEndTime;
-        private int _continueProcessingInt = 1;
-        private bool _continueProcessing => _continueProcessingInt == 1;
         private HttpClient _httpClient;
 
         public TestRunner(TestRunnerOptions options)
@@ -172,7 +170,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             while (!cancellationToken.IsCancellationRequested)
             {
                 loop++;
-                for (int i = userStartIndex; i <= userEndIndex && _continueProcessing; i++)
+                for (int i = userStartIndex; i <= userEndIndex && !cancellationToken.IsCancellationRequested; i++)
                 {
                     try
                     {
@@ -238,8 +236,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                 //File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
             }
         }
-
-        private void StopProcessing() => Interlocked.Exchange(ref _continueProcessingInt, 0);
 
         private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, int tokenReturnedFromCache,
             int authRequestFailureCount, int catchAllFailureCount, int userStartIndex, int userEndIndex, int loop)
