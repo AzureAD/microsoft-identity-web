@@ -206,7 +206,9 @@ namespace Microsoft.Identity.Web
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+
             AuthenticationResult? authenticationResult;
 
             try
@@ -428,7 +430,7 @@ namespace Microsoft.Identity.Web
         {
             if (_application == null)
             {
-                _application = await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                 return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             }
 
             return _application;
@@ -496,6 +498,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 IConfidentialClientApplication app = builder.Build();
+                _application = app;
                 // Initialize token cache providers
                 await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
                 await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
