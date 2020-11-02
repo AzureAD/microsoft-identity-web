@@ -430,7 +430,7 @@ namespace Microsoft.Identity.Web
         {
             if (_application == null)
             {
-                 return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
             }
 
             return _application;
@@ -452,10 +452,7 @@ namespace Microsoft.Identity.Web
                     _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
             }
 
-            if (!_applicationOptions.Instance.EndsWith("/", StringComparison.InvariantCulture))
-            {
-                _applicationOptions.Instance += "/";
-            }
+            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
 
             if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
             {
