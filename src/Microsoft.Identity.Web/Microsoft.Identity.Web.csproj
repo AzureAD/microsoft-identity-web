@@ -47,9 +47,8 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
-
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1; net461; net5.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -58,6 +57,11 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+    <DefineConstants>$(DefineConstants);DOTNET_461</DefineConstants>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -77,6 +81,22 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' ">
+    <Compile Remove="*.cs"/>
+    <Compile Remove="AppServicesAuth\**" />
+    <Compile Remove="CertificateManagement\**" />
+    <Compile Remove="DownstreamWebApiSupport\**" />
+    <Compile Remove="InstanceDiscovery\**" />
+    <Compile Remove="Resource\**" />
+    <Compile Remove="WebApiExtensions\**" />
+    <Compile Remove="WebAppExtensions\**" />  
+    <Compile Remove="TokenCacheProviders\Session\**" />
+    <Compile Remove="TokenCacheProviders\Distributed\DistributedTokenCacheAdapterExtension.cs" />
+    <Compile Remove="TokenCacheProviders\InMemory\InMemoryTokenCacheProviderExtension.cs" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
