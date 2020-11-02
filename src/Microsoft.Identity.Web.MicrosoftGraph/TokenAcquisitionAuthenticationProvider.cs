@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
             }
 
-            if (scopes == null)
+            if (!appOnly && scopes == null)
             {
                 throw new ArgumentNullException(
                     Constants.Scopes,
