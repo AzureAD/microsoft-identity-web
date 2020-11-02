@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net461; net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1; net472; net5.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -59,8 +59,8 @@
     <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
-    <DefineConstants>$(DefineConstants);DOTNET_461</DefineConstants>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
+    <DefineConstants>$(DefineConstants);DOTNET_472</DefineConstants>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
@@ -83,7 +83,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Compile Remove="*.cs"/>
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="CertificateManagement\**" />
