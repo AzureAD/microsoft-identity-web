@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Web
 
                 List<string> scopes = properties.Parameters.ContainsKey(Constants.Scope) ? (List<string>)properties.Parameters[Constants.Scope]! : new List<string>();
                 string claims = properties.Parameters.ContainsKey(Constants.Claims) ? (string)properties.Parameters[Constants.Claims]! : string.Empty;
-                string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? (string)properties.Items[OidcConstants.PolicyKey]! : string.Empty;
+                string userflow = properties.Items.ContainsKey(OidcConstants.PolicyKey) ? properties.Items[OidcConstants.PolicyKey]! : string.Empty;
 
                 ChallengeUser(
                     scopes.ToArray(),

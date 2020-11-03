@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-    internal class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
+    internal class TokenAcquisition : ITokenAcquisitionInternal
     {
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
@@ -162,9 +162,7 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(
                     ex,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode));
+                    LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode);
                 throw;
             }
         }
@@ -505,9 +503,7 @@ namespace Microsoft.Identity.Web
             {
                 _logger.LogInformation(
                     ex,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient));
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient);
                 throw;
             }
         }

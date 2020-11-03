@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
 {
     internal class AzureADB2COpenIDConnectEventHandlers
     {
-        private IDictionary<string, string> _userFlowToIssuerAddress =
+        private readonly IDictionary<string, string> _userFlowToIssuerAddress =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public AzureADB2COpenIDConnectEventHandlers(string schemeName, MicrosoftIdentityOptions options)

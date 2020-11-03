@@ -187,10 +187,7 @@ namespace Microsoft.Identity.Web.Resource
 
             if (uri.Segments.Length == 5 && uri.Segments[1].TrimEnd('/') == ClaimConstants.Tfp)
             {
-                throw new SecurityTokenInvalidIssuerException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        IDWebErrorMessage.B2CTfpIssuerNotSupported));
+                throw new SecurityTokenInvalidIssuerException(IDWebErrorMessage.B2CTfpIssuerNotSupported);
             }
 
             return string.Empty;
