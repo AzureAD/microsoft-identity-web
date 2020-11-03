@@ -209,5 +209,12 @@ namespace Microsoft.Identity.Web
 
             return claimsPrincipal.FindFirstValue(ClaimConstants.NameIdentifierId);
         }
+
+#if NET472
+        private static string? FindFirstValue(this ClaimsPrincipal claimsPrincipal, string type)
+        {
+             return claimsPrincipal.FindFirst(type)?.Value;
+        }
+#endif
     }
 }

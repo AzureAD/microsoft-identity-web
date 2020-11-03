@@ -85,6 +85,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Compile Remove="*.cs"/>
+    <Compile Include="ClaimsPrincipalExtensions.cs" />
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="CertificateManagement\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
@@ -99,10 +100,12 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472' ">
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.2.3" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.1.0" />
+   </ItemGroup>
+   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
