@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
@@ -107,7 +108,8 @@ namespace Microsoft.Identity.Web
                         string redirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
                             : context.HttpContext.Request.Query[Constants.XReturnUrl];
 
-                        if (!string.IsNullOrEmpty(redirectUri) && redirectUri.StartsWith('/'))
+                        UrlHelper urlHelper = new UrlHelper(context);
+                        if (urlHelper.IsLocalUrl(redirectUri))
                         {
                             properties.RedirectUri = redirectUri;
                         }
