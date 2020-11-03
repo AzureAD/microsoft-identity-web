@@ -552,7 +552,7 @@ namespace Microsoft.Identity.Web
             catch (MsalUiRequiredException ex)
             {
                 _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
-                throw ex;
+                throw;
             }
         }
 
