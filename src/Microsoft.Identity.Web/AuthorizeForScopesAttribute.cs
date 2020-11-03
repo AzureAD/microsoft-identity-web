@@ -104,8 +104,13 @@ namespace Microsoft.Identity.Web
                     if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl])
                         || !string.IsNullOrEmpty(context.HttpContext.Request.Query[Constants.XReturnUrl])))
                     {
-                        properties.RedirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
+                        string redirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
                             : context.HttpContext.Request.Query[Constants.XReturnUrl];
+
+                        if (!string.IsNullOrEmpty(redirectUri) && redirectUri.StartsWith('/'))
+                        {
+                            properties.RedirectUri = redirectUri;
+                        }
                     }
 
                     context.Result = new ChallengeResult(properties);
