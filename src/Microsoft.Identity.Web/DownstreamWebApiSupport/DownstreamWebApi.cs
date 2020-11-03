@@ -50,9 +50,9 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
             string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? calledDownstreamApiOptionsOverride,
-            ClaimsPrincipal? user,
-            StringContent? requestContent)
+            Action<DownstreamWebApiOptions>? calledDownstreamApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            StringContent? requestContent = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledDownstreamApiOptionsOverride);
 

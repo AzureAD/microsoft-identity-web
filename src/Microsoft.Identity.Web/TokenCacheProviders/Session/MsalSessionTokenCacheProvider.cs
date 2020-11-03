@@ -29,10 +29,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// </code>
     /// </remarks>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
-    public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IMsalTokenCacheProvider
+    public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
-        private ILogger _logger;
-        private ISession _session;
+        private readonly ILogger _logger;
+        private readonly ISession _session;
 
         /// <summary>
         /// MSAL Token cache provider constructor.

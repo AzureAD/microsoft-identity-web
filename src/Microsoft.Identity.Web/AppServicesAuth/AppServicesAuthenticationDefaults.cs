@@ -6,7 +6,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Default values related to AppServiceAuthentication handler.
     /// </summary>
-    public class AppServicesAuthenticationDefaults
+    public static class AppServicesAuthenticationDefaults
     {
         /// <summary>
         /// The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
