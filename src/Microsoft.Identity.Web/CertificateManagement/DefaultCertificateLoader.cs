@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Parse the secret ID and version to retrieve the private key.
-            string[] segments = certificate.SecretId.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string[] segments = certificate.SecretId.AbsolutePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (segments.Length != 3)
             {
                 throw new InvalidOperationException(string.Format(
