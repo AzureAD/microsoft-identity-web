@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
@@ -104,8 +105,14 @@ namespace Microsoft.Identity.Web
                     if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl])
                         || !string.IsNullOrEmpty(context.HttpContext.Request.Query[Constants.XReturnUrl])))
                     {
-                        properties.RedirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
+                        string redirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
                             : context.HttpContext.Request.Query[Constants.XReturnUrl];
+
+                        UrlHelper urlHelper = new UrlHelper(context);
+                        if (urlHelper.IsLocalUrl(redirectUri))
+                        {
+                            properties.RedirectUri = redirectUri;
+                        }
                     }
 
                     context.Result = new ChallengeResult(properties);
