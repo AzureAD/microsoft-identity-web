@@ -37,3 +37,9 @@ dotnet_diagnostic.SA1611.severity = none
 
 # SA1604: Element documentation should have summary
 dotnet_diagnostic.SA1604.severity = none
+
+# S4457: Parameter validation in "async"/"await" methods should be wrapped
+dotnet_diagnostic.S4457.severity = none
+
+# S3358: Ternary operators should not be nested
+dotnet_diagnostic.S3358.severity = none

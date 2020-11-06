@@ -28,9 +28,11 @@ namespace Microsoft.Identity.Web
 
             if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {
-                // AAD pattern: {uid}.{utid}
-                // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
+#pragma warning disable S125 // Sections of code should not be commented out
+                            // AAD pattern: {uid}.{utid}
+                            // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
                 return $"{uniqueObjectIdentifier}.{uniqueTenantIdentifier}";
+#pragma warning restore S125 // Sections of code should not be commented out
             }
 
             return null;
@@ -102,7 +104,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            var tenantId = GetTenantId(claimsPrincipal);
+            string? tenantId = GetTenantId(claimsPrincipal);
             string? domainHint = string.IsNullOrWhiteSpace(tenantId)
                 ? null
                 : tenantId.Equals(Constants.MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Constants.Consumers : Constants.Organizations;

@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// <param name="tenantId">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
@@ -191,7 +191,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
-            string? tenant = null,
+            string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -205,7 +205,7 @@ namespace Microsoft.Identity.Web
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenantId);
 
             AuthenticationResult? authenticationResult;
 
@@ -309,7 +309,7 @@ namespace Microsoft.Identity.Web
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
-        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
+        /// <param name="tenantId">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
@@ -324,7 +324,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
-            string? tenant = null,
+            string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -332,7 +332,7 @@ namespace Microsoft.Identity.Web
             AuthenticationResult result =
                 await GetAuthenticationResultForUserAsync(
                 scopes,
-                tenant,
+                tenantId,
                 userFlow,
                 user,
                 tokenAcquisitionOptions).ConfigureAwait(false);
@@ -352,12 +352,9 @@ namespace Microsoft.Identity.Web
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
-            if (msalServiceException.ErrorCode == MsalError.InvalidGrantError)
+            if (msalServiceException.ErrorCode == MsalError.InvalidGrantError && AcceptedTokenVersionMismatch(msalServiceException))
             {
-                if (AcceptedTokenVersionMismatch(msalServiceException))
-                {
-                    throw msalServiceException;
-                }
+                throw msalServiceException;
             }
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
@@ -685,6 +682,7 @@ namespace Microsoft.Identity.Web
                 }
                 catch
                 {
+                    // do nothing.
                 }
             }
 

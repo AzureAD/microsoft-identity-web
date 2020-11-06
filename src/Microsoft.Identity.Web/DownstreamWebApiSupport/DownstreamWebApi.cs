@@ -49,12 +49,12 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? calledDownstreamApiOptionsOverride = null,
+            string serviceName,
+            Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? requestContent = null)
+            StringContent? content = null)
         {
-            DownstreamWebApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledDownstreamApiOptionsOverride);
+            DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
             if (string.IsNullOrEmpty(effectiveOptions.Scopes))
             {
@@ -84,9 +84,86 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.HttpMethod,
                 effectiveOptions.GetApiUrl()))
             {
-                if (requestContent != null)
+                if (content != null)
                 {
-                    httpRequestMessage.Content = requestContent;
+                    httpRequestMessage.Content = content;
+                }
+
+                httpRequestMessage.Headers.Add(
+                    Constants.Authorization,
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1}",
+                        Constants.Bearer,
+                        accessToken));
+                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
+            string serviceName,
+            TInput input,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            ClaimsPrincipal? user = null)
+            where TOutput : class
+        {
+            HttpResponseMessage response = await CallWebApiForUserAsync(
+                serviceName,
+                downstreamWebApiOptionsOverride,
+                user,
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+            }
+
+            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        /// <inheritdoc/>
+        public async Task<HttpResponseMessage> CallWebApiForAppAsync(
+            string serviceName,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            StringContent? content = null)
+        {
+            DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
+
+            if (effectiveOptions.Scopes == null)
+            {
+                throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
+            }
+
+            string accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(
+                effectiveOptions.Scopes,
+                effectiveOptions.Tenant,
+                effectiveOptions.TokenAcquisitionOptions)
+                .ConfigureAwait(false);
+
+            HttpResponseMessage response;
+            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                effectiveOptions.HttpMethod,
+                effectiveOptions.GetApiUrl()))
+            {
+                if (content != null)
+                {
+                    httpRequestMessage.Content = content;
                 }
 
                 httpRequestMessage.Headers.Add(
@@ -125,83 +202,6 @@ namespace Microsoft.Identity.Web
             DownstreamWebApiOptions clonedOptions = options.Clone();
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
-        }
-
-        /// <inheritdoc/>
-        public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
-            string optionsInstanceName,
-            TInput input,
-            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
-            where TOutput : class
-        {
-            HttpResponseMessage response = await CallWebApiForUserAsync(
-                optionsInstanceName,
-                downstreamWebApiOptionsOverride,
-                user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch
-            {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
-            }
-
-            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return default;
-            }
-
-            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        }
-
-        /// <inheritdoc/>
-        public async Task<HttpResponseMessage> CallWebApiForAppAsync(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? downstreamApiOptionsOverride = null,
-            StringContent? requestContent = null)
-        {
-            DownstreamWebApiOptions effectiveOptions = MergeOptions(optionsInstanceName, downstreamApiOptionsOverride);
-
-            if (effectiveOptions.Scopes == null)
-            {
-                throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
-            }
-
-            string accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(
-                effectiveOptions.Scopes,
-                effectiveOptions.Tenant,
-                effectiveOptions.TokenAcquisitionOptions)
-                .ConfigureAwait(false);
-
-            HttpResponseMessage response;
-            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                effectiveOptions.HttpMethod,
-                effectiveOptions.GetApiUrl()))
-            {
-                if (requestContent != null)
-                {
-                    httpRequestMessage.Content = requestContent;
-                }
-
-                httpRequestMessage.Headers.Add(
-                    Constants.Authorization,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1}",
-                        Constants.Bearer,
-                        accessToken));
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
-            }
-
-            return response;
         }
     }
 }

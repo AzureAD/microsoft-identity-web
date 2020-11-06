@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         private ClaimsPrincipal? _user;
         private string? _baseUri;
 #pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-        private IHttpContextAccessor? _httpContextAccessor;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
 #pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
 
         /// <summary>
