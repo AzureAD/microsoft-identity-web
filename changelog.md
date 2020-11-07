@@ -1,3 +1,13 @@
+1.3.0
+==========
+### New Features:
+**Microsoft Identity Web now exposes token cache adapters for Memory and IDistributedCache for .NET 4.7.2**, so ASP .NET MVC developers can leverage the serializers. See issue [#741](https://github.com/AzureAD/microsoft-identity-web/issues/741) for details.
+
+### Bug Fixes:
+**Microsoft Identity Web now guards against an authority ending with `//`**. See issue [#747](https://github.com/AzureAD/microsoft-identity-web/issues/747) for details.
+
+**During AJAX calls, Microsoft Identity Web ensures the redirect URI is a local redirect URI**. See issue [#746](https://github.com/AzureAD/microsoft-identity-web/issues/746).
+
 1.2.0
 ==========
 ### New Features:
