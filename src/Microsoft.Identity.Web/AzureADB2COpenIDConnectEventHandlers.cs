@@ -10,9 +10,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web
 {
-#pragma warning disable S101 // Types should be named in PascalCase
     internal class AzureADB2COpenIDConnectEventHandlers
-#pragma warning restore S101 // Types should be named in PascalCase
     {
         private readonly IDictionary<string, string> _userFlowToIssuerAddress =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

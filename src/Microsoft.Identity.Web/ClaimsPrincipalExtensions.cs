@@ -28,11 +28,9 @@ namespace Microsoft.Identity.Web
 
             if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {
-#pragma warning disable S125 // Sections of code should not be commented out
-                            // AAD pattern: {uid}.{utid}
-                            // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
+                // AAD pattern: {uid}.{utid}
+                // B2C pattern: {uid}-{userFlow}.{utid} -> userFlow is included in the uid for B2C
                 return $"{uniqueObjectIdentifier}.{uniqueTenantIdentifier}";
-#pragma warning restore S125 // Sections of code should not be commented out
             }
 
             return null;
