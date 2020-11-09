@@ -21,10 +21,6 @@ namespace Microsoft.Identity.Web
         private readonly HttpClient _httpClient;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
-        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        };
 
         /// <summary>
         /// Constructor.

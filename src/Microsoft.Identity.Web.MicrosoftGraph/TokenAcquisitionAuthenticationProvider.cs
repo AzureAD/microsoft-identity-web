@@ -20,8 +20,8 @@ namespace Microsoft.Identity.Web
             _initialOptions = options;
         }
 
-        private ITokenAcquisition _tokenAcquisition;
-        private TokenAcquisitionAuthenticationProviderOption _initialOptions;
+        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
 
         /// <summary>
         /// Adds an authorization header to an HttpRequestMessage.
