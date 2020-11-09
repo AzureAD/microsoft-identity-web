@@ -696,18 +696,18 @@
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
             <inheritdoc/>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
-            <inheritdoc/>
-        </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.MergeOptions(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
             <summary>
             Merge the options from configuration and override from caller.
             </summary>
             <param name="optionsInstanceName">Named configuration.</param>
             <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApiExtensions">
             <summary>

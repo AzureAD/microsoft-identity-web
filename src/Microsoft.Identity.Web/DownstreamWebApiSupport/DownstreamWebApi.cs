@@ -98,6 +98,31 @@ namespace Microsoft.Identity.Web
             return response;
         }
 
+        /// <summary>
+        /// Merge the options from configuration and override from caller.
+        /// </summary>
+        /// <param name="optionsInstanceName">Named configuration.</param>
+        /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
+        internal /* for tests */ DownstreamWebApiOptions MergeOptions(
+            string optionsInstanceName,
+            Action<DownstreamWebApiOptions>? calledApiOptionsOverride)
+        {
+            // Gets the options from configuration (or default value)
+            DownstreamWebApiOptions options;
+            if (optionsInstanceName != null)
+            {
+                options = _namedDownstreamWebApiOptions.Get(optionsInstanceName);
+            }
+            else
+            {
+                options = _namedDownstreamWebApiOptions.CurrentValue;
+            }
+
+            DownstreamWebApiOptions clonedOptions = options.Clone();
+            calledApiOptionsOverride?.Invoke(clonedOptions);
+            return clonedOptions;
+        }
+
         /// <inheritdoc/>
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
@@ -173,31 +198,6 @@ namespace Microsoft.Identity.Web
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// Merge the options from configuration and override from caller.
-        /// </summary>
-        /// <param name="optionsInstanceName">Named configuration.</param>
-        /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ DownstreamWebApiOptions MergeOptions(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? calledApiOptionsOverride)
-        {
-            // Gets the options from configuration (or default value)
-            DownstreamWebApiOptions options;
-            if (optionsInstanceName != null)
-            {
-                options = _namedDownstreamWebApiOptions.Get(optionsInstanceName);
-            }
-            else
-            {
-                options = _namedDownstreamWebApiOptions.CurrentValue;
-            }
-
-            DownstreamWebApiOptions clonedOptions = options.Clone();
-            calledApiOptionsOverride?.Invoke(clonedOptions);
-            return clonedOptions;
         }
     }
 }
