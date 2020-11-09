@@ -37,8 +37,8 @@ jobs:
       displayName: 'Run unit tests'
       inputs:
         command: test
-        projects: 'tests/Microsoft.Identity.Web.Test*.csproj'
-        arguments: '--no-build --no-restore --collect "Code coverage"'
+        projects: 'tests/**/Microsoft.Identity.Web.Test*.csproj'
+        arguments: '--collect "Code coverage"'
     - task: SonarCloudAnalyze@1
     - task: SonarCloudPublish@1
       inputs:
