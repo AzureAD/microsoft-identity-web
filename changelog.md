@@ -8,6 +8,8 @@
 
 **During AJAX calls, Microsoft Identity Web ensures the redirect URI is a local redirect URI**. See issue [#746](https://github.com/AzureAD/microsoft-identity-web/issues/746).
 
+**KeyVault flags are now included in the private key path for certificate fetching**. See issue [#762](https://github.com/AzureAD/microsoft-identity-web/issues/762) for details.
+
 1.2.0
 ==========
 ### New Features:
