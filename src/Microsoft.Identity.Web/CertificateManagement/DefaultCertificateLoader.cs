@@ -113,8 +113,7 @@ namespace Microsoft.Identity.Web
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
             if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
             {
-                byte[] pfx = Convert.FromBase64String(secret.Value);
-                return new X509Certificate2(pfx);
+                return LoadFromBase64Encoded(secret.Value);
             }
 
             throw new NotSupportedException(
