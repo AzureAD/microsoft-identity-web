@@ -38,7 +38,7 @@ In a Developer Command Prompt:
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.2.0`
+   `Set ClientSemVer=1.3.0`
 
 4. cd to ProjectTemplates and add the client secrets (or your own config file) to the Configuration.json file
 
@@ -77,7 +77,7 @@ In a Developer Command Prompt:
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.2.0`
+   `Set ClientSemVer=1.3.0`
 
 3. Add client secrets to the Configuration.json file
 
@@ -125,3 +125,4 @@ Once the projects are generated from the templates, test them manually.
 - To test the B2C-calls-web-api templates, you'll need to run the TodoListService of the B2CWebAppCallsWebApi test app in the Microsoft.Identity.Web solution
   - Note that we could do with testing the B2C-calls-web-api against the web API deployed in Azure, but testing it against our test project has the interest of enabling debugging
   - Also, run the TodoListService under IIS Express.
+  
