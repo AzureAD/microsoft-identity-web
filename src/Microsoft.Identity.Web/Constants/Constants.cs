@@ -60,7 +60,9 @@ namespace Microsoft.Identity.Web
         internal const string Aliases = "aliases";
 
         // AadIssuerValidator
+#pragma warning disable S1075 // URIs should not be hardcoded
         internal const string AzureADIssuerMetadataUrl = "https://login.microsoftonline.com/common/discovery/instance?authorization_endpoint=https://login.microsoftonline.com/common/oauth2/v2.0/authorize&api-version=1.1";
+#pragma warning restore S1075 // URIs should not be hardcoded
         internal const string FallbackAuthority = "https://login.microsoftonline.com/";
 
         // RegisterValidAudience

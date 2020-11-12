@@ -1,0 +1,15 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "azuread",
+    "Name": "Azure Active Directory"
+  },
+  "ProjectKey": "AzureAD_microsoft-identity-web",
+  "ProjectName": "microsoft-identity-web",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AXMqHrScFqF0v-dl6dl_",
+      "ProfileTimestamp": "2020-10-13T14:12:09Z"
+    }
+  }
+}

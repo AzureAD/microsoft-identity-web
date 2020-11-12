@@ -21,10 +21,6 @@ namespace Microsoft.Identity.Web
         private readonly HttpClient _httpClient;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
-        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        };
 
         /// <summary>
         /// Constructor.
@@ -49,12 +45,12 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? calledDownstreamApiOptionsOverride = null,
+            string serviceName,
+            Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? requestContent = null)
+            StringContent? content = null)
         {
-            DownstreamWebApiOptions effectiveOptions = MergeOptions(optionsInstanceName, calledDownstreamApiOptionsOverride);
+            DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
             if (string.IsNullOrEmpty(effectiveOptions.Scopes))
             {
@@ -84,9 +80,9 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.HttpMethod,
                 effectiveOptions.GetApiUrl()))
             {
-                if (requestContent != null)
+                if (content != null)
                 {
-                    httpRequestMessage.Content = requestContent;
+                    httpRequestMessage.Content = content;
                 }
 
                 httpRequestMessage.Headers.Add(
@@ -129,14 +125,14 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
-            string optionsInstanceName,
+            string serviceName,
             TInput input,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
             where TOutput : class
         {
             HttpResponseMessage response = await CallWebApiForUserAsync(
-                optionsInstanceName,
+                serviceName,
                 downstreamWebApiOptionsOverride,
                 user,
                 new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
@@ -164,11 +160,11 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? downstreamApiOptionsOverride = null,
-            StringContent? requestContent = null)
+            string serviceName,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            StringContent? content = null)
         {
-            DownstreamWebApiOptions effectiveOptions = MergeOptions(optionsInstanceName, downstreamApiOptionsOverride);
+            DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
 
             if (effectiveOptions.Scopes == null)
             {
@@ -186,9 +182,9 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.HttpMethod,
                 effectiveOptions.GetApiUrl()))
             {
-                if (requestContent != null)
+                if (content != null)
                 {
-                    httpRequestMessage.Content = requestContent;
+                    httpRequestMessage.Content = content;
                 }
 
                 httpRequestMessage.Headers.Add(

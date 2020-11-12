@@ -52,11 +52,11 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         /// <example>
-        /// A list method that returns an IEnumerable&lt;Todo&gt;&gt;.
+        /// A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
         /// <code>
-        /// public async Task&lt;IEnumerable&lt;Todo&gt;&gt; GetAsync()
+        /// public async Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
         /// {
-        ///  return await _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;Todo&gt;&gt;(
+        ///  return await _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
         ///         ServiceName,
         ///         null,
         ///         options =>
@@ -68,15 +68,15 @@ namespace Microsoft.Identity.Web
         ///
         /// Example of editing.
         /// <code>
-        /// public async Task&lt;Todo&gt; EditAsync(Todo todo)
+        /// public async Task&lt;MyItem&gt; EditAsync(MyItem myItem)
         /// {
-        ///   return await _downstreamWebApi.CallWebApiForUserAsync&lt;Todo, Todo&gt;(
+        ///   return await _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
         ///         ServiceName,
-        ///         todo,
+        ///         nyItem,
         ///         options =>
         ///         {
         ///            options.HttpMethod = HttpMethod.Patch;
-        ///            options.RelativePath = $"api/todolist/{todo.Id}";
+        ///            options.RelativePath = $"api/todolist/{myItem.Id}";
         ///         });
         /// }
         /// </code>

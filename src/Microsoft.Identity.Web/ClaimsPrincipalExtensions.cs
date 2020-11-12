@@ -102,10 +102,10 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            var tenantId = GetTenantId(claimsPrincipal);
+            string? tenantId = GetTenantId(claimsPrincipal);
             string? domainHint = string.IsNullOrWhiteSpace(tenantId)
                 ? null
-                : tenantId.Equals(Constants.MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Constants.Consumers : Constants.Organizations;
+                : tenantId!.Equals(Constants.MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Constants.Consumers : Constants.Organizations;
 
             return domainHint;
         }

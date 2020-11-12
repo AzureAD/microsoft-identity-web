@@ -38,6 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -68,6 +72,7 @@
   <PropertyGroup>
     <!-- The MSAL.snk has both private and public keys -->
     <DelaySign>false</DelaySign>
+    <CodeAnalysisRuleSet>..\..\.sonarlint\azuread_microsoft-identity-webcsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -85,7 +90,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
-    <Compile Remove="*.cs"/>
+    <Compile Remove="*.cs" />
     <Compile Include="ClaimsPrincipalExtensions.cs" />
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="CertificateManagement\**" />
@@ -112,10 +117,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Identity.Client" Version="4.22.0" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.14.0.22654">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
 
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205">
       <PrivateAssets>all</PrivateAssets>

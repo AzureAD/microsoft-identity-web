@@ -8,7 +8,7 @@ namespace Microsoft.Identity.Web
 {
     internal class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
     {
-        private IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public MsalAspNetCoreHttpClientFactory(IHttpClientFactory httpClientFactory)
         {
