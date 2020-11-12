@@ -54,43 +54,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Call a web API with a strongly typed input, with an HttpGet.
-        /// </summary>
-        /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="downstreamWebApi">The downstream web API.</param>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
-        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-        /// needs to be set.</param>
-        /// <param name="inputData">Input data.</param>
-        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
-        /// by <paramref name="serviceName"/>.</param>
-        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
-        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
-        /// will find the user from the HttpContext.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public static async Task GetForUserAsync<TInput>(
-            this IDownstreamWebApi downstreamWebApi,
-            string serviceName,
-            TInput inputData,
-            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
-        {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
-
-            using StringContent? input = ConvertFromInput(inputData);
-
-            await downstreamWebApi.CallWebApiForUserAsync(
-             serviceName,
-             downstreamWebApiOptionsOverride,
-             user,
-             input).ConfigureAwait(false);
-        }
-
-        /// <summary>
         /// Calls the web API with an HttpPost, providing strongly typed input and getting
         /// strongly typed output.
         /// </summary>
@@ -252,6 +215,43 @@ namespace Microsoft.Identity.Web
               null).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Call a web API with a strongly typed input, with an HttpGet.
+        /// </summary>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="downstreamWebApi">The downstream web API.</param>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="inputData">Input data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
+        public static async Task GetForUserAsync<TInput>(
+            this IDownstreamWebApi downstreamWebApi,
+            string serviceName,
+            TInput inputData,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            ClaimsPrincipal? user = null)
+        {
+            if (downstreamWebApi is null)
+            {
+                throw new ArgumentNullException(nameof(downstreamWebApi));
+            }
+
+            using StringContent? input = ConvertFromInput(inputData);
+
+            await downstreamWebApi.CallWebApiForUserAsync(
+             serviceName,
+             downstreamWebApiOptionsOverride,
+             user,
+             input).ConfigureAwait(false);
         }
 
         private static StringContent ConvertFromInput<TInput>(TInput input)
