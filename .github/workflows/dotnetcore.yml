@@ -12,16 +12,16 @@ jobs:
         dotNetRunVersion: [netcoreapp3.1]
         solution: [Microsoft.Identity.Web.sln]
         include:
-          - DotNetInstallVersion: 5.0.100-preview.7.20366.6
+          - DotNetInstallVersion: 5.0.100
             DotNetRunVersion: net5.0
             Solution: Microsoft.Identity.Web-without-blasorwasm2-sample.sln
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2.3.1
+      uses: actions/checkout@v2.3.4
 
     - name: Setup .NET ${{ matrix.dotNetInstallVersion }}
-      uses: actions/setup-dotnet@v1.5.0
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: ${{ matrix.dotNetInstallVersion }}
 
