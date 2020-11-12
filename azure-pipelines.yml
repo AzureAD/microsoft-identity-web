@@ -15,6 +15,7 @@ jobs:
     - msbuild
   steps:
     - template: build/template-install-dotnet-core.yaml
+    - template: build/template-install-keyvault-secrets.yaml
     - task: SonarCloudPrepare@1
       inputs:
         SonarCloud: 'SonarCloud-microsoft_identity_web'
@@ -43,4 +44,3 @@ jobs:
     - task: SonarCloudPublish@1
       inputs:
         pollingTimeoutSec: '300'
-        
