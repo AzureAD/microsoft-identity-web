@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,11 +21,12 @@ namespace Microsoft.Identity.Web.Perf.Client
     {
         private readonly TestRunnerOptions _options;
         private readonly string[] _userAccountIdentifiers;
-        private TimeSpan elapsedTimeInMsalCacheLookup;
+        private readonly Metrics _globalMetrics;
+        private static readonly object s_metricsLock = new object();
 
         private readonly DateTime _processingStartTime;
         private readonly DateTime _processingEndTime;
-        private HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
         public TestRunner(TestRunnerOptions options)
         {
@@ -33,6 +34,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             _processingStartTime = DateTime.Now;
             _processingEndTime = DateTime.Now.AddMinutes(options.RuntimeInMinutes);
             _userAccountIdentifiers = new string[options.NumberOfUsersToTest + _options.StartUserIndex];
+            _globalMetrics = new Metrics();
 
             // Configuring the HTTP client to trust the self-signed certificate
             var httpClientHandler = new HttpClientHandler();
@@ -44,7 +46,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         public async Task Run()
         {
-            Console.WriteLine($"Starting test with {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
+            Console.WriteLine($"Starting test with {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1} using {_options.NumberOfParallelTasks} parallel tasks.");
 
             if (_options.RunIndefinitely)
             {
@@ -56,8 +58,8 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
 
             // Try loading from cache
-            ScalableTokenCacheHelper.LoadCache();
-            IDictionary<int, string> accounts = ScalableTokenCacheHelper.GetAccountIdsByUserNumber();
+            TokenCacheHelper.LoadCache();
+            IDictionary<int, string> accounts = TokenCacheHelper.GetAccountIdsByUserNumber();
             foreach (var account in accounts)
             {
                 if (account.Key < _userAccountIdentifiers.Length)
@@ -95,7 +97,14 @@ namespace Microsoft.Identity.Web.Perf.Client
             {
                 while (!tokenSource.Token.IsCancellationRequested && DateTime.Now < _processingEndTime)
                 {
-                    await Task.Delay(_options.TimeCheckDelayInMilliseconds);
+                    try
+                    {
+                        await Task.Delay(_options.TimeCheckDelayInMilliseconds, tokenSource.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Ignore this exception. In this case task cancellation is the same as running to completion.
+                    }
                 }
 
                 tokenSource.Cancel();
@@ -114,7 +123,14 @@ namespace Microsoft.Identity.Web.Perf.Client
             {
                 while (!tokenSource.Token.IsCancellationRequested)
                 {
-                    await Task.Delay(_options.UserInputCheckDelayInMilliseconds);
+                    try
+                    {
+                        await Task.Delay(_options.UserInputCheckDelayInMilliseconds, tokenSource.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Ignore this exception. In this case task cancellation is the same as running to completion.
+                    }
 
                     if (Console.KeyAvailable)
                     {
@@ -136,14 +152,14 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// <returns>A <see cref="Task"/> that represents this send request operation.</returns>
         private IEnumerable<Task> CreateSendRequestsTasks(CancellationTokenSource tokenSource)
         {
-            var batchSize = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
-                ? 1 
+            var batchSize = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks
+                ? 1
                 : (_options.NumberOfUsersToTest / _options.NumberOfParallelTasks);
-            
-            var numberOfParallelTasks = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks 
-                ? _options.NumberOfUsersToTest 
+
+            var numberOfParallelTasks = _options.NumberOfUsersToTest < _options.NumberOfParallelTasks
+                ? _options.NumberOfUsersToTest
                 : _options.NumberOfParallelTasks;
-            
+
             foreach (int batchNumber in Enumerable.Range(0, numberOfParallelTasks))
             {
                 var startIndex = batchNumber * batchSize + _options.StartUserIndex;
@@ -155,32 +171,23 @@ namespace Microsoft.Identity.Web.Perf.Client
 
         private async Task SendRequestsAsync(int userStartIndex, int userEndIndex, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Task started for users {userStartIndex} to {userEndIndex}.");
-
-            DateTime startOverall = DateTime.Now;
-            TimeSpan elapsedTime = TimeSpan.Zero;
-            int requestsCounter = 0;
-            int authRequestFailureCount = 0;
-            int catchAllFailureCount = 0;
-            int tokenReturnedFromCache = 0;
-            StringBuilder exceptionsDuringRun = new StringBuilder();
-
-
-            int loop = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
-                loop++;
-                for (int i = userStartIndex; i <= userEndIndex && !cancellationToken.IsCancellationRequested; i++)
+                var localMetrics = new Metrics();
+                var stopwatch = new Stopwatch();
+                var exceptionsDuringRun = new StringBuilder();
+
+                for (int userIndex = userStartIndex; userIndex <= userEndIndex && !cancellationToken.IsCancellationRequested; userIndex++)
                 {
                     try
                     {
                         HttpResponseMessage response;
                         using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, _options.TestUri))
                         {
-                            AuthenticationResult authResult = await AcquireTokenAsync(i);
+                            AuthenticationResult authResult = await AcquireTokenAsync(userIndex, localMetrics);
                             if (authResult == null)
                             {
-                                authRequestFailureCount++;
+                                localMetrics.TotalAcquireTokenFailures++;
                             }
                             else
                             {
@@ -193,19 +200,19 @@ namespace Microsoft.Identity.Web.Perf.Client
                                         "Bearer",
                                         authResult?.AccessToken));
 
-                                DateTime start = DateTime.Now;
+                                stopwatch.Start();
                                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                                elapsedTime += DateTime.Now - start;
-                                requestsCounter++;
+                                stopwatch.Stop();
+                                localMetrics.TotalRequests++;
                                 if (authResult?.AuthenticationResultMetadata.TokenSource == TokenSource.Cache)
                                 {
-                                    tokenReturnedFromCache++;
+                                    localMetrics.TotalTokensReturnedFromCache++;
                                 }
                                 else
                                 {
-                                    if (i % 10 == 0)
+                                    if (userIndex % 10 == 0)
                                     {
-                                        ScalableTokenCacheHelper.PersistCache();
+                                        TokenCacheHelper.PersistCache();
                                     }
                                 }
 
@@ -221,38 +228,58 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
                     catch (Exception ex)
                     {
-                        catchAllFailureCount++;
-                        Console.WriteLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        localMetrics.TotalExceptions++;
+                        Console.WriteLine($"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
 
-                        exceptionsDuringRun.AppendLine($"Exception in TestRunner at {i} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        exceptionsDuringRun.AppendLine($"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
                         exceptionsDuringRun.AppendLine($"{ex}");
                     }
                 }
+                localMetrics.TotalRequestTimeInMilliseconds += stopwatch.Elapsed.TotalMilliseconds;
 
-                UpdateConsoleProgress(startOverall, elapsedTime, requestsCounter, tokenReturnedFromCache, authRequestFailureCount, catchAllFailureCount, userStartIndex, userEndIndex, loop);
+                UpdateGlobalMetrics(localMetrics);
+                DisplayProgress();
 
-                ScalableTokenCacheHelper.PersistCache();
+                TokenCacheHelper.PersistCache();
 
-                //File.AppendAllText(System.Reflection.Assembly.GetExecutingAssembly().Location + ".exceptions.log", exceptionsDuringRun.ToString());
+                Logger.PersistExceptions(exceptionsDuringRun);
             }
         }
 
-        private void UpdateConsoleProgress(DateTime startOverall, TimeSpan elapsedTime, int requestsCounter, int tokenReturnedFromCache,
-            int authRequestFailureCount, int catchAllFailureCount, int userStartIndex, int userEndIndex, int loop)
+        private void UpdateGlobalMetrics(Metrics localMetrics)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("------------------------------------------------------------------------");
-            sb.AppendLine($"Runtime: {startOverall} - {DateTime.Now} = {DateTime.Now - startOverall}");
-            sb.AppendLine($"Loop: {loop}");
-            sb.AppendLine($"WebAPI Time: {elapsedTime}");
-            sb.AppendLine($"Total number of users: {userEndIndex - userStartIndex}. [{userEndIndex} - {userStartIndex}]");
-            sb.AppendLine($"AuthRequest Failures: {authRequestFailureCount}. Generic failures: {catchAllFailureCount}");
-            sb.AppendLine($"Total requests: {requestsCounter}, avg. time per request: {(elapsedTime.TotalSeconds / requestsCounter):0.0000}");
-            sb.AppendLine($"Cache requests: {tokenReturnedFromCache}. Avg. cache time: {(elapsedTimeInMsalCacheLookup.TotalSeconds / tokenReturnedFromCache):0.0000}. (Total: {elapsedTimeInMsalCacheLookup})");
-            Console.WriteLine(sb);
+            lock (s_metricsLock)
+            {
+                _globalMetrics.TotalRequests += localMetrics.TotalRequests;
+                _globalMetrics.TotalRequestTimeInMilliseconds += localMetrics.TotalRequestTimeInMilliseconds;
+                _globalMetrics.TotalTokensReturnedFromCache += localMetrics.TotalTokensReturnedFromCache;
+                _globalMetrics.TotalMsalLookupTimeInMilliseconds += localMetrics.TotalMsalLookupTimeInMilliseconds;
+                _globalMetrics.TotalAcquireTokenFailures += localMetrics.TotalAcquireTokenFailures;
+                _globalMetrics.TotalExceptions += localMetrics.TotalExceptions;
+            }
         }
 
-        private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex)
+        private void DisplayProgress()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("------------------------------------------------------------------------");
+            stringBuilder.AppendLine($"Run time: {_processingStartTime} - {DateTime.Now} = {DateTime.Now - _processingStartTime}.");
+            stringBuilder.AppendLine($"Total number of users: {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
+
+            lock (s_metricsLock)
+            {
+                stringBuilder.AppendLine($"Loop: {_globalMetrics.TotalRequests / _options.NumberOfUsersToTest}");
+                stringBuilder.AppendLine($"Total requests: {_globalMetrics.TotalRequests}.");
+                stringBuilder.AppendLine($"Average request time: {_globalMetrics.AverageRequestTimeInMilliseconds:0.0000} ms.");
+                stringBuilder.AppendLine($"Cache requests: {_globalMetrics.TotalTokensReturnedFromCache}.");
+                stringBuilder.AppendLine($"Average cache time: {_globalMetrics.AverageMsalLookupTimeInMilliseconds:0.0000} ms.");
+                stringBuilder.AppendLine($"AuthRequest failures: {_globalMetrics.TotalAcquireTokenFailures}. Generic failures: {_globalMetrics.TotalExceptions}.");
+            }
+
+            Console.WriteLine(stringBuilder);
+        }
+
+        private async Task<AuthenticationResult> AcquireTokenAsync(int userIndex, Metrics localMetrics)
         {
             var scopes = new string[] { _options.ApiScopes };
             var upn = $"{_options.UsernamePrefix}{userIndex}@{_options.TenantDomain}";
@@ -263,12 +290,12 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             if (_options.EnableMsalLogging)
             {
-                builder.WithLogging(Log, LogLevel.Info, false);
+                builder.WithLogging(Logger.Log, LogLevel.Error, false);
             }
 
             var msalPublicClient = builder.Build();
 
-            ScalableTokenCacheHelper.EnableSerialization(msalPublicClient.UserTokenCache);
+            TokenCacheHelper.EnableSerialization(msalPublicClient.UserTokenCache);
 
             AuthenticationResult authResult = null;
             try
@@ -279,9 +306,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                     IAccount account = null;
                     if (identifier != null)
                     {
-                        DateTime start = DateTime.Now;
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
                         account = await msalPublicClient.GetAccountAsync(identifier).ConfigureAwait(false);
-                        elapsedTimeInMsalCacheLookup += DateTime.Now - start;
+                        stopwatch.Stop();
+                        localMetrics.TotalMsalLookupTimeInMilliseconds += stopwatch.Elapsed.TotalMilliseconds;
                     }
 
                     authResult = await msalPublicClient.AcquireTokenSilent(scopes, account).ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
@@ -289,6 +318,9 @@ namespace Microsoft.Identity.Web.Perf.Client
                 }
                 catch (MsalUiRequiredException)
                 {
+                    // Delay to prevent spamming the STS with calls.
+                    await Task.Delay(_options.RequestDelayInMilliseconds);
+
                     authResult = await msalPublicClient.AcquireTokenByUsernamePassword(
                                                         scopes,
                                                         upn,
@@ -307,49 +339,6 @@ namespace Microsoft.Identity.Web.Perf.Client
                 Console.WriteLine($"Exception in AcquireTokenAsync: {ex}");
             }
             return authResult;
-        }
-
-        private static string s_msallogfile = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalLogs.txt";
-        private static StringBuilder s_log = new StringBuilder();
-        private static volatile bool s_isLogging = false;
-        private static object s_logLock = new object();
-
-        private static void Log(LogLevel level, string message, bool containsPii)
-        {
-            StringBuilder tempBuilder = new StringBuilder();
-            bool writeToDisk = false;
-            lock (s_logLock)
-            {
-                string logs = ($"{level} {message}");
-                if (!s_isLogging)
-                {
-                    s_isLogging = true;
-                    writeToDisk = true;
-                    tempBuilder.Append(s_log);
-                    tempBuilder.Append(logs);
-                    s_log.Clear();
-                }
-                else
-                {
-                    s_log.Append(logs);
-                }
-            }
-
-            if (!writeToDisk)
-            {
-                return;
-            }
-
-            s_isLogging = true;
-            try
-            {
-                File.AppendAllText(s_msallogfile, tempBuilder.ToString());
-                tempBuilder.Clear();
-            }
-            finally
-            {
-                s_isLogging = false;
-            }
         }
     }
 }

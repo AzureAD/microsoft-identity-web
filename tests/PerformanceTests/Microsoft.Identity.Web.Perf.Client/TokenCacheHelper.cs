@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Perf.Client
     /// Token cache writing on disk one cache per account
     /// WARNING: this version is not encrypted
     /// </summary>
-    static class ScalableTokenCacheHelper
+    static class TokenCacheHelper
     {
         /// <summary>
         /// Path to the token cache
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// <summary>
         /// Creating the folders for the token cache and its key, if needed
         /// </summary>
-        static ScalableTokenCacheHelper()
+        static TokenCacheHelper()
         {
         }
 
