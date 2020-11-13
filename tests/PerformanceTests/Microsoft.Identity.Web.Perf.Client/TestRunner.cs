@@ -266,7 +266,6 @@ namespace Microsoft.Identity.Web.Perf.Client
             stringBuilder.AppendLine($"Run time: {_processingStartTime} - {DateTime.Now} = {DateTime.Now - _processingStartTime}.");
             stringBuilder.AppendLine($"Total number of users: {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
 
-
             lock (s_metricsLock)
             {
                 stringBuilder.AppendLine($"Loop: {_globalMetrics.TotalRequests / _options.NumberOfUsersToTest}");
@@ -291,7 +290,7 @@ namespace Microsoft.Identity.Web.Perf.Client
 
             if (_options.EnableMsalLogging)
             {
-                builder.WithLogging(Logger.Log, LogLevel.Info, false);
+                builder.WithLogging(Logger.Log, LogLevel.Error, false);
             }
 
             var msalPublicClient = builder.Build();
