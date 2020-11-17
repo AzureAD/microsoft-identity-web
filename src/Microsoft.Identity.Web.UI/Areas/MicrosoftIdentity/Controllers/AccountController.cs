@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="redirectUri">Redirect URI.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         [HttpGet("{scheme?}/{redirectUri?}")]
-        public IActionResult SignIn([FromRoute] string scheme, [FromQuery] string redirectUri = "~/")
+        public IActionResult SignIn([FromRoute] string scheme, [FromQuery] string redirectUri)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             UrlHelper urlHelper = new UrlHelper(ControllerContext);
