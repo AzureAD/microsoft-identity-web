@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
@@ -37,14 +38,20 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// Handles user sign in.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
+        /// <param name="redirectUri">Redirect URI.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
-        [HttpGet("{scheme?}")]
-        public IActionResult SignIn([FromRoute] string scheme)
+        [HttpGet("{scheme?}/{redirectUri?}")]
+        public IActionResult SignIn([FromRoute] string scheme, [FromQuery] string redirectUri = "~/")
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            var redirectUrl = Url.Content("~/");
+            UrlHelper urlHelper = new UrlHelper(ControllerContext);
+            if (!urlHelper.IsLocalUrl(redirectUri))
+            {
+                redirectUri = Url.Content("~/");
+            }
+
             return Challenge(
-                new AuthenticationProperties { RedirectUri = redirectUrl },
+                new AuthenticationProperties { RedirectUri = redirectUri },
                 scheme);
         }
 
