@@ -100,11 +100,6 @@
             </summary>
             <returns>A Sign Out page or Home page.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.UI.Constants">
-            <summary>
-            General constants.
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.UI.ServiceCollectionExtensions">
             <summary>
             Extension method on <see cref="T:Microsoft.Extensions.DependencyInjection.IMvcBuilder"/> to add UI

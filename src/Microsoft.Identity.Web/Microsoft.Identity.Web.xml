@@ -628,6 +628,12 @@
             Scope.
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.Constants.Policy">
+            <summary>
+            Policy.
+            The name of the policy to check against a specific context.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
             <summary>
             Constants related to the error messages.
@@ -757,24 +763,6 @@
             will find the user from the HttpContext.</param>
             <returns>A strongly typed response from the web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Call a web API with a strongly typed input, with an HttpGet.
-            </summary>
-            <typeparam name="TInput">Input type.</typeparam>
-            <param name="downstreamWebApi">The downstream web API.</param>
-            <param name="serviceName">Name of the service describing the downstream web API. There can
-            be several configuration named sections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamWebApiOptions"/>,
-            each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-            needs to be set.</param>
-            <param name="inputData">Input data.</param>
-            <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
-            by <paramref name="serviceName"/>.</param>
-            <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
-            or Azure Signal R, where the HttpContext is not available. In other platforms, the library
-            will find the user from the HttpContext.</param>
-            <returns>The value returned by the downstream web API.</returns>
-        </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PostForUserAsync``2(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
             <summary>
             Calls the web API with an HttpPost, providing strongly typed input and getting
@@ -847,6 +835,24 @@
             be several configuration named sections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamWebApiOptions"/>,
             each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
             needs to be set.</param>
+            <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+            by <paramref name="serviceName"/>.</param>
+            <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+            or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+            will find the user from the HttpContext.</param>
+            <returns>The value returned by the downstream web API.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Call a web API with a strongly typed input, with an HttpGet.
+            </summary>
+            <typeparam name="TInput">Input type.</typeparam>
+            <param name="downstreamWebApi">The downstream web API.</param>
+            <param name="serviceName">Name of the service describing the downstream web API. There can
+            be several configuration named sections mapped to a <see cref="T:Microsoft.Identity.Web.DownstreamWebApiOptions"/>,
+            each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+            needs to be set.</param>
+            <param name="inputData">Input data.</param>
             <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
             by <paramref name="serviceName"/>.</param>
             <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
