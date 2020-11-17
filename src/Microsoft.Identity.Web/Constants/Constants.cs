@@ -49,6 +49,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public const string Scope = "scope";
 
+        /// <summary>
+        /// Policy for B2C user flows.
+        /// The name of the policy to check against a specific user flow.
+        /// </summary>
+        public const string Policy = "policy";
+
         // IssuerMetadata
         internal const string TenantDiscoveryEndpoint = "tenant_discovery_endpoint";
         internal const string ApiVersion = "api-version";
