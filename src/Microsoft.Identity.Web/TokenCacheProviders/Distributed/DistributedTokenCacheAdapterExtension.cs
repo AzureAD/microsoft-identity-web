@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>A <see cref="IServiceCollection"/> to chain.</returns>
-        public static IServiceCollection AddDistributedAppTokenCache(
+        public static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
             if (services == null)
