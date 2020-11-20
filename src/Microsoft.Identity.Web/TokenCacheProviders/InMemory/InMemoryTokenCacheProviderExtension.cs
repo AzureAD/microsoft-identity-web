@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <summary>Adds both the app and per-user in-memory token caches.</summary>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>the services (for chaining).</returns>
-        internal static IServiceCollection AddInMemoryTokenCaches(
+        public static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
         {
             if (services == null)
@@ -23,7 +23,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             }
 
             services.AddMemoryCache();
-            services.AddHttpContextAccessor();
             services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return services;
         }

@@ -64,8 +64,7 @@ namespace Microsoft.Identity.Web
         /// <returns>the service collection.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDistributedTokenCaches()
         {
-            Services.AddDistributedAppTokenCache();
-            Services.AddDistributedUserTokenCache();
+            Services.AddDistributedTokenCaches();
             return this;
         }
 
