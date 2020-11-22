@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -69,6 +71,7 @@ namespace Microsoft.Identity.Web
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             builder.Services.AddOptions<MicrosoftGraphOptions>().Configure(configureMicrosoftGraphOptions);
 
+            builder.Services.AddHttpClient();
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
@@ -83,14 +86,31 @@ namespace Microsoft.Identity.Web
                 string graphBaseUrl = microsoftGraphOptions.BaseUrl;
                 string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
 
-                GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
-                                tokenAquisitionService,
-                                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
-                            new GraphServiceClient(graphBaseUrl,
-                                new TokenAcquisitionAuthenticationProvider(
-                                    tokenAquisitionService,
-                                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                if (!string.IsNullOrWhiteSpace(graphBaseUrl))
+                {
+                    httpClient.BaseAddress = new Uri(graphBaseUrl);
+                }
+
+                GraphServiceClient client = new GraphServiceClient(httpClient)
+                {
+                    AuthenticationProvider = new TokenAcquisitionAuthenticationProvider(
+                    tokenAquisitionService,
+                        new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })
+                };
+
+                // old
+                //GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
+                //            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
+                //                tokenAquisitionService,
+                //                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
+                //            new GraphServiceClient(graphBaseUrl,
+                //                new TokenAcquisitionAuthenticationProvider(
+                //                    tokenAquisitionService,
+                //                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                
                 return client;
             });
             return builder;
