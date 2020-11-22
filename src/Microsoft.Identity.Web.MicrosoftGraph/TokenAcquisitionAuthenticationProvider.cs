@@ -35,7 +35,8 @@ namespace Microsoft.Identity.Web
             bool appOnly = _initialOptions.AppOnly ?? false;
             // Extract per-request options from the request if present
             TokenAcquisitionAuthenticationProviderOption? msalAuthProviderOption = GetMsalAuthProviderOption(request);
-            if (msalAuthProviderOption != null) {
+            if (msalAuthProviderOption != null)
+            {
                 scopes = msalAuthProviderOption.Scopes ?? scopes;
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
             }
@@ -55,7 +56,7 @@ namespace Microsoft.Identity.Web
             else
             {
                 token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes).ConfigureAwait(false);
-            } 
+            }
 
             request.Headers.Authorization = new AuthenticationHeaderValue(Constants.Bearer, token);
         }
