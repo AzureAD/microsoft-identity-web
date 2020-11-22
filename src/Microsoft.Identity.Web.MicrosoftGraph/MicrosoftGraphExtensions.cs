@@ -101,16 +101,6 @@ namespace Microsoft.Identity.Web
                         new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })
                 };
 
-                // old
-                //GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                //            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
-                //                tokenAquisitionService,
-                //                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
-                //            new GraphServiceClient(graphBaseUrl,
-                //                new TokenAcquisitionAuthenticationProvider(
-                //                    tokenAquisitionService,
-                //                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
-                
                 return client;
             });
             return builder;
