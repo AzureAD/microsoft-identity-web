@@ -89,10 +89,6 @@ namespace Microsoft.Identity.Web
                 var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                if (!string.IsNullOrWhiteSpace(graphBaseUrl))
-                {
-                    httpClient.BaseAddress = new Uri(graphBaseUrl);
-                }
 
                 GraphServiceClient client = new GraphServiceClient(httpClient)
                 {
@@ -100,6 +96,12 @@ namespace Microsoft.Identity.Web
                     tokenAquisitionService,
                         new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })
                 };
+
+                if (!string.IsNullOrWhiteSpace(graphBaseUrl))
+                {
+                    httpClient.BaseAddress = new Uri(graphBaseUrl);
+                    client.BaseUrl = graphBaseUrl;
+                }
 
                 return client;
             });
