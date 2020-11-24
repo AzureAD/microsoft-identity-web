@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
 
                 var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(Constants.ApplicationJson));
 
                 GraphServiceClient client = new GraphServiceClient(httpClient)
                 {
