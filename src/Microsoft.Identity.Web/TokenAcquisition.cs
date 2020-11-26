@@ -150,6 +150,9 @@ namespace Microsoft.Identity.Web
                 {
                     string? userFlow = context.Principal?.GetUserFlowId();
                     var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    
+                    // Consider the case where the authority in the config ends with /tfp
+                    authority = authority.Replace("/tfp/tfp", "/tfp");
                     builder.WithB2CAuthority(authority);
                 }
 
