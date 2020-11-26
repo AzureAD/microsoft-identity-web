@@ -533,6 +533,7 @@ namespace Microsoft.Identity.Web
                     {
                         builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                        builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
