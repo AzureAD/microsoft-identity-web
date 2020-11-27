@@ -6,5 +6,6 @@ namespace Microsoft.Identity.Web
     {
         public string[]? Scopes { get; set; }
         public bool? AppOnly { get; set; }
+        public string? Tenant { get; set; }
     }
 }
