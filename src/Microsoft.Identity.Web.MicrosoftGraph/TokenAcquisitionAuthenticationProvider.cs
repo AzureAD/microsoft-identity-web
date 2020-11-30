@@ -33,11 +33,13 @@ namespace Microsoft.Identity.Web
             // Default options to settings provided during intialization
             var scopes = _initialOptions.Scopes;
             bool appOnly = _initialOptions.AppOnly ?? false;
+            string? tenant = _initialOptions.Tenant ?? null;
             // Extract per-request options from the request if present
             TokenAcquisitionAuthenticationProviderOption? msalAuthProviderOption = GetMsalAuthProviderOption(request);
             if (msalAuthProviderOption != null) {
                 scopes = msalAuthProviderOption.Scopes ?? scopes;
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
+                tenant = msalAuthProviderOption.Tenant ?? tenant;
             }
 
             if (!appOnly && scopes == null)
@@ -50,7 +52,7 @@ namespace Microsoft.Identity.Web
             string token;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, tenant).ConfigureAwait(false);
             }
             else
             {

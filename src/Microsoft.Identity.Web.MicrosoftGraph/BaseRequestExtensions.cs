@@ -30,10 +30,15 @@ namespace Microsoft.Identity.Web
         /// <typeparam name="T">Type of the request.</typeparam>
         /// <param name="baseRequest">Request.</param>
         /// <param name="appOnly">Should the permissions be app only or not.</param>
+        /// <param name="tenant">Tenant ID or domain for which we want to make the call..</param>
         /// <returns></returns>
-        public static T WithAppOnly<T>(this T baseRequest, bool appOnly = true) where T : IBaseRequest
+        public static T WithAppOnly<T>(this T baseRequest, bool appOnly = true, string? tenant = null) where T : IBaseRequest
         {
-            return SetParameter(baseRequest, options => options.AppOnly = appOnly);
+            return SetParameter(baseRequest, options =>
+            {
+                options.AppOnly = appOnly;
+                options.Tenant = tenant;
+            });
         }
 
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
