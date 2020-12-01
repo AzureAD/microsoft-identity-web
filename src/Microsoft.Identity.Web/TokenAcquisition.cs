@@ -86,6 +86,7 @@ namespace Microsoft.Identity.Web
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
+                Constants.Common,
                 Constants.Organizations,
                 Constants.Consumers,
             },
@@ -274,6 +275,11 @@ namespace Microsoft.Identity.Web
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
+            }
+
+            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.TenantId) && _metaTenantIdentifiers.Contains(_microsoftIdentityOptions.TenantId))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(_microsoftIdentityOptions.TenantId));
             }
 
             // Use MSAL to get the right token to call the API
