@@ -94,7 +94,11 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(TestConstants.B2CInstance)]
         [InlineData(TestConstants.B2CLoginMicrosoft)]
-        public async void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTestsAsync(string authorityInstance)
+        [InlineData(TestConstants.B2CInstance, true)]
+        [InlineData(TestConstants.B2CLoginMicrosoft, true)]
+        public async void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTestsAsync(
+            string authorityInstance,
+            bool withTfp = false)
         {
             _microsoftIdentityOptions = new MicrosoftIdentityOptions
             {
@@ -102,7 +106,15 @@ namespace Microsoft.Identity.Web.Test
                 Domain = TestConstants.B2CTenant,
             };
 
-            BuildTheRequiredServices(authorityInstance + "/tfp/");
+            if (withTfp)
+            {
+                BuildTheRequiredServices(authorityInstance + "/tfp/");
+            }
+            else
+            {
+                BuildTheRequiredServices(authorityInstance);
+            }
+
             InitializeTokenAcquisitionObjects();
 
             IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
