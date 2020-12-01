@@ -59,6 +59,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CInstance = "https://fabrikamb2c.b2clogin.com";
         public const string B2CInstance2 = "https://catb2c.b2clogin.com";
         public const string B2CCustomDomainInstance = "https://catsAreAmazing.com";
+        public const string B2CLoginMicrosoft = "https://login.microsoftonline.com";
         public const string ClientSecret = "catsarecool";
 
         public const string B2CAuthority = B2CInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;

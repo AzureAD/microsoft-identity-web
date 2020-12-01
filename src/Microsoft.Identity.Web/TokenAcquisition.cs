@@ -421,7 +421,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application, if needed.
         /// </summary>
-        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
+        internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
             if (_application == null)
             {
@@ -447,7 +447,7 @@ namespace Microsoft.Identity.Web
                     _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
             }
 
-            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            PrepareAuthorityInstanceForMsal();
 
             if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
             {
@@ -503,6 +503,16 @@ namespace Microsoft.Identity.Web
                     IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient);
                 throw;
             }
+        }
+
+        private void PrepareAuthorityInstanceForMsal()
+        {
+            if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
+            {
+                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).Trim();
+            }
+
+            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
         }
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
