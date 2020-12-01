@@ -104,10 +104,12 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
-            _tokenAcquisition = new TokenAcquisition(
-                 new MsalTestTokenCacheProvider(
+            _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                  _provider.GetService<IMemoryCache>(),
-                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
+                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
+
+            _tokenAcquisition = new TokenAcquisition(
+                 _msalTestTokenCacheProvider,
                  MockHttpContextAccessor.CreateMockHttpContextAccessor(),
                  _provider.GetService<IOptions<MicrosoftIdentityOptions>>(),
                  _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>(),
