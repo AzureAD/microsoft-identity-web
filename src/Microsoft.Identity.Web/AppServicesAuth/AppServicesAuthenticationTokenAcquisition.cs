@@ -132,7 +132,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
         {
-            // Not implmented for the moment
+            // Not implemented for the moment
             throw new NotImplementedException();
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
