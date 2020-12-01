@@ -5,20 +5,18 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using IHttpContextAccessor = Microsoft.AspNetCore.Http.IHttpContextAccessor;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -106,37 +104,18 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions = _provider.GetService<IOptions<MicrosoftIdentityOptions>>();
-            IOptions<MsalMemoryTokenCacheOptions> tokenOptions = _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>();
-            IOptions<ConfidentialClientApplicationOptions> ccOptions = _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>();
-            ILogger<TokenAcquisition> logger = _provider.GetService<ILogger<TokenAcquisition>>();
-            IHttpClientFactory httpClientFactory = _provider.GetService<IHttpClientFactory>();
-
-            IHttpContextAccessor httpContextAccessor = CreateMockHttpContextAccessor();
-
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                _provider.GetService<IMemoryCache>(),
-                tokenOptions);
+                 _provider.GetService<IMemoryCache>(),
+                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
 
             _tokenAcquisition = new TokenAcquisition(
-                _msalTestTokenCacheProvider,
-                httpContextAccessor,
-                microsoftIdentityOptions,
-                ccOptions,
-                httpClientFactory,
-                logger,
-                _provider);
-        }
-
-        private static IHttpContextAccessor CreateMockHttpContextAccessor()
-        {
-            var mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
-            mockHttpContextAccessor.HttpContext = new DefaultHttpContext();
-            mockHttpContextAccessor.HttpContext.Request.Scheme = "https";
-            mockHttpContextAccessor.HttpContext.Request.Host = new HostString("IdentityDotNetSDKAutomation");
-            mockHttpContextAccessor.HttpContext.Request.PathBase = "/";
-
-            return mockHttpContextAccessor;
+                 _msalTestTokenCacheProvider,
+                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                 _provider.GetService<IOptions<MicrosoftIdentityOptions>>(),
+                 _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>(),
+                 _provider.GetService<IHttpClientFactory>(),
+                 _provider.GetService<ILogger<TokenAcquisition>>(),
+                 _provider);
         }
 
         private void BuildTheRequiredServices()
