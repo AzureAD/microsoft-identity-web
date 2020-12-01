@@ -88,7 +88,6 @@ namespace Microsoft.Identity.Web
             {
                 Constants.Common,
                 Constants.Organizations,
-                Constants.Consumers,
             },
             StringComparer.OrdinalIgnoreCase);
 
