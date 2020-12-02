@@ -128,5 +128,35 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(expectedAuthority, app.Authority);
         }
+
+        [Theory]
+        [InlineData("https://localhost:1234")]
+        [InlineData("")]
+        public async void VerifyCorrectRedirectUriAsync(
+            string redirectUri)
+        {
+            _microsoftIdentityOptions = new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AuthorityCommonTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            };
+
+            BuildTheRequiredServices();
+            _applicationOptions.RedirectUri = redirectUri;
+
+            InitializeTokenAcquisitionObjects();
+
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(redirectUri))
+            {
+                Assert.Equal(redirectUri, app.AppConfig.RedirectUri);
+            }
+            else
+            {
+                Assert.Equal("https://IdentityDotNetSDKAutomation/", app.AppConfig.RedirectUri);
+            }
+        }
     }
 }
