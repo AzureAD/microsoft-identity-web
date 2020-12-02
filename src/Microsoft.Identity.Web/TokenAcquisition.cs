@@ -141,7 +141,7 @@ namespace Microsoft.Identity.Web
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
-                // Share the ID Token though
+                // Share the ID token though
                 var builder = _application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
                     .WithSendX5C(_microsoftIdentityOptions.SendX5C);
@@ -443,7 +443,13 @@ namespace Microsoft.Identity.Web
         {
             var request = CurrentHttpContext?.Request;
             string? currentUri = null;
-            if (request != null)
+
+            if (!string.IsNullOrEmpty(_applicationOptions.RedirectUri))
+            {
+                currentUri = _applicationOptions.RedirectUri;
+            }
+
+            if (request != null && string.IsNullOrEmpty(currentUri))
             {
                 currentUri = UriHelper.BuildAbsolute(
                     request.Scheme,
