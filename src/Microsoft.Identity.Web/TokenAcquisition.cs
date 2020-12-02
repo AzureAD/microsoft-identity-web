@@ -271,14 +271,14 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
+            if (string.IsNullOrEmpty(tenant))
+            {
+                tenant = _applicationOptions.TenantId ?? _microsoftIdentityOptions.TenantId;
+            }
+
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
-            }
-
-            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.TenantId) && _metaTenantIdentifiers.Contains(_microsoftIdentityOptions.TenantId))
-            {
-                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(_microsoftIdentityOptions.TenantId));
             }
 
             // Use MSAL to get the right token to call the API
