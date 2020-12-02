@@ -12,13 +12,13 @@ namespace Microsoft.Identity.Web
         /// LoginHint.
         /// Represents the preferred_username claim in the ID token.
         /// </summary>
-        public const string LoginHint = "loginHint";
+        public const string LoginHint = "login_hint";
 
         /// <summary>
         /// DomainHint.
         /// Determined by the tenant Id.
         /// </summary>
-        public const string DomainHint = "domainHint";
+        public const string DomainHint = "domain_hint";
 
         /// <summary>
         /// Claims.
