@@ -191,7 +191,7 @@ namespace Microsoft.Identity.Web
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.IssuerValidator == null)
+                    if (options.TokenValidationParameters.ValidateIssuer && options.TokenValidationParameters.IssuerValidator == null)
                     {
                         // Instead of using the default validation (validating against a single tenant, as we do in line of business apps),
                         // we inject our own multi-tenant validation logic (which even accepts both v1.0 and v2.0 tokens)
