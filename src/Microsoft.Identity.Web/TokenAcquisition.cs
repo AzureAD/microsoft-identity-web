@@ -86,8 +86,8 @@ namespace Microsoft.Identity.Web
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
+                Constants.Common,
                 Constants.Organizations,
-                Constants.Consumers,
             },
             StringComparer.OrdinalIgnoreCase);
 
@@ -269,6 +269,11 @@ namespace Microsoft.Identity.Web
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
+            }
+
+            if (string.IsNullOrEmpty(tenant))
+            {
+                tenant = _applicationOptions.TenantId ?? _microsoftIdentityOptions.TenantId;
             }
 
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
