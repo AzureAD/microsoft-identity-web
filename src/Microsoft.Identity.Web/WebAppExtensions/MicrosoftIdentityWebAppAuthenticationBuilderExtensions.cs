@@ -279,7 +279,7 @@ namespace Microsoft.Identity.Web
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.IssuerValidator == null)
+                    if (options.TokenValidationParameters.ValidateIssuer && options.TokenValidationParameters.IssuerValidator == null)
                     {
                         // If you want to restrict the users that can sign-in to several organizations
                         // Set the tenant value in the appsettings.json file to 'organizations', and add the
