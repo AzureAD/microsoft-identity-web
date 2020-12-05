@@ -43,3 +43,6 @@ dotnet_diagnostic.S4457.severity = none
 
 # S3358: Ternary operators should not be nested
 dotnet_diagnostic.S3358.severity = none
+
+# S125: Sections of code should not be commented out
+dotnet_diagnostic.S125.severity = none
