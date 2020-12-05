@@ -224,8 +224,8 @@ namespace Microsoft.Identity.Web
             }
 
             string url = $"{BaseUri}/{Constants.BlazorChallengeUri}{redirectUri}"
-                + $"&{Constants.Scope}={string.Join(" ", effectiveScopes!)}&{Constants.LoginHint}={User.GetLoginHint()}"
-                + $"&{Constants.DomainHint}={User.GetDomainHint()}&{Constants.Claims}={claims}"
+                + $"&{Constants.Scope}={string.Join(" ", effectiveScopes!)}&{Constants.LoginHintParameter}={User.GetLoginHint()}"
+                + $"&{Constants.DomainHintParameter}={User.GetDomainHint()}&{Constants.Claims}={claims}"
                 + $"&{OidcConstants.PolicyKey}={userflow}";
 
             if (IsBlazorServer)

@@ -1262,6 +1262,14 @@
             <param name="builder">Service side blazor builder.</param>
             <returns>The builder.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions.AddMicrosoftIdentityConsentHandler(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Add the incremental consent and conditional access handler for
+            web app pages, Razor pages, controllers, views, etc...
+            </summary>
+            <param name="services">Service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler">
             <summary>
             Handler for Blazor specific APIs to handle incremental consent

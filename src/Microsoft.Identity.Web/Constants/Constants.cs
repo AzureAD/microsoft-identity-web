@@ -120,5 +120,9 @@ namespace Microsoft.Identity.Web
         internal const string XReturnUrl = "x-ReturnUrl";
         internal const string XRequestedWith = "X-Requested-With";
         internal const string XmlHttpRequest = "XMLHttpRequest";
+
+        // AccountController.Challenge parameters
+        internal const string LoginHintParameter = "loginHint";
+        internal const string DomainHintParameter = "domainHint";
     }
 }

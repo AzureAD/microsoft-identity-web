@@ -71,12 +71,15 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             Dictionary<string, string?> properties = new Dictionary<string, string?>
             {
                 { Constants.Scope, scope },
-                { Constants.LoginHint, loginHint },
-                { Constants.DomainHint, domainHint },
                 { Constants.Claims, claims },
                 { Constants.Policy, policy },
             };
-            AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties);
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                { Constants.LoginHint, loginHint },
+                { Constants.DomainHint, domainHint },
+            };
+            AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties, parameters);
             authenticationProperties.RedirectUri = redirectUri;
 
             return Challenge(
