@@ -44,9 +44,7 @@ namespace Microsoft.Identity.Web
 
             if (!appOnly && scopes == null)
             {
-                throw new ArgumentNullException(
-                    Constants.Scopes,
-                    IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
+                throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
             string token;

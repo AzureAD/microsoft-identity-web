@@ -9,7 +9,7 @@ using Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers;
 
 namespace Microsoft.Identity.Web.UI
 {
-    internal class MicrosoftIdentityAccountControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>, IApplicationFeatureProvider
+    internal class MicrosoftIdentityAccountControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
         {

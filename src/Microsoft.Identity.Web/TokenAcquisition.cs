@@ -257,7 +257,7 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         public async Task<string> GetAccessTokenForAppAsync(
-            string scope,
+            string? scope,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {

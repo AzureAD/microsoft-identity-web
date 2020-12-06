@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -19,7 +18,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
 {
     public class TokenAcquisitionTests
     {
-        private WebApplicationFactory<Startup> _factory;
+        private readonly WebApplicationFactory<Startup> _factory;
         private HttpClient _client;
 
         public TokenAcquisitionTests()
@@ -60,7 +59,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
             HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();    
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"GetAccessTokenForUserAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
+                throw new HttpRequestException($"GetAccessTokenForUserAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
             }
         }
 
@@ -71,7 +70,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
             HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"GetAccessTokenForAppAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
+                throw new HttpRequestException($"GetAccessTokenForAppAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
             }
         }
 
