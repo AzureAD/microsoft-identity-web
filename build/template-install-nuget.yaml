@@ -3,6 +3,6 @@
 
 steps:
 - task: NuGetToolInstaller@1
-  displayName: 'Use NuGet latest'
+  displayName: 'Use NuGet 4.8'
   inputs:
-    checkLatest: true
+    versionSpec: 4.8
