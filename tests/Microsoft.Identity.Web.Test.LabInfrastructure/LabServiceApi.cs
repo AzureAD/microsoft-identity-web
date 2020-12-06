@@ -14,10 +14,10 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
     /// <summary>
     /// Wrapper for lab service API.
     /// </summary>
-    public class LabServiceApi : ILabService
+    public class LabServiceApi
     {
-        private string _labAccessAppId;
-        private string _labAccessClientSecret;
+        private readonly string _labAccessAppId;
+        private readonly string _labAccessClientSecret;
         private string _labApiAccessToken;
 
         public LabServiceApi()
@@ -25,18 +25,6 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             using KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider();
             _labAccessAppId = keyVaultSecretsProvider.GetMsidLabSecret("LabVaultAppID").Value;
             _labAccessClientSecret = keyVaultSecretsProvider.GetMsidLabSecret("LabVaultAppSecret").Value;
-        }
-
-        /// <summary>
-        /// Returns a test user account for use in testing.
-        /// </summary>
-        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
-        /// <returns>Users that match the given query parameters.</returns>
-        public async Task<LabResponse> GetLabResponseAsync(UserQuery query)
-        {
-            var response = await GetLabResponseFromApiAsync(query).ConfigureAwait(false);
-
-            return response;
         }
 
         public async Task<string> GetUserSecretAsync(string lab)
@@ -50,7 +38,12 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             return JsonConvert.DeserializeObject<LabCredentialResponse>(result).Secret;
         }
 
-        private async Task<LabResponse> GetLabResponseFromApiAsync(UserQuery query)
+        /// <summary>
+        /// Returns a test user account for use in testing.
+        /// </summary>
+        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
+        /// <returns>Users that match the given query parameters.</returns>
+        public async Task<LabResponse> GetLabResponseFromApiAsync(UserQuery query)
         {
             // Fetch user
             string result = await RunQueryAsync(query).ConfigureAwait(false);
@@ -63,7 +56,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             return CreateLabResponseFromResultStringAsync(result).Result;
         }
 
-        private async Task<LabResponse> CreateLabResponseFromResultStringAsync(string result)
+        internal async Task<LabResponse> CreateLabResponseFromResultStringAsync(string result)
         {
             LabUser[] userResponses = JsonConvert.DeserializeObject<LabUser[]>(result);
 
@@ -143,7 +136,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             return await GetLabResponseAsync(uriBuilder.ToString()).ConfigureAwait(false);
         }
 
-        private async Task<string> GetLabResponseAsync(string address)
+        internal async Task<string> GetLabResponseAsync(string address)
         {
             if (string.IsNullOrWhiteSpace(_labApiAccessToken))
             {
