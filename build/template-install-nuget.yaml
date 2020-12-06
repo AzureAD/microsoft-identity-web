@@ -2,7 +2,7 @@
 # Run Nuget Tool Installer
 
 steps:
-- task: NuGetToolInstaller@0
-  displayName: 'Use NuGet 4.6.2'
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet latest'
   inputs:
-    versionSpec: 4.6.2
+    checkLatest: true
