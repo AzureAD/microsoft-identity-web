@@ -1,15 +1,15 @@
 1.4.0
 ==========
 ### New Features: 
-**Starting in MSAL .NET 4.24, the `.WithForceRefresh()` parameter is passed to the on-behalf-of call**. Microsoft Identity Web now also incudes it in the on-behalf-of call when using MSAL .NET. It is false by default, as part of the `TokenAcquisitionOptions`. See issue [#811](https://github.com/AzureAD/microsoft-identity-web/issues/811) for details.
+**Starting in MSAL .NET 4.24, the `.WithForceRefresh()` parameter is passed to the on-behalf-of call**. Microsoft Identity Web now incudes it in the on-behalf-of call. It is false by default, as part of the `TokenAcquisitionOptions`. See issue [#811](https://github.com/AzureAD/microsoft-identity-web/issues/811) for details.
 **Microsoft Identity Web now surfaces a more generic consent handler, which returns an `IServiceCollection`**. See issue [#805](https://github.com/AzureAD/microsoft-identity-web/issues/805) for details.
 
 ### Bug Fixes:
 **Microsoft Identity Web was validating the issuer even when `ValidateIssuer` was set to false**. This is now fixed. See issue [#797](https://github.com/AzureAD/microsoft-identity-web/issues/797) for details.
-**Microsoft Identity Web now using the redirect URI provided as part of the `ConfidentialClientApplicationOptions`**. See issue [#784](https://github.com/AzureAD/microsoft-identity-web/issues/784) for details.
+**Microsoft Identity Web now uses the redirect URI provided as part of the `ConfidentialClientApplicationOptions`**. See issue [#784](https://github.com/AzureAD/microsoft-identity-web/issues/784) for details.
 **Microsoft Identity Web provides a better experience for app developers who use the legacy `login.microsoftonline.com/tfp/` authority for B2C applications**. See issue [#143](https://github.com/AzureAD/microsoft-identity-web/issues/143) for details.
 **A tenanted authority must be used in the acquire token for app scenario**. If `common` or `organizations` is used, Microsoft Identity Web will throw an actionable exception. See issue [#793](https://github.com/AzureAD/microsoft-identity-web/issues/793) for details.
-**The wrong constant values were used for LoginHint and DomainHint**. See issue [798](https://github.com/AzureAD/microsoft-identity-web/issues/798) for details.
+**The wrong constant values were used for LoginHint and DomainHint**. See issue [798](https://github.com/AzureAD/microsoft-identity-web/issues/798) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/812) for details.
 
 1.3.0
 ==========
