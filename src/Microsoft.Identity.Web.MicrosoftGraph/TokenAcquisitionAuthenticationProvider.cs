@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes!).ConfigureAwait(false);
             } 
 
             request.Headers.Authorization = new AuthenticationHeaderValue(Constants.Bearer, token);

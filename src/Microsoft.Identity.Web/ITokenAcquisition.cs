@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<string> GetAccessTokenForUserAsync(
-            IEnumerable<string>? scopes,
+            IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
