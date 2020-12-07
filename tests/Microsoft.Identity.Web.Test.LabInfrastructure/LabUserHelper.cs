@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
                 return s_userCache[query];
             }
 
-            var response = await s_labService.GetLabResponseAsync(query).ConfigureAwait(false);
+            var response = await s_labService.GetLabResponseFromApiAsync(query).ConfigureAwait(false);
             if (response == null)
             {
                 throw new LabUserNotFoundException(query, "Found no users for the given query.");
@@ -40,6 +40,13 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             s_userCache.Add(query, response);
 
             return response;
+        }
+
+        // only set up for this format of query: {URI-scheme}://{URI-host}/{resource-path}/UPN
+        public static async Task<LabResponse> GetLabUserDataForSpecificUserAsync(string upn)
+        {
+            string result = await s_labService.GetLabResponseAsync(LabApiConstants.LabEndPoint + "/" + upn).ConfigureAwait(false);
+            return s_labService.CreateLabResponseFromResultStringAsync(result).Result;
         }
 
         public static Task<LabResponse> GetDefaultUserAsync()
@@ -81,8 +88,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
         public static Task<LabResponse> GetSpecificUserAsync(string upn)
         {
-            var query = new UserQuery();
-            return GetLabUserDataAsync(query);
+            return GetLabUserDataForSpecificUserAsync(upn);
         }
 
         public static Task<LabResponse> GetAdfsUserAsync(FederationProvider federationProvider, bool federated = true)
