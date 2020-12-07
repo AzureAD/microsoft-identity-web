@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (configuration == null)
@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Web
                 Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
                 Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
                 string openIdConnectScheme,
-                string cookieScheme,
+                string? cookieScheme,
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 IConfigurationSection configurationSection)
         {
@@ -217,7 +217,7 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
             string openIdConnectScheme,
-            string cookieScheme,
+            string? cookieScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (builder == null)
@@ -235,7 +235,10 @@ namespace Microsoft.Identity.Web
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
-            builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+            if (!string.IsNullOrEmpty(cookieScheme))
+            {
+                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+            }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
 
@@ -258,7 +261,10 @@ namespace Microsoft.Identity.Web
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
-                    options.SignInScheme = cookieScheme;
+                    if (!string.IsNullOrEmpty(cookieScheme))
+                    {
+                        options.SignInScheme = cookieScheme;
+                    }
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
