@@ -6,8 +6,9 @@ parameters:
   Pattern: ''
 
 steps:
+# The signing task requires dotnet core 2.x
 - task: UseDotNet@2
-  displayName: 'Use .Net Core sdk 2.0.0'
+  displayName: 'Use .Net Core sdk 2.x'
   inputs:
     version: 2.x
 
