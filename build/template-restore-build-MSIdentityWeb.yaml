@@ -21,7 +21,7 @@ steps:
   inputs:
     solution: Microsoft.Identity.Web.sln
     vsVersion: '16.0'
-    msbuildArgs: '/p:RunCodeAnalysis=false /p:TargetFramework=net5.0 /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
     platform: ${{ parameters.BuildPlatform }}
     configuration: ${{ parameters.BuildConfiguration }}
 
