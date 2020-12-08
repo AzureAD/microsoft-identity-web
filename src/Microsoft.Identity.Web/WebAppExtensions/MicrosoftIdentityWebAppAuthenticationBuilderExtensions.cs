@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -186,7 +186,7 @@ namespace Microsoft.Identity.Web
         Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
         Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
         string openIdConnectScheme,
-        string cookieScheme,
+        string? cookieScheme,
         bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (!AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
@@ -237,7 +237,8 @@ namespace Microsoft.Identity.Web
 
             if (!string.IsNullOrEmpty(cookieScheme))
             {
-                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+                Action<CookieAuthenticationOptions> emptyOption = option => { };
+                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions ?? emptyOption);
             }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
