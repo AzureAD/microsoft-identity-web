@@ -27,8 +27,6 @@
     <Compile Remove="Mocks\LoggerMock.cs" />
     <Compile Remove="Mocks\MockHttpContextAccessor.cs" />
     <Compile Remove="TestHelpers\HttpContextUtilities.cs" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
