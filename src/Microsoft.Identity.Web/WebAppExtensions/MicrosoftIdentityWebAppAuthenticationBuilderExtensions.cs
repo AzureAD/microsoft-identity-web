@@ -235,9 +235,10 @@ namespace Microsoft.Identity.Web
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
-            if (!string.IsNullOrEmpty(cookieScheme) && configureCookieAuthenticationOptions != null)
+            if (!string.IsNullOrEmpty(cookieScheme))
             {
-                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+                Action<CookieAuthenticationOptions> emptyOption = option => { };
+                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions ?? emptyOption);
             }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
