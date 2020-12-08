@@ -1,4 +1,4 @@
-# Stucture of the build
+# Structure of the release build
 
 [pipeline-releasebuild.yaml](pipeline-releasebuild.yaml):
 - [template-prebuild-code-analysis.yaml](template-prebuild-code-analysis.yaml)
@@ -7,10 +7,10 @@
   - 'Post Analysis'
 - [template-bootstrap-build.yaml](template-bootstrap-build.yaml)
   - [template-install-dotnet-core.yaml](template-install-dotnet-core.yaml)
-    - 'Use .Net Core SDK 5'
-    - 'Use .Net Core SDK 3.1.101'
+    - 'Use .Net Core SDK 5.0.100'
+    - 'Use .Net Core SDK 3.1.404'
   - [template-install-nuget.yaml](template-install-nuget.yaml)
-    - 'Use NuGet 4.6.2'
+    - 'Use NuGet 4.8'
 - [template-install-keyvault-secrets.yaml](template-install-keyvault-secrets.yaml)
   - 'Azure Key Vault: buildautomation'
   - 'Install Keyvault Secrets'
@@ -22,6 +22,7 @@
 - [template-postbuild-code-analysis.yaml](template-postbuild-code-analysis.yaml)
   - 'Run Roslyn Analyzers'
   - 'Check Roslyn Results '
+- [template-sign-binary.yaml](template-sign-binary.yaml) - Sign the binaries, requires dotnet core 2.x.
 - [template-pack-and-sign-all-nugets.yaml](template-pack-and-sign-all-nugets.yaml)
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI')`
