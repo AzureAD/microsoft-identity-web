@@ -6,6 +6,10 @@ parameters:
   Pattern: ''
 
 steps:
+- task: UseDotNet@2
+  displayName: 'Use .Net Core sdk 2.0.0'
+  inputs:
+    version: 2.x
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'Sign Binary: ${{ parameters.Pattern }}'
