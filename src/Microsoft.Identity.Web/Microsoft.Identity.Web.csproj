@@ -100,10 +100,8 @@
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />  
     <Compile Remove="TokenCacheProviders\Session\**" />
-    <Compile Remove="TokenCacheProviders\Distributed\DistributedTokenCacheAdapterExtension.cs" />
-    <Compile Remove="TokenCacheProviders\InMemory\InMemoryTokenCacheProviderExtension.cs" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net472' ">
