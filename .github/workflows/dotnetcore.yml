@@ -14,7 +14,7 @@ jobs:
         include:
           - DotNetInstallVersion: 5.0.100
             DotNetRunVersion: net5.0
-            Solution: Microsoft.Identity.Web-without-blasorwasm2-sample.sln
+            Solution: Microsoft.Identity.Web.sln
 
     steps:
     - name: Checkout repository
