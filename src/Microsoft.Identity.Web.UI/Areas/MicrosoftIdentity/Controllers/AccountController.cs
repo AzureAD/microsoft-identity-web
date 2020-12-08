@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 { Constants.Claims, claims },
                 { Constants.Policy, policy },
             };
-            Dictionary<string, object> parameters = new Dictionary<string, object>
+            Dictionary<string, object?> parameters = new Dictionary<string, object?>
             {
                 { Constants.LoginHint, loginHint },
                 { Constants.DomainHint, domainHint },

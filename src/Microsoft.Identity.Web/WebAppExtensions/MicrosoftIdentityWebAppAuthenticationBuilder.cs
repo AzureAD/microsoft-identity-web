@@ -121,7 +121,7 @@ namespace Microsoft.Identity.Web
                        var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
                        options.Events.OnAuthorizationCodeReceived = async context =>
                        {
-                           var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                           var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
                            await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web
                        var onTokenValidatedHandler = options.Events.OnTokenValidated;
                        options.Events.OnTokenValidated = async context =>
                        {
-                           string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                           string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
                            if (!string.IsNullOrEmpty(clientInfo))
                            {
@@ -138,8 +138,8 @@ namespace Microsoft.Identity.Web
 
                                if (clientInfoFromServer != null)
                                {
-                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   context!.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                   context!.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
 
