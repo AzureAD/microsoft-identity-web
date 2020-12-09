@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web
             {
                 services.AddTokenAcquisition();
 
-                _ = services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                    .Configure<IServiceProvider>((options, serviceProvider) =>
                    {
                        options.ResponseType = OpenIdConnectResponseType.Code;
