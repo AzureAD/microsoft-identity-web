@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web
             {
                 services.AddTokenAcquisition();
 
-                services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                _ = services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                    .Configure<IServiceProvider>((options, serviceProvider) =>
                    {
                        options.ResponseType = OpenIdConnectResponseType.Code;
@@ -138,8 +138,8 @@ namespace Microsoft.Identity.Web
 
                                if (clientInfoFromServer != null)
                                {
-                                   context!.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                   context!.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
 
@@ -150,10 +150,10 @@ namespace Microsoft.Identity.Web
                        var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
                        options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
                        {
-                             // Remove the account from MSAL.NET token cache
-                             var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                             await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                             await signOutHandler(context).ConfigureAwait(false);
+                           // Remove the account from MSAL.NET token cache
+                           var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                           await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                           await signOutHandler(context).ConfigureAwait(false);
                        };
                    });
             }
