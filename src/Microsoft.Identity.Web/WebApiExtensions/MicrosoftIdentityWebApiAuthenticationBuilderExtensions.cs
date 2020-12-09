@@ -219,10 +219,10 @@ namespace Microsoft.Identity.Web
                     var tokenValidatedHandler = options.Events.OnTokenValidated;
                     options.Events.OnTokenValidated = async context =>
                     {
-                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL && !context!.Principal.Claims.Any(x => x.Type == ClaimConstants.Scope)
-                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Scp)
-                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Roles)
-                            && !context.Principal.Claims.Any(y => y.Type == ClaimConstants.Role))
+                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope)
+                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Scp)
+                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Roles)
+                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Role))
                         {
                             throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                         }
