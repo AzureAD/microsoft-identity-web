@@ -473,7 +473,11 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithHttpClientFactory(_httpClientFactory);
+                        .WithHttpClientFactory(_httpClientFactory)
+                        .WithLogging(
+                            Log,
+                            _applicationOptions.LogLevel,
+                            enablePiiLogging: _microsoftIdentityOptions.EnableMsalPiiLogs);
 
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
@@ -559,14 +563,18 @@ namespace Microsoft.Identity.Web
                     }
 
                     return await builder.ExecuteAsync()
-                           .ConfigureAwait(false);
+                                        .ConfigureAwait(false);
                 }
 
                 return null;
             }
             catch (MsalUiRequiredException ex)
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
+                _logger.LogInformation(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        LogMessages.ErrorAcquiringTokenForDownstreamWebApi,
+                        ex.Message));
                 throw;
             }
         }
@@ -660,7 +668,7 @@ namespace Microsoft.Identity.Web
                     $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 builder.WithB2CAuthority(b2cAuthority)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
+                       .WithSendX5C(_microsoftIdentityOptions.SendX5C);
             }
             else
             {
@@ -668,7 +676,7 @@ namespace Microsoft.Identity.Web
             }
 
             return await builder.ExecuteAsync()
-                                  .ConfigureAwait(false);
+                                .ConfigureAwait(false);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -677,7 +685,9 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalServiceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+            return msalServiceException.Message.Contains(
+                ErrorCodes.B2CPasswordResetErrorCode,
+                StringComparison.InvariantCulture);
         }
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -726,6 +736,30 @@ namespace Microsoft.Identity.Web
             }
 
             return authority;
+        }
+
+        private void Log(
+            Client.LogLevel level,
+            string message,
+            bool containsPii)
+        {
+            switch (level)
+            {
+                case Client.LogLevel.Error:
+                    _logger.LogError(message);
+                    break;
+                case Client.LogLevel.Warning:
+                    _logger.LogWarning(message);
+                    break;
+                case Client.LogLevel.Info:
+                    _logger.LogInformation(message);
+                    break;
+                case Client.LogLevel.Verbose:
+                    _logger.LogInformation(message);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

@@ -119,5 +119,21 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
+
+        /// <summary>
+        /// To be used in conjunction with "LogLevel" in the "AzuredAd" section
+        /// of the appsettings.json.
+        /// <code>
+        /// "EnableMsalPiiLogs": true, // default is false
+        /// "LogLevel": "Info"
+        ///  </code>
+        /// (P)ersonally (I)dentifiable (I)nformation allows GDPR compliance.
+        /// Enabling the MSAL .NET logs are of interest if there are problems
+        /// with the authentication/authorization,
+        /// or if there are network errors returned.
+        /// see https://aka.ms/ms-identity-web/logging.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool EnableMsalPiiLogs { get; set; }
     }
 }
