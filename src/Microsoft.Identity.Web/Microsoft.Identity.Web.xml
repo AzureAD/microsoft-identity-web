@@ -1424,15 +1424,6 @@
             </summary>
             The default is <c>false.</c>
         </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.EnableMsalPiiLogs">
-            <summary>
-            Description of the logging format to use with MSAL .NET.
-            This is of interest if there are problems with the authentication/authorization,
-            or if there are network errors returned.
-            Enabling MSAL .NET logs allow you to see inside MSAL .NET, which can
-            lead to quicker troubleshooting.
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException">
             <summary>
              Microsoft Identity Web specific exception class for
@@ -1462,17 +1453,6 @@
             <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
             <param name="scopes">Scopes to request.</param>
             <param name="userflow">Userflow used in B2C.</param>
-        </member>
-        <member name="T:Microsoft.Identity.Web.MsalLogs">
-            <summary>
-            Description of MSAL logs.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MsalLogs.WithPii">
-            <summary>
-            (P)ersonally (I)dentifiable (I)nformation allows GDPR compliance.
-            </summary>
-            /// The default is <c>false.</c>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
             <summary>

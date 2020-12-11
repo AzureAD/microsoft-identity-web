@@ -477,7 +477,7 @@ namespace Microsoft.Identity.Web
                         .WithLogging(
                             Log,
                             _applicationOptions.LogLevel,
-                            enablePiiLogging: _microsoftIdentityOptions.EnableMsalPiiLogs);
+                            enablePiiLogging: _applicationOptions.EnablePiiLogging);
 
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
