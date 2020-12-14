@@ -1,3 +1,8 @@
+1.4.1
+==========
+### New Features:
+**Microsoft Identity Web now leverages the logs available in MSAL .NET**. See the [wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/Logging) for information on setting up the logs and how to enable Pii. See issue [#821](https://github.com/AzureAD/microsoft-identity-web/issues/821) for details.
+
 1.4.0
 ==========
 ### New Features: 
