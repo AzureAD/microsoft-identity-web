@@ -479,7 +479,7 @@ namespace Microsoft.Identity.Web
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
                             Log,
-                            ConvertMicrosoftExtensionsLogLevelToMsal(),
+                            ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
                             enablePiiLogging: _applicationOptions.EnablePiiLogging);
 
                 // The redirect URI is not needed for OBO
@@ -765,31 +765,27 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal()
+        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
         {
-            var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
-            Microsoft.Extensions.Logging.LogLevel loglevel = configuration.GetValue<Microsoft.Extensions.Logging.LogLevel>("Logging:LogLevel:Microsoft.Identity.Web");
-
-            switch (loglevel)
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information)
+               || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+               || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
             {
-                case Microsoft.Extensions.Logging.LogLevel.Trace:
-                    return Client.LogLevel.Info;
-                case Microsoft.Extensions.Logging.LogLevel.Debug:
-                    return Client.LogLevel.Info;
-                case Microsoft.Extensions.Logging.LogLevel.Information:
-                    return Client.LogLevel.Info;
-                case Microsoft.Extensions.Logging.LogLevel.Warning:
-                    return Client.LogLevel.Warning;
-                case Microsoft.Extensions.Logging.LogLevel.Error:
-                    return Client.LogLevel.Error;
-                case Microsoft.Extensions.Logging.LogLevel.Critical:
-                    return Client.LogLevel.Error;
-                case Microsoft.Extensions.Logging.LogLevel.None:
-                    return null;
-                default:
-                    throw new InvalidEnumArgumentException(nameof(Microsoft.Extensions.Logging.LogLevel.Error));
+                return Client.LogLevel.Info;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
+            {
+                return Client.LogLevel.Warning;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
+            {
+                return Client.LogLevel.Error;
+            }
+            else
+            {
+                return null;
             }
         }
-
     }
 }
