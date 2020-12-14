@@ -49,6 +49,7 @@ namespace Microsoft.Identity.Web.Test
             };
 
             services.AddTokenAcquisition();
+            services.AddLogging();
             services.AddTransient(
                 provider => Options.Create(_microsoftIdentityOptions));
             services.AddTransient(
