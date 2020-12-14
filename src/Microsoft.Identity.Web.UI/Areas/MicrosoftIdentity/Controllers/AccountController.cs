@@ -70,7 +70,6 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
             Dictionary<string, string?> properties = new Dictionary<string, string?>
             {
-                { Constants.Scope, scope },
                 { Constants.Claims, claims },
                 { Constants.Policy, policy },
             };
@@ -81,6 +80,13 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             };
             AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties, parameters);
             authenticationProperties.RedirectUri = redirectUri;
+            
+            if (!string.IsNullOrEmpty(scope))
+            {
+                authenticationProperties.SetParameter<ICollection<string>>(
+                   Constants.Scope,
+                   scope.Split(" "));
+            }
 
             return Challenge(
                 authenticationProperties,
