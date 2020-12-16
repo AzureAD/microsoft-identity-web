@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +69,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string policy)
         {
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
-            Dictionary<string, string?> properties = new Dictionary<string, string?>
+            Dictionary<string, string?> items = new Dictionary<string, string?>
             {
                 { Constants.Claims, claims },
                 { Constants.Policy, policy },
@@ -78,18 +79,13 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 { Constants.LoginHint, loginHint },
                 { Constants.DomainHint, domainHint },
             };
-            AuthenticationProperties authenticationProperties = new AuthenticationProperties(properties, parameters);
-            authenticationProperties.RedirectUri = redirectUri;
-            
-            if (!string.IsNullOrEmpty(scope))
-            {
-                authenticationProperties.SetParameter<ICollection<string>>(
-                   Constants.Scope,
-                   scope.Split(" "));
-            }
+
+            OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters);
+            oAuthChallengeProperties.Scope = scope?.Split(" ");
+            oAuthChallengeProperties.RedirectUri = redirectUri;
 
             return Challenge(
-                authenticationProperties,
+                oAuthChallengeProperties,
                 scheme);
         }
 
