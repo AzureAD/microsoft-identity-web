@@ -1,0 +1,99 @@
+{
+  "Sample": {
+    "Title": "Enable your Blazor Server to sign-in users and call Web API with the Microsoft identity platform",
+    "Level": 200,
+    "Client": "ASP.NET Core Blazor Server",
+    "Service": "ASP.NET Core Web API",
+    "RepositoryUrl": "ms-identity-blazor-server",
+    "Endpoint": "AAD v2.0"
+  },
+
+  /*
+    This section describes the Azure AD Applications to configure, and their dependencies
+  */
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "ToDoListService-aspnetcore",
+      "Kind": "WebApi",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:44351"
+
+    },
+    {
+      "Id": "webApp",
+      "Name": "WebApp-calls-API-blazor-server",
+      "Kind": "WebApp",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:44318/",
+      "ReplyUrls": "https://localhost:44318/, https://localhost:44318/signin-oidc",
+      "LogoutUrl": "https://localhost:44318/signout-oidc",
+      "PasswordCredentials": "Auto",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "service",
+          "DelegatedPermissions": [ "access_as_user" ]
+        }
+      ]
+    }
+  ],
+
+  /*
+    This section describes how to update the code in configuration files from the apps coordinates, once the apps
+    are created in Azure AD.
+    Each section describes a configuration file, for one of the apps, it's type (XML, JSon, plain text), its location
+    with respect to the root of the sample, and the mappping (which string in the config file is mapped to which value
+  */
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "Text",
+      "SettingFile": "\\..\\Service\\appsettings.json",
+      "Mappings": [
+        {
+          "key": "Domain",
+          "value": "$tenantName"
+        },
+        {
+          "key": "TenantId",
+          "value": "$tenantId"
+        },
+        {
+          "key": "ClientId",
+          "value": "service.AppId"
+        }
+      ]
+    },
+    {
+      "App": "webApp",
+      "SettingKind": "JSON",
+      "SettingFile": "\\..\\Client\\appsettings.json",
+      "Mappings": [
+        {
+          "key": "ClientId",
+          "value": ".AppId"
+        },
+        {
+          "key": "TenantId",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Domain",
+          "value": "$tenantName"
+        },
+        {
+          "key": "ClientSecret",
+          "value": ".AppKey"
+        },
+        {
+          "key": "TodoListScope",
+          "value": "service.Scope"
+        },
+        {
+          "key": "TodoListBaseAddress",
+          "value": "service.HomePage"
+        }
+      ]
+    }
+  ]
+}

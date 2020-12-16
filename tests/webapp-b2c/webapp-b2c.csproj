@@ -3,7 +3,7 @@
      <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.*" />
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
 </Project>
