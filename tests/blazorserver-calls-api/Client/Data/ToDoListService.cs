@@ -54,7 +54,7 @@ namespace blazorserver_client
 
             var jsonRequest = JsonConvert.SerializeObject(todo);
             var jsoncontent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-            var response = await this._httpClient.PostAsync($"{ _TodoListBaseAddress}/api/todolist", jsoncontent);
+            var response = await _httpClient.PostAsync($"{ _TodoListBaseAddress}/api/todolist", jsoncontent);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -130,7 +130,7 @@ namespace blazorserver_client
         }
 
         /// <summary>
-        /// Retrieves the Access Token for the Web API.
+        /// Retrieves the Access Token for the web API.
         /// Sets Authorization and Accept headers for the request.
         /// </summary>
         /// <returns></returns>
