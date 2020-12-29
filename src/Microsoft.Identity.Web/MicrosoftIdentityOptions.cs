@@ -62,6 +62,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal bool IsB2C
         {
+            // is this still the right thing to do if we are now allowing for a separate sign up and sign in user flow?
+            // maybe it should now instead be:
+            // "Is considered B2C if the attribute SignUpSignInPolicyId or both SignUpPolicyID and SignInPolicyID are defined"
+            // what is the minimum requirement to be 'B2C'?
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
         }
 

@@ -152,6 +152,8 @@ namespace Microsoft.Identity.Web
                 if (_microsoftIdentityOptions.IsB2C)
                 {
                     string? userFlow = context.Principal?.GetUserFlowId();
+                    // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
+                    // B2C userflow would no longer necessarily be just DefualtUserFlow, which is SignUpSignInPolicyId
                     var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
@@ -492,6 +494,8 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
+                    // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
+                    // B2C userflow would no longer necessarily be just DefualtUserFlow, which is SignUpSignInPolicyId
                     authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
@@ -666,6 +670,8 @@ namespace Microsoft.Identity.Web
             // Acquire an access token as a B2C authority
             if (_microsoftIdentityOptions.IsB2C)
             {
+                // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
+                // B2C userflow would no longer necessarily be just DefualtUserFlow, which is SignUpSignInPolicyId
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
                     $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");

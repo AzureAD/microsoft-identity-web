@@ -83,6 +83,7 @@ namespace Microsoft.Identity.Web.Test.Resource
 
             if (isB2C)
             {
+                // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
                 _options.SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow;
             }
 

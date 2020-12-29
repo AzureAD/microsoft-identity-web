@@ -341,11 +341,25 @@
       "description": "The Azure Active Directory B2C instance to connect to (use with IndividualB2C auth)."
     },
     "SignUpSignInPolicyId": {
+        "type": "parameter",
+        "datatype": "string",
+        "defaultValue": "b2c_1_susi",
+        "replaces": "MySignUpSignInPolicyId",
+        "description": "The sign-in and sign-up policy ID for this project (use with IndividualB2C auth)."
+    },
+    "SignUpPolicyId": {
+        "type": "parameter",
+        "datatype": "string",
+        "defaultValue": "b2c_1_signup",
+        "replaces": "MySignUpPolicyId",
+        "description": "The sign-up policy ID for this project (use with IndividualB2C auth)."
+    },
+    "SignInPolicyId": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "b2c_1_susi",
-      "replaces": "MySignUpSignInPolicyId",
-      "description": "The sign-in and sign-up policy ID for this project (use with IndividualB2C auth)."
+      "defaultValue": "b2c_1_signin",
+      "replaces": "MySignInPolicyId",
+      "description": "The sign-in policy ID for this project (use with IndividualB2C auth)."
     },
     "AADInstance": {
       "type": "parameter",

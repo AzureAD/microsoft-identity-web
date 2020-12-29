@@ -103,6 +103,7 @@ namespace Microsoft.Identity.Web.Test
         {
             _microsoftIdentityOptions = new MicrosoftIdentityOptions
             {
+                // this may need to change if separate signup and signin user flows are allowed
                 SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
                 Domain = TestConstants.B2CTenant,
             };
