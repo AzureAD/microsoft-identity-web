@@ -60,8 +60,6 @@ namespace Microsoft.Identity.Web
             string? userflow;
             if (_microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
             {
-                // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
-                // B2C userflow would no longer necessarily be just DefualtUserFlow, which is SignUpSignInPolicyId
                 userflow = _microsoftIdentityOptions.DefaultUserFlow;
             }
             else
