@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// Handles user sign up.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
-        /// <returns>Challenge generating a redirect to Azure AD to sign up in the user.</returns>
+        /// <returns>Challenge generating a redirect to Azure AD to sign up the user.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult SignUp([FromRoute] string scheme)
         {
@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// Handles user sign in with an option to sign up.
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
-        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in or sign up the user.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult SignUpSignIn([FromRoute] string scheme)
         {
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="domainHint">Domain hint.</param>
         /// <param name="claims">Claims.</param>
         /// <param name="policy">AAD B2C policy.</param>
-        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        /// <returns>Challenge generating a redirect to Azure AD.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult Challenge(
             string redirectUri,
