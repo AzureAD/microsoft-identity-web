@@ -23,6 +23,20 @@
             <param name="scheme">Authentication scheme.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignUp(System.String)">
+            <summary>
+            Handles user sign up.
+            </summary>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD to sign up in the user.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignUpSignIn(System.String)">
+            <summary>
+            Handles user sign in with an option to sign up.
+            </summary>
+            <param name="scheme">Authentication scheme.</param>
+            <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,System.String,System.String,System.String,System.String,System.String)">
             <summary>
             Challenges the user.
