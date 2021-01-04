@@ -19,6 +19,7 @@ namespace Microsoft.Identity.Web
             {
                 // this may need to change if 'IsB2C' is changed to also allow for separate signup and signin user flows
                 // B2C userflow would no longer necessarily be just DefaultUserFlow, which is SignUpSignInPolicyId
+                // should there even be a 'default' user flow? what if we arn't using SignUpSignIn?
                 var userFlow = options.DefaultUserFlow;
                 return new Uri(baseUri, new PathString($"{pathBase}/{domain}/{userFlow}/v2.0")).ToString();
             }

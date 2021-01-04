@@ -44,9 +44,44 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             var redirectUrl = Url.Content("~/");
-            return Challenge(
-                new AuthenticationProperties { RedirectUri = redirectUrl },
-                scheme);
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            // I'm assuming this line wasn't here before because the default policy was already SignInSignUp
+            // I would argue that this method should however handle the 'sign in' only policy
+            // What happens if the user hasn't specified a SignInPolicyId? Is this handled nicely?
+            properties.Items[Constants.Policy] = _options.Value?.SignInPolicyId;
+            return Challenge(properties, scheme);
+        }
+
+        /// <summary>
+        /// Handles user sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign up in the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUp([FromRoute] string scheme)
+        {
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            var redirectUrl = Url.Content("~/");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            properties.Items[Constants.Policy] = _options.Value?.SignUpPolicyId;
+            return Challenge(properties, scheme);
+        }
+
+        /// <summary>
+        /// Handles user sign in with an option to sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUpSignIn([FromRoute] string scheme)
+        {
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            var redirectUrl = Url.Content("~/");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            // Even if this is the default, I still think we should explictly specify the option here
+            // Should there even be a 'default'?
+            properties.Items[Constants.Policy] = _options.Value?.SignUpSignInPolicyId;
+            return Challenge(properties, scheme);
         }
 
         /// <summary>
