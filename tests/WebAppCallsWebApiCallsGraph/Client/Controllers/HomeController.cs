@@ -16,7 +16,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private ITokenAcquisition _tokenAcquisition;
+        private readonly ITokenAcquisition _tokenAcquisition;
 
         public HomeController(ITokenAcquisition tokenAcquisition)
         {
