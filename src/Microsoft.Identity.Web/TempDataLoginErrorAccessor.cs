@@ -15,45 +15,40 @@ namespace Microsoft.Identity.Web
         private const string Name = "MicrosoftIdentityError";
 
         private readonly ITempDataDictionaryFactory _factory;
-        private readonly IHostEnvironment _env;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TempDataLoginErrorAccessor(ITempDataDictionaryFactory factory, IHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        public TempDataLoginErrorAccessor(ITempDataDictionaryFactory factory, IHostEnvironment env)
         {
             _factory = factory;
-            _env = env;
-            _httpContextAccessor = httpContextAccessor;
+
+            IsEnabled = env.IsDevelopment();
         }
 
-        public bool IsEnabled => _env.IsDevelopment();
+        public bool IsEnabled { get; }
 
-        public string? Message
+        public string? GetMessage(HttpContext context)
         {
-            get
+            if (IsEnabled)
             {
-                if (IsEnabled)
-                {
-                    var d = GetDictionary();
+                var tempData = _factory.GetTempData(context);
 
-                    if (d.TryGetValue(Name, out var result) && result is string msg)
-                    {
-                        return msg;
-                    }
-                }
-
-                return null;
-            }
-            set
-            {
-                if (IsEnabled)
+                if (tempData.TryGetValue(Name, out var result) && result is string msg)
                 {
-                    var d = GetDictionary();
-                    d.Add(Name, value);
-                    d.Save();
+                    return msg;
                 }
             }
+
+            return null;
         }
 
-        private ITempDataDictionary GetDictionary() => _factory.GetTempData(_httpContextAccessor.HttpContext);
+        public void SetMessage(HttpContext context, string? message)
+        {
+            if (IsEnabled && message != null)
+            {
+                var tempData = _factory.GetTempData(context);
+
+                tempData.Add(Name, message);
+                tempData.Save();
+            }
+        }
     }
 }

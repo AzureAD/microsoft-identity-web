@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                _errorAccessor.Message = context.Failure?.Message;
+                _errorAccessor.SetMessage(context.HttpContext, context.Failure?.Message);
 
                 context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/Error");
             }

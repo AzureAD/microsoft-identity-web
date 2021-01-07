@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Http;
+
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -9,9 +11,18 @@ namespace Microsoft.Identity.Web
     public interface ILoginErrorAccessor
     {
         /// <summary>
-        /// Gets or sets the error message for the current login.
+        /// Gets the error message for the current request.
         /// </summary>
-        string? Message { get; set; }
+        /// <param name="context">Current <see cref="HttpContext"/>.</param>
+        /// <returns>The current error message if available.</returns>
+        string? GetMessage(HttpContext context);
+
+        /// <summary>
+        /// Sets the error message for the current request.
+        /// </summary>
+        /// <param name="context">Current <see cref="HttpContext"/>.</param>
+        /// <param name="message">Error message to set.</param>
+        void SetMessage(HttpContext context, string? message);
 
         /// <summary>
         /// Gets whether error messages should be displayed.

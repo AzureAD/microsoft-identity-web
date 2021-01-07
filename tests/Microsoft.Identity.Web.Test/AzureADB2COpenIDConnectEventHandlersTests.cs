@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.Test
 
             await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
-            Assert.Empty(errorAccessor.Message);
+            errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             Assert.Equal(TestConstants.Scopes, context.ProtocolMessage.Scope);
             Assert.Equal(_customIssuer, context.ProtocolMessage.IssuerAddress, true);
             Assert.False(context.Properties.Items.ContainsKey(OidcConstants.PolicyKey));
@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web.Test
 
             await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
-            Assert.Empty(errorAccessor.Message);
+            errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             Assert.Null(context.ProtocolMessage.Scope);
             Assert.Null(context.ProtocolMessage.ResponseType);
             Assert.Equal(_defaultIssuer, context.ProtocolMessage.IssuerAddress);
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.Test
 
             await handler.OnRemoteFailure(new RemoteFailureContext(httpContext, _authScheme, new OpenIdConnectOptions(), new OpenIdConnectProtocolException(passwordResetException))).ConfigureAwait(false);
 
-            Assert.Empty(errorAccessor.Message);
+            errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{OpenIdConnectDefaults.AuthenticationScheme}");
         }
 
@@ -120,7 +120,7 @@ namespace Microsoft.Identity.Web.Test
                     new OpenIdConnectOptions(),
                     new OpenIdConnectProtocolException(cancelException))).ConfigureAwait(false);
 
-            Assert.Empty(errorAccessor.Message);
+            errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
 
             httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/");
         }
@@ -142,7 +142,7 @@ namespace Microsoft.Identity.Web.Test
                     new OpenIdConnectOptions(),
                     new OpenIdConnectProtocolException(otherException))).ConfigureAwait(false);
 
-            Assert.Equal(otherException, errorAccessor.Message);
+            errorAccessor.Received(1).SetMessage(httpContext, otherException);
             httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/MicrosoftIdentity/Account/Error");
         }
     }

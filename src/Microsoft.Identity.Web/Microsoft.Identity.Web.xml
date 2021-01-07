@@ -1041,10 +1041,19 @@
             Provides access to get or set the current error status. The default implementation will use TempData and be enabled when run under Development.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.ILoginErrorAccessor.Message">
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.GetMessage(Microsoft.AspNetCore.Http.HttpContext)">
             <summary>
-            Gets or sets the error message for the current login.
+            Gets the error message for the current request.
             </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <returns>The current error message if available.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.SetMessage(Microsoft.AspNetCore.Http.HttpContext,System.String)">
+            <summary>
+            Sets the error message for the current request.
+            </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <param name="message">Error message to set.</param>
         </member>
         <member name="P:Microsoft.Identity.Web.ILoginErrorAccessor.IsEnabled">
             <summary>

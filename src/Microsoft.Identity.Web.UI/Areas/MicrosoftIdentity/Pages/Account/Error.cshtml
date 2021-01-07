@@ -17,7 +17,7 @@
 @if (Model.Error.IsEnabled)
 {
     <h3>Details</h3>
-    <p>@Model.Error.Message</p>
+    <p>@Model.Error.GetMessage(HttpContext)</p>
 }
 else
 {
