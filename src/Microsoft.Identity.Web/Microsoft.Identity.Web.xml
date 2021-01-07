@@ -174,7 +174,7 @@
             Enables Bearer authentication for an API for use in Azure Functions.
             </summary>
             <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
-            <returns>A task indicating success or failure. In case of failure <see cref="!:Microsoft.Identity.Web.UnauthorizedObjectResult"/>.</returns>
+            <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
