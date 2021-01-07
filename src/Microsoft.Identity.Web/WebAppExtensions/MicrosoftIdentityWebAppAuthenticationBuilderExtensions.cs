@@ -242,6 +242,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.TryAddSingleton<ILoginErrorAccessor, TempDataLoginErrorAccessor>();
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
@@ -260,7 +261,8 @@ namespace Microsoft.Identity.Web
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
                 {
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
-                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
+
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value, serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
                     {
