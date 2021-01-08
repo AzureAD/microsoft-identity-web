@@ -4,10 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-#if (RequiresHttps)
-using Microsoft.AspNetCore.HttpsPolicy;
-#endif
-using Microsoft.AspNetCore.Mvc;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,12 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-#if (GenerateGraph)
-using Microsoft.Graph;
-#endif
-#if (EnableOpenAPI)
-using Microsoft.OpenApi.Models;
-#endif
 
 namespace Company.WebApplication1
 {
@@ -40,37 +30,14 @@ namespace Company.WebApplication1
         {
 #if (OrganizationalAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-#if (GenerateApiOrGraph)
-                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
-                    .EnableTokenAcquisitionToCallDownstreamApi()
-#if (GenerateApi)
-                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
-#endif
-#if (GenerateGraph)
-                        .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-#endif
-                        .AddInMemoryTokenCaches();
-#else
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
-#endif
+                
+            services.AddAuthorization();
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-#if (GenerateApi)
-                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
-                    .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
-                        .AddInMemoryTokenCaches();
-#else
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"));
-#endif
-#endif
-
-            services.AddControllers();
-#if (EnableOpenAPI)
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Company.WebApplication1", Version = "v1" });
-            });
+                
+            services.AddAuthorization();
 #endif
         }
 
@@ -80,15 +47,7 @@ namespace Company.WebApplication1
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-#if (EnableOpenAPI)
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Company.WebApplication1 v1"));
-#endif
             }
-#if (RequiresHttps)
-
-            app.UseHttpsRedirection();
-#endif
 
             app.UseRouting();
 
@@ -99,7 +58,12 @@ namespace Company.WebApplication1
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapGrpcService<GreeterService>();
+
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+                });
             });
         }
     }

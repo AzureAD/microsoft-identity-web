@@ -11,8 +11,8 @@
   "description": "An empty project template for creating a worker service.",
   "groupIdentity": "Microsoft.Worker.Empty",
   "precedence": "7000",
-  "identity": "Microsoft.Worker.Empty.CSharp.5.0",
-  "shortName": "worker",
+  "identity": "Microsoft.Identity.Web.Worker.CSharp.5.0",
+  "shortName": "worker2",
   "tags": {
     "language": "C#",
     "type": "project"
