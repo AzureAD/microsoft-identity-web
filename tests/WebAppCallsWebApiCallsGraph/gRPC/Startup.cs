@@ -26,10 +26,8 @@ namespace grpc
         {
             services.AddGrpc();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(Configuration, "AzureAd")
-                    .EnableTokenAcquisitionToCallDownstreamApi()
-                    .AddInMemoryTokenCaches();
-            
+                    .AddMicrosoftIdentityWebApi(Configuration);
+
             services.AddAuthorization();
         }
 

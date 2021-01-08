@@ -164,6 +164,18 @@
             <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
             <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension">
+            <summary>
+            Extensions for <see cref="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension.AuthenticateAzureFunctionAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Enables an Azure Function to act as/expose a protected web API, enabling bearer token authentication. Calling this method from your Azure function validates the token and exposes the identity of the user or app on behalf of which your function is called, in the HttpContext.User member, where your function can make use of it.
+            </summary>
+            <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
+            <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
             Description of a certificate.
