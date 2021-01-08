@@ -15,15 +15,15 @@ namespace Microsoft.Identity.Web
 
         private readonly ITempDataDictionaryFactory _factory;
 
-        public static ILoginErrorAccessor Create(ITempDataDictionaryFactory factory, bool isDevelopment)
+        public static ILoginErrorAccessor Create(ITempDataDictionaryFactory? factory, bool isDevelopment)
         {
-            if (isDevelopment && !(factory is null))
+            if (!isDevelopment || factory is null)
             {
-                return new TempDataLoginErrorAccessor(factory);
+                return new EmptyLoginErrorAccessor();
             }
             else
             {
-                return new EmptyLoginErrorAccessor();
+                return new TempDataLoginErrorAccessor(factory);
             }
         }
 
