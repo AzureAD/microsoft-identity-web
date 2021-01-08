@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Identity.Web
 {
@@ -16,25 +15,32 @@ namespace Microsoft.Identity.Web
 
         private readonly ITempDataDictionaryFactory _factory;
 
-        public TempDataLoginErrorAccessor(ITempDataDictionaryFactory factory, IHostEnvironment env)
+        public static ILoginErrorAccessor Create(ITempDataDictionaryFactory factory, bool isDevelopment)
         {
-            _factory = factory;
-
-            IsEnabled = env.IsDevelopment();
+            if (isDevelopment && !(factory is null))
+            {
+                return new TempDataLoginErrorAccessor(factory);
+            }
+            else
+            {
+                return new EmptyLoginErrorAccessor();
+            }
         }
 
-        public bool IsEnabled { get; }
+        private TempDataLoginErrorAccessor(ITempDataDictionaryFactory factory)
+        {
+            _factory = factory;
+        }
+
+        public bool IsEnabled => true;
 
         public string? GetMessage(HttpContext context)
         {
-            if (IsEnabled)
-            {
-                var tempData = _factory.GetTempData(context);
+            var tempData = _factory.GetTempData(context);
 
-                if (tempData.TryGetValue(Name, out var result) && result is string msg)
-                {
-                    return msg;
-                }
+            if (tempData.TryGetValue(Name, out var result) && result is string msg)
+            {
+                return msg;
             }
 
             return null;
@@ -42,12 +48,24 @@ namespace Microsoft.Identity.Web
 
         public void SetMessage(HttpContext context, string? message)
         {
-            if (IsEnabled && message != null)
+            if (message != null)
             {
                 var tempData = _factory.GetTempData(context);
 
                 tempData.Add(Name, message);
                 tempData.Save();
+            }
+        }
+
+        private class EmptyLoginErrorAccessor : ILoginErrorAccessor
+        {
+            public bool IsEnabled => false;
+
+            public string? GetMessage(HttpContext context)
+                => null;
+
+            public void SetMessage(HttpContext context, string? message)
+            {
             }
         }
     }

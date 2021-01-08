@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -242,7 +244,14 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
-            builder.Services.TryAddSingleton<ILoginErrorAccessor, TempDataLoginErrorAccessor>();
+            builder.Services.TryAddSingleton<ILoginErrorAccessor>(ctx =>
+            {
+                // ITempDataDictionaryFactory is not always available, so we don't require it
+                var tempFactory = ctx.GetService<ITempDataDictionaryFactory>();
+                var env = ctx.GetRequiredService<IHostEnvironment>();
+
+                return TempDataLoginErrorAccessor.Create(tempFactory, env.IsDevelopment());
+            });
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
