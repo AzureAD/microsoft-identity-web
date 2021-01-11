@@ -3,13 +3,12 @@ using Grpc.Core;
 #if (!NoAuth)
 using Microsoft.AspNetCore.Authorization;
 #endif
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.Identity.Web.Resource;
 #endif
 
-namespace grpc
+namespace Company.Application1
 {
     public class GreeterService : Greeter.GreeterBase
     {
