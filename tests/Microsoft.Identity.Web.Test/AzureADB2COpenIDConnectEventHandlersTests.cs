@@ -31,6 +31,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(false)]
         public async void OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext(bool hasClientCredentials)
         {
+            // what if DefaultUserFlow is changed to not be SignUpSignInPolicyId?
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
             if (hasClientCredentials)
             {
@@ -68,6 +69,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async void OnRedirectToIdentityProvider_DefaultUserFlow_DoesntUpdateContext()
         {
+            // what if DefaultUserFlow is changed to not be SignUpSignInPolicyId?
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
             var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, options);
             var httpContext = HttpContextUtilities.CreateHttpContext();

@@ -222,6 +222,7 @@ namespace Microsoft.Identity.Web.Test
                 options.Instance = TestConstants.B2CInstance;
                 options.TenantId = TestConstants.TenantIdAsGuid;
                 options.ClientId = TestConstants.ClientId;
+                // this may need to change if 'isb2c' is changed to also allow for separate signup and signin user flows
                 options.SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow;
                 options.Domain = TestConstants.B2CTenant;
             };
@@ -723,6 +724,7 @@ namespace Microsoft.Identity.Web.Test
 
             if (includeB2cConfig)
             {
+                // this may need to change if separate signup and signin user flows are allowed
                 configAsDictionary.Add($"{configSectionName}:SignUpSignInPolicyId", TestConstants.B2CSignUpSignInUserFlow);
                 configAsDictionary[$"{configSectionName}:Instance"] = TestConstants.B2CInstance;
                 configAsDictionary[$"{configSectionName}:Domain"] = TestConstants.B2CTenant;

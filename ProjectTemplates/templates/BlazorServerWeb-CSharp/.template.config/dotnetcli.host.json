@@ -13,8 +13,16 @@
       "shortName": ""
     },
     "SignUpSignInPolicyId": {
-      "longName": "susi-policy-id",
-      "shortName": "ssp"
+        "longName": "susi-policy-id",
+        "shortName": "ssp"
+    },
+    "SignUpPolicyId": {
+        "longName": "signup-policy-id",
+        "shortName": "sup"
+    },
+    "SignInPolicyId": {
+      "longName": "signin-policy-id",
+      "shortName": "sip"
     },
     "ResetPasswordPolicyId": {
       "longName": "reset-password-policy-id",

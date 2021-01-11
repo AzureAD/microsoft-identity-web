@@ -19,6 +19,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var options = new MicrosoftIdentityOptions()
             {
+                // this may need to change if 'isb2c' is changed to also allow for separate signup and signin user flows
                 SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
             };
 
@@ -32,6 +33,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.False(options.IsB2C);
 
+            // this may need to change if 'isb2c' is changed to also allow for separate signup and signin user flows
             options.SignUpSignInPolicyId = string.Empty;
 
             Assert.False(options.IsB2C);
@@ -66,6 +68,7 @@ namespace Microsoft.Identity.Web.Test
 
             if (optionsName == AzureAdB2C)
             {
+                // this may need to change if separate signup and signin user flows are allowed
                 microsoftIdentityOptions.SignUpSignInPolicyId = signUpSignInPolicyId;
                 microsoftIdentityOptions.Domain = domain;
             }

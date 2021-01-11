@@ -24,6 +24,9 @@ namespace Microsoft.Identity.Web.Test
             {
                 Domain = TestConstants.B2CTenant,
                 Instance = TestConstants.B2CInstance,
+                // 'DefaultUserFlow' is used below
+                // should this test be somehow dynamically linked to what 'DefaultUserFlow' actully is?
+                // currently it is SignUpSignIn, but what if this is changed?
                 SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
             };
             string expectedResult = $"{options.Instance}/{options.Domain}/{options.DefaultUserFlow}/v2.0";
