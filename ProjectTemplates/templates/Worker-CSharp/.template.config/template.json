@@ -20,7 +20,7 @@
   "sourceName": "Company.Application1",
   "preferNameDirectory": true,
   "guids": [
-    "53bc9b9d-9d6a-45d4-8429-2a2761773502"
+    "53bc9b9d-9d6a-45d4-8429-2a2761773502" // Client ID
   ],
   "sources": [
     {
