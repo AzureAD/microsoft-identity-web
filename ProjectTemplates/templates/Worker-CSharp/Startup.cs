@@ -1,16 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+#if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+#endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Http;
 
-namespace grpc
+namespace Company.Application1
 {
     public class Startup
     {
@@ -18,17 +18,23 @@ namespace grpc
         {
             Configuration = configuration;
         }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
+#if (OrganizationalAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(Configuration);
-
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+                
             services.AddAuthorization();
+#elif (IndividualB2CAuth)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"));
+                
+            services.AddAuthorization();
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +47,9 @@ namespace grpc
 
             app.UseRouting();
 
+#if (OrganizationalAuth || IndividualAuth)
             app.UseAuthentication();
+#endif
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

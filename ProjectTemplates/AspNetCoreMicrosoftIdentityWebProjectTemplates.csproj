@@ -42,4 +42,8 @@
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="templates\Worker-CSharp\Company.Application1.csproj" />
+  </ItemGroup>
 </Project>
