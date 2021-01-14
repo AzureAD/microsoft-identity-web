@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
@@ -18,7 +17,9 @@ namespace Microsoft.Identity.Web
 
         private ITempDataDictionary? _tempData;
 
-        public static ILoginErrorAccessor Create(ITempDataDictionaryFactory? factory, bool isDevelopment)
+        public static ILoginErrorAccessor Create(
+            ITempDataDictionaryFactory? factory,
+            bool isDevelopment)
         {
             if (!isDevelopment || factory is null)
             {
