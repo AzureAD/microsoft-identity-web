@@ -248,9 +248,16 @@ namespace Microsoft.Identity.Web
             {
                 // ITempDataDictionaryFactory is not always available, so we don't require it
                 var tempFactory = ctx.GetService<ITempDataDictionaryFactory>();
-                var env = ctx.GetRequiredService<IHostEnvironment>();
+                var env = ctx.GetService<IHostEnvironment>(); // ex. Azure Functions will not have an env.
 
-                return TempDataLoginErrorAccessor.Create(tempFactory, env.IsDevelopment());
+                if (env != null)
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, env.IsDevelopment());
+                }
+                else
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, false);
+                }
             });
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
@@ -271,7 +278,10 @@ namespace Microsoft.Identity.Web
                 {
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
 
-                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value, serviceProvider.GetRequiredService<ILoginErrorAccessor>());
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
+                        openIdConnectScheme,
+                        microsoftIdentityOptions.Value,
+                        serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
                     {
