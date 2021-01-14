@@ -41,16 +41,15 @@ namespace Microsoft.Identity.Web
         {
             if (_tempData == null)
             {
-                return null;
+                _tempData = _factory.GetTempData(context);
             }
-            else
+
+            if (_tempData.TryGetValue(Name, out var result) && result is string msg)
             {
-                if (_tempData.TryGetValue(Name, out var result) && result is string msg)
-                {
-                    return msg;
-                }
-                return null;
+                return msg;
             }
+
+            return null;
         }
 
         public void SetMessage(HttpContext context, string? message)
