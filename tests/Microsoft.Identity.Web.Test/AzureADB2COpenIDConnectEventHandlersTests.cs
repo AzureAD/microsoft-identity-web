@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -17,19 +18,22 @@ namespace Microsoft.Identity.Web.Test
         private const string PathBase = "/PathBase";
         private const string DefaultUserFlow = TestConstants.B2CSignUpSignInUserFlow;
         private const string CustomUserFlow = TestConstants.B2CResetPasswordUserFlow;
-        private string _defaultIssuer = $"IssuerAddress/{DefaultUserFlow}/";
-        private string _customIssuer = $"IssuerAddress/{CustomUserFlow}/";
-        private AuthenticationScheme _authScheme;
+        private readonly string _defaultIssuer = $"IssuerAddress/{DefaultUserFlow}/";
+        private readonly string _customIssuer = $"IssuerAddress/{CustomUserFlow}/";
+        private readonly AuthenticationScheme _authScheme;
 
         public AzureADB2COpenIDConnectEventHandlersTests()
         {
-            _authScheme = new AuthenticationScheme(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme, typeof(OpenIdConnectHandler));
+            _authScheme = new AuthenticationScheme(
+                OpenIdConnectDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme,
+                typeof(OpenIdConnectHandler));
         }
 
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async void OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext(bool hasClientCredentials)
+        public async Task OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext(bool hasClientCredentials)
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
@@ -68,7 +72,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async void OnRedirectToIdentityProvider_DefaultUserFlow_DoesntUpdateContext()
+        public async Task OnRedirectToIdentityProvider_DefaultUserFlow_DoesntUpdateContext()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
@@ -88,7 +92,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async void OnRemoteFailure_PasswordReset_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_PasswordReset_RedirectsSuccessfully()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();
@@ -104,7 +108,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async void OnRemoteFailure_Cancel_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_Cancel_RedirectsSuccessfully()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();
@@ -126,7 +130,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async void OnRemoteFailure_OtherException_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_OtherException_RedirectsSuccessfully()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();
