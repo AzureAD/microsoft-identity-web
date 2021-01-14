@@ -46,3 +46,6 @@ dotnet_diagnostic.S3358.severity = none
 
 # S125: Sections of code should not be commented out
 dotnet_diagnostic.S125.severity = none
+
+# S2699: Tests should include assertions
+dotnet_diagnostic.S2699.severity = none
