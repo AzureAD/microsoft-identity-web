@@ -271,7 +271,10 @@ namespace Microsoft.Identity.Web
                 {
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
 
-                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value, serviceProvider.GetRequiredService<ILoginErrorAccessor>());
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
+                        openIdConnectScheme,
+                        microsoftIdentityOptions.Value,
+                        serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
                     {

@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Http;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Provides access to get or set the current error status. The default implementation will use TempData and be enabled when run under Development.
+    /// Provides access to get or set the current error status.
+    /// The default implementation will use TempData and be enabled when run under Development.
     /// </summary>
     public interface ILoginErrorAccessor
     {
