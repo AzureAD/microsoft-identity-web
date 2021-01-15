@@ -3,6 +3,8 @@
 ### New Features:
 **Microsoft Identity Web templates now include a project template for gRPC**. See issue [628](https://github.com/AzureAD/microsoft-identity-web/issues/628) for details.
 
+**Microsoft.Identity.Web now helps writing Azure Functions protected with Azure AD or Azure AD B2C**. See issue [#878](https://github.com/AzureAD/microsoft-identity-web/issues/878).
+
 **The Microsoft Identity Web B2C templates now use the recommended `.b2clogin.com`** instead of `login.microsoftonline.com` by default. See issue [#792](https://github.com/AzureAD/microsoft-identity-web/issues/792) for details.
 
 **The Microsoft Identity Web B2C templates now use the Recommended, next-generation, user flows** instead of the Standard user flows by default. See issue [#836](https://github.com/AzureAD/microsoft-identity-web/issues/836) for details.
