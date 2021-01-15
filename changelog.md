@@ -2,7 +2,9 @@
 ==========
 ### New Features:
 **Microsoft Identity Web templates now include a project template for gRPC**. See issue [628](https://github.com/AzureAD/microsoft-identity-web/issues/628) for details.
+
 **The Microsoft Identity Web B2C templates now use the recommended `.b2clogin.com`** instead of `login.microsoftonline.com` by default. See issue [#792](https://github.com/AzureAD/microsoft-identity-web/issues/792) for details.
+
 **The Microsoft Identity Web B2C templates now use the Recommended, next-generation, user flows** instead of the Standard user flows by default. See issue [#836](https://github.com/AzureAD/microsoft-identity-web/issues/836) for details.
 
 ### Bug Fixes:
@@ -17,14 +19,20 @@
 ==========
 ### New Features: 
 **Starting in MSAL .NET 4.24, the `.WithForceRefresh()` parameter is passed to the on-behalf-of call**. Microsoft Identity Web now incudes it in the on-behalf-of call. It is false by default, as part of the `TokenAcquisitionOptions`. See issue [#811](https://github.com/AzureAD/microsoft-identity-web/issues/811) for details.
-**Microsoft Identity Web now exposes the generic consent handler in Razor pages and MVC controllers in addition to Blazor pages (by registering it on a `IServiceCollection`**. See issue [#805](https://github.com/AzureAD/microsoft-identity-web/issues/805) for details.
+
+**Microsoft Identity Web now exposes the generic consent handler in Razor pages and MVC controllers in addition to Blazor pages (by registering it on a `IServiceCollection`)**. See issue [#805](https://github.com/AzureAD/microsoft-identity-web/issues/805) for details.
 
 ### Bug Fixes:
 **Microsoft Identity Web was validating the issuer even when `ValidateIssuer` was set to false**. This is now fixed. See issue [#797](https://github.com/AzureAD/microsoft-identity-web/issues/797) for details.
+
 **Microsoft Identity Web now uses the redirect URI if you provide it as part of the `ConfidentialClientApplicationOptions`**. See issue [#784](https://github.com/AzureAD/microsoft-identity-web/issues/784) for details.
+
 **Microsoft Identity Web provides a better experience for app developers who use the legacy `login.microsoftonline.com/tfp/` authority for B2C applications**. See issue [#143](https://github.com/AzureAD/microsoft-identity-web/issues/143) for details.
+
 **A tenanted authority must be used in the acquire token for app scenario**. If `common` or `organizations` is used, Microsoft Identity Web will throw an actionable exception. See issue [#793](https://github.com/AzureAD/microsoft-identity-web/issues/793) for details.
+
 **The wrong constant values were used for LoginHint and DomainHint**. See issue [798](https://github.com/AzureAD/microsoft-identity-web/issues/798) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/812) for details.
+
 **Microsoft Identity Web now supports individual auth with AAD external providers**. To enable this, you can now specify a null cookie scheme in `AddMicrosoftIdentityWebApp`. See issue [#133](https://github.com/AzureAD/microsoft-identity-web/issues/133) and issue [#809](https://github.com/AzureAD/microsoft-identity-web/issues/809).
 
 1.3.0
