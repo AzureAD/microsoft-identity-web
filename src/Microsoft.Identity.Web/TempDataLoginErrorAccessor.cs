@@ -73,6 +73,7 @@ namespace Microsoft.Identity.Web
 
             public void SetMessage(HttpContext context, string? message)
             {
+                // This is empty.
             }
         }
     }
