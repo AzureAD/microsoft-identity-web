@@ -137,28 +137,28 @@
     "SignUpSignInPolicyId": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "b2c_1_susi_v3",
+      "defaultValue": "b2c_1_susi",
       "replaces": "MySignUpSignInPolicyId",
       "description": "The sign-in and sign-up policy ID for this project (use with IndividualB2C auth)."
     },
     "SignedOutCallbackPath": {
         "type": "parameter",
         "datatype": "string",
-        "defaultValue": "/signout/B2C_1_susi_v3",
+        "defaultValue": "/signout/B2C_1_susi",
         "replaces": "/signout/MySignUpSignInPolicyId",
         "description": "The global signout callback (use with IndividualB2C auth)."
     },
     "ResetPasswordPolicyId": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "b2c_1_reset_v3",
+      "defaultValue": "b2c_1_reset",
       "replaces": "MyResetPasswordPolicyId",
       "description": "The reset password policy ID for this project (use with IndividualB2C auth)."
     },
     "EditProfilePolicyId": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "b2c_1_edit_profile_v3",
+      "defaultValue": "b2c_1_edit_profile",
       "replaces": "MyEditProfilePolicyId",
       "description": "The edit profile policy ID for this project (use with IndividualB2C auth)."
     },
