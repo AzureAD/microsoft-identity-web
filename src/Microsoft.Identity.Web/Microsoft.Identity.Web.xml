@@ -1050,7 +1050,8 @@
         </member>
         <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
             <summary>
-            Provides access to get or set the current error status. The default implementation will use TempData and be enabled when run under Development.
+            Provides access to get or set the current error status.
+            The default implementation will use TempData and be enabled when run under Development.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.GetMessage(Microsoft.AspNetCore.Http.HttpContext)">
