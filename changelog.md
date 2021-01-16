@@ -7,8 +7,6 @@
 
 **The Microsoft Identity Web B2C templates now use the recommended `.b2clogin.com`** instead of `login.microsoftonline.com` by default. See issue [#792](https://github.com/AzureAD/microsoft-identity-web/issues/792) for details.
 
-**The Microsoft Identity Web B2C templates now use the Recommended, next-generation, user flows** instead of the Standard user flows by default. See issue [#836](https://github.com/AzureAD/microsoft-identity-web/issues/836) for details.
-
 ### Bug Fixes:
 **In a Blazor server application, when the client app requests consent for the web API, the call would result in an infinite loop**. The consent screen is now correctly displayed. See issue [#847](https://github.com/AzureAD/microsoft-identity-web/issues/847) for details.
 
