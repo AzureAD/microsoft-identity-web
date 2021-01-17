@@ -486,13 +486,53 @@
             "ProjectRelativeFolder": "webapi2/webapi2-singleorg-callswebapi",
             "BasedOn": "webapi2/webapi2-singleorg-callsgraph"
         },
-        {
-            "ProjectRelativeFolder": "worker2/worker2-singleorg",
-            "BasedOn": "webapi2/webapi2-singleorg"
-        },
+
+        /*
+                worker2
+        */
         {
             "ProjectRelativeFolder": "worker2/worker2-b2c",
-            "BasedOn": "webapi2/webapi2-b2c"
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAdB2C:ClientId",
+                            "SetFrom": "B2C_WebApi_ClientId"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Domain",
+                            "SetFrom": "B2C_Domain"
+                        },
+                        {
+                            "Property": "AzureAdB2C:Instance",
+                            "SetFrom": "B2C_Instance"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ProjectRelativeFolder": "worker2/worker2-singleorg",
+            "Files": [
+                {
+                    "FileRelativePath": "appsettings.json",
+                    "Properties": [
+                        {
+                            "Property": "AzureAd:ClientId",
+                            "SetFrom": "AAD_WebApi_ClientId"
+                        },
+                        {
+                            "Property": "AzureAd:Domain",
+                            "SetFrom": "AAD_Domain"
+                        },
+                        {
+                            "Property": "AzureAd:TenantId",
+                            "SetFrom": "AAD_TenantId"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
