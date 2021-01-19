@@ -363,7 +363,7 @@
     "Domain": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "qualified.domain.name",
+      "replaces": "yourDomain",
       "description": "The domain for the directory tenant (use with SingleOrg or IndividualB2C auth)."
     },
     "AppIDUri": {
