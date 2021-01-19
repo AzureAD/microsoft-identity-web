@@ -19,7 +19,7 @@ echo "Build and Install templates"
 cd bin
 cd Debug
 dotnet new -u %TemplateNugetPackageName%
-dotnet new -i %TemplateNugetPackageName%.%ClientSemVer%.nupkg
+dotnet new -i %TemplateNugetPackageName%::%ClientSemVer%
 
 echo "Test templates"
 mkdir tests
