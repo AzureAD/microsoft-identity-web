@@ -1,6 +1,6 @@
 1.5.1
 ==========
-Update to the latest version of MSAL .NET (4.25).
+Update to the latest version of MSAL .NET (4.25), Microsoft Graph (3.22) and Microsoft Graph Beta (0.36.0-preview).
 
 1.5.0
 ==========
