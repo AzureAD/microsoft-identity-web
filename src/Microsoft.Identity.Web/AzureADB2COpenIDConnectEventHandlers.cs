@@ -24,7 +24,6 @@ namespace Microsoft.Identity.Web
         {
             SchemeName = schemeName;
             Options = options;
-
             _errorAccessor = errorAccessor;
         }
 

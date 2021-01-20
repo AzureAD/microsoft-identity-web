@@ -343,7 +343,7 @@
     "SignUpSignInPolicyId": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "b2c_1_susi_v3",
+      "defaultValue": "b2c_1_susi",
       "replaces": "MySignUpSignInPolicyId",
       "description": "The sign-in and sign-up policy ID for this project (use with IndividualB2C auth)."
     },
@@ -363,7 +363,7 @@
     "Domain": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "qualified.domain.name",
+      "replaces": "yourDomain",
       "description": "The domain for the directory tenant (use with SingleOrg or IndividualB2C auth)."
     },
     "AppIDUri": {

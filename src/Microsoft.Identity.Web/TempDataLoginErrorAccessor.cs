@@ -15,7 +15,11 @@ namespace Microsoft.Identity.Web
 
         private readonly ITempDataDictionaryFactory _factory;
 
-        public static ILoginErrorAccessor Create(ITempDataDictionaryFactory? factory, bool isDevelopment)
+        private ITempDataDictionary? _tempData;
+
+        public static ILoginErrorAccessor Create(
+            ITempDataDictionaryFactory? factory,
+            bool isDevelopment)
         {
             if (!isDevelopment || factory is null)
             {
@@ -36,9 +40,12 @@ namespace Microsoft.Identity.Web
 
         public string? GetMessage(HttpContext context)
         {
-            var tempData = _factory.GetTempData(context);
+            if (_tempData == null)
+            {
+                _tempData = _factory.GetTempData(context);
+            }
 
-            if (tempData.TryGetValue(Name, out var result) && result is string msg)
+            if (_tempData.TryGetValue(Name, out var result) && result is string msg)
             {
                 return msg;
             }
@@ -50,10 +57,10 @@ namespace Microsoft.Identity.Web
         {
             if (message != null)
             {
-                var tempData = _factory.GetTempData(context);
+                _tempData = _factory.GetTempData(context);
 
-                tempData.Add(Name, message);
-                tempData.Save();
+                _tempData.Add(Name, message);
+                _tempData.Save();
             }
         }
 
@@ -66,6 +73,7 @@ namespace Microsoft.Identity.Web
 
             public void SetMessage(HttpContext context, string? message)
             {
+                // This is empty.
             }
         }
     }

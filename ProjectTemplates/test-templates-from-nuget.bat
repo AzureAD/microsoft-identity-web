@@ -1,6 +1,6 @@
 echo "Ensure ClientSemVer"
 if "%ClientSemVer%" == "" (
-set ClientSemVer=1.4.0
+set ClientSemVer=1.5.0
 )
 
 REM: This is to test Microsoft.Identity.Web templates
@@ -19,7 +19,7 @@ echo "Build and Install templates"
 cd bin
 cd Debug
 dotnet new -u %TemplateNugetPackageName%
-dotnet new -i %TemplateNugetPackageName%.%ClientSemVer%.nupkg
+dotnet new -i %TemplateNugetPackageName%::%ClientSemVer%
 
 echo "Test templates"
 mkdir tests
@@ -280,7 +280,31 @@ dotnet sln ..\..\tests.sln add Shared\blazorwasm2-b2c-hosted.Shared.csproj
 dotnet sln ..\..\tests.sln add Server\blazorwasm2-b2c-hosted.Server.csproj
 dotnet sln ..\..\tests.sln add Client\blazorwasm2-b2c-hosted.Client.csproj
 cd ..
+cd ..
 
+REM gRPC
+mkdir worker2
+cd worker2
+echo "Test worker2, no auth"
+mkdir worker2-noauth
+cd worker2-noauth
+dotnet new worker2
+dotnet sln ..\..\tests.sln add worker2-noauth.csproj
+cd ..
+
+echo "Test worker2, single-org"
+mkdir worker2-singleorg
+cd worker2-singleorg
+dotnet new worker2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add worker2-singleorg.csproj
+cd ..
+
+echo "Test worker2, b2c"
+mkdir worker2-b2c
+cd worker2-b2c
+dotnet new worker2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add worker2-b2c.csproj
+cd ..
 cd ..
 
 echo "Configure the applications"
