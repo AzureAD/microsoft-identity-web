@@ -1,3 +1,7 @@
+1.5.1
+==========
+Update to the latest version of MSAL .NET (4.25).
+
 1.5.0
 ==========
 ### New Features:
