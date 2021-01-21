@@ -44,6 +44,11 @@ namespace Microsoft.Identity.Web
         public string? UserFlow { get; set; }
 
         /// <summary>
+        /// Allows specifying an AuthenticationScheme if OpenIdConnect is not the default challenge scheme.
+        /// </summary>
+        public string? AuthenticationScheme { get; set; }
+
+        /// <summary>
         /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
         /// <param name="context">Context provided by ASP.NET Core.</param>
@@ -115,7 +120,14 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
-                    context.Result = new ChallengeResult(properties);
+                    if (AuthenticationScheme != null)
+                    {
+                        context.Result = new ChallengeResult(AuthenticationScheme, properties);
+                    }
+                    else
+                    {
+                        context.Result = new ChallengeResult(properties);
+                    }
                 }
             }
 
