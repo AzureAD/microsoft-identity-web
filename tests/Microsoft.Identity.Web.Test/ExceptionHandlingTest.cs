@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
-    public class ExcecptionHandlingTest
+    public class ExceptionHandlingTest
     {
         [Fact]
         public void AuthorizeForScopesAttribute_FindMsalUiRequiredExceptionIfAny_Tests()
