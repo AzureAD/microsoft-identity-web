@@ -1,0 +1,50 @@
+{
+    "author": "Microsoft",
+    "classifications": [
+        "Azure Functions",
+        "Solution"
+    ],
+    "name": "Azure Functions",
+    "generatorVersions": "[1.0.0.0-*)",
+    "groupIdentity": "Microsoft.AzureFunctions.ProjectTemplates",
+    "precedence": "100",
+    "identity": "Microsoft.AzureFunctions.ProjectTemplate.CSharp.2.x",
+    "shortName": "func",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "Company.FunctionApp",
+    "symbols": {
+        "StorageConnectionStringValue": {
+            "description": "The connection string for your Azure WebJobs Storage.",
+            "type": "parameter",
+            "defaultValue": "UseDevelopmentStorage=true",
+            "replaces": "AzureWebJobsStorageConnectionStringValue",
+            "DataType": "AzureStorage"
+        },
+        "AzureFunctionsVersion": {
+            "description": "The setting that determines the target release",
+            "type": "parameter",
+            "defaultValue": "V2",
+            "replaces": "AzureFunctionsVersionValue"
+        }
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "rename": {
+                        "_gitignore": ".gitignore"
+                    }
+                }
+            ]
+        }
+    ],
+    "primaryOutputs": [
+        {
+            "path": "Company.FunctionApp.csproj"
+        }
+    ],
+    "defaultName": "Company.FunctionApp"
+}

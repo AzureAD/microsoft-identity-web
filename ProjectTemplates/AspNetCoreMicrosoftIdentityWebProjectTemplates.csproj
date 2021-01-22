@@ -46,4 +46,8 @@
   <ItemGroup>
     <None Include="templates\Worker-CSharp\Company.Application1.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="templates\Functions-CSharp\" />
+  </ItemGroup>
 </Project>
