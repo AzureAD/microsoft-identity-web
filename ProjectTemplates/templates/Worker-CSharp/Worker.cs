@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 #if (!NoAuth)
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 #endif
 #if (GenerateApi)
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using System.Net.Http;
 #if (GenerateGraph)
 using Microsoft.Graph;
 #endif
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 #if (OrganizationalAuth || IndividualB2CAuth)
 using Microsoft.Identity.Web.Resource;
