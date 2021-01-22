@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 #if (GenerateApi)
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
+using System.Net;
 using System.Net.Http;
 #endif
 #if (GenerateGraph)
