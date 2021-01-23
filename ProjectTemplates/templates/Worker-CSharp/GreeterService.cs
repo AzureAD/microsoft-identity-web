@@ -43,7 +43,7 @@ namespace Company.Application1
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByAPI);
+            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -76,7 +76,7 @@ namespace Company.Application1
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByAPI);
+            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
 
             return Task.FromResult(new HelloReply
@@ -97,7 +97,7 @@ namespace Company.Application1
         {
 #if (!NoAuth)
             var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByAPI);
+            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 #endif
             return Task.FromResult(new HelloReply
             {
