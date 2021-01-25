@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
@@ -70,12 +71,40 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal("CN=ACS2ClientCertificate", certificate.Issuer);
         }
 
+        [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
+        [Theory]
+        public void TestLoadAllCertificates(
+           CertificateSource certificateSource,
+           string container,
+           string referenceOrValue)
+        {
+            List<CertificateDescription> certDescriptions = CreateCertificateDescriptions(
+                certificateSource,
+                container,
+                referenceOrValue).ToList();
+
+            certDescriptions.Add(new CertificateDescription
+            {
+                SourceType = certificateSource,
+                Container = container,
+                ReferenceOrValue = referenceOrValue,
+            });
+
+            IEnumerable<X509Certificate2> certificates = DefaultCertificateLoader.LoadAllCertificates(certDescriptions);
+
+            Assert.NotNull(certificates);
+            Assert.Equal(2, certificates.Count());
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.First().Issuer);
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.Last().Issuer);
+        }
+
         private IEnumerable<CertificateDescription> CreateCertificateDescriptions(
             CertificateSource certificateSource,
             string container,
             string referenceOrValue)
         {
             List<CertificateDescription> certificateDescription = new List<CertificateDescription>();
+
             certificateDescription.Add(new CertificateDescription
             {
                 SourceType = certificateSource,
