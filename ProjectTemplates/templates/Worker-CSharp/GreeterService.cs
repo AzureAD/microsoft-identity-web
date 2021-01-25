@@ -40,7 +40,7 @@ namespace Company.Application1
         }
 
         [Authorize]
-        public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+        public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
             httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
@@ -56,10 +56,10 @@ namespace Company.Application1
                 throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
             }
 
-            return Task.FromResult(new HelloReply
+            return new HelloReply()
             {
                 Message = "Hello " + request.Name
-            });
+            };
         }
 
 #elseif (GenerateGraph)
@@ -73,16 +73,16 @@ namespace Company.Application1
         }
         
         [Authorize]
-        public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+        public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
             httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
 
-            return Task.FromResult(new HelloReply
+            return new HelloReply()
             {
-                Message = "Hello " + user.Name
-            });
+                Message = "Hello " + user.DisplayName
+            };
         }
 #else
         public GreeterService(ILogger<GreeterService> logger)
