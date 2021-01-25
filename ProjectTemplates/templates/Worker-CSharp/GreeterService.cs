@@ -62,7 +62,7 @@ namespace Company.Application1
             });
         }
 
-# elseif (GenerateGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public GreeterService(ILogger<GreeterService> logger,
