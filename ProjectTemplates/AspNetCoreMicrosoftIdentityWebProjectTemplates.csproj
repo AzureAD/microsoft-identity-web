@@ -48,6 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="templates\Functions-CSharp\" />
+    <Folder Include="templates\Functions-CSharp\Company.FunctionApp1.csproj" />
   </ItemGroup>
 </Project>
