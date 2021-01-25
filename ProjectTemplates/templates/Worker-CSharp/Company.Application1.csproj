@@ -13,7 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.32.0" />
-    <!--<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0-0" />-->
     <PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
+    <!--#if (GenerateGraph) -->
+    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="1.*" />
+    <!--#endif -->
   </ItemGroup>
 </Project>
