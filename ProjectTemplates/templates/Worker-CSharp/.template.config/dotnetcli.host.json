@@ -41,7 +41,19 @@
       "shortName": ""
     },
     "ExcludeLaunchSettings": {
-      "longName": "exclude-launch-settings",
+        "longName": "exclude-launch-settings",
+        "shortName": ""
+    },
+    "CalledApiUrl": {
+      "longName": "called-api-url",
+      "shortName": ""
+    },
+    "CalledApiScopes": {
+      "longName": "called-api-scopes",
+      "shortName": ""
+    },
+    "CallsMicrosoftGraph": {
+      "longName": "calls-graph",
       "shortName": ""
     }
   },

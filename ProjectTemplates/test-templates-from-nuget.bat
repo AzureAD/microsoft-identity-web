@@ -305,6 +305,21 @@ cd worker2-b2c
 dotnet new worker2 --auth IndividualB2C
 dotnet sln ..\..\tests.sln add worker2-b2c.csproj
 cd ..
+
+echo "Test worker2, single-org, calling microsoft graph"
+mkdir worker2-singleorg-callsgraph
+cd worker2-singleorg-callsgraph
+dotnet new worker2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add worker2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test worker2, single-org, calling a downstream web api"
+mkdir worker2-singleorg-callswebapi
+cd worker2-singleorg-callswebapi
+dotnet new worker2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add worker2-singleorg-callswebapi.csproj
+cd ..
+
 cd ..
 
 echo "Configure the applications"
