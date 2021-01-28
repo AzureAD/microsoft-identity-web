@@ -208,7 +208,6 @@ namespace Microsoft.Identity.Web
                     if (microsoftIdentityOptions.TokenDecryptionCertificates != null)
                     {
                         IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(microsoftIdentityOptions.TokenDecryptionCertificates);
-                        //IEnumerable<RsaSecurityKey> keys = certificates.Select(c => new RsaSecurityKey(c.GetRSAPrivateKey().ExportParameters(true)));
                         IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }
