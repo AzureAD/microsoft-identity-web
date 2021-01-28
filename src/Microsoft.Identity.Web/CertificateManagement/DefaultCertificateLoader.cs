@@ -231,5 +231,15 @@ namespace Microsoft.Identity.Web
             defaultCertificateLoader.LoadIfNeeded(certDescription);
             return certDescription.Certificate;
         }
+
+        internal /*for test only*/ static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            foreach (var certDescription in certificateDescriptions)
+            {
+                defaultCertificateLoader.LoadIfNeeded(certDescription);
+                yield return certDescription.Certificate;
+            }
+        }
     }
 }
