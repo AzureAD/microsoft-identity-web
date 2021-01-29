@@ -38,7 +38,8 @@ namespace Microsoft.Identity.Web
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string identityProviderDisplayName = "Microsoft identity platform")
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
             return builder.AddMicrosoftIdentityWebApp(
@@ -46,7 +47,8 @@ namespace Microsoft.Identity.Web
                 configSectionName,
                 openIdConnectScheme,
                 cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                identityProviderDisplayName);
         }
     }
 }

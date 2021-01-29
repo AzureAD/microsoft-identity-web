@@ -26,7 +26,8 @@ namespace Microsoft.Identity.Web
             IServiceCollection services,
             string openIdConnectScheme,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-            IConfigurationSection configurationSection)
+            IConfigurationSection configurationSection,
+            string identityProviderDisplayName)
             : base(services, openIdConnectScheme, configureMicrosoftIdentityOptions, configurationSection)
         {
             if (configurationSection == null)

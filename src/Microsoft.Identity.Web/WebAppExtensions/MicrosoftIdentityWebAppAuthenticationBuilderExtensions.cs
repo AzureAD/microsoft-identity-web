@@ -42,7 +42,8 @@ namespace Microsoft.Identity.Web
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string identityProviderDisplayName = "Microsoft identity platform")
         {
             if (configuration == null)
             {
@@ -60,7 +61,8 @@ namespace Microsoft.Identity.Web
                 configurationSection,
                 openIdConnectScheme,
                 cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                identityProviderDisplayName);
         }
 
         /// <summary>
@@ -80,7 +82,8 @@ namespace Microsoft.Identity.Web
             IConfigurationSection configurationSection,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string identityProviderDisplayName = "Microsoft identity platform")
         {
             if (builder == null)
             {
@@ -98,7 +101,8 @@ namespace Microsoft.Identity.Web
                 openIdConnectScheme,
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
-                configurationSection);
+                configurationSection,
+                identityProviderDisplayName);
         }
 
         /// <summary>
@@ -119,7 +123,8 @@ namespace Microsoft.Identity.Web
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string identityProviderDisplayName = "Microsoft identity platform")
         {
             if (builder == null)
             {
@@ -131,7 +136,8 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                identityProviderDisplayName);
         }
 
         /// <summary>
@@ -154,7 +160,8 @@ namespace Microsoft.Identity.Web
                 string openIdConnectScheme,
                 string? cookieScheme,
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
-                IConfigurationSection configurationSection)
+                IConfigurationSection configurationSection,
+                string identityProviderDisplayName)
         {
             AddMicrosoftIdentityWebAppInternal(
                 builder,
@@ -162,13 +169,15 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                identityProviderDisplayName);
 
             return new MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
                 builder.Services,
                 openIdConnectScheme,
                 configureMicrosoftIdentityOptions,
-                configurationSection);
+                configurationSection,
+                identityProviderDisplayName);
         }
 
         /// <summary>
@@ -189,7 +198,8 @@ namespace Microsoft.Identity.Web
         Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
         string openIdConnectScheme,
         string? cookieScheme,
-        bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+        bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+        string identityProviderDisplayName)
         {
             if (!AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
@@ -199,7 +209,9 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                identityProviderDisplayName);
+                ;
             }
             else
             {
@@ -220,7 +232,8 @@ namespace Microsoft.Identity.Web
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
             string openIdConnectScheme,
             string? cookieScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+            string identityProviderDisplayName)
         {
             if (builder == null)
             {
@@ -272,7 +285,7 @@ namespace Microsoft.Identity.Web
                 return;
             }
 
-            builder.AddOpenIdConnect(openIdConnectScheme, options => { });
+            builder.AddOpenIdConnect(openIdConnectScheme, identityProviderDisplayName, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
                 {
