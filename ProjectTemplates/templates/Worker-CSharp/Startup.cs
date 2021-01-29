@@ -9,6 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
+#if (GenerateGraph)
+using Microsoft.Graph;
+#endif
 
 namespace Company.Application1
 {
@@ -28,15 +31,31 @@ namespace Company.Application1
 
 #if (OrganizationalAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+#if (GenerateApiOrGraph)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+#if (GenerateApi)
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+#endif
+#if (GenerateGraph)
+                        .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+#endif
+                        .AddInMemoryTokenCaches();
+#else
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
-                
-            services.AddAuthorization();
+#endif
 #elif (IndividualB2CAuth)
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+#if (GenerateApi)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                        .AddInMemoryTokenCaches();
+#else
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"));
-                
-            services.AddAuthorization();
 #endif
+#endif
+            services.AddAuthorization();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
