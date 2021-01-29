@@ -46,6 +46,7 @@ namespace WebApp_OpenIDConnect_DotNet
                  .EnableTokenAcquisitionToCallDownstreamApi()
                      .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
+                     .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
                      .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews(options =>
