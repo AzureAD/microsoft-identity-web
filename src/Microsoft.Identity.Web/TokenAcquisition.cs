@@ -367,7 +367,7 @@ namespace Microsoft.Identity.Web
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
+            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId ?? _microsoftIdentityOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
                 + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
@@ -461,7 +461,7 @@ namespace Microsoft.Identity.Web
                     _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
             }
 
-            PrepareAuthorityInstanceForMsal();
+            PrepareAuthorityInstanceForMsal(_applicationOptions.Instance ?? _microsoftIdentityOptions.Instance);
 
             if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
             {
@@ -489,6 +489,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 string authority;
+                string? tenant = _applicationOptions.TenantId ?? _microsoftIdentityOptions.TenantId;
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -497,7 +498,7 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
-                    authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
+                    authority = $"{_applicationOptions.Instance}{tenant}/";
                     builder.WithAuthority(authority);
                 }
 
@@ -523,11 +524,12 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private void PrepareAuthorityInstanceForMsal()
+        private void PrepareAuthorityInstanceForMsal(string instance)
         {
-            if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
+            // we only use the cca options instance in this class
+            if (_microsoftIdentityOptions.IsB2C && instance.EndsWith("/tfp/"))
             {
-                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).Trim();
+                _applicationOptions.Instance = instance.Replace("/tfp/", string.Empty).Trim();
             }
 
             _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
