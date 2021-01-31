@@ -35,6 +35,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
+        /// <param name="identityProviderDisplayName">Name of the OpenIdConnenct identity provider (by default
+        /// Microsoft identity platform).</param>
         /// <returns>The <see cref="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> builder for chaining.</returns>
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
@@ -76,6 +78,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
+        /// <param name="identityProviderDisplayName">Name of the OpenIdConnenct identity provider (by default
+        /// Microsoft identity platform).</param>
         /// <returns>The authentication builder for chaining.</returns>
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
@@ -116,6 +120,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
+        /// <param name="identityProviderDisplayName">Name of the OpenIdConnenct identity provider (by default
+        /// Microsoft identity platform).</param>
         /// <returns>The authentication builder for chaining.</returns>
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
@@ -191,6 +197,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
+        /// <param name="identityProviderDisplayName">Name of the OpenIdConnenct identity provider (by default
+        /// Microsoft identity platform).</param>
         /// <returns>The authentication builder for chaining.</returns>
         private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppWithoutConfiguration(
         this AuthenticationBuilder builder,
@@ -211,7 +219,6 @@ namespace Microsoft.Identity.Web
                 cookieScheme,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 identityProviderDisplayName);
-                ;
             }
             else
             {
