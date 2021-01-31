@@ -463,10 +463,8 @@ namespace Microsoft.Identity.Web
 
             PrepareAuthorityInstanceForMsal(_applicationOptions.Instance ?? _microsoftIdentityOptions.Instance);
 
-            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
-            {
-                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
-            }
+            _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
+            _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
 
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  _applicationOptions.ClientSecret,
@@ -529,10 +527,12 @@ namespace Microsoft.Identity.Web
             // we only use the cca options instance in this class
             if (_microsoftIdentityOptions.IsB2C && instance.EndsWith("/tfp/"))
             {
-                _applicationOptions.Instance = instance.Replace("/tfp/", string.Empty).Trim();
+                _applicationOptions.Instance = instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
             }
-
-            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            else
+            {
+                _applicationOptions.Instance = instance.TrimEnd('/') + "/";
+            }
         }
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(

@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Resource
     public class AadIssuerValidatorTests
     {
         private readonly MicrosoftIdentityIssuerValidatorFactory _issuerValidatorFactory;
-        private IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public AadIssuerValidatorTests()
         {
@@ -31,9 +31,9 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public void GetIssuerValidator_NullOrEmptyAuthority_ThrowsException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(string.Empty));
+            Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(string.Empty));
 
-            exception = Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(null));
+            Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(null));
         }
 
         [Fact]
@@ -82,13 +82,13 @@ namespace Microsoft.Identity.Web.Test.Resource
             var jwtSecurityToken = new JwtSecurityToken();
             var validationParams = new TokenValidationParameters();
 
-            var exception = Assert.Throws<ArgumentNullException>(TestConstants.ActualIssuer, () => validator.Validate(null, jwtSecurityToken, validationParams));
+            Assert.Throws<ArgumentNullException>(TestConstants.ActualIssuer, () => validator.Validate(null, jwtSecurityToken, validationParams));
 
-            exception = Assert.Throws<ArgumentNullException>(TestConstants.ActualIssuer, () => validator.Validate(string.Empty, jwtSecurityToken, validationParams));
+            Assert.Throws<ArgumentNullException>(TestConstants.ActualIssuer, () => validator.Validate(string.Empty, jwtSecurityToken, validationParams));
 
-            exception = Assert.Throws<ArgumentNullException>(TestConstants.SecurityToken, () => validator.Validate(TestConstants.AadIssuer, null, validationParams));
+            Assert.Throws<ArgumentNullException>(TestConstants.SecurityToken, () => validator.Validate(TestConstants.AadIssuer, null, validationParams));
 
-            exception = Assert.Throws<ArgumentNullException>(TestConstants.ValidationParameters, () => validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, null));
+            Assert.Throws<ArgumentNullException>(TestConstants.ValidationParameters, () => validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, null));
         }
 
         [Fact]

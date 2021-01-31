@@ -42,7 +42,10 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
+              .AddMicrosoftIdentityWebApp(options =>
+              {
+                  Configuration.GetSection("AzureAd").Bind(options);
+              })
                  .EnableTokenAcquisitionToCallDownstreamApi()
                      .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
