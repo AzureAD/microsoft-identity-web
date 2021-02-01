@@ -2478,6 +2478,13 @@
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
         </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            The web app calls a web API.
+            </summary>
+            <param name="initialScopes">Initial scopes.</param>
+            <returns>The builder itself for chaining.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             The web app calls a web API. This override enables you to specify the

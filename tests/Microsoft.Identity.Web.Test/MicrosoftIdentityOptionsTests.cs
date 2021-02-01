@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web.Test
 {
     public class MicrosoftIdentityOptionsTests
     {
-        private MicrosoftIdentityOptions microsoftIdentityOptions;
+        private MicrosoftIdentityOptions _microsoftIdentityOptions;
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
 
@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web.Test
            string optionsName,
            MissingParam missingParam = MissingParam.None)
         {
-            microsoftIdentityOptions = new MicrosoftIdentityOptions
+            _microsoftIdentityOptions = new MicrosoftIdentityOptions
             {
                 ClientId = clientId,
                 Instance = instance,
@@ -66,12 +66,12 @@ namespace Microsoft.Identity.Web.Test
 
             if (optionsName == AzureAdB2C)
             {
-                microsoftIdentityOptions.SignUpSignInPolicyId = signUpSignInPolicyId;
-                microsoftIdentityOptions.Domain = domain;
+                _microsoftIdentityOptions.SignUpSignInPolicyId = signUpSignInPolicyId;
+                _microsoftIdentityOptions.Domain = domain;
             }
 
             MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            ValidateOptionsResult result = microsoftIdentityOptionsValidation.Validate(optionsName, microsoftIdentityOptions);
+            ValidateOptionsResult result = microsoftIdentityOptionsValidation.Validate(optionsName, _microsoftIdentityOptions);
 
             CheckReturnValueAgainstExpectedMissingParam(missingParam, result);
         }
