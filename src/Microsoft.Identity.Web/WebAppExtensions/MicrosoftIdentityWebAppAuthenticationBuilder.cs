@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
-            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions = null,
+            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {
             WebAppCallsWebApiImplementation(
