@@ -47,6 +47,17 @@ namespace Microsoft.Identity.Web
         private string OpenIdConnectScheme { get; set; }
 
         /// <summary>
+        /// The web app calls a web API.
+        /// </summary>
+        /// <param name="initialScopes">Initial scopes.</param>
+        /// <returns>The builder itself for chaining.</returns>
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+            IEnumerable<string>? initialScopes = null)
+        {
+            return EnableTokenAcquisitionToCallDownstreamApi(null, initialScopes);
+        }
+
+        /// <summary>
         /// The web app calls a web API. This override enables you to specify the
         /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
