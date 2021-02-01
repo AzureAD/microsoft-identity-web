@@ -39,10 +39,6 @@ namespace Microsoft.Identity.Web
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly string _clientId;
-        private string _instance;
-        private readonly string _clientSecret;
-        private readonly string? _tenantId;
 
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -73,10 +69,10 @@ namespace Microsoft.Identity.Web
             _logger = logger;
             _serviceProvider = serviceProvider;
 
-            _clientId = _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
-            _instance = _applicationOptions.Instance ??= _microsoftIdentityOptions.Instance;
-            _clientSecret = _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
-            _tenantId = _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
+            _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
+            _applicationOptions.Instance ??= _microsoftIdentityOptions.Instance;
+            _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
+            _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
         }
 
         /// <summary>
@@ -158,7 +154,7 @@ namespace Microsoft.Identity.Web
                 if (_microsoftIdentityOptions.IsB2C)
                 {
                     string? userFlow = context.Principal?.GetUserFlowId();
-                    var authority = $"{_instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
+                    var authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
 
@@ -282,7 +278,7 @@ namespace Microsoft.Identity.Web
 
             if (string.IsNullOrEmpty(tenant))
             {
-                tenant = _tenantId;
+                tenant = _applicationOptions.TenantId;
             }
 
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
@@ -373,7 +369,7 @@ namespace Microsoft.Identity.Web
 
             _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
 
-            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_clientId}"
+            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
                 + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
@@ -470,7 +466,7 @@ namespace Microsoft.Identity.Web
             PrepareAuthorityInstanceForMsal();
 
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
-                 _clientSecret,
+                 _applicationOptions.ClientSecret,
                  _microsoftIdentityOptions.ClientCertificates);
 
             try
@@ -493,12 +489,12 @@ namespace Microsoft.Identity.Web
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
-                    authority = $"{_instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
+                    authority = $"{_applicationOptions.Instance}{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{_microsoftIdentityOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
                 {
-                    authority = $"{_instance}{_tenantId}/";
+                    authority = $"{_applicationOptions.Instance}{_applicationOptions.TenantId}/";
                     builder.WithAuthority(authority);
                 }
 
@@ -526,14 +522,13 @@ namespace Microsoft.Identity.Web
 
         private void PrepareAuthorityInstanceForMsal()
         {
-            // we only use the cca options instance in this class
-            if (_microsoftIdentityOptions.IsB2C && _instance.EndsWith("/tfp/"))
+            if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
             {
-                _instance = _instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
+                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
             }
             else
             {
-                _instance = _instance.TrimEnd('/') + "/";
+                _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
             }
         }
 
