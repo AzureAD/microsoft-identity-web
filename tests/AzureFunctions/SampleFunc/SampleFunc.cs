@@ -8,16 +8,24 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
+using System.Net.Http;
 
 namespace SampleFunc
 {
     public class SampleFunc
     {
-        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly ILogger<SampleFunc> _logger;
+        private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public SampleFunc(ITokenAcquisition tokenAcquisition)
+        // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
+        static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
+
+        public SampleFunc(ILogger<SampleFunc> logger,
+            IDownstreamWebApi downstreamWebApi)
         {
-            _tokenAcquisition = tokenAcquisition;
+            _downstreamWebApi = downstreamWebApi;
+            _logger = logger;
         }
 
         [FunctionName("SampleFunc")]
@@ -26,12 +34,25 @@ namespace SampleFunc
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+
 
             var (authenticationStatus, authenticationResponse) =
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
             if (!authenticationStatus) return authenticationResponse;
 
-            var token = await _tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default" );
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                // Do something with apiResult
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
 
             string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.Identity.Name : null;
 
