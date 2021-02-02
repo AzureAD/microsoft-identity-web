@@ -47,6 +47,17 @@ namespace Microsoft.Identity.Web
         private string OpenIdConnectScheme { get; set; }
 
         /// <summary>
+        /// The web app calls a web API.
+        /// </summary>
+        /// <param name="initialScopes">Initial scopes.</param>
+        /// <returns>The builder itself for chaining.</returns>
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+            IEnumerable<string>? initialScopes = null)
+        {
+            return EnableTokenAcquisitionToCallDownstreamApi(null, initialScopes);
+        }
+
+        /// <summary>
         /// The web app calls a web API. This override enables you to specify the
         /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
@@ -55,14 +66,9 @@ namespace Microsoft.Identity.Web
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
-            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
-
             WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
@@ -79,12 +85,16 @@ namespace Microsoft.Identity.Web
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string openIdConnectScheme,
-            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
+            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions)
         {
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
             services.Configure(configureMicrosoftIdentityOptions);
-            services.Configure(configureConfidentialClientApplicationOptions);
+
+            if (configureConfidentialClientApplicationOptions != null)
+            {
+                services.Configure(configureConfidentialClientApplicationOptions);
+            }
 
             services.AddHttpContextAccessor();
 

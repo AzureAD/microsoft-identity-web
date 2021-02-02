@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -16,8 +15,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -71,6 +68,11 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
+
+            _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
+            _applicationOptions.Instance ??= _microsoftIdentityOptions.Instance;
+            _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
+            _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
         }
 
         /// <summary>
@@ -276,7 +278,7 @@ namespace Microsoft.Identity.Web
 
             if (string.IsNullOrEmpty(tenant))
             {
-                tenant = _applicationOptions.TenantId ?? _microsoftIdentityOptions.TenantId;
+                tenant = _applicationOptions.TenantId;
             }
 
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
@@ -463,11 +465,6 @@ namespace Microsoft.Identity.Web
 
             PrepareAuthorityInstanceForMsal();
 
-            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
-            {
-                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
-            }
-
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  _applicationOptions.ClientSecret,
                  _microsoftIdentityOptions.ClientCertificates);
@@ -527,10 +524,12 @@ namespace Microsoft.Identity.Web
         {
             if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
             {
-                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).Trim();
+                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
             }
-
-            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            else
+            {
+                _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            }
         }
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(

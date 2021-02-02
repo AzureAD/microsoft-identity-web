@@ -27,8 +27,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
 
-        private KeyVaultSecretsProvider _keyVault;
-        private string _ccaSecret;
+        private readonly KeyVaultSecretsProvider _keyVault;
+        private readonly string _ccaSecret;
         private readonly ITestOutputHelper _output;
 
         public AcquireTokenForAppIntegrationTests(ITestOutputHelper output) // test set-up
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             else
             {
                 _output.WriteLine("Connection to Key Vault failed. No secret returned. ");
-                throw new ArgumentNullException(nameof(_ccaSecret), "No secret returned from Key Vault. ");
+                throw new ArgumentNullException(message: "No secret returned from Key Vault. ", null);
             }
         }
 
