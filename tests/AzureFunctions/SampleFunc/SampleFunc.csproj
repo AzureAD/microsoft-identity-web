@@ -9,6 +9,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.8.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
