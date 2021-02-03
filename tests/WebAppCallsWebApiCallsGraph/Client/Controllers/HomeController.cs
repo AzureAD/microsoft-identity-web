@@ -61,12 +61,10 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
         [AuthorizeForScopes(ScopeKeySection = "AzureFunction:Scopes")]
         public async Task<ActionResult> CallAzureFunction()
         {
-            string message = await _downstreamWebApi.CallWebApiForUserAsync<string, string>(
-                "AzureFunction",
-                HttpContext.User.GetDisplayName());
+            string message = await _downstreamWebApi.CallWebApiForUserAsync<string>(
+                "AzureFunction");
             ViewBag.reply = message;
             return View();
-
         }
     }
 }

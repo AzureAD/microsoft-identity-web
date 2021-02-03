@@ -33,7 +33,7 @@ namespace SampleFunc
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             var (authenticationStatus, authenticationResponse) =
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
@@ -53,14 +53,13 @@ namespace SampleFunc
                 throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
             }
 
-            string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.Identity.Name : null;
+            string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.GetDisplayName() : null;
 
             string responseMessage = string.IsNullOrEmpty(name)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
             return new JsonResult(responseMessage);
-          //  return new OkObjectResult(responseMessage);
         }
     }
 }
