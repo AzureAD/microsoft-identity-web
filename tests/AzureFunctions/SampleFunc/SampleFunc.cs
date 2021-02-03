@@ -19,7 +19,7 @@ namespace SampleFunc
         private readonly IDownstreamWebApi _downstreamWebApi;
 
         // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
+        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
 
         public SampleFunc(ILogger<SampleFunc> logger,
             IDownstreamWebApi downstreamWebApi)
@@ -59,7 +59,8 @@ namespace SampleFunc
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
-            return new OkObjectResult(responseMessage);
+            return new JsonResult(responseMessage);
+          //  return new OkObjectResult(responseMessage);
         }
     }
 }
