@@ -19,7 +19,7 @@ namespace SampleFunc
         private readonly IDownstreamWebApi _downstreamWebApi;
 
         // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
+        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
 
         public SampleFunc(ILogger<SampleFunc> logger,
             IDownstreamWebApi downstreamWebApi)
