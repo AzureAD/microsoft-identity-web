@@ -50,6 +50,7 @@ namespace WebApp_OpenIDConnect_DotNet
                      .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
                      .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
+                     .AddDownstreamWebApi("AzureFunction", Configuration.GetSection("AzureFunction"))
                      .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews(options =>

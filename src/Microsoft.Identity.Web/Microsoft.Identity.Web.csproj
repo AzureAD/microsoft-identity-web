@@ -108,12 +108,6 @@
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.2.3" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.1.0" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.8.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.8.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.8.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.8.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.8.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
   
   <ItemGroup>
