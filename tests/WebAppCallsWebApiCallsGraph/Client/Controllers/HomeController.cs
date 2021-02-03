@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Threading.Tasks;
 using WebApp_OpenIDConnect_DotNet.Models;
 
@@ -18,9 +19,14 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
     {
         private ITokenAcquisition _tokenAcquisition;
 
-        public HomeController(ITokenAcquisition tokenAcquisition)
+        private IDownstreamWebApi _downstreamWebApi;
+
+        public HomeController(
+            ITokenAcquisition tokenAcquisition,
+            IDownstreamWebApi downstreamWebApi)
         {
             _tokenAcquisition = tokenAcquisition;
+            _downstreamWebApi = downstreamWebApi;
         }
 
         public IActionResult Index()
@@ -50,6 +56,17 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             new HelloRequest { Name = "GreeterClient" }, headers);
             ViewBag.reply = reply.Message;
             return View();
+        }
+
+        [AuthorizeForScopes(ScopeKeySection = "AzureFunction:Scopes")]
+        public async Task<ActionResult> CallAzureFunction()
+        {
+            string message = await _downstreamWebApi.CallWebApiForUserAsync<string, string>(
+                "AzureFunction",
+                HttpContext.User.GetDisplayName());
+            ViewBag.reply = message;
+            return View();
+
         }
     }
 }
