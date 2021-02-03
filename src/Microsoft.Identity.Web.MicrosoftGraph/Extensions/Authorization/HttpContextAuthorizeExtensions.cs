@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.MicrosoftGraph.Extensions.Authorization
         /// <param name="groupIds">List of group IDs to check the membership against. Currently accepts maximum of 20 groups at once.</param>
         /// <param name="tenantRoleTemplateIds">List of role template IDs from Azure AD to check against.</param>
         /// <param name="useAppOnly">Should the permissions be app only or not.</param>
-        /// <param name="tenant">Tenant ID or domain for which we want to make the call..</param>
+        /// <param name="tenant">Tenant ID or domain for which we want to make the call.</param>
         /// <returns>Whether user is member of provided list of groups or role templates.</returns>
         public static async Task<bool> AuthorizeUserAsync(this HttpContext httpContext, string[]? groupIds = null, string[]? tenantRoleTemplateIds = null, bool useAppOnly = false, string? tenant = null)
         {
