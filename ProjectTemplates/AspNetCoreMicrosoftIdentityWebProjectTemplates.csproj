@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.3.0</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.5.0</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <PackageVersion>$(ClientSemVer)</PackageVersion>
 
@@ -41,5 +41,9 @@
 
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="templates\Worker-CSharp\Company.Application1.csproj" />
   </ItemGroup>
 </Project>

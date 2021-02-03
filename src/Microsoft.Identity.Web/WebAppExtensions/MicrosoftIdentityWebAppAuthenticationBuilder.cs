@@ -47,6 +47,17 @@ namespace Microsoft.Identity.Web
         private string OpenIdConnectScheme { get; set; }
 
         /// <summary>
+        /// The web app calls a web API.
+        /// </summary>
+        /// <param name="initialScopes">Initial scopes.</param>
+        /// <returns>The builder itself for chaining.</returns>
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+            IEnumerable<string>? initialScopes = null)
+        {
+            return EnableTokenAcquisitionToCallDownstreamApi(null, initialScopes);
+        }
+
+        /// <summary>
         /// The web app calls a web API. This override enables you to specify the
         /// ConfidentialClientApplicationOptions (from MSAL.NET) programmatically.
         /// </summary>
@@ -55,14 +66,9 @@ namespace Microsoft.Identity.Web
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
-            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
         {
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
-
             WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
@@ -79,12 +85,16 @@ namespace Microsoft.Identity.Web
             IEnumerable<string>? initialScopes,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string openIdConnectScheme,
-            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
+            Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions)
         {
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
             services.Configure(configureMicrosoftIdentityOptions);
-            services.Configure(configureConfidentialClientApplicationOptions);
+
+            if (configureConfidentialClientApplicationOptions != null)
+            {
+                services.Configure(configureConfidentialClientApplicationOptions);
+            }
 
             services.AddHttpContextAccessor();
 
@@ -121,7 +131,7 @@ namespace Microsoft.Identity.Web
                        var codeReceivedHandler = options.Events.OnAuthorizationCodeReceived;
                        options.Events.OnAuthorizationCodeReceived = async context =>
                        {
-                           var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                           var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
                            await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
@@ -130,7 +140,7 @@ namespace Microsoft.Identity.Web
                        var onTokenValidatedHandler = options.Events.OnTokenValidated;
                        options.Events.OnTokenValidated = async context =>
                        {
-                           string? clientInfo = context.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                           string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
                            if (!string.IsNullOrEmpty(clientInfo))
                            {
@@ -138,8 +148,8 @@ namespace Microsoft.Identity.Web
 
                                if (clientInfoFromServer != null)
                                {
-                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                   context.Principal.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
 
@@ -150,10 +160,10 @@ namespace Microsoft.Identity.Web
                        var signOutHandler = options.Events.OnRedirectToIdentityProviderForSignOut;
                        options.Events.OnRedirectToIdentityProviderForSignOut = async context =>
                        {
-                             // Remove the account from MSAL.NET token cache
-                             var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                             await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
-                             await signOutHandler(context).ConfigureAwait(false);
+                           // Remove the account from MSAL.NET token cache
+                           var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
+                           await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                           await signOutHandler(context).ConfigureAwait(false);
                        };
                    });
             }

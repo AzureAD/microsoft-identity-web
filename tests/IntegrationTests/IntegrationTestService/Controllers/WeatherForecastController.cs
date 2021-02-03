@@ -18,7 +18,7 @@ namespace IntegrationTestService.Controllers
     [Route("SecurePage")]
     public class WeatherForecastController : ControllerBase
     {
-        private IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamWebApi _downstreamWebApi;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
         // The web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API

@@ -68,6 +68,11 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
+
+            _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
+            _applicationOptions.Instance ??= _microsoftIdentityOptions.Instance;
+            _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
+            _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
         }
 
         /// <summary>
@@ -86,8 +91,8 @@ namespace Microsoft.Identity.Web
         private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
+                Constants.Common,
                 Constants.Organizations,
-                Constants.Consumers,
             },
             StringComparer.OrdinalIgnoreCase);
 
@@ -141,7 +146,7 @@ namespace Microsoft.Identity.Web
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
-                // Share the ID Token though
+                // Share the ID token though
                 var builder = _application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
                     .WithSendX5C(_microsoftIdentityOptions.SendX5C);
@@ -269,6 +274,11 @@ namespace Microsoft.Identity.Web
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
+            }
+
+            if (string.IsNullOrEmpty(tenant))
+            {
+                tenant = _applicationOptions.TenantId;
             }
 
             if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
@@ -421,7 +431,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application, if needed.
         /// </summary>
-        private async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
+        internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
         {
             if (_application == null)
             {
@@ -438,7 +448,13 @@ namespace Microsoft.Identity.Web
         {
             var request = CurrentHttpContext?.Request;
             string? currentUri = null;
-            if (request != null)
+
+            if (!string.IsNullOrEmpty(_applicationOptions.RedirectUri))
+            {
+                currentUri = _applicationOptions.RedirectUri;
+            }
+
+            if (request != null && string.IsNullOrEmpty(currentUri))
             {
                 currentUri = UriHelper.BuildAbsolute(
                     request.Scheme,
@@ -447,12 +463,7 @@ namespace Microsoft.Identity.Web
                     _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
             }
 
-            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
-
-            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
-            {
-                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
-            }
+            PrepareAuthorityInstanceForMsal();
 
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  _applicationOptions.ClientSecret,
@@ -462,7 +473,11 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithHttpClientFactory(_httpClientFactory);
+                        .WithHttpClientFactory(_httpClientFactory)
+                        .WithLogging(
+                            Log,
+                            ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
+                            enablePiiLogging: _applicationOptions.EnablePiiLogging);
 
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
@@ -505,6 +520,18 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        private void PrepareAuthorityInstanceForMsal()
+        {
+            if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
+            {
+                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
+            }
+            else
+            {
+                _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            }
+        }
+
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string authority,
@@ -533,18 +560,23 @@ namespace Microsoft.Identity.Web
                     {
                         builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                        builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
                     return await builder.ExecuteAsync()
-                           .ConfigureAwait(false);
+                                        .ConfigureAwait(false);
                 }
 
                 return null;
             }
             catch (MsalUiRequiredException ex)
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
+                _logger.LogInformation(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        LogMessages.ErrorAcquiringTokenForDownstreamWebApi,
+                        ex.Message));
                 throw;
             }
         }
@@ -638,7 +670,7 @@ namespace Microsoft.Identity.Web
                     $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 builder.WithB2CAuthority(b2cAuthority)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
+                       .WithSendX5C(_microsoftIdentityOptions.SendX5C);
             }
             else
             {
@@ -646,7 +678,7 @@ namespace Microsoft.Identity.Web
             }
 
             return await builder.ExecuteAsync()
-                                  .ConfigureAwait(false);
+                                .ConfigureAwait(false);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -655,7 +687,9 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalServiceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+            return msalServiceException.Message.Contains(
+                ErrorCodes.B2CPasswordResetErrorCode,
+                StringComparison.InvariantCulture);
         }
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -704,6 +738,56 @@ namespace Microsoft.Identity.Web
             }
 
             return authority;
+        }
+
+        private void Log(
+          Client.LogLevel level,
+          string message,
+          bool containsPii)
+        {
+            switch (level)
+            {
+                case Client.LogLevel.Error:
+                    _logger.LogError(message);
+                    break;
+                case Client.LogLevel.Warning:
+                    _logger.LogWarning(message);
+                    break;
+                case Client.LogLevel.Info:
+                    _logger.LogInformation(message);
+                    break;
+                case Client.LogLevel.Verbose:
+                    _logger.LogInformation(message);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
+        {
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
+            {
+                return Client.LogLevel.Info;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
+            {
+                return Client.LogLevel.Verbose;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
+            {
+                return Client.LogLevel.Warning;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
+            {
+                return Client.LogLevel.Error;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

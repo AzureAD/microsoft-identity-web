@@ -151,6 +151,11 @@
             Azure AD B2C user flow.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.AuthenticationScheme">
+            <summary>
+            Allows specifying an AuthenticationScheme if OpenIdConnect is not the default challenge scheme.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
             <summary>
             Handles the <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/>.
@@ -163,6 +168,18 @@
             </summary>
             <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
             <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension">
+            <summary>
+            Extensions for <see cref="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension.AuthenticateAzureFunctionAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Enables an Azure Function to act as/expose a protected web API, enabling bearer token authentication. Calling this method from your Azure function validates the token and exposes the identity of the user or app on behalf of which your function is called, in the HttpContext.User member, where your function can make use of it.
+            </summary>
+            <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
+            <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
@@ -1036,6 +1053,31 @@
             <param name="httpContext">HTTP context associated with the current request.</param>
             <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
+            <summary>
+            Provides access to get or set the current error status.
+            The default implementation will use TempData and be enabled when run under Development.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.GetMessage(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Gets the error message for the current request.
+            </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <returns>The current error message if available.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ILoginErrorAccessor.SetMessage(Microsoft.AspNetCore.Http.HttpContext,System.String)">
+            <summary>
+            Sets the error message for the current request.
+            </summary>
+            <param name="context">Current <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>.</param>
+            <param name="message">Error message to set.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ILoginErrorAccessor.IsEnabled">
+            <summary>
+            Gets whether error messages should be displayed.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper">
             <summary>
             Helper methods to handle incremental consent and conditional access in
@@ -1261,6 +1303,14 @@
             </summary>
             <param name="builder">Service side blazor builder.</param>
             <returns>The builder.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions.AddMicrosoftIdentityConsentHandler(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Add the incremental consent and conditional access handler for
+            web app pages, Razor pages, controllers, views, etc...
+            </summary>
+            <param name="services">Service collection.</param>
+            <returns>The service collection.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler">
             <summary>
@@ -1745,6 +1795,11 @@
              .AddSessionBasedTokenCache();
              </code>
              </example>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TempDataLoginErrorAccessor">
+            <summary>
+            An implementation of <see cref="T:Microsoft.Identity.Web.ILoginErrorAccessor"/> that uses <see cref="T:Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionary"/> to track error messages.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisition">
             <summary>
@@ -2422,6 +2477,13 @@
             <param name="configureMicrosoftIdentityOptions">Action called to configure
             the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>Microsoft identity options.</param>
             <param name="configurationSection">Optional configuration section.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            The web app calls a web API.
+            </summary>
+            <param name="initialScopes">Initial scopes.</param>
+            <returns>The builder itself for chaining.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApi(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Collections.Generic.IEnumerable{System.String})">
             <summary>

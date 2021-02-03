@@ -130,8 +130,8 @@
     "AAdB2CInstance": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "https://login.microsoftonline.com/tfp/",
-      "replaces": "https:////login.microsoftonline.com/tfp/",
+      "defaultValue": "https://yourDomain.b2clogin.com/",
+      "replaces": "https:////yourDomain.b2clogin.com/",
       "description": "The Azure Active Directory B2C instance to connect to (use with IndividualB2C auth)."
     },
     "SignUpSignInPolicyId": {
@@ -178,7 +178,7 @@
     "Domain": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "qualified.domain.name",
+      "replaces": "yourDomain",
       "description": "The domain for the directory tenant (use with SingleOrg or IndividualB2C auth)."
     },
     "TenantId": {

@@ -12,13 +12,13 @@ namespace Microsoft.Identity.Web
         /// LoginHint.
         /// Represents the preferred_username claim in the ID token.
         /// </summary>
-        public const string LoginHint = "loginHint";
+        public const string LoginHint = "login_hint";
 
         /// <summary>
         /// DomainHint.
         /// Determined by the tenant Id.
         /// </summary>
-        public const string DomainHint = "domainHint";
+        public const string DomainHint = "domain_hint";
 
         /// <summary>
         /// Claims.
@@ -120,5 +120,9 @@ namespace Microsoft.Identity.Web
         internal const string XReturnUrl = "x-ReturnUrl";
         internal const string XRequestedWith = "X-Requested-With";
         internal const string XmlHttpRequest = "XMLHttpRequest";
+
+        // AccountController.Challenge parameters
+        internal const string LoginHintParameter = "loginHint";
+        internal const string DomainHintParameter = "domainHint";
     }
 }

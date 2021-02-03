@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(jwtOptions.TokenValidationParameters.IssuerValidator);
             if (checkDecryptCertificate)
             {
-                Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKey);
+                Assert.NotNull(jwtOptions.TokenValidationParameters.TokenDecryptionKeys);
             }
         }
 

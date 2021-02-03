@@ -15,14 +15,13 @@ steps:
     arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
-# But since .NET 5 is still in preview, we only build the .NET Core 3.1 target.
 # The previous task does the restore
 - task: VSBuild@1
-  displayName: 'Build solution Microsoft.Identity.Web-without-blasorwasm2-sample.sln for governance'
+  displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
   inputs:
-    solution: Microsoft.Identity.Web-without-blasorwasm2-sample.sln
+    solution: Microsoft.Identity.Web.sln
     vsVersion: '16.0'
-    msbuildArgs: '/p:RunCodeAnalysis=false /p:TargetFramework=netcoreapp3.1 /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
     platform: ${{ parameters.BuildPlatform }}
     configuration: ${{ parameters.BuildConfiguration }}
 

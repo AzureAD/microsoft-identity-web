@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -39,7 +41,7 @@ namespace Microsoft.Identity.Web
             IConfiguration configuration,
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (configuration == null)
@@ -77,7 +79,7 @@ namespace Microsoft.Identity.Web
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -116,7 +118,7 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -150,7 +152,7 @@ namespace Microsoft.Identity.Web
                 Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
                 Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
                 string openIdConnectScheme,
-                string cookieScheme,
+                string? cookieScheme,
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 IConfigurationSection configurationSection)
         {
@@ -186,7 +188,7 @@ namespace Microsoft.Identity.Web
         Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
         Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
         string openIdConnectScheme,
-        string cookieScheme,
+        string? cookieScheme,
         bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (!AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
@@ -217,7 +219,7 @@ namespace Microsoft.Identity.Web
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
             string openIdConnectScheme,
-            string cookieScheme,
+            string? cookieScheme,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (builder == null)
@@ -235,9 +237,28 @@ namespace Microsoft.Identity.Web
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
 
-            builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions);
+            if (!string.IsNullOrEmpty(cookieScheme))
+            {
+                Action<CookieAuthenticationOptions> emptyOption = option => { };
+                builder.AddCookie(cookieScheme, configureCookieAuthenticationOptions ?? emptyOption);
+            }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.TryAddSingleton<ILoginErrorAccessor>(ctx =>
+            {
+                // ITempDataDictionaryFactory is not always available, so we don't require it
+                var tempFactory = ctx.GetService<ITempDataDictionaryFactory>();
+                var env = ctx.GetService<IHostEnvironment>(); // ex. Azure Functions will not have an env.
+
+                if (env != null)
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, env.IsDevelopment());
+                }
+                else
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, false);
+                }
+            });
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
@@ -256,9 +277,16 @@ namespace Microsoft.Identity.Web
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
                 {
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
-                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
 
-                    options.SignInScheme = cookieScheme;
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
+                        openIdConnectScheme,
+                        microsoftIdentityOptions.Value,
+                        serviceProvider.GetRequiredService<ILoginErrorAccessor>());
+
+                    if (!string.IsNullOrEmpty(cookieScheme))
+                    {
+                        options.SignInScheme = cookieScheme;
+                    }
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
@@ -279,7 +307,7 @@ namespace Microsoft.Identity.Web
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.IssuerValidator == null)
+                    if (options.TokenValidationParameters.ValidateIssuer && options.TokenValidationParameters.IssuerValidator == null)
                     {
                         // If you want to restrict the users that can sign-in to several organizations
                         // Set the tenant value in the appsettings.json file to 'organizations', and add the

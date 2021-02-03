@@ -12,13 +12,19 @@ namespace Microsoft.Identity.Web
 {
     internal class AzureADB2COpenIDConnectEventHandlers
     {
+        private readonly ILoginErrorAccessor _errorAccessor;
+
         private readonly IDictionary<string, string> _userFlowToIssuerAddress =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public AzureADB2COpenIDConnectEventHandlers(string schemeName, MicrosoftIdentityOptions options)
+        public AzureADB2COpenIDConnectEventHandlers(
+            string schemeName,
+            MicrosoftIdentityOptions options,
+            ILoginErrorAccessor errorAccessor)
         {
             SchemeName = schemeName;
             Options = options;
+            _errorAccessor = errorAccessor;
         }
 
         public string SchemeName { get; }
@@ -84,6 +90,8 @@ namespace Microsoft.Identity.Web
             }
             else
             {
+                _errorAccessor.SetMessage(context.HttpContext, context.Failure?.Message);
+
                 context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/Error");
             }
 

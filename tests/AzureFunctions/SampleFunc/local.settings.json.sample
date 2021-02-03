@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AzureAd:Instance": "https://login.microsoftonline.com/",
+    "AzureAd:Domain": "<tenantname>.onmicrosoft.com",
+    "AzureAd:TenantId": "<guid>",
+    "AzureAd:ClientId": "<guid>",
+    "AzureAd:ClientSecret": "<string>",
+    "AzureAd:AllowWebApiToBeAuthorizedByACL": true
+  }
+}

@@ -44,9 +44,7 @@ namespace Microsoft.Identity.Web
 
             if (!appOnly && scopes == null)
             {
-                throw new ArgumentNullException(
-                    Constants.Scopes,
-                    IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
+                throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
             string token;
@@ -56,7 +54,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes!).ConfigureAwait(false);
             } 
 
             request.Headers.Authorization = new AuthenticationHeaderValue(Constants.Bearer, token);

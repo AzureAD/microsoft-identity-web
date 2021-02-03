@@ -1,0 +1,45 @@
+﻿@page "/todolist"
+@inherits ToDoListBase
+
+<h3>ToDo List</h3>
+<p>
+    <a href="/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                Title
+            </th>
+            <th>
+                Owner
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in toDoList)
+        {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @item.Owner
+                </td>
+                <td>
+                    <a class="btn btn-primary" href="/edit/@item.Id">Edit</a>
+                    <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.Id))">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Identity.Client;
@@ -115,7 +116,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 string userUpn = segments[0];
                 string number = userUpn.Substring(start, userUpn.IndexOf('@')-start);
 
-                accountIdByUserNumber.Add(int.Parse(number), string.Join("-", segments.Skip(1)));
+                accountIdByUserNumber.Add(int.Parse(number, CultureInfo.InvariantCulture), string.Join("-", segments.Skip(1)));
             }
             return accountIdByUserNumber;
         }

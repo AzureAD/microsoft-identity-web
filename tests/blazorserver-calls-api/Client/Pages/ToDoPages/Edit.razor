@@ -1,0 +1,25 @@
+﻿@page "/edit/{Id:int}"
+
+@using ToDoListModel
+
+@inject ToDoListService ToDoListService
+@inject NavigationManager Navigation
+
+<h3>Edit Task</h3>
+
+<CommonForm ButtonText="Edit Task" ToDoItem="@toDo"
+            OnValidSubmit="@EditTask" />
+
+@code {
+    [Parameter] public int Id { get; set; }
+    ToDo toDo = new ToDo();
+    protected async override Task OnParametersSetAsync()
+    {
+        toDo = await ToDoListService.GetAsync(Id);
+    }
+    protected async Task EditTask()
+    {
+        await ToDoListService.EditAsync(toDo);
+        Navigation.NavigateTo("todolist");
+    }
+}

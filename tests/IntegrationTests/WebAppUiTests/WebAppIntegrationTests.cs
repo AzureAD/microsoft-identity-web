@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
@@ -61,7 +62,7 @@ namespace WebAppUiTests
             UserInformationFieldIds fields)
         {
             // Lab user needs to be a guest in the msidentity-samples-testing tenant
-            Trace.WriteLine(string.Format("Logging in ... Entering user name: {0}", user.Upn));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Logging in ... Entering user name: {0}", user.Upn));
 
             driver.FindElement(By.Id(fields.AADUsernameInputId)).SendKeys(user.Upn.Contains("EXT") ? user.HomeUPN : user.Upn);
 
