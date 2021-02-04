@@ -89,13 +89,12 @@ namespace Company.FunctionApp1
             if (!authenticationStatus) return authenticationResponse;
 
             req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             var user = await _graphServiceClient.Me.Request().GetAsync();
 
             string responseMessage = string.IsNullOrEmpty(user.DisplayName)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+                : $"Hello, {user.DisplayName}. This HTTP triggered function executed successfully.";
 
             return new JsonResult(responseMessage);
         }

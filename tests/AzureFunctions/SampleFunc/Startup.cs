@@ -54,6 +54,7 @@ namespace SampleFunc
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAD"))
                     .EnableTokenAcquisitionToCallDownstreamApi()
                     .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                    .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
                     .AddInMemoryTokenCaches();
         }
     }
