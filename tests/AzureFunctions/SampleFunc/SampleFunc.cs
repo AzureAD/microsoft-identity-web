@@ -8,38 +8,64 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
+using System.Net.Http;
+using Microsoft.Graph;
 
 namespace SampleFunc
 {
     public class SampleFunc
     {
-        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly ILogger<SampleFunc> _logger;
+        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly GraphServiceClient _graphServiceClient;
 
-        public SampleFunc(ITokenAcquisition tokenAcquisition)
+        // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
+        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
+
+        public SampleFunc(ILogger<SampleFunc> logger,
+            GraphServiceClient graphServiceClient,
+            IDownstreamWebApi downstreamWebApi)
         {
-            _tokenAcquisition = tokenAcquisition;
+            _graphServiceClient = graphServiceClient;
+            _downstreamWebApi = downstreamWebApi;
+            _logger = logger;
         }
 
         [FunctionName("SampleFunc")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             var (authenticationStatus, authenticationResponse) =
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
-            if (!authenticationStatus) return authenticationResponse;
+            if (!authenticationStatus)
+                return authenticationResponse;
 
-            var token = await _tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default" );
+            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
-            string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.Identity.Name : null;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var apiResult = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                // Do something with apiResult
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            }
 
-            string responseMessage = string.IsNullOrEmpty(name)
+            string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.GetDisplayName() : null;
+
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+
+            string responseMessage = string.IsNullOrEmpty(user.DisplayName)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+                : $"Hello, Graph user: {user.DisplayName}. Hello, {name} .This HTTP triggered function executed successfully.";
 
-            return new OkObjectResult(responseMessage);
+            return new JsonResult(responseMessage);
         }
     }
 }

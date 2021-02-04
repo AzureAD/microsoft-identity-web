@@ -1,16 +1,20 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-
+﻿#if (!NoAuth)
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+#endif
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web;
+#if (GenerateGraph)
+using Microsoft.Graph;
+#endif
 
-[assembly: FunctionsStartup(typeof(SampleFunc.Startup))]
+[assembly: FunctionsStartup(typeof(Company.FunctionApp1.Startup))]
 
-namespace SampleFunc
+namespace Company.FunctionApp1
 {
     public class Startup : FunctionsStartup
     {
@@ -46,16 +50,40 @@ namespace SampleFunc
 
         private void ConfigureServices(IServiceCollection services)
         {
+#if (OrganizationalAuth)
             services.AddAuthentication(sharedOptions =>
             {
                 sharedOptions.DefaultScheme = Microsoft.Identity.Web.Constants.Bearer;
                 sharedOptions.DefaultChallengeScheme = Microsoft.Identity.Web.Constants.Bearer;
             })
+#if (GenerateApiOrGraph)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAD"))
                     .EnableTokenAcquisitionToCallDownstreamApi()
-                    .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+#if (GenerateApi)
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+#endif
+#if (GenerateGraph)
                     .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-                    .AddInMemoryTokenCaches();
+#endif
+                        .AddInMemoryTokenCaches();
+#else
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+#endif
+#elif (IndividualB2CAuth)
+             services.AddAuthentication(sharedOptions =>
+            {
+                sharedOptions.DefaultScheme = Microsoft.Identity.Web.Constants.Bearer;
+                sharedOptions.DefaultChallengeScheme = Microsoft.Identity.Web.Constants.Bearer;
+            })
+#if (GenerateApi)
+                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                        .AddInMemoryTokenCaches();
+#else
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"));
+#endif
+#endif
         }
     }
 }
