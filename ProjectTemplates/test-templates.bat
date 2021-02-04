@@ -318,6 +318,46 @@ cd ..
 
 cd ..
 
+REM Azure Functions
+mkdir func2
+cd func2
+echo "Test func2, no auth"
+mkdir func2-noauth
+cd func2-noauth
+dotnet new func2
+dotnet sln ..\..\tests.sln add func2-noauth.csproj
+cd ..
+
+echo "Test func2, single-org"
+mkdir func2-singleorg
+cd func2-singleorg
+dotnet new func2 --auth SingleOrg
+dotnet sln ..\..\tests.sln add func2-singleorg.csproj
+cd ..
+
+echo "Test func2, single-org, calling microsoft graph"
+mkdir func2-singleorg-callsgraph
+cd func2-singleorg-callsgraph
+dotnet new func2 --auth SingleOrg --calls-graph
+dotnet sln ..\..\tests.sln add func2-singleorg-callsgraph.csproj
+cd ..
+
+echo "Test func2, single-org, calling a downstream web api"
+mkdir func2-singleorg-callswebapi
+cd func2-singleorg-callswebapi
+dotnet new func2 --auth SingleOrg --called-api-url "https://graph.microsoft.com/beta/me" --called-api-scopes "user.read"
+dotnet sln ..\..\tests.sln add func2-singleorg-callswebapi.csproj
+cd ..
+
+echo "Test func2, b2c"
+mkdir func2-b2c
+cd func2-b2c
+dotnet new func2 --auth IndividualB2C
+dotnet sln ..\..\tests.sln add func2-b2c.csproj
+cd ..
+
+cd ..
+
 echo "Configure the applications"
 ..\..\..\..\tools\ConfigureGeneratedApplications\bin\Debug\netcoreapp3.1\ConfigureGeneratedApplications.exe
 

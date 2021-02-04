@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -9,7 +10,6 @@ using Microsoft.Graph;
 #endif
 using Microsoft.Extensions.Logging;
 #if (!NoAuth)
-using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Threading.Tasks;
