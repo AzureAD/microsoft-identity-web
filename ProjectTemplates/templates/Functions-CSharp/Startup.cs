@@ -1,9 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
+﻿#if (OrganizationalAuth || IndividualB2CAuth)
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+#endif
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Host.Bindings;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+#if (GenerateGraph)
+using Microsoft.Graph;
+#endif
 
 [assembly: FunctionsStartup(typeof(SampleFunc.Startup))]
 
@@ -15,19 +22,68 @@ namespace Company.FunctionApp1
         {
         }
 
+        IConfiguration Configuration { get; set; }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            // This is configuration from environment variables, settings.json etc.
-            var configuration = builder.GetContext().Configuration;
+            // Get the azure function application directory. 'C:\whatever' for local and 'd:\home\whatever' for Azure
+            var executionContextOptions = builder.Services.BuildServiceProvider()
+                .GetService<IOptions<ExecutionContextOptions>>().Value;
 
-            builder.Services.AddAuthentication(sharedOptions =>
+            var currentDirectory = executionContextOptions.AppDirectory;
+
+            // Get the original configuration provider from the Azure Function
+            var configuration = builder.Services.BuildServiceProvider().GetService<IConfiguration>();
+
+            // Create a new IConfigurationRoot and add our configuration along with Azure's original configuration 
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(currentDirectory)
+                .AddConfiguration(configuration) // Add the original function configuration 
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            // Replace the Azure Function configuration with our new one
+            builder.Services.AddSingleton(Configuration);
+
+            ConfigureServices(builder.Services);
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+#if (OrganizationalAuth)
+            services.AddAuthentication(sharedOptions =>
             {
-                sharedOptions.DefaultScheme = Constants.Bearer;
-                sharedOptions.DefaultChallengeScheme = Constants.Bearer;
+                sharedOptions.DefaultScheme = Microsoft.Identity.Web.Constants.Bearer;
+                sharedOptions.DefaultChallengeScheme = Microsoft.Identity.Web.Constants.Bearer;
             })
-                .AddMicrosoftIdentityWebApi(configuration)
+#if (GenerateApiOrGraph)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAD"))
                     .EnableTokenAcquisitionToCallDownstreamApi()
-                    .AddInMemoryTokenCaches();
+#if (GenerateApi)
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+#endif
+#if (GenerateGraph)
+                    .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+#endif
+                        .AddInMemoryTokenCaches();
+#else
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+#endif
+#elif (IndividualB2CAuth)
+             services.AddAuthentication(sharedOptions =>
+            {
+                sharedOptions.DefaultScheme = Microsoft.Identity.Web.Constants.Bearer;
+                sharedOptions.DefaultChallengeScheme = Microsoft.Identity.Web.Constants.Bearer;
+            })
+#if (GenerateApi)
+                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                        .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                        .AddInMemoryTokenCaches();
+#else
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAdB2C"));
+#endif
+#endif
         }
     }
 }

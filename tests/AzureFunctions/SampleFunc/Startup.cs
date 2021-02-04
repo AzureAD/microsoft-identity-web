@@ -20,7 +20,6 @@ namespace SampleFunc
 
         IConfiguration Configuration { get; set; }
 
-
         public override void Configure(IFunctionsHostBuilder builder)
         {
             // Get the azure function application directory. 'C:\whatever' for local and 'd:\home\whatever' for Azure
@@ -33,10 +32,10 @@ namespace SampleFunc
             var configuration = builder.Services.BuildServiceProvider().GetService<IConfiguration>();
 
             // Create a new IConfigurationRoot and add our configuration along with Azure's original configuration 
-            this.Configuration = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .SetBasePath(currentDirectory)
                 .AddConfiguration(configuration) // Add the original function configuration 
-                .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
             // Replace the Azure Function configuration with our new one
@@ -49,13 +48,13 @@ namespace SampleFunc
         {
             services.AddAuthentication(sharedOptions =>
             {
-                sharedOptions.DefaultScheme = Constants.Bearer;
-                sharedOptions.DefaultChallengeScheme = Constants.Bearer;
+                sharedOptions.DefaultScheme = Microsoft.Identity.Web.Constants.Bearer;
+                sharedOptions.DefaultChallengeScheme = Microsoft.Identity.Web.Constants.Bearer;
             })
-                            .AddMicrosoftIdentityWebApi(Configuration)
-                                .EnableTokenAcquisitionToCallDownstreamApi()
-                                .AddDownstreamWebApi("DownstreamAPI", Configuration.GetSection("DownstreamAPI"))
-                                .AddInMemoryTokenCaches();
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAD"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddDownstreamWebApi("DownstreamApi", Configuration.GetSection("DownstreamApi"))
+                    .AddInMemoryTokenCaches();
         }
     }
 }

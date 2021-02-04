@@ -30,8 +30,7 @@ namespace SampleFunc
 
         [FunctionName("SampleFunc")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -40,7 +39,7 @@ namespace SampleFunc
             if (!authenticationStatus) return authenticationResponse;
 
             req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamAPI").ConfigureAwait(false);
+            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

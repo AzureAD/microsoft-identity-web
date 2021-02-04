@@ -40,6 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="templates\Functions-CSharp\appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 
@@ -49,5 +53,11 @@
 
   <ItemGroup>
     <Folder Include="templates\Functions-CSharp\Company.FunctionApp1.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="templates\Functions-CSharp\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
