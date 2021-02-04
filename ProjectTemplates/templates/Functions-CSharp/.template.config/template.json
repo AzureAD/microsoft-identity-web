@@ -204,7 +204,8 @@
                 {
                     "condition": "(NoAuth)",
                     "exclude": [
-                        "Startup.cs"
+                        "Startup.cs",
+                        "appsettings.json"
                     ]
                 }
             ]
