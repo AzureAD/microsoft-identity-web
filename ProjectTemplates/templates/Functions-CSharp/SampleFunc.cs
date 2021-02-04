@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 #if (GenerateApi)
-using Microsoft.Identity.Web;
 using System.Net.Http;
 #endif
 #if (GenerateGraph)
@@ -11,7 +10,9 @@ using Microsoft.Graph;
 using Microsoft.Extensions.Logging;
 #if (!NoAuth)
 using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using System.Threading.Tasks;
 #endif
 
 namespace Company.FunctionApp1
@@ -68,7 +69,7 @@ namespace Company.FunctionApp1
             return new JsonResult(responseMessage);
         }
 
-#elseif (GenerateGraph)
+# elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public SampleFunc(ILogger<SampleFunc> logger,
@@ -98,7 +99,8 @@ namespace Company.FunctionApp1
 
             return new JsonResult(responseMessage);
         }
-#else
+
+#elseif (!NoAuth)
         public SampleFunc(ILogger<SampleFunc> logger)
         {
             _logger = logger;
@@ -115,6 +117,8 @@ namespace Company.FunctionApp1
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
             if (!authenticationStatus) return authenticationResponse;
 
+            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+
             string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.GetDisplayName() : null;
 
             string responseMessage = string.IsNullOrEmpty(name)
@@ -123,5 +127,24 @@ namespace Company.FunctionApp1
 
             return new JsonResult(responseMessage);
         }
+
+#else
+        public SampleFunc(ILogger<SampleFunc> logger)
+        {
+            _logger = logger;
+        }
+
+        [FunctionName("SampleFunc")]
+        public IActionResult Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+            string responseMessage = "This HTTP triggered function executed successfully.";
+
+            return new JsonResult(responseMessage);
+        }
+#endif
     }
 }

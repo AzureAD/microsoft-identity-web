@@ -200,6 +200,12 @@
                     "exclude": [
                         "Properties/launchSettings.json"
                     ]
+                },
+                {
+                    "condition": "(NoAuth)",
+                    "exclude": [
+                        "Startup.cs"
+                    ]
                 }
             ]
         }

@@ -1,4 +1,4 @@
-﻿#if (OrganizationalAuth || IndividualB2CAuth)
+﻿#if (!NoAuth)
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 #endif
 
-[assembly: FunctionsStartup(typeof(SampleFunc.Startup))]
+[assembly: FunctionsStartup(typeof(Company.FunctionApp1.Startup))]
 
 namespace Company.FunctionApp1
 {
