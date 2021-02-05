@@ -20,7 +20,6 @@ namespace Company.FunctionApp1
     public class SampleFunc
     {
         private readonly ILogger<SampleFunc> _logger;
-
 #if (!NoAuth)
         // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
         static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
@@ -108,8 +107,7 @@ namespace Company.FunctionApp1
 
         [FunctionName("SampleFunc")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -136,8 +134,7 @@ namespace Company.FunctionApp1
 
         [FunctionName("SampleFunc")]
         public IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
