@@ -69,7 +69,7 @@ namespace Company.FunctionApp1
             return new JsonResult(responseMessage);
         }
 
-# elseif (GenerateGraph)
+#elseif (GenerateGraph)
         private readonly GraphServiceClient _graphServiceClient;
 
         public SampleFunc(ILogger<SampleFunc> logger,
