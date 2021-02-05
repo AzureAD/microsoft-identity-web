@@ -558,19 +558,19 @@
         */
         {
             "ProjectRelativeFolder": "func2/func2-b2c",
-            "BasedOn": "worker2/worker2-b2c"
+            "BasedOn": "webapi2/webapi2-b2c"
         },
         {
             "ProjectRelativeFolder": "func2/func2-singleorg",
-            "BasedOn": "worker2/worker2-singleorg"
+            "BasedOn": "webapi2/webapi2-singleorg"
         },
         {
             "ProjectRelativeFolder": "func2/func2-singleorg-callsgraph",
-            "BasedOn": "worker2/worker2-singleorg-callsgraph"
+            "BasedOn": "webapi2/webapi2-singleorg-callsgraph"
         },
         {
             "ProjectRelativeFolder": "func2/func2-singleorg-callswebapi",
-            "BasedOn": "worker2/worker2-singleorg-callsgraph"
+            "BasedOn": "webapi2/webapi2-singleorg-callsgraph"
         }
     ]
 }
