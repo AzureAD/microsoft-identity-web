@@ -36,7 +36,7 @@ In a Developer Command Prompt:
 
    `Set ClientSemVer=1.5.1`
 
-4. cd to ProjectTemplates and add the client secrets (or your own config file) to the Configuration.json file
+4. In ProjectTemplates open the Configuration.json file and add the client secrets (or your own config file) .
 
    `"B2C_Client_ClientSecret": "secret_goes_here",`
 
