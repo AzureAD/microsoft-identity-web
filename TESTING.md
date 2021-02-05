@@ -28,17 +28,13 @@ In a Developer Command Prompt:
 
     `cd C:\`
 
-    `mdkir git`
-
-    `cd C:\git`
-
     `git clone https://github.com/AzureAD/microsoft-identity-web idweb`
 
-2. cd to the root of the repo (for instance `cd C:\git\idweb`)
+2. cd to the root of the repo (for instance `cd C:\idweb`)
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.5.0`
+   `Set ClientSemVer=1.5.1`
 
 4. cd to ProjectTemplates and add the client secrets (or your own config file) to the Configuration.json file
 
@@ -73,11 +69,11 @@ In a Developer Command Prompt:
 
 In a Developer Command Prompt:
 
-1. cd to the root of the repo (for instance `cd C:\gh\microsoft-identity-web`)
+1. cd to the root of the repo (for instance `cd C:\idweb`)
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.5.0`
+   `Set ClientSemVer=1.5.1`
 
 3. Add client secrets to the Configuration.json file
 
