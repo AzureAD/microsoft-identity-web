@@ -15,6 +15,9 @@ jobs:
           - DotNetInstallVersion: 5.0.100
             DotNetRunVersion: net5.0
             Solution: Microsoft.Identity.Web.sln
+          - DotNetInstallVersion: 5.0.100
+            DotNetRunVersion: net472
+            Solution: Microsoft.Identity.Web.sln
 
     steps:
     - name: Checkout repository
