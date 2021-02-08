@@ -93,7 +93,6 @@
     <Compile Remove="*.cs" />
     <Compile Include="ClaimsPrincipalExtensions.cs" />
     <Compile Remove="AppServicesAuth\**" />
-    <Compile Remove="CertificateManagement\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
     <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
@@ -102,12 +101,6 @@
     <Compile Remove="TokenCacheProviders\Session\**" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net472' ">
-    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.1.0" />
-    <PackageReference Include="Azure.Identity" Version="1.2.3" />
-    <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.1.0" />
   </ItemGroup>
   
   <ItemGroup>
@@ -121,7 +114,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-
+    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.1.0" />
+    <PackageReference Include="Azure.Identity" Version="1.2.3" />
+    <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.1.0" />
   </ItemGroup>
 
 </Project>
