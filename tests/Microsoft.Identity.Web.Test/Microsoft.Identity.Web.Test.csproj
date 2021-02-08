@@ -44,13 +44,15 @@
   <ItemGroup>
     <ProjectReference Condition="'$(TargetFramework)' != 'net472' " Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
-    <ProjectReference Condition="'$(TargetFramework)' != 'net472' " Include="..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Compile Remove="*.cs" />
     <Compile Remove="**\*.cs" />
     <Compile Include="MsalTokenCacheProviderTests.cs" />
+    <Compile Include="Certificates\CertificateDescriptionTests.cs"/>
+    <Compile Include="Certificates\DefaultCertificateLoaderTests.cs"/>
   </ItemGroup>
 
 </Project>
