@@ -1724,6 +1724,31 @@
              <param name="validationParameters">Token validation parameters.</param>
              <returns>True if the token is valid; false, otherwise.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute">
+            <summary>
+            For use in web APIs to validate scopes on controller actions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor(System.String[])">
+            <summary>
+            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
+            method updates the HTTP response providing a status code 403 (Forbidden)
+            and writes to the response body a message telling which scopes are expected in the token.
+            </summary>
+            <param name="acceptedScopes">Scopes accepted by this web API.</param>
+            <remarks>When the scopes don't match, the response is a 403 (Forbidden),
+            because the user is authenticated (hence not 401), but not authorized.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeFilter.#ctor(System.String[])">
+            <summary>
+            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
+            method updates the HTTP response providing a status code 403 (Forbidden)
+            and writes to the response body a message telling which scopes are expected in the token.
+            </summary>
+            <param name="acceptedScopes">Scopes accepted by this web API.</param>
+            <remarks>When the scopes don't match, the response is a 403 (Forbidden),
+            because the user is authenticated (hence not 401), but not authorized.</remarks>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions">
             <summary>
             Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
@@ -1742,23 +1767,15 @@
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions">
             <summary>
-            Extension class providing the extension methods for <see cref="T:System.Net.Http.HttpContent"/> that
-            can be used in web APIs to validate scopes in controller actions.
+            This extension class is now Obsolete.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions.VerifyUserHasAnyAcceptedScope(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
             <summary>
-            When applied to an <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/>, verifies that the user authenticated in the
-            web API has any of the accepted scopes.
-            If there is no authenticated user, the response is a 401 (Unauthenticated).
-            If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-            method updates the HTTP response providing a status code 403 (Forbidden)
-            and writes to the response body a message telling which scopes are expected in the token.
+            This method is now Obsolete.
             </summary>
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedScopes">Scopes accepted by this web API.</param>
-            <remarks>When the scopes don't match, the response is a 403 (Forbidden),
-            because the user is authenticated (hence not 401), but not authorized.</remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
             <summary>
