@@ -1729,6 +1729,12 @@
             For use in web APIs to validate scopes on controller actions.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesSetting">
+            <summary>
+            Name of the configuration setting containing the required scope.
+            </summary>
+            <example><code>[RequiredScope(RequiredScopesSettings="AzureAd:Scopes")]</code></example>
+        </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor(System.String[])">
             <summary>
             If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
@@ -1738,6 +1744,11 @@
             <param name="acceptedScopes">Scopes accepted by this web API.</param>
             <remarks>When the scopes don't match, the response is a 403 (Forbidden),
             because the user is authenticated (hence not 401), but not authorized.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor">
+            <summary>
+            
+            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeFilter.#ctor(System.String[])">
             <summary>
@@ -1768,11 +1779,15 @@
         <member name="T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions">
             <summary>
             This extension class is now Obsolete.
+            Use instead the RequiredScope Attribute on the controller, the page or the action.
+            See https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions.VerifyUserHasAnyAcceptedScope(Microsoft.AspNetCore.Http.HttpContext,System.String[])">
             <summary>
             This method is now Obsolete.
+            Use instead the RequiredScope Attribute on the controller, the page or the action.
+            See https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedScopes">Scopes accepted by this web API.</param>

@@ -11,6 +11,16 @@ namespace Microsoft.Identity.Web.Resource
     public class RequiredScopeAttribute : TypeFilterAttribute
     {
         /// <summary>
+        /// Name of the configuration setting containing the required scope.
+        /// </summary>
+        /// <example><code>[RequiredScope(RequiredScopesSettings="AzureAd:Scopes")]</code></example>
+        public string RequiredScopesSetting
+        {
+            get { return string.Empty; }
+            set { Arguments = new object[] { Constants.RequiredScopesSetting, value }; }
+        }
+
+        /// <summary>
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
         /// method updates the HTTP response providing a status code 403 (Forbidden)
         /// and writes to the response body a message telling which scopes are expected in the token.
@@ -22,6 +32,14 @@ namespace Microsoft.Identity.Web.Resource
             : base(typeof(RequiredScopeFilter))
         {
             Arguments = new object[] { acceptedScopes };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public RequiredScopeAttribute()
+            : base(typeof(RequiredScopeFilter))
+        {
         }
     }
 }
