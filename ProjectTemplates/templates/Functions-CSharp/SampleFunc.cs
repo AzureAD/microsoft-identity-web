@@ -20,11 +20,6 @@ namespace Company.FunctionApp1
     public class SampleFunc
     {
         private readonly ILogger<SampleFunc> _logger;
-#if (!NoAuth)
-        // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-#endif
-
 #if (GenerateApi)
         private readonly IDownstreamWebApi _downstreamWebApi;
 
@@ -36,6 +31,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
+        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -45,7 +41,6 @@ namespace Company.FunctionApp1
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
             if (!authenticationStatus) return authenticationResponse;
 
-            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -79,6 +74,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
+        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -87,8 +83,6 @@ namespace Company.FunctionApp1
             var (authenticationStatus, authenticationResponse) =
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
             if (!authenticationStatus) return authenticationResponse;
-
-            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
             var user = await _graphServiceClient.Me.Request().GetAsync();
 
@@ -106,6 +100,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
+        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -114,8 +109,6 @@ namespace Company.FunctionApp1
             var (authenticationStatus, authenticationResponse) =
                 await req.HttpContext.AuthenticateAzureFunctionAsync();
             if (!authenticationStatus) return authenticationResponse;
-
-            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
 
             string name = req.HttpContext.User.Identity.IsAuthenticated ? req.HttpContext.User.GetDisplayName() : null;
 
