@@ -1726,10 +1726,10 @@
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute">
             <summary>
-            This attribute is used on controller, pages, or controller actions
+            This attribute is used on a controller, pages, or controller actions
             to declare (and validate) the scopes required by a web API. These scopes can be declared
-            in two ways: hardcoding them, or declaring them in the configuration. Depending on the way
-            you chose, use either one or the other of the constructors.
+            in two ways: hardcoding them, or declaring them in the configuration. Depending on your
+            choice, use either one or the other of the constructors.
             For details, see https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
         </member>
@@ -1750,8 +1750,8 @@
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor(System.String[])">
              <summary>
              Verifies that the web API is called with the right scopes.
-             If the token obtained for this API on behalf of the authenticated user does not have
-             any of these <paramref name="acceptedScopes"/> it its scope claim, the
+             If the token obtained for this API is on behalf of the authenticated user does not have
+             any of these <paramref name="acceptedScopes"/> in its scope claim, the
              method updates the HTTP response providing a status code 403 (Forbidden)
              and writes to the response body a message telling which scopes are expected in the token.
              </summary>
