@@ -5,7 +5,11 @@
 
 **gRPC templates now include calling graph and downstream APIs**. See issue [#900](https://github.com/AzureAD/microsoft-identity-web/issues/900) for details.
 
-**Microsoft Identity Web now uses an IAuthorizationFilter to filter accepted scopes on controllers, actions, or pages**. See issue [#849](https://github.com/AzureAD/microsoft-identity-web/issues/849) for details.
+**Microsoft Identity Web now exposes an AuthorizationFilter attribute to express accepted scopes on controllers, actions, or pages**. See issue [#849](https://github.com/AzureAD/microsoft-identity-web/issues/849) for details.
+
+**When using the delegate override of `.EnableTokenAcquisitionToCallDownstreamApi`, you don't need to repeat the properties present in the Microsoft Identity Options ex. Instance, TenantId, ClientId, etc...**. See issue [#742](https://github.com/AzureAD/microsoft-identity-web/issues/742) for details.
+
+**Microsoft Identity Web now exposes the `DefaultCertificateLoader`, which would be used when loading a certificate from a daemon application, or an ASP NET application, using MSAL .NET directly**. See issue [#952](https://github.com/AzureAD/microsoft-identity-web/issues/952) for details.
 
 ### Bug Fixes:
 **Microsoft Identity Web now supports token decryption certificates rotation**. See issue [#905](https://github.com/AzureAD/microsoft-identity-web/issues/905) for details.
