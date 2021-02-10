@@ -15,7 +15,7 @@ namespace TodoListService.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    [RequiredScope("access_as_user", IsReusable = true)] 
+    [RequiredScope("access_as_user")] 
     public class TodoListController : Controller
     {
         private readonly ITokenAcquisition _tokenAcquisition; // do not remove
@@ -59,7 +59,7 @@ namespace TodoListService.Controllers
             return TodoStore.Values.FirstOrDefault(t => t.Id == id);
         }
 
-        // [RequiredScope("Weather.Write", IsReusable = true)]
+        // [RequiredScope("Weather.Write")]
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
