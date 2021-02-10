@@ -15,17 +15,11 @@ namespace TodoListService.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    [RequiredScope("access_as_user")] //can this be here and also on the methods below w/same or different scope value
-    // TOOD: test this w/different values for scope and i should be authorized or not
-    // TODO: see what we do already
-    // TODO: what is the error message in the web app, is it better or worse? or same?
-    // TOOD: obsolete the other w/a message
+    [RequiredScope("access_as_user", IsReusable = true)] 
     public class TodoListController : Controller
     {
         private readonly ITokenAcquisition _tokenAcquisition; // do not remove
         // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_cat" };
-
         // In-memory TodoList
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
 
@@ -44,7 +38,7 @@ namespace TodoListService.Controllers
         }
 
         // GET: api/values
-       // [RequiredScope("access_as_user")]
+        // [RequiredScope("access_as_user")]
         [HttpGet]
         public async Task<IEnumerable<Todo>> GetAsync()
         {
@@ -58,27 +52,25 @@ namespace TodoListService.Controllers
         }
 
         // GET: api/values
-      //  [RequiredScope("weather.write")]
+       // [RequiredScope("Weather.Write")]
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
             return TodoStore.Values.FirstOrDefault(t => t.Id == id);
         }
 
-     //   [RequiredScope("access_as_user")]
+        // [RequiredScope("Weather.Write", IsReusable = true)]
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-           // HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             TodoStore.Remove(id);
         }
 
         // POST api/values
-    //    [RequiredScope("access_as_user")]
+        // [RequiredScope("access_as_user")]
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
-           // HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
             Todo todonew = new Todo() { Id = id, Owner = User.GetDisplayName(), Title = todo.Title };
             TodoStore.Add(id, todonew);
@@ -87,11 +79,10 @@ namespace TodoListService.Controllers
         }
 
         // PATCH api/values
-      //  [RequiredScope("access_as_user")]
+        // [RequiredScope("access_as_user")]
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, [FromBody] Todo todo)
         {
-            //HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             if (id != todo.Id)
             {
                 return NotFound();

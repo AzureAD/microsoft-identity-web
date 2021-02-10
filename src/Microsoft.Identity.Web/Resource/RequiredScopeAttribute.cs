@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web.Resource
     public class RequiredScopeAttribute : TypeFilterAttribute
     {
         /// <summary>
-        /// Name of the configuration setting containing the required scope.
+        /// Use with the default constructor for the attribute.
         /// </summary>
         /// <example><code>[RequiredScope(RequiredScopesSettings="AzureAd:Scopes")]</code></example>
         public string RequiredScopesSetting
@@ -35,7 +35,8 @@ namespace Microsoft.Identity.Web.Resource
         }
 
         /// <summary>
-        /// 
+        /// Default constructor for the attribute.
+        /// Used with the RequiredScopesSetting property.
         /// </summary>
         public RequiredScopeAttribute()
             : base(typeof(RequiredScopeFilter))

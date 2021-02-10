@@ -1731,7 +1731,8 @@
         </member>
         <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesSetting">
             <summary>
-            Name of the configuration setting containing the required scope.
+            Default constructor for the attribute.
+            It's meant to be used with the RequiredScopesSetting property.
             </summary>
             <example><code>[RequiredScope(RequiredScopesSettings="AzureAd:Scopes")]</code></example>
         </member>

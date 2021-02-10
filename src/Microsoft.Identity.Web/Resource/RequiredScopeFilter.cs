@@ -16,8 +16,8 @@ namespace Microsoft.Identity.Web.Resource
 {
     internal class RequiredScopeFilter : IAuthorizationFilter
     {
-        private readonly string[] _acceptedScopes;
-        private string[]? _effectiveAcceptedScopes;
+        internal readonly string[] _acceptedScopes;
+        internal string[]? _effectiveAcceptedScopes;
 
         /// <summary>
         /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Resource
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (_acceptedScopes == null)
+            if (_acceptedScopes == null || _acceptedScopes.Length == 0)
             {
                 throw new ArgumentNullException(nameof(_acceptedScopes));
             }
@@ -46,10 +46,17 @@ namespace Microsoft.Identity.Web.Resource
 
             GetEffectiveScopes(context);
 
-            ValidateEffectiveScopes(context);
+            if (_effectiveAcceptedScopes != null && _effectiveAcceptedScopes.Length != 0)
+            {
+                ValidateEffectiveScopes(context);
+            }
+            else
+            {
+                throw new InvalidOperationException(IDWebErrorMessage.MissingRequiredScopesForAuthorizationFilter);
+            }
         }
 
-        internal void ValidateEffectiveScopes(AuthorizationFilterContext context)
+        private void ValidateEffectiveScopes(AuthorizationFilterContext context)
         {
             if (context.HttpContext.User == null || context.HttpContext.User.Claims == null || !context.HttpContext.User.Claims.Any())
             {
@@ -70,7 +77,10 @@ namespace Microsoft.Identity.Web.Resource
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(_effectiveAcceptedScopes).Any())
                 {
                     context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", _effectiveAcceptedScopes));
+                    string message = string.Format(
+                        CultureInfo.InvariantCulture,
+                        IDWebErrorMessage.MissingScopes,
+                        string.Join(",", _effectiveAcceptedScopes));
                     context.HttpContext.Response.WriteAsync(message);
                     context.HttpContext.Response.CompleteAsync();
                     throw new UnauthorizedAccessException(message);
@@ -78,7 +88,7 @@ namespace Microsoft.Identity.Web.Resource
             }
         }
 
-        internal void GetEffectiveScopes(AuthorizationFilterContext context)
+        private void GetEffectiveScopes(AuthorizationFilterContext context)
         {
             if (_effectiveAcceptedScopes == null)
             {

@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NullParameters_ThrowsException()
         {
-            var httpContext = HttpContextUtilities.CreateHttpContext();
+            HttpContext httpContext = null;
             Assert.Throws<ArgumentNullException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
