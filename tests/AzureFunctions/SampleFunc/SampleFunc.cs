@@ -33,6 +33,7 @@ namespace SampleFunc
         }
 
         [FunctionName("SampleFunc")]
+        [RequiredScope("access_as_user")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -43,7 +44,6 @@ namespace SampleFunc
             if (!authenticationStatus)
                 return authenticationResponse;
 
-            req.HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)

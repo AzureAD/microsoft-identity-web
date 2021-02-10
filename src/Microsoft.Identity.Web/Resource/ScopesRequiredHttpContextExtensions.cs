@@ -5,30 +5,27 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Extension class providing the extension methods for <see cref="HttpContent"/> that
-    /// can be used in web APIs to validate scopes in controller actions.
+    /// This extension class is now Obsolete.
+    /// Use instead the RequiredScope Attribute on the controller, the page or the action.
+    /// See https://aka.ms/ms-id-web/required-scope-attribute.
     /// </summary>
+    [Obsolete(IDWebErrorMessage.VerifyUserHasAnyAcceptedScopeIsObsolete, false)]
     public static class ScopesRequiredHttpContextExtensions
     {
         /// <summary>
-        /// When applied to an <see cref="HttpContext"/>, verifies that the user authenticated in the
-        /// web API has any of the accepted scopes.
-        /// If there is no authenticated user, the response is a 401 (Unauthenticated).
-        /// If the authenticated user does not have any of these <paramref name="acceptedScopes"/>, the
-        /// method updates the HTTP response providing a status code 403 (Forbidden)
-        /// and writes to the response body a message telling which scopes are expected in the token.
+        /// This method is now Obsolete.
+        /// Use instead the RequiredScope Attribute on the controller, the page or the action.
+        /// See https://aka.ms/ms-id-web/required-scope-attribute.
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
-        /// <remarks>When the scopes don't match, the response is a 403 (Forbidden),
-        /// because the user is authenticated (hence not 401), but not authorized.</remarks>
+        [Obsolete(IDWebErrorMessage.VerifyUserHasAnyAcceptedScopeIsObsolete, false)]
         public static void VerifyUserHasAnyAcceptedScope(this HttpContext context, params string[] acceptedScopes)
         {
             if (acceptedScopes == null)

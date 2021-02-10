@@ -16,13 +16,12 @@ namespace IntegrationTestService.Controllers
     [ApiController]
     [Authorize]
     [Route("SecurePage")]
+    [RequiredScope("user_impersonation")]
     public class WeatherForecastController : ControllerBase
     {
         private readonly IDownstreamWebApi _downstreamWebApi;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
-        // The web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
 
         public WeatherForecastController(
             IDownstreamWebApi downstreamWebApi,
@@ -44,14 +43,12 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]
         public async Task<HttpResponseMessage> CallDownstreamWebApiAsync()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             return await _downstreamWebApi.CallWebApiForUserAsync(TestConstants.SectionNameCalledApi);
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
         public async Task<string> CallDownstreamWebApiGenericAsync()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
@@ -64,7 +61,6 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePageCallMicrosoftGraph)]
         public async Task<string> CallMicrosoftGraphAsync()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
             return user.DisplayName;
         }
@@ -72,7 +68,6 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
         public async Task<string> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,

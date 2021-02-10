@@ -24,6 +24,7 @@ namespace Microsoft.Identity.Web
                    "cannot be included in the configuration of the web app when calling a web API. ";
         public const string ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. ";
         public const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
+        public const string MissingRequiredScopesForAuthorizationFilter = "IDW10108: RequiredScope Attribute does not contain a value. The scopes need to be set on the controller, the page or action. See https://aka.ms/ms-id-web/required-scope-attribute. ";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope or roles claim was found in the bearer token. ";
@@ -46,9 +47,9 @@ namespace Microsoft.Identity.Web
         public const string ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. ";
         public const string TokenIsNotJwtToken = "IDW10403: Token is not a JWT token. ";
         public const string ClientCredentialScopeParameterShouldEndInDotDefault =
-       "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
+            "IDW10404: 'scope' parameter should be of the form 'AppIdUri/.default'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
         public const string ClientCredentialTenantShouldBeTenanted =
-       "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
+            "IDW10405: 'tenant' parameter should be a tenant ID or domain name, not 'common', or 'organizations'. See https://aka.ms/ms-id-web/daemon-scenarios. ";
 
         // MSAL IDW10500 = "IDW10500:"
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";
@@ -67,5 +68,6 @@ namespace Microsoft.Identity.Web
 
         // Obsolete messages IDW10800 = "IDW10800:"
         public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0";
+        public const string VerifyUserHasAnyAcceptedScopeIsObsolete = "IDW10801: Use the RequiredScope Attribute on the controller, the page or the action. See https://aka.ms/ms-id-web/required-scope-attribute";
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Resource;
@@ -14,10 +13,10 @@ namespace Microsoft.Identity.Web.Test.Resource
     public class ScopesRequiredHttpContextExtensionsTests
     {
         [Fact]
+        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NullParameters_ThrowsException()
         {
             HttpContext httpContext = null;
-
             Assert.Throws<ArgumentNullException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
@@ -26,6 +25,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
+        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NoClaims_ThrowsException()
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
@@ -38,11 +38,11 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
+        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NoAcceptedScopes_ThrowsException()
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
             var actualScopes = new[] { "acceptedScope3", "acceptedScope4" };
-            var expectedErrorMessage = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
             var expectedStatusCode = (int)HttpStatusCode.Forbidden;
 
             var httpContext = HttpContextUtilities.CreateHttpContext(actualScopes, new string[] { });
@@ -52,6 +52,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
+        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_MatchesAcceptedScopes_ExecutesSuccessfully()
         {
             var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" }, new string[] { });
