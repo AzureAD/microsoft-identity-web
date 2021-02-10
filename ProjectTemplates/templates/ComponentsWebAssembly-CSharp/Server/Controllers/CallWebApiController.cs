@@ -11,11 +11,9 @@ namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWeb
     [Authorize]
     [ApiController]
     [Route("[controller]")]
+    [RequiredScope("access_as_user")] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
     public class CallWebApiController : Controller
     {
-        // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-
         private readonly IDownstreamWebApi _downstreamWebApi;
         private readonly ILogger<CallWebApiController> _logger;
 
@@ -29,8 +27,6 @@ namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWeb
         [HttpGet]
         public async Task<string> Get()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
             using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

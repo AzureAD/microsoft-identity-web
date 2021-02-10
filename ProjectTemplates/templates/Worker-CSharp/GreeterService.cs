@@ -23,12 +23,6 @@ namespace Company.Application1
     public class GreeterService : Greeter.GreeterBase
     {
         private readonly ILogger<GreeterService> _logger;
-
-#if (!NoAuth)
-        // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "api-scope" };
-#endif
-
 #if (GenerateApi)
         private readonly IDownstreamWebApi _downstreamWebApi;
 
@@ -40,10 +34,10 @@ namespace Company.Application1
         }
 
         [Authorize]
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -73,10 +67,10 @@ namespace Company.Application1
         }
         
         [Authorize]
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             var user = await _graphServiceClient.Me.Request().GetAsync();
 
             return new HelloReply()
@@ -92,13 +86,10 @@ namespace Company.Application1
 
 #if (!NoAuth)
         [Authorize]
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
 #endif
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
-#if (!NoAuth)
-            var httpContext = context.GetHttpContext();
-            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-#endif
             return Task.FromResult(new HelloReply
             {
                 Message = "Hello " + request.Name
