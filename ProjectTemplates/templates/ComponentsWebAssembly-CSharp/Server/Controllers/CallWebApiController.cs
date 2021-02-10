@@ -11,7 +11,7 @@ namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWeb
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+    [RequiredScope("access_as_user")] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
     public class CallWebApiController : Controller
     {
         private readonly IDownstreamWebApi _downstreamWebApi;

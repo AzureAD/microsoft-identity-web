@@ -31,7 +31,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The Azure Function will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -74,7 +74,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The Azure Function will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
@@ -100,7 +100,7 @@ namespace Company.FunctionApp1
         }
 
         [FunctionName("SampleFunc")]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The Azure Function will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {

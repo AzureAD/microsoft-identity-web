@@ -24,7 +24,7 @@ namespace Company.WebApplication1.Controllers
 {
 #if (!NoAuth)
     [Authorize]
-    [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+    [RequiredScope("access_as_user")] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
 #endif
     [ApiController]
     [Route("[controller]")]

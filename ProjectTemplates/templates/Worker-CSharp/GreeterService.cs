@@ -34,7 +34,7 @@ namespace Company.Application1
         }
 
         [Authorize]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
@@ -67,7 +67,7 @@ namespace Company.Application1
         }
         
         [Authorize]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
         public override async Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
             var httpContext = context.GetHttpContext();
@@ -86,7 +86,7 @@ namespace Company.Application1
 
 #if (!NoAuth)
         [Authorize]
-        [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
+        [RequiredScope("access_as_user")] // The gRPC service will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
 #endif
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
