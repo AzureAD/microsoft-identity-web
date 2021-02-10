@@ -46,18 +46,16 @@ namespace Microsoft.Identity.Web.Resource
 
             GetEffectiveScopes(context);
 
-            if (_effectiveAcceptedScopes != null && _effectiveAcceptedScopes.Length != 0)
-            {
-                ValidateEffectiveScopes(context);
-            }
-            else
-            {
-                throw new InvalidOperationException(IDWebErrorMessage.MissingRequiredScopesForAuthorizationFilter);
-            }
+            ValidateEffectiveScopes(context);
         }
 
         private void ValidateEffectiveScopes(AuthorizationFilterContext context)
         {
+            if (_effectiveAcceptedScopes == null || !_effectiveAcceptedScopes.Any())
+            {
+                throw new InvalidOperationException(IDWebErrorMessage.MissingRequiredScopesForAuthorizationFilter);
+            }
+
             if (context.HttpContext.User == null || context.HttpContext.User.Claims == null || !context.HttpContext.User.Claims.Any())
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
