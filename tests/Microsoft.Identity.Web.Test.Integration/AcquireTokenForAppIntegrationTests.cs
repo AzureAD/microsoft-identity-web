@@ -160,7 +160,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             services.AddTransient(
                 provider => Options.Create(new MicrosoftIdentityOptions
                 {
-                    Authority = TestConstants.AuthorityCommonTenant,
+                    Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
                     ClientId = TestConstants.ConfidentialClientId,
                     CallbackPath = string.Empty,
                 }));
@@ -180,7 +180,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void AssertAppTokenInMemoryCache(string clientId, int tokenCount)
         {
-            string appTokenKey = clientId + "_AppTokenCache";
+            string appTokenKey = clientId + "_" + TestConstants.ConfidentialClientLabTenant + "_AppTokenCache";
             Assert.True(_msalTestTokenCacheProvider.MemoryCache.TryGetValue(appTokenKey, out _));
             Assert.Equal(tokenCount, _msalTestTokenCacheProvider.Count);
         }
