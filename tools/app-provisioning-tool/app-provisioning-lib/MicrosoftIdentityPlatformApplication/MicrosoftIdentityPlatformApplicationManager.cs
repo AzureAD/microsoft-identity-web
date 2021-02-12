@@ -3,6 +3,7 @@ using DotnetTool.AuthenticationParameters;
 using Microsoft.Graph;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -431,9 +432,9 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 r.ResourceServicePrincipalId = spWithScopes.Id;
             }
 
-            IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower());
+            IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
             var permissionScopes = spWithScopes.Oauth2PermissionScopes
-                .Where(s => scopes.Contains(s.Value.ToLower()));
+                .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
 
             RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
             {
