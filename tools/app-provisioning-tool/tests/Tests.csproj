@@ -1,17 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="E2ETests.cs" />
+    <Compile Remove="UnitTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="E2ETests.cs" />
+    <None Include="UnitTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
