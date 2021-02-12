@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "app-provisioning-lib", "app
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ms-identity-app", "app-provisioning-tool\ms-identity-app.csproj", "{922565E4-B8E4-4C40-B955-84054A50BED6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "tests\Tests.csproj", "{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{922565E4-B8E4-4C40-B955-84054A50BED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{922565E4-B8E4-4C40-B955-84054A50BED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{922565E4-B8E4-4C40-B955-84054A50BED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{478BF1DB-545D-4D82-9076-3E9EC90024A7} = {0E4DF874-E45C-4ED3-8D89-1143A48EC7C0}
 		{922565E4-B8E4-4C40-B955-84054A50BED6} = {0E4DF874-E45C-4ED3-8D89-1143A48EC7C0}
+		{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6} = {43AE3D56-1FFB-44CD-8DCC-A4A1B102D5F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9929A758-3CD3-40FB-A458-9DA44F8E3426}
