@@ -1,4 +1,6 @@
-﻿
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using DotnetTool;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,6 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-
     public class E2ETests
     {
         private readonly ITestOutputHelper testOutput;

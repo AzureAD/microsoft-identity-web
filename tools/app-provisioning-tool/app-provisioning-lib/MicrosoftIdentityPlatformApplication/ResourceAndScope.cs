@@ -1,4 +1,7 @@
-﻿namespace DotnetTool.MicrosoftIdentityPlatformApplication
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+namespace DotnetTool.MicrosoftIdentityPlatformApplication
 {
     internal class ResourceAndScope
     {

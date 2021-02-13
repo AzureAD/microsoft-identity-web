@@ -6,12 +6,12 @@ namespace DotnetTool.Project
     public class PropertyMapping
     {
         /// <summary>
-        /// Path to the property
+        /// Path to the property.
         /// </summary>
         public string? Property { get; set; }
 
         /// <summary>
-        /// Represented authentication property
+        /// Represented authentication property.
         /// </summary>
         public string? Represents { get; set; }
 

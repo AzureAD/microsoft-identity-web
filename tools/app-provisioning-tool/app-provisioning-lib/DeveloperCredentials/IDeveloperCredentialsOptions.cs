@@ -1,4 +1,7 @@
-﻿namespace DotnetTool.DeveloperCredentials
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+namespace DotnetTool.DeveloperCredentials
 {
     interface IDeveloperCredentialsOptions
     {

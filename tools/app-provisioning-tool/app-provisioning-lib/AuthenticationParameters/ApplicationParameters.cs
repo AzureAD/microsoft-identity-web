@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 
 namespace DotnetTool.AuthenticationParameters
@@ -9,12 +12,12 @@ namespace DotnetTool.AuthenticationParameters
     public class ApplicationParameters
     {
         /// <summary>
-        /// Application display name
+        /// Application display name.
         /// </summary>
         public string? DisplayName { get; set; }
 
         /// <summary>
-        /// Tenant in which the application is created
+        /// Tenant in which the application is created.
         /// </summary>
         public string? TenantId { get; set; }
 
@@ -45,22 +48,22 @@ namespace DotnetTool.AuthenticationParameters
         public string? Instance { get; set; }
 
         /// <summary>
-        /// Client ID of the application
+        /// Client ID of the application.
         /// </summary>
         public string? ClientId { get; set; }
 
         /// <summary>
-        /// Sign-in audience (tenantId or domain, organizations, common, consumers)
+        /// Sign-in audience (tenantId or domain, organizations, common, consumers).
         /// </summary>
         public string? SignInAudience { get; set; }
 
         /// <summary>
-        /// Is authenticated with AAD
+        /// Is authenticated with AAD.
         /// </summary>
         public bool IsAAD { get; set; }
 
         /// <summary>
-        /// Is authenticated with Azure AD B2C (set by reflection)
+        /// Is authenticated with Azure AD B2C (set by reflection).
         /// </summary>
         public bool IsB2C { get; set; }
 
@@ -68,7 +71,7 @@ namespace DotnetTool.AuthenticationParameters
         // TODO: propose a fix for the blazorwasm project template
         
         /// <summary>
-        /// Sign-up sign-in policy in the case of B2C
+        /// Sign-up sign-in policy in the case of B2C.
         /// </summary>
         /// <remarks>This is for the blazorwasm hosted template and more a workaround
         /// to the template. The default name of the policy appearing in 
@@ -77,52 +80,52 @@ namespace DotnetTool.AuthenticationParameters
         public string? SusiPolicy { get; set; }
 
         /// <summary>
-        /// The project has authentication
+        /// The project has authentication.
         /// </summary>
         public bool HasAuthentication { get; set; }
 
         /// <summary>
-        /// The project is a web api
+        /// The project is a web API.
         /// </summary>
         public bool IsWebApi { get; set; }
 
         /// <summary>
-        /// The project is a web app
+        /// The project is a web app.
         /// </summary>
         public bool IsWebApp { get; set; }
 
         /// <summary>
-        /// The project is a blazor app
+        /// The project is a blazor app.
         /// </summary>
         public bool IsBlazor { get; set; }
 
         /// <summary>
-        /// The app calls Microsoft Graph
+        /// The app calls Microsoft Graph.
         /// </summary>
         public bool CallsMicrosoftGraph { get; set; }
 
         /// <summary>
-        /// The app calls a downstream API
+        /// The app calls a downstream API.
         /// </summary>
         public bool CallsDownstreamApi { get; set; }
 
         /// <summary>
-        /// Scopes used to call the downsteam API, if any
+        /// Scopes used to call the downsteam API, if any.
         /// </summary>
         public string? CalledApiScopes { get; set; }
 
         /// <summary>
-        /// Web app redirect URIs
+        /// Web app redirect URIs.
         /// </summary>
         public List<string> WebRedirectUris { get; } = new List<string>();
 
         /// <summary>
-        /// Callback path (path of the redirect URIs)
+        /// Callback path (path of the redirect URIs).
         /// </summary>
         public string? CallbackPath { set; get; }
 
         /// <summary>
-        /// Logout URIs
+        /// Logout URIs.
         /// </summary>
         public string? LogoutUrl { set; get; }
 
@@ -132,22 +135,22 @@ namespace DotnetTool.AuthenticationParameters
         public List<string> PasswordCredentials { get; } = new List<string>();
 
         /// <summary>
-        /// Identitier URIs for web APIs
+        /// Identitier URIs for web APIs.
         /// </summary>
         public List<string> IdentifierUris { get; } = new List<string>();
 
         /// <summary>
-        /// API permissions
+        /// API permissions.
         /// </summary>
         public List<ApiPermission> ApiPermissions { get; } = new List<ApiPermission>();
 
         /// <summary>
-        /// Description of the app
+        /// Description of the app.
         /// </summary>
         public string? Description { get; set; }
 
         /// <summary>
-        /// SecretsId of the csproj
+        /// SecretsId of the csproj.
         /// </summary>
         public string? SecretsId { get; internal set; }
 
@@ -162,7 +165,7 @@ namespace DotnetTool.AuthenticationParameters
         public string? MsalAuthenticationOptions { get; set; }
 
         /// <summary>
-        /// Sets a bool propery (from its name)
+        /// Sets a bool propery (from its name).
         /// </summary>
         /// <param name="propertyName"></param>
         public void Sets(string propertyName)
