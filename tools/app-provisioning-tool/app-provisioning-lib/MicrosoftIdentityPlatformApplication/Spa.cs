@@ -7,6 +7,6 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
     /// </summary>
     public class Spa
     {
-        public IEnumerable<string> redirectUris { get; set; }
+        public IEnumerable<string>? redirectUris { get; set; }
     }
 }

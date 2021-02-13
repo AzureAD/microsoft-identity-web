@@ -12,60 +12,63 @@ using System.Threading.Tasks;
 
 namespace DotnetTool
 {
-    public class AppProvisionningTool
+    /// <summary>
+    /// 
+    /// </summary>
+    public class AppProvisioningTool
     {
-        private ProvisioningToolOptions provisioningToolOptions { get; set; }
+        private ProvisioningToolOptions ProvisioningToolOptions { get; set; }
 
         private MicrosoftIdentityPlatformApplicationManager MicrosoftIdentityPlatformApplicationManager { get; } = new MicrosoftIdentityPlatformApplicationManager();
 
-        private ProjectDescriptionReader projectDescriptionReader { get; } = new ProjectDescriptionReader();
+        private ProjectDescriptionReader ProjectDescriptionReader { get; } = new ProjectDescriptionReader();
 
-        public AppProvisionningTool(ProvisioningToolOptions provisioningToolOptions)
+        public AppProvisioningTool(ProvisioningToolOptions provisioningToolOptions)
         {
-            this.provisioningToolOptions = provisioningToolOptions;
+            ProvisioningToolOptions = provisioningToolOptions;
         }
 
         public async Task Run()
         {
             // If needed, infer project type from code
-            ProjectDescription projectDescription = projectDescriptionReader.GetProjectDescription(
-                provisioningToolOptions.ProjectTypeIdentifier,
-                provisioningToolOptions.CodeFolder);
+            ProjectDescription? projectDescription = ProjectDescriptionReader.GetProjectDescription(
+                ProvisioningToolOptions.ProjectTypeIdentifier,
+                ProvisioningToolOptions.CodeFolder);
 
             if (projectDescription == null)
             {
-                Console.WriteLine("Could not determine the project type");
+                Console.WriteLine("Could not determine the project type. ");
                 return;
             }
             else
             {
-                Console.WriteLine($"Detected {projectDescription.Identifier}");
+                Console.WriteLine($"Detected {projectDescription.Identifier}. ");
             }
 
             ProjectAuthenticationSettings projectSettings = InferApplicationParameters(
-                provisioningToolOptions,
+                ProvisioningToolOptions,
                 projectDescription,
-                projectDescriptionReader.projectDescriptions);
+                ProjectDescriptionReader.projectDescriptions);
 
             if (!projectSettings.ApplicationParameters.HasAuthentication)
             {
                 Console.WriteLine($"Authentication not enabled yet in this project. An app registration will " +
-                                  $"be created, but the tool does not add yet the code (work in progress)");
+                                  $"be created, but the tool does not add the code (work in progress). ");
             }
 
             // Get developer credentials
             TokenCredential tokenCredential = GetTokenCredential(
-                provisioningToolOptions,
+                ProvisioningToolOptions,
                 projectSettings.ApplicationParameters.TenantId ?? projectSettings.ApplicationParameters.Domain);
 
-            if (provisioningToolOptions.Unregister)
+            if (ProvisioningToolOptions.Unregister)
             {
                 await UnregisterApplication(tokenCredential, projectSettings.ApplicationParameters);
                 return;
             }
 
             // Read or provision Microsoft identity platform application
-            ApplicationParameters effectiveApplicationParameters = await ReadOrProvisionMicrosoftIdentityApplication(
+            ApplicationParameters? effectiveApplicationParameters = await ReadOrProvisionMicrosoftIdentityApplication(
                 tokenCredential, 
                 projectSettings.ApplicationParameters);
 
@@ -117,7 +120,7 @@ namespace DotnetTool
 
         private bool Reconciliate(ApplicationParameters applicationParameters, ApplicationParameters effectiveApplicationParameters)
         {
-            // Redirect Uris that are needed by the code, but not yet registered 
+            // Redirect URIs that are needed by the code, but not yet registered 
             IEnumerable<string> missingRedirectUri = applicationParameters.WebRedirectUris.Except(effectiveApplicationParameters.WebRedirectUris);
 
             bool needUpdate = missingRedirectUri.Any();
@@ -138,7 +141,9 @@ namespace DotnetTool
             return needUpdate;
         }
 
-        private async Task<ApplicationParameters> ReadOrProvisionMicrosoftIdentityApplication(TokenCredential tokenCredential, ApplicationParameters applicationParameters)
+        private async Task<ApplicationParameters> ReadOrProvisionMicrosoftIdentityApplication(
+            TokenCredential tokenCredential,
+            ApplicationParameters applicationParameters)
         {
             ApplicationParameters? currentApplicationParameters = null;
             if (!string.IsNullOrEmpty(applicationParameters.ClientId))
@@ -146,16 +151,17 @@ namespace DotnetTool
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.ReadApplication(tokenCredential, applicationParameters);
                 if (currentApplicationParameters == null)
                 {
-                    Console.Write($"Couldn't find app {applicationParameters.ClientId} in tenant {applicationParameters.TenantId}");
+                    Console.Write($"Couldn't find app {applicationParameters.ClientId} in tenant {applicationParameters.TenantId}. ");
                 }
             }
 
-            if (currentApplicationParameters == null && !provisioningToolOptions.Unregister)
+            if (currentApplicationParameters == null && !ProvisioningToolOptions.Unregister)
             {
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.CreateNewApp(tokenCredential, applicationParameters);
 
                 Console.Write($"Created app {currentApplicationParameters.ClientId}");
             }
+
             return currentApplicationParameters;
         }
 
@@ -171,7 +177,6 @@ namespace DotnetTool
             projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
             return projectSettings;
         }
-
 
         private TokenCredential GetTokenCredential(ProvisioningToolOptions provisioningToolOptions, string? currentApplicationTenantId)
         {

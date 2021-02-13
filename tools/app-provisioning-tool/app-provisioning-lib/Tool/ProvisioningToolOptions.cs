@@ -6,19 +6,20 @@ namespace DotnetTool
     {
         public string CodeFolder { get; set; } = System.IO.Directory.GetCurrentDirectory();
         /// <summary>
-        /// Language/Framework for the project
+        /// Language/Framework for the project.
         /// </summary>
         public string LanguageOrFramework { get; set; } = "dotnet";
 
         /// <summary>
-        /// Type of project for instance webapp, webapi, blazorwasm-hosted, ...
+        /// Type of project. 
+        /// For instance web app, web API, blazorwasm-hosted, ...
         /// </summary>
         public string? ProjectType { get; set; }
 
         /// <summary>
         /// Identifier of a project type. This is the concatenation of the framework
         /// and the project type. This is the identifier of the extension describing 
-        /// the authentication pieces of the project
+        /// the authentication pieces of the project.
         /// </summary>
         public string ProjectTypeIdentifier
         {
@@ -31,51 +32,54 @@ namespace DotnetTool
         /// <summary>
         /// Identity (for instance joe@cotoso.com) that is allowed to
         /// provision the application in the tenant. Optional if you want
-        /// to use the developer credentials (Visual Studio)
+        /// to use the developer credentials (Visual Studio).
         /// </summary>
         public string? Username { get; set; }
 
         /// <summary>
-        /// Client secret for the app
+        /// Client secret for the application.
         /// </summary>
         public string? ClientSecret { get; set; }
 
         /// <summary>
-        /// Client ID of the application (optional)
+        /// Client ID of the application (optional).
         /// </summary>
         public string? ClientId { get; set; }
 
         /// <summary>
         /// Tenant ID of the application (optional if the user belongs to
-        /// only one tenant Id)
+        /// only one tenant).
         /// </summary>
         public string? TenantId { get; set; }
 
         /// <summary>
-        /// Display Help
+        /// Display Help.
         /// </summary>
         internal bool Help { get; set; }
 
+        /// <summary>
+        /// Unregister a previously created application.
+        /// </summary>
         public bool Unregister { get; set; }
 
         /// <summary>
-        /// Scopes for the called web API
+        /// Scopes for the called web API.
         /// </summary>
         public string? CalledApiScopes { get; set; }
 
         /// <summary>
-        /// Url for the called web API
+        /// Url for the called web API.
         /// </summary>
         public string? CalledApiUrl { get; set; }
 
         /// <summary>
-        /// Calls Microsoft Graph
+        /// Calls Microsoft Graph.
         /// </summary>
         public bool CallsGraph { get; set; }
     }
 
     /// <summary>
-    /// Extension methods for ProvisioningToolOptions
+    /// Extension methods for ProvisioningToolOptions.
     /// </summary>
     public static class ProvisioningToolOptionsExtensions
     {

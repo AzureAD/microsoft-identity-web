@@ -60,10 +60,11 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 }
             }
 
-            var scopesPerResource = await AddApiPermissions(
+            IEnumerable<IGrouping<string, ResourceAndScope>>? scopesPerResource = await AddApiPermissions(
                 applicationParameters,
                 graphServiceClient,
-                application);
+                application).ConfigureAwait(false);
+
             Application createdApplication = await graphServiceClient.Applications
                 .Request()
                 .AddAsync(application);
@@ -76,10 +77,10 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
             // B2C does not allow user consent, and therefore we need to explicity create
             // a service principal and permission grants. It's also useful for Blazorwasm hosted
-            // applications. We choose to create it always
+            // applications. We create it always.
             var createdServicePrincipal = await graphServiceClient.ServicePrincipals
                 .Request()
-                .AddAsync(servicePrincipal);
+                .AddAsync(servicePrincipal).ConfigureAwait(false);
 
             // B2C does not allow user consent, and therefore we need to explicity grant permissions
             if (applicationParameters.IsB2C)
@@ -98,10 +99,11 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
             {
                 await ExposeScopes(graphServiceClient, createdApplication);
 
-                // Blazorwasm hosted: add permission to serer web api from client SPA
+                // Blazorwasm hosted: add permission to server web API from client SPA
                 if (applicationParameters.IsBlazor)
                 {
-                    await AddApiPermissionFromBlazorwasmHostedSpaToServerApi(graphServiceClient,
+                    await AddApiPermissionFromBlazorwasmHostedSpaToServerApi(
+                        graphServiceClient,
                         createdApplication,
                         createdServicePrincipal,
                         applicationParameters.IsB2C);
@@ -148,7 +150,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
             // See https://github.com/jmprieur/app-provisonning-tool/issues/10
             await graphServiceClient.Applications[existingApplication.Id]
                 .Request()
-                .UpdateAsync(updatedApp);
+                .UpdateAsync(updatedApp).ConfigureAwait(false);
 
             if (existingApplication.RequiredResourceAccess != null
                 && existingApplication.RequiredResourceAccess.Any()
@@ -156,7 +158,10 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 || !existingApplication.PasswordCredentials.Any()
                 || !existingApplication.PasswordCredentials.Any(password => !string.IsNullOrEmpty(password.SecretText))))
             {
-                await AddPasswordCredentials(graphServiceClient, existingApplication, reconcialedApplicationParameters);
+                await AddPasswordCredentials(
+                    graphServiceClient,
+                    existingApplication,
+                    reconcialedApplicationParameters).ConfigureAwait(false);
             }
         }
 
@@ -178,7 +183,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
             await AddPermission(
                 graphServiceClient,
                 requiredResourceAccess,
-                resourcesAccessAndScopes.GroupBy(r => r.Resource).First());
+                resourcesAccessAndScopes.GroupBy(r => r.Resource).First()).ConfigureAwait(false);
 
             Application applicationToUpdate = new Application
             {
@@ -187,7 +192,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
             await graphServiceClient.Applications[createdApplication.Id]
                 .Request()
-                .UpdateAsync(applicationToUpdate);
+                .UpdateAsync(applicationToUpdate).ConfigureAwait(false);
 
             if (isB2C)
             {
@@ -202,7 +207,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
                 await graphServiceClient.Oauth2PermissionGrants
                     .Request()
-                    .AddAsync(oAuth2PermissionGrant);
+                    .AddAsync(oAuth2PermissionGrant).ConfigureAwait(false);
             }
         }
 
@@ -228,7 +233,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
         }
 
         /// <summary>
-        /// Expose scopes for the web API
+        /// Expose scopes for the web API.
         /// </summary>
         /// <param name="graphServiceClient"></param>
         /// <param name="createdApplication"></param>
@@ -256,7 +261,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
             await graphServiceClient.Applications[createdApplication.Id]
                 .Request()
-                .UpdateAsync(updatedApp);
+                .UpdateAsync(updatedApp).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -268,7 +273,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
         private static async Task AddAdminConsentToApiPermissions(
             GraphServiceClient graphServiceClient,
             ServicePrincipal servicePrincipal,
-            IEnumerable<IGrouping<string, ResourceAndScope>> scopesPerResource)
+            IEnumerable<IGrouping<string, ResourceAndScope>>? scopesPerResource)
         {
             // Consent to the scopes
             if (scopesPerResource != null)
@@ -296,26 +301,29 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
         }
 
         /// <summary>
-        /// Add API permissions
+        /// Add API permissions.
         /// </summary>
         /// <param name="applicationParameters"></param>
         /// <param name="graphServiceClient"></param>
         /// <param name="application"></param>
         /// <returns></returns>
-        private async Task<IEnumerable<IGrouping<string, ResourceAndScope>>> AddApiPermissions(ApplicationParameters applicationParameters, GraphServiceClient graphServiceClient, Application application)
+        private async Task<IEnumerable<IGrouping<string, ResourceAndScope>>?> AddApiPermissions(
+            ApplicationParameters applicationParameters,
+            GraphServiceClient graphServiceClient,
+            Application application)
         {
             // Case where the app calls a downstream API
             List<RequiredResourceAccess> apiRequests = new List<RequiredResourceAccess>();
-            string calledApiScopes = applicationParameters.CalledApiScopes;
+            string? calledApiScopes = applicationParameters?.CalledApiScopes;
             IEnumerable<IGrouping<string, ResourceAndScope>>? scopesPerResource = null;
             if (!string.IsNullOrEmpty(calledApiScopes))
             {
                 string[] scopes = calledApiScopes.Split(' ', '\t', StringSplitOptions.RemoveEmptyEntries);
                 scopesPerResource = scopes.Select(s => (!s.Contains('/'))
-                // Microsoft graph shortcut scopes (for instance "User.Read")
+                // Microsoft Graph shortcut scopes (for instance "User.Read")
                 ? new ResourceAndScope("https://graph.microsoft.com", s)
                 // Proper AppIdUri/scope
-                : new ResourceAndScope(s.Substring(0, s.LastIndexOf('/')), s.Substring(s.LastIndexOf('/') + 1))
+                : new ResourceAndScope(s.Substring(0, s.LastIndexOf('/')), s[(s.LastIndexOf('/') + 1)..])
                 ).GroupBy(r => r.Resource)
                 .ToArray(); // We want to modify these elements to cache the service principal ID
 
@@ -355,12 +363,12 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
         /// <param name="applicationParameters"></param>
         /// <param name="application"></param>
         /// <param name="withImplicitFlow">Should it add the implicit flow access token (for Blazor in netcore3.1)</param>
-        private static void AddWebAppPlatform(ApplicationParameters applicationParameters, Application application, bool withImplicitFlow=false)
+        private static void AddWebAppPlatform(ApplicationParameters applicationParameters, Application application, bool withImplicitFlow = false)
         {
             application.Web = new WebApplication();
 
             // IdToken
-            if ( (!applicationParameters.CallsDownstreamApi && !applicationParameters.CallsMicrosoftGraph)
+            if ((!applicationParameters.CallsDownstreamApi && !applicationParameters.CallsMicrosoftGraph)
                 || withImplicitFlow)
             {
                 application.Web.ImplicitGrantSettings = new ImplicitGrantSettings();
@@ -456,35 +464,25 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
         /// <returns></returns>
         private string MicrosoftIdentityPlatformAppAudienceToAppParameterAudience(string audience)
         {
-            switch (audience)
+            return audience switch
             {
-                case "AzureADMyOrg":
-                    return "SingleOrg";
-                case "AzureADMultipleOrgs":
-                    return "MultiOrg";
-                case "AzureADandPersonalMicrosoftAccount":
-                    return "MultiOrgAndPersonal";
-                case "PersonalMicrosoftAccount":
-                    return "Personal";
-                default:
-                    return "SingleOrg";
-            }
+                "AzureADMyOrg" => "SingleOrg",
+                "AzureADMultipleOrgs" => "MultiOrg",
+                "AzureADandPersonalMicrosoftAccount" => "MultiOrgAndPersonal",
+                "PersonalMicrosoftAccount" => "Personal",
+                _ => "SingleOrg",
+            };
         }
 
         private string AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(string audience)
         {
-            switch (audience)
+            return audience switch
             {
-                case "SingleOrg":
-                    return "AzureADMyOrg";
-                case "MultiOrg":
-                    return "AzureADMultipleOrgs";
-                case "Personal":
-                    return "PersonalMicrosoftAccount";
-                case "MultiOrgAndPersonal":
-                default:
-                    return "AzureADandPersonalMicrosoftAccount";
-            }
+                "SingleOrg" => "AzureADMyOrg",
+                "MultiOrg" => "AzureADMultipleOrgs",
+                "Personal" => "PersonalMicrosoftAccount",
+                _ => "AzureADandPersonalMicrosoftAccount",
+            };
         }
 
         internal async Task Unregister(TokenCredential tokenCredential, ApplicationParameters applicationParameters)

@@ -7,6 +7,7 @@ namespace DotnetTool
         {
             Description = description;
         }
+
         public string Description { get; set; }
     }
 }
