@@ -1,4 +1,7 @@
-﻿using DotnetTool.AuthenticationParameters;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using DotnetTool.AuthenticationParameters;
 using System;
 using System.Collections.Generic;
 using System.IO;
