@@ -77,8 +77,8 @@ namespace DotnetTool.DeveloperCredentials
         {
             var app = await GetOrCreateApp();
             AuthenticationResult result;
-            var accounts = await app.GetAccountsAsync();
-            IAccount account;
+            var accounts = await app.GetAccountsAsync()!;
+            IAccount? account;
 
             if (!string.IsNullOrEmpty(Username))
             {
