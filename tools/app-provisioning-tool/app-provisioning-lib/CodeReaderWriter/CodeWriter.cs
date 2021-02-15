@@ -54,7 +54,7 @@ namespace DotnetTool.CodeReaderWriter
             switch(replaceBy)
             {
                 case "Application.ClientSecret":
-                    string password = reconciledApplicationParameters.PasswordCredentials.LastOrDefault();
+                    string? password = reconciledApplicationParameters.PasswordCredentials.LastOrDefault();
                     if (!string.IsNullOrEmpty(reconciledApplicationParameters.SecretsId))
                     {
                         // TODO: adapt for Linux: https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows#how-the-secret-manager-tool-works
@@ -129,9 +129,9 @@ namespace DotnetTool.CodeReaderWriter
                     break;
                 case "Application.CalledApiScopes":
                     replacement = reconciledApplicationParameters.CalledApiScopes
-                        .Replace("openid", string.Empty)
-                        .Replace("offline_access", string.Empty)
-                        .Trim();
+                        ?.Replace("openid", string.Empty)
+                        ?.Replace("offline_access", string.Empty)
+                        ?.Trim();
                     break;
 
                 case "Application.Instance":

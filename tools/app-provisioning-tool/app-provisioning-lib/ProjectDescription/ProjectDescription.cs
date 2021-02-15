@@ -48,9 +48,14 @@ namespace DotnetTool.Project
         
         public MatchesForProjectType[]? MatchesForProjectType { get;set; }
 
-        public ProjectDescription GetBasedOnProject(IEnumerable<ProjectDescription> projects)
+        public ProjectDescription? GetBasedOnProject(IEnumerable<ProjectDescription> projects)
         {
-            ProjectDescription baseProject = projects.FirstOrDefault(p => p.Identifier == BasedOnProjectDescription);
+            if (projects is null)
+            {
+                throw new ArgumentNullException(nameof(projects));
+            }
+
+            ProjectDescription? baseProject = projects.FirstOrDefault(p => p.Identifier == BasedOnProjectDescription);
             if (!string.IsNullOrEmpty(BasedOnProjectDescription) && baseProject == null)
             {
                 throw new FormatException($"In Project {ProjectRelativeFolder} BasedOn = {BasedOnProjectDescription} could not be found");

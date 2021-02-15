@@ -36,7 +36,6 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 Description = applicationParameters.Description
             };
 
-
             if (applicationParameters.IsWebApi)
             {
                 application.Api = new ApiApplication()
@@ -290,7 +289,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                         ClientId = servicePrincipal.Id,
                         ConsentType = "AllPrincipals",
                         PrincipalId = null,
-                        ResourceId = resourceAndScopes.FirstOrDefault().ResourceServicePrincipalId,
+                        ResourceId = resourceAndScopes.FirstOrDefault()?.ResourceServicePrincipalId,
                         Scope = string.Join(" ", resourceAndScopes.Select(r => r.Scope))
                     };
 
@@ -573,6 +572,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
             };
 
             // Todo: might be a bit more complex in some cases for the B2C case.
+            // TODO: handle b2c custom domains & domains ending in b2c.login.*
             // TODO: introduce the Instance?
             effectiveApplicationParameters.Authority = isB2C
                  ? $"https://{effectiveApplicationParameters.Domain1}.b2clogin.com/{effectiveApplicationParameters.Domain}/{effectiveApplicationParameters.SusiPolicy}/"

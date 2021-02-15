@@ -31,7 +31,7 @@ namespace DotnetTool.CodeReaderWriter
         /// <param name="projectDescription"></param>
         /// <param name="projectDescriptions"></param>
         /// <returns></returns>
-        public ProjectAuthenticationSettings ReadFromFiles(
+        internal ProjectAuthenticationSettings ReadFromFiles(
             string folderToConfigure,
             ProjectDescription projectDescription,
             IEnumerable<ProjectDescription> projectDescriptions)
@@ -57,7 +57,7 @@ namespace DotnetTool.CodeReaderWriter
             var properties = projectDescription.GetMergedConfigurationProperties(projectDescriptions).ToArray();
             foreach (ConfigurationProperties configurationProperties in properties)
             {
-                string filePath = Directory.EnumerateFiles(projectPath, configurationProperties.FileRelativePath!).FirstOrDefault();
+                string? filePath = Directory.EnumerateFiles(projectPath, configurationProperties.FileRelativePath!).FirstOrDefault();
                 ProcessFile(projectAuthenticationSettings, filePath, configurationProperties);
             }
 
@@ -149,10 +149,10 @@ namespace DotnetTool.CodeReaderWriter
 
         private static void ProcessFile(
             ProjectAuthenticationSettings projectAuthenticationSettings,
-            string filePath,
+            string? filePath,
             ConfigurationProperties file)
         {
-            if (File.Exists(filePath))
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 string fileContent = File.ReadAllText(filePath);
                 JsonElement jsonContent = default;
