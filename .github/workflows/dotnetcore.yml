@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: linux-latest
     continue-on-error: true
     strategy:
       matrix:
