@@ -7,6 +7,7 @@ using DotnetTool.MicrosoftIdentityPlatformApplication;
 using DotnetTool.Project;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -180,10 +181,12 @@ namespace Tests
         /// <returns>Name of the folder </returns>
         private string CreateProjectIfNeeded(string projectFolderName, string command, string testName)
         {
-            string tempFolder = Environment.GetEnvironmentVariable("Agent.TempDirectory") ?? "C:\\temp";
 
-            // Create the folder
-            string parentFolder = Path.Combine(tempFolder, "Provisionning", testName);
+            string tempFolder = Environment.GetEnvironmentVariable("Agent.TempDirectory")
+                ?? ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? "C:\\temp" : "");
+
+                // Create the folder
+                string parentFolder = Path.Combine(tempFolder, "Provisionning", testName);
             string createdProjectFolder = Path.Combine(parentFolder, projectFolderName);
 
             if (!Directory.Exists(createdProjectFolder))
