@@ -95,9 +95,9 @@ namespace DotnetTool.AuthenticationParameters
         public bool IsWebApp { get; set; }
 
         /// <summary>
-        /// The project is a blazor app.
+        /// The project is a blazor web assembly.
         /// </summary>
-        public bool IsBlazor { get; set; }
+        public bool IsBlazorWasm { get; set; }
 
         /// <summary>
         /// The app calls Microsoft Graph.

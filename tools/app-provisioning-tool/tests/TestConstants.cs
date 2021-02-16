@@ -19,7 +19,7 @@ namespace Tests
         public const string B2CDomain = "fabrikamb2c.onmicrosoft.com";
         public const string B2CDomain1 = "fabrikamb2c";
         public const string B2CClientId = "fdb91ff5-5ce6-41f3-bdbd-8267c817015d";
-        public const string B2CScopes = "https://fabrikamb2c.onmicrosoft.com/tasks/read";
+        public const string B2CScopes = "https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read";
 
         // AAD 
         public const string Instance = "https://login.microsoftonline.com";

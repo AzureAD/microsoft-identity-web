@@ -67,8 +67,12 @@
           "Represents": "Application.Instance"
         },
         {
-          "Property": "DownstreamApi:Scopes",
-          "Represents": "Application.CalledApiScopes"
+            "Property": "DownstreamApi:Scopes",
+            "Represents": "Application.CalledApiScopes"
+        },
+        {
+            "Property": "DownstreamAPI:Scopes",
+            "Represents": "Application.CalledApiScopes"
         }
       ]
     },
