@@ -363,7 +363,7 @@
              <example><code>
              IConfidentialClientApplication app;
              ICertificateLoader certificateLoader = new DefaultCertificateLoader();
-                 certificateLoader.Load(config.CertificateDescription);
+                 certificateLoader.LoadIfNeeded(config.CertificateDescription);
             
                 app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
                        .WithCertificate(config.CertificateDescription.Certificate)
@@ -402,7 +402,7 @@
              <example><code>
              IConfidentialClientApplication app;
              ICertificateLoader certificateLoader = new DefaultCertificateLoader();
-                 certificateLoader.Load(config.CertificateDescription);
+                 certificateLoader.LoadIfNeeded(config.CertificateDescription);
             
                 app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
                        .WithCertificate(config.CertificateDescription.Certificate)
