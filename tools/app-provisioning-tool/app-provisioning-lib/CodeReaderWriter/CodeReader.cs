@@ -31,7 +31,7 @@ namespace DotnetTool.CodeReaderWriter
         /// <param name="projectDescription"></param>
         /// <param name="projectDescriptions"></param>
         /// <returns></returns>
-        internal ProjectAuthenticationSettings ReadFromFiles(
+        public ProjectAuthenticationSettings ReadFromFiles(
             string folderToConfigure,
             ProjectDescription projectDescription,
             IEnumerable<ProjectDescription> projectDescriptions)
