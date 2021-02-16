@@ -5,59 +5,66 @@ using DotnetTool.CodeReaderWriter;
 using DotnetTool.DeveloperCredentials;
 using DotnetTool.MicrosoftIdentityPlatformApplication;
 using DotnetTool.Project;
+using System;
 using System.IO;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     public class ProjectDescriptionReaderTests
     {
+        private readonly ITestOutputHelper testOutput;
+
+        public ProjectDescriptionReaderTests(ITestOutputHelper output)
+        {
+            this.testOutput = output;
+        }
+
         readonly ProjectDescriptionReader _projectDescriptionReader = new ProjectDescriptionReader();
         readonly CodeReader _codeReader = new CodeReader();
         readonly DeveloperCredentialsReader _developerCredentialsReader = new DeveloperCredentialsReader();
         readonly MicrosoftIdentityPlatformApplicationManager _microsoftIdentityPlatformApplicationManager = new MicrosoftIdentityPlatformApplicationManager();
 
-        [InlineData(@"blazorserver2\blazorserver2-b2c", "dotnet-webapp", true)]
-        [InlineData(@"blazorserver2\blazorserver2-b2c-callswebapi", "dotnet-webapp", true)]
-        [InlineData(@"blazorserver2\blazorserver2-singleorg", "dotnet-webapp")]
-        [InlineData(@"blazorserver2\blazorserver2-singleorg-callsgraph", "dotnet-webapp")]
-        [InlineData(@"blazorserver2\blazorserver2-singleorg-callswebapi", "dotnet-webapp")]
-        [InlineData(@"blazorwasm2\blazorwasm2-b2c", "dotnet-blazorwasm", true)]
-        [InlineData(@"blazorwasm2\blazorwasm2-b2c-hosted", "dotnet-blazorwasm-hosted", true)]
-        [InlineData(@"blazorwasm2\blazorwasm2-singleorg", "dotnet-blazorwasm")]
-        //[InlineData(@"blazorwasm2\blazorwasm2-singleorg-callsgraph", "dotnet-blazorwasm")]
-        [InlineData(@"blazorwasm2\blazorwasm2-singleorg-callsgraph-hosted", "dotnet-blazorwasm-hosted")]
-        //[InlineData(@"blazorwasm2\blazorwasm2-singleorg-callswebapi", "dotnet-blazorwasm")]
-        [InlineData(@"blazorwasm2\blazorwasm2-singleorg-callswebapi-hosted", "dotnet-blazorwasm-hosted")]
-        [InlineData(@"blazorwasm2\blazorwasm2-singleorg-hosted", "dotnet-blazorwasm-hosted")]
-        [InlineData(@"mvc2\mvc2-b2c", "dotnet-webapp", true)]
-        [InlineData(@"mvc2\mvc2-b2c-callswebapi", "dotnet-webapp", true)]
-        [InlineData(@"mvc2\mvc2-noauth", "dotnet-webapp")]
-        [InlineData(@"mvc2\mvc2-singleorg", "dotnet-webapp")]
-        [InlineData(@"mvc2\mvc2-singleorg-callsgraph", "dotnet-webapp")]
-        [InlineData(@"mvc2\mvc2-singleorg-callswebapi", "dotnet-webapp")]
-        [InlineData(@"webapi2\webapi2-b2c", "dotnet-webapi", true)]
-        [InlineData(@"webapi2\webapi2-singleorg", "dotnet-webapi")]
-        [InlineData(@"webapi2\webapi2-singleorg-callsgraph", "dotnet-webapi")]
-        [InlineData(@"webapi2\webapi2-singleorg-callswebapi", "dotnet-webapi")]
-        [InlineData(@"webapp2\webapp2-b2c", "dotnet-webapp", true)]
-        [InlineData(@"webapp2\webapp2-b2c-callswebapi", "dotnet-webapp", true)]
-        [InlineData(@"webapp2\webapp2-singleorg", "dotnet-webapp")]
-        [InlineData(@"webapp2\webapp2-singleorg-callsgraph", "dotnet-webapp")]
-        [InlineData(@"webapp2\webapp2-singleorg-callswebapi", "dotnet-webapp")]
+        [InlineData(@"blazorserver\blazorserver-b2c", "dotnet new blazorserver --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d", "dotnet-webapp", true)]
+        [InlineData(@"blazorserver\blazorserver-b2c-callswebapi", "dotnet new blazorserver --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"", "dotnet-webapp", true)]
+        [InlineData(@"blazorserver\blazorserver-singleorg", "dotnet new blazorserver --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-webapp")]
+        [InlineData(@"blazorserver\blazorserver-singleorg-callsgraph", "dotnet new blazorserver --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-webapp")]
+        [InlineData(@"blazorserver\blazorserver-singleorg-callswebapi", "dotnet new blazorserver --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-webapp")]
+        [InlineData(@"blazorwasm\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d", "dotnet-blazorwasm", true)]
+        [InlineData(@"blazorwasm\blazorwasm-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d  --hosted", "dotnet-blazorwasm-hosted", true)]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-blazorwasm")]
+        // [InlineData(@"blazorwasm\blazorwasm-singleorg-callsgraph", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-blazorwasm")]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph --hosted", "dotnet-blazorwasm-hosted")]
+        // [InlineData(@"blazorwasm\blazorwasm-singleorg-callswebapi", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-blazorwasm")]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted", "dotnet-blazorwasm-hosted")]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com  --hosted", "dotnet-blazorwasm-hosted")]
+        [InlineData(@"mvc\mvc-b2c", "dotnet new mvc --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d", "dotnet-webapp", true)]
+        [InlineData(@"mvc\mvc-b2c-callswebapi", "dotnet new mvc --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"", "dotnet-webapp", true)]
+        [InlineData(@"mvc\mvc-singleorg", "dotnet new mvc --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-webapp")]
+        [InlineData(@"mvc\mvc-singleorg-callsgraph", "dotnet new mvc --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-webapp")]
+        [InlineData(@"mvc\mvc-singleorg-callswebapi", "dotnet new mvc --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-webapp")]
+        [InlineData(@"webapi\webapi-b2c", "dotnet new webapi --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d", "dotnet-webapi", true)]
+        [InlineData(@"webapi\webapi-singleorg", "dotnet new webapi --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-webapi")]
+        [InlineData(@"webapi\webapi-singleorg-callsgraph", "dotnet new webapi --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-webapi")]
+        [InlineData(@"webapi\webapi-singleorg-callswebapi", "dotnet new webapi --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-webapi")]
+        [InlineData(@"webapp\webapp-b2c", "dotnet new webapp --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d", "dotnet-webapp", true)]
+        [InlineData(@"webapp\webapp-b2c-callswebapi", "dotnet new webapp --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"", "dotnet-webapp", true)]
+        [InlineData(@"webapp\webapp-singleorg", "dotnet new webapp --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-webapp")]
+        [InlineData(@"webapp\webapp-singleorg-callsgraph", "dotnet new webapp --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-webapp")]
+        [InlineData(@"webapp\webapp-singleorg-callswebapi", "dotnet new webapp --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-webapp")]
         [Theory]
-        public void TestProjectDescriptionReader(string folderPath, string expectedProjectType, bool isB2C = false)
+        public void TestProjectDescriptionReader(string folderPath, string command, string expectedProjectType, bool isB2C = false)
         {
-            // string parentFolder = @"C:\gh\microsoft-identity-web\ProjectTemplates\bin\Debug\tests";
-            string parentFolder = @"C:\git\idweb\ProjectTemplates\bin\Debug\tests";
+            string createdProjectFolder = CreateProjectIfNeeded(folderPath, command, "ProjectDescriptionReaderTests");
 
-            string folder = Path.Combine(parentFolder, folderPath);
-            var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, folder);
+            var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
+
             Assert.NotNull(projectDescription);
             Assert.Equal(expectedProjectType, projectDescription.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
-                folder,
+                createdProjectFolder,
                 projectDescription,
                 _projectDescriptionReader.projectDescriptions);
 
@@ -121,24 +128,22 @@ namespace Tests
             Assert.NotNull(readApplicationParameters);
         }
 
-        [InlineData(@"blazorserver2\blazorserver2-noauth", "dotnet-webapp")]
-        //[InlineData(@"blazorwasm2\blazorwasm2-noauth", "dotnet-blazorwasm")] //...erPath: "blazorwasm2\\blazorwasm2-noauth", expectedProjectType: "dotnet-blazorwasm"
-        [InlineData(@"mvc2\mvc2-noauth", "dotnet-webapp")]
-        [InlineData(@"webapi2\webapi2-noauth", "dotnet-webapi")]
-        [InlineData(@"webapp2\webapp2-noauth", "dotnet-webapp")]
+        [InlineData(@"blazorserver\blazorserver-noauth", "dotnet new blazorserver", "dotnet-webapp")]
+        // [InlineData(@"blazorwasm2\blazorwasm2-noauth", "dotnet new blazorwasm", "dotnet-blazorwasm")] //...erPath: "blazorwasm2\\blazorwasm2-noauth", expectedProjectType: "dotnet-blazorwasm"
+        [InlineData(@"mvc\mvc-noauth", "dotnet new mvc", "dotnet-webapp")]
+        [InlineData(@"webapi\webapi-noauth", "dotnet new webapi", "dotnet-webapi")]
+        [InlineData(@"webapp\webapp-noauth", "dotnet new webapp", "dotnet-webapp")]
         [Theory]
-        public void TestProjectDescriptionReader_TemplatesWithNoAuth(string folderPath, string expectedProjectType)
+        public void TestProjectDescriptionReader_TemplatesWithNoAuth(string folderPath, string command, string expectedProjectType)
         {
-            // string parentFolder = @"C:\gh\microsoft-identity-web\ProjectTemplates\bin\Debug\tests";
-            string parentFolder = @"C:\git\idweb\ProjectTemplates\bin\Debug\tests";
+            string createdProjectFolder = CreateProjectIfNeeded(folderPath, command, "NoAuthTests");
 
-            string folder = Path.Combine(parentFolder, folderPath);
-            var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, folder);
+            var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
             Assert.NotNull(projectDescription);
             Assert.Equal(expectedProjectType, projectDescription.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
-                folder,
+                createdProjectFolder,
                 projectDescription,
                 _projectDescriptionReader.projectDescriptions);
 
@@ -164,6 +169,43 @@ namespace Tests
             {
                 Assert.True(authenticationSettings.ApplicationParameters.IsWebApp);
             }
+        }
+
+        /// <summary>
+        /// Creates a project from the project templates if the folder does not already exists
+        /// </summary>
+        /// <param name="projectFolderName">Name of the folder containing the project</param>
+        /// <param name="command">dotnet new command to execute to create the code</param>
+        /// <param name="testName">Name of the test (parent folder name)</param>
+        /// <returns>Name of the folder </returns>
+        private string CreateProjectIfNeeded(string projectFolderName, string command, string testName)
+        {
+            string tempFolder = Environment.GetEnvironmentVariable("Agent.TempDirectory") ?? "C:\\temp";
+
+            // Create the folder
+            string parentFolder = Path.Combine(tempFolder, "Provisionning", testName);
+            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName);
+
+            if (!Directory.Exists(createdProjectFolder))
+            {
+                // dotnet new command to create the project
+                TestUtilities.RunProcess(testOutput, command, createdProjectFolder, " --force");
+
+                // Add the capability of holding user secrets aside of appsettings.json if needed
+                if (command.Contains("--calls"))
+                {
+                    try
+                    {
+                        TestUtilities.RunProcess(testOutput, "dotnet user-secrets init", createdProjectFolder);
+                    }
+                    catch
+                    {
+                        // Silent catch
+                    }
+                }
+            }
+
+            return createdProjectFolder;
         }
     }
 }
