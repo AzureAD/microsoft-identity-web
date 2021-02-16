@@ -7,7 +7,7 @@ namespace DotnetTool.DeveloperCredentials
 {
     public class DeveloperCredentialsReader
     {
-        public TokenCredential GetDeveloperCredentials(string ?username, string? currentApplicationTenantId)
+        public TokenCredential GetDeveloperCredentials(string? username, string? currentApplicationTenantId)
         {
 #if AzureSDK
             * Tried but does not work if another tenant than the home tenant id is specified
