@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using DotnetTool.CodeReaderWriter;
-using DotnetTool.DeveloperCredentials;
-using DotnetTool.MicrosoftIdentityPlatformApplication;
 using DotnetTool.Project;
 using System;
 using System.IO;
@@ -64,12 +62,8 @@ namespace Tests
 
             if (isB2C)
             {
-                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
-                Assert.True(authenticationSettings.ApplicationParameters.IsB2C);
-                Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
-                Assert.Equal(TestConstants.B2CDomain, authenticationSettings.ApplicationParameters.Domain);
-                Assert.Equal(TestConstants.B2CDomain1, authenticationSettings.ApplicationParameters.Domain1);
-                Assert.Equal(TestConstants.B2CClientId, authenticationSettings.ApplicationParameters.ClientId);
+                AssertAuthSettings(authenticationSettings, isB2C);
+
                 if (callsWebApi)
                 {
                     Assert.Equal(TestConstants.B2CScopes, authenticationSettings.ApplicationParameters.CalledApiScopes);
@@ -77,13 +71,7 @@ namespace Tests
             }
             else
             {
-                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
-                Assert.True(authenticationSettings.ApplicationParameters.IsAAD);
-                Assert.Null(authenticationSettings.ApplicationParameters.Instance);
-                Assert.Equal(TestConstants.Domain, authenticationSettings.ApplicationParameters.Domain);
-                Assert.Equal(TestConstants.Domain1, authenticationSettings.ApplicationParameters.Domain1);
-
-                Assert.Equal(TestConstants.ClientId, authenticationSettings.ApplicationParameters.ClientId);
+                AssertAuthSettings(authenticationSettings);
 
                 if (callsWebApi)
                 {
@@ -91,29 +79,45 @@ namespace Tests
                 }
             }
 
-            if (authenticationSettings.ApplicationParameters.IsWebApi)
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApi);
-            }
-            else
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApp);
-            }
-
             Assert.Equal(callsGraph, authenticationSettings.ApplicationParameters.CallsMicrosoftGraph);
             Assert.Equal(callsWebApi, authenticationSettings.ApplicationParameters.CallsDownstreamApi);
         }
 
-        [InlineData(@"blazorwasm\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com", "dotnet-blazorwasm", true)]
-        [InlineData(@"blazorwasm\blazorwasm-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --api-client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com --hosted", "dotnet-blazorwasm-hosted", true)]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com", "dotnet-blazorwasm")]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg-callsgraph", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph", "dotnet-blazorwasm")]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph --hosted", "dotnet-blazorwasm-hosted")]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg-callswebapi", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"", "dotnet-blazorwasm")]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted", "dotnet-blazorwasm-hosted")]
-        [InlineData(@"blazorwasm\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com  --hosted", "dotnet-blazorwasm-hosted")]
+        //[InlineData(@"blazorwasm\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com", "dotnet-blazorwasm", true)]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75", "dotnet-blazorwasm")]
         [Theory]
         public void TestProjectDescriptionReader_TemplatesWithBlazorWasm(string folderPath, string command, string expectedProjectType, bool isB2C = false)
+        {
+            string createdProjectFolder = CreateProjectIfNeeded(folderPath, command, "ProjectDescriptionReaderTests");
+
+            var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
+
+            Assert.NotNull(projectDescription);
+            Assert.Equal(expectedProjectType, projectDescription.Identifier);
+
+            var authenticationSettings = _codeReader.ReadFromFiles(
+                createdProjectFolder,
+                projectDescription,
+                _projectDescriptionReader.projectDescriptions);
+
+            if (isB2C)
+            {
+                AssertAuthSettings(authenticationSettings, isB2C, true);
+            }
+            else
+            {
+                AssertAuthSettings(authenticationSettings, isBlazorWasm: true);
+                Assert.Equal(TestConstants.BlazorWasmAuthority, authenticationSettings.ApplicationParameters.Authority);
+            }
+            Assert.True(authenticationSettings.ApplicationParameters.IsBlazorWasm);
+        }
+
+        [InlineData(@"blazorwasm\blazorwasm-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --api-client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com --hosted", "dotnet-blazorwasm-hosted", true)]
+        //[InlineData(@"blazorwasm\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --calls-graph --hosted", "dotnet-blazorwasm-hosted")]
+        //[InlineData(@"blazorwasm\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted", "dotnet-blazorwasm-hosted")]
+        [InlineData(@"blazorwasm\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg --api-client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75 --domain msidentitysamplestesting.onmicrosoft.com  --hosted", "dotnet-blazorwasm-hosted")]
+        [Theory]
+        public void TestProjectDescriptionReader_TemplatesWithBlazorWasmHosted(string folderPath, string command, string expectedProjectType, bool isB2C = false)
         {
             string createdProjectFolder = CreateProjectIfNeeded(folderPath, command, "ProjectDescriptionReaderTests");
 
@@ -132,12 +136,9 @@ namespace Tests
 
             if (isB2C)
             {
-                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
-                Assert.True(authenticationSettings.ApplicationParameters.IsB2C);
+                AssertAuthSettings(authenticationSettings, isB2C);
                 Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
-                Assert.Equal(TestConstants.B2CDomain, authenticationSettings.ApplicationParameters.Domain);
-                Assert.Equal(TestConstants.B2CDomain1, authenticationSettings.ApplicationParameters.Domain1);
-                Assert.Equal(TestConstants.B2CClientId, authenticationSettings.ApplicationParameters.ClientId);
+
                 if (callsWebApi)
                 {
                     Assert.Equal(TestConstants.B2CScopes, authenticationSettings.ApplicationParameters.CalledApiScopes);
@@ -145,14 +146,8 @@ namespace Tests
             }
             else
             {
-                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
-                Assert.True(authenticationSettings.ApplicationParameters.IsAAD);
-                Assert.Null(authenticationSettings.ApplicationParameters.Instance);
-                Assert.Equal("https://login.microsoftonline.com/22222222-2222-2222-2222-222222222222", authenticationSettings.ApplicationParameters.Authority);
-                Assert.Equal(TestConstants.Domain, authenticationSettings.ApplicationParameters.Domain);
-                Assert.Equal(TestConstants.Domain1, authenticationSettings.ApplicationParameters.Domain1);
-
-                Assert.Equal(TestConstants.ClientId, authenticationSettings.ApplicationParameters.ClientId);
+                AssertAuthSettings(authenticationSettings);
+                Assert.Equal(TestConstants.BlazorWasmAuthority, authenticationSettings.ApplicationParameters.Authority);
 
                 if (callsWebApi)
                 {
@@ -160,19 +155,7 @@ namespace Tests
                 }
             }
 
-            if (authenticationSettings.ApplicationParameters.IsWebApi)
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApi);
-            }
-            else
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApp);
-            }
-
-            if (folderPath.Contains(TestConstants.Blazor))
-            {
-                  Assert.True(authenticationSettings.ApplicationParameters.IsBlazorWasm);
-            }
+            Assert.True(authenticationSettings.ApplicationParameters.IsBlazorWasm);
 
             Assert.Equal(callsGraph, authenticationSettings.ApplicationParameters.CallsMicrosoftGraph);
             Assert.Equal(callsWebApi, authenticationSettings.ApplicationParameters.CallsDownstreamApi);
@@ -212,6 +195,43 @@ namespace Tests
             Assert.Null(authenticationSettings.ApplicationParameters.TenantId);
         }
 
+        private void AssertAuthSettings(ProjectAuthenticationSettings authenticationSettings, bool isB2C = false, bool isBlazorWasm = false)
+        {
+            if (isBlazorWasm)
+            {
+                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
+                Assert.Equal(TestConstants.DefaultDomain, authenticationSettings.ApplicationParameters.Domain);
+                return;
+            }
+            if (isB2C)
+            {
+                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
+                Assert.True(authenticationSettings.ApplicationParameters.IsB2C);
+                Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
+                Assert.Equal(TestConstants.B2CClientId, authenticationSettings.ApplicationParameters.ClientId);
+                Assert.Equal(TestConstants.B2CDomain, authenticationSettings.ApplicationParameters.Domain);
+                Assert.Equal(TestConstants.B2CDomain1, authenticationSettings.ApplicationParameters.Domain1);
+            }
+            else
+            {
+                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
+                Assert.True(authenticationSettings.ApplicationParameters.IsAAD);
+                Assert.Null(authenticationSettings.ApplicationParameters.Instance);
+                Assert.Equal(TestConstants.ClientId, authenticationSettings.ApplicationParameters.ClientId);
+                Assert.Equal(TestConstants.Domain, authenticationSettings.ApplicationParameters.Domain);
+                Assert.Equal(TestConstants.Domain1, authenticationSettings.ApplicationParameters.Domain1);
+            }
+
+            if (authenticationSettings.ApplicationParameters.IsWebApi)
+            {
+                Assert.True(authenticationSettings.ApplicationParameters.IsWebApi);
+            }
+            else
+            {
+                Assert.True(authenticationSettings.ApplicationParameters.IsWebApp);
+            }
+        }
+
         /// <summary>
         /// Creates a project from the project templates if the folder does not already exists
         /// </summary>
@@ -225,8 +245,8 @@ namespace Tests
             string tempFolder = Environment.GetEnvironmentVariable("Agent.TempDirectory")
                 ?? ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) ? "C:\\temp" : "");
 
-                // Create the folder
-                string parentFolder = Path.Combine(tempFolder, "Provisionning", testName);
+            // Create the folder
+            string parentFolder = Path.Combine(tempFolder, "Provisioning", testName);
             string createdProjectFolder = Path.Combine(parentFolder, projectFolderName);
 
             if (!Directory.Exists(createdProjectFolder))
