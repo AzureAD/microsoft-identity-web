@@ -63,6 +63,7 @@ namespace Tests
             if (isB2C)
             {
                 AssertAuthSettings(authenticationSettings, isB2C);
+                Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
 
                 if (callsWebApi)
                 {
@@ -83,7 +84,7 @@ namespace Tests
             Assert.Equal(callsWebApi, authenticationSettings.ApplicationParameters.CallsDownstreamApi);
         }
 
-        //[InlineData(@"blazorwasm\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com", "dotnet-blazorwasm", true)]
+        [InlineData(@"blazorwasm\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C --client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com", "dotnet-blazorwasm", true)]
         [InlineData(@"blazorwasm\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg --client-id 86699d80-dd21-476a-bcd1-7c1a3d471f75", "dotnet-blazorwasm")]
         [Theory]
         public void TestProjectDescriptionReader_TemplatesWithBlazorWasm(string folderPath, string command, string expectedProjectType, bool isB2C = false)
@@ -102,14 +103,18 @@ namespace Tests
 
             if (isB2C)
             {
-                AssertAuthSettings(authenticationSettings, isB2C, true);
+                AssertAuthSettings(authenticationSettings, isB2C);
             }
             else
             {
-                AssertAuthSettings(authenticationSettings, isBlazorWasm: true);
+                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
+                Assert.True(authenticationSettings.ApplicationParameters.IsAAD);
+                Assert.Null(authenticationSettings.ApplicationParameters.Instance);
+                Assert.Equal(TestConstants.ClientId, authenticationSettings.ApplicationParameters.ClientId);
+                Assert.Equal(TestConstants.DefaultDomain, authenticationSettings.ApplicationParameters.Domain);
+                Assert.Equal(TestConstants.DefaultDomain, authenticationSettings.ApplicationParameters.Domain1);
                 Assert.Equal(TestConstants.BlazorWasmAuthority, authenticationSettings.ApplicationParameters.Authority);
             }
-            Assert.True(authenticationSettings.ApplicationParameters.IsBlazorWasm);
         }
 
         [InlineData(@"blazorwasm\blazorwasm-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C --aad-b2c-instance https://fabrikamb2c.b2clogin.com --api-client-id fdb91ff5-5ce6-41f3-bdbd-8267c817015d --domain fabrikamb2c.onmicrosoft.com --hosted", "dotnet-blazorwasm-hosted", true)]
@@ -195,19 +200,14 @@ namespace Tests
             Assert.Null(authenticationSettings.ApplicationParameters.TenantId);
         }
 
-        private void AssertAuthSettings(ProjectAuthenticationSettings authenticationSettings, bool isB2C = false, bool isBlazorWasm = false)
+        private void AssertAuthSettings(ProjectAuthenticationSettings authenticationSettings, bool isB2C = false)
         {
-            if (isBlazorWasm)
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
-                Assert.Equal(TestConstants.DefaultDomain, authenticationSettings.ApplicationParameters.Domain);
-                return;
-            }
+            Assert.True(authenticationSettings.ApplicationParameters.IsWebApi || authenticationSettings.ApplicationParameters.IsWebApp || authenticationSettings.ApplicationParameters.IsBlazorWasm);
+            
             if (isB2C)
             {
                 Assert.True(authenticationSettings.ApplicationParameters.HasAuthentication);
                 Assert.True(authenticationSettings.ApplicationParameters.IsB2C);
-                Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
                 Assert.Equal(TestConstants.B2CClientId, authenticationSettings.ApplicationParameters.ClientId);
                 Assert.Equal(TestConstants.B2CDomain, authenticationSettings.ApplicationParameters.Domain);
                 Assert.Equal(TestConstants.B2CDomain1, authenticationSettings.ApplicationParameters.Domain1);
@@ -220,15 +220,6 @@ namespace Tests
                 Assert.Equal(TestConstants.ClientId, authenticationSettings.ApplicationParameters.ClientId);
                 Assert.Equal(TestConstants.Domain, authenticationSettings.ApplicationParameters.Domain);
                 Assert.Equal(TestConstants.Domain1, authenticationSettings.ApplicationParameters.Domain1);
-            }
-
-            if (authenticationSettings.ApplicationParameters.IsWebApi)
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApi);
-            }
-            else
-            {
-                Assert.True(authenticationSettings.ApplicationParameters.IsWebApp);
             }
         }
 
