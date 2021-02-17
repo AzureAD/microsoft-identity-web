@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace DotnetTool.Project
 
         public string? FileRelativePath 
         {
-            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString()); }
+            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
             set { fileRelativePath = value; } 
         }
         private string? fileRelativePath;
