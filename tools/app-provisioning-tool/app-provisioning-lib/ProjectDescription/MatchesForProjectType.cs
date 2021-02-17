@@ -1,13 +1,19 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Linq;
 
 namespace DotnetTool.Project
 {
     public class MatchesForProjectType
     {
-        public string? FileRelativePath { get; set; }
+        public string? FileRelativePath
+        {
+            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString()); }
+            set { fileRelativePath = value; }
+        }
+        private string? fileRelativePath;
 
         public string[]? MatchAny { get; set; }
         public string? Sets { get; set; }
