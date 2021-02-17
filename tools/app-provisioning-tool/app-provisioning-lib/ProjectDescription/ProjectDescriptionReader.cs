@@ -26,7 +26,7 @@ namespace DotnetTool.Project
             return projectTypeId != null ? ReadProjectDescription(projectTypeId) : null;
         }
 
-        private ProjectDescription ReadProjectDescription(string projectTypeIdentifier)
+        private ProjectDescription? ReadProjectDescription(string projectTypeIdentifier)
         {
             ReadProjectDescriptions();
 
@@ -38,7 +38,7 @@ namespace DotnetTool.Project
             ReadCommentHandling = JsonCommentHandling.Skip
         };
 
-        private ProjectDescription ReadDescriptionFromFileContent(byte[] fileContent)
+        private ProjectDescription? ReadDescriptionFromFileContent(byte[] fileContent)
         {
             string jsonText = Encoding.UTF8.GetString(fileContent);
             return JsonSerializer.Deserialize<ProjectDescription>(jsonText, serializerOptionsWithComments);
@@ -130,7 +130,12 @@ namespace DotnetTool.Project
             foreach (PropertyInfo propertyInfo in properties)
             {
                 byte[] content = (propertyInfo.GetValue(null) as byte[])!;
-                ProjectDescription projectDescription = ReadDescriptionFromFileContent(content);
+                ProjectDescription? projectDescription = ReadDescriptionFromFileContent(content);
+
+                if (projectDescription == null)
+                {
+                    throw new FormatException($"Resource file { propertyInfo.Name } could not be parsed.");
+                }
                 if (!projectDescription.IsValid())
                 {
                     throw new FormatException($"Resource file {propertyInfo.Name} is missing Identitier or ProjectRelativeFolder is null.");

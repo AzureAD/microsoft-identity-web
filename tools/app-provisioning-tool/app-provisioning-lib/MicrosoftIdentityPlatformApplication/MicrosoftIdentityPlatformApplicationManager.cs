@@ -118,7 +118,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 .Filter($"appId eq '{createdApplication.AppId}'")
                 .GetAsync()).First();
 
-            var effectiveApplicationParameters = GetEffectiveApplicationParameters(tenant, createdApplication, applicationParameters);
+            var effectiveApplicationParameters = GetEffectiveApplicationParameters(tenant!, createdApplication, applicationParameters);
 
             // Add password credentials
             if (applicationParameters.CallsMicrosoftGraph || applicationParameters.CallsDownstreamApi)
@@ -434,7 +434,12 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                                 .Filter($"AppId eq '{MicrosoftGraphAppId}'")
                                 .GetAsync();
             }
-            var spWithScopes = spsWithScopes.FirstOrDefault();
+            ServicePrincipal? spWithScopes = spsWithScopes.FirstOrDefault();
+
+            if (spWithScopes == null)
+            {
+                throw new ArgumentException($"Service principal named {g.Key} not found.", nameof(g));
+            }
 
             // Keep the service principal ID for later
             foreach (ResourceAndScope r in g)
@@ -520,7 +525,8 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
             var tenant = (await graphServiceClient.Organization
                 .Request()
-                .GetAsync()).FirstOrDefault();
+                .GetAsync()).FirstOrDefault()!;
+
 
             var apps = await graphServiceClient.Applications
                 .Request()
@@ -534,7 +540,10 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 return null;
             }
 
-            ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(tenant, readApplication, applicationParameters);
+            ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
+                tenant, 
+                readApplication, 
+                applicationParameters);
 
             return effectiveApplicationParameters;
 

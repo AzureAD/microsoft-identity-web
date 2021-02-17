@@ -65,10 +65,10 @@ namespace DotnetTool.CodeReaderWriter
                                 envVariable,
                                 @"AppData\Roaming\Microsoft\UserSecrets\",
                                 reconciledApplicationParameters.SecretsId,
-                                "secrets.json");
+                                "secrets.json")!;
                             if (!File.Exists(path))
                             {
-                                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                                 string section = reconciledApplicationParameters.IsB2C ? "AzureADB2C" : "AzureAD";
                                 File.WriteAllText(path, $"{{\n    \"{section}:ClientSecret\": \"{password}\"\n}}");
                                 replacement = "See user secrets";

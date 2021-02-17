@@ -75,26 +75,30 @@ namespace DotnetTool
                 tokenCredential, 
                 projectSettings.ApplicationParameters);
 
-            // Reconciliate code configuration and app registration
-            bool appNeedsUpdate = Reconciliate(
-                projectSettings.ApplicationParameters, 
-                effectiveApplicationParameters);
-
-            // Update appp registration if needed
             Summary summary = new Summary();
-            if (appNeedsUpdate)
-            {
-                await WriteApplicationRegistration(
-                    summary,
-                    effectiveApplicationParameters,
-                    tokenCredential);
-            }
 
-            // Write code configuration if needed
-            WriteProjectConfiguration(
-                summary, 
-                projectSettings,
-                effectiveApplicationParameters);
+            // Reconciliate code configuration and app registration
+            if (effectiveApplicationParameters != null)
+            {
+                bool appNeedsUpdate = Reconciliate(
+                    projectSettings.ApplicationParameters,
+                    effectiveApplicationParameters);
+
+                // Update appp registration if needed
+                if (appNeedsUpdate)
+                {
+                    await WriteApplicationRegistration(
+                        summary,
+                        effectiveApplicationParameters,
+                        tokenCredential);
+                }
+
+                // Write code configuration if needed
+                WriteProjectConfiguration(
+                    summary,
+                    projectSettings,
+                    effectiveApplicationParameters);
+            }
 
             // Summarizes what happened
             WriteSummary(summary);
@@ -144,7 +148,7 @@ namespace DotnetTool
             return needUpdate;
         }
 
-        private async Task<ApplicationParameters> ReadOrProvisionMicrosoftIdentityApplication(
+        private async Task<ApplicationParameters?> ReadOrProvisionMicrosoftIdentityApplication(
             TokenCredential tokenCredential,
             ApplicationParameters applicationParameters)
         {
