@@ -247,10 +247,11 @@ namespace Tests
 
             // Create the folder
             string parentFolder = Path.Combine(tempFolder, "Provisioning", testName);
-            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName.Replace('\\', Path.DirectorySeparatorChar));
+            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName.Replace("\\", Path.DirectorySeparatorChar.ToString()));
 
             if (!Directory.Exists(createdProjectFolder))
             {
+                _testOutput.WriteLine($"Creating folder {createdProjectFolder}");
                 // dotnet new command to create the project
                 TestUtilities.RunProcess(_testOutput, command, createdProjectFolder, " --force");
 
