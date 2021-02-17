@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Linq;
 
 namespace DotnetTool.Project
@@ -9,7 +10,12 @@ namespace DotnetTool.Project
     {
         private static PropertyMapping[] s_emptyPropertyMappings = new PropertyMapping[0];
 
-        public string? FileRelativePath { get; set; }
+        public string? FileRelativePath 
+        {
+            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString()); }
+            set { fileRelativePath = value; } 
+        }
+        private string? fileRelativePath;
 
         public PropertyMapping[] Properties { get; set; } = S_emptyPropertyMappings;
         public static PropertyMapping[] S_emptyPropertyMappings { get => s_emptyPropertyMappings; set => s_emptyPropertyMappings = value; }
