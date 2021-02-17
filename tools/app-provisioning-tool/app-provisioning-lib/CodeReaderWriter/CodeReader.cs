@@ -185,7 +185,9 @@ namespace DotnetTool.CodeReaderWriter
                                 JsonElement element = pair.Key;
                                 int index = pair.Value;
                                 found = true;
-                                string replaceFrom = element.ValueKind == JsonValueKind.Number ? element.GetInt32().ToString(CultureInfo.InvariantCulture) : element.ToString();
+                                string replaceFrom = element.ValueKind == JsonValueKind.Number 
+                                    ? element.GetInt32().ToString(CultureInfo.InvariantCulture) 
+                                    : element.ToString()!;
 
                                 UpdatePropertyRepresents(
                                     projectAuthenticationSettings,
@@ -198,7 +200,7 @@ namespace DotnetTool.CodeReaderWriter
 
                         else if (xmlDocument != null)
                         {
-                            XmlNode node = FindMatchingElement(xmlDocument, path);
+                            XmlNode? node = FindMatchingElement(xmlDocument, path);
                             if (node != null)
                             {
                                 UpdatePropertyRepresents(
@@ -300,10 +302,10 @@ namespace DotnetTool.CodeReaderWriter
             }
         }
 
-        private static XmlNode FindMatchingElement(XmlDocument parentElement, IEnumerable<string> path)
+        private static XmlNode? FindMatchingElement(XmlDocument parentElement, IEnumerable<string> path)
         {
             string xPath = "/" + string.Join("/", path);
-            XmlNode node = parentElement.SelectSingleNode(xPath);
+            XmlNode? node = parentElement.SelectSingleNode(xPath);
             return node;
         }
 
