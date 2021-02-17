@@ -17,7 +17,7 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
     public class WebAppIntegrationTests
     {
-        [Fact]
+        [Fact(Skip = "We cannot republish the web app atm. https://github.com/AzureAD/microsoft-identity-web/issues/984")]
         public async Task ChallengeUser_SignInSucceedsTestAsync()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; } 
