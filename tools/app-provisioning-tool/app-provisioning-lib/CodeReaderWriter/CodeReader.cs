@@ -74,7 +74,7 @@ namespace DotnetTool.CodeReaderWriter
 
         private static void PostProcessWebUris(ProjectAuthenticationSettings projectAuthenticationSettings)
         {
-            bool isBlazorWasm = projectAuthenticationSettings.ApplicationParameters.IsBlazor 
+            bool isBlazorWasm = projectAuthenticationSettings.ApplicationParameters.IsBlazorWasm
                 && !projectAuthenticationSettings.ApplicationParameters.IsWebApp;
             string callbackPath = projectAuthenticationSettings.ApplicationParameters.CallbackPath ?? "/signin-oidc";
             if (isBlazorWasm)
@@ -171,7 +171,7 @@ namespace DotnetTool.CodeReaderWriter
 
                 foreach (PropertyMapping propertyMapping in file.Properties)
                 {
-                    bool found = false;                    
+                    bool found = false;
                     string? property = propertyMapping.Property;
                     if (property != null)
                     {
@@ -199,7 +199,7 @@ namespace DotnetTool.CodeReaderWriter
                         else if (xmlDocument != null)
                         {
                             XmlNode node = FindMatchingElement(xmlDocument, path);
-                            if (node!=null)
+                            if (node != null)
                             {
                                 UpdatePropertyRepresents(
                                     projectAuthenticationSettings,
@@ -313,56 +313,53 @@ namespace DotnetTool.CodeReaderWriter
             string? defaultValue,
             ProjectAuthenticationSettings projectAuthenticationSettings)
         {
-            if (value != defaultValue)
+            switch (represents)
             {
-                switch (represents)
-                {
-                    case "Application.ClientId":
-                        projectAuthenticationSettings.ApplicationParameters.ClientId = value;
-                        break;
-                    case "Application.CallbackPath":
-                        projectAuthenticationSettings.ApplicationParameters.CallbackPath = value ?? defaultValue;
-                        break;
-                    case "Directory.TenantId":
-                        projectAuthenticationSettings.ApplicationParameters.TenantId = value;
-                        break;
-                    case "Application.Authority":
-                        // Case of Blazorwasm where the authority is not separated :(
-                        projectAuthenticationSettings.ApplicationParameters.Authority = value;
-                        if (!string.IsNullOrEmpty(value))
+                case "Application.ClientId":
+                    projectAuthenticationSettings.ApplicationParameters.ClientId = value;
+                    break;
+                case "Application.CallbackPath":
+                    projectAuthenticationSettings.ApplicationParameters.CallbackPath = value ?? defaultValue;
+                    break;
+                case "Directory.TenantId":
+                    projectAuthenticationSettings.ApplicationParameters.TenantId = value;
+                    break;
+                case "Application.Authority":
+                    // Case of Blazorwasm where the authority is not separated :(
+                    projectAuthenticationSettings.ApplicationParameters.Authority = value;
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        Uri authority = new Uri(value);
+                        string? tenantOrDomain = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
+                        if (tenantOrDomain == "qualified.domain.name")
                         {
-                            Uri authority = new Uri(value);
-                            string? tenantOrDomain = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
-                            if (tenantOrDomain == "qualified.domain.name")
-                            {
-                                tenantOrDomain = null;
-                            }
-                            projectAuthenticationSettings.ApplicationParameters.Domain = tenantOrDomain;
-                            projectAuthenticationSettings.ApplicationParameters.TenantId = tenantOrDomain;
+                            tenantOrDomain = null;
                         }
-                        break;
-                    case "Directory.Domain":
-                        projectAuthenticationSettings.ApplicationParameters.Domain = value;
-                        break;
-                    case "secretsId":
-                        projectAuthenticationSettings.ApplicationParameters.SecretsId = value;
-                        break;
-                    case "targetFramework":
-                        projectAuthenticationSettings.ApplicationParameters.TargetFramework = value;
-                        break;
-                    case "MsalAuthenticationOptions":
-                        projectAuthenticationSettings.ApplicationParameters.MsalAuthenticationOptions = value;
-                        break;
-                    case "Application.CalledApiScopes":
-                        projectAuthenticationSettings.ApplicationParameters.CalledApiScopes = value;
-                        break;
-                    case "Application.Instance":
-                        projectAuthenticationSettings.ApplicationParameters.Instance = value;
-                        break;
-                    case "Application.SusiPolicy":
-                        projectAuthenticationSettings.ApplicationParameters.SusiPolicy = value;
-                        break;
-                }
+                        projectAuthenticationSettings.ApplicationParameters.Domain = tenantOrDomain;
+                        projectAuthenticationSettings.ApplicationParameters.TenantId = tenantOrDomain;
+                    }
+                    break;
+                case "Directory.Domain":
+                    projectAuthenticationSettings.ApplicationParameters.Domain = value;
+                    break;
+                case "secretsId":
+                    projectAuthenticationSettings.ApplicationParameters.SecretsId = value;
+                    break;
+                case "targetFramework":
+                    projectAuthenticationSettings.ApplicationParameters.TargetFramework = value;
+                    break;
+                case "MsalAuthenticationOptions":
+                    projectAuthenticationSettings.ApplicationParameters.MsalAuthenticationOptions = value;
+                    break;
+                case "Application.CalledApiScopes":
+                    projectAuthenticationSettings.ApplicationParameters.CalledApiScopes = value;
+                    break;
+                case "Application.Instance":
+                    projectAuthenticationSettings.ApplicationParameters.Instance = value;
+                    break;
+                case "Application.SusiPolicy":
+                    projectAuthenticationSettings.ApplicationParameters.SusiPolicy = value;
+                    break;
             }
         }
 

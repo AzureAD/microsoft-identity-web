@@ -48,7 +48,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
             {
                 AddWebAppPlatform(applicationParameters, application);
             }
-            else if (applicationParameters.IsBlazor)
+            else if (applicationParameters.IsBlazorWasm)
             {
                 // In .NET Core 3.1, Blazor uses MSAL.js 1.x (web redirect URIs)
                 // whereas in .NET 5.0, Blazor uses MSAL.js 2.x (SPA redirect URIs)
@@ -102,7 +102,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
                 await ExposeScopes(graphServiceClient, createdApplication);
 
                 // Blazorwasm hosted: add permission to server web API from client SPA
-                if (applicationParameters.IsBlazor)
+                if (applicationParameters.IsBlazorWasm)
                 {
                     await AddApiPermissionFromBlazorwasmHostedSpaToServerApi(
                         graphServiceClient,
@@ -389,7 +389,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
             // Explicit usage of MicrosoftGraph openid and offline_access, in the case
             // of Azure AD B2C.
-            if (applicationParameters.IsB2C && applicationParameters.IsWebApp || applicationParameters.IsBlazor)
+            if (applicationParameters.IsB2C && applicationParameters.IsWebApp || applicationParameters.IsBlazorWasm)
             {
                 if (applicationParameters.CalledApiScopes == null)
                 {
