@@ -57,7 +57,8 @@ namespace DotnetTool.CodeReaderWriter
             var properties = projectDescription.GetMergedConfigurationProperties(projectDescriptions).ToArray();
             foreach (ConfigurationProperties configurationProperties in properties)
             {
-                string? filePath = Directory.EnumerateFiles(projectPath, configurationProperties.FileRelativePath!).FirstOrDefault();
+                string fileRelativePath = configurationProperties.FileRelativePath!.Replace("\\", Path.DirectorySeparatorChar.ToString());
+                string? filePath = Directory.EnumerateFiles(projectPath, fileRelativePath!).FirstOrDefault();
                 ProcessFile(projectAuthenticationSettings, filePath, configurationProperties);
             }
 
