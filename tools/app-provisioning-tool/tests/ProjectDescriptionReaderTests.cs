@@ -247,7 +247,7 @@ namespace Tests
 
             // Create the folder
             string parentFolder = Path.Combine(tempFolder, "Provisioning", testName);
-            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName);
+            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName.Replace('\\', Path.DirectorySeparatorChar));
 
             if (!Directory.Exists(createdProjectFolder))
             {
