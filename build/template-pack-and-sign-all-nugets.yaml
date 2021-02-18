@@ -42,6 +42,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\ProjectTemplates'
     AssemblyName: 'AspNetCoreMicrosoftIdentityWebProjectTemplates'
 
+# Pack and sign the provisionning tool
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
+    AssemblyName: 'ms-identity-app'
+
 # Copy all packages out to staging
 - task: CopyFiles@2
   displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
