@@ -40,7 +40,7 @@ steps:
 # Pack and sign the provisioning tool
 - template: template-pack-and-sign-nuget.yaml
   parameters:
-    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    BuildConfiguration: $(BuildConfiguration)
     ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
     AssemblyName: '**\*app*'
 
