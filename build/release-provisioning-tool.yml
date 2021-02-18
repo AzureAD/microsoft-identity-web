@@ -31,7 +31,7 @@ steps:
   displayName: 'Build solution app-provisioning-tool.sln and run tests'
   inputs:
     command: test
-    projects: 'tools/app-provisioning-tool/app-provisioning-tool.sln'
+    projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
     arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=$(MsIdentityWebSemVer) -p:SourceLinkCreate=true'
  
 # Run Post-build code analysis (e.g. Roslyn)
