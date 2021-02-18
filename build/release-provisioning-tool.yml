@@ -41,7 +41,7 @@ steps:
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: $(BuildConfiguration)
-    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
+    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
     AssemblyName: '**\*app*'
 
 # Copy all packages out to staging
