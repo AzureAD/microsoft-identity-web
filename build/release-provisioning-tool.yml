@@ -31,7 +31,7 @@ steps:
   displayName: 'Build solution app-provisioning-tool.sln and run tests'
   inputs:
     command: test
-    projects: 'tools/app-provisioning-tool/app-provisioning-tool.sln'
+    projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
     arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=$(MsIdentityWebSemVer) -p:SourceLinkCreate=true'
  
 # Run Post-build code analysis (e.g. Roslyn)
@@ -40,8 +40,8 @@ steps:
 # Pack and sign the provisioning tool
 - template: template-pack-and-sign-nuget.yaml
   parameters:
-    BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
+    BuildConfiguration: $(BuildConfiguration)
+    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
     AssemblyName: '**\*app*'
 
 # Copy all packages out to staging
