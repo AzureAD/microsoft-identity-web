@@ -62,7 +62,7 @@ namespace DotnetTool
             // Get developer credentials
             TokenCredential tokenCredential = GetTokenCredential(
                 ProvisioningToolOptions,
-                projectSettings.ApplicationParameters.TenantId ?? projectSettings.ApplicationParameters.Domain);
+                projectSettings.ApplicationParameters.EffectiveTenantId ?? projectSettings.ApplicationParameters.EffectiveDomain);
 
             if (ProvisioningToolOptions.Unregister)
             {
@@ -153,12 +153,12 @@ namespace DotnetTool
             ApplicationParameters applicationParameters)
         {
             ApplicationParameters? currentApplicationParameters = null;
-            if (!string.IsNullOrEmpty(applicationParameters.ClientId))
+            if (!string.IsNullOrEmpty(applicationParameters.EffectiveClientId))
             {
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.ReadApplication(tokenCredential, applicationParameters);
                 if (currentApplicationParameters == null)
                 {
-                    Console.Write($"Couldn't find app {applicationParameters.ClientId} in tenant {applicationParameters.TenantId}. ");
+                    Console.Write($"Couldn't find app {applicationParameters.EffectiveClientId} in tenant {applicationParameters.EffectiveTenantId}. ");
                 }
             }
 

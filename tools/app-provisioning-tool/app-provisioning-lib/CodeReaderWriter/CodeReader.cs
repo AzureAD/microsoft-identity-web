@@ -319,18 +319,21 @@ namespace DotnetTool.CodeReaderWriter
             {
                 case "Application.ClientId":
                     projectAuthenticationSettings.ApplicationParameters.ClientId = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveClientId = (value != defaultValue) ? value : null;
                     break;
                 case "Application.CallbackPath":
                     projectAuthenticationSettings.ApplicationParameters.CallbackPath = value ?? defaultValue;
                     break;
                 case "Directory.TenantId":
                     projectAuthenticationSettings.ApplicationParameters.TenantId = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveTenantId = (value != defaultValue) ? value : null;
                     break;
                 case "Application.Authority":
                     // Case of Blazorwasm where the authority is not separated :(
                     projectAuthenticationSettings.ApplicationParameters.Authority = value;
                     if (!string.IsNullOrEmpty(value))
                     {
+                        // TODO: something more generic
                         Uri authority = new Uri(value);
                         string? tenantOrDomain = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
                         if (tenantOrDomain == "qualified.domain.name")
@@ -343,6 +346,7 @@ namespace DotnetTool.CodeReaderWriter
                     break;
                 case "Directory.Domain":
                     projectAuthenticationSettings.ApplicationParameters.Domain = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveDomain = (value != defaultValue) ? value : null;
                     break;
                 case "secretsId":
                     projectAuthenticationSettings.ApplicationParameters.SecretsId = value;
