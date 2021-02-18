@@ -4,6 +4,7 @@
 using DotnetTool.CodeReaderWriter;
 using DotnetTool.Project;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using Xunit;
@@ -238,7 +239,9 @@ namespace Tests
 
             // Create the folder
             string parentFolder = Path.Combine(tempFolder, "Provisioning", testName);
-            string createdProjectFolder = Path.Combine(parentFolder, projectFolderName.Replace("\\", Path.DirectorySeparatorChar.ToString()));
+            string createdProjectFolder = Path.Combine(
+                parentFolder, 
+                projectFolderName.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)));
 
             if (!Directory.Exists(createdProjectFolder))
             {
