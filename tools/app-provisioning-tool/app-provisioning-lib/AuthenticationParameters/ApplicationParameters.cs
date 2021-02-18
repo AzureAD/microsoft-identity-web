@@ -22,9 +22,19 @@ namespace DotnetTool.AuthenticationParameters
         public string? TenantId { get; set; }
 
         /// <summary>
+        /// The Tenant Id if it's not the default in the project template, or null otherwise
+        /// </summary>
+        public string? EffectiveTenantId { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         public string? Domain { get; set; }
+
+        /// <summary>
+        /// Domain if it's not equal to the default in the template, or otherwise null
+        /// </summary>
+        public string? EffectiveDomain { get; set; }
 
         /// <summary>
         /// First part of the Domain.
@@ -51,6 +61,11 @@ namespace DotnetTool.AuthenticationParameters
         /// Client ID of the application.
         /// </summary>
         public string? ClientId { get; set; }
+
+        /// <summary>
+        /// The ClientId if it's not the default in the project template, or null otherwise
+        /// </summary>
+        public string? EffectiveClientId { get; set; }
 
         /// <summary>
         /// Sign-in audience (tenantId or domain, organizations, common, consumers).
