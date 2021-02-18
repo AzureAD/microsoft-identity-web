@@ -1,5 +1,7 @@
 1.6.0
 ==========
+See [blog post](https://github.com/AzureAD/microsoft-identity-web/wiki/1.6.0) for details.
+
 ### New Features:
 **Microsoft Identity Web templates now include a project template for Azure Functions**. See issue [#899](https://github.com/AzureAD/microsoft-identity-web/issues/899) for details.
 
