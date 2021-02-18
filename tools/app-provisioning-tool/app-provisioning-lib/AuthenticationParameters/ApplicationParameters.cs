@@ -67,7 +67,6 @@ namespace DotnetTool.AuthenticationParameters
         /// </summary>
         public string? EffectiveClientId { get; set; }
 
-
         /// <summary>
         /// Sign-in audience (tenantId or domain, organizations, common, consumers).
         /// </summary>
