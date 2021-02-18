@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ms-identity-app": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    }
+  }
+}
