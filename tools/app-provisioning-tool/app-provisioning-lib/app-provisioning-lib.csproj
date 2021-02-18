@@ -13,7 +13,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>1</WarningLevel>
     <DelaySign>false</DelaySign>
-    <PackageType></PackageType>
   </PropertyGroup>
 
   <ItemGroup>
