@@ -47,7 +47,7 @@ steps:
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
-    AssemblyName: 'ms-identity-app'
+    AssemblyName: '**\*app*'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
