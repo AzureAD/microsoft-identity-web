@@ -30,7 +30,7 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'Build solution app-provisioning-tool.sln and run tests'
   inputs:
-    command: build
+    command: test
     projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
     arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:ClientSemVer=$(ClientSemVer) -p:SourceLinkCreate=true'
  
@@ -53,11 +53,6 @@ steps:
   parameters:
     FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
     Pattern: '**\**\**\**\*app*.dll'
-    
-# - template: template-sign-binary.yaml
-#   parameters:
-#     FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
-#     Pattern: '**\bin\**\**\ms-identity-app.dll'
 
 - template: template-nuget-pack.yaml
   parameters:
