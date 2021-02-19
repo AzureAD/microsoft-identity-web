@@ -29,12 +29,12 @@ namespace Microsoft.Identity.App
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
         /// <returns></returns>
         static public async Task Main(
-            string? tenantId = null,
-            string? username = null,
-            string? clientId = null,
-            bool? unregister = false,
-            string? folder = null,
-            string? clientSecret = null)
+            string? tenantId,
+            string? username,
+            string? clientId,
+            string? folder,
+            string? clientSecret,
+            bool? unregister)
         {
             // Read options
             ProvisioningToolOptions provisioningToolOptions = new ProvisioningToolOptions
