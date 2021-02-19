@@ -304,7 +304,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
 
         private static XmlNode? FindMatchingElement(XmlDocument parentElement, IEnumerable<string> path)
         {
+#pragma warning disable S1075 // URIs should not be hardcoded
             string xPath = "/" + string.Join("/", path);
+#pragma warning restore S1075 // URIs should not be hardcoded
             XmlNode? node = parentElement.SelectSingleNode(xPath);
             return node;
         }

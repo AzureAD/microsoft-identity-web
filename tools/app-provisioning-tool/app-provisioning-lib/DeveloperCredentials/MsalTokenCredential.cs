@@ -14,7 +14,9 @@ namespace Microsoft.Identity.App.DeveloperCredentials
 {
     public class MsalTokenCredential : TokenCredential
     {
+#pragma warning disable S1075 // URIs should not be hardcoded
         private const string RedirectUri = "http://localhost";
+#pragma warning restore S1075 // URIs should not be hardcoded
 
         public MsalTokenCredential(string? tenantId, string? username, string instance = "https://login.microsoftonline.com")
         {

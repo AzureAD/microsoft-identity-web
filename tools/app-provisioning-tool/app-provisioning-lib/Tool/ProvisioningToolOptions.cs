@@ -8,6 +8,7 @@ namespace Microsoft.Identity.App
     public class ProvisioningToolOptions : IDeveloperCredentialsOptions
     {
         public string CodeFolder { get; set; } = System.IO.Directory.GetCurrentDirectory();
+
         /// <summary>
         /// Language/Framework for the project.
         /// </summary>

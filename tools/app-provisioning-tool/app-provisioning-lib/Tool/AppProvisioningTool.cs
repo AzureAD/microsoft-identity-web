@@ -166,7 +166,7 @@ namespace Microsoft.Identity.App
             {
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.CreateNewApp(tokenCredential, applicationParameters);
 
-                Console.Write($"Created app {currentApplicationParameters.ClientId}");
+                Console.Write($"Created app {currentApplicationParameters.ClientId}. ");
             }
 
             return currentApplicationParameters;
