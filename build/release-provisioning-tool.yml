@@ -40,13 +40,13 @@ steps:
 # Pack and sign the provisioning tool
 - template: template-sign-binary.yaml
   parameters:
-    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
-    Pattern: 'bin\**\**\ms-identity-app.dll'
+    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
+    Pattern: ''**\bin\**\**\ms-identity-app.dll'
 
 - template: template-sign-binary.yaml
   parameters:
-    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
-    Pattern: 'bin\**\**\app-provisioning-lib.dll
+    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
+    Pattern: '**\bin\**\**\app-provisioning-lib.dll
     '
 - template: template-nuget-pack.yaml
   parameters:
