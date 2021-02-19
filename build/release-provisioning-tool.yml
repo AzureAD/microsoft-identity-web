@@ -47,17 +47,17 @@ steps:
  
 # Run Post-build code analysis (e.g. Roslyn)
 - template: template-postbuild-code-analysis.yaml
- 
+
 # Pack and sign the provisioning tool
 - template: template-sign-binary.yaml
   parameters:
     FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
-    Pattern: '**\bin\**\**\ms-identity-app.dll'
-
-- template: template-sign-binary.yaml
-  parameters:
-    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
-    Pattern: '**\bin\**\**\app-provisioning-lib.dll'
+    Pattern: '**\bin\**\**\*app*.dll'
+    
+# - template: template-sign-binary.yaml
+#   parameters:
+#     FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
+#     Pattern: '**\bin\**\**\ms-identity-app.dll'
 
 - template: template-nuget-pack.yaml
   parameters:
