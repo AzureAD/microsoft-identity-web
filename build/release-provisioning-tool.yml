@@ -38,11 +38,21 @@ steps:
 - template: template-postbuild-code-analysis.yaml
  
 # Pack and sign the provisioning tool
-- template: template-pack-and-sign-nuget.yaml
+- template: template-sign-binary.yaml
   parameters:
+    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
+    Pattern: 'bin\**\**\**\ms-identity-app.dll'
+
+- template: template-sign-binary.yaml
+  parameters:
+    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool'
+    Pattern: 'bin\**\**\**\app-provisioning-lib.dll
+    '
+- template: template-nuget-pack.yaml
+  parameters:
+    NoBuild: 'true'
     BuildConfiguration: $(BuildConfiguration)
-    ProjectRootPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
-    AssemblyName: '**\*app*'
+    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\ms-identity-app.csproj'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
