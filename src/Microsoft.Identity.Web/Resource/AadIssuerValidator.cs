@@ -168,6 +168,7 @@ namespace Microsoft.Identity.Web.Resource
 
         // The AAD "iss" claims contains the tenant ID in its value.
         // The URI can be
+        // - {domain}/{tid}
         // - {domain}/{tid}/v2.0
         // - {domain}/{tid}/v2.0/
         // - {domain}/{tfp}/{tid}/{userFlow}/v2.0/
@@ -180,7 +181,7 @@ namespace Microsoft.Identity.Web.Resource
 
             var uri = new Uri(iss);
 
-            if (uri.Segments.Length == 3)
+            if (uri.Segments.Length == 2 || uri.Segments.Length == 3)
             {
                 return uri.Segments[1].TrimEnd('/');
             }
