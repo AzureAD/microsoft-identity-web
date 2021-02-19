@@ -32,7 +32,18 @@ steps:
   inputs:
     command: build
     projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=$(MsIdentityWebSemVer) -p:SourceLinkCreate=true'
+    arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:ClientSemVer=$(ClientSemVer) -p:SourceLinkCreate=true'
+ 
+# This task is needed so that the 1CS Rolsyn analyzers task works.
+# The previous task does the restore
+- task: VSBuild@1
+  displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
+  inputs:
+    solution: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
+    vsVersion: '16.0'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:ClientSemVer=$(ClientSemVer) /p:SourceLinkCreate=true'
+    platform: $(BuildPlatform)
+    configuration: $(BuildConfiguration)
  
 # Run Post-build code analysis (e.g. Roslyn)
 - template: template-postbuild-code-analysis.yaml
@@ -52,7 +63,7 @@ steps:
   parameters:
     NoBuild: 'true'
     BuildConfiguration: $(BuildConfiguration)
-    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\ms-identity-app.csproj'
+    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool\ms-identity-app.csproj'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
