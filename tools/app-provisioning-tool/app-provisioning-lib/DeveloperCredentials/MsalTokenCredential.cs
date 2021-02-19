@@ -20,7 +20,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
 
         public MsalTokenCredential(string? tenantId, string? username, string instance = "https://login.microsoftonline.com")
         {
-            TenantId = tenantId ?? "common";
+            TenantId = tenantId ?? "organizations"; // MSA-passthrough
             Username = username;
             Instance = instance;
         }
@@ -98,9 +98,9 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalUiRequiredException ex)
             {
-                Console.WriteLine("Please re-sign-in in Visual Studio");
+                Console.WriteLine("Please re-sign-in in Visual Studio. ");
                 result = await app.AcquireTokenInteractive(requestContext.Scopes)
-                    .WithLoginHint(Username)
+                    .WithAccount(account)
                     .WithClaims(ex.Claims)
                     .WithAuthority(Instance, TenantId)
                     .ExecuteAsync(cancellationToken);
