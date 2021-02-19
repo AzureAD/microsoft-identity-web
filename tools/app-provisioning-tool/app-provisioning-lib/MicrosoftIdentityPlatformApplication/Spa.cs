@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace DotnetTool.MicrosoftIdentityPlatformApplication
+namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
     /// <summary>
     /// Temporary, until the Graph SDK exposes it.

@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
-using DotnetTool.AuthenticationParameters;
-using DotnetTool.CodeReaderWriter;
-using DotnetTool.DeveloperCredentials;
-using DotnetTool.MicrosoftIdentityPlatformApplication;
-using DotnetTool.Project;
+using Microsoft.Identity.App.AuthenticationParameters;
+using Microsoft.Identity.App.CodeReaderWriter;
+using Microsoft.Identity.App.DeveloperCredentials;
+using Microsoft.Identity.App.MicrosoftIdentityPlatformApplication;
+using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     /// <summary>
     /// 

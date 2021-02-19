@@ -5,16 +5,16 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace DotnetTool.Project
+namespace Microsoft.Identity.App.Project
 {
     public class MatchesForProjectType
     {
         public string? FileRelativePath
         {
-            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
-            set { fileRelativePath = value; }
+            get { return _fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
+            set { _fileRelativePath = value; }
         }
-        private string? fileRelativePath;
+        private string? _fileRelativePath;
 
         public string[]? MatchAny { get; set; }
         public string? Sets { get; set; }

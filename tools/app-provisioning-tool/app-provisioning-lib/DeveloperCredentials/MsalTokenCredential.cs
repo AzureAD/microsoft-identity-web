@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DotnetTool.DeveloperCredentials
+namespace Microsoft.Identity.App.DeveloperCredentials
 {
     public class MsalTokenCredential : TokenCredential
     {
@@ -19,8 +19,8 @@ namespace DotnetTool.DeveloperCredentials
         public MsalTokenCredential(string? tenantId, string? username, string instance = "https://login.microsoftonline.com")
         {
             TenantId = tenantId ?? "common";
-            Instance = instance;
             Username = username;
+            Instance = instance;
         }
 
         private IPublicClientApplication? App { get; set; }

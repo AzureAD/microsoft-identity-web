@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using DotnetTool.Project;
+using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,16 +10,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Xml;
-using ConfigurationProperties = DotnetTool.Project.ConfigurationProperties;
+using ConfigurationProperties = Microsoft.Identity.App.Project.ConfigurationProperties;
 
-namespace DotnetTool.CodeReaderWriter
+namespace Microsoft.Identity.App.CodeReaderWriter
 {
     /// <summary>
     /// 
     /// </summary>
     public class CodeReader
     {
-        static readonly JsonSerializerOptions serializerOptionsWithComments = new JsonSerializerOptions()
+        static readonly JsonSerializerOptions s_serializerOptionsWithComments = new JsonSerializerOptions()
         {
             ReadCommentHandling = JsonCommentHandling.Skip
         };
@@ -161,7 +161,7 @@ namespace DotnetTool.CodeReaderWriter
                 if (filePath.EndsWith(".json"))
                 {
                     jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
-                                                                          serializerOptionsWithComments);
+                                                                          s_serializerOptionsWithComments);
                 }
                 else if (filePath.EndsWith(".csproj"))
                 {

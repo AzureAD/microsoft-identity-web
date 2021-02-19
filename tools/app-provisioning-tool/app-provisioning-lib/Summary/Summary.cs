@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     public class Summary
     {
