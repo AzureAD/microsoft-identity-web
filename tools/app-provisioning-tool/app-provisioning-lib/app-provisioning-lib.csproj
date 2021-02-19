@@ -5,10 +5,14 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Microsoft.Identity.App</RootNamespace>
     <OutputType>Library</OutputType>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>1</WarningLevel>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
