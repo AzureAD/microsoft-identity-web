@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using DotnetTool.Project;
+using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,16 +10,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Xml;
-using ConfigurationProperties = DotnetTool.Project.ConfigurationProperties;
+using ConfigurationProperties = Microsoft.Identity.App.Project.ConfigurationProperties;
 
-namespace DotnetTool.CodeReaderWriter
+namespace Microsoft.Identity.App.CodeReaderWriter
 {
     /// <summary>
     /// 
     /// </summary>
     public class CodeReader
     {
-        static readonly JsonSerializerOptions serializerOptionsWithComments = new JsonSerializerOptions()
+        static readonly JsonSerializerOptions s_serializerOptionsWithComments = new JsonSerializerOptions()
         {
             ReadCommentHandling = JsonCommentHandling.Skip
         };
@@ -161,7 +161,7 @@ namespace DotnetTool.CodeReaderWriter
                 if (filePath.EndsWith(".json"))
                 {
                     jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
-                                                                          serializerOptionsWithComments);
+                                                                          s_serializerOptionsWithComments);
                 }
                 else if (filePath.EndsWith(".csproj"))
                 {
@@ -304,7 +304,9 @@ namespace DotnetTool.CodeReaderWriter
 
         private static XmlNode? FindMatchingElement(XmlDocument parentElement, IEnumerable<string> path)
         {
+#pragma warning disable S1075 // URIs should not be hardcoded
             string xPath = "/" + string.Join("/", path);
+#pragma warning restore S1075 // URIs should not be hardcoded
             XmlNode? node = parentElement.SelectSingleNode(xPath);
             return node;
         }
@@ -319,18 +321,21 @@ namespace DotnetTool.CodeReaderWriter
             {
                 case "Application.ClientId":
                     projectAuthenticationSettings.ApplicationParameters.ClientId = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveClientId = (value != defaultValue) ? value : null;
                     break;
                 case "Application.CallbackPath":
                     projectAuthenticationSettings.ApplicationParameters.CallbackPath = value ?? defaultValue;
                     break;
                 case "Directory.TenantId":
                     projectAuthenticationSettings.ApplicationParameters.TenantId = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveTenantId = (value != defaultValue) ? value : null;
                     break;
                 case "Application.Authority":
                     // Case of Blazorwasm where the authority is not separated :(
                     projectAuthenticationSettings.ApplicationParameters.Authority = value;
                     if (!string.IsNullOrEmpty(value))
                     {
+                        // TODO: something more generic
                         Uri authority = new Uri(value);
                         string? tenantOrDomain = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
                         if (tenantOrDomain == "qualified.domain.name")
@@ -343,6 +348,7 @@ namespace DotnetTool.CodeReaderWriter
                     break;
                 case "Directory.Domain":
                     projectAuthenticationSettings.ApplicationParameters.Domain = value;
+                    projectAuthenticationSettings.ApplicationParameters.EffectiveDomain = (value != defaultValue) ? value : null;
                     break;
                 case "secretsId":
                     projectAuthenticationSettings.ApplicationParameters.SecretsId = value;

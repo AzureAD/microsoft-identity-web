@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     public class Change
     {

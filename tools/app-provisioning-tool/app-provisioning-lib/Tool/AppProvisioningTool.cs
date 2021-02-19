@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
-using DotnetTool.AuthenticationParameters;
-using DotnetTool.CodeReaderWriter;
-using DotnetTool.DeveloperCredentials;
-using DotnetTool.MicrosoftIdentityPlatformApplication;
-using DotnetTool.Project;
+using Microsoft.Identity.App.AuthenticationParameters;
+using Microsoft.Identity.App.CodeReaderWriter;
+using Microsoft.Identity.App.DeveloperCredentials;
+using Microsoft.Identity.App.MicrosoftIdentityPlatformApplication;
+using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     /// <summary>
     /// 
@@ -62,7 +62,7 @@ namespace DotnetTool
             // Get developer credentials
             TokenCredential tokenCredential = GetTokenCredential(
                 ProvisioningToolOptions,
-                projectSettings.ApplicationParameters.TenantId ?? projectSettings.ApplicationParameters.Domain);
+                projectSettings.ApplicationParameters.EffectiveTenantId ?? projectSettings.ApplicationParameters.EffectiveDomain);
 
             if (ProvisioningToolOptions.Unregister)
             {
@@ -153,12 +153,12 @@ namespace DotnetTool
             ApplicationParameters applicationParameters)
         {
             ApplicationParameters? currentApplicationParameters = null;
-            if (!string.IsNullOrEmpty(applicationParameters.ClientId))
+            if (!string.IsNullOrEmpty(applicationParameters.EffectiveClientId))
             {
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.ReadApplication(tokenCredential, applicationParameters);
                 if (currentApplicationParameters == null)
                 {
-                    Console.Write($"Couldn't find app {applicationParameters.ClientId} in tenant {applicationParameters.TenantId}. ");
+                    Console.Write($"Couldn't find app {applicationParameters.EffectiveClientId} in tenant {applicationParameters.EffectiveTenantId}. ");
                 }
             }
 
@@ -166,7 +166,7 @@ namespace DotnetTool
             {
                 currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.CreateNewApp(tokenCredential, applicationParameters);
 
-                Console.Write($"Created app {currentApplicationParameters.ClientId}");
+                Console.Write($"Created app {currentApplicationParameters.ClientId}. ");
             }
 
             return currentApplicationParameters;

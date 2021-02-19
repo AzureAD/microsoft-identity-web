@@ -6,10 +6,11 @@ using Microsoft.Graph;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DotnetTool.MicrosoftIdentityPlatformApplication
+namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
     /// <summary>
     /// Graph SDK authentication provider based on an Azure SDK token credential provider.
@@ -17,7 +18,7 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
     internal class TokenCredentialAuthenticationProvider : IAuthenticationProvider
     {
         public TokenCredentialAuthenticationProvider(
-            TokenCredential tokenCredentials, 
+            TokenCredential tokenCredentials,
             IEnumerable<string>? initialScopes = null)
         {
             _tokenCredentials = tokenCredentials;
@@ -29,17 +30,12 @@ namespace DotnetTool.MicrosoftIdentityPlatformApplication
 
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
-            string accessToken;
-
             // Try with the Shared token cache credentials
 
-                TokenRequestContext context = new TokenRequestContext(_initialScopes.ToArray());
-                AccessToken token = await _tokenCredentials.GetTokenAsync(context, CancellationToken.None);
-                accessToken = token.Token;
+            TokenRequestContext context = new TokenRequestContext(_initialScopes.ToArray());
+            AccessToken token = await _tokenCredentials.GetTokenAsync(context, CancellationToken.None);
 
-
-            request.Headers.Remove("Authorization");
-            request.Headers.Add("Authorization", $"bearer {accessToken}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
         }
     }
 }

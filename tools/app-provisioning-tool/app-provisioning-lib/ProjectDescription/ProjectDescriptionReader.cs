@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace DotnetTool.Project
+namespace Microsoft.Identity.App.Project
 {
     public class ProjectDescriptionReader
     {
@@ -48,9 +48,7 @@ namespace DotnetTool.Project
         {
             ReadProjectDescriptions();
 
-
             // TODO: could be both a Web app and WEB API.
-
 
             foreach (ProjectDescription projectDescription in projectDescriptions.Where(p => p.GetMergedMatchesForProjectType(projectDescriptions) != null))
             {
@@ -71,7 +69,6 @@ namespace DotnetTool.Project
                             {
                                 files = new string[0];
                             }
-
 
                             foreach (string filePath in files)
                             {
@@ -116,7 +113,6 @@ namespace DotnetTool.Project
             return null;
         }
 
-
         private void ReadProjectDescriptions()
         {
             if (projectDescriptions.Any())
@@ -134,11 +130,11 @@ namespace DotnetTool.Project
 
                 if (projectDescription == null)
                 {
-                    throw new FormatException($"Resource file { propertyInfo.Name } could not be parsed.");
+                    throw new FormatException($"Resource file { propertyInfo.Name } could not be parsed. ");
                 }
                 if (!projectDescription.IsValid())
                 {
-                    throw new FormatException($"Resource file {propertyInfo.Name} is missing Identitier or ProjectRelativeFolder is null.");
+                    throw new FormatException($"Resource file {propertyInfo.Name} is missing Identitier or ProjectRelativeFolder is null. ");
                 }
                 projectDescriptions.Add(projectDescription);
             }
@@ -147,5 +143,4 @@ namespace DotnetTool.Project
             // In that case the validation would not be an exception? but would need to provide error messages
         }
     }
-
 }

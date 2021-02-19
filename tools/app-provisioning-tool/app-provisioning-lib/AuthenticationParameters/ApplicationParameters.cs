@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace DotnetTool.AuthenticationParameters
+namespace Microsoft.Identity.App.AuthenticationParameters
 {
     /// <summary>
-    /// 
+    /// Application parameters.
     /// </summary>
     public class ApplicationParameters
     {
@@ -22,12 +22,22 @@ namespace DotnetTool.AuthenticationParameters
         public string? TenantId { get; set; }
 
         /// <summary>
-        /// 
+        /// The tenant ID if it's not the default in the project template, or null otherwise.
+        /// </summary>
+        public string? EffectiveTenantId { get; set; }
+
+        /// <summary>
+        /// Domain of the tenant.
         /// </summary>
         public string? Domain { get; set; }
 
         /// <summary>
-        /// First part of the Domain.
+        /// Domain if it's not equal to the default in the template, or otherwise null.
+        /// </summary>
+        public string? EffectiveDomain { get; set; }
+
+        /// <summary>
+        /// First part of the domain.
         /// </summary>
         public string? Domain1
         {
@@ -38,12 +48,12 @@ namespace DotnetTool.AuthenticationParameters
         }
 
         /// <summary>
-        /// 
+        /// URL that indicates a directory from which to request tokens.
         /// </summary>
         public string? Authority { get; set; }
-        
+
         /// <summary>
-        /// 
+        /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
         /// </summary>
         public string? Instance { get; set; }
 
@@ -51,6 +61,11 @@ namespace DotnetTool.AuthenticationParameters
         /// Client ID of the application.
         /// </summary>
         public string? ClientId { get; set; }
+
+        /// <summary>
+        /// The Client ID if it's not the default in the project template, or null otherwise.
+        /// </summary>
+        public string? EffectiveClientId { get; set; }
 
         /// <summary>
         /// Sign-in audience (tenantId or domain, organizations, common, consumers).
@@ -71,7 +86,7 @@ namespace DotnetTool.AuthenticationParameters
         // TODO: propose a fix for the blazorwasm project template
         
         /// <summary>
-        /// Sign-up sign-in policy in the case of B2C.
+        /// Sign-up/sign-in policy in the case of B2C.
         /// </summary>
         /// <remarks>This is for the blazorwasm hosted template and more a workaround
         /// to the template. The default name of the policy appearing in 
@@ -130,7 +145,7 @@ namespace DotnetTool.AuthenticationParameters
         public string? LogoutUrl { set; get; }
 
         /// <summary>
-        /// 
+        /// Developer credentials.
         /// </summary>
         public List<string> PasswordCredentials { get; } = new List<string>();
 
@@ -155,17 +170,17 @@ namespace DotnetTool.AuthenticationParameters
         public string? SecretsId { get; internal set; }
 
         /// <summary>
-        /// 
+        /// Target framework.
         /// </summary>
         public string? TargetFramework { get; internal set; }
 
         /// <summary>
-        /// 
+        /// Authentication options with MSAL .NET.
         /// </summary>
         public string? MsalAuthenticationOptions { get; set; }
 
         /// <summary>
-        /// Sets a bool propery (from its name).
+        /// Sets a bool property (from its name).
         /// </summary>
         /// <param name="propertyName"></param>
         public void Sets(string propertyName)
