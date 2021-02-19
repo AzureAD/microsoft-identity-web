@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     /// <summary>
     /// 

@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DotnetTool.Project
+namespace Microsoft.Identity.App.Project
 {
     public class ProjectDescription
     {
         /// <summary>
         /// Empty files
         /// </summary>
-        static ConfigurationProperties[] emptyFiles = new ConfigurationProperties[0];
+        static readonly ConfigurationProperties[] s_emptyFiles = new ConfigurationProperties[0];
 
         /// <summary>
         /// Identifier of the project description.
@@ -58,7 +58,7 @@ namespace DotnetTool.Project
             ProjectDescription? baseProject = projects.FirstOrDefault(p => p.Identifier == BasedOnProjectDescription);
             if (!string.IsNullOrEmpty(BasedOnProjectDescription) && baseProject == null)
             {
-                throw new FormatException($"In Project {ProjectRelativeFolder} BasedOn = {BasedOnProjectDescription} could not be found");
+                throw new FormatException($"In Project {ProjectRelativeFolder} BasedOn = {BasedOnProjectDescription} could not be found. ");
             }
             return baseProject;
         }
@@ -71,7 +71,7 @@ namespace DotnetTool.Project
         /// <returns></returns>
         public IEnumerable<ConfigurationProperties> GetMergedConfigurationProperties(IEnumerable<ProjectDescription> projects)
         {
-            IEnumerable<ConfigurationProperties> configurationProperties = GetBasedOnProject(projects)?.GetMergedConfigurationProperties(projects) ?? emptyFiles;
+            IEnumerable<ConfigurationProperties> configurationProperties = GetBasedOnProject(projects)?.GetMergedConfigurationProperties(projects) ?? s_emptyFiles;
             IEnumerable<ConfigurationProperties> allConfigurationProperties = ConfigurationProperties != null ? configurationProperties.Union(ConfigurationProperties) : configurationProperties;
             var allConfigurationPropertiesGrouped = allConfigurationProperties.GroupBy(f => f.FileRelativePath);
             foreach (var fileGrouping in allConfigurationPropertiesGrouped)
