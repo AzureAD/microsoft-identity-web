@@ -3,19 +3,19 @@ Command line tool that creates Microsoft identity platform applications in a ten
 
 ## Installing/Uninstalling the tool
 
-1. Build the repository and create the NuGet package (from the `src\DotnetTool` folder):
+1. Build the repository and create the NuGet package (from the `tools\app-provisioning-tool` folder):
  
    ```Shell
    dotnet pack
    ```
    
-2. Run the following in a developer command prompt in the `src\DotnetTool` folder:
+2. Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
    
    ```Shell
-   dotnet tool install --global --add-source ./nupkg ms-identity-app
+   dotnet tool install --global --add-source app-provisioning-tool\nupkg ms-identity-app
    ```
 
-If later you want to uninstall the tool, just run:
+If later you want to uninstall the tool, just run (from anywhere):
 ```Shell
 dotnet tool uninstall --global ms-identity-app
 ```
