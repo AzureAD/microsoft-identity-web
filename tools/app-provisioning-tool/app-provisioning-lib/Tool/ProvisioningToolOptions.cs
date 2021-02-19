@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using DotnetTool.DeveloperCredentials;
+using Microsoft.Identity.App.DeveloperCredentials;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     public class ProvisioningToolOptions : IDeveloperCredentialsOptions
     {
         public string CodeFolder { get; set; } = System.IO.Directory.GetCurrentDirectory();
+
         /// <summary>
         /// Language/Framework for the project.
         /// </summary>

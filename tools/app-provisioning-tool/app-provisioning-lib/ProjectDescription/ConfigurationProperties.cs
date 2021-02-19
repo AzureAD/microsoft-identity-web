@@ -5,21 +5,19 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace DotnetTool.Project
+namespace Microsoft.Identity.App.Project
 {
     public class ConfigurationProperties
     {
-        private static PropertyMapping[] s_emptyPropertyMappings = new PropertyMapping[0];
-
         public string? FileRelativePath 
         {
-            get { return fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
-            set { fileRelativePath = value; } 
+            get { return _fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
+            set { _fileRelativePath = value; } 
         }
-        private string? fileRelativePath;
+        private string? _fileRelativePath;
 
         public PropertyMapping[] Properties { get; set; } = S_emptyPropertyMappings;
-        public static PropertyMapping[] S_emptyPropertyMappings { get => s_emptyPropertyMappings; set => s_emptyPropertyMappings = value; }
+        public static PropertyMapping[] S_emptyPropertyMappings { get; set; } = new PropertyMapping[0];
 
         public override string? ToString()
         {

@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
 
-namespace DotnetTool
+namespace Microsoft.Identity.App
 {
     /// <summary>
     /// 
@@ -42,7 +42,7 @@ namespace DotnetTool
             string? clientId,
             string? folder,
             string? clientSecret,
-            bool? unregister = false)
+            bool? unregister)
         {
             // Read options
             ProvisioningToolOptions provisioningToolOptions = new ProvisioningToolOptions

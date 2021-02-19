@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-namespace DotnetTool.AuthenticationParameters
+namespace Microsoft.Identity.App.AuthenticationParameters
 {
     public class ApiPermission
     {

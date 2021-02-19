@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
-using DotnetTool.AuthenticationParameters;
+using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Graph;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotnetTool.MicrosoftIdentityPlatformApplication
+namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
     public class MicrosoftIdentityPlatformApplicationManager
     {
