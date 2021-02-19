@@ -52,7 +52,7 @@ steps:
 - template: template-sign-binary.yaml
   parameters:
     FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
-    Pattern: '**\bin\**\**\*app*.dll'
+    Pattern: '**\**\**\**\*app*.dll'
     
 # - template: template-sign-binary.yaml
 #   parameters:
