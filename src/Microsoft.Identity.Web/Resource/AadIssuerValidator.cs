@@ -168,7 +168,7 @@ namespace Microsoft.Identity.Web.Resource
 
         // The AAD "iss" claims contains the tenant ID in its value.
         // The URI can be
-        // - {domain}/{tid}
+        // - {domain}/{tid} - v1 tokens
         // - {domain}/{tid}/v2.0
         // - {domain}/{tid}/v2.0/
         // - {domain}/{tfp}/{tid}/{userFlow}/v2.0/
