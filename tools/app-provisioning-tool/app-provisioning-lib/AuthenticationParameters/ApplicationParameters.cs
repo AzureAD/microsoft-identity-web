@@ -14,7 +14,7 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         /// <summary>
         /// Application display name.
         /// </summary>
-        public string? DisplayName { get; set; }
+        public string? ApplicationDisplayName { get; set; }
 
         /// <summary>
         /// Tenant in which the application is created.

@@ -78,7 +78,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
             var app = await GetOrCreateApp();
-            AuthenticationResult result;
+            AuthenticationResult? result = null;
             var accounts = await app.GetAccountsAsync()!;
             IAccount? account;
 
@@ -98,12 +98,11 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalUiRequiredException ex)
             {
-                Console.WriteLine("Please re-sign-in in Visual Studio. ");
-                result = await app.AcquireTokenInteractive(requestContext.Scopes)
-                    .WithAccount(account)
-                    .WithClaims(ex.Claims)
-                    .WithAuthority(Instance, TenantId)
-                    .ExecuteAsync(cancellationToken);
+                Console.WriteLine("No valid tokens found in the cache.\nPlease sign-in to Visual Studio with this account:\n\n{0}.\n\nAfter signing-in, re-run the tool.\n" +
+                    "Error returned: {1}",
+                    account?.Username ?? "Account not specified, sign-in to Visual Studio",
+                    ex.Message);
+                Environment.Exit(1);
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }

@@ -179,7 +179,7 @@ namespace Microsoft.Identity.App
         {
             CodeReader reader = new CodeReader();
             ProjectAuthenticationSettings projectSettings = reader.ReadFromFiles(provisioningToolOptions.CodeFolder, projectDescription, projectDescriptions);
-            projectSettings.ApplicationParameters.DisplayName ??= Path.GetFileName(provisioningToolOptions.CodeFolder);
+            projectSettings.ApplicationParameters.ApplicationDisplayName ??= Path.GetFileName(provisioningToolOptions.CodeFolder);
             projectSettings.ApplicationParameters.ClientId ??= provisioningToolOptions.ClientId;
             projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
             return projectSettings;
