@@ -102,7 +102,11 @@ namespace Microsoft.Identity.App.DeveloperCredentials
                     "Error returned: {1}",
                     account?.Username ?? "Account not specified, sign-in to Visual Studio",
                     ex.Message);
-                Environment.Exit(1);
+                result = await app.AcquireTokenInteractive(requestContext.Scopes)
+                    .WithAccount(account)
+                    .WithClaims(ex.Claims)
+                    .WithAuthority(Instance, TenantId)
+                    .ExecuteAsync(cancellationToken);
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }
