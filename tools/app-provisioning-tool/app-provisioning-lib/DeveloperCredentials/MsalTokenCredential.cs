@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
@@ -39,7 +40,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         {
             if (App == null)
             {
-                // On Windows, USERPROFILE is guarantied to be set
+                // On Windows, USERPROFILE is guaranteed to be set
                 string userProfile = Environment.GetEnvironmentVariable("USERPROFILE")!;
                 string cacheDir = Path.Combine(userProfile, @"AppData\Local\.IdentityService");
 
