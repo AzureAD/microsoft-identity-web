@@ -74,7 +74,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             return App;
         }
-        
+
         public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
             var app = await GetOrCreateApp();
@@ -107,6 +107,12 @@ namespace Microsoft.Identity.App.DeveloperCredentials
                     .WithClaims(ex.Claims)
                     .WithAuthority(Instance, TenantId)
                     .ExecuteAsync(cancellationToken);
+            }
+            catch (MsalServiceException ex)
+            {
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0}",
+                    ex.Message);
+                Environment.Exit(1);
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }
