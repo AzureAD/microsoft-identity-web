@@ -112,7 +112,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             {
                 Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0}",
                     ex.Message);
-                Environment.Exit(1);
+                Environment.Exit(1); // we want to exit here. Re-sign in will not resolve the issue.
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }
