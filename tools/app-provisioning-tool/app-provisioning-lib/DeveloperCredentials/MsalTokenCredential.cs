@@ -44,13 +44,11 @@ namespace Microsoft.Identity.App.DeveloperCredentials
                 string cacheDir = Path.Combine(userProfile, @"AppData\Local\.IdentityService");
 
                 // TODO: what about the other platforms?
-
+                string clientId = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
                 var storageProperties =
                      new StorageCreationPropertiesBuilder(
                          "msal.cache",
-                         cacheDir,
-                         "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
-                         /*"1950a258-227b-4e31-a9cf-717495945fc2"*/)
+                         cacheDir)
                      /*
                      .WithLinuxKeyring(
                          Config.LinuxKeyRingSchema,
@@ -64,7 +62,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
                      */
                      .Build();
 
-                App = PublicClientApplicationBuilder.Create(storageProperties.ClientId)
+                App = PublicClientApplicationBuilder.Create(clientId)
                   .WithRedirectUri(RedirectUri)
                   .Build();
 
