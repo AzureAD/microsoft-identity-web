@@ -32,9 +32,7 @@ namespace Microsoft.Identity.Web
 
             if (result != null && result.Succeeded)
             {
-#pragma warning disable CS8601 // Possible null reference assignment.
                 httpContext.User = result.Principal;
-#pragma warning restore CS8601 // Possible null reference assignment.
                 return (true, null);
             }
             else
