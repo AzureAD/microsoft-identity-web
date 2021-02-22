@@ -107,17 +107,18 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             {
                 if (ex.Message.Contains("AADSTS70002")) // "The client does not exist or is not enabled for consumers"
                 {
-                    Console.WriteLine("An Azure AD tenant needs to be created for this account before an application can be created. See https://aka.ms/ms-identity-app/create-a-tenant. ");
+                    Console.WriteLine("An Azure AD tenant, and a user in that tenant, " +
+                        "needs to be created for this account before an application can be created. See https://aka.ms/ms-identity-app/create-a-tenant. ");
                     Environment.Exit(1); // we want to exit here because this is probably an MSA without an AAD tenant.
                 }
 
-                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0}",
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
                     ex.Message);
                 Environment.Exit(1); // we want to exit here. Re-sign in will not resolve the issue.
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0}",
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
                     ex.Message);
                 Environment.Exit(1);
             }
