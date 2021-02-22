@@ -97,6 +97,10 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalUiRequiredException ex)
             {
+                if (account == null && !string.IsNullOrEmpty(Username))
+                {
+                    Console.WriteLine($"No valid tokens found in the cache.\nPlease sign-in to Visual Studio with this account:\n\n{Username}.\n\nAfter signing-in, re-run the tool.\n");
+                }
                 result = await app.AcquireTokenInteractive(requestContext.Scopes)
                     .WithAccount(account)
                     .WithClaims(ex.Claims)
