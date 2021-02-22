@@ -34,6 +34,7 @@ namespace Microsoft.Identity.App
         /// <param name="folder">When specified, will analyze the application code in the specified folder. 
         /// Otherwise analyzes the code in the current directory.</param>
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
+        /// <param name="susiPolicyId">Sign-up/Sign-in policy required for creation of a B2C application.</param>
         /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <returns></returns>
         static public async Task Main(
@@ -42,6 +43,7 @@ namespace Microsoft.Identity.App
             string? clientId,
             string? folder,
             string? clientSecret,
+            string? susiPolicyId,
             bool? unregister)
         {
             // Read options
@@ -51,6 +53,7 @@ namespace Microsoft.Identity.App
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
+                SusiPolicyId = susiPolicyId,
                 Unregister = unregister ?? false
             };
 

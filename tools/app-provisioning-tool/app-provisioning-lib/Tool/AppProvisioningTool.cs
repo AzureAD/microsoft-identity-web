@@ -53,6 +53,19 @@ namespace Microsoft.Identity.App
                 projectDescription,
                 ProjectDescriptionReader.projectDescriptions);
 
+            if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
+            {
+                // insert B2C section...open appsetting.json look for something see CodeWriter
+
+                // replace AzureAD by AzureADB2C in startup.cs
+                // read all text and do a string replace ?
+                // reevaulate the project settings
+                projectSettings = InferApplicationParameters(
+                ProvisioningToolOptions,
+                projectDescription,
+                ProjectDescriptionReader.projectDescriptions);
+            }
+
             if (!projectSettings.ApplicationParameters.HasAuthentication)
             {
                 Console.WriteLine($"Authentication not enabled yet in this project. An app registration will " +
