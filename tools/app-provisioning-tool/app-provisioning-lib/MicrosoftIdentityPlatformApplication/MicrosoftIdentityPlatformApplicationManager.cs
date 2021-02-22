@@ -24,9 +24,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
             // Get the tenant
-            var tenant = (await graphServiceClient.Organization
-                .Request()
-                .GetAsync()).FirstOrDefault();
+            Organization? tenant = await GetTenant(graphServiceClient);
 
             // Create the app.
             Application application = new Application()
@@ -130,6 +128,38 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             return effectiveApplicationParameters;
+        }
+
+        private static async Task<Organization?> GetTenant(GraphServiceClient graphServiceClient)
+        {
+            Organization? tenant = null;
+            try
+            {
+                tenant = (await graphServiceClient.Organization
+                    .Request()
+                    .GetAsync()).FirstOrDefault();
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine(ex.InnerException.Message);
+                }
+                else
+                {
+                    if (ex.Message.Contains("User was not found") || ex.Message.Contains("not found in tenant"))
+                    {
+                        Console.WriteLine("User was not found.\nUse both --tenant-id <tenant> --username <username@tenant>.\nAnd re-run the tool.");
+                    }
+                    else
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+                Environment.Exit(1);
+            }
+
+            return tenant;
         }
 
         internal async Task UpdateApplication(TokenCredential tokenCredential, ApplicationParameters reconcialedApplicationParameters)
@@ -523,10 +553,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
-            var tenant = (await graphServiceClient.Organization
-                .Request()
-                .GetAsync()).FirstOrDefault()!;
-
+            // Get the tenant
+            Organization? tenant = await GetTenant(graphServiceClient);
 
             var apps = await graphServiceClient.Applications
                 .Request()
@@ -541,8 +569,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
-                tenant, 
-                readApplication, 
+                tenant,
+                readApplication,
                 applicationParameters);
 
             return effectiveApplicationParameters;
