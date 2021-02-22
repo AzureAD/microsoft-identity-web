@@ -11,8 +11,13 @@
         },
         "mvc-single-org [jean-marc.prieur4@orange.fr]": {
             "commandName": "Project",
-            // "commandLineArgs": "--tenant-id f8cdef31-a31e-4b4a-93e4-5f571e91255a --username jean-marc.prieur4@orange.fr",
+            // "commandLineArgs": "--username jean-marc.prieur4@orange.fr --tenant-id jeanmarcprieur4.onmicrosoft.com",
             "commandLineArgs": "--username jean-marc.prieur4@orange.fr",
+            "workingDirectory": "C:\\temp\\Provisioning\\ProjectDescriptionReaderTests\\mvc\\mvc-singleorg"
+        },
+        "mvc-single-org [jean-marc.prieur4@orange.fr,  --tenant-id jeanmarcprieur4.onmicrosoft.com]": {
+            "commandName": "Project",
+            "commandLineArgs": "--username jean-marc.prieur4@orange.fr --tenant-id jeanmarcprieur4.onmicrosoft.com",
             "workingDirectory": "C:\\temp\\Provisioning\\ProjectDescriptionReaderTests\\mvc\\mvc-singleorg"
         },
         "mvc-single-org [testprovisionningtool.onmicrosoft.com]": {

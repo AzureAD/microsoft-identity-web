@@ -14,6 +14,7 @@ using Microsoft.Graph;
 
 namespace Microsoft.Identity.App.DeveloperCredentials
 {
+#if AzureSDK
     // Used to debug
     public class ProvisioningToolCredentials : DefaultAzureCredential
     {
@@ -37,6 +38,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         }
 
     }
+#endif
 
     public class DeveloperCredentialsReader
     {
@@ -58,24 +60,26 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             // (Need preauth)
             defaultAzureCredentialOptions.ExcludeVisualStudioCredential = true;
 
+            if (!string.IsNullOrEmpty(username))
+            {
+                defaultAzureCredentialOptions.SharedTokenCacheUsername = username;
+            }
+
             // SharedTokenCacheCredential does not allow for MSA accounts
             // 'SharedTokenCacheCredential authentication failed: A configuration issue is preventing authentication - check the error message from the server for details.
             // You can modify the configuration in the application registration portal. See https://aka.ms/msal-net-invalid-client for details.  
             // Original exception: AADSTS70002: The client does not exist or is not enabled for consumers. 
             // If you are the application developer, configure a new application through the App Registrations in the Azure Portal at 
             // https://go.microsoft.com/fwlink/?linkid=2083908.
-            defaultAzureCredentialOptions.ExcludeSharedTokenCacheCredential = true;
+            if (currentApplicationTenantId == null)
+            {
+                defaultAzureCredentialOptions.ExcludeSharedTokenCacheCredential = true;
+            }
 
             // I have not tried
             defaultAzureCredentialOptions.ExcludeVisualStudioCodeCredential = false;
-
             defaultAzureCredentialOptions.ExcludeInteractiveBrowserCredential = false;
 
-
-            if (!string.IsNullOrEmpty(username))
-            {
-                defaultAzureCredentialOptions.SharedTokenCacheUsername = username;
-            }
 
             if (!string.IsNullOrWhiteSpace(tenandId))
             {
@@ -102,6 +106,8 @@ namespace Microsoft.Identity.App.DeveloperCredentials
 #endif
         }
 
+#if AzureSDK
+
         private static async Task<string?> GetTenantIdFromTenantName(string? currentApplicationTenantId)
         {
             string? tenandId = currentApplicationTenantId;
@@ -124,5 +130,6 @@ namespace Microsoft.Identity.App.DeveloperCredentials
 
             return tenandId;
         }
+#endif
     }
 }

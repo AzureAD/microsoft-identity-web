@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
@@ -19,9 +20,13 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
         GraphServiceClient? _graphServiceClient;
 
-        internal async Task<ApplicationParameters> CreateNewApp(TokenCredential tokenCredential, ApplicationParameters applicationParameters)
+        internal async Task<ApplicationParameters> CreateNewApp(TokenCredential tokenCredential, ApplicationParameters applicationParameters, string owner)
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
+
+            // Who is the creator/owner of the app
+            User me = await graphServiceClient.Me.Request().GetAsync();
+            VerifyUser(owner, me);
 
             // Get the tenant
             Organization? tenant = null;
@@ -49,6 +54,9 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 }
                 Environment.Exit(1);
             }
+
+            Console.WriteLine($"Creating a new app in tenant {tenant.Id} as {me.UserPrincipalName}");
+
             // Create the app.
             Application application = new Application()
             {
@@ -151,6 +159,19 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             return effectiveApplicationParameters;
+        }
+
+        private static void VerifyUser(string ?owner, User me)
+        {
+            int indexSharp = me.UserPrincipalName.IndexOf('#');
+
+            string userEvenWhenGuest = 
+                (indexSharp >0) ? me.UserPrincipalName.Substring(0,indexSharp) : me.UserPrincipalName;
+            if (owner != null && userEvenWhenGuest != owner?.Replace('@', '_'))
+            {
+                Console.Error.WriteLine("Please use both --tenant-id and --username");
+                Environment.Exit(1);
+            }
         }
 
         internal async Task UpdateApplication(TokenCredential tokenCredential, ApplicationParameters reconcialedApplicationParameters)
@@ -540,9 +561,14 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             return _graphServiceClient;
         }
 
-        public async Task<ApplicationParameters?> ReadApplication(TokenCredential tokenCredential, ApplicationParameters applicationParameters)
+        public async Task<ApplicationParameters?> ReadApplication(TokenCredential tokenCredential, ApplicationParameters applicationParameters, string? owner)
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
+
+
+            // Who is the creator/owner of the app
+            User me = await graphServiceClient.Me.Request().GetAsync();
+            VerifyUser(owner, me);
 
             var tenant = (await graphServiceClient.Organization
                 .Request()

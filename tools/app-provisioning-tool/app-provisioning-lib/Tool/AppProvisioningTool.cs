@@ -73,7 +73,7 @@ namespace Microsoft.Identity.App
             // Read or provision Microsoft identity platform application
             ApplicationParameters? effectiveApplicationParameters = await ReadOrProvisionMicrosoftIdentityApplication(
                 tokenCredential, 
-                projectSettings.ApplicationParameters);
+                projectSettings.ApplicationParameters, ProvisioningToolOptions.Username);
 
             Summary summary = new Summary();
 
@@ -150,12 +150,13 @@ namespace Microsoft.Identity.App
 
         private async Task<ApplicationParameters?> ReadOrProvisionMicrosoftIdentityApplication(
             TokenCredential tokenCredential,
-            ApplicationParameters applicationParameters)
+            ApplicationParameters applicationParameters,
+            string? owner)
         {
             ApplicationParameters? currentApplicationParameters = null;
             if (!string.IsNullOrEmpty(applicationParameters.EffectiveClientId))
             {
-                currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.ReadApplication(tokenCredential, applicationParameters);
+                currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.ReadApplication(tokenCredential, applicationParameters, owner);
                 if (currentApplicationParameters == null)
                 {
                     Console.Write($"Couldn't find app {applicationParameters.EffectiveClientId} in tenant {applicationParameters.EffectiveTenantId}. ");
@@ -164,7 +165,7 @@ namespace Microsoft.Identity.App
 
             if (currentApplicationParameters == null && !ProvisioningToolOptions.Unregister)
             {
-                currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.CreateNewApp(tokenCredential, applicationParameters);
+                currentApplicationParameters = await MicrosoftIdentityPlatformApplicationManager.CreateNewApp(tokenCredential, applicationParameters, owner);
 
                 Console.Write($"Created app {currentApplicationParameters.ClientId}. ");
             }
