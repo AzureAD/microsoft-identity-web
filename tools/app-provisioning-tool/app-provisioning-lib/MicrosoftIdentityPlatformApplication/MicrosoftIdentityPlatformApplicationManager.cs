@@ -31,7 +31,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             // Create the app.
             Application application = new Application()
             {
-                DisplayName = applicationParameters.DisplayName,
+                DisplayName = applicationParameters.ApplicationDisplayName,
                 SignInAudience = AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(applicationParameters.SignInAudience!),
                 Description = applicationParameters.Description
             };
@@ -224,7 +224,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         {
             var passwordCredential = new PasswordCredential
             {
-                DisplayName = "Password created by the provisionning tool"
+                DisplayName = "Password created by the provisioning tool"
             };
 
             PasswordCredential returnedPasswordCredential = await graphServiceClient.Applications[$"{createdApplication.Id}"]
@@ -557,7 +557,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             bool isB2C = (tenant.TenantType == "AAD B2C");
             var effectiveApplicationParameters = new ApplicationParameters
             {
-                DisplayName = application.DisplayName,
+                ApplicationDisplayName = application.DisplayName,
                 ClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,

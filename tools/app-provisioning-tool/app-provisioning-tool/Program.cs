@@ -31,10 +31,10 @@ namespace Microsoft.Identity.App
         /// used when you don't want to register a new app, but want to configure the code 
         /// from an existing application (which can also be updated by the tool if needed).
         /// You might want to also pass-in the <paramref name="clientSecret"/> if you know it.</param>
-        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <param name="folder">When specified, will analyze the application code in the specified folder. 
         /// Otherwise analyzes the code in the current directory.</param>
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
+        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <returns></returns>
         static public async Task Main(
             string? tenantId,
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.App
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
-                Unregister = unregister.HasValue ? unregister.Value : false
+                Unregister = unregister ?? false
             };
 
             if (folder != null)
