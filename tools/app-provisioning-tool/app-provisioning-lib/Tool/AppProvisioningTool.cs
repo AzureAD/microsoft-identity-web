@@ -60,7 +60,7 @@ namespace Microsoft.Identity.App
             }
 
             // Get developer credentials
-            TokenCredential tokenCredential = GetTokenCredential(
+            TokenCredential tokenCredential = await GetTokenCredential(
                 ProvisioningToolOptions,
                 projectSettings.ApplicationParameters.EffectiveTenantId ?? projectSettings.ApplicationParameters.EffectiveDomain);
 
@@ -185,10 +185,10 @@ namespace Microsoft.Identity.App
             return projectSettings;
         }
 
-        private TokenCredential GetTokenCredential(ProvisioningToolOptions provisioningToolOptions, string? currentApplicationTenantId)
+        private async Task<TokenCredential> GetTokenCredential(ProvisioningToolOptions provisioningToolOptions, string? currentApplicationTenantId)
         {
             DeveloperCredentialsReader developerCredentialsReader = new DeveloperCredentialsReader();
-            return developerCredentialsReader.GetDeveloperCredentials(
+            return await developerCredentialsReader.GetDeveloperCredentials(
                 provisioningToolOptions.Username, 
                 currentApplicationTenantId ?? provisioningToolOptions.TenantId);
         }

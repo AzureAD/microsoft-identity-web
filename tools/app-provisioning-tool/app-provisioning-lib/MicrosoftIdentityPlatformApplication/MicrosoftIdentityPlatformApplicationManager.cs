@@ -24,10 +24,31 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
             // Get the tenant
-            var tenant = (await graphServiceClient.Organization
-                .Request()
-                .GetAsync()).FirstOrDefault();
-
+            Organization? tenant = null;
+            try
+            {
+                tenant = (await graphServiceClient.Organization
+                    .Request()
+                    .GetAsync()).FirstOrDefault();
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    // The refresh token has expired due to inactivity
+                    if (ex.InnerException.Message.Contains("AADSTS700082"))
+                    {
+                        if (ex.InnerException.Message.Contains("Azure CLI"))
+                        {
+                            Console.Error.WriteLine("Your credentials have expired. You need to re-sign-in. Please run 'az login'");
+                            Environment.Exit(1);
+                        }
+                    }
+                    Console.Error.WriteLine(ex.Message);
+                    Console.Error.WriteLine(ex.InnerException.Message);
+                }
+                Environment.Exit(1);
+            }
             // Create the app.
             Application application = new Application()
             {
@@ -541,8 +562,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
-                tenant, 
-                readApplication, 
+                tenant,
+                readApplication,
                 applicationParameters);
 
             return effectiveApplicationParameters;
