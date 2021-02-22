@@ -68,6 +68,16 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         public string? EffectiveClientId { get; set; }
 
         /// <summary>
+        /// Client ID of the web api server application in the case of blazorwasm hosted applications
+        /// </summary>
+        public string? BlazorwasmHostedWebApiClientId { get; set; }
+
+        /// <summary>
+        /// The WebApiClientId if it's not the default in the project template, or null otherwise.
+        /// </summary>
+        public string? EffectiveBlazorwasmHostedWebApiClientId { get; set; }
+
+        /// <summary>
         /// Sign-in audience (tenantId or domain, organizations, common, consumers).
         /// </summary>
         public string? SignInAudience { get; set; }
@@ -152,7 +162,7 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         /// <summary>
         /// Identitier URIs for web APIs.
         /// </summary>
-        public List<string> IdentifierUris { get; } = new List<string>();
+        public string AppIdUri { set;  get; }
 
         /// <summary>
         /// API permissions.

@@ -35,6 +35,9 @@ namespace Microsoft.Identity.App
         /// <param name="folder">When specified, will analyze the application code in the specified folder. 
         /// Otherwise analyzes the code in the current directory.</param>
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
+        /// <param name="apiClientId">Client ID of the blazorwasm hosted web API. 
+        /// This is only used on the case of a blazorwasm hosted application where you only
+        /// want to configure the code.</param>
         /// <returns></returns>
         static public async Task Main(
             string? tenantId,
@@ -42,6 +45,7 @@ namespace Microsoft.Identity.App
             string? clientId,
             string? folder,
             string? clientSecret,
+            string? apiClientId,
             bool? unregister)
         {
             // Read options
@@ -51,6 +55,7 @@ namespace Microsoft.Identity.App
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
+                WebApiClientId = apiClientId,
                 Unregister = unregister.HasValue ? unregister.Value : false
             };
 

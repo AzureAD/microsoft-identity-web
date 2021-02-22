@@ -51,6 +51,13 @@ namespace Microsoft.Identity.App
         public string? ClientId { get; set; }
 
         /// <summary>
+        /// Client ID of the blazorwasm hosted web api application (optional).
+        /// This is only used in the case of blazorwasm hosted. The name is after
+        /// the blazorwasm template's parameter --api-client-id
+        /// </summary>
+        public string? WebApiClientId { get; set; }
+
+        /// <summary>
         /// Tenant ID of the application (optional if the user belongs to
         /// only one tenant).
         /// </summary>

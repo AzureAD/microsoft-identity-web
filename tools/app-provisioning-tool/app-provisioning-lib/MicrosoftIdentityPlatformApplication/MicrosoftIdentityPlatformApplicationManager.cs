@@ -519,6 +519,24 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             return _graphServiceClient;
         }
 
+        /// <summary>
+        /// Get an application from its clientID
+        /// </summary>
+        /// <param name="graphServiceClient"></param>
+        /// <param name="clientId"></param>
+        /// <returns></returns>
+        private static async Task<Application> GetApplication(GraphServiceClient graphServiceClient, string clientId)
+        {
+            var apps = await graphServiceClient.Applications
+                .Request()
+                .Filter($"appId eq '{clientId}'")
+                .GetAsync();
+
+            var readApplication = apps.FirstOrDefault();
+            return readApplication;
+        }
+
+
         public async Task<ApplicationParameters?> ReadApplication(TokenCredential tokenCredential, ApplicationParameters applicationParameters)
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
@@ -527,13 +545,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 .Request()
                 .GetAsync()).FirstOrDefault()!;
 
-
-            var apps = await graphServiceClient.Applications
-                .Request()
-                .Filter($"appId eq '{applicationParameters.ClientId}'")
-                .GetAsync();
-
-            var readApplication = apps.FirstOrDefault();
+            Application readApplication = await GetApplication(graphServiceClient, applicationParameters.ClientId!);
 
             if (readApplication == null)
             {
@@ -541,9 +553,22 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
-                tenant, 
-                readApplication, 
+                tenant,
+                readApplication,
                 applicationParameters);
+
+            // Special case for Blazorwasm hosted app, there is a second application
+            // (the server folder which is a hosted API)
+            if (applicationParameters.BlazorwasmHostedWebApiClientId != null)
+            {
+                Application readHostedWebApiApplication = await GetApplication(graphServiceClient,
+                    applicationParameters.BlazorwasmHostedWebApiClientId!);
+                if (readHostedWebApiApplication != null)
+                {
+                    effectiveApplicationParameters.BlazorwasmHostedWebApiClientId = readHostedWebApiApplication.AppId;
+                    effectiveApplicationParameters.EffectiveBlazorwasmHostedWebApiClientId = readHostedWebApiApplication.AppId;
+                }
+            }
 
             return effectiveApplicationParameters;
 
@@ -559,6 +584,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             {
                 DisplayName = application.DisplayName,
                 ClientId = application.AppId,
+                EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,
                 HasAuthentication = true,
@@ -579,6 +605,11 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 MsalAuthenticationOptions = originalApplicationParameters.MsalAuthenticationOptions,
                 CalledApiScopes = originalApplicationParameters.CalledApiScopes,
             };
+
+            if (application.Api != null)
+            {
+                effectiveApplicationParameters.AppIdUri = application.IdentifierUris.FirstOrDefault();
+            }
 
             // Todo: might be a bit more complex in some cases for the B2C case.
             // TODO: handle b2c custom domains & domains ending in b2c.login.*

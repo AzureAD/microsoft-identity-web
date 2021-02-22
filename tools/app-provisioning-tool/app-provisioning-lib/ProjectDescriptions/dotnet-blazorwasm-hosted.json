@@ -47,7 +47,7 @@
       "Properties": [
         {
           "Property": "AzureAd:ClientId",
-          "Represents": "Application.ClientId",
+          "Represents": "Application.BlazorwasmHostedWebApiClientId",
           "Sets": "IsAAD",
           "Default": "11111111-1111-1111-11111111111111111"
         },
@@ -75,7 +75,7 @@
         },
         {
           "Property": "AzureAdB2C:ClientId",
-          "Represents": "Application.ClientId",
+          "Represents": "Application.BlazorwasmHostedWebApiClientId",
           "Sets": "IsB2C",
           "Default": "11111111-1111-1111-11111111111111111"
         },

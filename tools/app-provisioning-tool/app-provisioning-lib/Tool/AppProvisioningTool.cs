@@ -40,12 +40,12 @@ namespace Microsoft.Identity.App
 
             if (projectDescription == null)
             {
-                Console.WriteLine("Could not determine the project type. ");
+                Console.WriteLine($"The code in {ProvisioningToolOptions.CodeFolder} wasn't recognized as supported by the tool. Rerun with --help for details.");
                 return;
             }
             else
             {
-                Console.WriteLine($"Detected {projectDescription.Identifier}. ");
+                Console.WriteLine($"Detected project type {projectDescription.Identifier}. ");
             }
 
             ProjectAuthenticationSettings projectSettings = InferApplicationParameters(
@@ -55,8 +55,8 @@ namespace Microsoft.Identity.App
 
             if (!projectSettings.ApplicationParameters.HasAuthentication)
             {
-                Console.WriteLine($"Authentication not enabled yet in this project. An app registration will " +
-                                  $"be created, but the tool does not add the code (work in progress). ");
+                Console.WriteLine($"Authentication is not enabled yet in this project. An app registration will " +
+                                  $"be created, but the tool does not add the code yet (work in progress). ");
             }
 
             // Get developer credentials
