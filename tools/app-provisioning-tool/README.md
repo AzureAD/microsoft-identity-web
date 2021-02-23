@@ -27,33 +27,42 @@ Have an AAD or B2C tenant (or both).
 
 - If you want to add a AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. To create a B2C tenant, see [Create a B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
 
-
 ## Using the tool
 
 ```text
 ms-identity-app:
-  Creates or updates an AzureAD/Azure AD B2C application, and updates the code, using
-   the developer credentials (Visual Studio, Azure CLI, Azure RM PowerShell, VS Code)
+  Creates or updates an Azure AD / Azure AD B2C application, and updates the code, using
+   your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
+   Use this tool in folders containing applications created with the following command:
+
+   dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]
+
+   where the template is in webapp, mvc, webapi, blazorserver, blazorwasm.
+   See https://aka.ms/ms-identity-app-registration.
 
 Usage:
   ms-identity-app [options]
 
 Options:
-  --tenant-id <tenant-id>            Azure AD or Azure AD B2C tenant in which to create/update the app.
-                                      If specified, the tool will create the application in the specified tenant.
-                                      Otherwise it will create the app in your home tenant ID [default: ]
-  --username <username>              Username to use to connect to the Azure AD or Azure AD B2C tenant.
-                                      It's only needed when you are signed-in in Visual Studio, or Azure CLI with several identities.
-                                      In that case username is used to disambiguate which identity to use. [default: ]
-  --client-id <client-id>            Client ID of an existing application from which to update the code. This is
-                                      used when you don't want to register a new app in AzureAD/AzureAD B2C, but want to configure the
-                                      code from an existing application (which can also be updated by the tool) [default: ]
-  --unregister                       Unregister the application, instead of registering it [default: False]
-  --folder <folder>                  When specified, will analyze the application code in the specified folder.
-                                      Otherwise analyzes the code in the current directory [default: ]
-  --client-secret <client-secret>    Client secret to use as a client credential [default: ]
-  --version                          Show version information
-  -?, -h, --help                     Show help and usage information
+  --tenant-id <tenant-id>              Azure AD or Azure AD B2C tenant in which to create/update the app.
+                                        - If specified, the tool will create the application in the specified tenant.
+                                        - Otherwise it will create the app in your home tenant.
+  --username <username>                Username to use to connect to the Azure AD or Azure AD B2C tenant.
+                                        It's only needed when you are signed-in in Visual Studio, or Azure CLI with
+                                        several identities. In that case, the username param is used to disambiguate
+                                        which identity to use to create the app in the tenant.
+  --client-id <client-id>              Client ID of an existing application from which to update the code. This is
+                                        used when you don't want to register a new app, but want to configure the code
+                                        from an existing application (which can also be updated by the tool if needed).
+                                        You might want to also pass-in the if you know it.
+  --folder <folder>                    When specified, will analyze the application code in the specified folder.
+                                        Otherwise analyzes the code in the current directory.
+  --client-secret <client-secret>      Client secret to use as a client credential.
+  --susi-policy-id <susi-policy-id>    Sign-up/Sign-in policy required for configurating
+                                        a B2C application from code that was created for AAD.
+  --unregister                         Unregister the application, instead of registering it.
+  --version                            Show version information
+  -?, -h, --help                       Show help and usage information
 ```
 
 If you use PowerShell, or Bash, you can also get the completion in the shell, provivided you install [dotnet-suggest](https://www.nuget.org/packages/dotnet-suggest/). See https://github.com/dotnet/command-line-api/blob/main/docs/dotnet-suggest.md on how to configure the shell so that it leverages dotnet-suggest.
@@ -69,12 +78,14 @@ Given existing code which is not yet configured:
 - creates a new app registration in the tenant, using your developer credentials if possible (and prompting you otherwise). Ensures redirect URIs are registered for all the launchsettings ports.
 - updates the configuration files (and program.cs for Blazor apps)
 
+Note that in the following samples, you can always have your templates adding a calls to Microsoft graph [--calls-graph], or to a downstream API [--called-api-url URI --called-api-scopes scopes]. This is now shown here to keep things simple.
+
 <table>
  <tr>
   <td>
    <code>
 dotnet new webapp --auth SingleOrg
-    
+
 ms-identity-app
    </code>
   </td>
@@ -107,11 +118,25 @@ ms-identity-app --username username@domain.com
  
  ### Registering a new AzureAD B2C app and configuring the code using your dev credentials
 
+Note that in the following samples, you can always have your templates adding a calls to a downstream API [--called-api-url URI --called-api-scopes scopes]. This is now shown here to keep things simple.
+
 <table>
  <tr>
   <td>
    <code>
 dotnet new webapp --auth SingleOrg
+
+ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_susi
+   </code>
+  </td>
+  <td>Creates a new Azure AD B2C app and updates code which was initially meant
+  to be for Azure AD.</td>
+ </tr> 
+
+  <tr>
+  <td>
+   <code>
+dotnet new webapp --auth IndividualB2C
 
 ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
    </code>
@@ -122,7 +147,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
   <tr>
   <td>
    <code>
-dotnet new webapp --auth SingleOrg
+dotnet new webapp --auth IndividualB2C
 
 ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@domain.com
    </code>
@@ -135,8 +160,18 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@dom
  
  ### Configuring code from an existing application
  
+ The following configures code with an existing application.
+
  ```Shell
 dotnet new webapp --auth SingleOrg
+
+ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
+ ```
+
+ Same thing for an application calling Microsoft Graph
+
+ ```Shell
+dotnet new webapp --auth SingleOrg --calls-graph
 
 ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
  ```

@@ -55,17 +55,35 @@ namespace Microsoft.Identity.App
 
             if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
             {
-                // insert B2C section...open appsetting.json look for something see CodeWriter
-                string filePath = projectSettings.Replacements[0].FilePath;
-                string fileContent = File.ReadAllText(filePath);
-                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
-                File.WriteAllText(filePath, updatedContent);
+                // Get all the files in which "AzureAD" needs to be replaced by "AzureADB2C"
+                IEnumerable<string> filesWithReplacementsForB2C = projectSettings.Replacements
+                    .Where(r => r.ReplaceBy == "Application.ConfigurationSection")
+                    .Select(r => r.FilePath);
 
-                // replace AzureAD by AzureADB2C in startup.cs
-                string startupFilePath = filePath.Replace("appsettings.json", "Startup.cs");
-                string startupContent = File.ReadAllText(startupFilePath);
-                string updatedStartupContent = startupContent.Replace("AzureAd", "AzureAdB2C");
-                File.WriteAllText(startupFilePath, updatedStartupContent);
+                foreach (string filePath in filesWithReplacementsForB2C)
+                {
+                    string fileContent = File.ReadAllText(filePath);
+                    string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+
+                    // Add the policies to the appsettings.json
+                    if (filePath.EndsWith("appsettings.json"))
+                    {
+                        // Insert the policies
+                        int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
+                        if (indexCallbackPath > 0)
+                        {
+                            updatedContent = updatedContent.Substring(0, indexCallbackPath)
+                                + Properties.Resources.Policies
+                                + updatedContent.Substring(indexCallbackPath);
+                        }
+                    }
+                    File.WriteAllText(filePath, updatedContent);
+                }
+
+                if (projectSettings.ApplicationParameters.CallsMicrosoftGraph)
+                {
+                    Console.WriteLine("You'll need to remove the calls to Microsoft Graph as it's not supported by B2C apps.");
+                }
 
                 // reevaulate the project settings
                 projectSettings = InferApplicationParameters(
