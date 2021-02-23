@@ -56,14 +56,22 @@ namespace Microsoft.Identity.App
             if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
             {
                 // insert B2C section...open appsetting.json look for something see CodeWriter
+                string filePath = projectSettings.Replacements[0].FilePath;
+                string fileContent = File.ReadAllText(filePath);
+                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+                File.WriteAllText(filePath, updatedContent);
 
                 // replace AzureAD by AzureADB2C in startup.cs
-                // read all text and do a string replace ?
+                string startupFilePath = filePath.Replace("appsettings.json", "Startup.cs");
+                string startupContent = File.ReadAllText(startupFilePath);
+                string updatedStartupContent = startupContent.Replace("AzureAd", "AzureAdB2C");
+                File.WriteAllText(startupFilePath, updatedStartupContent);
+
                 // reevaulate the project settings
                 projectSettings = InferApplicationParameters(
-                ProvisioningToolOptions,
-                projectDescription,
-                ProjectDescriptionReader.projectDescriptions);
+                    ProvisioningToolOptions,
+                    projectDescription,
+                    ProjectDescriptionReader.projectDescriptions);
             }
 
             if (!projectSettings.ApplicationParameters.HasAuthentication)
@@ -85,7 +93,7 @@ namespace Microsoft.Identity.App
 
             // Read or provision Microsoft identity platform application
             ApplicationParameters? effectiveApplicationParameters = await ReadOrProvisionMicrosoftIdentityApplication(
-                tokenCredential, 
+                tokenCredential,
                 projectSettings.ApplicationParameters);
 
             Summary summary = new Summary();
@@ -120,7 +128,7 @@ namespace Microsoft.Identity.App
         private void WriteSummary(Summary summary)
         {
             Console.WriteLine("Summary");
-            foreach(Change change in summary.changes)
+            foreach (Change change in summary.changes)
             {
                 Console.WriteLine($"{change.Description}");
             }
@@ -186,7 +194,7 @@ namespace Microsoft.Identity.App
         }
 
         private ProjectAuthenticationSettings InferApplicationParameters(
-            ProvisioningToolOptions provisioningToolOptions, 
+            ProvisioningToolOptions provisioningToolOptions,
             ProjectDescription projectDescription,
             IEnumerable<ProjectDescription> projectDescriptions)
         {
@@ -202,7 +210,7 @@ namespace Microsoft.Identity.App
         {
             DeveloperCredentialsReader developerCredentialsReader = new DeveloperCredentialsReader();
             return developerCredentialsReader.GetDeveloperCredentials(
-                provisioningToolOptions.Username, 
+                provisioningToolOptions.Username,
                 currentApplicationTenantId ?? provisioningToolOptions.TenantId);
         }
 

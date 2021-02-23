@@ -20,6 +20,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
             ReplaceFrom = replaceFrom;
             ReplaceBy = replaceBy;
         }
+
         public string FilePath { get; set; }
         public int Index { get; set; }
         public int Length { get; set; }
