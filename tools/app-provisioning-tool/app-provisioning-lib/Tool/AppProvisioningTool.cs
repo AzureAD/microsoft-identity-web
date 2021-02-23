@@ -53,6 +53,45 @@ namespace Microsoft.Identity.App
                 projectDescription,
                 ProjectDescriptionReader.projectDescriptions);
 
+            if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
+            {
+                // Get all the files in which "AzureAD" needs to be replaced by "AzureADB2C"
+                IEnumerable<string> filesWithReplacementsForB2C = projectSettings.Replacements
+                    .Where(r => r.ReplaceBy == "Application.ConfigurationSection")
+                    .Select(r => r.FilePath);
+
+                foreach (string filePath in filesWithReplacementsForB2C)
+                {
+                    string fileContent = File.ReadAllText(filePath);
+                    string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+
+                    // Add the policies to the appsettings.json
+                    if (filePath.EndsWith("appsettings.json"))
+                    {
+                        // Insert the policies
+                        int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
+                        if (indexCallbackPath > 0)
+                        {
+                            updatedContent = updatedContent.Substring(0, indexCallbackPath)
+                                + Properties.Resources.Policies
+                                + updatedContent.Substring(indexCallbackPath);
+                        }
+                    }
+                    File.WriteAllText(filePath, updatedContent);
+                }
+
+                if (projectSettings.ApplicationParameters.CallsMicrosoftGraph)
+                {
+                    Console.WriteLine("You'll need to remove the calls to Microsoft Graph as it's not supported by B2C apps.");
+                }
+
+                // reevaulate the project settings
+                projectSettings = InferApplicationParameters(
+                    ProvisioningToolOptions,
+                    projectDescription,
+                    ProjectDescriptionReader.projectDescriptions);
+            }
+
             if (!projectSettings.ApplicationParameters.HasAuthentication)
             {
                 Console.WriteLine($"Authentication not enabled yet in this project. An app registration will " +
@@ -72,7 +111,7 @@ namespace Microsoft.Identity.App
 
             // Read or provision Microsoft identity platform application
             ApplicationParameters? effectiveApplicationParameters = await ReadOrProvisionMicrosoftIdentityApplication(
-                tokenCredential, 
+                tokenCredential,
                 projectSettings.ApplicationParameters);
 
             Summary summary = new Summary();
@@ -107,7 +146,7 @@ namespace Microsoft.Identity.App
         private void WriteSummary(Summary summary)
         {
             Console.WriteLine("Summary");
-            foreach(Change change in summary.changes)
+            foreach (Change change in summary.changes)
             {
                 Console.WriteLine($"{change.Description}");
             }
@@ -173,7 +212,7 @@ namespace Microsoft.Identity.App
         }
 
         private ProjectAuthenticationSettings InferApplicationParameters(
-            ProvisioningToolOptions provisioningToolOptions, 
+            ProvisioningToolOptions provisioningToolOptions,
             ProjectDescription projectDescription,
             IEnumerable<ProjectDescription> projectDescriptions)
         {
@@ -189,7 +228,7 @@ namespace Microsoft.Identity.App
         {
             DeveloperCredentialsReader developerCredentialsReader = new DeveloperCredentialsReader();
             return developerCredentialsReader.GetDeveloperCredentials(
-                provisioningToolOptions.Username, 
+                provisioningToolOptions.Username,
                 currentApplicationTenantId ?? provisioningToolOptions.TenantId);
         }
 

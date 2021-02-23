@@ -57,6 +57,12 @@ namespace Microsoft.Identity.App
         public string? TenantId { get; set; }
 
         /// <summary>
+        /// Required for the creation of a B2C application.
+        /// Represents the sign-up/sign-in user flow.
+        /// </summary>
+        public string? SusiPolicyId { get; set; }
+
+        /// <summary>
         /// Display Help.
         /// </summary>
         internal bool Help { get; set; }

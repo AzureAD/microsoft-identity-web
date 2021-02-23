@@ -39,6 +39,16 @@
           "Represents": "Application.Authority",
           "Sets": "IsB2C",
           "Default": "https://aadB2CInstance.b2clogin.com/qualified.domain.name/MySignUpSignInPolicyId"
+        },
+        {
+            "Property": "AzureAdB2C",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsB2C"
+        },
+        {
+            "Property": "AzureAd",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsAAD"
         }
       ]
     },
@@ -112,6 +122,16 @@
         {
           "Property": "DownstreamApi:Scopes",
           "Represents": "Application.CalledApiScopes"
+        },
+        {
+            "Property": "AzureAdB2C",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsB2C"
+        },
+        {
+            "Property": "AzureAd",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsAAD"
         }
       ]
     },
@@ -123,8 +143,18 @@
           "Sets": "CallsMicrosoftGraph"
         },
         {
-          "MatchAny": [ ".EnableTokenAcquisitionToCallDownstreamApi", ".AddDownstreamWebApi" ],
-          "Sets": "CallsDownstreamApi"
+            "MatchAny": [ ".EnableTokenAcquisitionToCallDownstreamApi", ".AddDownstreamWebApi" ],
+            "Sets": "CallsDownstreamApi"
+        },
+        {
+            "Property": "\"AzureAdB2C\"",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsB2C"
+        },
+        {
+            "Property": "\"AzureAd\"",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsAAD"
         }
       ]
     },
@@ -167,9 +197,19 @@
           "Default": "api://api.id.uri/access_as_user"
         },
         {
-          "Property": "qualified.domain.name",
-          "Represents": "Directory.Domain",
-          "Default": "qualified.domain.name"
+            "Property": "qualified.domain.name",
+            "Represents": "Directory.Domain",
+            "Default": "qualified.domain.name"
+        },
+        {
+            "Property": "\"AzureAdB2C\"",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsB2C"
+        },
+        {
+            "Property": "\"AzureAd\"",
+            "Represents": "Application.ConfigurationSection",
+            "Sets": "IsAAD"
         }
       ]
     },
