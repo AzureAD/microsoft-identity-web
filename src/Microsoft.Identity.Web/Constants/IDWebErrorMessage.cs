@@ -68,6 +68,5 @@ namespace Microsoft.Identity.Web
 
         // Obsolete messages IDW10800 = "IDW10800:"
         public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0";
-        public const string VerifyUserHasAnyAcceptedScopeIsObsolete = "IDW10801: Use the RequiredScope Attribute on the controller, the page or the action. See https://aka.ms/ms-id-web/required-scope-attribute";
     }
 }

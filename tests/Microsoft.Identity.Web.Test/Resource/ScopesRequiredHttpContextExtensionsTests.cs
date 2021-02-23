@@ -13,7 +13,6 @@ namespace Microsoft.Identity.Web.Test.Resource
     public class ScopesRequiredHttpContextExtensionsTests
     {
         [Fact]
-        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NullParameters_ThrowsException()
         {
             HttpContext httpContext = null;
@@ -25,7 +24,6 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NoClaims_ThrowsException()
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
@@ -38,7 +36,6 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_NoAcceptedScopes_ThrowsException()
         {
             var acceptedScopes = new[] { "acceptedScope1", "acceptedScope2" };
@@ -52,7 +49,6 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        [Obsolete("Method is obsolete")]
         public void VerifyUserHasAnyAcceptedScope_MatchesAcceptedScopes_ExecutesSuccessfully()
         {
             var httpContext = HttpContextUtilities.CreateHttpContext(new[] { "acceptedScope1" }, new string[] { });
