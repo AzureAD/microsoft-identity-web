@@ -569,7 +569,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
-                tenant,
+                tenant!,
                 readApplication,
                 applicationParameters);
 
