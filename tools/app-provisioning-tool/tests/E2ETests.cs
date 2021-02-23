@@ -33,7 +33,6 @@ namespace Tests
         [InlineData("webapi\\webapi-singleorg-callsgraph", "dotnet new webapi --auth SingleOrg --calls-graph")]
         [InlineData("webapi\\webapi-singleorg-callswebapi", "dotnet new webapi --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"")]
         [InlineData("webapi\\webapi-b2c", "dotnet new webapi --auth IndividualB2C")]
-        [InlineData("webapi\\webapi2-b2c-callswebapi", "dotnet new webapi --auth IndividualB2C --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"")]
         [InlineData("mvc\\mvc-noauth", "dotnet new mvc")]
         [InlineData("mvc\\mvc-singleorg", "dotnet new mvc --auth SingleOrg")]
         [InlineData("mvc\\mvc-singleorg-callsgraph", "dotnet new mvc --auth SingleOrg --calls-graph")]
