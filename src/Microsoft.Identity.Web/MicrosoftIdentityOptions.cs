@@ -119,5 +119,11 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
+
+        /// <summary>
+        /// Used, when deployed to Azure, to specify explicitly a user assigned managed identity.
+        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        /// </summary>
+        public string? UserAssignedManagedIdentityClientId { get; set; }
     }
 }

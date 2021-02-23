@@ -30,6 +30,12 @@ namespace Microsoft.Identity.Web
     public class DefaultCertificateLoader : ICertificateLoader
     {
         /// <summary>
+        /// User assigned managed identity client ID (by opposition to system assigned managed identity)
+        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        /// </summary>
+        public static string? UserAssignedManagedIdentityClientId { get; set; }
+
+        /// <summary>
         /// Load the certificate from the description, if needed.
         /// </summary>
         /// <param name="certificateDescription">Description of the certificate.</param>
@@ -95,7 +101,9 @@ namespace Microsoft.Identity.Web
         private static X509Certificate2 LoadFromKeyVault(string keyVaultUrl, string certificateName)
         {
             Uri keyVaultUri = new Uri(keyVaultUrl);
-            DefaultAzureCredential credential = new DefaultAzureCredential();
+            DefaultAzureCredentialOptions options = new DefaultAzureCredentialOptions();
+            options.ManagedIdentityClientId = UserAssignedManagedIdentityClientId;
+            DefaultAzureCredential credential = new DefaultAzureCredential(options);
             CertificateClient certificateClient = new CertificateClient(keyVaultUri, credential);
             SecretClient secretClient = new SecretClient(keyVaultUri, credential);
 
