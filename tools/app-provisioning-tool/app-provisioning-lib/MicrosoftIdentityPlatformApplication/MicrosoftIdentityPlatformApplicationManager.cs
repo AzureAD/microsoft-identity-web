@@ -185,6 +185,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 .UpdateAsync(updatedApp).ConfigureAwait(false);
 
             if (existingApplication.RequiredResourceAccess != null
+                && !reconcialedApplicationParameters.IsBlazorWasm
                 && existingApplication.RequiredResourceAccess.Any()
                 && (existingApplication.PasswordCredentials == null
                 || !existingApplication.PasswordCredentials.Any()
@@ -380,13 +381,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         /// <param name="application"></param>
         private static void AddSpaPlatform(ApplicationParameters applicationParameters, Application application)
         {
-            // The Graph SDK does not expose the .Spa platform yet.
-            application.AdditionalData = new Dictionary<string, object>();
-            application.AdditionalData.Add("spa",
-                new Spa
-                {
-                    redirectUris = applicationParameters.WebRedirectUris
-                });
+            application.Spa = new SpaApplication();
+            application.Spa.RedirectUris = applicationParameters.WebRedirectUris;
         }
 
         /// <summary>
@@ -587,6 +583,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             {
                 ApplicationDisplayName = application.DisplayName,
                 ClientId = application.AppId,
+                EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,
                 HasAuthentication = true,
@@ -594,6 +591,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                         && (application.Api.Oauth2PermissionScopes != null && application.Api.Oauth2PermissionScopes.Any())
                         || (application.AppRoles != null && application.AppRoles.Any()),
                 IsWebApp = application.Web != null,
+                IsBlazorWasm = application.Spa != null,
                 TenantId = tenant.Id,
                 Domain = tenant.VerifiedDomains.FirstOrDefault(v => v.IsDefault.HasValue && v.IsDefault.Value)?.Name,
                 CallsMicrosoftGraph = application.RequiredResourceAccess.Any(r => r.ResourceAppId == MicrosoftGraphAppId) && !isB2C,
@@ -606,7 +604,13 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 TargetFramework = originalApplicationParameters.TargetFramework,
                 MsalAuthenticationOptions = originalApplicationParameters.MsalAuthenticationOptions,
                 CalledApiScopes = originalApplicationParameters.CalledApiScopes,
+                AppIdUri = originalApplicationParameters.AppIdUri
             };
+
+            if (application.Api != null && application.IdentifierUris.Any())
+            {
+                effectiveApplicationParameters.AppIdUri = application.IdentifierUris.FirstOrDefault();
+            }
 
             // Todo: might be a bit more complex in some cases for the B2C case.
             // TODO: handle b2c custom domains & domains ending in b2c.login.*
@@ -619,10 +623,15 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 : originalApplicationParameters.Instance;
 
             effectiveApplicationParameters.PasswordCredentials.AddRange(application.PasswordCredentials.Select(p => p.Hint + "******************"));
-            if (application.Web != null && application.Web.RedirectUris != null)
+            if (application.Spa != null && application.Spa.RedirectUris != null)
+            {
+                effectiveApplicationParameters.WebRedirectUris.AddRange(application.Spa.RedirectUris);
+            }
+            else if (application.Web != null && application.Web.RedirectUris != null)
             {
                 effectiveApplicationParameters.WebRedirectUris.AddRange(application.Web.RedirectUris);
             }
+
             effectiveApplicationParameters.SignInAudience = MicrosoftIdentityPlatformAppAudienceToAppParameterAudience(effectiveApplicationParameters.SignInAudience!);
             return effectiveApplicationParameters;
         }

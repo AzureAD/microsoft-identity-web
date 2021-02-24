@@ -121,7 +121,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     // Todo generalize with a directive: Ensure line after line, or ensure line
                     // between line and line
                     replacement = reconciledApplicationParameters.MsalAuthenticationOptions;
-                    if (!reconciledApplicationParameters.IsWebApi)
+                    if (reconciledApplicationParameters.AppIdUri == null)
                     {
                         replacement +=
                             "\n                options.ProviderOptions.DefaultAccessTokenScopes.Add(\"User.Read\");";
@@ -151,6 +151,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     break;
                 case "Application.ConfigurationSection":
                     replacement = null;
+                    break;
+                case "Application.AppIdUri":
+                    replacement = reconciledApplicationParameters.AppIdUri;
                     break;
 
                 default:

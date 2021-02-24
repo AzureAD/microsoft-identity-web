@@ -152,7 +152,7 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         /// <summary>
         /// Identitier URIs for web APIs.
         /// </summary>
-        public List<string> IdentifierUris { get; } = new List<string>();
+        public string? AppIdUri { set;  get; }
 
         /// <summary>
         /// API permissions.
