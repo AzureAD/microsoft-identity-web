@@ -48,6 +48,14 @@ namespace Microsoft.Identity.Web
         public string? DefaultUserFlow => SignUpSignInPolicyId;
 
         /// <summary>
+        /// Enables legacy ADAL cache serialization and deserialization.
+        /// Performance improvements when working with MSAL only apps.
+        /// Set to true if you have a shared cache with ADAL apps.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool LegacyCacheCompatibilityEnabled { get; set; }
+
+        /// <summary>
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
         /// </summary>
         internal bool IsB2C
