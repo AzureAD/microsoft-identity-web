@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#define GRAPH_SDK_SUPPORTS_SPA
 using Azure.Core;
 using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Graph;
@@ -382,19 +381,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         /// <param name="application"></param>
         private static void AddSpaPlatform(ApplicationParameters applicationParameters, Application application)
         {
-#if GRAPH_SDK_SUPPORTS_SPA
             application.Spa = new SpaApplication();
             application.Spa.RedirectUris = applicationParameters.WebRedirectUris;
-#else
-            // The Graph SDK does not expose the .Spa platform yet.
-            application.AdditionalData = new Dictionary<string, object>();
-            application.AdditionalData.Add("spa",
-                new Spa
-                {
-                    redirectUris = applicationParameters.WebRedirectUris
-                });
-#endif
-
         }
 
         /// <summary>
