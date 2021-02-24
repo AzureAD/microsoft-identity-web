@@ -93,6 +93,38 @@ namespace Microsoft.Identity.App
         /// Calls Microsoft Graph.
         /// </summary>
         public bool CallsGraph { get; set; }
+
+        /// <summary>
+        /// The App ID Uri for the blazorwasm hosted API. It's only used
+        /// on the case of a blazorwasm hosted application.
+        /// </summary>
+        public string? AppIdUri { get; set; }
+
+        /// <summary>
+        /// Clones the options
+        /// </summary>
+        /// <returns></returns>
+        public ProvisioningToolOptions Clone()
+        {
+            return new ProvisioningToolOptions()
+            {
+                CalledApiScopes = CalledApiScopes,
+                CalledApiUrl = CalledApiUrl,
+                CallsGraph = CallsGraph,
+                ClientId = ClientId,
+                ClientSecret = ClientSecret,
+                LanguageOrFramework = LanguageOrFramework,
+                Help = Help,
+                ProjectType = ProjectType,
+                SusiPolicyId = SusiPolicyId,
+                TenantId = TenantId,
+                Unregister = Unregister,
+                Username = Username,
+                CodeFolder = CodeFolder,
+                WebApiClientId = WebApiClientId,
+                AppIdUri = AppIdUri
+            };
+        }
     }
 
     /// <summary>

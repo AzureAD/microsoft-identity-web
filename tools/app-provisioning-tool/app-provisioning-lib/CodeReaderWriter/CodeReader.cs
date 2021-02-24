@@ -323,10 +323,6 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     projectAuthenticationSettings.ApplicationParameters.ClientId = value;
                     projectAuthenticationSettings.ApplicationParameters.EffectiveClientId = (value != defaultValue) ? value : null;
                     break;
-                case "Application.BlazorwasmHostedWebApiClientId":
-                    projectAuthenticationSettings.ApplicationParameters.BlazorwasmHostedWebApiClientId = value;
-                    projectAuthenticationSettings.ApplicationParameters.EffectiveBlazorwasmHostedWebApiClientId = (value != defaultValue) ? value : null;
-                    break;
                 case "Application.CallbackPath":
                     projectAuthenticationSettings.ApplicationParameters.CallbackPath = value ?? defaultValue;
                     break;
@@ -371,6 +367,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     break;
                 case "Application.SusiPolicy":
                     projectAuthenticationSettings.ApplicationParameters.SusiPolicy = value;
+                    break;
+                case "Application.AppIdUri":
+                    projectAuthenticationSettings.ApplicationParameters.AppIdUri = value;
                     break;
             }
         }

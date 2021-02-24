@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#define GRAPH_SDK_SUPPORTS_SPA
 using Azure.Core;
 using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Graph;
@@ -185,6 +186,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 .UpdateAsync(updatedApp).ConfigureAwait(false);
 
             if (existingApplication.RequiredResourceAccess != null
+                && !reconcialedApplicationParameters.IsBlazorWasm
                 && existingApplication.RequiredResourceAccess.Any()
                 && (existingApplication.PasswordCredentials == null
                 || !existingApplication.PasswordCredentials.Any()
@@ -380,6 +382,10 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         /// <param name="application"></param>
         private static void AddSpaPlatform(ApplicationParameters applicationParameters, Application application)
         {
+#if GRAPH_SDK_SUPPORTS_SPA
+            application.Spa = new SpaApplication();
+            application.Spa.RedirectUris = applicationParameters.WebRedirectUris;
+#else
             // The Graph SDK does not expose the .Spa platform yet.
             application.AdditionalData = new Dictionary<string, object>();
             application.AdditionalData.Add("spa",
@@ -387,6 +393,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 {
                     redirectUris = applicationParameters.WebRedirectUris
                 });
+#endif
+
         }
 
         /// <summary>
@@ -549,24 +557,6 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             return _graphServiceClient;
         }
 
-        /// <summary>
-        /// Get an application from its clientID
-        /// </summary>
-        /// <param name="graphServiceClient"></param>
-        /// <param name="clientId"></param>
-        /// <returns></returns>
-        private static async Task<Application> GetApplication(GraphServiceClient graphServiceClient, string clientId)
-        {
-            var apps = await graphServiceClient.Applications
-                .Request()
-                .Filter($"appId eq '{clientId}'")
-                .GetAsync();
-
-            var readApplication = apps.FirstOrDefault();
-            return readApplication;
-        }
-
-
         public async Task<ApplicationParameters?> ReadApplication(TokenCredential tokenCredential, ApplicationParameters applicationParameters)
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
@@ -574,7 +564,12 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             // Get the tenant
             Organization? tenant = await GetTenant(graphServiceClient);
 
-            Application readApplication = await GetApplication(graphServiceClient, applicationParameters.ClientId!);
+            var apps = await graphServiceClient.Applications
+                .Request()
+                .Filter($"appId eq '{applicationParameters.ClientId}'")
+                .GetAsync();
+
+            var readApplication = apps.FirstOrDefault();
 
             if (readApplication == null)
             {
@@ -585,19 +580,6 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 tenant!,
                 readApplication,
                 applicationParameters);
-
-            // Special case for Blazorwasm hosted app, there is a second application
-            // (the server folder which is a hosted API)
-            if (applicationParameters.BlazorwasmHostedWebApiClientId != null)
-            {
-                Application readHostedWebApiApplication = await GetApplication(graphServiceClient,
-                    applicationParameters.BlazorwasmHostedWebApiClientId!);
-                if (readHostedWebApiApplication != null)
-                {
-                    effectiveApplicationParameters.BlazorwasmHostedWebApiClientId = readHostedWebApiApplication.AppId;
-                    effectiveApplicationParameters.EffectiveBlazorwasmHostedWebApiClientId = readHostedWebApiApplication.AppId;
-                }
-            }
 
             return effectiveApplicationParameters;
 
@@ -621,6 +603,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                         && (application.Api.Oauth2PermissionScopes != null && application.Api.Oauth2PermissionScopes.Any())
                         || (application.AppRoles != null && application.AppRoles.Any()),
                 IsWebApp = application.Web != null,
+                IsBlazorWasm = application.Spa != null,
                 TenantId = tenant.Id,
                 Domain = tenant.VerifiedDomains.FirstOrDefault(v => v.IsDefault.HasValue && v.IsDefault.Value)?.Name,
                 CallsMicrosoftGraph = application.RequiredResourceAccess.Any(r => r.ResourceAppId == MicrosoftGraphAppId) && !isB2C,
@@ -633,9 +616,10 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 TargetFramework = originalApplicationParameters.TargetFramework,
                 MsalAuthenticationOptions = originalApplicationParameters.MsalAuthenticationOptions,
                 CalledApiScopes = originalApplicationParameters.CalledApiScopes,
+                AppIdUri = originalApplicationParameters.AppIdUri
             };
 
-            if (application.Api != null)
+            if (application.Api != null && application.IdentifierUris.Any())
             {
                 effectiveApplicationParameters.AppIdUri = application.IdentifierUris.FirstOrDefault();
             }
@@ -651,10 +635,15 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 : originalApplicationParameters.Instance;
 
             effectiveApplicationParameters.PasswordCredentials.AddRange(application.PasswordCredentials.Select(p => p.Hint + "******************"));
-            if (application.Web != null && application.Web.RedirectUris != null)
+            if (application.Spa != null && application.Spa.RedirectUris != null)
+            {
+                effectiveApplicationParameters.WebRedirectUris.AddRange(application.Spa.RedirectUris);
+            }
+            else if (application.Web != null && application.Web.RedirectUris != null)
             {
                 effectiveApplicationParameters.WebRedirectUris.AddRange(application.Web.RedirectUris);
             }
+
             effectiveApplicationParameters.SignInAudience = MicrosoftIdentityPlatformAppAudienceToAppParameterAudience(effectiveApplicationParameters.SignInAudience!);
             return effectiveApplicationParameters;
         }

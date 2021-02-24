@@ -36,10 +36,14 @@ namespace Microsoft.Identity.App
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
         /// <param name="susiPolicyId">Sign-up/Sign-in policy required for configurating 
         /// a B2C application from code that was created for AAD.</param>
-        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <param name="apiClientId">Client ID of the blazorwasm hosted web API. 
         /// This is only used on the case of a blazorwasm hosted application where you only
-        /// want to configure the code.</param>
+        /// want to configure the code (named after the --api-client-id blazorwasm 
+        /// template parameter).</param> 
+        /// <param name="appIdUri">The App ID Uri for the blazorwasm hosted API. It's only used
+        /// on the case of a blazorwasm hosted application (named after the --app-id-uri blazorwasm 
+        /// template parameter).</param>
+        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <returns></returns>
         static public async Task Main(
             string? tenantId,
@@ -49,6 +53,7 @@ namespace Microsoft.Identity.App
             string? clientSecret,
             string? susiPolicyId,
             string? apiClientId,
+            string? appIdUri,
             bool? unregister)
         {
             // Read options
@@ -59,8 +64,9 @@ namespace Microsoft.Identity.App
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
                 SusiPolicyId = susiPolicyId,
-                Unregister = unregister ?? false,
-                WebApiClientId = apiClientId
+                WebApiClientId = apiClientId,
+                AppIdUri = appIdUri,
+                Unregister = unregister ?? false
             };
 
             if (folder != null)

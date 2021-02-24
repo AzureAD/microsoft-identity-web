@@ -31,7 +31,7 @@ namespace Microsoft.Identity.App
             ProvisioningToolOptions = provisioningToolOptions;
         }
 
-        public async Task Run()
+        public async Task<ApplicationParameters?> Run()
         {
             // If needed, infer project type from code
             ProjectDescription? projectDescription = ProjectDescriptionReader.GetProjectDescription(
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.App
             if (projectDescription == null)
             {
                 Console.WriteLine($"The code in {ProvisioningToolOptions.CodeFolder} wasn't recognized as supported by the tool. Rerun with --help for details.");
-                return;
+                return null;
             }
             else
             {
@@ -53,45 +53,37 @@ namespace Microsoft.Identity.App
                 projectDescription,
                 ProjectDescriptionReader.projectDescriptions);
 
-            if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
+            // Case of a blazorwasm hosted application. We need to create two applications:
+            // - the hosted web API
+            // - the SPA.
+            if (projectSettings.ApplicationParameters.IsBlazorWasm && projectSettings.ApplicationParameters.IsWebApi)
             {
-                // Get all the files in which "AzureAD" needs to be replaced by "AzureADB2C"
-                IEnumerable<string> filesWithReplacementsForB2C = projectSettings.Replacements
-                    .Where(r => r.ReplaceBy == "Application.ConfigurationSection")
-                    .Select(r => r.FilePath);
+                // Processes the hosted web API
+                ProvisioningToolOptions provisioningToolOptionsBlazorServer = ProvisioningToolOptions.Clone();
+                provisioningToolOptionsBlazorServer.CodeFolder = Path.Combine(ProvisioningToolOptions.CodeFolder, "Server");
+                provisioningToolOptionsBlazorServer.ClientId = ProvisioningToolOptions.WebApiClientId;
+                provisioningToolOptionsBlazorServer.WebApiClientId = null;
+                AppProvisioningTool appProvisioningToolBlazorServer = new AppProvisioningTool(provisioningToolOptionsBlazorServer);
+                ApplicationParameters? applicationParametersServer = await appProvisioningToolBlazorServer.Run();
 
-                foreach (string filePath in filesWithReplacementsForB2C)
-                {
-                    string fileContent = File.ReadAllText(filePath);
-                    string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
-
-                    // Add the policies to the appsettings.json
-                    if (filePath.EndsWith("appsettings.json"))
-                    {
-                        // Insert the policies
-                        int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
-                        if (indexCallbackPath > 0)
-                        {
-                            updatedContent = updatedContent.Substring(0, indexCallbackPath)
-                                + Properties.Resources.Policies
-                                + updatedContent.Substring(indexCallbackPath);
-                        }
-                    }
-                    File.WriteAllText(filePath, updatedContent);
-                }
-
-                if (projectSettings.ApplicationParameters.CallsMicrosoftGraph)
-                {
-                    Console.WriteLine("You'll need to remove the calls to Microsoft Graph as it's not supported by B2C apps.");
-                }
-
-                // reevaulate the project settings
-                projectSettings = InferApplicationParameters(
-                    ProvisioningToolOptions,
-                    projectDescription,
-                    ProjectDescriptionReader.projectDescriptions);
+                /// Processes the Blazorwasm client
+                ProvisioningToolOptions provisioningToolOptionsBlazorClient = ProvisioningToolOptions.Clone();
+                provisioningToolOptionsBlazorClient.CodeFolder = Path.Combine(ProvisioningToolOptions.CodeFolder, "Client");
+                provisioningToolOptionsBlazorClient.WebApiClientId = applicationParametersServer?.ClientId;
+                provisioningToolOptionsBlazorClient.AppIdUri = applicationParametersServer?.AppIdUri;
+                provisioningToolOptionsBlazorClient.CalledApiScopes = $"{applicationParametersServer?.AppIdUri}/access_as_user";
+                AppProvisioningTool appProvisioningToolBlazorClient = new AppProvisioningTool(provisioningToolOptionsBlazorClient);
+                return await appProvisioningToolBlazorClient.Run();
             }
 
+            // Case where the developer wants to have a B2C application, but the created application is an AAD one. The
+            // tool needs to convert it
+            if (!projectSettings.ApplicationParameters.IsB2C && !string.IsNullOrEmpty(ProvisioningToolOptions.SusiPolicyId))
+            {
+                projectSettings = ConvertAadApplicationToB2CApplication(projectDescription, projectSettings);
+            }
+
+            // Case where there is no code for the authentication
             if (!projectSettings.ApplicationParameters.HasAuthentication)
             {
                 Console.WriteLine($"Authentication is not enabled yet in this project. An app registration will " +
@@ -103,10 +95,11 @@ namespace Microsoft.Identity.App
                 ProvisioningToolOptions,
                 projectSettings.ApplicationParameters.EffectiveTenantId ?? projectSettings.ApplicationParameters.EffectiveDomain);
 
+            // Unregister the app
             if (ProvisioningToolOptions.Unregister)
             {
                 await UnregisterApplication(tokenCredential, projectSettings.ApplicationParameters);
-                return;
+                return null;
             }
 
             // Read or provision Microsoft identity platform application
@@ -141,6 +134,53 @@ namespace Microsoft.Identity.App
 
             // Summarizes what happened
             WriteSummary(summary);
+            return effectiveApplicationParameters;
+        }
+
+        /// <summary>
+        /// Converts an AAD application to a B2C application
+        /// </summary>
+        /// <param name="projectDescription"></param>
+        /// <param name="projectSettings"></param>
+        /// <returns></returns>
+        private ProjectAuthenticationSettings ConvertAadApplicationToB2CApplication(ProjectDescription projectDescription, ProjectAuthenticationSettings projectSettings)
+        {
+            // Get all the files in which "AzureAD" needs to be replaced by "AzureADB2C"
+            IEnumerable<string> filesWithReplacementsForB2C = projectSettings.Replacements
+                .Where(r => r.ReplaceBy == "Application.ConfigurationSection")
+                .Select(r => r.FilePath);
+
+            foreach (string filePath in filesWithReplacementsForB2C)
+            {
+                string fileContent = File.ReadAllText(filePath);
+                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+
+                // Add the policies to the appsettings.json
+                if (filePath.EndsWith("appsettings.json"))
+                {
+                    // Insert the policies
+                    int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
+                    if (indexCallbackPath > 0)
+                    {
+                        updatedContent = updatedContent.Substring(0, indexCallbackPath)
+                            + Properties.Resources.Policies
+                            + updatedContent.Substring(indexCallbackPath);
+                    }
+                }
+                File.WriteAllText(filePath, updatedContent);
+            }
+
+            if (projectSettings.ApplicationParameters.CallsMicrosoftGraph)
+            {
+                Console.WriteLine("You'll need to remove the calls to Microsoft Graph as it's not supported by B2C apps.");
+            }
+
+            // reevaulate the project settings
+            projectSettings = InferApplicationParameters(
+                ProvisioningToolOptions,
+                projectDescription,
+                ProjectDescriptionReader.projectDescriptions);
+            return projectSettings;
         }
 
         private void WriteSummary(Summary summary)
@@ -218,9 +258,16 @@ namespace Microsoft.Identity.App
         {
             CodeReader reader = new CodeReader();
             ProjectAuthenticationSettings projectSettings = reader.ReadFromFiles(provisioningToolOptions.CodeFolder, projectDescription, projectDescriptions);
+
+            // Override with the tools options
             projectSettings.ApplicationParameters.ApplicationDisplayName ??= Path.GetFileName(provisioningToolOptions.CodeFolder);
             projectSettings.ApplicationParameters.ClientId ??= provisioningToolOptions.ClientId;
             projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
+            projectSettings.ApplicationParameters.CalledApiScopes ??= provisioningToolOptions.CalledApiScopes;
+            if (!string.IsNullOrEmpty(provisioningToolOptions.AppIdUri))
+            {
+                projectSettings.ApplicationParameters.AppIdUri = provisioningToolOptions.AppIdUri;
+            }
             return projectSettings;
         }
 

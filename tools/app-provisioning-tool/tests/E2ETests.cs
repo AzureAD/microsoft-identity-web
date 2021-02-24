@@ -88,7 +88,7 @@ namespace Tests
                     "fabrikamb2c.onmicrosoft.com" :
                     "testprovisionningtool.onmicrosoft.com";
                 await Program.Main(tenantId: tenantId, username: null, clientId: null,
-                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null);
+                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null, apiClientId:null, appIdUri:null);
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace Tests
             processStartInfo.RedirectStandardError = true;
             Environment.GetEnvironmentVariables();
             processStartInfo.WorkingDirectory = folderToCreate;
-            Process? process = Process.Start(processStartInfo);
+            Process process = Process.Start(processStartInfo);
             process.WaitForExit();
             string output = process.StandardOutput.ReadToEnd();
             testOutput.WriteLine(output);
@@ -154,7 +154,7 @@ namespace Tests
         //[InlineData("blazorwasm\\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callsgraph", "dotnet new blazorwasm --auth SingleOrg --calls-graph")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callswebapi", "dotnet new blazorwasm --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"")]
-        //[InlineData("blazorwasm\\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg  --hosted")]
+        [InlineData("blazorwasm\\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg  --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --calls-graph --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C")]
@@ -195,7 +195,7 @@ namespace Tests
                     "fabrikamb2c.onmicrosoft.com" :
                     "testprovisionningtool.onmicrosoft.com";
                 await Program.Main(tenantId: tenantId, username: null, clientId: null,
-                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null);
+                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null, apiClientId: null, appIdUri: null);
             }
             catch (Exception ex)
             {

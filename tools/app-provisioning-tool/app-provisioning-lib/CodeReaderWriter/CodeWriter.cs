@@ -152,6 +152,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 case "Application.ConfigurationSection":
                     replacement = null;
                     break;
+                case "Application.AppIdUri":
+                    replacement = reconciledApplicationParameters.AppIdUri;
+                    break;
 
                 default:
                     Console.WriteLine($"{replaceBy} not known");
