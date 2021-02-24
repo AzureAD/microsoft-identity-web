@@ -31,10 +31,12 @@ namespace Microsoft.Identity.App
         /// used when you don't want to register a new app, but want to configure the code 
         /// from an existing application (which can also be updated by the tool if needed).
         /// You might want to also pass-in the <paramref name="clientSecret"/> if you know it.</param>
-        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <param name="folder">When specified, will analyze the application code in the specified folder. 
         /// Otherwise analyzes the code in the current directory.</param>
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
+        /// <param name="susiPolicyId">Sign-up/Sign-in policy required for configurating 
+        /// a B2C application from code that was created for AAD.</param>
+        /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <param name="apiClientId">Client ID of the blazorwasm hosted web API. 
         /// This is only used on the case of a blazorwasm hosted application where you only
         /// want to configure the code.</param>
@@ -45,6 +47,7 @@ namespace Microsoft.Identity.App
             string? clientId,
             string? folder,
             string? clientSecret,
+            string? susiPolicyId,
             string? apiClientId,
             bool? unregister)
         {
@@ -55,8 +58,9 @@ namespace Microsoft.Identity.App
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
-                WebApiClientId = apiClientId,
-                Unregister = unregister.HasValue ? unregister.Value : false
+                SusiPolicyId = susiPolicyId,
+                Unregister = unregister ?? false,
+                WebApiClientId = apiClientId
             };
 
             if (folder != null)

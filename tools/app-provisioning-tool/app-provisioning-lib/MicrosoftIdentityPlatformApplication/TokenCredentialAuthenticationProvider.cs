@@ -22,7 +22,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             IEnumerable<string>? initialScopes = null)
         {
             _tokenCredentials = tokenCredentials;
-            _initialScopes = initialScopes ?? new string[] { "Application.ReadWrite.All" };
+            _initialScopes = initialScopes ?? new string[] { "https://graph.microsoft.com/.default" };
         }
 
         readonly TokenCredential _tokenCredentials;

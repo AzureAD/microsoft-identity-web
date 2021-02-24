@@ -33,7 +33,6 @@ namespace Tests
         [InlineData("webapi\\webapi-singleorg-callsgraph", "dotnet new webapi --auth SingleOrg --calls-graph")]
         [InlineData("webapi\\webapi-singleorg-callswebapi", "dotnet new webapi --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"")]
         [InlineData("webapi\\webapi-b2c", "dotnet new webapi --auth IndividualB2C")]
-        [InlineData("webapi\\webapi2-b2c-callswebapi", "dotnet new webapi --auth IndividualB2C --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"")]
         [InlineData("mvc\\mvc-noauth", "dotnet new mvc")]
         [InlineData("mvc\\mvc-singleorg", "dotnet new mvc --auth SingleOrg")]
         [InlineData("mvc\\mvc-singleorg-callsgraph", "dotnet new mvc --auth SingleOrg --calls-graph")]
@@ -54,7 +53,7 @@ namespace Tests
         [InlineData("blazorwasm\\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --calls-graph --hosted")]
         [InlineData("blazorwasm\\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted")]
         [InlineData("blazorwasm\\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C")]
-        [InlineData("blazorwasm2\\blazorwasm2-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C  --hosted")]
+        [InlineData("blazorwasm\\blazorwasm2-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C  --hosted")]
         [Theory]
         public async Task TestNewAppEndToEnd(string folder, string command)
         {
@@ -88,7 +87,8 @@ namespace Tests
                 string tenantId = folder.Contains("b2c") ?
                     "fabrikamb2c.onmicrosoft.com" :
                     "testprovisionningtool.onmicrosoft.com";
-                await Program.Main(tenantId:tenantId);
+                await Program.Main(tenantId: tenantId, username: null, clientId: null,
+                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null);
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace Tests
 
         //[InlineData("webapp\\webapp-noauth", "dotnet new webapp")]
         //[InlineData("webapp\\webapp-singleorg", "dotnet new webapp --auth SingleOrg")]
-        [InlineData("webapp\\webapp-singleorg-callsgraph", "dotnet new webapp --auth SingleOrg --calls-graph")]
+        // [InlineData("webapp\\webapp-singleorg-callsgraph", "dotnet new webapp --auth SingleOrg --calls-graph")]
         //[InlineData("webapp\\webapp-singleorg-callswebapi", "dotnet new webapp --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"")]
         //[InlineData("webapp\\webapp-b2c", "dotnet new webapp --auth IndividualB2C")]
         //[InlineData("webapp\\webapp-b2c-callswebapi", "dotnet new webapp --auth IndividualB2C --called-api-url \"https://fabrikamb2chello.azurewebsites.net/hello\" --called-api-scopes \"https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read\"")]
@@ -194,7 +194,8 @@ namespace Tests
                 string tenantId = folder.Contains("b2c") ?
                     "fabrikamb2c.onmicrosoft.com" :
                     "testprovisionningtool.onmicrosoft.com";
-                await Program.Main(tenantId: tenantId);
+                await Program.Main(tenantId: tenantId, username: null, clientId: null,
+                    folder: null, clientSecret: null, unregister: null, susiPolicyId: null);
             }
             catch (Exception ex)
             {

@@ -24,14 +24,12 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
             // Get the tenant
-            var tenant = (await graphServiceClient.Organization
-                .Request()
-                .GetAsync()).FirstOrDefault();
+            Organization? tenant = await GetTenant(graphServiceClient);
 
             // Create the app.
             Application application = new Application()
             {
-                DisplayName = applicationParameters.DisplayName,
+                DisplayName = applicationParameters.ApplicationDisplayName,
                 SignInAudience = AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(applicationParameters.SignInAudience!),
                 Description = applicationParameters.Description
             };
@@ -132,6 +130,38 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             return effectiveApplicationParameters;
         }
 
+        private static async Task<Organization?> GetTenant(GraphServiceClient graphServiceClient)
+        {
+            Organization? tenant = null;
+            try
+            {
+                tenant = (await graphServiceClient.Organization
+                    .Request()
+                    .GetAsync()).FirstOrDefault();
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine(ex.InnerException.Message);
+                }
+                else
+                {
+                    if (ex.Message.Contains("User was not found") || ex.Message.Contains("not found in tenant"))
+                    {
+                        Console.WriteLine("User was not found.\nUse both --tenant-id <tenant> --username <username@tenant>.\nAnd re-run the tool.");
+                    }
+                    else
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+                Environment.Exit(1);
+            }
+
+            return tenant;
+        }
+
         internal async Task UpdateApplication(TokenCredential tokenCredential, ApplicationParameters reconcialedApplicationParameters)
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
@@ -224,7 +254,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         {
             var passwordCredential = new PasswordCredential
             {
-                DisplayName = "Password created by the provisionning tool"
+                DisplayName = "Password created by the provisioning tool"
             };
 
             PasswordCredential returnedPasswordCredential = await graphServiceClient.Applications[$"{createdApplication.Id}"]
@@ -541,9 +571,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         {
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
-            var tenant = (await graphServiceClient.Organization
-                .Request()
-                .GetAsync()).FirstOrDefault()!;
+            // Get the tenant
+            Organization? tenant = await GetTenant(graphServiceClient);
 
             Application readApplication = await GetApplication(graphServiceClient, applicationParameters.ClientId!);
 
@@ -553,7 +582,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             ApplicationParameters effectiveApplicationParameters = GetEffectiveApplicationParameters(
-                tenant,
+                tenant!,
                 readApplication,
                 applicationParameters);
 
@@ -582,7 +611,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             bool isB2C = (tenant.TenantType == "AAD B2C");
             var effectiveApplicationParameters = new ApplicationParameters
             {
-                DisplayName = application.DisplayName,
+                ApplicationDisplayName = application.DisplayName,
                 ClientId = application.AppId,
                 EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,

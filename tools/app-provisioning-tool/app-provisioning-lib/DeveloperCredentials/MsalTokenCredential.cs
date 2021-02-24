@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
@@ -39,18 +40,16 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         {
             if (App == null)
             {
-                // On Windows, USERPROFILE is guarantied to be set
+                // On Windows, USERPROFILE is guaranteed to be set
                 string userProfile = Environment.GetEnvironmentVariable("USERPROFILE")!;
                 string cacheDir = Path.Combine(userProfile, @"AppData\Local\.IdentityService");
 
                 // TODO: what about the other platforms?
-
+                string clientId = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
                 var storageProperties =
                      new StorageCreationPropertiesBuilder(
                          "msal.cache",
-                         cacheDir,
-                         "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
-                         /*"1950a258-227b-4e31-a9cf-717495945fc2"*/)
+                         cacheDir)
                      /*
                      .WithLinuxKeyring(
                          Config.LinuxKeyRingSchema,
@@ -64,7 +63,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
                      */
                      .Build();
 
-                App = PublicClientApplicationBuilder.Create(storageProperties.ClientId)
+                App = PublicClientApplicationBuilder.Create(clientId)
                   .WithRedirectUri(RedirectUri)
                   .Build();
 
@@ -74,11 +73,11 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             return App;
         }
-        
+
         public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
             var app = await GetOrCreateApp();
-            AuthenticationResult result;
+            AuthenticationResult? result = null;
             var accounts = await app.GetAccountsAsync()!;
             IAccount? account;
 
@@ -98,12 +97,34 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalUiRequiredException ex)
             {
-                Console.WriteLine("Please re-sign-in in Visual Studio. ");
+                if (account == null && !string.IsNullOrEmpty(Username))
+                {
+                    Console.WriteLine($"No valid tokens found in the cache.\nPlease sign-in to Visual Studio with this account:\n\n{Username}.\n\nAfter signing-in, re-run the tool.\n");
+                }
                 result = await app.AcquireTokenInteractive(requestContext.Scopes)
                     .WithAccount(account)
                     .WithClaims(ex.Claims)
                     .WithAuthority(Instance, TenantId)
                     .ExecuteAsync(cancellationToken);
+            }
+            catch (MsalServiceException ex)
+            {
+                if (ex.Message.Contains("AADSTS70002")) // "The client does not exist or is not enabled for consumers"
+                {
+                    Console.WriteLine("An Azure AD tenant, and a user in that tenant, " +
+                        "needs to be created for this account before an application can be created. See https://aka.ms/ms-identity-app/create-a-tenant. ");
+                    Environment.Exit(1); // we want to exit here because this is probably an MSA without an AAD tenant.
+                }
+
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
+                    ex.Message);
+                Environment.Exit(1); // we want to exit here. Re-sign in will not resolve the issue.
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
+                    ex.Message);
+                Environment.Exit(1);
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }
