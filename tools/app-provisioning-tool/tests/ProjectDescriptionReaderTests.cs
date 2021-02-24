@@ -137,34 +137,10 @@ namespace Tests
                 projectDescription,
                 _projectDescriptionReader.projectDescriptions);
 
-            bool callsGraph = folderPath.Contains(TestConstants.CallsGraph);
-            bool callsWebApi = folderPath.Contains(TestConstants.CallsWebApi) || callsGraph;
-
-            if (isB2C)
-            {
-                AssertAuthSettings(authenticationSettings, isB2C);
-                Assert.Equal(TestConstants.B2CInstance, authenticationSettings.ApplicationParameters.Instance);
-
-                if (callsWebApi)
-                {
-                    Assert.Equal(TestConstants.B2CScopes, authenticationSettings.ApplicationParameters.CalledApiScopes);
-                }
-            }
-            else
-            {
-                AssertAuthSettings(authenticationSettings);
-                Assert.Equal(TestConstants.BlazorWasmAuthority, authenticationSettings.ApplicationParameters.Authority);
-
-                if (callsWebApi)
-                {
-                    Assert.Equal(TestConstants.Scopes, authenticationSettings.ApplicationParameters.CalledApiScopes);
-                }
-            }
-
+            // Blazorwasm now delegates twice (once to the Client [Blazor], and once to the
+            // Server [Web API]
             Assert.True(authenticationSettings.ApplicationParameters.IsBlazorWasm);
-
-            Assert.Equal(callsGraph, authenticationSettings.ApplicationParameters.CallsMicrosoftGraph);
-            Assert.Equal(callsWebApi, authenticationSettings.ApplicationParameters.CallsDownstreamApi);
+            Assert.True(authenticationSettings.ApplicationParameters.IsWebApi);
         }
 
         [InlineData(@"blazorserver\blazorserver-noauth", "dotnet new blazorserver", "dotnet-webapp")]
