@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\app-provisioning-lib\app-provisioning-lib.csproj" />
-    <ProjectReference Include="..\app-provisioning-tool\ms-identity-app.csproj" />
+    <ProjectReference Include="..\app-provisioning-tool\msidentity-registration-tool.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-# ms-identity-app 
+# msidentity-registration-tool 
 Command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C) and updates the configuration code of you ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application.
 
 ## Installing/Uninstalling the tool
@@ -12,12 +12,12 @@ Command line tool that creates Microsoft identity platform applications in a ten
 2. Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
    
    ```Shell
-   dotnet tool install --global --add-source app-provisioning-tool\nupkg ms-identity-app
+   dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-registration-tool
    ```
 
 If later you want to uninstall the tool, just run (from anywhere):
 ```Shell
-dotnet tool uninstall --global ms-identity-app
+dotnet tool uninstall --global msidentity-registration-tool
 ```
 
 ## Pre-requisites to using the tool
@@ -30,7 +30,7 @@ Have an AAD or B2C tenant (or both).
 ## Using the tool
 
 ```text
-ms-identity-app:
+msidentity-registration-tool:
   Creates or updates an Azure AD / Azure AD B2C application, and updates the code, using
    your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
    Use this tool in folders containing applications created with the following command:
@@ -41,7 +41,7 @@ ms-identity-app:
    See https://aka.ms/ms-identity-app-registration.
 
 Usage:
-  ms-identity-app [options]
+  msidentity-registration-tool [options]
 
 Options:
   --tenant-id <tenant-id>              Azure AD or Azure AD B2C tenant in which to create/update the app.
@@ -86,7 +86,7 @@ Note that in the following samples, you can always have your templates adding a 
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app
+msidentity-registration-tool
    </code>
   </td>
   <td>Creates a new app <b>in your home tenant</b> and updates code</td>
@@ -97,7 +97,7 @@ ms-identity-app
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --tenant-id testprovisionningtool.onmicrosoft.com
+msidentity-registration-tool --tenant-id testprovisionningtool.onmicrosoft.com
    </code>
   </td>
   <td>Creates a new app <b>in a different tenant</b> and updates code</td>
@@ -108,7 +108,7 @@ ms-identity-app --tenant-id testprovisionningtool.onmicrosoft.com
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --username username@domain.com
+msidentity-registration-tool --username username@domain.com
    </code>
   </td>
   <td>Creates a new app <b>using a different identity</b> and updates code</td>
@@ -126,7 +126,7 @@ Note that in the following samples, you can always have your templates adding a 
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_susi
+msidentity-registration-tool --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_susi
    </code>
   </td>
   <td>Creates a new Azure AD B2C app and updates code which was initially meant
@@ -138,7 +138,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_s
    <code>
 dotnet new webapp --auth IndividualB2C
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
+msidentity-registration-tool --tenant-id fabrikamb2c.onmicrosoft.com
    </code>
   </td>
   <td>Creates a new Azure AD B2C app and updates code</td>
@@ -149,7 +149,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
    <code>
 dotnet new webapp --auth IndividualB2C
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@domain.com
+msidentity-registration-tool --tenant-id fabrikamb2c.onmicrosoft.com  --username username@domain.com
    </code>
   </td>
   <td>Creates a new app Azure AD B2C app <b>using a different identity</b> and updates code</td>
@@ -165,7 +165,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@dom
  ```Shell
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
+msidentity-registration-tool [--tenant-id <tenantId>] --client-id <clientId>
  ```
 
  Same thing for an application calling Microsoft Graph
@@ -173,7 +173,7 @@ ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
  ```Shell
 dotnet new webapp --auth SingleOrg --calls-graph
 
-ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
+msidentity-registration-tool [--tenant-id <tenantId>] --client-id <clientId>
  ```
 
  ### Adding code and configuration to an app which is not authentication/authorization enabled yet
@@ -186,6 +186,6 @@ The tool supports ASP.NET Core applications created with .NET 5.0 and netcoreapp
 
 ```Shell
 dotnet new blazorwasm --auth SingleOrg --framework netcoreapp3.1
-ms-identity-app
+msidentity-registration-tool
 dotnet run -f netstandard2.1
 ```
