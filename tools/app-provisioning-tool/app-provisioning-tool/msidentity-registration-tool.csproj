@@ -7,19 +7,19 @@
     <RootNamespace>Microsoft.Identity.App</RootNamespace>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>msidentity-registration-tool</ToolCommandName>
+    <ToolCommandName>msidentity-auto-registration-tool</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
 
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
-    <Title>msidentity-registration-tool</Title>
+    <Title>Microsoft identity platform auto app registration tool</Title>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Product>Microsoft Identity registration tool</Product>
+    <Product>Microsoft Identity auto app registration tool</Product>
     <Description>
-      This package is a dotnet global tool which registers new Azure AD or Azure AD B2C applications, and updates your code accordingly, or modifies/edits existiing
+      This package is a dotnet global tool which registers new Azure AD or Azure AD B2C applications, and updates your code accordingly, or modifies/edits existing
       Azure AD or Azure AD B2C applications and updates the code. This tool automates the steps of going to the portal UI for app registration and also updates
       the corresponding code for that application. With this tool, you can develop and register an ASP.NET Core web app, web API, gRPC service or Azure Function 
       protected with the Microsoft identity platform, which can call Microsoft Graph or downstream web APIs.
