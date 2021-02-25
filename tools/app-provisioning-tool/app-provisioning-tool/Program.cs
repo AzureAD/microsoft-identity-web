@@ -41,8 +41,8 @@ namespace Microsoft.Identity.App
         /// want to configure the code (named after the --api-client-id blazorwasm 
         /// template parameter).</param> 
         /// <param name="appIdUri">The App ID Uri for the blazorwasm hosted API. It's only used
-        /// on the case of a blazorwasm hosted application (named after the --app-id-uri blazorwasm 
-        /// template parameter).</param>
+        /// on the case of a blazorwasm hosted application (named after the --app-id-uri 
+        /// blazorwasm template parameter).</param>
         /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <returns></returns>
         static public async Task Main(
