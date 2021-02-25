@@ -15,9 +15,9 @@ namespace Microsoft.Identity.App
         /// your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
         /// Use this tool in folders containing applications created with the following command:
         /// 
-        ///   <c>dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]</c>
+        ///   <c>dotnet new &lt;template&gt; --auth &lt;authOption&gt; [--calls-graph] [--called-api-url &lt;URI&gt; --called-api-scopes &lt;scopes&gt;]</c>
         /// 
-        /// where the template is in <c>webapp</c>, <c>mvc</c>, <c>webapi</c>, <c>blazorserver</c>, <c>blazorwasm</c>.
+        /// where the &lt;template&gt; is a <c>webapp</c>, <c>mvc</c>, <c>webapi</c>, <c>blazorserver</c>, <c>blazorwasm</c>.
         /// See https://aka.ms/msidentity-app-sync.
         /// </summary>
         /// <param name="tenantId">Azure AD or Azure AD B2C tenant in which to create/update the app. 
