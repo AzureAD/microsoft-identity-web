@@ -1,4 +1,4 @@
-# ms-identity-app 
+# msidentity-app-sync 
 Command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C) and updates the configuration code of you ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application.
 
 ## Installing/Uninstalling the tool
@@ -12,12 +12,12 @@ Command line tool that creates Microsoft identity platform applications in a ten
 2. Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
    
    ```Shell
-   dotnet tool install --global --add-source app-provisioning-tool\nupkg ms-identity-app
+   dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
    ```
 
 If later you want to uninstall the tool, just run (from anywhere):
 ```Shell
-dotnet tool uninstall --global ms-identity-app
+dotnet tool uninstall --global msidentity-app-sync
 ```
 
 ## Pre-requisites to using the tool
@@ -30,7 +30,7 @@ Have an AAD or B2C tenant (or both).
 ## Using the tool
 
 ```text
-ms-identity-app:
+msidentity-app-sync:
   Creates or updates an Azure AD / Azure AD B2C application, and updates the code, using
    your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
    Use this tool in folders containing applications created with the following command:
@@ -38,10 +38,10 @@ ms-identity-app:
    dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]
 
    where the template is in webapp, mvc, webapi, blazorserver, blazorwasm.
-   See https://aka.ms/ms-identity-app-registration.
+   See https://aka.ms/msidentity-app-sync.
 
 Usage:
-  ms-identity-app [options]
+  msidentity-app-sync [options]
 
 Options:
   --tenant-id <tenant-id>              Azure AD or Azure AD B2C tenant in which to create/update the app.
@@ -60,6 +60,13 @@ Options:
   --client-secret <client-secret>      Client secret to use as a client credential.
   --susi-policy-id <susi-policy-id>    Sign-up/Sign-in policy required for configurating
                                         a B2C application from code that was created for AAD.
+  --api-client-id <api-client-id>      Client ID of the blazorwasm hosted web API.
+                                        This is only used on the case of a blazorwasm hosted application where you only
+                                        want to configure the code (named after the --api-client-id blazorwasm
+                                        template parameter).
+  --app-id-uri <app-id-uri>            The App ID Uri for the blazorwasm hosted API. It's only used
+                                        on the case of a blazorwasm hosted application (named after the --app-id-uri
+                                        blazorwasm template parameter).
   --unregister                         Unregister the application, instead of registering it.
   --version                            Show version information
   -?, -h, --help                       Show help and usage information
@@ -86,7 +93,7 @@ Note that in the following samples, you can always have your templates adding a 
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app
+msidentity-app-sync
    </code>
   </td>
   <td>Creates a new app <b>in your home tenant</b> and updates code</td>
@@ -97,7 +104,7 @@ ms-identity-app
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --tenant-id testprovisionningtool.onmicrosoft.com
+msidentity-app-sync --tenant-id testprovisionningtool.onmicrosoft.com
    </code>
   </td>
   <td>Creates a new app <b>in a different tenant</b> and updates code</td>
@@ -108,7 +115,7 @@ ms-identity-app --tenant-id testprovisionningtool.onmicrosoft.com
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --username username@domain.com
+msidentity-app-sync --username username@domain.com
    </code>
   </td>
   <td>Creates a new app <b>using a different identity</b> and updates code</td>
@@ -126,7 +133,7 @@ Note that in the following samples, you can always have your templates adding a 
    <code>
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_susi
+msidentity-app-sync --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_susi
    </code>
   </td>
   <td>Creates a new Azure AD B2C app and updates code which was initially meant
@@ -138,7 +145,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id b2c_1_s
    <code>
 dotnet new webapp --auth IndividualB2C
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
+msidentity-app-sync --tenant-id fabrikamb2c.onmicrosoft.com
    </code>
   </td>
   <td>Creates a new Azure AD B2C app and updates code</td>
@@ -149,7 +156,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com
    <code>
 dotnet new webapp --auth IndividualB2C
 
-ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@domain.com
+msidentity-app-sync --tenant-id fabrikamb2c.onmicrosoft.com  --username username@domain.com
    </code>
   </td>
   <td>Creates a new app Azure AD B2C app <b>using a different identity</b> and updates code</td>
@@ -165,7 +172,7 @@ ms-identity-app --tenant-id fabrikamb2c.onmicrosoft.com  --username username@dom
  ```Shell
 dotnet new webapp --auth SingleOrg
 
-ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
+msidentity-app-sync [--tenant-id <tenantId>] --client-id <clientId>
  ```
 
  Same thing for an application calling Microsoft Graph
@@ -173,7 +180,7 @@ ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
  ```Shell
 dotnet new webapp --auth SingleOrg --calls-graph
 
-ms-identity-app [--tenant-id <tenantId>] --client-id <clientId>
+msidentity-app-sync [--tenant-id <tenantId>] --client-id <clientId>
  ```
 
  ### Adding code and configuration to an app which is not authentication/authorization enabled yet
@@ -186,6 +193,6 @@ The tool supports ASP.NET Core applications created with .NET 5.0 and netcoreapp
 
 ```Shell
 dotnet new blazorwasm --auth SingleOrg --framework netcoreapp3.1
-ms-identity-app
+msidentity-app-sync
 dotnet run -f netstandard2.1
 ```

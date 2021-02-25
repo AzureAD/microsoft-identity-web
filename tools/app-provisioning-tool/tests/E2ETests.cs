@@ -70,7 +70,8 @@ namespace Tests
             {
                 try
                 {
-                    RunProcess("dotnet user-secrets init", folderToCreate);
+                    RunProcess("dotnet user-secrets init", 
+                        command.Containts("--hosted") ? Path.Combine(folderToCreate, "Server") : folderToCreate;
                 }
                 catch
                 {
@@ -154,12 +155,12 @@ namespace Tests
         //[InlineData("blazorwasm\\blazorwasm-singleorg", "dotnet new blazorwasm --auth SingleOrg")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callsgraph", "dotnet new blazorwasm --auth SingleOrg --calls-graph")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callswebapi", "dotnet new blazorwasm --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\"")]
-        [InlineData("blazorwasm\\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg  --hosted")]
+        //[InlineData("blazorwasm\\blazorwasm-singleorg-hosted", "dotnet new blazorwasm --auth SingleOrg  --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callsgraph-hosted", "dotnet new blazorwasm --auth SingleOrg --calls-graph --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-singleorg-callswebapi-hosted", "dotnet new blazorwasm --auth SingleOrg --called-api-url \"https://graph.microsoft.com/beta/me\" --called-api-scopes \"user.read\" --hosted")]
         //[InlineData("blazorwasm\\blazorwasm-b2c", "dotnet new blazorwasm --auth IndividualB2C")]
         //[InlineData("blazorwasm2\\blazorwasm2-b2c-hosted", "dotnet new blazorwasm --auth IndividualB2C  --hosted")]
-        [Theory]
+        //[Theory]
         public async Task TestUpdateAppEndToEnd(string folder, string command)
         {
             // Create the folder
