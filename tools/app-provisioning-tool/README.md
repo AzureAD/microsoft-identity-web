@@ -38,7 +38,7 @@ msidentity-app-sync:
    dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]
 
    where the template is in webapp, mvc, webapi, blazorserver, blazorwasm.
-   See https://aka.ms/ms-identity-app-registration.
+   See https://aka.ms/msidentity-app-sync.
 
 Usage:
   msidentity-app-sync [options]
