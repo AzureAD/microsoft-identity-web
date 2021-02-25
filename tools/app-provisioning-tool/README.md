@@ -1,5 +1,5 @@
 # msidentity-app-sync 
-Command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C) and updates the configuration code of you ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application.
+Command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C) and updates the configuration code of your ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application.
 
 ## Installing/Uninstalling the tool
 
@@ -25,7 +25,7 @@ dotnet tool uninstall --global msidentity-app-sync
 Have an AAD or B2C tenant (or both). 
 - If you want to add an AAD registration, you are usually already signed-in in Visual Studio in a tenant. If needed you can create your own tenant by following this quickstart [Setup a tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant). But be sure to sign-out and sign-in from Visual Studio or Azure CLI so that this tenant is known in the shared token cache.
 
-- If you want to add a AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. To create a B2C tenant, see [Create a B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
+- If you want to add an AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. As well as the sign-up/sign-in policy `--susi-policy-id`. To create a B2C tenant, see [Create a B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant).
 
 ## Using the tool
 
@@ -35,9 +35,9 @@ msidentity-app-sync:
    your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
    Use this tool in folders containing applications created with the following command:
 
-   dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]
+   dotnet new <template> --auth <authOption> [--calls-graph] [--called-api-url <URI> --called-api-scopes <scopes>]
 
-   where the template is in webapp, mvc, webapi, blazorserver, blazorwasm.
+   where the <template> is a webapp, mvc, webapi, blazorserver, blazorwasm.
    See https://aka.ms/msidentity-app-sync.
 
 Usage:
