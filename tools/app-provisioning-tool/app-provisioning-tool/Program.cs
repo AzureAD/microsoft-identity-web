@@ -18,7 +18,7 @@ namespace Microsoft.Identity.App
         ///   <c>dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]</c>
         /// 
         /// where the template is in <c>webapp</c>, <c>mvc</c>, <c>webapi</c>, <c>blazorserver</c>, <c>blazorwasm</c>.
-        /// See https://aka.ms/ms-identity-app-registration.
+        /// See https://aka.ms/msidentity-app-sync.
         /// </summary>
         /// <param name="tenantId">Azure AD or Azure AD B2C tenant in which to create/update the app. 
         /// - If specified, the tool will create the application in the specified tenant. 
