@@ -58,7 +58,7 @@ steps:
   parameters:
     NoBuild: 'true'
     BuildConfiguration: $(BuildConfiguration)
-    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool\ms-identity-app.csproj'
+    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool\msidentity-app-sync.csproj'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
