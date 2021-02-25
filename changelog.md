@@ -1,3 +1,13 @@
+1.7.0
+==========
+### New Features:
+**msidentity-app-sync is a command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C)** and updates the configuration code of your ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application. See https://aka.ms/msidentity-app-sync for details. See issue [#954](https://github.com/AzureAD/microsoft-identity-web/issues/954), and [977](https://github.com/AzureAD/microsoft-identity-web/issues/977).
+
+**Microsoft Identity Web now disables the ADAL cache lookup by default when calling into MSAL .NET**. If you have ADAL apps which share a cache with MSAL apps, you would want to set `LegacyCacheCompatibilityEnabled = false` in `appsettings.json`. Otherwise, there is a performance improvement when bypassing the ADAL cache lookup. See issue [#961](https://github.com/AzureAD/microsoft-identity-web/issues/961) for details.
+
+### Bug Fixes:
+**Remove obsolete attribute from `ValidateUserScopesAndAppRoles`**. See issue [#963](https://github.com/AzureAD/microsoft-identity-web/issues/963) and [#995](https://github.com/AzureAD/microsoft-identity-web/issues/995) for details.
+
 1.6.0
 ==========
 See [blog post](https://github.com/AzureAD/microsoft-identity-web/wiki/1.6.0) for details.
