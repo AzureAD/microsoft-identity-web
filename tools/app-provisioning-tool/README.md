@@ -38,7 +38,7 @@ msidentity-app-sync:
    dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]
 
    where the template is in webapp, mvc, webapi, blazorserver, blazorwasm.
-   See https://aka.ms/msidentity-app-sync.
+   See https://aka.ms/ms-identity-app-registration.
 
 Usage:
   msidentity-app-sync [options]
@@ -60,6 +60,13 @@ Options:
   --client-secret <client-secret>      Client secret to use as a client credential.
   --susi-policy-id <susi-policy-id>    Sign-up/Sign-in policy required for configurating
                                         a B2C application from code that was created for AAD.
+  --api-client-id <api-client-id>      Client ID of the blazorwasm hosted web API.
+                                        This is only used on the case of a blazorwasm hosted application where you only
+                                        want to configure the code (named after the --api-client-id blazorwasm
+                                        template parameter).
+  --app-id-uri <app-id-uri>            The App ID Uri for the blazorwasm hosted API. It's only used
+                                        on the case of a blazorwasm hosted application (named after the --app-id-uri
+                                        blazorwasm template parameter).
   --unregister                         Unregister the application, instead of registering it.
   --version                            Show version information
   -?, -h, --help                       Show help and usage information
