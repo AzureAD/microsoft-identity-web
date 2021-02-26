@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+//#define UseRedisCache
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,11 +42,13 @@ namespace WebApp_OpenIDConnect_DotNet
 
             services.AddOptions();
 
-            //services.AddStackExchangeRedisCache(options =>
-            //{
-            //    options.Configuration = Configuration.GetConnectionString("Redis");
-            //    options.InstanceName = "RedisDemos_"; //should be unique to the app
-            //});
+#if UseRedisCache
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetConnectionString("Redis");
+                options.InstanceName = "RedisDemos_"; //should be unique to the app
+            });
+#endif
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
               .AddMicrosoftIdentityWebApp(options =>
@@ -57,8 +60,11 @@ namespace WebApp_OpenIDConnect_DotNet
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
                      .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
                      .AddDownstreamWebApi("AzureFunction", Configuration.GetSection("AzureFunction"))
-                     //.AddDistributedTokenCaches();
+#if UseRedisCache
+                     .AddDistributedTokenCaches();
+#else
                      .AddInMemoryTokenCaches();
+#endif
 
             services.AddControllersWithViews(options =>
             {
