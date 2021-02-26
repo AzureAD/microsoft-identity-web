@@ -5,6 +5,8 @@
 
 **Microsoft Identity Web now disables the ADAL cache lookup by default when calling into MSAL .NET**. If you have ADAL apps which share a cache with MSAL apps, you would want to set `LegacyCacheCompatibilityEnabled = false` in `appsettings.json`. Otherwise, there is a performance improvement when bypassing the ADAL cache lookup. See issue [#961](https://github.com/AzureAD/microsoft-identity-web/issues/961) for details.
 
+**It's now possible to specify the X509KeyStorageFlags in the certificate description (both in the config file, or programmatically)**. This way if you want to use other storage flags than the default, it is possible.
+
 ### Bug Fixes:
 **Remove obsolete attribute from `ValidateUserScopesAndAppRoles`**. See issue [#963](https://github.com/AzureAD/microsoft-identity-web/issues/963) and [#995](https://github.com/AzureAD/microsoft-identity-web/issues/995) for details.
 
