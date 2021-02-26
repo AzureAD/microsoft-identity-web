@@ -86,11 +86,27 @@ namespace PerformanceTestService
 
         public void AddReadDuration(double readDurationInMilliseconds)
         {
+            if (_cacheReadDurationCounter is null)
+            {
+                _cacheReadDurationCounter = new EventCounter(CacheReadDurationCounterName, this)
+                {
+                    DisplayName = "Cache read duration",
+                    DisplayUnits = "ms"
+                };
+            }
             _cacheReadDurationCounter.WriteMetric(readDurationInMilliseconds);
         }
 
         public void AddWriteDuration(double writeDurationInMilliseconds)
         {
+            if (_cacheWriteDurationCounter is null)
+            {
+                _cacheWriteDurationCounter = new EventCounter(CacheWriteDurationCounterName, this)
+                {
+                    DisplayName = "Cache write duration",
+                    DisplayUnits = "ms"
+                };
+            }
             _cacheWriteDurationCounter.WriteMetric(writeDurationInMilliseconds);
         }
 
