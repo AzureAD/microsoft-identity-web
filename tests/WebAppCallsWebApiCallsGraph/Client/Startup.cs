@@ -41,6 +41,12 @@ namespace WebApp_OpenIDConnect_DotNet
 
             services.AddOptions();
 
+            //services.AddStackExchangeRedisCache(options =>
+            //{
+            //    options.Configuration = Configuration.GetConnectionString("Redis");
+            //    options.InstanceName = "RedisDemos_"; //should be unique to the app
+            //});
+
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
               .AddMicrosoftIdentityWebApp(options =>
               {
@@ -51,6 +57,7 @@ namespace WebApp_OpenIDConnect_DotNet
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
                      .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
                      .AddDownstreamWebApi("AzureFunction", Configuration.GetSection("AzureFunction"))
+                     //.AddDistributedTokenCaches();
                      .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews(options =>
