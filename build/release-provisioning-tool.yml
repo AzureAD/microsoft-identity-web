@@ -28,10 +28,10 @@ steps:
  
 # Nuget Restore and Build Microsoft.Identity.Web.sln
 - task: DotNetCoreCLI@2
-  displayName: 'Build solution app-provisioning-tool.sln and run tests'
+  displayName: 'Build solution app-provisioning.sln and run tests'
   inputs:
     command: test
-    projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
+    projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
     arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:ClientSemVer=$(ClientSemVer) -p:SourceLinkCreate=true'
  
 # This task is needed so that the 1CS Rolsyn analyzers task works.
@@ -39,7 +39,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
   inputs:
-    solution: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisionning.sln'
+    solution: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
     vsVersion: '16.0'
     msbuildArgs: '/p:RunCodeAnalysis=false /p:ClientSemVer=$(ClientSemVer) /p:SourceLinkCreate=true'
     platform: $(BuildPlatform)

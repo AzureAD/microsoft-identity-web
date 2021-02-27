@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
@@ -47,11 +48,13 @@ namespace Microsoft.Identity.Web
                     case CertificateSource.KeyVault:
                         certificateDescription.Certificate = LoadFromKeyVault(
                             certificateDescription.Container!,
-                            certificateDescription.ReferenceOrValue!);
+                            certificateDescription.ReferenceOrValue!,
+                            certificateDescription.X509KeyStorageFlags!);
                         break;
                     case CertificateSource.Base64Encoded:
                         certificateDescription.Certificate = LoadFromBase64Encoded(
-                            certificateDescription.ReferenceOrValue!);
+                            certificateDescription.ReferenceOrValue!,
+                            certificateDescription.X509KeyStorageFlags!);
                         break;
                     case CertificateSource.Path:
                         certificateDescription.Certificate = LoadFromPath(
@@ -74,13 +77,13 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64)
+        private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, X509KeyStorageFlags x509KeyStorageFlags)
         {
             byte[] decoded = Convert.FromBase64String(certificateBase64);
             return new X509Certificate2(
                 decoded,
                 (string?)null,
-                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+                x509KeyStorageFlags);
         }
 
         /// <summary>
@@ -88,11 +91,15 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="keyVaultUrl">URL of Key Vault.</param>
         /// <param name="certificateName">Name of the certificate.</param>
+        /// <param name="x509KeyStorageFlags">Defines where and how to import the private key of an X.509 certificate.</param>
         /// <returns>An <see cref="X509Certificate2"/> certificate.</returns>
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        private static X509Certificate2 LoadFromKeyVault(string keyVaultUrl, string certificateName)
+        private static X509Certificate2 LoadFromKeyVault(
+            string keyVaultUrl,
+            string certificateName,
+            X509KeyStorageFlags x509KeyStorageFlags)
         {
             Uri keyVaultUri = new Uri(keyVaultUrl);
             DefaultAzureCredential credential = new DefaultAzureCredential();
@@ -107,7 +114,7 @@ namespace Microsoft.Identity.Web
                 return new X509Certificate2(
                     certificate.Cer,
                     (string?)null,
-                    X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+                    x509KeyStorageFlags);
             }
 
             // Parse the secret ID and version to retrieve the private key.
@@ -130,7 +137,7 @@ namespace Microsoft.Identity.Web
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
             if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
             {
-                return LoadFromBase64Encoded(secret.Value);
+                return LoadFromBase64Encoded(secret.Value, x509KeyStorageFlags);
             }
 
             throw new NotSupportedException(
