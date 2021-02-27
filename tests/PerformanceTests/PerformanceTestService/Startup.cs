@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+//#define UseRedisCache
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,18 +28,24 @@ namespace PerformanceTestService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                       .AddMicrosoftIdentityWebApi(Configuration)
                       .EnableTokenAcquisitionToCallDownstreamApi()
                             .AddDownstreamWebApi(
                                 TestConstants.SectionNameCalledApi,
                                 Configuration.GetSection(TestConstants.SectionNameCalledApi))
                             .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
-
+#if UseRedisCache
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetConnectionString("Redis");
+                options.InstanceName = "RedisDemos_"; //should be unique to the app
+            });
+#else
             // Replace existing cache provider with benchmark one
             // services.AddBenchmarkInMemoryTokenCaches();
             services.AddBenchmarkDistributedTokenCaches();
-
+#endif
             // Add custom event counters to the App Insights collection
             services.ConfigureTelemetryModule<EventCounterCollectionModule>((module, o) =>
             {
