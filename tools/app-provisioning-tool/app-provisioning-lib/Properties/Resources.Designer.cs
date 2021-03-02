@@ -109,5 +109,18 @@ namespace Microsoft.Identity.App.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;SignedOutCallbackPath&quot;: &quot;/signout/B2C_1_susi&quot;,
+        ///    &quot;SignUpSignInPolicyId&quot;: &quot;b2c_1_susi&quot;,
+        ///    &quot;ResetPasswordPolicyId&quot;: &quot;b2c_1_reset&quot;,
+        ///    &quot;EditProfilePolicyId&quot;: &quot;b2c_1_edit_profile&quot;,
+        ///.
+        /// </summary>
+        internal static string Policies {
+            get {
+                return ResourceManager.GetString("Policies", resourceCulture);
+            }
+        }
     }
 }

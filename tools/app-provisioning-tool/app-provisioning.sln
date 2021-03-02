@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{43AE3D56
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "app-provisioning-lib", "app-provisioning-lib\app-provisioning-lib.csproj", "{478BF1DB-545D-4D82-9076-3E9EC90024A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ms-identity-app", "app-provisioning-tool\ms-identity-app.csproj", "{922565E4-B8E4-4C40-B955-84054A50BED6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "msidentity-app-sync", "app-provisioning-tool\msidentity-app-sync.csproj", "{922565E4-B8E4-4C40-B955-84054A50BED6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "tests\Tests.csproj", "{BE7CD1FC-0341-4B94-9A8A-859FA9F756B6}"
 EndProject

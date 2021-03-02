@@ -15,10 +15,10 @@ namespace Microsoft.Identity.App
         /// your developer credentials (from Visual Studio, Azure CLI, Azure RM PowerShell, VS Code).
         /// Use this tool in folders containing applications created with the following command:
         /// 
-        ///   <c>dotnet new template --auth authOption [--calls-graph] [--called-api-url URI --called-api-scopes scopes]</c>
+        ///   <c>dotnet new &lt;template&gt; --auth &lt;authOption&gt; [--calls-graph] [--called-api-url &lt;URI&gt; --called-api-scopes &lt;scopes&gt;]</c>
         /// 
-        /// where the template is in <c>webapp</c>, <c>mvc</c>, <c>webapi</c>, <c>blazorserver</c>, <c>blazorwasm</c>.
-        /// See https://aka.ms/ms-identity-app-registration.
+        /// where the &lt;template&gt; is a <c>webapp</c>, <c>mvc</c>, <c>webapi</c>, <c>blazorserver</c>, <c>blazorwasm</c>.
+        /// See https://aka.ms/msidentity-app-sync.
         /// </summary>
         /// <param name="tenantId">Azure AD or Azure AD B2C tenant in which to create/update the app. 
         /// - If specified, the tool will create the application in the specified tenant. 
@@ -34,6 +34,15 @@ namespace Microsoft.Identity.App
         /// <param name="folder">When specified, will analyze the application code in the specified folder. 
         /// Otherwise analyzes the code in the current directory.</param>
         /// <param name="clientSecret">Client secret to use as a client credential.</param>
+        /// <param name="susiPolicyId">Sign-up/Sign-in policy required for configurating 
+        /// a B2C application from code that was created for AAD.</param>
+        /// <param name="apiClientId">Client ID of the blazorwasm hosted web API. 
+        /// This is only used on the case of a blazorwasm hosted application where you only
+        /// want to configure the code (named after the --api-client-id blazorwasm 
+        /// template parameter).</param> 
+        /// <param name="appIdUri">The App ID Uri for the blazorwasm hosted API. It's only used
+        /// on the case of a blazorwasm hosted application (named after the --app-id-uri 
+        /// blazorwasm template parameter).</param>
         /// <param name="unregister">Unregister the application, instead of registering it.</param>
         /// <returns></returns>
         static public async Task Main(
@@ -42,6 +51,9 @@ namespace Microsoft.Identity.App
             string? clientId,
             string? folder,
             string? clientSecret,
+            string? susiPolicyId,
+            string? apiClientId,
+            string? appIdUri,
             bool? unregister)
         {
             // Read options
@@ -51,6 +63,9 @@ namespace Microsoft.Identity.App
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 TenantId = tenantId,
+                SusiPolicyId = susiPolicyId,
+                WebApiClientId = apiClientId,
+                AppIdUri = appIdUri,
                 Unregister = unregister ?? false
             };
 

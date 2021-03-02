@@ -368,6 +368,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 case "Application.SusiPolicy":
                     projectAuthenticationSettings.ApplicationParameters.SusiPolicy = value;
                     break;
+                case "Application.AppIdUri":
+                    projectAuthenticationSettings.ApplicationParameters.AppIdUri = value;
+                    break;
             }
         }
 

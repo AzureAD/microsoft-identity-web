@@ -97,10 +97,10 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalUiRequiredException ex)
             {
-                Console.WriteLine("No valid tokens found in the cache.\nPlease sign-in to Visual Studio with this account:\n\n{0}.\n\nAfter signing-in, re-run the tool.\n" +
-                    "Error returned: {1}",
-                    account?.Username ?? "Account not specified, sign-in to Visual Studio",
-                    ex.Message);
+                if (account == null && !string.IsNullOrEmpty(Username))
+                {
+                    Console.WriteLine($"No valid tokens found in the cache.\nPlease sign-in to Visual Studio with this account:\n\n{Username}.\n\nAfter signing-in, re-run the tool.\n");
+                }
                 result = await app.AcquireTokenInteractive(requestContext.Scopes)
                     .WithAccount(account)
                     .WithClaims(ex.Claims)
@@ -109,9 +109,22 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalServiceException ex)
             {
-                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0}",
+                if (ex.Message.Contains("AADSTS70002")) // "The client does not exist or is not enabled for consumers"
+                {
+                    Console.WriteLine("An Azure AD tenant, and a user in that tenant, " +
+                        "needs to be created for this account before an application can be created. See https://aka.ms/ms-identity-app/create-a-tenant. ");
+                    Environment.Exit(1); // we want to exit here because this is probably an MSA without an AAD tenant.
+                }
+
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
                     ex.Message);
                 Environment.Exit(1); // we want to exit here. Re-sign in will not resolve the issue.
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error encountered with sign-in. See error message for details:\n{0} ",
+                    ex.Message);
+                Environment.Exit(1);
             }
             return new AccessToken(result.AccessToken, result.ExpiresOn);
         }

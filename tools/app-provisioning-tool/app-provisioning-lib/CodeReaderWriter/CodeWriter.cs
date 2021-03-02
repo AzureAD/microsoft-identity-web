@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.App.AuthenticationParameters;
+using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
 {
     public class CodeWriter
     {
-        internal void WriteConfiguration(Summary summary, List<Replacement> replacements, ApplicationParameters reconcialedApplicationParameters)
+        internal void WriteConfiguration(Summary summary, IEnumerable<Replacement> replacements, ApplicationParameters reconcialedApplicationParameters)
         {
             foreach (var replacementsInFile in replacements.GroupBy(r => r.FilePath))
             {
@@ -120,7 +121,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     // Todo generalize with a directive: Ensure line after line, or ensure line
                     // between line and line
                     replacement = reconciledApplicationParameters.MsalAuthenticationOptions;
-                    if (!reconciledApplicationParameters.IsWebApi)
+                    if (reconciledApplicationParameters.AppIdUri == null)
                     {
                         replacement +=
                             "\n                options.ProviderOptions.DefaultAccessTokenScopes.Add(\"User.Read\");";
@@ -148,6 +149,13 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                         replacement = reconciledApplicationParameters.Instance;
                     }
                     break;
+                case "Application.ConfigurationSection":
+                    replacement = null;
+                    break;
+                case "Application.AppIdUri":
+                    replacement = reconciledApplicationParameters.AppIdUri;
+                    break;
+
                 default:
                     Console.WriteLine($"{replaceBy} not known");
                     break;
