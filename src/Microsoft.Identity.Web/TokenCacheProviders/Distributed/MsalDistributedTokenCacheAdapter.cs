@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -23,8 +21,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// .NET Core Memory cache.
         /// </summary>
         private readonly IDistributedCache _distributedCache;
-        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCache _memoryCache;
         private readonly ILogger<MsalDistributedTokenCacheAdapter> _logger;
+        private readonly TimeSpan? _expirationTime;
 
         /// <summary>
         /// MSAL distributed token cache options.
@@ -32,40 +31,30 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         private readonly MsalDistributedTokenCacheAdapterOptions _distributedCacheOptions;
 
         /// <summary>
-        /// MSAL memory token cache options.
-        /// </summary>
-        private readonly MsalMemoryTokenCacheOptions _memoryCacheOptions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MsalDistributedTokenCacheAdapter"/> class.
         /// </summary>
         /// <param name="distributedCache">Distributed cache instance to use.</param>
         /// <param name="distributedCacheOptions">Options for the token cache.</param>
         /// <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
-        /// <param name="memoryCache">Memory cache instance to use.</param>
-        /// <param name="memoryCacheOptions">Memory cache options.</param>
         public MsalDistributedTokenCacheAdapter(
                                             IDistributedCache distributedCache,
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
-                                            ILogger<MsalDistributedTokenCacheAdapter> logger,
-                                            IMemoryCache? memoryCache = null,
-                                            IOptions<MsalMemoryTokenCacheOptions>? memoryCacheOptions = null)
+                                            ILogger<MsalDistributedTokenCacheAdapter> logger)
         {
             if (distributedCacheOptions == null)
             {
                 throw new ArgumentNullException(nameof(distributedCacheOptions));
             }
 
-            if (memoryCacheOptions == null)
-            {
-                memoryCacheOptions = Options.Create(new MsalMemoryTokenCacheOptions());
-            }
-
             _distributedCache = distributedCache;
             _distributedCacheOptions = distributedCacheOptions.Value;
-            _memoryCache = memoryCache ?? new MemoryCache(new MemoryCacheOptions());
-            _memoryCacheOptions = memoryCacheOptions.Value;
+            _memoryCache = new MemoryCache(new MemoryCacheOptions { SizeLimit = _distributedCacheOptions.L1CacheSizeLimit * (1024 * 1024) });
             _logger = logger;
+
+            if (_distributedCacheOptions.AbsoluteExpirationRelativeToNow != null)
+            {
+                _expirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
+            }
         }
 
         /// <summary>
@@ -76,16 +65,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
-            // remove in both
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            var startTicks = Utility.Watch.Elapsed.Ticks;
             _memoryCache.Remove(cacheKey);
-            stopwatch.Stop();
-            _logger.LogInformation($"[IdWebCache]: Remove cacheKey {cacheKey} MemoryCache time: {stopwatch.Elapsed.TotalMilliseconds}. ");
-            stopwatch.Start();
+            _logger.LogDebug($"[IdWebCache] MemoryCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+
             await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
-            stopwatch.Stop();
-            _logger.LogInformation($"[IdWebCache]: Remove cacheKey {cacheKey} DistributedCache time: {stopwatch.Elapsed.TotalMilliseconds}. ");
+            _logger.LogDebug($"[IdWebCache] DistributedCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
         }
 
         /// <summary>
@@ -97,33 +82,34 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            // check memory cache first, logic from MISE
+            var startTicks = Utility.Watch.Elapsed.Ticks;
+
+            // check memory cache first
             byte[] result = (byte[])_memoryCache.Get(cacheKey);
-            _logger.LogInformation($"[IdWebCache]: Read memory cache {cacheKey} result: {result?.Length}. ");
+            _logger.LogDebug($"[IdWebCache] MemoryCache: Read cache {cacheKey} Byte size: {result?.Length}. ");
+
             if (result == null)
             {
                 // not found in memory, check distributed cache
                 result = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
-                _logger.LogInformation($"[IdWebCache]: No result in memory, check distributed cache: {result?.Length}. ");
+                _logger.LogDebug($"[IdWebCache] DistributedCache read: No result in memory, distributed cache result - Byte size: {result?.Length}. ");
 
-                // back propogate to memory cache
+                // back propagate to memory cache
                 if (result != null)
                 {
                     MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
                     {
-                        AbsoluteExpirationRelativeToNow = _memoryCacheOptions.AbsoluteExpirationRelativeToNow,
+                        AbsoluteExpirationRelativeToNow = _expirationTime,
                         Size = result?.Length,
                     };
 
-                    _logger.LogInformation($"[IdWebCache]: Back propogate from Distributed to Memory: {result?.Length}");
+                    _logger.LogDebug($"[IdWebCache] Back propagate from Distributed to Memory, Byte size: {result?.Length}");
                     _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
+                    _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
                 }
             }
 
-            stopwatch.Stop();
-            _logger.LogInformation($"[IdWebCache]: Read cache {cacheKey} time: {stopwatch.Elapsed.TotalMilliseconds}. ");
+            _logger.LogDebug($"[IdWebCache] Read caches for {cacheKey} returned Bytes {result?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
             return result;
         }
 
@@ -137,20 +123,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
-                AbsoluteExpirationRelativeToNow = _memoryCacheOptions.AbsoluteExpirationRelativeToNow,
+                AbsoluteExpirationRelativeToNow = _expirationTime,
                 Size = bytes?.Length,
             };
 
             // write in both
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            var startTicks = Utility.Watch.Elapsed.Ticks;
+
             _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            stopwatch.Stop();
-            _logger.LogInformation($"[IdWebCache]: Write cacheKey {cacheKey} size {bytes?.Length} MemoryCache time: {stopwatch.Elapsed.TotalMilliseconds}. ");
-            stopwatch.Start();
+            _logger.LogDebug($"[IdWebCache] MemoryCache: Write cacheKey {cacheKey} Byte size: {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
+
             await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
-            stopwatch.Stop();
-            _logger.LogInformation($"[IdWebCache]: Write cacheKey {cacheKey} size {bytes?.Length} DistributedCache time: {stopwatch.Elapsed.TotalMilliseconds}. ");
+            _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
         }
     }
 }
