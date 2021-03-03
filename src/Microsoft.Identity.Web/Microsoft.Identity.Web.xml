@@ -2131,7 +2131,8 @@
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter">
             <summary>
-            An implementation of the token cache for both Confidential and Public clients backed by MemoryCache.
+            An implementation of the token cache for both Confidential and Public clients backed by a Distributed Cache.
+            The Distributed Cache (L2), by default creates a Memory Cache (L1), for faster look up, resulting in a two level cache.
             </summary>
             <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
         </member>
@@ -2140,17 +2141,18 @@
             .NET Core Memory cache.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._cacheOptions">
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCacheOptions">
             <summary>
-            MSAL memory token cache options.
+            MSAL distributed token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
-            <param name="memoryCache">Distributed cache instance to use.</param>
-            <param name="cacheOptions">Options for the token cache.</param>
+            <param name="distributedCache">Distributed cache instance to use.</param>
+            <param name="distributedCacheOptions">Options for the token cache.</param>
+            <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
             <summary>
@@ -2182,6 +2184,19 @@
             Options for the MSAL token cache serialization adapter,
             which delegates the serialization to the IDistributedCache implementations
             available with .NET Core.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1CacheSizeLimit">
+            <summary>
+            In memory (L1) cache size limit in Mb.
+            Default is 500 Mb.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1ExpirationTimeRatio">
+            <summary>
+            Value more than 0, less than 1, to set the In Memory (L1) cache
+            expiration time values relative to the Distributed (L2) cache.
+            Default is 1.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
@@ -2440,6 +2455,11 @@
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Utility">
+            <summary>
+            Utility methods used by L1/L2 cache.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder">
             <summary>
