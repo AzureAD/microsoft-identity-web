@@ -74,8 +74,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             _memoryCache.Remove(cacheKey);
             _logger.LogDebug($"[IdWebCache] MemoryCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
 
-            await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
-            _logger.LogDebug($"[IdWebCache] DistributedCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            try
+            {
+                await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
+                _logger.LogDebug($"[IdWebCache] DistributedCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+            }
         }
 
         /// <summary>
@@ -96,8 +103,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             if (result == null)
             {
                 // not found in memory, check distributed cache
-                result = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
-                _logger.LogDebug($"[IdWebCache] DistributedCache read: No result in memory, distributed cache result - Byte size: {result?.Length}. ");
+                try
+                {
+                    result = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
+                    _logger.LogDebug($"[IdWebCache] DistributedCache read: No result in memory, distributed cache result - Byte size: {result?.Length}. ");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+                }
 
                 // back propagate to memory cache
                 if (result != null)
@@ -141,8 +155,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             _logger.LogDebug($"[IdWebCache] MemoryCache: Write cacheKey {cacheKey} Byte size: {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
             _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
 
-            await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
-            _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            try
+            {
+                await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
+                _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+            }
         }
     }
 }

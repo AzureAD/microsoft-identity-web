@@ -4,183 +4,6 @@
         <name>Microsoft.Identity.Web</name>
     </assembly>
     <members>
-        <member name="T:Microsoft.Identity.Web.AccountExtensions">
-            <summary>
-            Extension methods for <see cref="T:Microsoft.Identity.Client.IAccount"/>.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AccountExtensions.ToClaimsPrincipal(Microsoft.Identity.Client.IAccount)">
-            <summary>
-            Creates the <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from the values found
-            in an <see cref="T:Microsoft.Identity.Client.IAccount"/>.
-            </summary>
-            <param name="account">The <see cref="T:Microsoft.Identity.Client.IAccount"/> instance.</param>
-            <returns>A <see cref="T:System.Security.Claims.ClaimsPrincipal"/> built from <see cref="T:Microsoft.Identity.Client.IAccount"/>.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions">
-            <summary>
-            Extension methods related to App Services authentication (Easy Auth).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions.AddAppServicesAuthentication(Microsoft.AspNetCore.Authentication.AuthenticationBuilder)">
-            <summary>
-            Add authentication with App Services.
-            </summary>
-            <param name="builder">Authentication builder.</param>
-            <returns>The builder, to chain commands.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationDefaults">
-            <summary>
-            Default values related to AppServiceAuthentication handler.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.AppServicesAuthenticationDefaults.AuthenticationScheme">
-            <summary>
-            The default value used for AppServiceAuthenticationOptions.AuthenticationScheme.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationHandler">
-            <summary>
-            App service authentication handler.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.AppServicesAuthenticationOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,Microsoft.AspNetCore.Authentication.ISystemClock)">
-            <summary>
-            Constructor for the AppServiceAuthenticationHandler.
-            Note the parameters are required by the base class.
-            </summary>
-            <param name="options">App service authentication options.</param>
-            <param name="logger">Logger factory.</param>
-            <param name="encoder">URL encoder.</param>
-            <param name="clock">System clock.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationHandler.HandleAuthenticateAsync">
-            <inheritdoc/>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationInformation">
-            <summary>
-            Information about the App Services configuration on the host.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled">
-            <summary>
-            Is App Services authentication enabled?.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.LogoutUrl">
-            <summary>
-            Logout URL for App Services Auth web sites.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.ClientId">
-            <summary>
-            ClientID of the App Services Auth web site.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.ClientSecret">
-            <summary>
-            Client secret of the App Services Auth web site.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppServicesAuthenticationInformation.Issuer">
-            <summary>
-            Issuer of the App Services Auth web site.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(System.String)">
-            <summary>
-            Get headers from environment to help debugging App Services authentication.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationOptions">
-            <summary>
-            Options for Azure App Services authentication.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition">
-            <summary>
-            Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Net.Http.IHttpClientFactory)">
-            <summary>
-            Constructor of the AppServicesAuthenticationTokenAcquisition.
-            </summary>
-            <param name="tokenCacheProvider">The App token cache provider.</param>
-            <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-            <param name="httpClientFactory">HTTP client factory.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
-            <inheritdoc/>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AuthorizeForScopesAttribute">
-            <summary>
-            Filter used on a controller action to trigger incremental consent.
-            </summary>
-            <example>
-            The following controller action will trigger.
-            <code>
-            [AuthorizeForScopes(Scopes = new[] {"Mail.Send"})]
-            public async Task&lt;IActionResult&gt; SendEmail()
-            {
-            }
-            </code>
-            </example>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.Scopes">
-            <summary>
-            Scopes to request.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.ScopeKeySection">
-            <summary>
-            Key section on the configuration file that holds the scope value.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.UserFlow">
-            <summary>
-            Azure AD B2C user flow.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AuthorizeForScopesAttribute.AuthenticationScheme">
-            <summary>
-            Allows specifying an AuthenticationScheme if OpenIdConnect is not the default challenge scheme.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
-            <summary>
-            Handles the <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/>.
-            </summary>
-            <param name="context">Context provided by ASP.NET Core.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AuthorizeForScopesAttribute.FindMsalUiRequiredExceptionIfAny(System.Exception)">
-            <summary>
-            Finds an MsalUiRequiredException in one of the inner exceptions.
-            </summary>
-            <param name="exception">Exception from which we look for an MsalUiRequiredException.</param>
-            <returns>The MsalUiRequiredException if there is one, null, otherwise.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension">
-            <summary>
-            Extensions for <see cref="T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension"/>.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension.AuthenticateAzureFunctionAsync(Microsoft.AspNetCore.Http.HttpContext)">
-            <summary>
-            Enables an Azure Function to act as/expose a protected web API, enabling bearer token authentication. Calling this method from your Azure function validates the token and exposes the identity of the user or app on behalf of which your function is called, in the HttpContext.User member, where your function can make use of it.
-            </summary>
-            <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
-            <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
-        </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">
             <summary>
             Description of a certificate.
@@ -423,115 +246,6 @@
             </summary>
             <param name="certificateDescription">Description of the certificate.</param>
         </member>
-        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
-            <summary>
-            Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the account identifier for an MSAL.NET account from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">Claims principal.</param>
-            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the unique object ID.</param>
-            <remarks>This method returns the object ID both in case the developer has enabled or not claims mapping.</remarks>
-            <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the tenant ID.</param>
-            <returns>Tenant ID of the identity, or <c>null</c> if it cannot be found.</returns>
-            <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the login-hint associated with a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">Identity for which to complete the login-hint.</param>
-            <returns>The login hint for the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the domain-hint associated with an identity.
-            </summary>
-            <param name="claimsPrincipal">Identity for which to compute the domain-hint.</param>
-            <returns> The domain hint for the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Get the display name for the signed-in user, from the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">Claims about the user/account.</param>
-            <returns>A string containing the display name for the user, as determined by Azure AD (v1.0) and Microsoft identity platform (v2.0) tokens,
-            or <c>null</c> if the claims cannot be found.</returns>
-            <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims. </remarks>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the user flow ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
-            <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the Home Object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
-            <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeTenantId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the Home Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
-            <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
-            </summary>
-            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
-            <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalFactory">
-            <summary>
-            Factory class to create <see cref="T:System.Security.Claims.ClaimsPrincipal"/> objects.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalFactory.FromTenantIdAndObjectId(System.String,System.String)">
-             <summary>
-             Instantiate a <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from an account object ID and tenant ID. This can
-             be useful when the web app subscribes to another service on behalf of the user
-             and then is called back by a notification where the user is identified by their tenant
-             ID and object ID (like in Microsoft Graph Web Hooks).
-             </summary>
-             <param name="tenantId">Tenant ID of the account.</param>
-             <param name="objectId">Object ID of the account in this tenant ID.</param>
-             <returns>A <see cref="T:System.Security.Claims.ClaimsPrincipal"/> containing these two claims.</returns>
-            
-             <example>
-             <code>
-             private async Task GetChangedMessagesAsync(IEnumerable&lt;Notification&gt; notifications)
-             {
-              foreach (var notification in notifications)
-              {
-               SubscriptionStore subscription =
-                       subscriptionStore.GetSubscriptionInfo(notification.SubscriptionId);
-              HttpContext.User = ClaimsPrincipalExtension.FromTenantIdAndObjectId(subscription.TenantId,
-                                                                                  subscription.UserId);
-              string accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-             </code>
-             </example>
-        </member>
         <member name="T:Microsoft.Identity.Web.ClaimConstants">
             <summary>
             Constants for claim types.
@@ -691,47 +405,326 @@
             Constants related to the log messages.
             </summary>
         </member>
-        <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
             <summary>
-            Extension class containing cookie policies (work around for same site).
+            Extension class used to add distributed token cache serializer to MSAL.
+            See https://aka.ms/ms-id-web/token-cache-serialization for details.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions)">
-            <summary>
-            Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
-            The default list of user agents that disallow "SameSite=None",
-            was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
-            </summary>
-            <param name="options"><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/>to update.</param>
-            <returns><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/> to chain.</returns>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions,System.Func{System.String,System.Boolean})">
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter">
             <summary>
-            Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-            The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
+            An implementation of the token cache for both Confidential and Public clients backed by a Distributed Cache.
+            The Distributed Cache (L2), by default creates a Memory Cache (L1), for faster look up, resulting in a two level cache.
             </summary>
-            <param name="options"><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/>to update.</param>
-            <param name="disallowsSameSiteNone">If you don't want to use the default user agent list implementation,
-            the method sent in this parameter will be run against the user agent and if returned true, SameSite value will be set to Unspecified.
-            The default user agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
-            <returns><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/> to chain.</returns>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
         </member>
-        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.DisallowsSameSiteNone(System.String)">
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCache">
             <summary>
-            Checks if the specified user agent supports "SameSite=None" cookies.
+            .NET Core Memory cache.
             </summary>
-            <param name="userAgent">Browser user agent.</param>
-            <remarks>
-            Incompatible user agents include:
-            <list type="bullet">
-            <item>Versions of Chrome from Chrome 51 to Chrome 66 (inclusive on both ends).</item>
-            <item>Versions of UC Browser on Android prior to version 12.13.2.</item>
-            <item>Versions of Safari and embedded browsers on MacOS 10.14 and all browsers on iOS 12.</item>
-            </list>
-            Reference: https://www.chromium.org/updates/same-site/incompatible-clients.
-            </remarks>
-            <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
         </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCacheOptions">
+            <summary>
+            MSAL distributed token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
+            </summary>
+            <param name="distributedCache">Distributed cache instance to use.</param>
+            <param name="distributedCacheOptions">Options for the token cache.</param>
+            <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a specific token cache, described by its cache key
+            from the distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache to remove.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Read a specific token cache, described by its cache key, from the
+            distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache item to retrieve.</param>
+            <returns>Read blob representing a token cache for the cache key
+            (account or app).</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (by key).
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">blob to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions">
+            <summary>
+            Options for the MSAL token cache serialization adapter,
+            which delegates the serialization to the IDistributedCache implementations
+            available with .NET Core.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1CacheSizeLimit">
+            <summary>
+            In memory (L1) cache size limit in Mb.
+            Default is 500 Mb.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1ExpirationTimeRatio">
+            <summary>
+            Value more than 0, less than 1, to set the In Memory (L1) cache
+            expiration time values relative to the Distributed (L2) cache.
+            Default is 1.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
+            <summary>
+            MSAL token cache provider interface.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes a token cache (which can be a user token cache or an app token cache).
+            </summary>
+            <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
+            <summary>
+            Clear the user token cache.
+            </summary>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
+            <summary>
+            Extension class used to add an in-memory token cache serializer to MSAL.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds both the app and per-user in-memory token caches.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns>the services (for chaining).</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">
+            <summary>
+            MSAL's in-memory token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions"/> class.
+            By default, the sliding expiration is set for 14 days.</summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow">
+            <summary>
+            Gets or sets the value of the duration after which the cache entry will expire unless it's used
+            This is the duration the tokens are kept in memory cache.
+            In production, a higher value, up-to 90 days is recommended.
+            </summary>
+            <value>
+            The AbsoluteExpirationRelativeToNow value.
+            </value>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider">
+            <summary>
+            An implementation of token cache for both Confidential and Public clients backed by MemoryCache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._memoryCache">
+            <summary>
+            .NET Core Memory cache.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._cacheOptions">
+            <summary>
+            MSAL memory token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="memoryCache">serialization cache.</param>
+            <param name="cacheOptions">Memory cache options.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a token cache identified by its key, from the serialization
+            cache.
+            </summary>
+            <param name="cacheKey">token cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Reads a blob from the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <returns>Read Bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
+            <summary>
+            Token cache provider with default implementation.
+            </summary>
+            <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            Raised AFTER MSAL added the new token in its in-memory copy of the cache.
+            This notification is called every time MSAL accesses the cache, not just when a write takes place:
+            If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.
+            If that is the case, we call the TokenCache.SerializeMsalV3() to get a binary blob representing the latest cache content – and persist it.
+            </summary>
+            <param name="args">Contains parameters used by the MSAL call accessing the cache.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
+            </summary>
+            <param name="args">Token cache notification arguments.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(System.String)">
+            <summary>
+            Clear the cache.
+            </summary>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Method to be implemented by concrete cache serializers to write the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to Read the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>Read bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to remove an entry from the cache.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Utility">
+            <summary>
+            Utility methods used by L1/L2 cache.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
+            <summary>
+            Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the account identifier for an MSAL.NET account from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims principal.</param>
+            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the unique object ID.</param>
+            <remarks>This method returns the object ID both in case the developer has enabled or not claims mapping.</remarks>
+            <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the tenant ID.</param>
+            <returns>Tenant ID of the identity, or <c>null</c> if it cannot be found.</returns>
+            <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the login-hint associated with a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to complete the login-hint.</param>
+            <returns>The login hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the domain-hint associated with an identity.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to compute the domain-hint.</param>
+            <returns> The domain hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Get the display name for the signed-in user, from the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims about the user/account.</param>
+            <returns>A string containing the display name for the user, as determined by Azure AD (v1.0) and Microsoft identity platform (v2.0) tokens,
+            or <c>null</c> if the claims cannot be found.</returns>
+            <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims. </remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user flow ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
+            <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
+            <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+    </members>
+</doc>
+ber>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApi">
             <summary>
             Implementation for the downstream web API.
