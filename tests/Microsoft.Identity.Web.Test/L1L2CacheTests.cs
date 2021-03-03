@@ -1,0 +1,320 @@
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Xunit;
+
+namespace Microsoft.Identity.Web.Test
+{
+    public class L1L2CacheTests
+    {
+        private const string _defaultCacheKey = "default-key";
+        private const string _anotherCacheKey = "another-key";
+        private ServiceProvider _provider;
+        private readonly TestMsalDistributedTokenCacheAdapter _testCacheAdapter;
+
+        private TestDistributedCache L2Cache
+        {
+            get { return _testCacheAdapter._distributedCache as TestDistributedCache; }
+        }
+
+        public L1L2CacheTests()
+        {
+            BuildTheRequiredServices();
+            _testCacheAdapter = new TestMsalDistributedTokenCacheAdapter(
+                MakeMockDistributedCache(),
+                _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>(),
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+        }
+
+        [Fact]
+        public async Task WriteCache_WritesInL1L2_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+
+            // Act
+            await _testCacheAdapter.TestWriteCacheBytesAsync(_defaultCacheKey, cache).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task SetL1Cache_ReadL1_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            cache[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            _testCacheAdapter._memoryCache.Set(_defaultCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+
+            // Act
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(4, result[0]);
+        }
+
+        [Fact]
+        public async Task EmptyL1Cache_ReadL2AndSetL1_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            cache[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cache);
+            Assert.Single(L2Cache.dict);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+
+            // Act
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(4, result[0]);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task EmptyL1L2Cache_ReturnNullCacheResult_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            cache[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+
+            // Act
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(result);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task SetL1Cache_ReadL1WithDifferentCacheKey__ReturnNullCacheResult_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            cache[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+
+            // Act
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Null(result);
+            Assert.Empty(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task SetL1CacheAndL2CacheWithDifferentCache_ReadL1WithCacheKey__ReturnL2CacheResult_TestAsync()
+        {
+            // Arrange
+            byte[] cacheL1 = new byte[3];
+            cacheL1[0] = 4;
+            byte[] cacheL2 = new byte[2];
+            cacheL2[0] = 9;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+
+            // Act & Assert
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            Assert.Equal(9, result[0]);
+            Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+
+            byte[] result2 = await _testCacheAdapter.TestReadCacheBytesAsync(_anotherCacheKey).ConfigureAwait(false);
+            Assert.Equal(4, result2[0]);
+            Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task RemoveL1CacheItem_TestAsync()
+        {
+            // Arrange
+            byte[] cacheL1 = new byte[3];
+            cacheL1[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            _testCacheAdapter._memoryCache.Set(_defaultCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+
+            // Act
+            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+        }
+
+        [Fact]
+        public async Task RemoveL2CacheItem_TestAsync()
+        {
+            // Arrange
+            byte[] cacheL2 = new byte[3];
+            cacheL2[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+            Assert.Single(L2Cache.dict);
+
+            // Act
+            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task RemoveOneCacheItem_OneCacheItemsRemains_TestAsync()
+        {
+            // Arrange
+            byte[] cacheL1 = new byte[3];
+            byte[] cacheL2 = new byte[2];
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+
+            // Act & Assert
+            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+            await _testCacheAdapter.TestRemoveKeyAsync(_anotherCacheKey).ConfigureAwait(false);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+        }
+
+        private static void AssertCacheValues(TestMsalDistributedTokenCacheAdapter testCache)
+        {
+            Assert.NotNull(testCache);
+            Assert.NotNull(testCache._distributedCache);
+            Assert.NotNull(testCache._memoryCache);
+        }
+
+        private void BuildTheRequiredServices()
+        {
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddDistributedTokenCaches();
+            _provider = services.BuildServiceProvider();
+        }
+
+        private static IDistributedCache MakeMockDistributedCache()
+        {
+            return new TestDistributedCache();
+        }
+    }
+
+    public class TestMsalDistributedTokenCacheAdapter : MsalDistributedTokenCacheAdapter
+    {
+        /// <summary>
+        /// This is standard text.
+        /// </summary>
+        /// <param name="distributedCache">l2.</param>
+        /// <param name="distributedCacheOptions">l2 options.</param>
+        /// <param name="logger">logger.</param>
+        public TestMsalDistributedTokenCacheAdapter(
+            IDistributedCache distributedCache,
+            IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
+            ILogger<MsalDistributedTokenCacheAdapter> logger)
+            : base(distributedCache, distributedCacheOptions, logger)
+        {
+        }
+
+        public async Task TestRemoveKeyAsync(string cacheKey)
+        {
+           await RemoveKeyAsync(cacheKey).ConfigureAwait(false);
+        }
+
+        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes)
+        {
+            await WriteCacheBytesAsync(cacheKey, bytes).ConfigureAwait(false);
+        }
+
+        public async Task<byte[]> TestReadCacheBytesAsync(string cacheKey)
+        {
+            return await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
+        }
+    }
+
+    internal class TestDistributedCache : IDistributedCache
+    {
+        public readonly ConcurrentDictionary<string, byte[]> dict = new ConcurrentDictionary<string, byte[]>();
+
+        public byte[] Get(string key)
+        {
+            if (dict.TryGetValue(key, out var value))
+            {
+                return dict[key];
+            }
+
+            return null;
+        }
+
+        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        {
+            return Task.FromResult(Get(key));
+        }
+
+        public void Refresh(string key)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task RefreshAsync(string key, CancellationToken token = default)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Remove(string key)
+        {
+            dict.TryRemove(key, out var _);
+        }
+
+        public Task RemoveAsync(string key, CancellationToken token = default)
+        {
+            Remove(key);
+            return Task.CompletedTask;
+        }
+
+        public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            dict[key] = value;
+        }
+
+        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
+        {
+            Set(key, value, options);
+            return Task.CompletedTask;
+        }
+    }
+}

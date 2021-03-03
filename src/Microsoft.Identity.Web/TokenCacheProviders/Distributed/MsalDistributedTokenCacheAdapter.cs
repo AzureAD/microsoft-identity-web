@@ -20,8 +20,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>
         /// .NET Core Memory cache.
         /// </summary>
-        private readonly IDistributedCache _distributedCache;
-        private readonly MemoryCache _memoryCache;
+        internal /*for tests*/ readonly IDistributedCache _distributedCache;
+        internal /*for tests*/ readonly MemoryCache _memoryCache;
         private readonly ILogger<MsalDistributedTokenCacheAdapter> _logger;
         private readonly TimeSpan? _expirationTime;
 
@@ -110,7 +110,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
 
             _logger.LogDebug($"[IdWebCache] Read caches for {cacheKey} returned Bytes {result?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+#pragma warning disable CS8603 // Possible null reference return.
             return result;
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         /// <summary>
