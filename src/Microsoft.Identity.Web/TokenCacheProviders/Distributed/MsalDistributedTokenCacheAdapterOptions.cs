@@ -23,6 +23,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// expiration time values relative to the Distributed (L2) cache.
         /// Default is 1.
         /// </summary>
-        public double L1ExpirationTimeRatio { get; set; } = 1;
+        internal double L1ExpirationTimeRatio { get; set; } = 1;
     }
 }
