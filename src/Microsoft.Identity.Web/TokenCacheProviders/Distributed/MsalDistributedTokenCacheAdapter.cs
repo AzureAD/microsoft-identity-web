@@ -53,6 +53,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (_distributedCacheOptions.AbsoluteExpirationRelativeToNow != null)
             {
+                if (_distributedCacheOptions.L1ExpirationTimeRatio <= 0 || _distributedCacheOptions.L1ExpirationTimeRatio > 1)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(_distributedCacheOptions.L1ExpirationTimeRatio), "L1ExpirationTimeRatio must be greater than 0, less than 1. ");
+                }
+
                 _expirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
             }
         }
