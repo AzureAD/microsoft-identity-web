@@ -11,8 +11,8 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
     /// <summary>
-    /// An implementation of the token cache for both Confidential and Public clients backed by a DistributedCache.
-    /// The DistributedCache, by default create a Memory Cache, for faster look up, two level cache.
+    /// An implementation of the token cache for both Confidential and Public clients backed by a Distributed Cache.
+    /// The Distributed Cache (L2), by default creates a Memory Cache (L1), for faster look up, resulting in a two level cache.
     /// </summary>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
     public class MsalDistributedTokenCacheAdapter : MsalAbstractTokenCacheProvider
