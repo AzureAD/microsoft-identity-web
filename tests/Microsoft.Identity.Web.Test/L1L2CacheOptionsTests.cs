@@ -28,6 +28,8 @@ namespace Microsoft.Identity.Web.Test
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(3),
                 });
             BuildTheRequiredServices();
+
+            // Act & Assert Exception
             Assert.Throws<ArgumentOutOfRangeException>(() => new TestMsalDistributedTokenCacheAdapter(
                 new TestDistributedCache(),
                 msalDistributedTokenOptions,
@@ -48,11 +50,13 @@ namespace Microsoft.Identity.Web.Test
                 });
             BuildTheRequiredServices();
 
+            // Act
             var testCache = new TestMsalDistributedTokenCacheAdapter(
                 new TestDistributedCache(),
                 msalDistributedTokenOptions,
                 _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
 
+            // Assert
             Assert.NotNull(testCache);
             Assert.NotNull(testCache._distributedCache);
             Assert.NotNull(testCache._memoryCache);
