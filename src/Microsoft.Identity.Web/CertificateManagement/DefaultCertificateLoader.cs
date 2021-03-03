@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
     public class DefaultCertificateLoader : ICertificateLoader
     {
         /// <summary>
-        /// User assigned managed identity client ID (by opposition to system assigned managed identity)
+        /// User assigned managed identity client ID (as opposed to system assigned managed identity)
         /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
         /// </summary>
         public static string? UserAssignedManagedIdentityClientId { get; set; }
