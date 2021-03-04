@@ -155,15 +155,22 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             _logger.LogDebug($"[IdWebCache] MemoryCache: Write cacheKey {cacheKey} Byte size: {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
             _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
 
-            try
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(async () =>
             {
-                await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
-                _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
-            }
+                try
+                {
+                    await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
+                    _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+                }
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
