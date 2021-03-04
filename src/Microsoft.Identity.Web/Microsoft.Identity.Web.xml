@@ -377,6 +377,12 @@
              </code></example>
              </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.DefaultCertificateLoader.UserAssignedManagedIdentityClientId">
+            <summary>
+            User assigned managed identity client ID (by opposition to system assigned managed identity)
+            See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription)">
             <summary>
             Load the certificate from the description, if needed.
@@ -1503,6 +1509,12 @@
             For details see https://aka.ms/ms-identity-web/daemon-ACL.
             </summary>
             The default is <c>false.</c>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.UserAssignedManagedIdentityClientId">
+            <summary>
+            Used, when deployed to Azure, to specify explicitly a user assigned managed identity.
+            See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException">
             <summary>

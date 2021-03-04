@@ -74,6 +74,7 @@ namespace Microsoft.Identity.Web
             _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
             _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
             _applicationOptions.LegacyCacheCompatibilityEnabled = _microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
+            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = _microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
         }
 
         /// <summary>
