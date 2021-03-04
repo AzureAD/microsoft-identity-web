@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
@@ -17,6 +18,17 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// Default is 500 Mb.
         /// </summary>
         public long L1CacheSizeLimit { get; set; } = 500;
+
+        /// <summary>
+        /// Callback offered to the app to be notified when the L2 cache fails.
+        /// This way the app is given the possibility to act on the L2 cache,
+        /// for instance, in the case of Redis, to reconnect. This is left to the application as it's
+        /// the only one that knows about the real implementation of the L2 cache.
+        /// The handler should return <c>true</c> if the cache should try again the operation, and
+        /// <c>false</c> otherwise. When <c>true</c> is passed and the retry fails, an exception
+        /// will be thrown.
+        /// </summary>
+        public Func<Exception, bool>? OnL2CacheFailure { get; set; }
 
         /// <summary>
         /// Value more than 0, less than 1, to set the In Memory (L1) cache

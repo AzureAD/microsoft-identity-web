@@ -82,6 +82,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             catch (Exception ex)
             {
                 _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+
+                if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex))
+                {
+                    _logger.LogDebug($"[IdWebCache] DistributedCache: Retry to remove cacheKey {cacheKey}. ");
+                    await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
+                }
             }
         }
 
