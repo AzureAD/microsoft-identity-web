@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -44,6 +45,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             await _testCacheAdapter.TestWriteCacheBytesAsync(_defaultCacheKey, cache).ConfigureAwait(false);
+            Thread.Sleep(1000); // wait for the value to get populated
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);

@@ -63,6 +63,32 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(0, testCache._memoryCache.Count);
         }
 
+        [Theory]
+        [InlineData(true)]
+        public void MsalDistributedTokenCacheAdapterOptions_WillNotAwaitL2CacheWrite(bool awaitCache = false)
+        {
+            // Arrange
+            var msalDistributedTokenOptions = Options.Create(
+                new MsalDistributedTokenCacheAdapterOptions()
+                {
+                    AwaitL2CacheOperation = awaitCache,
+                });
+
+            BuildTheRequiredServices();
+
+            // Act
+            var testCache = new TestMsalDistributedTokenCacheAdapter(
+                new TestDistributedCache(),
+                msalDistributedTokenOptions,
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+
+            // Assert
+            Assert.NotNull(testCache);
+            Assert.NotNull(testCache._distributedCache);
+            Assert.NotNull(testCache._memoryCache);
+            Assert.Equal(0, testCache._memoryCache.Count);
+        }
+
         private void BuildTheRequiredServices()
         {
             var services = new ServiceCollection();
