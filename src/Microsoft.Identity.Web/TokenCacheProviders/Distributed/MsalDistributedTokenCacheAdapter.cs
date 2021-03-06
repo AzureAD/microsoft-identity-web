@@ -70,15 +70,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
-            var startTicks = Utility.Watch.Elapsed.Ticks;
             _memoryCache.Remove(cacheKey);
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Remove cacheKey {cacheKey}. ");
 
             await L2OperationWithRetryOnFailureAsync(
                 "Remove",
                 (cacheKey) => _distributedCache.RemoveAsync(cacheKey),
-                cacheKey,
-                startTicks).ConfigureAwait(false);
+                cacheKey).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -90,20 +88,22 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            var startTicks = Utility.Watch.Elapsed.Ticks;
-
             // check memory cache first
             byte[]? result = (byte[])_memoryCache.Get(cacheKey);
             _logger.LogDebug($"[MsIdWeb] MemoryCache: Read {cacheKey} cache size: {result?.Length}. ");
 
             if (result == null)
             {
-                // not found in memory, check distributed cache
-                result = await L2OperationWithRetryOnFailureAsync(
-                    "Read",
-                    (cacheKey) => _distributedCache.GetAsync(cacheKey),
-                    cacheKey,
-                    startTicks).ConfigureAwait(false);
+                var measure = await Task.Run( async () =>
+                {
+                    // not found in memory, check distributed cache
+                    result = await L2OperationWithRetryOnFailureAsync(
+                        "Read",
+                        (cacheKey) => _distributedCache.GetAsync(cacheKey),
+                        cacheKey).ConfigureAwait(false);
+                }).Measure().ConfigureAwait(false);
+
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in Ticks: {measure.Ticks}");
 
                 // back propagate to memory cache
                 if (result != null)
@@ -120,7 +120,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 }
             }
 
-            _logger.LogDebug($"[MsIdWeb] Read caches for {cacheKey} returned cache size: {result?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
 #pragma warning disable CS8603 // Possible null reference return.
             return result;
 #pragma warning restore CS8603 // Possible null reference return.
@@ -141,31 +140,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             };
 
             // write in both
-            var startTicks = Utility.Watch.Elapsed.Ticks;
-
             _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Write cacheKey {cacheKey} cache size: {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Write cacheKey {cacheKey} cache size: {bytes?.Length}. ");
             _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
 
-            await L2OperationWithRetryOnFailureAsync(
+            var measure = await L2OperationWithRetryOnFailureAsync(
                 "Write",
                 (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions),
-                cacheKey,
-                startTicks).ConfigureAwait(false);
+                cacheKey).Measure().ConfigureAwait(false);
         }
 
         private async Task L2OperationWithRetryOnFailureAsync(
             string operation,
             Func<string, Task> cacheOperation,
             string cacheKey,
-            long startTicks,
             byte[]? bytes = null,
             bool inRetry = false)
         {
             try
             {
-                await cacheOperation(cacheKey).ConfigureAwait(false);
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length} InRetry? {inRetry} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+                var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length} InRetry? {inRetry} Time in Ticks: {measure.Ticks}. ");
             }
             catch (Exception ex)
             {
@@ -178,7 +173,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         operation,
                         cacheOperation,
                         cacheKey,
-                        startTicks,
                         bytes,
                         true).ConfigureAwait(false);
                 }
@@ -189,14 +183,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             string operation,
             Func<string, Task<byte[]>> cacheOperation,
             string cacheKey,
-            long startTicks,
             bool inRetry = false)
         {
             byte[]? result = null;
             try
             {
                 result = await cacheOperation(cacheKey).ConfigureAwait(false);
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {result?.Length} InRetry? {inRetry} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {result?.Length} InRetry? {inRetry}. ");
             }
             catch (Exception ex)
             {
@@ -209,7 +202,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         operation,
                         cacheOperation,
                         cacheKey,
-                        startTicks,
                         true).ConfigureAwait(false);
                 }
             }
