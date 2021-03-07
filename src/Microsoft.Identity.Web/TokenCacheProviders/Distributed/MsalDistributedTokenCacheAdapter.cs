@@ -71,10 +71,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
             _memoryCache.Remove(cacheKey);
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Remove cacheKey {cacheKey}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Removed cacheKey {cacheKey}. ");
 
             await L2OperationWithRetryOnFailureAsync(
-                "Remove",
+                "Removed",
                 (cacheKey) => _distributedCache.RemoveAsync(cacheKey),
                 cacheKey).ConfigureAwait(false);
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (result == null)
             {
-                var measure = await Task.Run( async () =>
+                var measure = await Task.Run(async () =>
                 {
                     // not found in memory, check distributed cache
                     result = await L2OperationWithRetryOnFailureAsync(
