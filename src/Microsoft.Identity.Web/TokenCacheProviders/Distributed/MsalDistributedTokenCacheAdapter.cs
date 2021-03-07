@@ -70,19 +70,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
-            var startTicks = Utility.Watch.Elapsed.Ticks;
             _memoryCache.Remove(cacheKey);
-            _logger.LogDebug($"[IdWebCache] MemoryCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Removed cacheKey {cacheKey}. ");
 
-            try
-            {
-                await _distributedCache.RemoveAsync(cacheKey).ConfigureAwait(false);
-                _logger.LogDebug($"[IdWebCache] DistributedCache: Remove cacheKey {cacheKey} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
-            }
+            await L2OperationWithRetryOnFailureAsync(
+                "Removed",
+                (cacheKey) => _distributedCache.RemoveAsync(cacheKey),
+                cacheKey).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -94,24 +88,22 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            var startTicks = Utility.Watch.Elapsed.Ticks;
-
             // check memory cache first
-            byte[] result = (byte[])_memoryCache.Get(cacheKey);
-            _logger.LogDebug($"[IdWebCache] MemoryCache: Read cache {cacheKey} Byte size: {result?.Length}. ");
+            byte[]? result = (byte[])_memoryCache.Get(cacheKey);
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Read {cacheKey} cache size: {result?.Length}. ");
 
             if (result == null)
             {
-                // not found in memory, check distributed cache
-                try
+                var measure = await Task.Run(async () =>
                 {
-                    result = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);
-                    _logger.LogDebug($"[IdWebCache] DistributedCache read: No result in memory, distributed cache result - Byte size: {result?.Length}. ");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
-                }
+                    // not found in memory, check distributed cache
+                    result = await L2OperationWithRetryOnFailureAsync(
+                        "Read",
+                        (cacheKey) => _distributedCache.GetAsync(cacheKey),
+                        cacheKey).ConfigureAwait(false);
+                }).Measure().ConfigureAwait(false);
+
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in Ticks: {measure.Ticks}");
 
                 // back propagate to memory cache
                 if (result != null)
@@ -122,13 +114,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Size = result?.Length,
                     };
 
-                    _logger.LogDebug($"[IdWebCache] Back propagate from Distributed to Memory, Byte size: {result?.Length}");
+                    _logger.LogDebug($"[MsIdWeb] Back propagate from Distributed to Memory, cache size: {result?.Length}");
                     _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
-                    _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
+                    _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
                 }
             }
 
-            _logger.LogDebug($"[IdWebCache] Read caches for {cacheKey} returned Bytes {result?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
 #pragma warning disable CS8603 // Possible null reference return.
             return result;
 #pragma warning restore CS8603 // Possible null reference return.
@@ -149,21 +140,73 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             };
 
             // write in both
-            var startTicks = Utility.Watch.Elapsed.Ticks;
-
             _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            _logger.LogDebug($"[IdWebCache] MemoryCache: Write cacheKey {cacheKey} Byte size: {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
-            _logger.LogDebug($"[IdWebCache] MemoryCache: Count: {_memoryCache.Count}");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Write cacheKey {cacheKey} cache size: {bytes?.Length}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
 
+            var measure = await L2OperationWithRetryOnFailureAsync(
+                "Write",
+                (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions),
+                cacheKey).Measure().ConfigureAwait(false);
+        }
+
+        private async Task L2OperationWithRetryOnFailureAsync(
+            string operation,
+            Func<string, Task> cacheOperation,
+            string cacheKey,
+            byte[]? bytes = null,
+            bool inRetry = false)
+        {
             try
             {
-                await _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions).ConfigureAwait(false);
-                _logger.LogDebug($"[IdWebCache] DistributedCache: Write cacheKey {cacheKey} Byte size {bytes?.Length} Time in Ticks: {Utility.Watch.Elapsed.Ticks - startTicks}. ");
+                var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length} InRetry? {inRetry} Time in Ticks: {measure.Ticks}. ");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[IdWebCache] Connection issue encountered with Distributed cache. Currently using In Memory cache only. Error message: {ex.Message} ");
+                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message} ");
+
+                if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
+                {
+                    _logger.LogDebug($"[MsIdWeb] DistributedCache: Retrying {operation} cacheKey {cacheKey}. ");
+                    await L2OperationWithRetryOnFailureAsync(
+                        operation,
+                        cacheOperation,
+                        cacheKey,
+                        bytes,
+                        true).ConfigureAwait(false);
+                }
             }
+        }
+
+        private async Task<byte[]?> L2OperationWithRetryOnFailureAsync(
+            string operation,
+            Func<string, Task<byte[]>> cacheOperation,
+            string cacheKey,
+            bool inRetry = false)
+        {
+            byte[]? result = null;
+            try
+            {
+                result = await cacheOperation(cacheKey).ConfigureAwait(false);
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {result?.Length} InRetry? {inRetry}. ");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message} ");
+
+                if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
+                {
+                    _logger.LogDebug($"[MsIdWeb] DistributedCache: Retrying {operation} cacheKey {cacheKey}. ");
+                    result = await L2OperationWithRetryOnFailureAsync(
+                        operation,
+                        cacheOperation,
+                        cacheKey,
+                        true).ConfigureAwait(false);
+                }
+            }
+
+            return result;
         }
     }
 }
