@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -14,10 +15,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     public class MsalDistributedTokenCacheAdapterOptions : DistributedCacheEntryOptions
     {
         /// <summary>
-        /// In memory (L1) cache size limit in Mb.
-        /// Default is 500 Mb.
+        /// Options of the In Memory (L1) cache.
         /// </summary>
-        public long L1CacheSizeLimit { get; set; } = 500;
+        public MemoryCacheOptions L1CacheOptions { get; set; } = new MemoryCacheOptions()
+        {
+            SizeLimit = 500 * 1024 * 1024,   // 500 Mb
+        };
 
         /// <summary>
         /// Callback offered to the app to be notified when the L2 cache fails.
