@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             _distributedCache = distributedCache;
             _distributedCacheOptions = distributedCacheOptions.Value;
-            _memoryCache = new MemoryCache(new MemoryCacheOptions { SizeLimit = _distributedCacheOptions.L1CacheSizeLimit * (1024 * 1024) });
+            _memoryCache = new MemoryCache(_distributedCacheOptions.L1CacheOptions ?? new MemoryCacheOptions { SizeLimit = 500 * 1024 * 1024 });
             _logger = logger;
 
             if (_distributedCacheOptions.AbsoluteExpirationRelativeToNow != null)
