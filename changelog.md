@@ -1,3 +1,14 @@
+1.8.0
+==========
+### New Features:
+**Microsoft Identity Web now provides a more sophisticated and performant L1/L2 (In Memory and Distributed) token cache**. See issue [#957](https://github.com/AzureAD/microsoft-identity-web/issues/957) for details.
+
+**Related to the L1/L2 cache improvements, developers can determine how to proceed when the L2 (Distributed) cache fails, ex. the L2 cache is off-line**. See issue [#1042](https://github.com/AzureAD/microsoft-identity-web/issues/1042) for details.
+
+**Related to the L1/L2 cache improvements, the `MemoryCacheOptions` are now exposed in the `MsalDistributedTokenCacheAdapterOptions` so developers can have control over the L1 (In Memory) cache, such as cache size**. See issue [#1048](https://github.com/AzureAD/microsoft-identity-web/issues/1048) for details.
+
+**Microsoft Identity Web supports user assigned managed identity for certificate loading**. See issue [#1007](https://github.com/AzureAD/microsoft-identity-web/issues/1007) for details.
+
 1.7.0
 ==========
 ### New Features:
