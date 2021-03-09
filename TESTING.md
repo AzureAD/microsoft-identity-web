@@ -34,7 +34,7 @@ In a Developer Command Prompt:
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.6.0`
+   `Set ClientSemVer=1.8.0`
 
 4. In ProjectTemplates open the Configuration.json file and add the client secrets (or your own config file) .
 
