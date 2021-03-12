@@ -1,15 +1,11 @@
 # msidentity-app-sync 
 Command line tool that creates Microsoft identity platform applications in a tenant (AAD or B2C) and updates the configuration code of your ASP.NET Core applications (mvc, webapp, blazorwasm, blazorwasm hosted, blazorserver). The tool can also be used to update code from an existing AAD/AAD B2C application.
 
+
+
 ## Installing/Uninstalling the tool
 
-1. Build the repository and create the NuGet package (from the `tools\app-provisioning-tool` folder):
- 
-   ```Shell
-   dotnet pack
-   ```
-   
-2. Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
+Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
    
    ```Shell
    dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
@@ -196,3 +192,8 @@ dotnet new blazorwasm --auth SingleOrg --framework netcoreapp3.1
 msidentity-app-sync
 dotnet run -f netstandard2.1
 ```
+
+
+## See Also
+
+- [Creating ASP.NET Core projects with Microsoft identity platform(Azure AD and Azure AD B2C)](vs2019-16.9-how-to-use.md)
