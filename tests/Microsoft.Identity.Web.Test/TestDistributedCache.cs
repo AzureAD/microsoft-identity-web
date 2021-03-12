@@ -29,12 +29,13 @@ namespace Microsoft.Identity.Web.Test
 
         public void Refresh(string key)
         {
-            throw new System.NotImplementedException();
+            // Don't process anything
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            throw new System.NotImplementedException();
+            Refresh(key);
+            return Task.CompletedTask;
         }
 
         public void Remove(string key)
