@@ -119,6 +119,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
                 }
             }
+            else
+            {
+                await _distributedCache.RefreshAsync(cacheKey).ConfigureAwait(false);
+            }
 
 #pragma warning disable CS8603 // Possible null reference return.
             return result;
