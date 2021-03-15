@@ -19,6 +19,7 @@ dotnet tool install --global msidentity-app-sync
 ### Option 2: build and install from the repository
 
 You can clone the repository, build the tool and install it
+
 ```Shell
 git clone https://github.com/AzureAD/microsoft-identity-web
 cd tools\app-provisionning-tool
