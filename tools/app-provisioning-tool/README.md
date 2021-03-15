@@ -27,6 +27,8 @@ dotnet pack
 dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
    ```
 
+### Uninstalling the tool
+
 If later you want to uninstall the tool, just run (from anywhere):
 ```Shell
 dotnet tool uninstall --global msidentity-app-sync
