@@ -1,3 +1,8 @@
+1.8.1
+==========
+### Bug Fixes:
+**With the L1/L2 cache updates in 1.8.0, if a cache item is found in the L1 cache, the L2 cache needs to be refreshed**. See issue [#1061](https://github.com/AzureAD/microsoft-identity-web/issues/1061) for details.
+
 1.8.0
 ==========
 ### New Features:
