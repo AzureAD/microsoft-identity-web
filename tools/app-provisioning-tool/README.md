@@ -23,7 +23,7 @@ You can clone the repository, build the tool and install it
 git clone https://github.com/AzureAD/microsoft-identity-web
 cd tools\app-provisionning-tool
 dotnet pack
-   dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
+dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
    ```
 
 If later you want to uninstall the tool, just run (from anywhere):
