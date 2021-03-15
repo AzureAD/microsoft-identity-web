@@ -16,7 +16,13 @@ The following command will install the tool from NuGet.org
 ```Shell
 dotnet tool install --global msidentity-app-sync
    
-   ```Shell
+### Option 2: build and install from the repository
+
+You can clone the repository, build the tool and install it
+```Shell
+git clone https://github.com/AzureAD/microsoft-identity-web
+cd tools\app-provisionning-tool
+dotnet pack
    dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
    ```
 
