@@ -5,7 +5,16 @@ Command line tool that creates Microsoft identity platform applications in a ten
 
 ## Installing/Uninstalling the tool
 
-Run the following in a developer command prompt in the `tools\app-provisioning-tool` folder:
+You have two ways of installing the CLI tool:
+- either from NuGet
+- or build it and install it from the repository
+
+### Option 1: Install from NuGet
+
+The following command will install the tool from NuGet.org
+
+```Shell
+dotnet tool install --global msidentity-app-sync
    
    ```Shell
    dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
