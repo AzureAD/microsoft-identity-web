@@ -121,7 +121,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
             else
             {
-                await _distributedCache.RefreshAsync(cacheKey).ConfigureAwait(false);
+                await L2OperationWithRetryOnFailureAsync(
+                       "Refresh",
+                       (cacheKey) => _distributedCache.RefreshAsync(cacheKey),
+                       cacheKey).ConfigureAwait(false);
             }
 
 #pragma warning disable CS8603 // Possible null reference return.
