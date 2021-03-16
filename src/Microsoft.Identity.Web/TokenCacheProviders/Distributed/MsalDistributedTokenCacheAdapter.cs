@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             // check memory cache first
             byte[]? result = (byte[])_memoryCache.Get(cacheKey);
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Read {cacheKey} cache size: {result?.Length}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Read {cacheKey} cache size: {result?.Length ?? 0}. ");
 
             if (result == null)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         cacheKey).ConfigureAwait(false);
                 }).Measure().ConfigureAwait(false);
 
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in Ticks: {measure.Ticks}");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in Ticks: {measure.Ticks}. ");
 
                 // back propagate to memory cache
                 if (result != null)
@@ -114,9 +114,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Size = result?.Length,
                     };
 
-                    _logger.LogDebug($"[MsIdWeb] Back propagate from Distributed to Memory, cache size: {result?.Length}");
+                    _logger.LogDebug($"[MsIdWeb] Back propagate from Distributed to Memory, cache size: {result?.Length ?? 0}. ");
                     _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
-                    _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
+                    _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}. ");
                 }
             }
             else
@@ -148,10 +148,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             // write in both
             _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Write cacheKey {cacheKey} cache size: {bytes?.Length}. ");
-            _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Write cacheKey {cacheKey} cache size: {bytes?.Length ?? 0}. ");
+            _logger.LogDebug($"[MsIdWeb] MemoryCache: Count: {_memoryCache.Count}. ");
 
-            var measure = await L2OperationWithRetryOnFailureAsync(
+            await L2OperationWithRetryOnFailureAsync(
                 "Write",
                 (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions),
                 cacheKey).Measure().ConfigureAwait(false);
@@ -167,11 +167,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             try
             {
                 var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length} InRetry? {inRetry} Time in Ticks: {measure.Ticks}. ");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length ?? 0} InRetry? {inRetry} Time in Ticks: {measure.Ticks}. ");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message} ");
+                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message}. ");
 
                 if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
                 {
@@ -196,11 +196,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             try
             {
                 result = await cacheOperation(cacheKey).ConfigureAwait(false);
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {result?.Length} InRetry? {inRetry}. ");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {result?.Length ?? 0} InRetry? {inRetry}. ");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message} ");
+                _logger.LogError($"[MsIdWeb] DistributedCache: Connection issue. InRetry? {inRetry} Error message: {ex.Message}. ");
 
                 if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
                 {
