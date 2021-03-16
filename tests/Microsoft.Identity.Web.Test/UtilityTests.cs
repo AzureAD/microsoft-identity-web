@@ -18,6 +18,7 @@ namespace Microsoft.Identity.Web.Test
             var epsilon = TimeSpan.FromMilliseconds(30).Ticks;
             var measure = await Task.Delay(taskDuration).Measure().ConfigureAwait(false);
             Assert.True(Math.Abs(measure.Ticks - taskDuration.Ticks) < epsilon, $"{(measure.Ticks - taskDuration.Ticks) / TimeSpan.TicksPerMillisecond}ms exceeds epsilon of 30ms");
+            Assert.Equal(measure.Ticks * 1000.0, measure.MilliSeconds);
 
             // measure task with a result
             var test = "test";
