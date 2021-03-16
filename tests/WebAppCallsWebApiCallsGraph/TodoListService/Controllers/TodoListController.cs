@@ -44,9 +44,10 @@ namespace TodoListService.Controllers
         {
             string owner = User.GetDisplayName();
             // Below is for testing multi-tenants
+             await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
-            
+
             await Task.FromResult(0); // fix CS1998 while the lines about the 2 tokens are commented out.
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
