@@ -759,7 +759,7 @@ namespace Microsoft.Identity.Web
                     _logger.LogInformation(message);
                     break;
                 case Client.LogLevel.Verbose:
-                    _logger.LogTrace(message);
+                    _logger.LogDebug(message);
                     break;
                 default:
                     break;
