@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         cacheKey).ConfigureAwait(false);
                 }).Measure().ConfigureAwait(false);
 
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in Ticks: {measure.Ticks}. ");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: Read time in MilliSeconds: {measure.MilliSeconds}. ");
 
                 // back propagate to memory cache
                 if (result != null)
@@ -167,7 +167,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             try
             {
                 var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
-                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length ?? 0} InRetry? {inRetry} Time in Ticks: {measure.Ticks}. ");
+                _logger.LogDebug($"[MsIdWeb] DistributedCache: {operation} cacheKey {cacheKey} cache size {bytes?.Length ?? 0} InRetry? {inRetry} Time in MilliSeconds: {measure.MilliSeconds}. ");
             }
             catch (Exception ex)
             {

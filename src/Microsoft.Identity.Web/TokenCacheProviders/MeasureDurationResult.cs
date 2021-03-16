@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
+
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
     internal struct MeasureDurationResult
@@ -11,6 +13,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         }
 
         public long Ticks { get; }
+
+        public double MilliSeconds
+        {
+            get
+            {
+                return (double)Ticks / (double)Stopwatch.Frequency * 1000.0;
+            }
+        }
     }
 
     internal struct MeasureDurationResult<TResult>
