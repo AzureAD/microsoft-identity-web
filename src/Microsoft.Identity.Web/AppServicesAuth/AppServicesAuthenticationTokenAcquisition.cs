@@ -135,6 +135,12 @@ namespace Microsoft.Identity.Web
             // Not implemented for the moment
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc/>
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        {
+            throw new NotImplementedException();
+        }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
     }
