@@ -47,6 +47,15 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
+        /// Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+        /// rather than a Bearer token.
+        /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+        /// which MSAL can manage. See https://aka.ms/msal-net-pop.
+        /// Set to true to enable PoP tokens automatically.
+        /// </summary>
+        public bool IsProofOfPossessionRequest { get; set; }
+
+        /// <summary>
         ///  Options passed-in to create the token acquisition object which calls into MSAL .NET.
         /// </summary>
         public TokenAcquisitionOptions TokenAcquisitionOptions { get; set; } = new TokenAcquisitionOptions();
