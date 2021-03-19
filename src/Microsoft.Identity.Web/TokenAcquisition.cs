@@ -304,6 +304,10 @@ namespace Microsoft.Identity.Web
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
             }
 
             result = await builder.ExecuteAsync()

@@ -126,7 +126,22 @@ namespace Microsoft.Identity.Web
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            throw new NotImplementedException();
+            string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers);
+            ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers);
+            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions);
+
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                accessToken,
+                isExtendedLifeTimeToken: false,
+                userClaims?.GetDisplayName(),
+                DateTimeOffset.Now,
+                DateTimeOffset.Now,
+                userClaims?.GetTenantId(),
+                null,
+                idToken,
+                scopes,
+                tokenAcquisitionOptions.CorrelationId);
+            return authenticationResult;
         }
 
         /// <inheritdoc/>
