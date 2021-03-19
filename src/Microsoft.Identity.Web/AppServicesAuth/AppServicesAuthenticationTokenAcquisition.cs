@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -21,6 +22,24 @@ namespace Microsoft.Identity.Web
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
+
+        class Account : IAccount
+        {
+            public Account(ClaimsPrincipal claimsPrincipal)
+            {
+                _claimsPrincipal = claimsPrincipal;
+            }
+            ClaimsPrincipal _claimsPrincipal;
+
+            public string Username => _claimsPrincipal.GetDisplayName();
+
+            public string Environment => _claimsPrincipal.FindFirstValue("iss");
+
+            public AccountId HomeAccountId => new AccountId(
+                    $"{_claimsPrincipal.GetObjectId()}.{_claimsPrincipal.GetTenantId()}",
+                    _claimsPrincipal.GetObjectId(),
+                    _claimsPrincipal.GetTenantId());
+        }
 
         private HttpContext? CurrentHttpContext
         {
@@ -129,15 +148,19 @@ namespace Microsoft.Identity.Web
             string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers);
             ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers);
             string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions);
+            string expiration = userClaims.FindFirstValue("exp");
+            DateTimeOffset dateTimeOffset = (expiration != null)
+                ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
+                : DateTimeOffset.Now;
 
             AuthenticationResult authenticationResult = new AuthenticationResult(
                 accessToken,
                 isExtendedLifeTimeToken: false,
                 userClaims?.GetDisplayName(),
-                DateTimeOffset.Now,
-                DateTimeOffset.Now,
+                dateTimeOffset,
+                dateTimeOffset,
                 userClaims?.GetTenantId(),
-                null,
+                new Account(userClaims),
                 idToken,
                 scopes,
                 tokenAcquisitionOptions.CorrelationId);

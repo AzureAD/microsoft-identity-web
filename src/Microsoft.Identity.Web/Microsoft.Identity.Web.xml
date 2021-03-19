@@ -92,6 +92,27 @@
             Get headers from environment to help debugging App Services authentication.
             </summary>
         </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdToken(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the ID token from the headers send by App services authentication.
+            </summary>
+            <param name="headers">Headers.</param>
+            <returns>the ID Token.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdp(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the IDP token from the headers send by App services authentication.
+            </summary>
+            <param name="headers">Headers.</param>
+            <returns>the IDP.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetUser(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the user claims from the headers and environment variables
+            </summary>
+            <param name="headers">Headers</param>
+            <returns>User claims</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationOptions">
             <summary>
             Options for Azure App Services authentication.

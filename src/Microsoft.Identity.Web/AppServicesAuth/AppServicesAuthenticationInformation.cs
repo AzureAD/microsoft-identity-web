@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="headers">Headers.</param>
         /// <returns>the ID Token.</returns>
-        public static string? GetIdToken(IDictionary<string, StringValues> headers)
+        internal static string? GetIdToken(IDictionary<string, StringValues> headers)
         {
             if (headers is null)
             {
@@ -124,12 +124,12 @@ namespace Microsoft.Identity.Web
             return idToken;
         }
 
-          /// <summary>
+        /// <summary>
         /// Get the IDP token from the headers send by App services authentication.
         /// </summary>
         /// <param name="headers">Headers.</param>
         /// <returns>the IDP.</returns>
-        public static string? GetIdp(IDictionary<string, StringValues> headers)
+        internal static string? GetIdp(IDictionary<string, StringValues> headers)
         {
             if (headers is null)
             {
@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="headers">Headers</param>
         /// <returns>User claims</returns>
-        public static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers)
+        internal static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers)
         {
             ClaimsPrincipal? claimsPrincipal;
             string? idToken = AppServicesAuthenticationInformation.GetIdToken(headers);
