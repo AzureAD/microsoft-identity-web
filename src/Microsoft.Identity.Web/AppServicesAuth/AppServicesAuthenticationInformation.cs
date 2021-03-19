@@ -110,7 +110,11 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            string? idToken = headers[AppServicesAuthIdTokenHeader];
+            string? idToken = null;
+            if (headers.ContainsKey(AppServicesAuthIdTokenHeader))
+            {
+                idToken = headers[AppServicesAuthIdTokenHeader];
+            }
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
@@ -132,7 +136,11 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            string? idp = headers[AppServicesAuthIdpTokenHeader];
+            string? idp = null;
+            if (headers.ContainsKey(AppServicesAuthIdTokenHeader))
+            {
+                idp = headers[AppServicesAuthIdpTokenHeader];
+            }
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
