@@ -51,9 +51,10 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult)
+        [InlineData(true, "Bearer")]
+        [InlineData(true, "PoP")]
+        [InlineData(false, null)]
+        public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult, string tokenType)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
@@ -63,12 +64,19 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Act
             if (getAuthResult)
             {
+                TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions();
+                if (tokenType == "PoP")
+                {
+                    tokenAcquisitionOptions.PoPConfiguration = new Client.AppConfig.PoPAuthenticationConfiguration(new Uri("https://localhost/foo"));
+                }
+
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
 
                 // Assert
                 Assert.NotNull(authResult);
                 Assert.NotNull(authResult.AccessToken);
+                Assert.Contains(tokenType, authResult.CreateAuthorizationHeader());
                 Assert.Null(authResult.IdToken);
                 Assert.Null(authResult.Account);
             }
