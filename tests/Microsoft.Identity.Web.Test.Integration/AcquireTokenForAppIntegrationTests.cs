@@ -51,10 +51,10 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
 
         [Theory]
-        [InlineData(true, "Bearer")]
+        [InlineData(true, Constants.Bearer)]
         [InlineData(true, "PoP")]
         [InlineData(false, null)]
-        public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult, string tokenType)
+        public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult, string authHeaderPrefix)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions();
-                if (tokenType == "PoP")
+                if (authHeaderPrefix == "pop")
                 {
                     tokenAcquisitionOptions.PoPConfiguration = new Client.AppConfig.PoPAuthenticationConfiguration(new Uri("https://localhost/foo"));
                 }
@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 // Assert
                 Assert.NotNull(authResult);
                 Assert.NotNull(authResult.AccessToken);
-                Assert.Contains(tokenType, authResult.CreateAuthorizationHeader());
+                Assert.Contains(authHeaderPrefix, authResult.CreateAuthorizationHeader());
                 Assert.Null(authResult.IdToken);
                 Assert.Null(authResult.Account);
             }

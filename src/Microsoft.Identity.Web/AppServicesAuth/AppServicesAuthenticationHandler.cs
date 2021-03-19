@@ -34,14 +34,12 @@ namespace Microsoft.Identity.Web
         {
         }
 
-        // Constants
-
         /// <inheritdoc/>
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
-                ClaimsPrincipal claimsPrincipal = AppServicesAuthenticationInformation.GetUser(Context.Request.Headers);
+                ClaimsPrincipal? claimsPrincipal = AppServicesAuthenticationInformation.GetUser(Context.Request.Headers);
                 if (claimsPrincipal != null)
                 {
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);

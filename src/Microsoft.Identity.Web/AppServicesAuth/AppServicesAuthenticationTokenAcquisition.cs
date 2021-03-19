@@ -23,15 +23,18 @@ namespace Microsoft.Identity.Web
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        class Account : IAccount
+        internal class Account : IAccount
         {
             public Account(ClaimsPrincipal claimsPrincipal)
             {
                 _claimsPrincipal = claimsPrincipal;
             }
-            ClaimsPrincipal _claimsPrincipal;
 
+            private readonly ClaimsPrincipal _claimsPrincipal;
+
+#pragma warning disable CS8603 // Possible null reference return.
             public string Username => _claimsPrincipal.GetDisplayName();
+#pragma warning restore CS8603 // Possible null reference return.
 
             public string Environment => _claimsPrincipal.FindFirstValue("iss");
 
@@ -143,11 +146,16 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers);
-            ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers);
-            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions);
+            string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
+            ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
+            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
             string expiration = userClaims.FindFirstValue("exp");
             DateTimeOffset dateTimeOffset = (expiration != null)
                 ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
@@ -160,10 +168,10 @@ namespace Microsoft.Identity.Web
                 dateTimeOffset,
                 dateTimeOffset,
                 userClaims?.GetTenantId(),
-                new Account(userClaims),
+                userClaims != null ? new Account(userClaims) : null,
                 idToken,
                 scopes,
-                tokenAcquisitionOptions.CorrelationId);
+                tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);
             return authenticationResult;
         }
 
