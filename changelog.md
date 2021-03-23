@@ -1,3 +1,7 @@
+1.8.2
+==========
+Update to latest version of MSAL.NET 4.28.1.
+
 1.8.1
 ==========
 ### Bug Fixes:
