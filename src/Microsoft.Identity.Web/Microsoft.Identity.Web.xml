@@ -92,6 +92,27 @@
             Get headers from environment to help debugging App Services authentication.
             </summary>
         </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdToken(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the ID token from the headers send by App services authentication.
+            </summary>
+            <param name="headers">Headers.</param>
+            <returns>the ID Token.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdp(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the IDP token from the headers send by App services authentication.
+            </summary>
+            <param name="headers">Headers.</param>
+            <returns>the IDP.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetUser(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
+            <summary>
+            Get the user claims from the headers and environment variables
+            </summary>
+            <param name="headers">Headers</param>
+            <returns>User claims</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationOptions">
             <summary>
             Options for Azure App Services authentication.
@@ -120,6 +141,9 @@
             <inheritdoc/>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.AuthorizeForScopesAttribute">
@@ -755,18 +779,18 @@
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
             <inheritdoc/>
         </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+            <inheritdoc/>
+        </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.MergeOptions(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
             <summary>
             Merge the options from configuration and override from caller.
             </summary>
             <param name="optionsInstanceName">Named configuration.</param>
             <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
-            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApiExtensions">
             <summary>
@@ -952,6 +976,15 @@
         <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod">
             <summary>
             HTTP method used to call this downstream web API (by default Get).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.IsProofOfPossessionRequest">
+            <summary>
+            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+            rather than a Bearer token.
+            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+            which MSAL can manage. See https://aka.ms/msal-net-pop.
+            Set to true to enable PoP tokens automatically.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.TokenAcquisitionOptions">
@@ -1246,6 +1279,21 @@
             cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
             <returns>An access token for the app itself, based on its scopes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <summary>
+            Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+            using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+            </summary>
+            <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+            should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+            Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+            in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
+            several calls to get tokens for other resources).</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+            for multi tenant apps or daemons.</param>
+            <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+            <returns>An authentication result for the app itself, based on its scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
             <summary>
@@ -2000,6 +2048,21 @@
             you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
             OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+            <summary>
+            Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+            using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+            </summary>
+            <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+            should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+            Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+            in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
+            several calls to get tokens for other resources).</param>
+            <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+            for multi tenant apps or daemons.</param>
+            <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+            <returns>An authentication result for the app itself, based on its scopes.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <summary>
             Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -2122,6 +2185,14 @@
             If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
             Use this option with care and only when needed, for instance, if you know that conditional access policies have changed,
             for it induces performance degradation, as the token cache is not utilized.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.PoPConfiguration">
+            <summary>
+            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+            rather than a Bearer token.
+            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+            which MSAL can manage. See https://aka.ms/msal-net-pop.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionOptions.Clone">

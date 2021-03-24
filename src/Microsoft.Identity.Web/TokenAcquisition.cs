@@ -251,7 +251,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+        /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
         /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
@@ -262,8 +262,8 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <returns>An access token for the app itself, based on its scopes.</returns>
-        public async Task<string> GetAccessTokenForAppAsync(
+        /// <returns>An authentication result for the app itself, based on its scopes.</returns>
+        public async Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -304,12 +304,37 @@ namespace Microsoft.Identity.Web
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
             }
 
             result = await builder.ExecuteAsync()
                                   .ConfigureAwait(false);
+            return result;
+        }
 
-            return result.AccessToken;
+        /// <summary>
+        /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// </summary>
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+        /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// several calls to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+        /// for multi tenant apps or daemons.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <returns>An access token for the app itself, based on its scopes.</returns>
+        public async Task<string> GetAccessTokenForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        {
+            AuthenticationResult authResult = await GetAuthenticationResultForAppAsync(scope, tenant, tokenAcquisitionOptions).ConfigureAwait(false);
+            return authResult.AccessToken;
         }
 
         /// <summary>
@@ -335,11 +360,11 @@ namespace Microsoft.Identity.Web
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
-            IEnumerable<string> scopes,
-            string? tenantId = null,
-            string? userFlow = null,
-            ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        IEnumerable<string> scopes,
+        string? tenantId = null,
+        string? userFlow = null,
+        ClaimsPrincipal? user = null,
+        TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             AuthenticationResult result =
                 await GetAuthenticationResultForUserAsync(
@@ -479,7 +504,8 @@ namespace Microsoft.Identity.Web
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                            enablePiiLogging: _applicationOptions.EnablePiiLogging);
+                            enablePiiLogging: _applicationOptions.EnablePiiLogging)
+                        .WithExperimentalFeatures();
 
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
@@ -564,6 +590,10 @@ namespace Microsoft.Identity.Web
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
+                        if (tokenAcquisitionOptions.PoPConfiguration != null)
+                        {
+                            builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                        }
                     }
 
                     return await builder.ExecuteAsync()
@@ -662,6 +692,10 @@ namespace Microsoft.Identity.Web
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
             }
 
             // Acquire an access token as a B2C authority

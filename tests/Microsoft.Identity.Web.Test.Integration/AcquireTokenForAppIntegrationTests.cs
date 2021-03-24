@@ -50,8 +50,11 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
         }
 
-        [Fact]
-        public async Task GetAccessTokenForApp_ReturnsAccessTokenAsync()
+        [Theory]
+        [InlineData(true, Constants.Bearer)]
+        [InlineData(true, "PoP")]
+        [InlineData(false, null)]
+        public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult, string authHeaderPrefix)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
@@ -59,11 +62,32 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
 
             // Act
-            string token =
+            if (getAuthResult)
+            {
+                TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions();
+                if (authHeaderPrefix == "PoP")
+                {
+                    tokenAcquisitionOptions.PoPConfiguration = new Client.AppConfig.PoPAuthenticationConfiguration(new Uri("https://localhost/foo"));
+                }
+
+                AuthenticationResult authResult =
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+
+                // Assert
+                Assert.NotNull(authResult);
+                Assert.NotNull(authResult.AccessToken);
+                Assert.Contains(authHeaderPrefix, authResult.CreateAuthorizationHeader());
+                Assert.Null(authResult.IdToken);
+                Assert.Null(authResult.Account);
+            }
+            else
+            {
+                string token =
                 await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp).ConfigureAwait(false);
 
-            // Assert
-            Assert.NotNull(token);
+                // Assert
+                Assert.NotNull(token);
+            }
 
             AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
         }
@@ -71,52 +95,95 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Theory]
         [InlineData(Constants.Organizations)]
         [InlineData(Constants.Common)]
-        public async Task GetAccessTokenForApp_WithMetaTenant_ShouldThrowExceptionAsync(string metaTenant)
+        public async Task GetAccessTokenForAppAndAuthResultForApp_WithMetaTenant_ShouldThrowExceptionAsync(string metaTenant)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
 
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
 
-            async Task result() =>
+            // Act & Assert
+            async Task tokenResult() =>
                 await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
 
-            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
+            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(tokenResult).ConfigureAwait(false);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message);
+
+            // Act & Assert
+            async Task authResult() =>
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
+
+            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResult).ConfigureAwait(false);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex2.Message);
+
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
-        [Fact]
-        public async Task GetAccessTokenForApp_ConsumersTenantAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetAccessTokenOrAuthResultForApp_ConsumersTenantAsync(bool getAuthResult)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
 
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
 
-            string token =
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, Constants.Consumers).ConfigureAwait(false);
+            if (getAuthResult)
+            {
+                AuthenticationResult authResult =
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, Constants.Consumers).ConfigureAwait(false);
 
-            // Assert
-            Assert.NotNull(token);
+                // Assert
+                Assert.NotNull(authResult);
+                Assert.NotNull(authResult.AccessToken);
+                Assert.Null(authResult.IdToken);
+                Assert.Null(authResult.Account);
+            }
+            else
+            {
+                string token =
+                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, Constants.Consumers).ConfigureAwait(false);
+
+                // Assert
+                Assert.NotNull(token);
+            }
+
             Assert.Equal(1, _msalTestTokenCacheProvider.Count);
         }
 
-        [Fact]
-        public async Task GetAccessTokenForApp_TenantSpecificAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetAccessTokenOrAuthResultForApp_TenantSpecificAsync(bool getAuthResult)
         {
             // Arrange
             InitializeTokenAcquisitionObjects();
 
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
 
-            string token =
-                await _tokenAcquisition.GetAccessTokenForAppAsync(
-                    TestConstants.s_scopeForApp,
-                    TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+            if (getAuthResult)
+            {
+                AuthenticationResult authResult =
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
 
-            // Assert
-            Assert.NotNull(token);
+                // Assert
+                Assert.NotNull(authResult);
+                Assert.NotNull(authResult.AccessToken);
+                Assert.Null(authResult.IdToken);
+                Assert.Null(authResult.Account);
+            }
+            else
+            {
+                string token =
+                    await _tokenAcquisition.GetAccessTokenForAppAsync(
+                        TestConstants.s_scopeForApp,
+                        TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+
+                // Assert
+                Assert.NotNull(token);
+            }
+
             Assert.Equal(1, _msalTestTokenCacheProvider.Count);
         }
 
@@ -133,6 +200,14 @@ namespace Microsoft.Identity.Web.Test.Integration
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
 
             Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex.Message);
+
+            // Act & Assert
+            async Task authResult() =>
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.FirstOrDefault()).ConfigureAwait(false);
+
+            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResult).ConfigureAwait(false);
+
+            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex2.Message);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
