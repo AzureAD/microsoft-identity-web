@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
+            IConfidentialClientApplication app = _tokenAcquisition.BuildConfidentialClientApplication();
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -149,7 +149,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
+            IConfidentialClientApplication app = _tokenAcquisition.BuildConfidentialClientApplication();
 
             if (!string.IsNullOrEmpty(redirectUri))
             {
