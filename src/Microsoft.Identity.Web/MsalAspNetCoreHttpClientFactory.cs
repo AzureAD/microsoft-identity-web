@@ -6,20 +6,20 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
-    {
-        private readonly IHttpClientFactory _httpClientFactory;
+	internal class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
+	{
+		private readonly IHttpClientFactory _httpClientFactory;
 
-        public MsalAspNetCoreHttpClientFactory(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
+		public MsalAspNetCoreHttpClientFactory(IHttpClientFactory httpClientFactory)
+		{
+			_httpClientFactory = httpClientFactory;
+		}
 
-        public HttpClient GetHttpClient()
-        {
-            HttpClient httpClient = _httpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
-            return httpClient;
-        }
-    }
+		public HttpClient GetHttpClient()
+		{
+			HttpClient httpClient = _httpClientFactory.CreateClient();
+			httpClient.DefaultRequestHeaders.Add(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
+			return httpClient;
+		}
+	}
 }

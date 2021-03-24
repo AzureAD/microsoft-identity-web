@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Microsoft.Identity.Web
 {
-    /// <summary>
-    /// Options for Azure App Services authentication.
-    /// </summary>
-    public class AppServicesAuthenticationOptions : AuthenticationSchemeOptions
-    {
-    }
+	/// <summary>
+	/// Options for Azure App Services authentication.
+	/// </summary>
+	public class AppServicesAuthenticationOptions : AuthenticationSchemeOptions
+	{
+	}
 }

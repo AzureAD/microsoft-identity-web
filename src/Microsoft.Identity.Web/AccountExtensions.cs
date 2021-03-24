@@ -7,40 +7,40 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    /// <summary>
-    /// Extension methods for <see cref="IAccount"/>.
-    /// </summary>
-    public static class AccountExtensions
-    {
-        /// <summary>
-        /// Creates the <see cref="ClaimsPrincipal"/> from the values found
-        /// in an <see cref="IAccount"/>.
-        /// </summary>
-        /// <param name="account">The <see cref="IAccount"/> instance.</param>
-        /// <returns>A <see cref="ClaimsPrincipal"/> built from <see cref="IAccount"/>.</returns>
-        public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
-        {
-            if (account == null)
-            {
-                throw new ArgumentNullException(nameof(account));
-            }
+	/// <summary>
+	/// Extension methods for <see cref="IAccount"/>.
+	/// </summary>
+	public static class AccountExtensions
+	{
+		/// <summary>
+		/// Creates the <see cref="ClaimsPrincipal"/> from the values found
+		/// in an <see cref="IAccount"/>.
+		/// </summary>
+		/// <param name="account">The <see cref="IAccount"/> instance.</param>
+		/// <returns>A <see cref="ClaimsPrincipal"/> built from <see cref="IAccount"/>.</returns>
+		public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
+		{
+			if (account == null)
+			{
+				throw new ArgumentNullException(nameof(account));
+			}
 
-            ClaimsIdentity identity = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Upn, account.Username),
-                });
+			ClaimsIdentity identity = new ClaimsIdentity(new Claim[]
+				{
+					new Claim(ClaimTypes.Upn, account.Username),
+				});
 
-            if (!string.IsNullOrEmpty(account.HomeAccountId?.ObjectId))
-            {
-                identity.AddClaim(new Claim(ClaimConstants.Oid, account.HomeAccountId.ObjectId));
-            }
+			if (!string.IsNullOrEmpty(account.HomeAccountId?.ObjectId))
+			{
+				identity.AddClaim(new Claim(ClaimConstants.Oid, account.HomeAccountId.ObjectId));
+			}
 
-            if (!string.IsNullOrEmpty(account.HomeAccountId?.TenantId))
-            {
-                identity.AddClaim(new Claim(ClaimConstants.Tid, account.HomeAccountId.TenantId));
-            }
+			if (!string.IsNullOrEmpty(account.HomeAccountId?.TenantId))
+			{
+				identity.AddClaim(new Claim(ClaimConstants.Tid, account.HomeAccountId.TenantId));
+			}
 
-            return new ClaimsPrincipal(identity);
-        }
-    }
+			return new ClaimsPrincipal(identity);
+		}
+	}
 }

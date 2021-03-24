@@ -9,175 +9,175 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
 {
-    /// <summary>
-    /// Extension class containing cookie policies (work around for same site).
-    /// </summary>
-    public static class CookiePolicyOptionsExtensions
-    {
-        /// <summary>
-        /// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
-        /// The default list of user agents that disallow "SameSite=None",
-        /// was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
-        /// </summary>
-        /// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
-        /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
-        public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options)
-        {
-            return HandleSameSiteCookieCompatibility(options, DisallowsSameSiteNone);
-        }
+	/// <summary>
+	/// Extension class containing cookie policies (work around for same site).
+	/// </summary>
+	public static class CookiePolicyOptionsExtensions
+	{
+		/// <summary>
+		/// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
+		/// The default list of user agents that disallow "SameSite=None",
+		/// was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
+		/// </summary>
+		/// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
+		/// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
+		public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options)
+		{
+			return HandleSameSiteCookieCompatibility(options, DisallowsSameSiteNone);
+		}
 
-        /// <summary>
-        /// Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-        /// The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
-        /// </summary>
-        /// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
-        /// <param name="disallowsSameSiteNone">If you don't want to use the default user agent list implementation,
-        /// the method sent in this parameter will be run against the user agent and if returned true, SameSite value will be set to Unspecified.
-        /// The default user agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
-        /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
-        public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+		/// <summary>
+		/// Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
+		/// The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
+		/// </summary>
+		/// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
+		/// <param name="disallowsSameSiteNone">If you don't want to use the default user agent list implementation,
+		/// the method sent in this parameter will be run against the user agent and if returned true, SameSite value will be set to Unspecified.
+		/// The default user agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
+		/// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
+		public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
+		{
+			if (options == null)
+			{
+				throw new ArgumentNullException(nameof(options));
+			}
 
-            options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-            options.OnAppendCookie = cookieContext =>
-                CheckSameSite(cookieContext.Context, cookieContext.CookieOptions, disallowsSameSiteNone);
-            options.OnDeleteCookie = cookieContext =>
-                CheckSameSite(cookieContext.Context, cookieContext.CookieOptions, disallowsSameSiteNone);
+			options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+			options.OnAppendCookie = cookieContext =>
+				CheckSameSite(cookieContext.Context, cookieContext.CookieOptions, disallowsSameSiteNone);
+			options.OnDeleteCookie = cookieContext =>
+				CheckSameSite(cookieContext.Context, cookieContext.CookieOptions, disallowsSameSiteNone);
 
-            return options;
-        }
+			return options;
+		}
 
-        private static void CheckSameSite(HttpContext httpContext, CookieOptions options, Func<string, bool> disallowsSameSiteNone)
-        {
-            if (options.SameSite == SameSiteMode.None)
-            {
-                var userAgent = httpContext.Request.Headers[Constants.UserAgent].ToString();
-                if (disallowsSameSiteNone(userAgent))
-                {
-                    options.SameSite = SameSiteMode.Unspecified;
-                }
-            }
-        }
+		private static void CheckSameSite(HttpContext httpContext, CookieOptions options, Func<string, bool> disallowsSameSiteNone)
+		{
+			if (options.SameSite == SameSiteMode.None)
+			{
+				var userAgent = httpContext.Request.Headers[Constants.UserAgent].ToString();
+				if (disallowsSameSiteNone(userAgent))
+				{
+					options.SameSite = SameSiteMode.Unspecified;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Checks if the specified user agent supports "SameSite=None" cookies.
-        /// </summary>
-        /// <param name="userAgent">Browser user agent.</param>
-        /// <remarks>
-        /// Incompatible user agents include:
-        /// <list type="bullet">
-        /// <item>Versions of Chrome from Chrome 51 to Chrome 66 (inclusive on both ends).</item>
-        /// <item>Versions of UC Browser on Android prior to version 12.13.2.</item>
-        /// <item>Versions of Safari and embedded browsers on MacOS 10.14 and all browsers on iOS 12.</item>
-        /// </list>
-        /// Reference: https://www.chromium.org/updates/same-site/incompatible-clients.
-        /// </remarks>
-        /// <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
-        public static bool DisallowsSameSiteNone(string userAgent)
-        {
-            return HasWebKitSameSiteBug() ||
-                DropsUnrecognizedSameSiteCookies();
+		/// <summary>
+		/// Checks if the specified user agent supports "SameSite=None" cookies.
+		/// </summary>
+		/// <param name="userAgent">Browser user agent.</param>
+		/// <remarks>
+		/// Incompatible user agents include:
+		/// <list type="bullet">
+		/// <item>Versions of Chrome from Chrome 51 to Chrome 66 (inclusive on both ends).</item>
+		/// <item>Versions of UC Browser on Android prior to version 12.13.2.</item>
+		/// <item>Versions of Safari and embedded browsers on MacOS 10.14 and all browsers on iOS 12.</item>
+		/// </list>
+		/// Reference: https://www.chromium.org/updates/same-site/incompatible-clients.
+		/// </remarks>
+		/// <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
+		public static bool DisallowsSameSiteNone(string userAgent)
+		{
+			return HasWebKitSameSiteBug() ||
+				DropsUnrecognizedSameSiteCookies();
 
-            bool HasWebKitSameSiteBug() =>
-                IsIosVersion(12) ||
-                (IsMacosxVersion(10, 14) &&
-                (IsSafari() || IsMacEmbeddedBrowser()));
+			bool HasWebKitSameSiteBug() =>
+				IsIosVersion(12) ||
+				(IsMacosxVersion(10, 14) &&
+				(IsSafari() || IsMacEmbeddedBrowser()));
 
-            bool DropsUnrecognizedSameSiteCookies()
-            {
-                if (IsUcBrowser())
-                {
-                    return !IsUcBrowserVersionAtLeast(12, 13, 2);
-                }
+			bool DropsUnrecognizedSameSiteCookies()
+			{
+				if (IsUcBrowser())
+				{
+					return !IsUcBrowserVersionAtLeast(12, 13, 2);
+				}
 
-                return IsChromiumBased() &&
-                    IsChromiumVersionAtLeast(51) &&
-                    !IsChromiumVersionAtLeast(67);
-            }
+				return IsChromiumBased() &&
+					IsChromiumVersionAtLeast(51) &&
+					!IsChromiumVersionAtLeast(67);
+			}
 
-            bool IsIosVersion(int major)
-            {
-                string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
+			bool IsIosVersion(int major)
+			{
+				string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
 
-                // Extract digits from first capturing group.
-                Match match = Regex.Match(userAgent, regex);
-                return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture);
-            }
+				// Extract digits from first capturing group.
+				Match match = Regex.Match(userAgent, regex);
+				return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture);
+			}
 
-            bool IsMacosxVersion(int major, int minor)
-            {
-                string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
+			bool IsMacosxVersion(int major, int minor)
+			{
+				string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
 
-                // Extract digits from first and second capturing groups.
-                Match match = Regex.Match(userAgent, regex);
-                return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture) &&
-                    match.Groups[2].Value == minor.ToString(CultureInfo.CurrentCulture);
-            }
+				// Extract digits from first and second capturing groups.
+				Match match = Regex.Match(userAgent, regex);
+				return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture) &&
+					match.Groups[2].Value == minor.ToString(CultureInfo.CurrentCulture);
+			}
 
-            bool IsSafari()
-            {
-                string regex = @"Version\/.* Safari\/";
+			bool IsSafari()
+			{
+				string regex = @"Version\/.* Safari\/";
 
-                return Regex.IsMatch(userAgent, regex) &&
-                       !IsChromiumBased();
-            }
+				return Regex.IsMatch(userAgent, regex) &&
+					   !IsChromiumBased();
+			}
 
-            bool IsMacEmbeddedBrowser()
-            {
-                string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
+			bool IsMacEmbeddedBrowser()
+			{
+				string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
 
-                return Regex.IsMatch(userAgent, regex);
-            }
+				return Regex.IsMatch(userAgent, regex);
+			}
 
-            bool IsChromiumBased()
-            {
-                string regex = "Chrom(e|ium)";
+			bool IsChromiumBased()
+			{
+				string regex = "Chrom(e|ium)";
 
-                return Regex.IsMatch(userAgent, regex);
-            }
+				return Regex.IsMatch(userAgent, regex);
+			}
 
-            bool IsChromiumVersionAtLeast(int major)
-            {
-                string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]* ";
+			bool IsChromiumVersionAtLeast(int major)
+			{
+				string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]* ";
 
-                // Extract digits from first capturing group.
-                Match match = Regex.Match(userAgent, regex);
-                int version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
-                return version >= major;
-            }
+				// Extract digits from first capturing group.
+				Match match = Regex.Match(userAgent, regex);
+				int version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
+				return version >= major;
+			}
 
-            bool IsUcBrowser()
-            {
-                string regex = @"UCBrowser\/";
+			bool IsUcBrowser()
+			{
+				string regex = @"UCBrowser\/";
 
-                return Regex.IsMatch(userAgent, regex);
-            }
+				return Regex.IsMatch(userAgent, regex);
+			}
 
-            bool IsUcBrowserVersionAtLeast(int major, int minor, int build)
-            {
-                string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
+			bool IsUcBrowserVersionAtLeast(int major, int minor, int build)
+			{
+				string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
 
-                // Extract digits from three capturing groups.
-                Match match = Regex.Match(userAgent, regex);
-                int major_version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
-                int minor_version = Convert.ToInt32(match.Groups[2].Value, CultureInfo.CurrentCulture);
-                int build_version = Convert.ToInt32(match.Groups[3].Value, CultureInfo.CurrentCulture);
-                if (major_version != major)
-                {
-                    return major_version > major;
-                }
+				// Extract digits from three capturing groups.
+				Match match = Regex.Match(userAgent, regex);
+				int major_version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
+				int minor_version = Convert.ToInt32(match.Groups[2].Value, CultureInfo.CurrentCulture);
+				int build_version = Convert.ToInt32(match.Groups[3].Value, CultureInfo.CurrentCulture);
+				if (major_version != major)
+				{
+					return major_version > major;
+				}
 
-                if (minor_version != minor)
-                {
-                    return minor_version > minor;
-                }
+				if (minor_version != minor)
+				{
+					return minor_version > minor;
+				}
 
-                return build_version >= build;
-            }
-        }
-    }
+				return build_version >= build;
+			}
+		}
+	}
 }
