@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
@@ -16,18 +16,32 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
     /// </summary>
-    public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition, IDisposable
+    public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
-        private readonly SemaphoreSlim _confidentialClientApplicationSyncObj = new SemaphoreSlim(/* max concurrent locks */ 1);
-        /// <summary>
-        /// Do no read or set this directly.
-        /// Instead, use GetOrCreateApplication which is thread-safe
-        /// </summary>
-        private IConfidentialClientApplication? _confidentialClientApplication;
-        private bool _disposedValue;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
+
+        internal class Account : IAccount
+        {
+            public Account(ClaimsPrincipal claimsPrincipal)
+            {
+                _claimsPrincipal = claimsPrincipal;
+            }
+
+            private readonly ClaimsPrincipal _claimsPrincipal;
+
+#pragma warning disable CS8603 // Possible null reference return.
+            public string Username => _claimsPrincipal.GetDisplayName();
+#pragma warning restore CS8603 // Possible null reference return.
+
+            public string Environment => _claimsPrincipal.FindFirstValue("iss");
+
+            public AccountId HomeAccountId => new AccountId(
+                    $"{_claimsPrincipal.GetObjectId()}.{_claimsPrincipal.GetTenantId()}",
+                    _claimsPrincipal.GetObjectId(),
+                    _claimsPrincipal.GetTenantId());
+        }
 
         private HttpContext? CurrentHttpContext
         {
@@ -53,36 +67,21 @@ namespace Microsoft.Identity.Web
             _tokenCacheProvider = tokenCacheProvider;
         }
 
-        private async Task<IConfidentialClientApplication> GetOrCreateApplication()
+        private IConfidentialClientApplication GetOrCreateApplication()
         {
-            if (_confidentialClientApplication == null)
-            {
-                await _confidentialClientApplicationSyncObj.WaitAsync();
-
-                try
+            var options = new ConfidentialClientApplicationOptions()
                 {
-                    if (_confidentialClientApplication == null)
-                    {
-                        ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions()
-                        {
-                            ClientId = AppServicesAuthenticationInformation.ClientId,
-                            ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
-                            Instance = AppServicesAuthenticationInformation.Issuer,
-                        };
-                        _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
-                            .WithHttpClientFactory(_httpClientFactory)
-                            .Build();
-                        await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.AppTokenCache).ConfigureAwait(false);
-                        await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.UserTokenCache).ConfigureAwait(false);
-                    }
-                }
-                finally
-                {
-                    _confidentialClientApplicationSyncObj.Release();
-                }
-            }
+                    ClientId = AppServicesAuthenticationInformation.ClientId,
+                    ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
+                    Instance = AppServicesAuthenticationInformation.Issuer,
+                };
+            var confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
+                .WithHttpClientFactory(_httpClientFactory)
+                .Build();
+            _tokenCacheProvider.Initialize(_confidentialClientApplication.AppTokenCache);
+            _tokenCacheProvider.Initialize(_confidentialClientApplication.UserTokenCache);
 
-            return _confidentialClientApplication;
+            return confidentialClientApplication;
         }
 
         /// <inheritdoc/>
@@ -97,7 +96,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scope));
             }
 
-            var app = await GetOrCreateApplication().ConfigureAwait(false);
+            var app = GetOrCreateApplication();
             AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
@@ -155,39 +154,46 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            throw new NotImplementedException();
+            string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
+            ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
+            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
+            string expiration = userClaims.FindFirstValue("exp");
+            DateTimeOffset dateTimeOffset = (expiration != null)
+                ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
+                : DateTimeOffset.Now;
+
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                accessToken,
+                isExtendedLifeTimeToken: false,
+                userClaims?.GetDisplayName(),
+                dateTimeOffset,
+                dateTimeOffset,
+                userClaims?.GetTenantId(),
+                userClaims != null ? new Account(userClaims) : null,
+                idToken,
+                scopes,
+                tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);
+            return authenticationResult;
         }
 
         /// <inheritdoc/>
-        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
-        protected virtual void Dispose(bool disposing)
+        /// <inheritdoc/>
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    _confidentialClientApplicationSyncObj.Dispose();
-                }
-
-                _disposedValue = true;
-            }
+            throw new NotImplementedException();
         }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -75,6 +76,37 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
+        /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// </summary>
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+        /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// several calls to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+        /// for multi tenant apps or daemons.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <returns>An authentication result for the app itself, based on its scopes.</returns>
+        Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+
+        /// <summary>
+        /// Used in web APIs (which therefore cannot have an interaction with the user).
+        /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+        /// the client can trigger an interaction with the user so the user can consent to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        void ReplyForbiddenWithWwwAuthenticateHeader(
+        IEnumerable<string> scopes,
+        MsalUiRequiredException msalServiceException,
+        HttpResponse? httpResponse = null);
+
+        /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
         /// the client can trigger an interaction with the user so the user can consent to more scopes.
@@ -83,9 +115,10 @@ namespace Microsoft.Identity.Web
         /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [Obsolete(IDWebErrorMessage.InitializeAsyncIsObsolete, true)]
         Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
-            IEnumerable<string> scopes,
-            MsalUiRequiredException msalServiceException,
-            HttpResponse? httpResponse = null);
+        IEnumerable<string> scopes,
+        MsalUiRequiredException msalServiceException,
+        HttpResponse? httpResponse = null);
     }
 }

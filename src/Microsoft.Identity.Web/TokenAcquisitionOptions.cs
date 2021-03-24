@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
@@ -36,6 +37,14 @@ namespace Microsoft.Identity.Web
         /// for it induces performance degradation, as the token cache is not utilized.
         /// </summary>
         public bool ForceRefresh { get; set; }
+
+        /// <summary>
+        /// Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+        /// rather than a Bearer token.
+        /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+        /// which MSAL can manage. See https://aka.ms/msal-net-pop.
+        /// </summary>
+        public PoPAuthenticationConfiguration? PoPConfiguration { get; set; }
 
         /// <summary>
         /// Clone the options (to be able to override them).

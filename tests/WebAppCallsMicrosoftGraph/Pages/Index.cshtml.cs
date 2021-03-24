@@ -16,11 +16,13 @@ namespace WebAppCallsMicrosoftGraph.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly GraphServiceClient _graphServiceClient;
+        private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient)
+        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient, IDownstreamWebApi downstreamWebApi)
         {
             _logger = logger;
             _graphServiceClient = graphServiceClient;
+            _downstreamWebApi = downstreamWebApi;
         }
 
         public async Task OnGet()
@@ -35,6 +37,8 @@ namespace WebAppCallsMicrosoftGraph.Pages
                     ViewData["photo"] = Convert.ToBase64String(photoByte);
                 }
                 ViewData["name"] = user.DisplayName;
+
+                var graphData = await _downstreamWebApi.CallWebApiForUserAsync("GraphBeta");
             }
             catch (Exception)
             {
