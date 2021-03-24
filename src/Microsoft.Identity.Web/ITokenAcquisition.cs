@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -100,7 +101,21 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        void ReplyForbiddenWithWwwAuthenticateHeader(
+        IEnumerable<string> scopes,
+        MsalUiRequiredException msalServiceException,
+        HttpResponse? httpResponse = null);
+
+        /// <summary>
+        /// Used in web APIs (which therefore cannot have an interaction with the user).
+        /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+        /// the client can trigger an interaction with the user so the user can consent to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [Obsolete(IDWebErrorMessage.InitializeAsyncIsObsolete, true)]
         Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,

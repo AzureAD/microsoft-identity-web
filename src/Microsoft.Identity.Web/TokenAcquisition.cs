@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                _application = GetOrBuildConfidentialClientApplication();
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Web
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = GetOrBuildConfidentialClientApplication();
 
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenantId);
 
@@ -263,7 +263,7 @@ namespace Microsoft.Identity.Web
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
-        public async Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -289,10 +289,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = GetOrBuildConfidentialClientApplication();
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
 
-            AuthenticationResult result;
             var builder = _application
                    .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
@@ -310,9 +309,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            result = await builder.ExecuteAsync()
-                                  .ConfigureAwait(false);
-            return result;
+            return builder.ExecuteAsync();
         }
 
         /// <summary>
@@ -384,8 +381,28 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse);
+        }
+
+        /// <summary>
+        /// Used in web APIs (no user interaction).
+        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        public void ReplyForbiddenWithWwwAuthenticateHeader(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
@@ -394,7 +411,7 @@ namespace Microsoft.Identity.Web
                 throw msalServiceException;
             }
 
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = GetOrBuildConfidentialClientApplication();
 
             string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
@@ -435,7 +452,7 @@ namespace Microsoft.Identity.Web
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
             {
-                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication();
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -458,11 +475,11 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application, if needed.
         /// </summary>
-        internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
+        internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication()
         {
             if (_application == null)
             {
-                return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                return BuildConfidentialClientApplication();
             }
 
             return _application;
@@ -471,7 +488,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
+        private IConfidentialClientApplication BuildConfidentialClientApplication()
         {
             var request = CurrentHttpContext?.Request;
             string? currentUri = null;
@@ -535,8 +552,8 @@ namespace Microsoft.Identity.Web
                 IConfidentialClientApplication app = builder.Build();
                 _application = app;
                 // Initialize token cache providers
-                await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
-                await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
+                _tokenCacheProvider.Initialize(app.AppTokenCache);
+                _tokenCacheProvider.Initialize(app.UserTokenCache);
                 return app;
             }
             catch (Exception ex)
