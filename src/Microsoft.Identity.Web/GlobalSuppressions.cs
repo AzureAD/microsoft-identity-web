@@ -1,5 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+// Licensed under the MIT-License.
 
 // This file is used by Code Analysis to maintain SuppressMessage
 // attributes that are applied to this project.

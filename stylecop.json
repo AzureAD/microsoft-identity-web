@@ -12,7 +12,7 @@
             "companyName": "Microsoft Corporation",
             "copyrightText": "Copyright (c) {companyName}. All rights reserved.\nLicensed under the {licenseName}.",
             "variables": {
-                "licenseName": "MIT License"
+                "licenseName": "MIT-License"
             },
             "documentInternalElements": false
         },
