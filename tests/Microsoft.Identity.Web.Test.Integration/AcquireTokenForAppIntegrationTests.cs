@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions();
-                if (authHeaderPrefix == "pop")
+                if (authHeaderPrefix == "PoP")
                 {
                     tokenAcquisitionOptions.PoPConfiguration = new Client.AppConfig.PoPAuthenticationConfiguration(new Uri("https://localhost/foo"));
                 }
