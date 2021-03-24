@@ -17,8 +17,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Initializes the token cache serialization.
         /// </summary>
         /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
-        /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
-        public Task InitializeAsync(ITokenCache tokenCache)
+        public void Initialize(ITokenCache tokenCache)
         {
             if (tokenCache == null)
             {
@@ -28,8 +27,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
             tokenCache.SetBeforeWriteAsync(OnBeforeWriteAsync);
-
-            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
             _tokenCacheProvider = tokenCacheProvider;
         }
 
-        private async Task<IConfidentialClientApplication> GetOrCreateApplication()
+        private IConfidentialClientApplication GetOrCreateApplication()
         {
             if (_confidentialClientApplication == null)
             {
@@ -81,8 +81,8 @@ namespace Microsoft.Identity.Web
                 _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
                     .WithHttpClientFactory(_httpClientFactory)
                     .Build();
-                await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.AppTokenCache).ConfigureAwait(false);
-                await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.UserTokenCache).ConfigureAwait(false);
+                _tokenCacheProvider.Initialize(_confidentialClientApplication.AppTokenCache);
+                _tokenCacheProvider.Initialize(_confidentialClientApplication.UserTokenCache);
             }
 
             return _confidentialClientApplication;
@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scope));
             }
 
-            var app = await GetOrCreateApplication().ConfigureAwait(false);
+            var app = GetOrCreateApplication();
             AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
@@ -188,6 +188,5 @@ namespace Microsoft.Identity.Web
             throw new NotImplementedException();
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-
     }
 }

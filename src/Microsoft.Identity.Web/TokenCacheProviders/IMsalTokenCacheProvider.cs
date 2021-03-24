@@ -15,8 +15,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Initializes a token cache (which can be a user token cache or an app token cache).
         /// </summary>
         /// <param name="tokenCache">Token cache for which to initialize the serialization.</param>
-        /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
-        Task InitializeAsync(ITokenCache tokenCache);
+        void Initialize(ITokenCache tokenCache);
 
         /// <summary>
         /// Clear the user token cache.
