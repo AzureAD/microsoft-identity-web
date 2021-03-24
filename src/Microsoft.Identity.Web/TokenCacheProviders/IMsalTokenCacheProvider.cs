@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
@@ -11,6 +12,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// </summary>
     public interface IMsalTokenCacheProvider
     {
+        /// <summary>
+        /// Initializes a token cache (which can be a user token cache or an app token cache).
+        /// </summary>
+        /// <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
+        [Obsolete(IDWebErrorMessage.InitializeAsyncIsObsolete, true)]
+        Task InitializeAsync(ITokenCache tokenCache);
+
         /// <summary>
         /// Initializes a token cache (which can be a user token cache or an app token cache).
         /// </summary>

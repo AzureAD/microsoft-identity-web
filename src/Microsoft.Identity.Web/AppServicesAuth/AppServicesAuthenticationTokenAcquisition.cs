@@ -183,6 +183,13 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        {
+            // Not implemented for the moment
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             throw new NotImplementedException();

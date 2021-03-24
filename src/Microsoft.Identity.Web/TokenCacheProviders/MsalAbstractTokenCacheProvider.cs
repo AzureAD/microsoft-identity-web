@@ -30,6 +30,17 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         }
 
         /// <summary>
+        /// Initializes the token cache serialization.
+        /// </summary>
+        /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
+        public Task InitializeAsync(ITokenCache tokenCache)
+        {
+            Initialize(tokenCache);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Raised AFTER MSAL added the new token in its in-memory copy of the cache.
         /// This notification is called every time MSAL accesses the cache, not just when a write takes place:
         /// If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.

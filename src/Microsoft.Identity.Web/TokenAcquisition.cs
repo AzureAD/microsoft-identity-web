@@ -381,7 +381,28 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse);
+        }
+
+        /// <summary>
+        /// Used in web APIs (no user interaction).
+        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        public void ReplyForbiddenWithWwwAuthenticateHeader(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
@@ -417,8 +438,6 @@ namespace Microsoft.Identity.Web
             httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
 
             headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
-
-            await Task.CompletedTask.ConfigureAwait(false); // we don't want to take a breaking change right now. will be for 2.0
         }
 
         /// <summary>

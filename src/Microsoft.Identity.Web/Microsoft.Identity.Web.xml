@@ -94,24 +94,24 @@
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdToken(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
             <summary>
-            Get the ID token from the headers send by App services authentication.
+            Get the ID token from the headers sent by App services authentication.
             </summary>
             <param name="headers">Headers.</param>
-            <returns>the ID Token.</returns>
+            <returns>The ID Token.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetIdp(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
             <summary>
-            Get the IDP token from the headers send by App services authentication.
+            Get the IDP from the headers sent by App services authentication.
             </summary>
             <param name="headers">Headers.</param>
-            <returns>the IDP.</returns>
+            <returns>The IDP.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.GetUser(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
             <summary>
-            Get the user claims from the headers and environment variables
+            Get the user claims from the headers and environment variables.
             </summary>
-            <param name="headers">Headers</param>
-            <returns>User claims</returns>
+            <param name="headers">Headers.</param>
+            <returns>User claims.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.AppServicesAuthenticationOptions">
             <summary>
@@ -141,6 +141,9 @@
             <inheritdoc/>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
             <inheritdoc/>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
@@ -1295,6 +1298,16 @@
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
             <returns>An authentication result for the app itself, based on its scopes.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <summary>
+            Used in web APIs (which therefore cannot have an interaction with the user).
+            Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
+            the client can trigger an interaction with the user so the user can consent to more scopes.
+            </summary>
+            <param name="scopes">Scopes to consent to.</param>
+            <param name="msalServiceException"><see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> triggering the challenge.</param>
+            <param name="httpResponse">The <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/> to update.</param>
+        </member>
         <member name="M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
             <summary>
             Used in web APIs (which therefore cannot have an interaction with the user).
@@ -2111,7 +2124,16 @@
             <param name="scopes">Scopes to consent to.</param>
             <param name="msalServiceException">The <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> that triggered the challenge.</param>
             <param name="httpResponse">The <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/> to update.</param>
-            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)">
+            <summary>
+            Used in web APIs (no user interaction).
+            Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+            the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+            </summary>
+            <param name="scopes">Scopes to consent to.</param>
+            <param name="msalServiceException">The <see cref="T:Microsoft.Identity.Client.MsalUiRequiredException"/> that triggered the challenge.</param>
+            <param name="httpResponse">The <see cref="T:Microsoft.AspNetCore.Http.HttpResponse"/> to update.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.RemoveAccountAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.RedirectContext)">
             <summary>
@@ -2121,12 +2143,12 @@
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed account removal operation.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplication">
             <summary>
             Creates an MSAL confidential client application, if needed.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplicationAsync">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplication">
             <summary>
             Creates an MSAL confidential client application.
             </summary>
@@ -2304,6 +2326,12 @@
             <param name="tokenCache">Token cache for which to initialize the serialization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes a token cache (which can be a user token cache or an app token cache).
+            </summary>
+            <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
             <summary>
             Clear the user token cache.
@@ -2391,6 +2419,12 @@
             Token cache provider with default implementation.
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
             <summary>
