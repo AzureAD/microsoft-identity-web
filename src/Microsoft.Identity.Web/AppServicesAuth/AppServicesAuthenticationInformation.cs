@@ -110,15 +110,12 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            string? idToken = null;
-            if (headers.ContainsKey(AppServicesAuthIdTokenHeader))
-            {
-                idToken = headers[AppServicesAuthIdTokenHeader];
-            }
+            headers.TryGetValue(AppServicesAuthIdTokenHeader, out var idToken);
+
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+                idToken = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;
@@ -136,15 +133,11 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            string? idp = null;
-            if (headers.ContainsKey(AppServicesAuthIdTokenHeader))
-            {
-                idp = headers[AppServicesAuthIdpTokenHeader];
-            }
+            headers.TryGetValue(AppServicesAuthIdpTokenHeader, out var idp);
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+                idp = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -158,8 +151,8 @@ namespace Microsoft.Identity.Web
         internal static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers)
         {
             ClaimsPrincipal? claimsPrincipal;
-            string? idToken = AppServicesAuthenticationInformation.GetIdToken(headers);
-            string? idp = AppServicesAuthenticationInformation.GetIdp(headers);
+            string? idToken = GetIdToken(headers);
+            string? idp = GetIdp(headers);
             if (idToken != null && idp != null)
             {
                 JsonWebToken jsonWebToken = new JsonWebToken(idToken);
