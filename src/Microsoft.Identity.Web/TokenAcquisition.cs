@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Web
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
+
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
@@ -383,14 +384,13 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
             HttpResponse? httpResponse = null)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -473,12 +473,12 @@ namespace Microsoft.Identity.Web
                 }
             }
         }
-        
+
         private string BuildCurrentUriFromRequest(HttpContext httpContext, HttpRequest request)
         {
             // need to lock to avoid threading issues with code outside of this library
             // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-            lock(httpContext)
+            lock (httpContext)
             {
                 return UriHelper.BuildAbsolute(
                     request.Scheme,
@@ -766,7 +766,7 @@ namespace Microsoft.Identity.Web
             if (httpContext != null)
             {
                 // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-                lock(httpContext)
+                lock (httpContext)
                 {
                     return httpContext.User;
                 }

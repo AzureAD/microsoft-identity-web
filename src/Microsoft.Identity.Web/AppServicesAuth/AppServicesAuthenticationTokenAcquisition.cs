@@ -19,8 +19,9 @@ namespace Microsoft.Identity.Web
     public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
         private readonly object _applicationSyncObj = new object();
+
         /// <summary>
-        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        ///  Please call GetOrCreateApplication instead of accessing this field directly.
         /// </summary>
         private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -94,7 +95,6 @@ namespace Microsoft.Identity.Web
                     }
                 }
             }
-
 
             return _application;
         }
@@ -196,6 +196,13 @@ namespace Microsoft.Identity.Web
                 scopes,
                 tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);
             return authenticationResult;
+        }
+
+        /// <inheritdoc/>
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        {
+            // Not implemented for the moment
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>

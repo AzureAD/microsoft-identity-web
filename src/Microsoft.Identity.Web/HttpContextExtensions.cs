@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
         internal static void StoreTokenUsedToCallWebAPI(this HttpContext httpContext, JwtSecurityToken? token)
         {
             // lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-            lock(httpContext)
+            lock (httpContext)
             {
                 httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebApi, token);
             }
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         internal static JwtSecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
         {
             // lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-            lock(httpContext)
+            lock (httpContext)
             {
                 return httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] as JwtSecurityToken;
             }
