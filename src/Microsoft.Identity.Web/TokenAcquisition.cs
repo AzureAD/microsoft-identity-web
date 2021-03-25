@@ -33,6 +33,11 @@ namespace Microsoft.Identity.Web
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
+        private readonly object _applicationSyncObj = new object();
+        /// <summary>
+        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        /// </summary>
+        private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
@@ -143,7 +148,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                var application = BuildConfidentialClientApplication();
+                var application = GetOrBuildConfidentialClientApplication();
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -209,7 +214,7 @@ namespace Microsoft.Identity.Web
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = BuildConfidentialClientApplication();
+            var application = GetOrBuildConfidentialClientApplication();
 
             string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenantId);
 
@@ -286,10 +291,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            var application = BuildConfidentialClientApplication();
+            var application = GetOrBuildConfidentialClientApplication();
             string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenant);
 
-            AuthenticationResult result;
             var builder = application
                    .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
@@ -409,7 +413,7 @@ namespace Microsoft.Identity.Web
                 throw msalServiceException;
             }
 
-            var application = BuildConfidentialClientApplication();
+            var application = GetOrBuildConfidentialClientApplication();
 
             string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
@@ -450,7 +454,7 @@ namespace Microsoft.Identity.Web
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
             {
-                IConfidentialClientApplication app = BuildConfidentialClientApplication();
+                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication();
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -484,10 +488,26 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication()
+        {
+            if (_application == null)
+            {
+                lock (_applicationSyncObj)
+                {
+                    if (_application == null)
+                    {
+                        _application = BuildConfidentialClientApplication();
+                    }
+                }
+            }
+
+            return _application;
+        }
+
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        internal /* for testing */ IConfidentialClientApplication BuildConfidentialClientApplication()
+        private IConfidentialClientApplication BuildConfidentialClientApplication()
         {
             var httpContext = CurrentHttpContext;
             var request = httpContext?.Request;

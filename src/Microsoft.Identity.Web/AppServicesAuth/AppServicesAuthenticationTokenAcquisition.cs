@@ -18,6 +18,11 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
+        private readonly object _applicationSyncObj = new object();
+        /// <summary>
+        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        /// </summary>
+        private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
@@ -69,19 +74,29 @@ namespace Microsoft.Identity.Web
 
         private IConfidentialClientApplication GetOrCreateApplication()
         {
-            var options = new ConfidentialClientApplicationOptions()
+            if (_application == null)
+            {
+                lock (_applicationSyncObj)
                 {
-                    ClientId = AppServicesAuthenticationInformation.ClientId,
-                    ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
-                    Instance = AppServicesAuthenticationInformation.Issuer,
-                };
-            var confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
-                .WithHttpClientFactory(_httpClientFactory)
-                .Build();
-            _tokenCacheProvider.Initialize(_confidentialClientApplication.AppTokenCache);
-            _tokenCacheProvider.Initialize(_confidentialClientApplication.UserTokenCache);
+                    if (_application == null)
+                    {
+                        var options = new ConfidentialClientApplicationOptions()
+                        {
+                            ClientId = AppServicesAuthenticationInformation.ClientId,
+                            ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
+                            Instance = AppServicesAuthenticationInformation.Issuer,
+                        };
+                        _application = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
+                            .WithHttpClientFactory(_httpClientFactory)
+                            .Build();
+                        _tokenCacheProvider.Initialize(_application.AppTokenCache);
+                        _tokenCacheProvider.Initialize(_application.UserTokenCache);
+                    }
+                }
+            }
 
-            return confidentialClientApplication;
+
+            return _application;
         }
 
         /// <inheritdoc/>
