@@ -560,13 +560,15 @@
              <code>
              private async Task GetChangedMessagesAsync(IEnumerable&lt;Notification&gt; notifications)
              {
+              HttpContext.User = ClaimsPrincipalExtension.FromTenantIdAndObjectId(subscription.TenantId,
+                                                                                  subscription.UserId);
               foreach (var notification in notifications)
               {
                SubscriptionStore subscription =
                        subscriptionStore.GetSubscriptionInfo(notification.SubscriptionId);
-              HttpContext.User = ClaimsPrincipalExtension.FromTenantIdAndObjectId(subscription.TenantId,
-                                                                                  subscription.UserId);
               string accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+              ...}
+              }
              </code>
              </example>
         </member>

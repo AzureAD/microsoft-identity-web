@@ -184,14 +184,29 @@ namespace Microsoft.Identity.Web
                 ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
                 : DateTimeOffset.Now;
 
+            string? displayName;
+            Account? account;
+            if (userClaims != null)
+            {
+                displayName = userClaims.GetDisplayName();
+                tenantId = userClaims.GetTenantId();
+                account = new Account(userClaims);
+            }
+            else
+            {
+                displayName = null;
+                tenantId = null;
+                account = null;
+            }
+
             AuthenticationResult authenticationResult = new AuthenticationResult(
                 accessToken,
                 isExtendedLifeTimeToken: false,
-                userClaims?.GetDisplayName(),
+                displayName,
                 dateTimeOffset,
                 dateTimeOffset,
-                userClaims?.GetTenantId(),
-                userClaims != null ? new Account(userClaims) : null,
+                tenantId,
+                account,
                 idToken,
                 scopes,
                 tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);

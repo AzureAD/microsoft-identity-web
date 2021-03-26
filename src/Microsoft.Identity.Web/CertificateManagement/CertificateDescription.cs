@@ -218,10 +218,17 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public string? Base64EncodedValue { get; set; }
 
+#if DOTNET_462
+        /// <summary>
+        ///  Defines where and how to import the private key of an X.509 certificate.
+        /// </summary>
+        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet;
+#else
         /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
         /// </summary>
         public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
+#endif
 
         /// <summary>
         /// Reference to the certificate or value.
