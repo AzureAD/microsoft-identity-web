@@ -209,10 +209,17 @@ namespace Microsoft.Identity.Web
             string certificateFileName,
             string? password = null)
         {
+#if DOTNET_462
+            return new X509Certificate2(
+                certificateFileName,
+                password,
+                X509KeyStorageFlags.MachineKeySet);
+#else
             return new X509Certificate2(
                 certificateFileName,
                 password,
                 X509KeyStorageFlags.EphemeralKeySet);
+#endif
         }
 
         private static void ParseStoreLocationAndName(
