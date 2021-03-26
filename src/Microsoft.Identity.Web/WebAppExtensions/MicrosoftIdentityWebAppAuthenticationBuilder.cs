@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web
                            {
                                ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                               if (clientInfoFromServer != null)
+                               if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                                {
                                    context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
                                    context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
