@@ -348,11 +348,11 @@ namespace Microsoft.Identity.Web
                         context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
 
                         // Additional claims
-                        if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                        if (context.Properties.Items.TryGetValue(OidcConstants.AdditionalClaims, out var additionClaims))
                         {
                             context.ProtocolMessage.SetParameter(
                                 OidcConstants.AdditionalClaims,
-                                context.Properties.Items[OidcConstants.AdditionalClaims]);
+                                additionClaims);
                         }
 
                         if (microsoftIdentityOptions.Value.IsB2C)

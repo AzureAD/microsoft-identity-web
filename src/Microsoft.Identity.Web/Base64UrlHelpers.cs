@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         private const char Base64UrlCharacter63 = '_';
         private static readonly Encoding TextEncoding = Encoding.UTF8;
 
-        private static readonly string DoubleBase64PadCharacter = string.Format(CultureInfo.InvariantCulture, "{0}{0}", Base64PadCharacter);
+        private static readonly string DoubleBase64PadCharacter = new string(Base64PadCharacter, 2);
 
         // The following functions perform Base64URL encoding which differs from regular Base64 encoding:
         // * Padding is skipped so the pad character '=' doesn't have to be percent encoded.
