@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web
                     if (!string.IsNullOrWhiteSpace(ScopeKeySection))
                     {
                         // Load the injected IConfiguration
-                        IConfiguration configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
+                        IConfiguration? configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
 
                         if (configuration == null)
                         {
