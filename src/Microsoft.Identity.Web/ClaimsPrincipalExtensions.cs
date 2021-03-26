@@ -141,7 +141,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Finally falling back to name
-            return claimsPrincipal.FindFirstValue(ClaimConstants.Name);
+            return GetClaimValue(claimsPrincipal, ClaimConstants.Name);
         }
 
         /// <summary>
@@ -151,15 +151,10 @@ namespace Microsoft.Identity.Web
         /// <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetUserFlowId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
             string? userFlowId = claimsPrincipal.FindFirstValue(ClaimConstants.Tfp);
             if (string.IsNullOrEmpty(userFlowId))
             {
-                return claimsPrincipal.FindFirstValue(ClaimConstants.UserFlow);
+                return GetClaimValue(claimsPrincipal, ClaimConstants.UserFlow);
             }
 
             return userFlowId;
@@ -172,12 +167,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
+            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueObjectIdentifier);
         }
 
         /// <summary>
@@ -187,12 +177,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueTenantIdentifier);
+            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueTenantIdentifier);
         }
 
         /// <summary>
@@ -202,12 +187,26 @@ namespace Microsoft.Identity.Web
         /// <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetNameIdentifierId(this ClaimsPrincipal claimsPrincipal)
         {
+            return GetClaimValue(claimsPrincipal, ClaimConstants.NameIdentifierId);
+        }
+
+        private static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
+        {
             if (claimsPrincipal == null)
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            return claimsPrincipal.FindFirstValue(ClaimConstants.NameIdentifierId);
+            for (var i = 0; i < claimNames.Length; i++)
+            {
+                var currentValue = claimsPrincipal.FindFirstValue(claimNames[i]);
+                if (!string.IsNullOrEmpty(currentValue))
+                {
+                    return currentValue;
+                }
+            }
+
+            return null;
         }
 
 #if NET472
