@@ -28,15 +28,15 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory]
-        [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-        [InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
-        [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
+        //[Theory]
+        //[InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
+        //[InlineData(TestConstants.SecurePageCallMicrosoftGraph)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        //[InlineData(TestConstants.SecurePageCallMicrosoftGraph, false)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApi, false)]
+        //[InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserAsync(
                 string webApiUrl,
                 bool addInMemoryTokenCache = true)
