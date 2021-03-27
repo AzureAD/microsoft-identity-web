@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Shared\blazorwasm2-singleOrg-hosted4.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
+  </ItemGroup>
+
 </Project>
