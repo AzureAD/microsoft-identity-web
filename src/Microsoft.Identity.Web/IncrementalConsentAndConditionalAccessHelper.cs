@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
             scopes ??= new string[0];
             var properties = new AuthenticationProperties();
 
-            // Set the scopes, including the scopes that ADAL.NET / MSAL.NET need for the token cache
+            // Set the scopes, including the scopes that MSAL.NET needs for the token cache
             string[] additionalBuiltInScopes =
             {
                  OidcConstants.ScopeOpenId,
@@ -68,9 +68,9 @@ namespace Microsoft.Identity.Web
                  OidcConstants.ScopeProfile,
             };
 
-            properties.SetParameter<ICollection<string>>(
-                OpenIdConnectParameterNames.Scope,
-                scopes.Union(additionalBuiltInScopes).ToList());
+            HashSet<string> oidcParams = new HashSet<string>(scopes);
+            oidcParams.UnionWith(additionalBuiltInScopes);
+            properties.SetParameter(OpenIdConnectParameterNames.Scope, oidcParams);
 
             // Attempts to set the login_hint to avoid the logged-in user to be presented with an account selection dialog
             var loginHint = user.GetLoginHint();

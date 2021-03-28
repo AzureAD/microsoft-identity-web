@@ -80,7 +80,6 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
-            HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
                 apiUrl))
@@ -93,10 +92,8 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
-
-            return response;
         }
 
         /// <inheritdoc/>
@@ -113,11 +110,7 @@ namespace Microsoft.Identity.Web
                 user,
                 new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
-            try
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch
+            if (!response.IsSuccessStatusCode)
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
