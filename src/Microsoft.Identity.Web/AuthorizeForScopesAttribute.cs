@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -101,17 +102,27 @@ namespace Microsoft.Identity.Web
                         incrementalConsentScopes = Scopes;
                     }
 
+                    HttpRequest httpRequest;
+                    ClaimsPrincipal user;
+                    HttpContext httpContext = context.HttpContext;
+
+                    lock (httpContext)
+                    {
+                        httpRequest = httpContext.Request;
+                        user = httpContext.User;
+                    }
+
                     AuthenticationProperties properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                         incrementalConsentScopes,
                         msalUiRequiredException,
-                        context.HttpContext.User,
+                        user,
                         UserFlow);
 
-                    if (IsAjaxRequest(context.HttpContext.Request) && (!string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl])
-                        || !string.IsNullOrEmpty(context.HttpContext.Request.Query[Constants.XReturnUrl])))
+                    if (IsAjaxRequest(httpRequest) && (!string.IsNullOrEmpty(httpRequest.Headers[Constants.XReturnUrl])
+                        || !string.IsNullOrEmpty(httpRequest.Query[Constants.XReturnUrl])))
                     {
-                        string redirectUri = !string.IsNullOrEmpty(context.HttpContext.Request.Headers[Constants.XReturnUrl]) ? context.HttpContext.Request.Headers[Constants.XReturnUrl]
-                            : context.HttpContext.Request.Query[Constants.XReturnUrl];
+                        string redirectUri = !string.IsNullOrEmpty(httpRequest.Headers[Constants.XReturnUrl]) ? httpRequest.Headers[Constants.XReturnUrl]
+                            : httpRequest.Query[Constants.XReturnUrl];
 
                         UrlHelper urlHelper = new UrlHelper(context);
                         if (urlHelper.IsLocalUrl(redirectUri))

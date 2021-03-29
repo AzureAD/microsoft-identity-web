@@ -43,11 +43,21 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return _user ??
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                    (!IsBlazorServer ? _httpContextAccessor.HttpContext.User :
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerUserNotSet));
+                if (_user != null)
+                {
+                    return _user;
+                }
+
+                HttpContext httpContext = _httpContextAccessor!.HttpContext!;
+                ClaimsPrincipal user;
+
+                lock (httpContext)
+                {
+                    user = httpContext.User;
+                }
+
+                return !IsBlazorServer ? user :
+                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerUserNotSet);
             }
             set
             {
@@ -62,11 +72,21 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return _baseUri ??
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case
-                    (!IsBlazorServer ? CreateBaseUri(_httpContextAccessor.HttpContext.Request) :
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case
-                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerBaseUriNotSet));
+                if (_baseUri != null)
+                {
+                    return _baseUri;
+                }
+
+                HttpRequest httpRequest;
+                HttpContext httpContext = _httpContextAccessor!.HttpContext!;
+
+                lock (httpContext)
+                {
+                    httpRequest = httpContext.Request;
+                }
+
+                return !IsBlazorServer ? CreateBaseUri(httpRequest) :
+                    throw new InvalidOperationException(IDWebErrorMessage.BlazorServerBaseUriNotSet);
             }
             set
             {
@@ -160,14 +180,19 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                var request = _httpContextAccessor.HttpContext.Request;
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
+                HttpRequest httpRequest;
+                HttpContext httpContext = _httpContextAccessor!.HttpContext!;
+
+                lock (httpContext)
+                {
+                    httpRequest = httpContext.Request;
+                }
+
                 redirectUri = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0}/{1}",
-                    CreateBaseUri(request),
-                    request.Path.ToString().TrimStart('/'));
+                    CreateBaseUri(httpRequest),
+                    httpRequest.Path.ToString().TrimStart('/'));
             }
 
             string url = $"{BaseUri}/{Constants.BlazorChallengeUri}{redirectUri}"
@@ -181,9 +206,12 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
-                _httpContextAccessor.HttpContext.Response.Redirect(url);
-#pragma warning restore CS8602 // Dereference of a possibly null reference. HttpContext will not be null in this case.
+                HttpContext httpContext = _httpContextAccessor!.HttpContext!;
+
+                lock (httpContext)
+                {
+                    httpContext.Response.Redirect(url);
+                }
             }
         }
 

@@ -18,7 +18,12 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
-        private IConfidentialClientApplication? _confidentialClientApplication;
+        private readonly object _applicationSyncObj = new object();
+
+        /// <summary>
+        ///  Please call GetOrCreateApplication instead of accessing this field directly.
+        /// </summary>
+        private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
@@ -70,22 +75,28 @@ namespace Microsoft.Identity.Web
 
         private IConfidentialClientApplication GetOrCreateApplication()
         {
-            if (_confidentialClientApplication == null)
+            if (_application == null)
             {
-                ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions()
+                lock (_applicationSyncObj)
                 {
-                    ClientId = AppServicesAuthenticationInformation.ClientId,
-                    ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
-                    Instance = AppServicesAuthenticationInformation.Issuer,
-                };
-                _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
-                    .WithHttpClientFactory(_httpClientFactory)
-                    .Build();
-                _tokenCacheProvider.Initialize(_confidentialClientApplication.AppTokenCache);
-                _tokenCacheProvider.Initialize(_confidentialClientApplication.UserTokenCache);
+                    if (_application == null)
+                    {
+                        var options = new ConfidentialClientApplicationOptions()
+                        {
+                            ClientId = AppServicesAuthenticationInformation.ClientId,
+                            ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
+                            Instance = AppServicesAuthenticationInformation.Issuer,
+                        };
+                        _application = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
+                            .WithHttpClientFactory(_httpClientFactory)
+                            .Build();
+                        _tokenCacheProvider.Initialize(_application.AppTokenCache);
+                        _tokenCacheProvider.Initialize(_application.UserTokenCache);
+                    }
+                }
             }
 
-            return _confidentialClientApplication;
+            return _application;
         }
 
         /// <inheritdoc/>
@@ -109,16 +120,29 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetAccessTokenForUserAsync(
+        public Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            string accessToken = GetAccessToken(CurrentHttpContext?.Request.Headers);
+            var httpContext = CurrentHttpContext;
+            string accessToken;
+            if (httpContext != null)
+            {
+                // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+                lock (httpContext)
+                {
+                    accessToken = GetAccessToken(httpContext.Request.Headers);
+                }
+            }
+            else
+            {
+                accessToken = string.Empty;
+            }
 
-            return await Task.FromResult(accessToken).ConfigureAwait(false);
+            return Task.FromResult(accessToken);
         }
 
         private string GetAccessToken(IHeaderDictionary? headers)
@@ -145,7 +169,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
@@ -209,6 +232,5 @@ namespace Microsoft.Identity.Web
         {
             throw new NotImplementedException();
         }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 }
