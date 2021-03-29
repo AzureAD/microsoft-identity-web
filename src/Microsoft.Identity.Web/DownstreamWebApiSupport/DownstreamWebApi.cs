@@ -80,7 +80,6 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
-            HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
                 apiUrl))
@@ -93,10 +92,8 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
-
-            return response;
         }
 
         /// <inheritdoc/>

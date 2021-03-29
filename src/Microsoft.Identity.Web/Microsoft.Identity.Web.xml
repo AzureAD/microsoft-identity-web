@@ -1020,6 +1020,12 @@
             </summary>
             <returns>Scopes.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.System#ICloneable#Clone">
+            <summary>
+            Clone the options (to be able to override them).
+            </summary>
+            <returns>A clone of the options.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.IDownstreamWebApi">
             <summary>
             Interface used to call a downstream web API, for instance from controllers.
@@ -1063,9 +1069,9 @@
              <example>
              A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
              <code>
-             public async Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
+             public Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
              {
-              return await _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
+              return _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
                      ServiceName,
                      null,
                      options =>
@@ -1077,9 +1083,9 @@
             
              Example of editing.
              <code>
-             public async Task&lt;MyItem&gt; EditAsync(MyItem myItem)
+             public Task&lt;MyItem&gt; EditAsync(MyItem myItem)
              {
-               return await _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
+               return _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
                      ServiceName,
                      nyItem,
                      options =>
@@ -1690,22 +1696,22 @@
             </summary>
             <param name="logger">Logger.</param>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onAuthenticationFailed">
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics._onAuthenticationFailed">
             <summary>
             Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onMessageReceived">
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics._onMessageReceived">
             <summary>
             Invoked when a protocol message is first received.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onTokenValidated">
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics._onTokenValidated">
             <summary>
             Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics.s_onChallenge">
+        <member name="F:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics._onChallenge">
             <summary>
             Invoked before a challenge is sent back to the caller.
             </summary>
@@ -1751,7 +1757,7 @@
             </summary>
             <param name="logger">Logger used to log the diagnostics.</param>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onRedirectToIdentityProvider">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onRedirectToIdentityProvider">
             <summary>
              Invoked before redirecting to the identity provider to authenticate. This can
              be used to set ProtocolMessage.State that will be persisted through the authentication
@@ -1759,49 +1765,49 @@
              sent to the identity provider.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onMessageReceived">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onMessageReceived">
             <summary>
             Invoked when a protocol message is first received.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onAuthorizationCodeReceived">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onAuthorizationCodeReceived">
             <summary>
              Invoked after security token validation if an authorization code is present
              in the protocol message.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onTokenResponseReceived">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onTokenResponseReceived">
             <summary>
             Invoked after "authorization code" is redeemed for tokens at the token endpoint.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onTokenValidated">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onTokenValidated">
             <summary>
             Invoked when an IdToken has been validated and produced an AuthenticationTicket.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onUserInformationReceived">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onUserInformationReceived">
             <summary>
             Invoked when user information is retrieved from the UserInfoEndpoint.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onAuthenticationFailed">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onAuthenticationFailed">
             <summary>
             Invoked if exceptions are thrown during request processing. The exceptions will
             be re-thrown after this event unless suppressed.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onRemoteSignOut">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onRemoteSignOut">
             <summary>
             Invoked when a request is received on the RemoteSignOutPath.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onRedirectToIdentityProviderForSignOut">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onRedirectToIdentityProviderForSignOut">
             <summary>
             Invoked before redirecting to the identity provider to sign out.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics.s_onSignedOutCallbackRedirect">
+        <member name="F:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics._onSignedOutCallbackRedirect">
             <summary>
             Invoked before redirecting to the Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions.SignedOutRedirectUri
             at the end of a remote sign-out flow.
