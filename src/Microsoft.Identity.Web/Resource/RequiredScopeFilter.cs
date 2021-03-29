@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web.Resource
 
         private void ValidateEffectiveScopes(AuthorizationFilterContext context)
         {
-            if (_effectiveAcceptedScopes == null || !_effectiveAcceptedScopes.Any())
+            if (_effectiveAcceptedScopes == null || _effectiveAcceptedScopes.Length == 0)
             {
                 throw new InvalidOperationException(IDWebErrorMessage.MissingRequiredScopesForAuthorizationFilter);
             }
