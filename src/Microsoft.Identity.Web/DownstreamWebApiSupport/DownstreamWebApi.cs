@@ -110,7 +110,11 @@ namespace Microsoft.Identity.Web
                 user,
                 new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
