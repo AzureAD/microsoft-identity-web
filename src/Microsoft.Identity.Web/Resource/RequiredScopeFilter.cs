@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -55,31 +56,51 @@ namespace Microsoft.Identity.Web.Resource
                 throw new InvalidOperationException(IDWebErrorMessage.MissingRequiredScopesForAuthorizationFilter);
             }
 
-            if (context.HttpContext.User == null || context.HttpContext.User.Claims == null || !context.HttpContext.User.Claims.Any())
+            IEnumerable<Claim> userClaims;
+            ClaimsPrincipal user;
+            HttpContext httpContext = context.HttpContext;
+
+            // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+            lock (httpContext)
             {
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                user = httpContext.User;
+                userClaims = user.Claims;
+            }
+
+            if (user == null || userClaims == null || !userClaims.Any())
+            {
+                lock (httpContext)
+                {
+                    httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
+
                 throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
                 // Attempt with Scp claim
-                Claim? scopeClaim = context.HttpContext.User.FindFirst(ClaimConstants.Scp);
+                Claim? scopeClaim = user.FindFirst(ClaimConstants.Scp);
 
                 // Fallback to Scope claim name
                 if (scopeClaim == null)
                 {
-                    scopeClaim = context.HttpContext.User.FindFirst(ClaimConstants.Scope);
+                    scopeClaim = user.FindFirst(ClaimConstants.Scope);
                 }
 
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(_effectiveAcceptedScopes).Any())
                 {
-                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     string message = string.Format(
                         CultureInfo.InvariantCulture,
                         IDWebErrorMessage.MissingScopes,
                         string.Join(",", _effectiveAcceptedScopes));
-                    context.HttpContext.Response.WriteAsync(message);
-                    context.HttpContext.Response.CompleteAsync();
+
+                    lock (httpContext)
+                    {
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        httpContext.Response.WriteAsync(message);
+                        httpContext.Response.CompleteAsync();
+                    }
+
                     throw new UnauthorizedAccessException(message);
                 }
             }

@@ -123,6 +123,11 @@
             Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition._application">
+            <summary>
+             Please call GetOrCreateApplication instead of accessing this field directly.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,System.Net.Http.IHttpClientFactory)">
             <summary>
             Constructor of the AppServicesAuthenticationTokenAcquisition.
@@ -1989,6 +1994,11 @@
             Token acquisition service.
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.TokenAcquisition._application">
+            <summary>
+             Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition},System.IServiceProvider)">
             <summary>
             Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -2150,11 +2160,6 @@
             <param name="context">RedirectContext passed-in to a <see cref="P:Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
             OpenID Connect event.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed account removal operation.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplication">
-            <summary>
-            Creates an MSAL confidential client application, if needed.
-            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplication">
             <summary>

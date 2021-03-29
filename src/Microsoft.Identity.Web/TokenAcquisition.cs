@@ -33,6 +33,11 @@ namespace Microsoft.Identity.Web
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
+        private readonly object _applicationSyncObj = new object();
+
+        /// <summary>
+        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        /// </summary>
         private IConfidentialClientApplication? _application;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
@@ -144,12 +149,12 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                _application = GetOrBuildConfidentialClientApplication();
+                var application = GetOrBuildConfidentialClientApplication();
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
-                var builder = _application
+                var builder = application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
                     .WithSendX5C(_microsoftIdentityOptions.SendX5C);
 
@@ -210,17 +215,15 @@ namespace Microsoft.Identity.Web
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            _application = GetOrBuildConfidentialClientApplication();
+            var application = GetOrBuildConfidentialClientApplication();
 
-            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenantId);
-
-            AuthenticationResult? authenticationResult;
+            string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenantId);
 
             try
             {
                 // Access token will return if call is from a web API
-                authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
-                    _application,
+                var authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+                    application,
                     authority,
                     scopes,
                     tokenAcquisitionOptions).ConfigureAwait(false);
@@ -232,7 +235,7 @@ namespace Microsoft.Identity.Web
 
                 // If access token is null, this is a web app
                 return await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
-                     _application,
+                     application,
                      user,
                      scopes,
                      authority,
@@ -289,10 +292,10 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            _application = GetOrBuildConfidentialClientApplication();
-            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+            var application = GetOrBuildConfidentialClientApplication();
+            string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenant);
 
-            var builder = _application
+            var builder = application
                    .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
                    .WithAuthority(authority);
@@ -381,14 +384,13 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
             HttpResponse? httpResponse = null)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -411,10 +413,10 @@ namespace Microsoft.Identity.Web
                 throw msalServiceException;
             }
 
-            _application = GetOrBuildConfidentialClientApplication();
+            var application = GetOrBuildConfidentialClientApplication();
 
-            string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
-                + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
+            string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
+                + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
                 + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
             IDictionary<string, string> parameters = new Dictionary<string, string>()
@@ -472,14 +474,31 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        /// <summary>
-        /// Creates an MSAL confidential client application, if needed.
-        /// </summary>
+        private string BuildCurrentUriFromRequest(HttpContext httpContext, HttpRequest request)
+        {
+            // need to lock to avoid threading issues with code outside of this library
+            // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+            lock (httpContext)
+            {
+                return UriHelper.BuildAbsolute(
+                    request.Scheme,
+                    request.Host,
+                    request.PathBase,
+                    _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+            }
+        }
+
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication()
         {
             if (_application == null)
             {
-                return BuildConfidentialClientApplication();
+                lock (_applicationSyncObj)
+                {
+                    if (_application == null)
+                    {
+                        _application = BuildConfidentialClientApplication();
+                    }
+                }
             }
 
             return _application;
@@ -490,7 +509,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private IConfidentialClientApplication BuildConfidentialClientApplication()
         {
-            var request = CurrentHttpContext?.Request;
+            var httpContext = CurrentHttpContext;
+            var request = httpContext?.Request;
             string? currentUri = null;
 
             if (!string.IsNullOrEmpty(_applicationOptions.RedirectUri))
@@ -500,11 +520,7 @@ namespace Microsoft.Identity.Web
 
             if (request != null && string.IsNullOrEmpty(currentUri))
             {
-                currentUri = UriHelper.BuildAbsolute(
-                    request.Scheme,
-                    request.Host,
-                    request.PathBase,
-                    _microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+                currentUri = BuildCurrentUriFromRequest(httpContext!, request);
             }
 
             PrepareAuthorityInstanceForMsal();
@@ -595,11 +611,11 @@ namespace Microsoft.Identity.Web
                     string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
                                                 : validatedToken.InnerToken.RawData;
                     var builder = application
-                                        .AcquireTokenOnBehalfOf(
-                                            scopes.Except(_scopesRequestedByMsal),
-                                            new UserAssertion(tokenUsedToCallTheWebApi))
-                                        .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                                        .WithAuthority(authority);
+                                    .AcquireTokenOnBehalfOf(
+                                        scopes.Except(_scopesRequestedByMsal),
+                                        new UserAssertion(tokenUsedToCallTheWebApi))
+                                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                                    .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)
                     {
@@ -686,7 +702,7 @@ namespace Microsoft.Identity.Web
         /// on behalf of the user.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+        private Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
@@ -730,8 +746,7 @@ namespace Microsoft.Identity.Web
                 builder.WithAuthority(authority);
             }
 
-            return await builder.ExecuteAsync()
-                                .ConfigureAwait(false);
+            return builder.ExecuteAsync();
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -745,11 +760,26 @@ namespace Microsoft.Identity.Web
                 StringComparison.InvariantCulture);
         }
 
+        private ClaimsPrincipal? GetUserFromHttpContext()
+        {
+            var httpContext = CurrentHttpContext;
+            if (httpContext != null)
+            {
+                // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+                lock (httpContext)
+                {
+                    return httpContext.User;
+                }
+            }
+
+            return null;
+        }
+
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
-            if (user == null && _httpContextAccessor.HttpContext?.User != null)
+            if (user == null)
             {
-                user = _httpContextAccessor.HttpContext.User;
+                user = GetUserFromHttpContext();
             }
 
             if (user == null)
