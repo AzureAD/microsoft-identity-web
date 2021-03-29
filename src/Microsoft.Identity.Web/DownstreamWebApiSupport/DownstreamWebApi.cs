@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
@@ -57,6 +58,10 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            string apiUrl = effectiveOptions.GetApiUrl();
+
+            CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
+
             string? userflow;
             if (_microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
             {
@@ -67,7 +72,7 @@ namespace Microsoft.Identity.Web
                 userflow = effectiveOptions.UserFlow;
             }
 
-            string accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(
+            AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 effectiveOptions.GetScopes(),
                 effectiveOptions.Tenant,
                 userflow,
@@ -75,10 +80,9 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
-            HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
-                effectiveOptions.GetApiUrl()))
+                apiUrl))
             {
                 if (content != null)
                 {
@@ -87,40 +91,9 @@ namespace Microsoft.Identity.Web
 
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1}",
-                        Constants.Bearer,
-                        accessToken));
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                    authResult.CreateAuthorizationHeader());
+                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Merge the options from configuration and override from caller.
-        /// </summary>
-        /// <param name="optionsInstanceName">Named configuration.</param>
-        /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ DownstreamWebApiOptions MergeOptions(
-            string optionsInstanceName,
-            Action<DownstreamWebApiOptions>? calledApiOptionsOverride)
-        {
-            // Gets the options from configuration (or default value)
-            DownstreamWebApiOptions options;
-            if (optionsInstanceName != null)
-            {
-                options = _namedDownstreamWebApiOptions.Get(optionsInstanceName);
-            }
-            else
-            {
-                options = _namedDownstreamWebApiOptions.CurrentValue;
-            }
-
-            DownstreamWebApiOptions clonedOptions = options.Clone();
-            calledApiOptionsOverride?.Invoke(clonedOptions);
-            return clonedOptions;
         }
 
         /// <inheritdoc/>
@@ -171,7 +144,11 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
-            string accessToken = await _tokenAcquisition.GetAccessTokenForAppAsync(
+            string apiUrl = effectiveOptions.GetApiUrl();
+
+            CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
+
+            AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
                 effectiveOptions.Tenant,
                 effectiveOptions.TokenAcquisitionOptions)
@@ -180,7 +157,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
-                effectiveOptions.GetApiUrl()))
+                apiUrl))
             {
                 if (content != null)
                 {
@@ -189,15 +166,52 @@ namespace Microsoft.Identity.Web
 
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1}",
-                        Constants.Bearer,
-                        accessToken));
+                    authResult.CreateAuthorizationHeader());
                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Merge the options from configuration and override from caller.
+        /// </summary>
+        /// <param name="optionsInstanceName">Named configuration.</param>
+        /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
+        internal /* for tests */ DownstreamWebApiOptions MergeOptions(
+            string optionsInstanceName,
+            Action<DownstreamWebApiOptions>? calledApiOptionsOverride)
+        {
+            // Gets the options from configuration (or default value)
+            DownstreamWebApiOptions options;
+            if (optionsInstanceName != null)
+            {
+                options = _namedDownstreamWebApiOptions.Get(optionsInstanceName);
+            }
+            else
+            {
+                options = _namedDownstreamWebApiOptions.CurrentValue;
+            }
+
+            DownstreamWebApiOptions clonedOptions = options.Clone();
+            calledApiOptionsOverride?.Invoke(clonedOptions);
+            return clonedOptions;
+        }
+
+        private static void CreateProofOfPossessionConfiguration(DownstreamWebApiOptions effectiveOptions, string apiUrl)
+        {
+            if (effectiveOptions.IsProofOfPossessionRequest && effectiveOptions.TokenAcquisitionOptions?.PoPConfiguration != null)
+            {
+                if (effectiveOptions.TokenAcquisitionOptions == null)
+                {
+                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
+                }
+
+                effectiveOptions.TokenAcquisitionOptions.PoPConfiguration = new PoPAuthenticationConfiguration(new Uri(apiUrl))
+                {
+                    HttpMethod = effectiveOptions.HttpMethod,
+                };
+            }
         }
     }
 }

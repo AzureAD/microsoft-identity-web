@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -242,6 +244,21 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.TryAddSingleton<ILoginErrorAccessor>(ctx =>
+            {
+                // ITempDataDictionaryFactory is not always available, so we don't require it
+                var tempFactory = ctx.GetService<ITempDataDictionaryFactory>();
+                var env = ctx.GetService<IHostEnvironment>(); // ex. Azure Functions will not have an env.
+
+                if (env != null)
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, env.IsDevelopment());
+                }
+                else
+                {
+                    return TempDataLoginErrorAccessor.Create(tempFactory, false);
+                }
+            });
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
@@ -260,7 +277,11 @@ namespace Microsoft.Identity.Web
                 .Configure<IServiceProvider, IOptions<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptions) =>
                 {
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions.Value);
-                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(openIdConnectScheme, microsoftIdentityOptions.Value);
+
+                    var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
+                        openIdConnectScheme,
+                        microsoftIdentityOptions.Value,
+                        serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
                     {
@@ -327,11 +348,11 @@ namespace Microsoft.Identity.Web
                         context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
 
                         // Additional claims
-                        if (context.Properties.Items.ContainsKey(OidcConstants.AdditionalClaims))
+                        if (context.Properties.Items.TryGetValue(OidcConstants.AdditionalClaims, out var additionClaims))
                         {
                             context.ProtocolMessage.SetParameter(
                                 OidcConstants.AdditionalClaims,
-                                context.Properties.Items[OidcConstants.AdditionalClaims]);
+                                additionClaims);
                         }
 
                         if (microsoftIdentityOptions.Value.IsB2C)

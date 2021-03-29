@@ -11,25 +11,22 @@ namespace Microsoft.Identity.Web
         internal static string BuildAuthority(MicrosoftIdentityOptions options)
         {
             Uri baseUri = new Uri(options.Instance);
-            string pathBase = baseUri.PathAndQuery.TrimEnd('/');
             var domain = options.Domain;
             var tenantId = options.TenantId;
 
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
-                return new Uri(baseUri, new PathString($"{pathBase}/{domain}/{userFlow}/v2.0")).ToString();
+                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0")).ToString();
             }
-            else
-            {
-                return new Uri(baseUri, new PathString($"{pathBase}/{tenantId}/v2.0")).ToString();
-            }
+
+            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
         }
 
         internal static string EnsureAuthorityIsV2(string authority)
         {
             authority = authority.Trim().TrimEnd('/');
-            if (!authority.EndsWith("v2.0", StringComparison.InvariantCulture))
+            if (!authority.EndsWith("v2.0", StringComparison.Ordinal))
             {
                 authority += "/v2.0";
             }

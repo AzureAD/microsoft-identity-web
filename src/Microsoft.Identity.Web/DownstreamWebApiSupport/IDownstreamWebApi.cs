@@ -54,9 +54,9 @@ namespace Microsoft.Identity.Web
         /// <example>
         /// A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
         /// <code>
-        /// public async Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
+        /// public Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
         /// {
-        ///  return await _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
+        ///  return _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
         ///         ServiceName,
         ///         null,
         ///         options =>
@@ -68,9 +68,9 @@ namespace Microsoft.Identity.Web
         ///
         /// Example of editing.
         /// <code>
-        /// public async Task&lt;MyItem&gt; EditAsync(MyItem myItem)
+        /// public Task&lt;MyItem&gt; EditAsync(MyItem myItem)
         /// {
-        ///   return await _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
+        ///   return _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
         ///         ServiceName,
         ///         nyItem,
         ///         options =>

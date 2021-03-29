@@ -2,7 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -19,6 +23,8 @@ namespace Microsoft.Identity.Web
         private const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         private const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         private const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
+        private const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         // Artificially added by Microsoft.Identity.Web to help debugging App Services. See the Debug controller of the test app
         private const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
@@ -91,5 +97,79 @@ namespace Microsoft.Identity.Web
             return headerPlusValue?.Substring(header.Length + 1);
         }
 #endif
+
+        /// <summary>
+        /// Get the ID token from the headers sent by App services authentication.
+        /// </summary>
+        /// <param name="headers">Headers.</param>
+        /// <returns>The ID Token.</returns>
+        internal static string? GetIdToken(IDictionary<string, StringValues> headers)
+        {
+            if (headers is null)
+            {
+                throw new ArgumentNullException(nameof(headers));
+            }
+
+            headers.TryGetValue(AppServicesAuthIdTokenHeader, out var idToken);
+
+#if DEBUG
+            if (string.IsNullOrEmpty(idToken))
+            {
+                idToken = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+            }
+#endif
+            return idToken;
+        }
+
+        /// <summary>
+        /// Get the IDP from the headers sent by App services authentication.
+        /// </summary>
+        /// <param name="headers">Headers.</param>
+        /// <returns>The IDP.</returns>
+        internal static string? GetIdp(IDictionary<string, StringValues> headers)
+        {
+            if (headers is null)
+            {
+                throw new ArgumentNullException(nameof(headers));
+            }
+
+            headers.TryGetValue(AppServicesAuthIdpTokenHeader, out var idp);
+#if DEBUG
+            if (string.IsNullOrEmpty(idp))
+            {
+                idp = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+            }
+#endif
+            return idp;
+        }
+
+        /// <summary>
+        /// Get the user claims from the headers and environment variables.
+        /// </summary>
+        /// <param name="headers">Headers.</param>
+        /// <returns>User claims.</returns>
+        internal static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers)
+        {
+            ClaimsPrincipal? claimsPrincipal;
+            string? idToken = GetIdToken(headers);
+            string? idp = GetIdp(headers);
+            if (idToken != null && idp != null)
+            {
+                JsonWebToken jsonWebToken = new JsonWebToken(idToken);
+                bool isAadV1Token = jsonWebToken.Claims
+                    .Any(c => c.Type == Constants.Version && c.Value == Constants.V1);
+                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+                    jsonWebToken.Claims,
+                    idp,
+                    isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
+                    ClaimsIdentity.DefaultRoleClaimType));
+            }
+            else
+            {
+                claimsPrincipal = null;
+            }
+
+            return claimsPrincipal;
+        }
     }
 }

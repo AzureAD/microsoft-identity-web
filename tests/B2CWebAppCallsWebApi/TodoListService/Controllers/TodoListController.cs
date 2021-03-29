@@ -8,11 +8,13 @@ using Microsoft.Identity.Web;
 using System.Collections.Generic;
 using System.Linq;
 using TodoListService.Models;
+using Microsoft.Identity.Web.Resource;
 
 namespace TodoListService.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
+    [RequiredScope("read")]
     public class TodoListController : Controller
     {
         // In-memory TodoList
@@ -34,7 +36,6 @@ namespace TodoListService.Controllers
 
         // GET: api/values
         [HttpGet]
-        [Authorize(Policy = "ReadScope")]
         public IEnumerable<Todo> Get()
         {
             string owner = User.GetDisplayName();
@@ -43,13 +44,13 @@ namespace TodoListService.Controllers
 
         // GET: api/values
         [HttpGet("{id}", Name = "Get")]
-        [Authorize(Policy = "ReadScope")]
         public Todo Get(int id)
         {
             return TodoStore.Values.FirstOrDefault(t => t.Id == id);
         }
 
         [HttpDelete("{id}")]
+        [RequiredScope("write")]
         public void Delete(int id)
         {
             TodoStore.Remove(id);
@@ -57,6 +58,7 @@ namespace TodoListService.Controllers
 
         // POST api/values
         [HttpPost]
+        [RequiredScope("write")]
         public IActionResult Post([FromBody] Todo todo)
         {
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
@@ -68,6 +70,7 @@ namespace TodoListService.Controllers
 
         // PATCH api/values
         [HttpPatch("{id}")]
+        [RequiredScope("write")]
         public IActionResult Patch(int id, [FromBody] Todo todo)
         {
             if (id != todo.Id)

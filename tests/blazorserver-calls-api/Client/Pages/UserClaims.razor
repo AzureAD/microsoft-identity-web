@@ -1,0 +1,55 @@
+﻿@inherits UserClaimsBase
+<AuthorizeView>
+    <h4>
+        @context.User.Identity.Name has successfully signed-in
+    </h4>
+    Claims from the ID token
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Claim Type</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in _claims)
+            {
+                <tr>
+                    <td>@claim.Type</td>
+                    <td>@claim.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</AuthorizeView>
+
+@*@using blazorserver_client.Data
+    @inject UserProfile User
+    Claims from the signed-in user's token
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Claim Type</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in userClaims)
+            {
+                <tr>
+                    <td>@claim.Type</td>
+                    <td>@claim.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+    @code {
+        private List<System.Security.Claims.Claim> userClaims;
+
+        protected override async Task OnInitializedAsync()
+        {
+            userClaims = await User.GetUserClaims();
+        }
+    }*@

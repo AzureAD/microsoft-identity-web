@@ -1,0 +1,20 @@
+﻿@page "/create"
+
+@using ToDoListModel
+
+@inject ToDoListService ToDoListService
+@inject NavigationManager Navigation
+
+<h3>Create Task</h3>
+
+<CommonForm ButtonText="Add Task" ToDoItem="@toDo"
+      OnValidSubmit="@AddTask" />
+
+@code {
+    protected ToDo toDo = new ToDo();
+    protected async Task AddTask()
+    {
+        await ToDoListService.AddAsync(toDo);
+        Navigation.NavigateTo("todolist");
+    }
+}

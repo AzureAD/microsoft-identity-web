@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ms-identity-app": {
+      "commandName": "Project",
+      "commandLineArgs": "--tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id susi",
+      "workingDirectory": "C:\\temp\\Provisioning\\ProjectDescriptionReaderTests\\webapp\\SingleOrgtoB2CTest"
+    }
+  }
+}

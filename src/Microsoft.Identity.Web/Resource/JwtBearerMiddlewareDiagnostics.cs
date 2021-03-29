@@ -29,22 +29,22 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
         /// </summary>
-        private Func<AuthenticationFailedContext, Task> s_onAuthenticationFailed = null!;
+        private Func<AuthenticationFailedContext, Task> _onAuthenticationFailed = null!;
 
         /// <summary>
         /// Invoked when a protocol message is first received.
         /// </summary>
-        private Func<MessageReceivedContext, Task> s_onMessageReceived = null!;
+        private Func<MessageReceivedContext, Task> _onMessageReceived = null!;
 
         /// <summary>
         /// Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
         /// </summary>
-        private Func<TokenValidatedContext, Task> s_onTokenValidated = null!;
+        private Func<TokenValidatedContext, Task> _onTokenValidated = null!;
 
         /// <summary>
         /// Invoked before a challenge is sent back to the caller.
         /// </summary>
-        private Func<JwtBearerChallengeContext, Task> s_onChallenge = null!;
+        private Func<JwtBearerChallengeContext, Task> _onChallenge = null!;
 
         /// <summary>
         /// Subscribes to all the JwtBearer events, to help debugging, while
@@ -56,16 +56,16 @@ namespace Microsoft.Identity.Web.Resource
         {
             events ??= new JwtBearerEvents();
 
-            s_onAuthenticationFailed = events.OnAuthenticationFailed;
+            _onAuthenticationFailed = events.OnAuthenticationFailed;
             events.OnAuthenticationFailed = OnAuthenticationFailedAsync;
 
-            s_onMessageReceived = events.OnMessageReceived;
+            _onMessageReceived = events.OnMessageReceived;
             events.OnMessageReceived = OnMessageReceivedAsync;
 
-            s_onTokenValidated = events.OnTokenValidated;
+            _onTokenValidated = events.OnTokenValidated;
             events.OnTokenValidated = OnTokenValidatedAsync;
 
-            s_onChallenge = events.OnChallenge;
+            _onChallenge = events.OnChallenge;
             events.OnChallenge = OnChallengeAsync;
 
             return events;
@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web.Resource
 
             // Place a breakpoint here and examine the bearer token (context.Request.Headers.HeaderAuthorization / context.Request.Headers["Authorization"])
             // Use https://jwt.ms to decode the token and observe claims
-            await s_onMessageReceived(context).ConfigureAwait(false);
+            await _onMessageReceived(context).ConfigureAwait(false);
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnMessageReceivedAsync)));
         }
 
@@ -86,21 +86,21 @@ namespace Microsoft.Identity.Web.Resource
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnAuthenticationFailedAsync)));
 
             // Place a breakpoint here and examine context.Exception
-            await s_onAuthenticationFailed(context).ConfigureAwait(false);
+            await _onAuthenticationFailed(context).ConfigureAwait(false);
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnAuthenticationFailedAsync)));
         }
 
         private async Task OnTokenValidatedAsync(TokenValidatedContext context)
         {
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnTokenValidatedAsync)));
-            await s_onTokenValidated(context).ConfigureAwait(false);
+            await _onTokenValidated(context).ConfigureAwait(false);
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnTokenValidatedAsync)));
         }
 
         private async Task OnChallengeAsync(JwtBearerChallengeContext context)
         {
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodBegin, nameof(OnChallengeAsync)));
-            await s_onChallenge(context).ConfigureAwait(false);
+            await _onChallenge(context).ConfigureAwait(false);
             _logger.LogDebug(string.Format(CultureInfo.InvariantCulture, LogMessages.MethodEnd, nameof(OnChallengeAsync)));
         }
     }

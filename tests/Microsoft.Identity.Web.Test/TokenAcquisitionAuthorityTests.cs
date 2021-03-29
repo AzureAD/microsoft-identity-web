@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -49,6 +50,7 @@ namespace Microsoft.Identity.Web.Test
             };
 
             services.AddTokenAcquisition();
+            services.AddLogging();
             services.AddTransient(
                 provider => Options.Create(_microsoftIdentityOptions));
             services.AddTransient(
@@ -96,7 +98,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(TestConstants.B2CLoginMicrosoft)]
         [InlineData(TestConstants.B2CInstance, true)]
         [InlineData(TestConstants.B2CLoginMicrosoft, true)]
-        public async void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTestsAsync(
+        public void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTests(
             string authorityInstance,
             bool withTfp = false)
         {
@@ -117,7 +119,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -132,7 +134,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("https://localhost:1234")]
         [InlineData("")]
-        public async void VerifyCorrectRedirectUriAsync(
+        public void VerifyCorrectRedirectUriAsync(
             string redirectUri)
         {
             _microsoftIdentityOptions = new MicrosoftIdentityOptions
@@ -147,7 +149,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
 
             if (!string.IsNullOrEmpty(redirectUri))
             {

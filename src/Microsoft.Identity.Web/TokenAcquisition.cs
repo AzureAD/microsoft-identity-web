@@ -68,6 +68,13 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
+
+            _applicationOptions.ClientId ??= _microsoftIdentityOptions.ClientId;
+            _applicationOptions.Instance ??= _microsoftIdentityOptions.Instance;
+            _applicationOptions.ClientSecret ??= _microsoftIdentityOptions.ClientSecret;
+            _applicationOptions.TenantId ??= _microsoftIdentityOptions.TenantId;
+            _applicationOptions.LegacyCacheCompatibilityEnabled = _microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
+            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = _microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
         }
 
         /// <summary>
@@ -137,7 +144,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                _application = GetOrBuildConfidentialClientApplication();
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -203,7 +210,7 @@ namespace Microsoft.Identity.Web
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = GetOrBuildConfidentialClientApplication();
 
             string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenantId);
 
@@ -244,6 +251,68 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
+        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// </summary>
+        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
+        /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
+        /// several calls to get tokens for other resources).</param>
+        /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
+        /// for multi tenant apps or daemons.</param>
+        /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <returns>An authentication result for the app itself, based on its scopes.</returns>
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        {
+            if (string.IsNullOrEmpty(scope))
+            {
+                throw new ArgumentNullException(nameof(scope));
+            }
+
+            if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
+            }
+
+            if (string.IsNullOrEmpty(tenant))
+            {
+                tenant = _applicationOptions.TenantId;
+            }
+
+            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
+            }
+
+            // Use MSAL to get the right token to call the API
+            _application = GetOrBuildConfidentialClientApplication();
+            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
+
+            var builder = _application
+                   .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
+                   .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                   .WithAuthority(authority);
+
+            if (tokenAcquisitionOptions != null)
+            {
+                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
+                builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+            }
+
+            return builder.ExecuteAsync();
+        }
+
+        /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
         /// </summary>
@@ -261,48 +330,8 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (string.IsNullOrEmpty(scope))
-            {
-                throw new ArgumentNullException(nameof(scope));
-            }
-
-            if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
-            {
-                throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
-            }
-
-            if (string.IsNullOrEmpty(tenant))
-            {
-                tenant = _applicationOptions.TenantId ?? _microsoftIdentityOptions.TenantId;
-            }
-
-            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
-            {
-                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
-            }
-
-            // Use MSAL to get the right token to call the API
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
-            string authority = CreateAuthorityBasedOnTenantIfProvided(_application, tenant);
-
-            AuthenticationResult result;
-            var builder = _application
-                   .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
-                   .WithSendX5C(_microsoftIdentityOptions.SendX5C)
-                   .WithAuthority(authority);
-
-            if (tokenAcquisitionOptions != null)
-            {
-                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
-                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
-                builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
-                builder.WithClaims(tokenAcquisitionOptions.Claims);
-            }
-
-            result = await builder.ExecuteAsync()
-                                  .ConfigureAwait(false);
-
-            return result.AccessToken;
+            AuthenticationResult authResult = await GetAuthenticationResultForAppAsync(scope, tenant, tokenAcquisitionOptions).ConfigureAwait(false);
+            return authResult.AccessToken;
         }
 
         /// <summary>
@@ -328,11 +357,11 @@ namespace Microsoft.Identity.Web
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
-            IEnumerable<string> scopes,
-            string? tenantId = null,
-            string? userFlow = null,
-            ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        IEnumerable<string> scopes,
+        string? tenantId = null,
+        string? userFlow = null,
+        ClaimsPrincipal? user = null,
+        TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             AuthenticationResult result =
                 await GetAuthenticationResultForUserAsync(
@@ -352,8 +381,28 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse);
+        }
+
+        /// <summary>
+        /// Used in web APIs (no user interaction).
+        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        public void ReplyForbiddenWithWwwAuthenticateHeader(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
@@ -362,7 +411,7 @@ namespace Microsoft.Identity.Web
                 throw msalServiceException;
             }
 
-            _application = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+            _application = GetOrBuildConfidentialClientApplication();
 
             string consentUrl = $"{_application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={_application.AppConfig.RedirectUri}"
@@ -403,7 +452,7 @@ namespace Microsoft.Identity.Web
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
             {
-                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication();
 
                 if (_microsoftIdentityOptions.IsB2C)
                 {
@@ -426,11 +475,11 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application, if needed.
         /// </summary>
-        internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync()
+        internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication()
         {
             if (_application == null)
             {
-                return await BuildConfidentialClientApplicationAsync().ConfigureAwait(false);
+                return BuildConfidentialClientApplication();
             }
 
             return _application;
@@ -439,7 +488,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync()
+        private IConfidentialClientApplication BuildConfidentialClientApplication()
         {
             var request = CurrentHttpContext?.Request;
             string? currentUri = null;
@@ -460,11 +509,6 @@ namespace Microsoft.Identity.Web
 
             PrepareAuthorityInstanceForMsal();
 
-            if (!string.IsNullOrEmpty(_microsoftIdentityOptions.ClientSecret))
-            {
-                _applicationOptions.ClientSecret = _microsoftIdentityOptions.ClientSecret;
-            }
-
             MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  _applicationOptions.ClientSecret,
                  _microsoftIdentityOptions.ClientCertificates);
@@ -473,7 +517,12 @@ namespace Microsoft.Identity.Web
             {
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(_applicationOptions)
-                        .WithHttpClientFactory(_httpClientFactory);
+                        .WithHttpClientFactory(_httpClientFactory)
+                        .WithLogging(
+                            Log,
+                            ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
+                            enablePiiLogging: _applicationOptions.EnablePiiLogging)
+                        .WithExperimentalFeatures();
 
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
@@ -503,8 +552,8 @@ namespace Microsoft.Identity.Web
                 IConfidentialClientApplication app = builder.Build();
                 _application = app;
                 // Initialize token cache providers
-                await _tokenCacheProvider.InitializeAsync(app.AppTokenCache).ConfigureAwait(false);
-                await _tokenCacheProvider.InitializeAsync(app.UserTokenCache).ConfigureAwait(false);
+                _tokenCacheProvider.Initialize(app.AppTokenCache);
+                _tokenCacheProvider.Initialize(app.UserTokenCache);
                 return app;
             }
             catch (Exception ex)
@@ -520,10 +569,12 @@ namespace Microsoft.Identity.Web
         {
             if (_microsoftIdentityOptions.IsB2C && _applicationOptions.Instance.EndsWith("/tfp/"))
             {
-                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).Trim();
+                _applicationOptions.Instance = _applicationOptions.Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
             }
-
-            _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            else
+            {
+                _applicationOptions.Instance = _applicationOptions.Instance.TrimEnd('/') + "/";
+            }
         }
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
@@ -556,17 +607,25 @@ namespace Microsoft.Identity.Web
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
+                        if (tokenAcquisitionOptions.PoPConfiguration != null)
+                        {
+                            builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                        }
                     }
 
                     return await builder.ExecuteAsync()
-                           .ConfigureAwait(false);
+                                        .ConfigureAwait(false);
                 }
 
                 return null;
             }
             catch (MsalUiRequiredException ex)
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ErrorAcquiringTokenForDownstreamWebApi, ex.Message));
+                _logger.LogInformation(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        LogMessages.ErrorAcquiringTokenForDownstreamWebApi,
+                        ex.Message));
                 throw;
             }
         }
@@ -650,6 +709,10 @@ namespace Microsoft.Identity.Web
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
             }
 
             // Acquire an access token as a B2C authority
@@ -660,7 +723,7 @@ namespace Microsoft.Identity.Web
                     $"/{ClaimConstants.Tfp}/{_microsoftIdentityOptions.Domain}/{userFlow ?? _microsoftIdentityOptions.DefaultUserFlow}");
 
                 builder.WithB2CAuthority(b2cAuthority)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C);
+                       .WithSendX5C(_microsoftIdentityOptions.SendX5C);
             }
             else
             {
@@ -668,7 +731,7 @@ namespace Microsoft.Identity.Web
             }
 
             return await builder.ExecuteAsync()
-                                  .ConfigureAwait(false);
+                                .ConfigureAwait(false);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -677,7 +740,9 @@ namespace Microsoft.Identity.Web
             // however until the STS sends sub-error codes for this error, this is the only
             // way to distinguish the case.
             // This is subject to change in the future
-            return msalServiceException.Message.Contains(ErrorCodes.B2CPasswordResetErrorCode, StringComparison.InvariantCulture);
+            return msalServiceException.Message.Contains(
+                ErrorCodes.B2CPasswordResetErrorCode,
+                StringComparison.InvariantCulture);
         }
 
         private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -726,6 +791,56 @@ namespace Microsoft.Identity.Web
             }
 
             return authority;
+        }
+
+        private void Log(
+          Client.LogLevel level,
+          string message,
+          bool containsPii)
+        {
+            switch (level)
+            {
+                case Client.LogLevel.Error:
+                    _logger.LogError(message);
+                    break;
+                case Client.LogLevel.Warning:
+                    _logger.LogWarning(message);
+                    break;
+                case Client.LogLevel.Info:
+                    _logger.LogInformation(message);
+                    break;
+                case Client.LogLevel.Verbose:
+                    _logger.LogDebug(message);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
+        {
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
+            {
+                return Client.LogLevel.Info;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
+            {
+                return Client.LogLevel.Verbose;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
+            {
+                return Client.LogLevel.Warning;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
+            {
+                return Client.LogLevel.Error;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

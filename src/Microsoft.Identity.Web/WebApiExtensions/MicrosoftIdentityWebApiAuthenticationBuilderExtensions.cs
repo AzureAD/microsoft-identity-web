@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -205,8 +207,9 @@ namespace Microsoft.Identity.Web
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     if (microsoftIdentityOptions.TokenDecryptionCertificates != null)
                     {
-                        options.TokenValidationParameters.TokenDecryptionKey =
-                            new X509SecurityKey(DefaultCertificateLoader.LoadFirstCertificate(microsoftIdentityOptions.TokenDecryptionCertificates));
+                        IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(microsoftIdentityOptions.TokenDecryptionCertificates);
+                        IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
+                        options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }
 
                     if (options.Events == null)
@@ -219,10 +222,11 @@ namespace Microsoft.Identity.Web
                     var tokenValidatedHandler = options.Events.OnTokenValidated;
                     options.Events.OnTokenValidated = async context =>
                     {
-                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope)
-                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Scp)
-                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Roles)
-                            && !context!.Principal!.Claims.Any(y => y.Type == ClaimConstants.Role))
+                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL
+                            && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
+                                || x.Type == ClaimConstants.Scp
+                                || x.Type == ClaimConstants.Roles
+                                || x.Type == ClaimConstants.Role))
                         {
                             throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -21,6 +22,27 @@ namespace Microsoft.Identity.Web
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
+
+        internal class Account : IAccount
+        {
+            public Account(ClaimsPrincipal claimsPrincipal)
+            {
+                _claimsPrincipal = claimsPrincipal;
+            }
+
+            private readonly ClaimsPrincipal _claimsPrincipal;
+
+#pragma warning disable CS8603 // Possible null reference return.
+            public string Username => _claimsPrincipal.GetDisplayName();
+#pragma warning restore CS8603 // Possible null reference return.
+
+            public string Environment => _claimsPrincipal.FindFirstValue("iss");
+
+            public AccountId HomeAccountId => new AccountId(
+                    $"{_claimsPrincipal.GetObjectId()}.{_claimsPrincipal.GetTenantId()}",
+                    _claimsPrincipal.GetObjectId(),
+                    _claimsPrincipal.GetTenantId());
+        }
 
         private HttpContext? CurrentHttpContext
         {
@@ -46,7 +68,7 @@ namespace Microsoft.Identity.Web
             _tokenCacheProvider = tokenCacheProvider;
         }
 
-        private async Task<IConfidentialClientApplication> GetOrCreateApplication()
+        private IConfidentialClientApplication GetOrCreateApplication()
         {
             if (_confidentialClientApplication == null)
             {
@@ -59,8 +81,8 @@ namespace Microsoft.Identity.Web
                 _confidentialClientApplication = ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(options)
                     .WithHttpClientFactory(_httpClientFactory)
                     .Build();
-                await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.AppTokenCache).ConfigureAwait(false);
-                await _tokenCacheProvider.InitializeAsync(_confidentialClientApplication.UserTokenCache).ConfigureAwait(false);
+                _tokenCacheProvider.Initialize(_confidentialClientApplication.AppTokenCache);
+                _tokenCacheProvider.Initialize(_confidentialClientApplication.UserTokenCache);
             }
 
             return _confidentialClientApplication;
@@ -78,7 +100,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scope));
             }
 
-            var app = await GetOrCreateApplication().ConfigureAwait(false);
+            var app = GetOrCreateApplication();
             AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
@@ -124,18 +146,69 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? tenantId = null,
+            string? userFlow = null,
+            ClaimsPrincipal? user = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            throw new NotImplementedException();
+            string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
+            ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
+            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
+            string expiration = userClaims.FindFirstValue("exp");
+            DateTimeOffset dateTimeOffset = (expiration != null)
+                ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
+                : DateTimeOffset.Now;
+
+            string? displayName;
+            Account? account;
+            if (userClaims != null)
+            {
+                displayName = userClaims.GetDisplayName();
+                tenantId = userClaims.GetTenantId();
+                account = new Account(userClaims);
+            }
+            else
+            {
+                displayName = null;
+                tenantId = null;
+                account = null;
+            }
+
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                accessToken,
+                isExtendedLifeTimeToken: false,
+                displayName,
+                dateTimeOffset,
+                dateTimeOffset,
+                tenantId,
+                account,
+                idToken,
+                scopes,
+                tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);
+            return authenticationResult;
         }
 
         /// <inheritdoc/>
-        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
         }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
+        /// <inheritdoc/>
+        public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        {
+            // Not implemented for the moment
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        {
+            throw new NotImplementedException();
+        }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 }

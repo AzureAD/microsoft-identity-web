@@ -16,6 +16,7 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
 {
 #if (!NoAuth)
     [Authorize]
+    [RequiredScope("access_as_user", IsReusable = true)] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
 #endif
     [ApiController]
     [Route("[controller]")]
@@ -39,10 +40,6 @@ namespace ComponentsWebAssembly_CSharp.Server.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-#if (OrganizationalAuth || IndividualB2CAuth)
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-#endif
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

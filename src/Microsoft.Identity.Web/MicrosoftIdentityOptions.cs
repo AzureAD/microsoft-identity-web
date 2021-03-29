@@ -48,6 +48,14 @@ namespace Microsoft.Identity.Web
         public string? DefaultUserFlow => SignUpSignInPolicyId;
 
         /// <summary>
+        /// Enables legacy ADAL cache serialization and deserialization.
+        /// Performance improvements when working with MSAL only apps.
+        /// Set to true if you have a shared cache with ADAL apps.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool LegacyCacheCompatibilityEnabled { get; set; }
+
+        /// <summary>
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
         /// </summary>
         internal bool IsB2C
@@ -119,5 +127,11 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
+
+        /// <summary>
+        /// Used, when deployed to Azure, to specify explicitly a user assigned managed identity.
+        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        /// </summary>
+        public string? UserAssignedManagedIdentityClientId { get; set; }
     }
 }

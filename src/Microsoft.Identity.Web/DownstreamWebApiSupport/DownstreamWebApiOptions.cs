@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Net.Http;
 
 namespace Microsoft.Identity.Web
@@ -9,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// Options passed-in to call downstream web APIs. To call Microsoft Graph, see rather
     /// <c>MicrosoftGraphOptions</c> in the <c>Microsoft.Identity.Web.MicrosoftGraph</c> assembly.
     /// </summary>
-    public class DownstreamWebApiOptions
+    public class DownstreamWebApiOptions : ICloneable
     {
         /// <summary>
         /// Base URL for the called downstream web API. For instance <c>"https://graph.microsoft.com/beta/".</c>.
@@ -45,6 +46,15 @@ namespace Microsoft.Identity.Web
         /// HTTP method used to call this downstream web API (by default Get).
         /// </summary>
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
+
+        /// <summary>
+        /// Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+        /// rather than a Bearer token.
+        /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+        /// which MSAL can manage. See https://aka.ms/msal-net-pop.
+        /// Set to true to enable PoP tokens automatically.
+        /// </summary>
+        public bool IsProofOfPossessionRequest { get; set; }
 
         /// <summary>
         ///  Options passed-in to create the token acquisition object which calls into MSAL .NET.
@@ -87,6 +97,15 @@ namespace Microsoft.Identity.Web
         public string[] GetScopes()
         {
             return string.IsNullOrWhiteSpace(Scopes) ? new string[0] : Scopes.Split(' ');
+        }
+
+        /// <summary>
+        /// Clone the options (to be able to override them).
+        /// </summary>
+        /// <returns>A clone of the options.</returns>
+        object ICloneable.Clone()
+        {
+            return Clone();
         }
     }
 }

@@ -44,18 +44,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetObjectId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            string? userObjectId = claimsPrincipal.FindFirstValue(ClaimConstants.Oid);
-            if (string.IsNullOrEmpty(userObjectId))
-            {
-                userObjectId = claimsPrincipal.FindFirstValue(ClaimConstants.ObjectId);
-            }
-
-            return userObjectId;
+            return GetClaimValue(claimsPrincipal, ClaimConstants.Oid, ClaimConstants.ObjectId);
         }
 
         /// <summary>
@@ -66,18 +55,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
         public static string? GetTenantId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            string? tenantId = claimsPrincipal.FindFirstValue(ClaimConstants.Tid);
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                return claimsPrincipal.FindFirstValue(ClaimConstants.TenantId);
-            }
-
-            return tenantId;
+            return GetClaimValue(claimsPrincipal, ClaimConstants.Tid, ClaimConstants.TenantId);
         }
 
         /// <summary>
@@ -119,29 +97,11 @@ namespace Microsoft.Identity.Web
         /// <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims. </remarks>
         public static string? GetDisplayName(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            // Use the claims in a Microsoft identity platform token first
-            string? displayName = claimsPrincipal.FindFirstValue(ClaimConstants.PreferredUserName);
-
-            if (!string.IsNullOrWhiteSpace(displayName))
-            {
-                return displayName;
-            }
-
-            // Otherwise fall back to the claims in an Azure AD v1.0 token
-            displayName = claimsPrincipal.FindFirstValue(ClaimsIdentity.DefaultNameClaimType);
-
-            if (!string.IsNullOrWhiteSpace(displayName))
-            {
-                return displayName;
-            }
-
-            // Finally falling back to name
-            return claimsPrincipal.FindFirstValue(ClaimConstants.Name);
+            return GetClaimValue(
+                claimsPrincipal,
+                ClaimConstants.PreferredUserName,
+                ClaimsIdentity.DefaultNameClaimType,
+                ClaimConstants.Name);
         }
 
         /// <summary>
@@ -151,18 +111,7 @@ namespace Microsoft.Identity.Web
         /// <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetUserFlowId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            string? userFlowId = claimsPrincipal.FindFirstValue(ClaimConstants.Tfp);
-            if (string.IsNullOrEmpty(userFlowId))
-            {
-                return claimsPrincipal.FindFirstValue(ClaimConstants.UserFlow);
-            }
-
-            return userFlowId;
+            return GetClaimValue(claimsPrincipal, ClaimConstants.Tfp, ClaimConstants.UserFlow);
         }
 
         /// <summary>
@@ -172,12 +121,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueObjectIdentifier);
+            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueObjectIdentifier);
         }
 
         /// <summary>
@@ -187,12 +131,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
-
-            return claimsPrincipal.FindFirstValue(ClaimConstants.UniqueTenantIdentifier);
+            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueTenantIdentifier);
         }
 
         /// <summary>
@@ -202,15 +141,29 @@ namespace Microsoft.Identity.Web
         /// <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetNameIdentifierId(this ClaimsPrincipal claimsPrincipal)
         {
+            return GetClaimValue(claimsPrincipal, ClaimConstants.NameIdentifierId);
+        }
+
+        private static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
+        {
             if (claimsPrincipal == null)
             {
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            return claimsPrincipal.FindFirstValue(ClaimConstants.NameIdentifierId);
+            for (var i = 0; i < claimNames.Length; i++)
+            {
+                var currentValue = claimsPrincipal.FindFirstValue(claimNames[i]);
+                if (!string.IsNullOrEmpty(currentValue))
+                {
+                    return currentValue;
+                }
+            }
+
+            return null;
         }
 
-#if NET472
+#if NET472 || NET462
         private static string? FindFirstValue(this ClaimsPrincipal claimsPrincipal, string type)
         {
              return claimsPrincipal.FindFirst(type)?.Value;

@@ -15,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
@@ -38,10 +40,7 @@ namespace Microsoft.Identity.Web.Test
         private const string ConfigSectionName = "AzureAd-Custom";
         private IConfigurationSection _configSection;
         private readonly Action<ConfidentialClientApplicationOptions> _configureAppOptions = (options) => { };
-        private readonly Action<OpenIdConnectOptions> _configureOidcOptions = (options) =>
-        {
-            options.ClientId = TestConstants.ClientId;
-        };
+        private readonly IHostEnvironment _env;
 
         private Action<MicrosoftIdentityOptions> _configureMsOptions = (options) =>
         {
@@ -50,7 +49,7 @@ namespace Microsoft.Identity.Web.Test
             options.ClientId = TestConstants.ClientId;
         };
 
-        private Action<MicrosoftGraphOptions> _configureMicrosoftGraphOptions = (options) =>
+        private readonly Action<MicrosoftGraphOptions> _configureMicrosoftGraphOptions = (options) =>
         {
             options.BaseUrl = TestConstants.GraphBaseUrlBeta;
             options.Scopes = TestConstants.GraphScopes;
@@ -61,6 +60,7 @@ namespace Microsoft.Identity.Web.Test
         public WebAppExtensionsTests()
         {
             _configSection = GetConfigSection(ConfigSectionName);
+            _env = new HostingEnvironment { EnvironmentName = Environments.Development };
         }
 
         [Theory]
@@ -76,6 +76,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToDiagnostics);
@@ -104,6 +105,7 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             services.AddMicrosoftIdentityWebAppAuthentication(
                 configMock,
@@ -132,6 +134,7 @@ namespace Microsoft.Identity.Web.Test
 
             var services = new ServiceCollection();
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToDiagnostics);
@@ -167,6 +170,7 @@ namespace Microsoft.Identity.Web.Test
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
                 });
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
@@ -186,6 +190,8 @@ namespace Microsoft.Identity.Web.Test
                 });
 
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
+
             new AuthenticationBuilder(services)
                     .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, false);
 
@@ -207,6 +213,7 @@ namespace Microsoft.Identity.Web.Test
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
                 });
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
@@ -234,6 +241,7 @@ namespace Microsoft.Identity.Web.Test
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
                 });
             services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, false);
@@ -253,7 +261,9 @@ namespace Microsoft.Identity.Web.Test
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection();
 
-            var builder = services.AddAuthentication()
+            services.AddSingleton((provider) => _env);
+
+            services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme)
                 .EnableTokenAcquisitionToCallDownstreamApi(initialScopes);
             services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
@@ -293,6 +303,7 @@ namespace Microsoft.Identity.Web.Test
             var redirectFuncMock = Substitute.For<Func<RedirectContext, Task>>();
 
             var services = new ServiceCollection();
+            services.AddSingleton((provider) => _env);
 
             var builder = services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(_configureMsOptions, null, OidcScheme)
@@ -348,7 +359,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("http://localhost:123")]
         [InlineData("https://localhost:123")]
-        public async void AddMicrosoftIdentityWebApp_RedirectUri(string expectedUri)
+        public async Task AddMicrosoftIdentityWebApp_RedirectUri(string expectedUri)
         {
             _configureMsOptions = (options) =>
             {
@@ -358,6 +369,7 @@ namespace Microsoft.Identity.Web.Test
             };
 
             var services = new ServiceCollection();
+            services.AddSingleton((provider) => _env);
             services.AddDataProtection();
             new AuthenticationBuilder(services)
                 .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme);

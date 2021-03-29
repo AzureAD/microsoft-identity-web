@@ -1,0 +1,105 @@
+trigger: none
+pr: none
+ 
+# Create a daily midnight build for release builds on master to ensure our release builds function
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - master
+ 
+pool:
+  vmImage: 'windows-latest'
+  demands:
+  - msbuild
+  - visualstudio
+ 
+variables:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'Release'
+ 
+steps:
+# Run pre-build code analysis (policheck, credscan, etc)
+- template: template-prebuild-code-analysis.yaml
+ 
+# Bootstrap the build
+- template: template-bootstrap-build.yaml
+ 
+# Nuget Restore and Build Microsoft.Identity.Web.sln
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution app-provisioning.sln and run tests'
+  inputs:
+    command: test
+    projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
+    arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:ClientSemVer=$(ClientSemVer) -p:SourceLinkCreate=true'
+ 
+# This task is needed so that the 1CS Rolsyn analyzers task works.
+# The previous task does the restore
+- task: VSBuild@1
+  displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
+  inputs:
+    solution: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
+    vsVersion: '16.0'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:ClientSemVer=$(ClientSemVer) /p:SourceLinkCreate=true'
+    platform: $(BuildPlatform)
+    configuration: $(BuildConfiguration)
+ 
+# Run Post-build code analysis (e.g. Roslyn)
+- template: template-postbuild-code-analysis.yaml
+
+# Pack and sign the provisioning tool
+- template: template-sign-binary.yaml
+  parameters:
+    FolderPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool'
+    Pattern: '**\**\**\**\*app*.dll'
+
+- template: template-nuget-pack.yaml
+  parameters:
+    NoBuild: 'true'
+    BuildConfiguration: $(BuildConfiguration)
+    ProjectPath: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning-tool\msidentity-app-sync.csproj'
+
+# Copy all packages out to staging
+- task: CopyFiles@2
+  displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**\*nupkg'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)\packages'
+    flattenFolders: true
+
+# Sign all final nuget packages in the staging directory
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'Sign Packages'
+  inputs:
+    ConnectedServiceName: 'IDDP Code Signing'
+    FolderPath: '$(Build.ArtifactStagingDirectory)\packages'
+    Pattern: '*nupkg'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+         {
+             "keyCode": "CP-401405",
+             "operationSetCode": "NuGetSign",
+             "parameters": [ ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         },
+         {
+             "keyCode": "CP-401405",
+             "operationSetCode": "NuGetVerify",
+             "parameters": [ ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         }
+     ]
+    SessionTimeout: 20
+    VerboseLogin: true
+  timeoutInMinutes: 5
+ 
+# Publish nuget packages and symbols to VSTS package manager.
+- template: template-publish-packages-and-symbols.yaml
+ 
+# Publish analysis and cleanup
+- template: template-publish-analysis-and-cleanup.yaml

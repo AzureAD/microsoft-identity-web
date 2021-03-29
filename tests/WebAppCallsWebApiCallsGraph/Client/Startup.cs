@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+//#define UseRedisCache
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web.UI;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 namespace WebApp_OpenIDConnect_DotNet
 {
@@ -41,11 +43,41 @@ namespace WebApp_OpenIDConnect_DotNet
 
             services.AddOptions();
 
+#if UseRedisCache
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetConnectionString("Redis");
+                options.InstanceName = "RedisDemos_"; //should be unique to the app
+            });
+            services.Configure<MsalDistributedTokenCacheAdapterOptions>(options => 
+            {
+                options.OnL2CacheFailure = (ex) =>
+                {
+                    if (ex is StackExchange.Redis.RedisConnectionException)
+                    {
+                        // action: try to reconnect or something
+                        return true; //try to do the cache operation again
+                    }
+                    return false;
+                };
+            });
+#endif
+
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddMicrosoftIdentityWebApp(Configuration, "AzureAd")
+              .AddMicrosoftIdentityWebApp(options =>
+              {
+                  Configuration.GetSection("AzureAd").Bind(options);
+              })
                  .EnableTokenAcquisitionToCallDownstreamApi()
                      .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
+                     .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
+                     .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
+                     .AddDownstreamWebApi("AzureFunction", Configuration.GetSection("AzureFunction"))
+#if UseRedisCache
+                     .AddDistributedTokenCaches();
+#else
                      .AddInMemoryTokenCaches();
+#endif
 
             services.AddControllersWithViews(options =>
             {

@@ -30,7 +30,9 @@ namespace Microsoft.Identity.Web
         /// <param name="keyVaultUrl">The Key Vault URL.</param>
         /// <param name="keyVaultCertificateName">The name of the certificate in Key Vault.</param>
         /// <returns>A certificate description.</returns>
-        public static CertificateDescription FromKeyVault(string keyVaultUrl, string keyVaultCertificateName)
+        public static CertificateDescription FromKeyVault(
+            string keyVaultUrl,
+            string keyVaultCertificateName)
         {
             return new CertificateDescription
             {
@@ -215,6 +217,18 @@ namespace Microsoft.Identity.Web
         /// Base64 encoded certificate value.
         /// </summary>
         public string? Base64EncodedValue { get; set; }
+
+#if DOTNET_462
+        /// <summary>
+        ///  Defines where and how to import the private key of an X.509 certificate.
+        /// </summary>
+        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet;
+#else
+        /// <summary>
+        ///  Defines where and how to import the private key of an X.509 certificate.
+        /// </summary>
+        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
+#endif
 
         /// <summary>
         /// Reference to the certificate or value.

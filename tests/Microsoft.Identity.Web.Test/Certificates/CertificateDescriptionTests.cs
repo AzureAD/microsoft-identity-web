@@ -18,6 +18,13 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateName, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificateName, certificateDescription.KeyVaultCertificateName);
             Assert.Equal(keyVaultUrl, certificateDescription.KeyVaultUrl);
+#if DOTNET_462
+            Assert.Equal(X509KeyStorageFlags.MachineKeySet, certificateDescription.X509KeyStorageFlags);
+#else
+            Assert.Equal(X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet, certificateDescription.X509KeyStorageFlags);
+#endif
+            certificateDescription.X509KeyStorageFlags = X509KeyStorageFlags.UserKeySet;
+            Assert.Equal(X509KeyStorageFlags.UserKeySet, certificateDescription.X509KeyStorageFlags);
         }
 
         [Theory]

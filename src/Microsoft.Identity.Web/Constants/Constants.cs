@@ -120,6 +120,7 @@ namespace Microsoft.Identity.Web
         internal const string XReturnUrl = "x-ReturnUrl";
         internal const string XRequestedWith = "X-Requested-With";
         internal const string XmlHttpRequest = "XMLHttpRequest";
+        internal const string RequiredScopesSetting = "@setting";
 
         // AccountController.Challenge parameters
         internal const string LoginHintParameter = "loginHint";

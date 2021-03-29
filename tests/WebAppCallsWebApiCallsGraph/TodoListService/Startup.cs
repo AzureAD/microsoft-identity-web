@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+//#define UseRedisCache
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 namespace TodoListService
 {
@@ -28,15 +30,37 @@ namespace TodoListService
             // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
             // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
             // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
-            // JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+            // JwtSecurityTokenHandler.DefaultMapInboundClaims = false;            
 
-            
+#if UseRedisCache
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetConnectionString("Redis");
+                options.InstanceName = "RedisDemos_"; //should be unique to the app
+            });
+            services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
+            {
+                options.OnL2CacheFailure = (ex) =>
+                {
+                    if (ex is StackExchange.Redis.RedisConnectionException)
+                    {
+                        // action: try to reconnect or something
+                        return true; //try to do the cache operation again
+                    }
+                    return false;
+                };
+            });
+#endif
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(Configuration, "AzureAd")
                         .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddInMemoryTokenCaches();
+#if UseRedisCache
+                     .AddDistributedTokenCaches();
+#else
+                     .AddInMemoryTokenCaches();
+#endif
 
             services.AddControllers();
 

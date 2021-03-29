@@ -1,0 +1,22 @@
+﻿@using ToDoListModel
+
+<EditForm Model="@ToDoItem" OnValidSubmit="@OnValidSubmit">
+    <div class="row">
+        <div class="col-1"><label title="Title">Title</label></div>
+        <div class="col-1"><input type="text" @bind="@ToDoItem.Title" required="required" /></div>
+    </div>
+    <div class="m-3">
+        <button type="submit" class="btn btn-primary ">
+            @ButtonText
+        </button>
+    </div>
+    <div>
+        <a href="todolist">Back to List</a>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public ToDo ToDoItem { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}
