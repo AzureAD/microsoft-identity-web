@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web.Resource
@@ -36,24 +37,44 @@ namespace Microsoft.Identity.Web.Resource
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            else if (context.User == null || context.User.Claims == null || !context.User.Claims.Any())
+
+            IEnumerable<Claim> userClaims;
+            ClaimsPrincipal user;
+
+            // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+            lock (context)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                user = context.User;
+                userClaims = user.Claims;
+            }
+
+            if (user == null || userClaims == null || !userClaims.Any())
+            {
+                lock (context)
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
+
                 throw new UnauthorizedAccessException(IDWebErrorMessage.UnauthenticatedUser);
             }
             else
             {
                 // Attempt with Roles claim
-                IEnumerable<string> rolesClaim = context.User.Claims.Where(
+                IEnumerable<string> rolesClaim = userClaims.Where(
                     c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
                     .SelectMany(c => c.Value.Split(' '));
 
                 if (!rolesClaim.Intersect(acceptedRoles).Any())
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingRoles, string.Join(", ", acceptedRoles));
-                    context.Response.WriteAsync(message);
-                    context.Response.CompleteAsync();
+
+                    lock (context)
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        context.Response.WriteAsync(message);
+                        context.Response.CompleteAsync();
+                    }
+
                     throw new UnauthorizedAccessException(message);
                 }
             }
