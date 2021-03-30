@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-    internal class TokenAcquisition : ITokenAcquisitionInternal
+    internal partial class TokenAcquisition : ITokenAcquisitionInternal
     {
         private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
         private readonly ConfidentialClientApplicationOptions _applicationOptions;
@@ -172,9 +172,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalException ex)
             {
-                _logger.LogInformation(
-                    ex,
-                    LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode);
+                Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, ex);
                 throw;
             }
         }
@@ -245,7 +243,7 @@ namespace Microsoft.Identity.Web
             catch (MsalUiRequiredException ex)
             {
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
-                _logger.LogInformation(ex.Message);
+                Logger.TokenAcquisitionError(_logger, ex.Message, ex);
 
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
@@ -574,9 +572,10 @@ namespace Microsoft.Identity.Web
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(
-                    ex,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient);
+                Logger.TokenAcquisitionError(
+                    _logger,
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
+                    ex);
                 throw;
             }
         }
@@ -637,11 +636,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalUiRequiredException ex)
             {
-                _logger.LogInformation(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        LogMessages.ErrorAcquiringTokenForDownstreamWebApi,
-                        ex.Message));
+                Logger.TokenAcquisitionError(
+                    _logger,
+                    $"{LogMessages.ErrorAcquiringTokenForDownstreamWebApi}{ex.Message}",
+                    ex);
                 throw;
             }
         }

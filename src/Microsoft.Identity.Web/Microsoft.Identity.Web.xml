@@ -1138,6 +1138,19 @@
             <param name="httpContext">HTTP context associated with the current request.</param>
             <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.IdWebLogger">
+            <summary>
+            LoggingMessage class for Microsoft Identity Web.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IdWebLogger.TokenAcquisitionError(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception)">
+            <summary>
+            
+            </summary>
+            <param name="logger"></param>
+            <param name="specificMessage"></param>
+            <param name="ex"></param>
+        </member>
         <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
             <summary>
             Provides access to get or set the current error status.
