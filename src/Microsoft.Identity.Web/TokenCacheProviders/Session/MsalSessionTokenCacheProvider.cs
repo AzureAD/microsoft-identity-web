@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// </code>
     /// </remarks>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
-    public class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider
+    public partial class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider
     {
         private readonly ILogger _logger;
         private readonly ISession _session;
@@ -62,11 +62,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 if (_session.TryGetValue(cacheKey, out byte[] blob))
                 {
-                    _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.DeserializingSessionCache, _session.Id, cacheKey));
+                    Log.SessionCache(_logger, "Read", _session.Id, cacheKey, null);
                 }
                 else
                 {
-                    _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.SessionCacheKeyNotFound, cacheKey, _session.Id));
+                    Log.SessionCacheKeyNotFound(_logger, cacheKey, _session.Id, null);
                 }
 
                 return blob;
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.SerializingSessionCache, _session.Id, cacheKey));
+                Log.SessionCache(_logger, "Write", _session.Id, cacheKey, null);
 
                 // Reflect changes in the persistent store
                 _session.Set(cacheKey, bytes);
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                _logger.LogInformation(string.Format(CultureInfo.InvariantCulture, LogMessages.ClearingSessionCache, _session.Id, cacheKey));
+                Log.SessionCache(_logger, "Remove", _session.Id, cacheKey, null);
 
                 // Reflect changes in the persistent store
                 _session.Remove(cacheKey);

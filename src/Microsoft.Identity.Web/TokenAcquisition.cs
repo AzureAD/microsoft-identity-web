@@ -638,7 +638,7 @@ namespace Microsoft.Identity.Web
             {
                 Logger.TokenAcquisitionError(
                     _logger,
-                    $"{LogMessages.ErrorAcquiringTokenForDownstreamWebApi}{ex.Message}",
+                    LogMessages.ErrorAcquiringTokenForDownstreamWebApi + ex.Message,
                     ex);
                 throw;
             }

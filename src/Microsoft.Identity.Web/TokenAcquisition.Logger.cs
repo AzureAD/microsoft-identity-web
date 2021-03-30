@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
            LoggerMessage.Define<string>(
                LogLevel.Information,
                new EventId(1, "TokenAcquisitionError"),
-               "An error occured during token acquisition: {MsalErrorMessage}");
+               "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
 
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.

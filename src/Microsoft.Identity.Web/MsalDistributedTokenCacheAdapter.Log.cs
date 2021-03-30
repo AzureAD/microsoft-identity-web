@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     public partial class MsalDistributedTokenCacheAdapter
     {
         /// <summary>
-        /// LoggingMessage class for Microsoft Identity Web.
+        /// LoggingMessage class for MsalDistributedTokenCacheAdapter.
         /// </summary>
         private static class Log
         {
