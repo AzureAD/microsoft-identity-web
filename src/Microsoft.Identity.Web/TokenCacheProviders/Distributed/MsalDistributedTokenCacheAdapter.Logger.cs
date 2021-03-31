@@ -14,60 +14,60 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>
         /// LoggingMessage class for MsalDistributedTokenCacheAdapter.
         /// </summary>
-        private static class Log
+        private static class Logger
         {
             private static readonly Action<ILogger, string, string, string, int, bool, Exception?> s_l2CacheState =
                 LoggerMessage.Define<string, string, string, int, bool>(
                     LogLevel.Debug,
-                    new EventId(2, "DistributedCacheState"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} cacheKey {CacheKey} cache size {Size} InRetry? {InRetry} ");
 
             private static readonly Action<ILogger, string, string, string, int, bool, double, Exception?> s_l2CacheStateWithTime =
                 LoggerMessage.Define<string, string, string, int, bool, double>(
                     LogLevel.Debug,
-                    new EventId(2, "DistributedCacheStateWithTime"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} cacheKey {CacheKey} cache size {Size} InRetry? {InRetry} Time in MilliSeconds: {Time} ");
 
             private static readonly Action<ILogger, string, string, double, Exception?> s_l2CacheReadTime =
                 LoggerMessage.Define<string, string, double>(
                     LogLevel.Debug,
-                    new EventId(2, "DistributedCacheReadTime"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} Time in MilliSeconds {Time} ");
 
             private static readonly Action<ILogger, string, string, bool, string, Exception> s_l2CacheConnectionError =
                 LoggerMessage.Define<string, string, bool, string>(
                     LogLevel.Error,
-                    new EventId(2, "DistributedCacheConnectionError"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} Connection issue. InRetry? {InRetry} Error message: {ErrorMessage} ");
 
             private static readonly Action<ILogger, string, string, string, Exception?> s_l2CacheRetry =
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
-                    new EventId(2, "DistributedCacheRetry"),
+                    default,
                     "[MsIdWeb] {CacheType}: Retrying {Operation} cacheKey {CacheKey} ");
 
             private static readonly Action<ILogger, string, string, string, Exception?> s_l1CacheRemove =
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
-                    new EventId(2, "MemoryCacheRemove"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} cacheKey {CacheKey} ");
 
             private static readonly Action<ILogger, string, string, string, int, Exception?> s_l1CacheRead =
                 LoggerMessage.Define<string, string, string, int>(
                     LogLevel.Debug,
-                    new EventId(2, "MemoryCacheRead"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} cacheKey {CacheKey} cache size {Size} ");
 
             private static readonly Action<ILogger, string, string, int, Exception?> s_l1CacheCount =
                 LoggerMessage.Define<string, string, int>(
                     LogLevel.Debug,
-                    new EventId(2, "MemoryCacheCount"),
+                    default,
                     "[MsIdWeb] {CacheType}: {Operation} Count: {Count} ");
 
             private static readonly Action<ILogger, long, Exception?> s_backPropagateL2toL1 =
                 LoggerMessage.Define<long>(
                     LogLevel.Debug,
-                    new EventId(2, "BackPropagateL2toL1"),
+                    default,
                     "[MsIdWeb] Back propagate from Distributed to Memory, cache size {Size} ");
 
             /// <summary>

@@ -14,18 +14,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <summary>
         /// LoggingMessage class for MsalSessionTokenCacheProvider.
         /// </summary>
-        private static class Log
+        private static class Logger
         {
             private static readonly Action<ILogger, string, string, string, Exception?> s_sessionCache =
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Information,
-                    new EventId(3, "SessionCache"),
+                    default,
                     "[MsIdWeb] {Operation} session {SessionId}, cache key {CacheKey} ");
 
             private static readonly Action<ILogger, string, string, Exception?> s_sessionCacheKeyNotfound =
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
-                    new EventId(3, "SessionCacheKeyNotFound"),
+                    default,
                     "[MsIdWeb] Session cache key {CacheKey} not found in session {SessionId} ");
 
             /// <summary>
