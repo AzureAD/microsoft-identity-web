@@ -1,3 +1,16 @@
+1.9.0
+==========
+### New Features:
+**Microsoft Identity Web now exposes a token provider that the Azure SDKs can use**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/542) for details.
+
+**Microsoft Identity Web now supports .NET Framework 4.6.2**. See issue [#1086](https://github.com/AzureAD/microsoft-identity-web/issues/1086).
+
+### Bug Fixes:
+**Microsoft Identity Web now locks on the HttpContext, to better handle multi-threaded applications**. See issue [#1097](https://github.com/AzureAD/microsoft-identity-web/issues/1097) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/1082) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/1099).
+
+### Fundamentals:
+**Microsoft Identity Web now implements `LoggerMessage` for high performance logging**. See issue [#1105](https://github.com/AzureAD/microsoft-identity-web/issues/1105) for details.
+
 1.8.2
 ==========
 Update to latest version of MSAL.NET 4.28.1.
