@@ -64,8 +64,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     new EventId(2, "MemoryCacheCount"),
                     "[MsIdWeb] {CacheType}: {Operation} Count: {Count} ");
 
-            private static readonly Action<ILogger, int, Exception?> s_backPropagateL2toL1 =
-                LoggerMessage.Define<int>(
+            private static readonly Action<ILogger, long, Exception?> s_backPropagateL2toL1 =
+                LoggerMessage.Define<long>(
                     LogLevel.Debug,
                     new EventId(2, "BackPropagateL2toL1"),
                     "[MsIdWeb] Back propagate from Distributed to Memory, cache size {Size} ");
@@ -259,7 +259,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="ex">Exception.</param>
             public static void BackPropagateL2toL1(
                 ILogger logger,
-                int cacheSize,
+                long cacheSize,
                 Exception? ex) => s_backPropagateL2toL1(
                     logger,
                     cacheSize,

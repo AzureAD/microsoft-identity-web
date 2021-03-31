@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Size = result?.Length,
                     };
 
-                    Log.BackPropagateL2toL1(_logger, result?.Length ?? 0, null);
+                    Log.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0, null);
                     _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
                     Log.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count, null);
                 }
@@ -129,7 +129,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 await L2OperationWithRetryOnFailureAsync(
                        "Refresh",
                        (cacheKey) => _distributedCache.RefreshAsync(cacheKey),
-                       cacheKey).ConfigureAwait(false);
+                       cacheKey,
+                       result!).ConfigureAwait(false);
             }
 
 #pragma warning disable CS8603 // Possible null reference return.
