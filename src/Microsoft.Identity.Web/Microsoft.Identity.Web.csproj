@@ -102,6 +102,7 @@
     <Compile Remove="*.cs" />
     <Compile Include="ClaimsPrincipalExtensions.cs" />
     <Compile Remove="AppServicesAuth\**" />
+    <Compile Remove="AzureSdkSupport\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
     <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
