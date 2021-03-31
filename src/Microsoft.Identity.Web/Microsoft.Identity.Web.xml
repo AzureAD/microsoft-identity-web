@@ -1138,19 +1138,6 @@
             <param name="httpContext">HTTP context associated with the current request.</param>
             <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.IdWebLogger">
-            <summary>
-            LoggingMessage class for Microsoft Identity Web.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.IdWebLogger.TokenAcquisitionError(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception)">
-            <summary>
-            
-            </summary>
-            <param name="logger"></param>
-            <param name="specificMessage"></param>
-            <param name="ex"></param>
-        </member>
         <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
             <summary>
             Provides access to get or set the current error status.
@@ -2006,6 +1993,9 @@
             <summary>
             Token acquisition service.
             </summary>
+            <summary>
+            LoggingMessage class for TokenAcquisition.
+            </summary>
         </member>
         <member name="F:Microsoft.Identity.Web.TokenAcquisition._application">
             <summary>
@@ -2204,6 +2194,14 @@
             <param name="userFlow">Azure AD B2C user flow.</param>
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionError(Microsoft.Extensions.Logging.ILogger,System.String,System.Exception)">
+            <summary>
+            Logger for handling MSAL exceptions in TokenAcquisition.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="msalErrorMessage">Specific log message from TokenAcquisition.</param>
+            <param name="ex">Exception from MSAL.NET.</param>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionOptions">
             <summary>
             Options passed-in to create the token acquisition object which calls into MSAL .NET.
@@ -2266,6 +2264,9 @@
             The Distributed Cache (L2), by default creates a Memory Cache (L1), for faster look up, resulting in a two level cache.
             </summary>
             <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+            <summary>
+            LoggingMessage class for MsalDistributedTokenCacheAdapter.
+            </summary>
         </member>
         <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCache">
             <summary>
@@ -2309,6 +2310,106 @@
             <param name="cacheKey">Cache key.</param>
             <param name="bytes">blob to write.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log">
+            <summary>
+            LoggingMessage class for MsalDistributedTokenCacheAdapter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.MemoryCacheRead(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Exception)">
+            <summary>
+            Memory cache remove.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.MemoryCacheRemove(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
+            <summary>
+            Memory cache remove.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.MemoryCacheCount(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Int32,System.Exception)">
+            <summary>
+            Memory cache count.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="count">L1 cache count.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.DistributedCacheState(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Boolean,System.Exception)">
+            <summary>
+            L2 cache state logging.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.DistributedCacheStateWithTime(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Boolean,System.Double,System.Exception)">
+            <summary>
+            L2 cache state logging.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="time">Time in milliseconds.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.DistributedCacheRetry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
+            <summary>
+            L2 cache retry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.DistributedCacheReadTime(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Double,System.Exception)">
+            <summary>
+            L2 cache retry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="time">Time in milliseconds.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.DistributedCacheConnectionError(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Boolean,System.String,System.Exception)">
+            <summary>
+            L2 cache error.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="errorMessage">Error message.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Log.BackPropagateL2toL1(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Exception)">
+            <summary>
+            Back propagate L2 to L1.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="ex">Exception.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions">
             <summary>
@@ -2525,6 +2626,9 @@
              </code>
              </remarks>
              <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+            <summary>
+            LoggingMessage class for MsalSessionTokenCacheProvider.
+            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.#ctor(Microsoft.AspNetCore.Http.ISession,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider})">
             <summary>
@@ -2555,6 +2659,30 @@
             </summary>
             <param name="cacheKey">Key of the token cache (user account or app ID).</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.Log">
+            <summary>
+            LoggingMessage class for MsalSessionTokenCacheProvider.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.Log.SessionCache(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
+            <summary>
+            Session cache logging.
+            </summary>
+            <param name="logger">ILogger.</param>
+            /// <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="sessionId">Session Id.</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.Log.SessionCacheKeyNotFound(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
+            <summary>
+            Session cache deserialized.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="sessionId">Session Id.</param>
+            <param name="ex">Exception.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension">
             <summary>
