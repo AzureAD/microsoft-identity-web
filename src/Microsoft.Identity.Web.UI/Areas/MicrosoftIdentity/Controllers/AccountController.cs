@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
 
-            var redirectUrl = Url.Content("~/");
+            var redirectUrl = Url.Content("/MicrosoftIdentity/Account/SignOut");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             properties.Items[Constants.Policy] = _options.Value?.ResetPasswordPolicyId;
             return Challenge(properties, scheme);
