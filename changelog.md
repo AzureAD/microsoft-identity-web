@@ -5,7 +5,7 @@
 
 **Microsoft Identity Web now supports .NET Framework 4.6.2**. See issue [#1086](https://github.com/AzureAD/microsoft-identity-web/issues/1086).
 
-**Microsoft Identity Web supports calls for regional STS for 1st party only**, this is due to MSAL.NET release [4.29](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.29.0), and is available via the `ConfidentialClientApplicationOptions`.
+**Microsoft Identity Web supports calls for regional STS for 1st party only**, this is due to MSAL.NET release [4.29](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.29.0), and `AzureRegion` is available via the `ConfidentialClientApplicationOptions`.
 
 ### Bug Fixes:
 **Microsoft Identity Web now locks on the HttpContext, to better handle multi-threaded applications**. See issue [#1097](https://github.com/AzureAD/microsoft-identity-web/issues/1097) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/1082) and [PR](https://github.com/AzureAD/microsoft-identity-web/pull/1099).
@@ -16,10 +16,9 @@
 **Performance improvements**. See PRs [#1089](https://github.com/AzureAD/microsoft-identity-web/pull/1089), [#1098](https://github.com/AzureAD/microsoft-identity-web/pull/1098), [#1092](https://github.com/AzureAD/microsoft-identity-web/pull/1092), and [#1085](https://github.com/AzureAD/microsoft-identity-web/pull/1085).
 
 ### Documentation:
-**Documentation updated to show how to use `ClientCapabilities`**. See issue [#1071](https://github.com/AzureAD/microsoft-identity-web/issues/1071).
+**Documentation updated to show how to use `ClientCapabilities`**. See issue [#1071](https://github.com/AzureAD/microsoft-identity-web/issues/1071) and also the [wiki]( https://github.com/AzureAD/microsoft-identity-web/wiki/client-capabilities).
 
-**Clearly document what is available in Microsoft Identity Web and when to use MSAL.NET, Microsoft Identity Web, or both**. See issue [#1057](https://github.com/AzureAD/microsoft-identity-web/issues/1057) and [Is MSAL.NET right for me?](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Is-MSAL.NET-right-for-me%3F)
-.
+**Clear documentation on what is available in Microsoft Identity Web and when to use MSAL.NET, Microsoft Identity Web, or both**. See issue [#1057](https://github.com/AzureAD/microsoft-identity-web/issues/1057) and [Is MSAL.NET right for me?](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Is-MSAL.NET-right-for-me%3F).
 
 1.8.2
 ==========
