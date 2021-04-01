@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             string remove = "Remove";
             _memoryCache.Remove(cacheKey);
 
-            Log.MemoryCacheRemove(_logger, _memoryCacheType, remove, cacheKey, null);
+            Logger.MemoryCacheRemove(_logger, _memoryCacheType, remove, cacheKey, null);
 
             await L2OperationWithRetryOnFailureAsync(
                 remove,
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             string read = "Read";
             // check memory cache first
             byte[]? result = (byte[])_memoryCache.Get(cacheKey);
-            Log.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0, null);
+            Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0, null);
 
             if (result == null)
             {
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         cacheKey).ConfigureAwait(false);
                 }).Measure().ConfigureAwait(false);
 
-                Log.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
+                Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
 
                 // back propagate to memory cache
                 if (result != null)
@@ -119,9 +119,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Size = result?.Length,
                     };
 
-                    Log.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0, null);
+                    Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0, null);
                     _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
-                    Log.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count, null);
+                    Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count, null);
                 }
             }
             else
@@ -155,8 +155,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             // write in both
             _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            Log.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0, null);
-            Log.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count, null);
+            Logger.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0, null);
+            Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count, null);
 
             await L2OperationWithRetryOnFailureAsync(
                 write,
@@ -174,7 +174,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             try
             {
                 var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
-                Log.DistributedCacheStateWithTime(
+                Logger.DistributedCacheStateWithTime(
                     _logger,
                     _distributedCacheType,
                     operation,
@@ -186,7 +186,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
             catch (Exception ex)
             {
-                Log.DistributedCacheConnectionError(
+                Logger.DistributedCacheConnectionError(
                     _logger,
                     _distributedCacheType,
                     operation,
@@ -196,7 +196,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
                 {
-                    Log.DistributedCacheRetry(_logger, _distributedCacheType, operation, cacheKey, null);
+                    Logger.DistributedCacheRetry(_logger, _distributedCacheType, operation, cacheKey, null);
                     await L2OperationWithRetryOnFailureAsync(
                         operation,
                         cacheOperation,
@@ -217,7 +217,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             try
             {
                 result = await cacheOperation(cacheKey).ConfigureAwait(false);
-                Log.DistributedCacheState(
+                Logger.DistributedCacheState(
                     _logger,
                     _distributedCacheType,
                     operation,
@@ -228,7 +228,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
             catch (Exception ex)
             {
-                Log.DistributedCacheConnectionError(
+                Logger.DistributedCacheConnectionError(
                     _logger,
                     _distributedCacheType,
                     operation,
@@ -238,7 +238,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
                 {
-                    Log.DistributedCacheRetry(_logger, _distributedCacheType, operation, cacheKey, null);
+                    Logger.DistributedCacheRetry(_logger, _distributedCacheType, operation, cacheKey, null);
                     result = await L2OperationWithRetryOnFailureAsync(
                         operation,
                         cacheOperation,
