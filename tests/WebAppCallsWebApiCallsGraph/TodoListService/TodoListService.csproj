@@ -16,9 +16,9 @@
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.10.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
   </ItemGroup>
 
 </Project>
