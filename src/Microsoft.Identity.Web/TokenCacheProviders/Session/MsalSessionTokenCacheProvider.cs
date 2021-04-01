@@ -62,11 +62,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 if (_session.TryGetValue(cacheKey, out byte[] blob))
                 {
-                    Log.SessionCache(_logger, "Read", _session.Id, cacheKey, null);
+                    Logger.SessionCache(_logger, "Read", _session.Id, cacheKey, null);
                 }
                 else
                 {
-                    Log.SessionCacheKeyNotFound(_logger, cacheKey, _session.Id, null);
+                    Logger.SessionCacheKeyNotFound(_logger, cacheKey, _session.Id, null);
                 }
 
                 return blob;
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                Log.SessionCache(_logger, "Write", _session.Id, cacheKey, null);
+                Logger.SessionCache(_logger, "Write", _session.Id, cacheKey, null);
 
                 // Reflect changes in the persistent store
                 _session.Set(cacheKey, bytes);
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterWriteLock();
             try
             {
-                Log.SessionCache(_logger, "Remove", _session.Id, cacheKey, null);
+                Logger.SessionCache(_logger, "Remove", _session.Id, cacheKey, null);
 
                 // Reflect changes in the persistent store
                 _session.Remove(cacheKey);

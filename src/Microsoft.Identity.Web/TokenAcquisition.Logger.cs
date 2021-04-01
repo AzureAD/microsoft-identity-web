@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
             private static readonly Action<ILogger, string, Exception> s_tokenAcquisitionError =
            LoggerMessage.Define<string>(
                LogLevel.Information,
-               new EventId(1, "TokenAcquisitionError"),
+               LoggingEventId.TokenAcquisitionError,
                "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
 
             /// <summary>
