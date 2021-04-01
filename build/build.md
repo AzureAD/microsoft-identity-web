@@ -10,7 +10,6 @@
     - 'Use .Net Core SDK 5.0.100'
     - 'Use .Net Core SDK 3.1.404'
   - [template-install-nuget.yaml](template-install-nuget.yaml)
-    - 'Use NuGet 4.8'
 - [template-install-keyvault-secrets.yaml](template-install-keyvault-secrets.yaml)
   - 'Azure Key Vault: buildautomation'
   - 'Install Keyvault Secrets'
