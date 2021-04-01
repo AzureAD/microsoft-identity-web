@@ -10,8 +10,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal static class LoggingEventId
     {
-        // DistributedCacheAdapter EventIds 100+
 #pragma warning disable IDE1006 // Naming Styles
+        // DistributedCacheAdapter EventIds 100+
         public static readonly EventId DistributedCacheState = new EventId(100, "DistributedCacheState");
         public static readonly EventId DistributedCacheStateWithTime = new EventId(101, "DistributedCacheStateWithTime");
         public static readonly EventId DistributedCacheReadTime = new EventId(102, "DistributedCacheReadTime");
