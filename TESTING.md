@@ -121,4 +121,52 @@ Once the projects are generated from the templates, test them manually.
 - To test the B2C-calls-web-api templates, you'll need to run the TodoListService of the B2CWebAppCallsWebApi test app in the Microsoft.Identity.Web solution
   - Note that we could do with testing the B2C-calls-web-api against the web API deployed in Azure, but testing it against our test project has the interest of enabling debugging
   - Also, run the TodoListService under IIS Express.
-  
+
+### To test the SingleOrg web APIs
+
+1. Change the `appsettings.json` of the **mvc-single-org-callswebapi** project so that DownstreamApi section becomes:
+
+   ```json
+   "DownstreamApi": {
+     "BaseUrl": "https://localhost:44351/WeatherForecast",
+     "Scopes": "api://a4c2469b-cf84-4145-8f5f-cb7bacf814bc/access_as_user"
+    },
+   ```
+
+2. In the solution properties change the startup projects to be:
+
+   - **mvc2-singleorg-callswebapi** and **webapi2-singleorg** and run the projects
+   - then **mvc2-singleorg-callswebapi** and **webapi2-singleorg-callsgraph** and run the projects
+   - then **mvc2-singleorg-callswebapi** and **webapi2-singleorg-callswebapi** and run the projects
+
+### To test the B2C web API
+
+1. Change the `appsettings.json` of the **mvc2-b2c-callswebapi** project so that DownstreamApi section becomes:
+
+   ```json
+   "DownstreamApi": {
+     "BaseUrl": "https://localhost:44332/WeatherForecast",
+     "Scopes": "https://fabrikamb2c.onmicrosoft.com/tasks/access_as_user"
+    },
+   ```
+
+2. In the solution properties change the startup projects to be:
+
+   - **mvc2-b2c-callswebapi** and **webapi2-b2c** and run the projects.
+
+### To test the SingleOrg Azure function
+
+1. Change the `appsettings.json` of the **mvc-single-org-callswebapi** project so that DownstreamApi section becomes:
+
+   ```json
+   "DownstreamApi": {
+     "BaseUrl": "http://localhost:7071/api/SampleFunc",
+     "Scopes": "api://a4c2469b-cf84-4145-8f5f-cb7bacf814bc/access_as_user"
+    },
+   ```
+
+2. In the solution properties change the startup projects to be:
+
+   - **mvc-single-org-callswebapi** and **func2-singleorg** and run the projects.
+   - **mvc-single-org-callswebapi** and **func2-singleorg-callsgraph** and run the projects.
+   - **mvc-single-org-callswebapi** and **func2-singleorg-callswebapi** and run the projects.
