@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
 
             HashSet<string> oidcParams = new HashSet<string>(scopes);
             oidcParams.UnionWith(additionalBuiltInScopes);
-            properties.SetParameter(OpenIdConnectParameterNames.Scope, oidcParams);
+            properties.SetParameter(OpenIdConnectParameterNames.Scope, oidcParams.ToList());
 
             // Attempts to set the login_hint to avoid the logged-in user to be presented with an account selection dialog
             var loginHint = user.GetLoginHint();
