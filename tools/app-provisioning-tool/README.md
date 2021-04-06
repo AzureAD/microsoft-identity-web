@@ -19,7 +19,7 @@ dotnet tool install --global msidentity-app-sync
 
 ### Option 2: build and install from the repository
 
-You can clone the repository, build the tool and install the tool from the repository:
+You can clone the repository, build the tool and install the tool from the repository;
 
 ```Shell
 git clone https://github.com/AzureAD/microsoft-identity-web
@@ -27,6 +27,24 @@ cd tools\app-provisionning-tool
 dotnet pack
 dotnet tool install --global --add-source app-provisioning-tool\nupkg msidentity-app-sync
 ```
+
+### Install in Visual Studio
+
+You can install the tool as an external tool in Visual Studio for this:
+
+1. In Visual Studio, select **Tools | External Tools ...**
+2. Select the **Add** button
+3. Enter the following information:
+   1. For **Title**, use `msidentity-app-sync`
+   2. For **Command**: `%USERPROFILE%\.dotnet\tools\msidentity-app-sync.exe`
+   3. For **Arguments**, you can optionnally specify the tenant in which you want to create/update apps, or the identity to use if you are signed in with several identities
+   4. For **Initial directory*, use `$(ProjectDir)`
+   5. Check **Use output window** and **Prompt for arguments**
+ 6. Select OK 
+
+![image](https://user-images.githubusercontent.com/13203188/113719161-9e2b8580-96ed-11eb-8ad8-7b02eedbd4ed.png)
+
+`msidentity-app-sync` now appears in the **Tools** menu, and when you select an ASP.NET Core project, you can run it on that project.
 
 ### Uninstalling the tool
 
