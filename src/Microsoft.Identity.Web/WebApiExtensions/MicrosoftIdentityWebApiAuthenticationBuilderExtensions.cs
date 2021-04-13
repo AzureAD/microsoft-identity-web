@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
@@ -154,6 +155,8 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove(ClaimConstants.Name);
+
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
 

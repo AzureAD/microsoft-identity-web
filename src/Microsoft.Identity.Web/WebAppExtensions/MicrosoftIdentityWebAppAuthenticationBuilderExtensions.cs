@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
@@ -231,6 +232,8 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove(ClaimConstants.Name);
 
             builder.Services.Configure(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
