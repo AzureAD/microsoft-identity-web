@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web
         /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        [Obsolete(IDWebErrorMessage.InitializeAsyncIsObsolete, true)]
+        [Obsolete(IDWebErrorMessage.ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete, false)]
         Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
