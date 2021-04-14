@@ -46,7 +46,7 @@ This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-i
 
 If you find a bug or have a feature or documentation request, please raise the issue on [GitHub Issues](https://github.com/AzureAD/microsoft-identity-web/issues).
 
-We use [Stack Overflow](http://stackoverflow.com/questions/) with the community to provide support, using the tags `web app`, `web api`, `asp.net core`. We highly recommend you ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
+We use [Stack Overflow](http://stackoverflow.com/questions/) with the community to provide support, using the tags `web-app`, `web-api`, `asp.net-core`, `microsoft-identity-web`. We highly recommend you ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 
 To provide a recommendation, visit our [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
