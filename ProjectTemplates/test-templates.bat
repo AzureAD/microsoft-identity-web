@@ -1,6 +1,6 @@
 echo "Ensure ClientSemVer"
 if "%ClientSemVer%" == "" (
-set ClientSemVer=1.9.0
+set ClientSemVer=1.9.1
 )
 Set TemplateNugetPackageName="Microsoft.Identity.Web.ProjectTemplates"
 
