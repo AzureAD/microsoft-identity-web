@@ -1,3 +1,13 @@
+1.9.1
+==========
+### Bug Fixes:
+**Microsoft.IdentityModel.* version="6.9" introduced a breaking change in the mapping of the User.Identity.Name claim**. Microsoft.Identity.Web 1.9, started leveraging Microsoft.IdentityModel 6.10 to improve resiliency. With this breaking change Microsoft Identity Web 1.9.1 has a temporary workaround in place until a new Microsoft.IdentityModel version is released with a fix. See issues [#1136](https://github.com/AzureAD/microsoft-identity-web/issues/1136) and [#1140](https://github.com/AzureAD/microsoft-identity-web/issues/1140) for details.
+
+**Fix obsolete attribute and error message on `ReplyForbiddenWithWwwAuthenticateHeaderAsync`**. See issue [#1137](https://github.com/AzureAD/microsoft-identity-web/issues/1137) for details.
+
+### Documentation:
+**Fix Stackoverflow tags in ReadMe**. See issue [#1128](https://github.com/AzureAD/microsoft-identity-web/issues/1128).
+
 1.9.0
 ==========
 ### New Features:
