@@ -170,6 +170,16 @@ namespace Microsoft.Identity.Web
 
                 context.HandleCodeRedemption(null, result.IdToken);
             }
+            catch (MsalServiceException exMsal)
+            {
+                if (exMsal.ErrorCode == "AADSTS700027")
+                {
+                    DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+
+                    // Retry
+                    await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes).ConfigureAwait(false);
+                }
+            }
             catch (MsalException ex)
             {
                 Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, ex);

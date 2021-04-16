@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        private static X509Certificate2 LoadFromKeyVault(
+        private static X509Certificate2? LoadFromKeyVault(
             string keyVaultUrl,
             string certificateName,
             X509KeyStorageFlags x509KeyStorageFlags)
@@ -115,6 +115,11 @@ namespace Microsoft.Identity.Web
             SecretClient secretClient = new SecretClient(keyVaultUri, credential);
 
             KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
+
+            if (certificate.Properties.NotBefore <= DateTime.UtcNow && certificate.Properties.ExpiresOn <= DateTime.UtcNow)
+            {
+                return null;
+            }
 
             // Return a certificate with only the public key if the private key is not exportable.
             if (certificate.Policy?.Exportable != true)
@@ -205,6 +210,14 @@ namespace Microsoft.Identity.Web
             return cert;
         }
 
+        internal static void ResetCertificates(IEnumerable<CertificateDescription>? clientCertificates)
+        {
+            foreach (var cert in clientCertificates)
+            {
+                cert.Certificate = null;
+            }
+        }
+
         private static X509Certificate2 LoadFromPath(
             string certificateFileName,
             string? password = null)
@@ -266,9 +279,11 @@ namespace Microsoft.Identity.Web
         internal /*for test only*/ static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
         {
             DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            CertificateDescription certDescription = certificateDescription.First();
-            defaultCertificateLoader.LoadIfNeeded(certDescription);
-            return certDescription.Certificate;
+            CertificateDescription certDescription = certificateDescription.FirstOrDefault(c => { defaultCertificateLoader.LoadIfNeeded(c);
+                return c.Certificate != null;
+            });
+
+            return certDescription?.Certificate;
         }
 
         internal /*for test only*/ static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
