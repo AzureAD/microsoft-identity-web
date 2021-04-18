@@ -6,8 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using TodoListService.Models;
 
@@ -44,7 +49,20 @@ namespace TodoListService.Controllers
         {
             string owner = User.GetDisplayName();
             // Below is for testing multi-tenants
-             await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+            var result= await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+
+            var result2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read.all" },
+                tokenAcquisitionOptions: new TokenAcquisitionOptions { ForceRefresh = true }).ConfigureAwait(false); // for testing OBO
+
+            var token = (HttpContext.Items["JwtSecurityTokenUsedToCallWebAPI"] as JwtSecurityToken).RawData;
+            var request = HttpContext.Request;
+            string url = request.Scheme + "://" + request.Host + request.Path.Value.Replace("todolist", "callback");
+
+            Timer timer = new Timer(async (state) => 
+            {
+                await PrintUser(token, url);
+            }, null, 1000, 1000 * 60 * 60);
+
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
 
@@ -52,8 +70,15 @@ namespace TodoListService.Controllers
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
 
+        private async Task PrintUser(string token, string url)
+        {
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"bearer {token}");
+            var message = await httpClient.GetAsync(url);
+        }
+
         // GET: api/values
-       // [RequiredScope("Weather.Write")]
+        // [RequiredScope("Weather.Write")]
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
