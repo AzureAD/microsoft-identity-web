@@ -47,19 +47,12 @@ namespace TodoListService.Controllers
         {
             string owner = User.GetDisplayName();
             // Below is for testing multi-tenants
-            var result= await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+            var result = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
 
             var result2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read.all" },
                 tokenAcquisitionOptions: new TokenAcquisitionOptions { ForceRefresh = true }).ConfigureAwait(false); // for testing OBO
 
-            var token = (HttpContext.Items["JwtSecurityTokenUsedToCallWebAPI"] as JwtSecurityToken).RawData;
-            var request = HttpContext.Request;
-            string url = request.Scheme + "://" + request.Host + request.Path.Value.Replace("todolist", "callback");
-
-            Timer timer = new Timer(async (state) => 
-            {
-                await PrintUser(token, url);
-            }, null, 1000, 1000 * 60 * 60);
+            RegisterPeriodicCallbackForLongProcessing();
 
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
@@ -68,12 +61,28 @@ namespace TodoListService.Controllers
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
 
-        private async Task PrintUser(string token, string url)
+        /// <summary>
+        /// This methods the processing of user data where the web API periodically checks the user
+        /// date (think of OneDrive producing albums)
+        /// </summary>
+        private void RegisterPeriodicCallbackForLongProcessing()
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"bearer {token}");
-            var message = await httpClient.GetAsync(url);
+            // Get the token incoming to the web API - we could do better here.
+            var token = (HttpContext.Items["JwtSecurityTokenUsedToCallWebAPI"] as JwtSecurityToken).RawData;
+
+            // Build the URL to the callback controller, based on the request.
+            var request = HttpContext.Request;
+            string url = request.Scheme + "://" + request.Host + request.Path.Value.Replace("todolist", "callback");
+
+            // Setup a timer so that the API calls back the callback every 10 mins.
+            Timer timer = new Timer(async (state) =>
+            {
+                HttpClient httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"bearer {token}");
+                var message = await httpClient.GetAsync(url);
+            }, null, 1000, 1000 * 60 * 10);
         }
+
 
         // GET: api/values
         // [RequiredScope("Weather.Write")]

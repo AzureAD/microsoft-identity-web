@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System;
@@ -28,11 +29,15 @@ namespace TodoListService.Controllers
         // In-memory TodoList
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
 
+        private ILogger _logger;
+
         public CallbackController(
             IHttpContextAccessor contextAccessor,
-            ITokenAcquisition tokenAcquisition)
+            ITokenAcquisition tokenAcquisition,
+            ILogger<CallbackController> logger)
         {
             _tokenAcquisition = tokenAcquisition;
+            _logger = logger;
         }
 
 
@@ -41,6 +46,7 @@ namespace TodoListService.Controllers
         [HttpGet]
         public async Task GetAsync()
         {
+            _logger.LogWarning($"Callback called {DateTime.Now}");
             string owner = User.GetDisplayName();
             // Below is for testing multi-tenants
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
