@@ -233,8 +233,6 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove(ClaimConstants.Name);
-
             builder.Services.Configure(configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 

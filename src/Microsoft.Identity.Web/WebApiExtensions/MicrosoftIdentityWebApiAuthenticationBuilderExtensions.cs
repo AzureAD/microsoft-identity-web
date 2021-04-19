@@ -155,8 +155,6 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove(ClaimConstants.Name);
-
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
 
