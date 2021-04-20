@@ -225,7 +225,7 @@
                     "FileRelativePath": "Client/Program.cs",
                     "Replacements": [
                         {
-                            "ReplaceFrom": "https://yourDomain.onmicrosoft.com/api.id.uri/access_as_user",
+                            "ReplaceFrom": "https://qualified.domain.name/api.id.uri/access_as_user",
                             "ReplaceBy": "https://fabrikamb2c.onmicrosoft.com/helloapi/user_impersonation"
                         }
                     ]
