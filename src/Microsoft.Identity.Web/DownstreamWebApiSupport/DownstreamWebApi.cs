@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
-        private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
+        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
 
         /// <summary>
         /// Constructor.
@@ -29,19 +29,17 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisition">Token acquisition service.</param>
         /// <param name="namedDownstreamWebApiOptions">Named options provider.</param>
         /// <param name="httpClient">HTTP client.</param>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
+        /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         public DownstreamWebApi(
             ITokenAcquisition tokenAcquisition,
             IOptionsMonitor<DownstreamWebApiOptions> namedDownstreamWebApiOptions,
             HttpClient httpClient,
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions)
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor)
         {
             _tokenAcquisition = tokenAcquisition;
             _namedDownstreamWebApiOptions = namedDownstreamWebApiOptions;
             _httpClient = httpClient;
-#pragma warning disable CA1062 // Validate arguments of public methods
-            _microsoftIdentityOptions = microsoftIdentityOptions.Value;
-#pragma warning restore CA1062 // Validate arguments of public methods
+            _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
         }
 
         /// <inheritdoc/>
@@ -58,14 +56,17 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            MicrosoftIdentityOptions microsoftIdentityOptions = _microsoftIdentityOptionsMonitor
+                .Get(_tokenAcquisition.GetEffectiveAuthenticationScheme(effectiveOptions.AuthenticationScheme));
+
             string apiUrl = effectiveOptions.GetApiUrl();
 
             CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
 
             string? userflow;
-            if (_microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
+            if (microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
             {
-                userflow = _microsoftIdentityOptions.DefaultUserFlow;
+                userflow = microsoftIdentityOptions.DefaultUserFlow;
             }
             else
             {
@@ -77,7 +78,8 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.Tenant,
                 userflow,
                 user,
-                effectiveOptions.TokenAcquisitionOptions)
+                effectiveOptions.TokenAcquisitionOptions,
+                effectiveOptions.AuthenticationScheme)
                 .ConfigureAwait(false);
 
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(

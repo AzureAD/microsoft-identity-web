@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
-            Services.Configure(configureMicrosoftIdentityOptions);
+            Services.Configure(jwtBearerAuthenticationScheme, configureMicrosoftIdentityOptions);
         }
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
             string jwtBearerAuthenticationScheme,
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
-            services.Configure(configureConfidentialClientApplicationOptions);
+            services.Configure(jwtBearerAuthenticationScheme, configureConfidentialClientApplicationOptions);
 
             services.AddTokenAcquisition();
             services.AddHttpContextAccessor();

@@ -103,7 +103,8 @@ namespace Microsoft.Identity.Web
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null)
         {
             // We could use MSI
             if (scope is null)
@@ -125,7 +126,8 @@ namespace Microsoft.Identity.Web
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null)
         {
             var httpContext = CurrentHttpContext;
             string accessToken;
@@ -174,7 +176,8 @@ namespace Microsoft.Identity.Web
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null)
         {
             string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
             ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
@@ -214,21 +217,38 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+        public void ReplyForbiddenWithWwwAuthenticateHeader(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            HttpResponse? httpResponse = null,
+            string? authenticationScheme = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+            string scope,
+            string? tenant = null,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
             throw new NotImplementedException();
         }
