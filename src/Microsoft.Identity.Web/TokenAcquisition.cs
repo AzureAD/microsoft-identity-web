@@ -772,7 +772,8 @@ namespace Microsoft.Identity.Web
                 scopes,
                 authority,
                 userFlow,
-                tokenAcquisitionOptions).ConfigureAwait(false);
+                tokenAcquisitionOptions,
+                authenticationScheme).ConfigureAwait(false);
         }
 
         /// <summary>
