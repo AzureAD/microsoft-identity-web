@@ -32,24 +32,26 @@ namespace mvcwebapp_graph
         {
             var initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
 
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"));
-            //.AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"), "OpenIdConnect2", "notCookies");
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"), OpenIdConnectDefaults.AuthenticationScheme)
+                    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+                        .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+                        .AddInMemoryTokenCaches();
 
-            //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-            //        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-            //            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-            //            .AddInMemoryTokenCaches();            
+            services.AddAuthentication()
+                // .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"));
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"), "B2C", "cookiesB2C");
+                    //.EnableTokenAcquisitionToCallDownstreamApi(Configuration.GetValue<string>("DownstreamB2CApi:Scopes")?.Split(' '))
+                    //.AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
+                    //.AddInMemoryTokenCaches();
 
-            //services.AddControllersWithViews(options =>
-            //{
-            //    var policy = new AuthorizationPolicyBuilder()
-            //        .RequireAuthenticatedUser()
-            //        .Build();
-            //    options.Filters.Add(new AuthorizeFilter(policy));
-            //});
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
            services.AddRazorPages()
                 .AddMicrosoftIdentityUI();
         }
