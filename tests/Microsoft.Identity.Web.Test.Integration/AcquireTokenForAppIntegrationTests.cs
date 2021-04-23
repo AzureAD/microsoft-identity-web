@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -225,28 +226,32 @@ namespace Microsoft.Identity.Web.Test.Integration
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  _provider);
+            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()
         {
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+            IOptionsMonitor<ConfidentialClientApplicationOptions> applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                TenantId = TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientSecret = _ccaSecret,
+            });
+
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
             services.AddTransient(
-                provider => Options.Create(new MicrosoftIdentityOptions
-                {
-                    Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    CallbackPath = string.Empty,
-                }));
+                provider => microsoftIdentityOptionsMonitor);
             services.AddTransient(
-                provider => Options.Create(new ConfidentialClientApplicationOptions
-                {
-                    Instance = TestConstants.AadInstance,
-                    TenantId = TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    ClientSecret = _ccaSecret,
-                }));
+                provider => applicationOptionsMonitor);
             services.AddLogging();
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();
