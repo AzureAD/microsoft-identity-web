@@ -212,9 +212,12 @@ namespace Microsoft.Identity.Web
 
         internal static void ResetCertificates(IEnumerable<CertificateDescription>? clientCertificates)
         {
-            foreach (var cert in clientCertificates)
+            if (clientCertificates != null)
             {
-                cert.Certificate = null;
+                foreach (var cert in clientCertificates)
+                {
+                    cert.Certificate = null;
+                }
             }
         }
 
@@ -279,7 +282,9 @@ namespace Microsoft.Identity.Web
         internal /*for test only*/ static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
         {
             DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            CertificateDescription certDescription = certificateDescription.FirstOrDefault(c => { defaultCertificateLoader.LoadIfNeeded(c);
+            CertificateDescription? certDescription = certificateDescription.FirstOrDefault(c =>
+            {
+                defaultCertificateLoader.LoadIfNeeded(c);
                 return c.Certificate != null;
             });
 

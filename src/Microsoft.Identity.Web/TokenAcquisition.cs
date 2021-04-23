@@ -570,6 +570,11 @@ namespace Microsoft.Identity.Web
                 if (_microsoftIdentityOptions.ClientCertificates != null)
                 {
                     X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
+                    if (certificate == null)
+                    {
+                        _logger.LogError("All client certificates passed-in in the configuration have expired or can't be loaded.");
+                    }
+
                     builder.WithCertificate(certificate);
                 }
 
