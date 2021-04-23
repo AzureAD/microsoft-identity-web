@@ -47,7 +47,8 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            string? authenticationScheme = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web
             }
 
             MicrosoftIdentityOptions microsoftIdentityOptions = _microsoftIdentityOptionsMonitor
-                .Get(_tokenAcquisition.GetEffectiveAuthenticationScheme(effectiveOptions.AuthenticationScheme));
+                .Get(_tokenAcquisition.GetEffectiveAuthenticationScheme(authenticationScheme));
 
             string apiUrl = effectiveOptions.GetApiUrl();
 
@@ -79,7 +80,7 @@ namespace Microsoft.Identity.Web
                 userflow,
                 user,
                 effectiveOptions.TokenAcquisitionOptions,
-                effectiveOptions.AuthenticationScheme)
+                authenticationScheme)
                 .ConfigureAwait(false);
 
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
@@ -103,7 +104,8 @@ namespace Microsoft.Identity.Web
             string serviceName,
             TInput input,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             HttpResponseMessage response = await CallWebApiForUserAsync(
@@ -137,7 +139,8 @@ namespace Microsoft.Identity.Web
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            string? authenticationScheme = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
 
@@ -153,7 +156,8 @@ namespace Microsoft.Identity.Web
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
                 effectiveOptions.Tenant,
-                effectiveOptions.TokenAcquisitionOptions)
+                effectiveOptions.TokenAcquisitionOptions,
+                authenticationScheme)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;

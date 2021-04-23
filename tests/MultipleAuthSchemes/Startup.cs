@@ -39,11 +39,10 @@ namespace mvcwebapp_graph
                         .AddInMemoryTokenCaches();
 
             services.AddAuthentication()
-                // .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"));
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"), "B2C", "cookiesB2C");
-                    //.EnableTokenAcquisitionToCallDownstreamApi(Configuration.GetValue<string>("DownstreamB2CApi:Scopes")?.Split(' '))
-                    //.AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
-                    //.AddInMemoryTokenCaches();
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"), "B2C", "cookiesB2C")
+                    .EnableTokenAcquisitionToCallDownstreamApi(Configuration.GetValue<string>("DownstreamB2CApi:Scopes")?.Split(' '))
+                    .AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
+                    .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews(options =>
             {

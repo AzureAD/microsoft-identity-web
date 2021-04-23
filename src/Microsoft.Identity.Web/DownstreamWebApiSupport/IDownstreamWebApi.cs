@@ -28,12 +28,15 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="content">HTTP context in the case where <see cref="DownstreamWebApiOptions.HttpMethod"/> is
         /// <see cref="HttpMethod.Patch"/>, <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An <see cref="HttpResponseMessage"/> that the application will process.</returns>
         public Task<HttpResponseMessage> CallWebApiForUserAsync(
             string serviceName,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? content = null);
+            StringContent? content = null,
+            string? authenticationScheme = null);
 
         /// <summary>
         /// Calls a downstream web API consuming JSON with some data and returns data.
@@ -50,6 +53,8 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         /// <example>
         /// A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
@@ -85,7 +90,8 @@ namespace Microsoft.Identity.Web
             string serviceName,
             TInput input,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class;
 
         /// <summary>
@@ -99,10 +105,13 @@ namespace Microsoft.Identity.Web
         /// by <paramref name="serviceName"/>.</param>
         /// <param name="content">HTTP content in the case where <see cref="DownstreamWebApiOptions.HttpMethod"/> is
         /// <see cref="HttpMethod.Patch"/>, <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An <see cref="HttpResponseMessage"/> that the application will process.</returns>
         public Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            StringContent? content = null);
+            StringContent? content = null,
+            string? authenticationScheme = null);
     }
 }

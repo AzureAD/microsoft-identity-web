@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
-using System.Net;
-using System.Net.Http;
-using Microsoft.Graph;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using mvcwebapp_graph.Models;
@@ -19,15 +12,20 @@ namespace mvcwebapp_graph.Controllers
     public class HomeB2CController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public HomeB2CController(ILogger<HomeController> logger)
+        public HomeB2CController(ILogger<HomeController> logger, IDownstreamWebApi downstreamWebApi)
         {
-             _logger = logger;
-       }
+            _downstreamWebApi = downstreamWebApi;
+            _logger = logger;
+        }
 
+        [AuthorizeForScopes(
+            ScopeKeySection = "DownstreamB2CApi:Scopes", UserFlow = "b2c_1_susi")]
         public async Task<IActionResult> Index()
         {
-            return View();
+            var value = await _downstreamWebApi.GetForUserAsync<Task>("DownstreamB2CApi", "", null, null, "B2C");
+            return View(value);
         }
         public IActionResult Privacy()
         {

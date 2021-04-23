@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,

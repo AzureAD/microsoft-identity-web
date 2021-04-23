@@ -806,13 +806,13 @@
             <param name="httpClient">HTTP client.</param>
             <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent,System.String)">
             <inheritdoc/>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
             <inheritdoc/>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent,System.String)">
             <inheritdoc/>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.MergeOptions(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
@@ -852,7 +852,7 @@
             Extensions for the downstream web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
             <summary>
             Get a strongly typed response from the web API.
             </summary>
@@ -1057,7 +1057,7 @@
             Interface used to call a downstream web API, for instance from controllers.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent,System.String)">
             <summary>
             Calls the downstream web API for the user, based on a description of the
             downstream web API in the configuration.
@@ -1123,7 +1123,7 @@
              </code>
              </example>
         </member>
-        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent)">
+        <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent,System.String)">
             <summary>
             Calls the downstream web API for the app, with the required scopes.
             </summary>
