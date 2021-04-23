@@ -11,8 +11,8 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
                 // Share the ID token though
                 var builder = application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
-                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                    .WithSendX5C(_microsoftIdentityOptionsMonitor.Get(authenticationScheme).SendX5C)
                     .WithPkceCodeVerifier(codeVerifier);
 
                 if (_microsoftIdentityOptionsMonitor.Get(authenticationScheme).IsB2C)
