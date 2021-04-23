@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -169,12 +170,14 @@ namespace Microsoft.Identity.Web
             {
                 var application = GetOrBuildConfidentialClientApplication(authenticationScheme);
 
+                context.TokenEndpointRequest.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
                 var builder = application
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
-                    .WithSendX5C(_microsoftIdentityOptionsMonitor.Get(authenticationScheme).SendX5C);
+                    .WithSendX5C(_microsoftIdentityOptions.SendX5C)
+                    .WithPkceCodeVerifier(codeVerifier);
 
                 if (_microsoftIdentityOptionsMonitor.Get(authenticationScheme).IsB2C)
                 {
