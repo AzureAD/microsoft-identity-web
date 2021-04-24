@@ -594,187 +594,137 @@
         </member>
         <member name="T:Microsoft.Identity.Web.ClaimConstants">
             <summary>
-            Constants for claim types.
+            Constants for claviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow">
+            <summary>
+            Gets or sets the value of the duration after which the cache entry will expire unless it's used
+            This is the duration the tokens are kept in memory cache.
+            In production, a higher value, up-to 90 days is recommended.
+            </summary>
+            <value>
+            The AbsoluteExpirationRelativeToNow value.
+            </value>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider">
+            <summary>
+            An implementation of token cache for both Confidential and Public clients backed by MemoryCache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._memoryCache">
+            <summary>
+            .NET Core Memory cache.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Name">
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._cacheOptions">
             <summary>
-            Name claim: "name".
+            MSAL memory token cache options.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.ObjectId">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
             <summary>
-            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
+            Constructor.
+            </summary>
+            <param name="memoryCache">serialization cache.</param>
+            <param name="cacheOptions">Memory cache options.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a token cache identified by its key, from the serialization
+            cache.
+            </summary>
+            <param name="cacheKey">token cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Reads a blob from the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <returns>Read Bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
+            <summary>
+            Token cache provider with default implementation.
+            </summary>
+            <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            Raised AFTER MSAL added the new token in its in-memory copy of the cache.
+            This notification is called every time MSAL accesses the cache, not just when a write takes place:
+            If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.
+            If that is the case, we call the TokenCache.SerializeMsalV3() to get a binary blob representing the latest cache content – and persist it.
+            </summary>
+            <param name="args">Contains parameters used by the MSAL call accessing the cache.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
+            </summary>
+            <param name="args">Token cache notification arguments.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(System.String)">
+            <summary>
+            Clear the cache.
+            </summary>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Method to be implemented by concrete cache serializers to write the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to Read the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>Read bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to remove an entry from the cache.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Utility">
+            <summary>
+            Utility methods used by L1/L2 cache.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Oid">
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
             <summary>
-            New Object id claim: "oid".
+            Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.PreferredUserName">
-            <summary>
-            PreferredUserName: "preferred_username".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.TenantId">
-            <summary>
-            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tid">
-            <summary>
-            New Tenant Id claim: "tid".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.ClientInfo">
-            <summary>
-            ClientInfo claim: "client_info".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier">
-            <summary>
-            UniqueObjectIdentifier: "uid".
-            Home Object Id.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier">
-            <summary>
-            UniqueTenantIdentifier: "utid".
-            Home Tenant Id.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scope">
-            <summary>
-            Older scope claim: "http://schemas.microsoft.com/identity/claims/scope".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Scp">
-            <summary>
-            Newer scope claim: "scp".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Roles">
-            <summary>
-            New Roles claim = "roles".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Role">
-            <summary>
-            Old Role claim: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Sub">
-            <summary>
-            Subject claim: "sub".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Acr">
-            <summary>
-            Acr claim: "acr".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.UserFlow">
-            <summary>
-            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.Tfp">
-            <summary>
-            Tfp claim: "tfp".
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClaimConstants.NameIdentifierId">
-            <summary>
-            Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.Constants">
-            <summary>
-            General constants for Microsoft Identity Web.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.LoginHint">
-            <summary>
-            LoginHint.
-            Represents the preferred_username claim in the ID token.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.DomainHint">
-            <summary>
-            DomainHint.
-            Determined by the tenant Id.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.Claims">
-            <summary>
-            Claims.
-            Determined from the signed-in user.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.Bearer">
-            <summary>
-            Bearer.
-            Predominant type of access token used with OAuth 2.0.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.AzureAd">
-            <summary>
-            AzureAd.
-            Configuration section name for AzureAd.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.AzureAdB2C">
-            <summary>
-            AzureAdB2C.
-            Configuration section name for AzureAdB2C.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.Scope">
-            <summary>
-            Scope.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.Constants.Policy">
-            <summary>
-            Policy for B2C user flows.
-            The name of the policy to check against a specific user flow.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
-            <summary>
-            Constants related to the error messages.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.LogMessages">
-            <summary>
-            Constants related to the log messages.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions">
-            <summary>
-            Extension class containing cookie policies (work around for same site).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions)">
-            <summary>
-            Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
-            The default list of user agents that disallow "SameSite=None",
-            was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
-            </summary>
-            <param name="options"><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/>to update.</param>
-            <returns><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/> to chain.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions,System.Func{System.String,System.Boolean})">
-            <summary>
-            Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-            The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
-            </summary>
-            <param name="options"><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/>to update.</param>
-            <param name="disallowsSameSiteNone">If you don't want to use the default user agent list implementation,
-            the method sent in this parameter will be run against the user agent and if returned true, SameSite value will be set to Unspecified.
-            The default user agent list used can be found at: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/. </param>
-            <returns><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/> to chain.</returns>
+        <member name="M:Microsoft.Identitchain.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.DisallowsSameSiteNone(System.String)">
             <summary>

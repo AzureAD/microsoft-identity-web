@@ -112,7 +112,8 @@ namespace Microsoft.Identity.Web
                 serviceName,
                 downstreamWebApiOptionsOverride,
                 user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
+                authenticationScheme).ConfigureAwait(false);
 
             try
             {
