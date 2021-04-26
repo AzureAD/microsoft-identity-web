@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items[Constants.Policy] = _options.Value?.ResetPasswordPolicyId;
+            properties.Items[Constants.Policy] = _options.CurrentValue?.ResetPasswordPolicyId;
             return Challenge(properties, scheme);
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items[Constants.Policy] = _options.Value?.EditProfilePolicyId;
+            properties.Items[Constants.Policy] = _options.CurrentValue?.EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
     }
