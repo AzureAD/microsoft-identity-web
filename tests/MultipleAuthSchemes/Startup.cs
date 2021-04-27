@@ -44,6 +44,8 @@ namespace mvcwebapp_graph
                     .AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
                     .AddInMemoryTokenCaches();
 
+            services.Configure<MicrosoftIdentityOptions>(OpenIdConnectDefaults.AuthenticationScheme,
+                                             o => o.ClientSecret = "fvHwfoLA8Zls6Huj5MBUQUDrJ5HXrauFQKDd2CacxJQ=");
             services.AddControllersWithViews(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
