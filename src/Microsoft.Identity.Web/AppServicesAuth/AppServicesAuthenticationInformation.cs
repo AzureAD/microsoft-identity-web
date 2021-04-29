@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         // Artificially added by Microsoft.Identity.Web to help debugging App Services. See the Debug controller of the test app
-        private const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
+        internal const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
 
         /// <summary>
         /// Is App Services authentication enabled?.
