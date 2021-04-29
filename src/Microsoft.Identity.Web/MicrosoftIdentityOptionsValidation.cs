@@ -12,30 +12,30 @@ namespace Microsoft.Identity.Web
     {
         public ValidateOptionsResult Validate(string name, MicrosoftIdentityOptions options)
         {
-            //if (string.IsNullOrEmpty(options.ClientId))
-            //{
-            //    return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
-            //}
+            // if (string.IsNullOrEmpty(options.ClientId))
+            // {
+            //     return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
+            // }
 
-            //if (string.IsNullOrEmpty(options.Instance))
-            //{
-            //    return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
-            //}
+            // if (string.IsNullOrEmpty(options.Instance))
+            // {
+            //     return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
+            // }
 
-            //if (options.IsB2C)
-            //{
-            //    if (string.IsNullOrEmpty(options.Domain))
-            //    {
-            //        return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
-            //    }
-            //}
-            //else
-            //{
-            //    if (string.IsNullOrEmpty(options.TenantId))
-            //    {
-            //        return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
-            //    }
-            //}
+            // if (options.IsB2C)
+            // {
+            //     if (string.IsNullOrEmpty(options.Domain))
+            //     {
+            //         return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
+            //     }
+            // }
+            // else
+            // {
+            //     if (string.IsNullOrEmpty(options.TenantId))
+            //     {
+            //         return ValidateOptionsResult.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
+            //     }
+            // }
 
             return ValidateOptionsResult.Success;
         }

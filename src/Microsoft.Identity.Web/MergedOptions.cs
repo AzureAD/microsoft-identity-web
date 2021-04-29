@@ -44,22 +44,25 @@ namespace Microsoft.Identity.Web
             UserAssignedManagedIdentityClientId = Merge(microsoftIdentityOptions.UserAssignedManagedIdentityClientId, microsoftIdentityOptionsFallback?.UserAssignedManagedIdentityClientId);
             ClientCertificates = microsoftIdentityOptions.ClientCertificates ??= microsoftIdentityOptionsFallback?.ClientCertificates;
             TokenDecryptionCertificates = microsoftIdentityOptions.TokenDecryptionCertificates ??= microsoftIdentityOptionsFallback?.TokenDecryptionCertificates;
-            if (microsoftIdentityOptions.LegacyCacheCompatibilityEnabled || microsoftIdentityOptionsFallback.LegacyCacheCompatibilityEnabled || confidentialClientApplication.LegacyCacheCompatibilityEnabled || confidentialClientApplicationFallback.LegacyCacheCompatibilityEnabled)
+            if (microsoftIdentityOptions.LegacyCacheCompatibilityEnabled ||
+                (microsoftIdentityOptionsFallback != null && microsoftIdentityOptionsFallback.LegacyCacheCompatibilityEnabled) ||
+                confidentialClientApplication.LegacyCacheCompatibilityEnabled ||
+                (confidentialClientApplicationFallback != null && confidentialClientApplicationFallback.LegacyCacheCompatibilityEnabled))
             {
                 LegacyCacheCompatibilityEnabled = true;
             }
 
-            if (microsoftIdentityOptions.SendX5C || microsoftIdentityOptionsFallback.SendX5C)
+            if (microsoftIdentityOptions.SendX5C || (microsoftIdentityOptionsFallback != null && microsoftIdentityOptionsFallback.SendX5C))
             {
                 SendX5C = true;
             }
 
-            if (microsoftIdentityOptions.HasClientCredentials || microsoftIdentityOptionsFallback.HasClientCredentials)
+            if (microsoftIdentityOptions.HasClientCredentials || (microsoftIdentityOptionsFallback != null && microsoftIdentityOptionsFallback.HasClientCredentials))
             {
                 HasClientCredentials = true;
             }
 
-            if (microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL || microsoftIdentityOptionsFallback.AllowWebApiToBeAuthorizedByACL)
+            if (microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL || (microsoftIdentityOptionsFallback != null && microsoftIdentityOptionsFallback.AllowWebApiToBeAuthorizedByACL))
             {
                 AllowWebApiToBeAuthorizedByACL = true;
             }
