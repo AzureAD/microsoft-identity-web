@@ -59,8 +59,19 @@ namespace Microsoft.Identity.Web.Test
 
         public WebAppExtensionsTests()
         {
+            ResetAppServiceEnv();
             _configSection = GetConfigSection(ConfigSectionName);
             _env = new HostingEnvironment { EnvironmentName = Environments.Development };
+        }
+
+        private void ResetAppServiceEnv()
+        {
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientIdEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientSecretEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthLogoutPathEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable, string.Empty);
         }
 
         [Theory]
@@ -412,6 +423,63 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        // Regression for https://github.com/AzureAD/microsoft-identity-web/issues/1163
+        public void AddMicrosoftIdentityWebApp_CaseInsensitive_AppServices()
+        {
+            try
+            {
+                // Arrange
+                Environment.SetEnvironmentVariable(
+                    AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, "tRue");
+
+                Environment.SetEnvironmentVariable(
+                    AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable,
+                    "azureactivedirectory"); // used to be uppercase
+
+                var services = new ServiceCollection();
+
+                // Act
+                services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(_configureMsOptions);
+
+                // Assert
+                Assert.Contains(services, s => s.ServiceType == typeof(AppServicesAuthenticationHandler));
+            }
+            finally
+            {
+                ResetAppServiceEnv();
+            }
+        }
+
+        [Fact]
+        public void AddMicrosoftIdentityWebApp_AppServices()
+        {
+            try
+            {
+                // Arrange
+                Environment.SetEnvironmentVariable(
+                    AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, "true");
+
+                Environment.SetEnvironmentVariable(
+                    AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable,
+                    AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory);
+
+                var services = new ServiceCollection();
+
+                // Act
+                services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(_configureMsOptions);
+
+                // Assert
+                Assert.Contains(services, s => s.ServiceType == typeof(AppServicesAuthenticationHandler));
+            }
+            finally
+            {
+                ResetAppServiceEnv();
+            }
+        }
+
+        [Fact]
         public void AddMicrosoftGraphUsingFactoryFunction()
         {
             var configMock = Substitute.For<IConfiguration>();
@@ -552,6 +620,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<OpenIdConnectOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityOptions>));
             Assert.Contains(services, s => s.ServiceType == typeof(IPostConfigureOptions<CookieAuthenticationOptions>));
+            Assert.DoesNotContain(services, s => s.ServiceType == typeof(AppServicesAuthenticationHandler));
+
             Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert properties set
@@ -634,7 +704,7 @@ namespace Microsoft.Identity.Web.Test
 
             await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
             // Assert issuer is updated to non-default user flow
-            Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress);
+            Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress, System.StringComparison.OrdinalIgnoreCase);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters[ClaimConstants.ClientInfo]);
             Assert.Equal(Constants.One, redirectContext.ProtocolMessage.Parameters[ClaimConstants.ClientInfo].ToString(CultureInfo.InvariantCulture));
         }
