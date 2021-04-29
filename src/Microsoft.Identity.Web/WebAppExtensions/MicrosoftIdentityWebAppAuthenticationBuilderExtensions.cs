@@ -236,8 +236,6 @@ namespace Microsoft.Identity.Web
             builder.Services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
-
             if (!string.IsNullOrEmpty(cookieScheme))
             {
                 Action<CookieAuthenticationOptions> emptyOption = option => { };
@@ -278,6 +276,7 @@ namespace Microsoft.Identity.Web
                 .Configure<IServiceProvider, IOptionsMonitor<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptionsMonitor) =>
                 {
                     MicrosoftIdentityOptions microsoftIdentityOptions = microsoftIdentityOptionsMonitor.Get(openIdConnectScheme);
+                    MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(

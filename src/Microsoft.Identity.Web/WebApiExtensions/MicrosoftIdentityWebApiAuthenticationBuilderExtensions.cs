@@ -158,7 +158,6 @@ namespace Microsoft.Identity.Web
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
 
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsValidation>());
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
@@ -174,6 +173,8 @@ namespace Microsoft.Identity.Web
                 .Configure<IServiceProvider, IOptionsMonitor<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptionsMonitor) =>
                 {
                     var microsoftIdentityOptions = microsoftIdentityOptionsMonitor.Get(jwtBearerScheme);
+
+                    MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
