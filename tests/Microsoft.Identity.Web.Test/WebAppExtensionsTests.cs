@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Web.Test
 
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -183,7 +183,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -207,7 +207,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -235,7 +235,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
