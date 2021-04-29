@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -17,19 +18,19 @@ namespace Microsoft.Identity.Web.Test
             {
                 Environment.SetEnvironmentVariable(
                   AppServicesAuthenticationInformation.AppServicesAuthDebugHeadersEnvironmentVariable,
-                  "a;at:xyz");
+                  $"a;{AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader}:xyz");
 
-                var res = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable("at");
+                var res = AppServicesAuthenticationInformation.GetIdToken(
+                    new Dictionary<string, StringValues>()
+                    {
+                        { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(string.Empty) },
+                    });
 
+#if DEBUG
                 Assert.Equal("xyz", res);
-
-                Environment.SetEnvironmentVariable(
-                 AppServicesAuthenticationInformation.AppServicesAuthDebugHeadersEnvironmentVariable,
-                 "at:xyz");
-
-                res = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable("at");
-
-                Assert.Equal("xyz", res);
+#else
+                Assert.Equal(string.Empty, res);
+#endif
             }
             finally
             {

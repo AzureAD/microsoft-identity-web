@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         internal const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         internal const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         internal const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
-        private const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        internal const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
         private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         // Artificially added by Microsoft.Identity.Web to help debugging App Services. See the Debug controller of the test app
