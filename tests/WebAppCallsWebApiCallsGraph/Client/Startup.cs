@@ -79,7 +79,7 @@ namespace WebApp_OpenIDConnect_DotNet
                      .AddInMemoryTokenCaches();
 #endif
             services.Configure<MicrosoftIdentityOptions>(
-                                             o => o.ClientSecret = "fvHwfoLA8Zls6Huj5MBUQUDrJ5HXrauFQKDd2CacxJQ=");
+                                             o => o.ClientSecret = "");
 
             services.AddControllersWithViews(options =>
             {

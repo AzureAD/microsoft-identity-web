@@ -45,7 +45,7 @@ namespace mvcwebapp_graph
                     .AddInMemoryTokenCaches();
 
             services.Configure<MicrosoftIdentityOptions>(OpenIdConnectDefaults.AuthenticationScheme,
-                                             o => o.ClientSecret = "fvHwfoLA8Zls6Huj5MBUQUDrJ5HXrauFQKDd2CacxJQ=");
+                                             o => o.ClientSecret = "");
             services.AddControllersWithViews(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
