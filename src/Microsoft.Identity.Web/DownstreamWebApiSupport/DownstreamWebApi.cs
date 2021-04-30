@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
-        private readonly MicrosoftIdentityOptions _microsoftIdentityOptions;
+        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
 
         /// <summary>
         /// Constructor.
@@ -29,19 +29,17 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisition">Token acquisition service.</param>
         /// <param name="namedDownstreamWebApiOptions">Named options provider.</param>
         /// <param name="httpClient">HTTP client.</param>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
+        /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         public DownstreamWebApi(
             ITokenAcquisition tokenAcquisition,
             IOptionsMonitor<DownstreamWebApiOptions> namedDownstreamWebApiOptions,
             HttpClient httpClient,
-            IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions)
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor)
         {
             _tokenAcquisition = tokenAcquisition;
             _namedDownstreamWebApiOptions = namedDownstreamWebApiOptions;
             _httpClient = httpClient;
-#pragma warning disable CA1062 // Validate arguments of public methods
-            _microsoftIdentityOptions = microsoftIdentityOptions.Value;
-#pragma warning restore CA1062 // Validate arguments of public methods
+            _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
         }
 
         /// <inheritdoc/>
@@ -49,7 +47,8 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            string? authenticationScheme = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
@@ -58,14 +57,17 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            MicrosoftIdentityOptions microsoftIdentityOptions = _microsoftIdentityOptionsMonitor
+                .Get(_tokenAcquisition.GetEffectiveAuthenticationScheme(authenticationScheme));
+
             string apiUrl = effectiveOptions.GetApiUrl();
 
             CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
 
             string? userflow;
-            if (_microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
+            if (microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(effectiveOptions.UserFlow))
             {
-                userflow = _microsoftIdentityOptions.DefaultUserFlow;
+                userflow = microsoftIdentityOptions.DefaultUserFlow;
             }
             else
             {
@@ -77,7 +79,8 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.Tenant,
                 userflow,
                 user,
-                effectiveOptions.TokenAcquisitionOptions)
+                effectiveOptions.TokenAcquisitionOptions,
+                authenticationScheme)
                 .ConfigureAwait(false);
 
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
@@ -101,14 +104,16 @@ namespace Microsoft.Identity.Web
             string serviceName,
             TInput input,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             HttpResponseMessage response = await CallWebApiForUserAsync(
                 serviceName,
                 downstreamWebApiOptionsOverride,
                 user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
+                authenticationScheme).ConfigureAwait(false);
 
             try
             {
@@ -135,7 +140,8 @@ namespace Microsoft.Identity.Web
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            string? authenticationScheme = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
 
@@ -151,7 +157,8 @@ namespace Microsoft.Identity.Web
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
                 effectiveOptions.Tenant,
-                effectiveOptions.TokenAcquisitionOptions)
+                effectiveOptions.TokenAcquisitionOptions,
+                authenticationScheme)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;

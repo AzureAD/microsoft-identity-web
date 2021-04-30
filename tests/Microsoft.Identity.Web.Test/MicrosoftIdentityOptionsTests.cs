@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Globalization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Test.Common;
@@ -70,23 +71,21 @@ namespace Microsoft.Identity.Web.Test
                 _microsoftIdentityOptions.Domain = domain;
             }
 
-            MicrosoftIdentityOptionsValidation microsoftIdentityOptionsValidation = new MicrosoftIdentityOptionsValidation();
-            ValidateOptionsResult result = microsoftIdentityOptionsValidation.Validate(optionsName, _microsoftIdentityOptions);
-
-            CheckReturnValueAgainstExpectedMissingParam(missingParam, result);
-        }
-
-        private void CheckReturnValueAgainstExpectedMissingParam(MissingParam missingParam, ValidateOptionsResult result)
-        {
-            if (result.Failed)
+            if (missingParam != MissingParam.None)
             {
-                string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, missingParam);
-                Assert.Equal(message, result.FailureMessage);
+                var exception = Assert.Throws<ArgumentNullException>(() => MicrosoftIdentityOptionsValidation.Validate(_microsoftIdentityOptions));
+
+                CheckReturnValueAgainstExpectedMissingParam(missingParam, exception);
             }
             else
             {
-                Assert.True(result.Succeeded);
+                MicrosoftIdentityOptionsValidation.Validate(_microsoftIdentityOptions);
             }
+        }
+
+        private void CheckReturnValueAgainstExpectedMissingParam(MissingParam missingParam, ArgumentNullException exception)
+        {
+            Assert.Equal(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, missingParam), exception.Message);
         }
 
         public enum MissingParam

@@ -9,12 +9,12 @@
             Controller used in web apps to manage accounts.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
             <summary>
             Constructor of <see cref="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController"/> from <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/>
             This constructor is used by dependency injection.
             </summary>
-            <param name="microsoftIdentityOptions">Configuration options.</param>
+            <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(System.String)">
             <summary>

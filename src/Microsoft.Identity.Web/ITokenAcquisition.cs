@@ -28,13 +28,16 @@ namespace Microsoft.Identity.Web
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An access token to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null);
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
@@ -49,13 +52,16 @@ namespace Microsoft.Identity.Web
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
         /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null);
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -69,11 +75,14 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         Task<string> GetAccessTokenForAppAsync(
             string scope,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null);
 
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -87,11 +96,14 @@ namespace Microsoft.Identity.Web
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
         Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
+            string? authenticationScheme = null);
 
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
@@ -101,10 +113,22 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         void ReplyForbiddenWithWwwAuthenticateHeader(
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
-        HttpResponse? httpResponse = null);
+        HttpResponse? httpResponse = null,
+        string? authenticationScheme = null);
+
+        /// <summary>
+        /// Get the effective authentication scheme based on the context.
+        /// </summary>
+        /// <param name="authenticationScheme">Proposed authentication scheme.</param>
+        /// <returns>Effective authenticationScheme which is the authentication scheme
+        /// if it's not null, or otherwise OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</returns>
+        string GetEffectiveAuthenticationScheme(string? authenticationScheme);
 
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).

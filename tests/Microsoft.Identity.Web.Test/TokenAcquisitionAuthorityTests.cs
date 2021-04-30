@@ -3,7 +3,7 @@
 
 using System.Globalization;
 using System.Net.Http;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,8 +21,8 @@ namespace Microsoft.Identity.Web.Test
     {
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
-        private ConfidentialClientApplicationOptions _applicationOptions;
-        private MicrosoftIdentityOptions _microsoftIdentityOptions;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
 
         private void InitializeTokenAcquisitionObjects()
         {
@@ -31,30 +31,23 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IMemoryCache>(),
                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IOptions<MicrosoftIdentityOptions>>(),
-                _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>(),
+                _provider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
+                _provider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>(),
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);
+            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        private void BuildTheRequiredServices(string instance = TestConstants.AadInstance)
+        private void BuildTheRequiredServices()
         {
             var services = new ServiceCollection();
-
-            _applicationOptions = new ConfidentialClientApplicationOptions
-            {
-                Instance = instance,
-                ClientId = TestConstants.ConfidentialClientId,
-                ClientSecret = TestConstants.ClientSecret,
-            };
-
+            services.AddTransient(
+                provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(
+                provider => _applicationOptionsMonitor);
             services.AddTokenAcquisition();
             services.AddLogging();
-            services.AddTransient(
-                provider => Options.Create(_microsoftIdentityOptions));
-            services.AddTransient(
-                provider => Options.Create(_applicationOptions));
             _provider = services.BuildServiceProvider();
         }
 
@@ -65,17 +58,24 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("")]
         public void VerifyCorrectAuthorityUsedInTokenAcquisitionTests(string tenant)
         {
-            _microsoftIdentityOptions = new MicrosoftIdentityOptions
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ConfidentialClientId,
                 CallbackPath = string.Empty,
-            };
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientSecret = TestConstants.ClientSecret,
+            });
 
             BuildTheRequiredServices();
             InitializeTokenAcquisitionObjects();
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
-                 .CreateWithApplicationOptions(_applicationOptions)
+                 .CreateWithApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme))
                  .WithAuthority(TestConstants.AuthorityCommonTenant).Build();
 
             if (!string.IsNullOrEmpty(tenant))
@@ -102,24 +102,37 @@ namespace Microsoft.Identity.Web.Test
             string authorityInstance,
             bool withTfp = false)
         {
-            _microsoftIdentityOptions = new MicrosoftIdentityOptions
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
                 SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
                 Domain = TestConstants.B2CTenant,
-            };
+            });
 
             if (withTfp)
             {
-                BuildTheRequiredServices(authorityInstance + "/tfp/");
+                _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+                {
+                    Instance = authorityInstance + "/tfp/",
+                    ClientId = TestConstants.ConfidentialClientId,
+                    ClientSecret = TestConstants.ClientSecret,
+                });
+                BuildTheRequiredServices();
             }
             else
             {
-                BuildTheRequiredServices(authorityInstance);
+                _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+                {
+                    Instance = authorityInstance,
+                    ClientId = TestConstants.ConfidentialClientId,
+                    ClientSecret = TestConstants.ClientSecret,
+                });
+
+                BuildTheRequiredServices();
             }
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(OpenIdConnectDefaults.AuthenticationScheme);
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -137,19 +150,25 @@ namespace Microsoft.Identity.Web.Test
         public void VerifyCorrectRedirectUriAsync(
             string redirectUri)
         {
-            _microsoftIdentityOptions = new MicrosoftIdentityOptions
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ConfidentialClientId,
                 CallbackPath = string.Empty,
-            };
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                RedirectUri = redirectUri,
+                ClientSecret = TestConstants.ClientSecret,
+            });
 
             BuildTheRequiredServices();
-            _applicationOptions.RedirectUri = redirectUri;
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication();
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(OpenIdConnectDefaults.AuthenticationScheme);
 
             if (!string.IsNullOrEmpty(redirectUri))
             {

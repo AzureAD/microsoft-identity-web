@@ -89,11 +89,11 @@ namespace Microsoft.Identity.Web
         {
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(configureMicrosoftIdentityOptions);
+            services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
 
             if (configureConfidentialClientApplicationOptions != null)
             {
-                services.Configure(configureConfidentialClientApplicationOptions);
+                services.Configure(openIdConnectScheme, configureConfidentialClientApplicationOptions);
             }
 
             services.AddHttpContextAccessor();
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web
                        options.Events.OnAuthorizationCodeReceived = async context =>
                        {
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
+                           await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope, openIdConnectScheme).ConfigureAwait(false);
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
 
@@ -161,7 +161,7 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                           await tokenAcquisition.RemoveAccountAsync(context, openIdConnectScheme).ConfigureAwait(false);
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

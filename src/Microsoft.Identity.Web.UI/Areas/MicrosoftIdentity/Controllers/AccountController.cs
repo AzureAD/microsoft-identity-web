@@ -22,16 +22,16 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
     [Route("[area]/[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IOptions<MicrosoftIdentityOptions> _options;
+        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
 
         /// <summary>
         /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
         /// This constructor is used by dependency injection.
         /// </summary>
-        /// <param name="microsoftIdentityOptions">Configuration options.</param>
-        public AccountController(IOptions<MicrosoftIdentityOptions> microsoftIdentityOptions)
+        /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
+        public AccountController(IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor)
         {
-            _options = microsoftIdentityOptions;
+            _optionsMonitor = microsoftIdentityOptionsMonitor;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items[Constants.Policy] = _options.Value?.ResetPasswordPolicyId;
+            properties.Items[Constants.Policy] = _optionsMonitor.Get(scheme).ResetPasswordPolicyId;
             return Challenge(properties, scheme);
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            properties.Items[Constants.Policy] = _options.Value?.EditProfilePolicyId;
+            properties.Items[Constants.Policy] = _optionsMonitor.Get(scheme).EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
     }
