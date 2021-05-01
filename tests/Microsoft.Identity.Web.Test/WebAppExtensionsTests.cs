@@ -422,47 +422,23 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
         }
 
-        [Fact]
+        [Theory]
+        [InlineData("tRue", "azureactivedirectory")]
+        [InlineData("true", "azureactivedirectory")]
+        [InlineData("tRue", AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory)]
+        [InlineData("true", AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory)]
         // Regression for https://github.com/AzureAD/microsoft-identity-web/issues/1163
-        public void AddMicrosoftIdentityWebApp_CaseInsensitive_AppServices()
+        public void AppServices_EnvironmentTest(string appServicesEnvEnabledValue, string idpEnvValue)
         {
             try
             {
                 // Arrange
                 Environment.SetEnvironmentVariable(
-                    AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, "tRue");
+                    AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, appServicesEnvEnabledValue);
 
                 Environment.SetEnvironmentVariable(
                     AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable,
-                    "azureactivedirectory"); // used to be uppercase
-
-                var services = new ServiceCollection();
-
-                // Act
-                services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(_configureMsOptions);
-
-                // Assert
-                Assert.Contains(services, s => s.ServiceType == typeof(AppServicesAuthenticationHandler));
-            }
-            finally
-            {
-                ResetAppServiceEnv();
-            }
-        }
-
-        [Fact]
-        public void AddMicrosoftIdentityWebApp_AppServices()
-        {
-            try
-            {
-                // Arrange
-                Environment.SetEnvironmentVariable(
-                    AppServicesAuthenticationInformation.AppServicesAuthEnabledEnvironmentVariable, "true");
-
-                Environment.SetEnvironmentVariable(
-                    AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable,
-                    AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory);
+                    idpEnvValue);
 
                 var services = new ServiceCollection();
 
