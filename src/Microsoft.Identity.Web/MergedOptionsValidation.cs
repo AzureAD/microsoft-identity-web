@@ -9,9 +9,9 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MicrosoftIdentityOptionsValidation
+    internal class MergedOptionsValidation
     {
-        public static void Validate(MicrosoftIdentityOptions options)
+        public static void Validate(MergedOptions options)
         {
             if (string.IsNullOrEmpty(options.ClientId))
             {

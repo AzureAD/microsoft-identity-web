@@ -31,8 +31,7 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IMemoryCache>(),
                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
-                _provider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>(),
+                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);

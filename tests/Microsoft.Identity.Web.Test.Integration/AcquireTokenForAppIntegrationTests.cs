@@ -221,8 +221,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             _tokenAcquisition = new TokenAcquisition(
                  _msalTestTokenCacheProvider,
                  MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
-                 _provider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>(),
+                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  _provider);

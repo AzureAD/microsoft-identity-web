@@ -73,13 +73,13 @@ namespace Microsoft.Identity.Web.Test
 
             if (missingParam != MissingParam.None)
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => MicrosoftIdentityOptionsValidation.Validate(_microsoftIdentityOptions));
+                var exception = Assert.Throws<ArgumentNullException>(() => MergedOptionsValidation.Validate(_microsoftIdentityOptions));
 
                 CheckReturnValueAgainstExpectedMissingParam(missingParam, exception);
             }
             else
             {
-                MicrosoftIdentityOptionsValidation.Validate(_microsoftIdentityOptions);
+                MergedOptionsValidation.Validate(_microsoftIdentityOptions);
             }
         }
 

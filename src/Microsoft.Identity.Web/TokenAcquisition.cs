@@ -31,8 +31,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal partial class TokenAcquisition : ITokenAcquisitionInternal
     {
-        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        private readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
+        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -55,23 +54,20 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="tokenCacheProvider">The App token cache provider.</param>
         /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-        /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
-        /// <param name="applicationOptionsMonitor">MSAL.NET configuration options.</param>
+        /// <param name="mergedOptionsMonitor">Configuration options.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
-            IOptionsMonitor<ConfidentialClientApplicationOptions> applicationOptionsMonitor,
+            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
             IServiceProvider serviceProvider)
         {
             _httpContextAccessor = httpContextAccessor;
-            _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
-            _applicationOptionsMonitor = applicationOptionsMonitor;
+            _mergedOptionsMonitor = mergedOptionsMonitor;
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
@@ -80,26 +76,27 @@ namespace Microsoft.Identity.Web
 
         internal MergedOptions GetOptions(string authenticationScheme)
         {
-            MergedOptions mergedOptions;
-            if (!_schemeDictionary.TryGetValue(authenticationScheme, out mergedOptions!))
-            {
-                var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(authenticationScheme);
-                var applicationOptions = _applicationOptionsMonitor.Get(authenticationScheme);
+            var merged = _mergedOptionsMonitor.Get(authenticationScheme);
+            //MergedOptions mergedOptions;
+            //if (!_schemeDictionary.TryGetValue(authenticationScheme, out mergedOptions!))
+            //{
+            //    var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(authenticationScheme);
+            //    var applicationOptions = _applicationOptionsMonitor.Get(authenticationScheme);
 
-                var microsoftIdentityOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<MicrosoftIdentityOptions>)) as IOptions<MicrosoftIdentityOptions>)?.Value;
+            //    var microsoftIdentityOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<MicrosoftIdentityOptions>)) as IOptions<MicrosoftIdentityOptions>)?.Value;
 
-                var applicationOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<ConfidentialClientApplicationOptions>)) as IOptions<ConfidentialClientApplicationOptions>)?.Value;
+            //    var applicationOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<ConfidentialClientApplicationOptions>)) as IOptions<ConfidentialClientApplicationOptions>)?.Value;
 
-                mergedOptions = new MergedOptions();
-                mergedOptions.MergeIdWebOptionsAndCcaOptions(
-                    microsoftIdentityOptions,
-                    applicationOptions,
-                    microsoftIdentityOptionsFallback,
-                    applicationOptionsFallback);
-                _schemeDictionary.Add(authenticationScheme, mergedOptions);
-            }
+            //    mergedOptions = new MergedOptions();
+            //    mergedOptions.MergeIdWebOptionsAndCcaOptions(
+            //        microsoftIdentityOptions,
+            //        applicationOptions,
+            //        microsoftIdentityOptionsFallback,
+            //        applicationOptionsFallback);
+            //    _schemeDictionary.Add(authenticationScheme, mergedOptions);
+            //}
 
-            return mergedOptions;
+            return merged;
         }
 
         /// <summary>
@@ -554,7 +551,7 @@ namespace Microsoft.Identity.Web
         private string BuildCurrentUriFromRequest(
             HttpContext httpContext,
             HttpRequest request,
-            MicrosoftIdentityOptions microsoftIdentityOptions)
+            MergedOptions mergedOptions)
         {
             // need to lock to avoid threading issues with code outside of this library
             // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
@@ -564,7 +561,7 @@ namespace Microsoft.Identity.Web
                     request.Scheme,
                     request.Host,
                     request.PathBase,
-                    microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+                    mergedOptions.CallbackPath.Value ?? string.Empty);
             }
         }
 
@@ -590,17 +587,15 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private IConfidentialClientApplication BuildConfidentialClientApplication(string authenticationScheme)
         {
-            var mergedOptions = _schemeDictionary[authenticationScheme];
             var httpContext = CurrentHttpContext;
             var request = httpContext?.Request;
             string? currentUri = null;
 
-            var applicationOptions = _applicationOptionsMonitor.Get(authenticationScheme);
-            var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(authenticationScheme);
+            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
 
-            if (!string.IsNullOrEmpty(applicationOptions.RedirectUri))
+            if (!string.IsNullOrEmpty(mergedOptions.ConfidentialClientApplicationOptions.RedirectUri))
             {
-                currentUri = applicationOptions.RedirectUri;
+                currentUri = mergedOptions.ConfidentialClientApplicationOptions.RedirectUri;
             }
 
             if (request != null && string.IsNullOrEmpty(currentUri))
@@ -608,24 +603,24 @@ namespace Microsoft.Identity.Web
                 currentUri = BuildCurrentUriFromRequest(
                     httpContext!,
                     request,
-                    microsoftIdentityOptions);
+                    mergedOptions);
             }
 
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
-            MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  mergedOptions.ClientSecret,
                  mergedOptions.ClientCertificates);
 
             try
             {
                 var builder = ConfidentialClientApplicationBuilder
-                        .CreateWithApplicationOptions(mergedOptions)
+                        .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                            enablePiiLogging: mergedOptions.EnablePiiLogging)
+                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
                 // The redirect URI is not needed for OBO
@@ -706,7 +701,7 @@ namespace Microsoft.Identity.Web
                                     .AcquireTokenOnBehalfOf(
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
-                                    .WithSendX5C(_microsoftIdentityOptionsMonitor.Get(authenticationScheme).SendX5C)
+                                    .WithSendX5C(_mergedOptionsMonitor.Get(authenticationScheme).SendX5C)
                                     .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)

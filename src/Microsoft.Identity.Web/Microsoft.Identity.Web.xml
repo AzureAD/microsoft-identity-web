@@ -2209,7 +2209,7 @@
              Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition},System.IServiceProvider)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MergedOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition},System.IServiceProvider)">
             <summary>
             Constructor of the TokenAcquisition service. This requires the Azure AD Options to
             configure the confidential client application and a token cache provider.
@@ -2217,8 +2217,7 @@
             </summary>
             <param name="tokenCacheProvider">The App token cache provider.</param>
             <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-            <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
-            <param name="applicationOptionsMonitor">MSAL.NET configuration options.</param>
+            <param name="mergedOptionsMonitor">Configuration options.</param>
             <param name="httpClientFactory">HTTP client factory.</param>
             <param name="logger">Logger.</param>
             <param name="serviceProvider">Service provider.</param>
