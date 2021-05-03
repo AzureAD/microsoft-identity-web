@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -90,8 +91,18 @@ namespace Microsoft.Identity.Web
             services.AddHttpContextAccessor();
 
             services.AddOptions<JwtBearerOptions>(jwtBearerAuthenticationScheme)
-                .Configure<IServiceProvider>((options, serviceProvider) =>
+                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                       options,
+                       serviceProvider,
+                       mergedOptionsMonitor,
+                       ccaOptionsMonitor,
+                       ccaOptions) =>
                 {
+                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerAuthenticationScheme);
+
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions);
+
                     options.Events ??= new JwtBearerEvents();
 
                     var onTokenValidatedHandler = options.Events.OnTokenValidated;

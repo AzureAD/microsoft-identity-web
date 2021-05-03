@@ -31,8 +31,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal partial class TokenAcquisition : ITokenAcquisitionInternal
     {
-        private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        private readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
+        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -46,7 +45,6 @@ namespace Microsoft.Identity.Web
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
-        private IDictionary<string, MergedOptions> _schemeDictionary = new Dictionary<string, MergedOptions>();
 
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -55,23 +53,20 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="tokenCacheProvider">The App token cache provider.</param>
         /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-        /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
-        /// <param name="applicationOptionsMonitor">MSAL.NET configuration options.</param>
+        /// <param name="mergedOptionsMonitor">Configuration options.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
-            IOptionsMonitor<ConfidentialClientApplicationOptions> applicationOptionsMonitor,
+            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
             IServiceProvider serviceProvider)
         {
             _httpContextAccessor = httpContextAccessor;
-            _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
-            _applicationOptionsMonitor = applicationOptionsMonitor;
+            _mergedOptionsMonitor = mergedOptionsMonitor;
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
@@ -80,26 +75,7 @@ namespace Microsoft.Identity.Web
 
         internal MergedOptions GetOptions(string authenticationScheme)
         {
-            MergedOptions mergedOptions;
-            if (!_schemeDictionary.TryGetValue(authenticationScheme, out mergedOptions!))
-            {
-                var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(authenticationScheme);
-                var applicationOptions = _applicationOptionsMonitor.Get(authenticationScheme);
-
-                var microsoftIdentityOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<MicrosoftIdentityOptions>)) as IOptions<MicrosoftIdentityOptions>)?.Value;
-
-                var applicationOptionsFallback = (_serviceProvider.GetService(typeof(IOptions<ConfidentialClientApplicationOptions>)) as IOptions<ConfidentialClientApplicationOptions>)?.Value;
-
-                mergedOptions = new MergedOptions();
-                mergedOptions.MergeIdWebOptionsAndCcaOptions(
-                    microsoftIdentityOptions,
-                    applicationOptions,
-                    microsoftIdentityOptionsFallback,
-                    applicationOptionsFallback);
-                _schemeDictionary.Add(authenticationScheme, mergedOptions);
-            }
-
-            return mergedOptions;
+            return _mergedOptionsMonitor.Get(authenticationScheme);
         }
 
         /// <summary>
@@ -174,7 +150,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                var application = GetOrBuildConfidentialClientApplication(authenticationScheme);
+                var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
                 context.TokenEndpointRequest.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
@@ -242,11 +218,11 @@ namespace Microsoft.Identity.Web
             }
 
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-            GetOptions(authenticationScheme);
+            MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = GetOrBuildConfidentialClientApplication(authenticationScheme);
+            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
             string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenantId);
 
@@ -258,7 +234,7 @@ namespace Microsoft.Identity.Web
                     authority,
                     scopes,
                     tokenAcquisitionOptions,
-                    authenticationScheme).ConfigureAwait(false);
+                    mergedOptions).ConfigureAwait(false);
 
                 if (authenticationResult != null)
                 {
@@ -271,7 +247,7 @@ namespace Microsoft.Identity.Web
                      user,
                      scopes,
                      authority,
-                     authenticationScheme,
+                     mergedOptions,
                      userFlow,
                      null)
                      .ConfigureAwait(false);
@@ -331,7 +307,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            var application = GetOrBuildConfidentialClientApplication(authenticationScheme);
+            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
             string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenant);
 
             var builder = application
@@ -469,7 +445,7 @@ namespace Microsoft.Identity.Web
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
-            var application = GetOrBuildConfidentialClientApplication(authenticationScheme);
+            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
             string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={mergedOptions.ClientId}"
                 + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
@@ -517,7 +493,7 @@ namespace Microsoft.Identity.Web
                 authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
                 MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
-                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication(authenticationScheme);
+                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication(mergedOptions);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -554,7 +530,7 @@ namespace Microsoft.Identity.Web
         private string BuildCurrentUriFromRequest(
             HttpContext httpContext,
             HttpRequest request,
-            MicrosoftIdentityOptions microsoftIdentityOptions)
+            MergedOptions mergedOptions)
         {
             // need to lock to avoid threading issues with code outside of this library
             // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
@@ -564,12 +540,12 @@ namespace Microsoft.Identity.Web
                     request.Scheme,
                     request.Host,
                     request.PathBase,
-                    microsoftIdentityOptions.CallbackPath.Value ?? string.Empty);
+                    mergedOptions.CallbackPath.Value ?? string.Empty);
             }
         }
 
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
-           string authenticationScheme)
+           MergedOptions mergedOptions)
         {
             if (_application == null)
             {
@@ -577,7 +553,7 @@ namespace Microsoft.Identity.Web
                 {
                     if (_application == null)
                     {
-                        _application = BuildConfidentialClientApplication(authenticationScheme);
+                        _application = BuildConfidentialClientApplication(mergedOptions);
                     }
                 }
             }
@@ -588,19 +564,15 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private IConfidentialClientApplication BuildConfidentialClientApplication(string authenticationScheme)
+        private IConfidentialClientApplication BuildConfidentialClientApplication(MergedOptions mergedOptions)
         {
-            var mergedOptions = _schemeDictionary[authenticationScheme];
             var httpContext = CurrentHttpContext;
             var request = httpContext?.Request;
             string? currentUri = null;
 
-            var applicationOptions = _applicationOptionsMonitor.Get(authenticationScheme);
-            var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(authenticationScheme);
-
-            if (!string.IsNullOrEmpty(applicationOptions.RedirectUri))
+            if (!string.IsNullOrEmpty(mergedOptions.ConfidentialClientApplicationOptions.RedirectUri))
             {
-                currentUri = applicationOptions.RedirectUri;
+                currentUri = mergedOptions.ConfidentialClientApplicationOptions.RedirectUri;
             }
 
             if (request != null && string.IsNullOrEmpty(currentUri))
@@ -608,24 +580,24 @@ namespace Microsoft.Identity.Web
                 currentUri = BuildCurrentUriFromRequest(
                     httpContext!,
                     request,
-                    microsoftIdentityOptions);
+                    mergedOptions);
             }
 
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
-            MicrosoftIdentityOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  mergedOptions.ClientSecret,
                  mergedOptions.ClientCertificates);
 
             try
             {
                 var builder = ConfidentialClientApplicationBuilder
-                        .CreateWithApplicationOptions(mergedOptions)
+                        .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                            enablePiiLogging: mergedOptions.EnablePiiLogging)
+                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
                 // The redirect URI is not needed for OBO
@@ -689,7 +661,7 @@ namespace Microsoft.Identity.Web
            string authority,
            IEnumerable<string> scopes,
            TokenAcquisitionOptions? tokenAcquisitionOptions,
-           string? authenticationScheme)
+           MergedOptions mergedOptions)
         {
             try
             {
@@ -706,7 +678,7 @@ namespace Microsoft.Identity.Web
                                     .AcquireTokenOnBehalfOf(
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
-                                    .WithSendX5C(_microsoftIdentityOptionsMonitor.Get(authenticationScheme).SendX5C)
+                                    .WithSendX5C(mergedOptions.SendX5C)
                                     .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)
@@ -745,8 +717,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes for the downstream API to call.</param>
         /// <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
@@ -754,12 +725,12 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
             string? authority,
-            string authenticationScheme,
+            MergedOptions mergedOptions,
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             IAccount? account = null;
-            if (_schemeDictionary[authenticationScheme].IsB2C && !string.IsNullOrEmpty(userFlow))
+            if (mergedOptions.IsB2C && !string.IsNullOrEmpty(userFlow))
             {
                 string? nameIdentifierId = claimsPrincipal?.GetNameIdentifierId();
                 string? utid = claimsPrincipal?.GetHomeTenantId();
@@ -781,7 +752,7 @@ namespace Microsoft.Identity.Web
                 account,
                 scopes,
                 authority,
-                authenticationScheme,
+                mergedOptions,
                 userFlow,
                 tokenAcquisitionOptions).ConfigureAwait(false);
         }
@@ -795,8 +766,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes for the downstream API to call.</param>
         /// <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         private Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
@@ -804,7 +774,7 @@ namespace Microsoft.Identity.Web
             IAccount? account,
             IEnumerable<string> scopes,
             string? authority,
-            string authenticationScheme,
+            MergedOptions mergedOptions,
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
@@ -812,8 +782,6 @@ namespace Microsoft.Identity.Web
             {
                 throw new ArgumentNullException(nameof(scopes));
             }
-
-            var mergedOptions = _schemeDictionary[authenticationScheme];
 
             var builder = application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)

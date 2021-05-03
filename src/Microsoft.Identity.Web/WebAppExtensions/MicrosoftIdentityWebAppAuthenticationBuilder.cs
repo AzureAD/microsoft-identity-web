@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -107,8 +108,18 @@ namespace Microsoft.Identity.Web
                 services.AddTokenAcquisition();
 
                 services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                   .Configure<IServiceProvider>((options, serviceProvider) =>
+                   .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                       options,
+                       serviceProvider,
+                       mergedOptionsMonitor,
+                       ccaOptionsMonitor,
+                       ccaOptions) =>
                    {
+                       MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
+
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
+
                        options.ResponseType = OpenIdConnectResponseType.Code;
 
                        // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts

@@ -2209,7 +2209,7 @@
              Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions},Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition},System.IServiceProvider)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.#ctor(Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MergedOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenAcquisition},System.IServiceProvider)">
             <summary>
             Constructor of the TokenAcquisition service. This requires the Azure AD Options to
             configure the confidential client application and a token cache provider.
@@ -2217,8 +2217,7 @@
             </summary>
             <param name="tokenCacheProvider">The App token cache provider.</param>
             <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-            <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
-            <param name="applicationOptionsMonitor">MSAL.NET configuration options.</param>
+            <param name="mergedOptionsMonitor">Configuration options.</param>
             <param name="httpClientFactory">HTTP client factory.</param>
             <param name="logger">Logger.</param>
             <param name="serviceProvider">Service provider.</param>
@@ -2386,12 +2385,12 @@
         <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetEffectiveAuthenticationScheme(System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplication(System.String)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.BuildConfidentialClientApplication(Microsoft.Identity.Web.MergedOptions)">
             <summary>
             Creates an MSAL confidential client application.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,System.Security.Claims.ClaimsPrincipal,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Web.MergedOptions,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <summary>
             Gets an access token for a downstream API on behalf of the user described by its claimsPrincipal.
             </summary>
@@ -2400,12 +2399,11 @@
             <param name="scopes">Scopes for the downstream API to call.</param>
             <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
             on behalf of the user described in the claimsPrincipal.</param>
-            <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="mergedOptions">Merged options.</param>
             <param name="userFlow">Azure AD B2C user flow to target.</param>
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.GetAuthenticationResultForWebAppWithAccountFromCacheAsync(Microsoft.Identity.Client.IConfidentialClientApplication,Microsoft.Identity.Client.IAccount,System.Collections.Generic.IEnumerable{System.String},System.String,Microsoft.Identity.Web.MergedOptions,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <summary>
             Gets an access token for a downstream API on behalf of the user whose account is passed as an argument.
             </summary>
@@ -2415,8 +2413,7 @@
             <param name="scopes">Scopes for the downstream API to call.</param>
             <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
             on behalf of the user.</param>
-            <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="mergedOptions">Merged options.</param>
             <param name="userFlow">Azure AD B2C user flow.</param>
             <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         </member>

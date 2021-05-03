@@ -170,15 +170,23 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MicrosoftIdentityOptions>>((options, serviceProvider, microsoftIdentityOptionsMonitor) =>
+                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                options,
+                serviceProvider,
+                mergedOptionsMonitor,
+                msIdOptionsMonitor,
+                msIdOptions) =>
                 {
-                    var microsoftIdentityOptions = microsoftIdentityOptionsMonitor.Get(jwtBearerScheme);
+                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
-                    MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
+
+                    MergedOptionsValidation.Validate(mergedOptions);
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
-                        options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
+                        options.Authority = AuthorityHelpers.BuildAuthority(mergedOptions);
                     }
 
                     // This is a Microsoft identity platform web API
@@ -191,7 +199,7 @@ namespace Microsoft.Identity.Web
                         RegisterValidAudience registerAudience = new RegisterValidAudience();
                         registerAudience.RegisterAudienceValidation(
                             options.TokenValidationParameters,
-                            microsoftIdentityOptions);
+                            mergedOptions);
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
@@ -207,9 +215,9 @@ namespace Microsoft.Identity.Web
                     }
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
-                    if (microsoftIdentityOptions.TokenDecryptionCertificates != null)
+                    if (mergedOptions.TokenDecryptionCertificates != null)
                     {
-                        IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(microsoftIdentityOptions.TokenDecryptionCertificates);
+                        IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCertificates);
                         IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }
@@ -224,7 +232,7 @@ namespace Microsoft.Identity.Web
                     var tokenValidatedHandler = options.Events.OnTokenValidated;
                     options.Events.OnTokenValidated = async context =>
                     {
-                        if (!microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL
+                        if (!mergedOptions.AllowWebApiToBeAuthorizedByACL
                             && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
                                 || x.Type == ClaimConstants.Scp
                                 || x.Type == ClaimConstants.Roles

@@ -31,8 +31,7 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IMemoryCache>(),
                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
-                _provider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>(),
+                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);
@@ -46,6 +45,7 @@ namespace Microsoft.Identity.Web.Test
                 provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
                 provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
             services.AddTokenAcquisition();
             services.AddLogging();
             _provider = services.BuildServiceProvider();
@@ -130,9 +130,13 @@ namespace Microsoft.Identity.Web.Test
                 BuildTheRequiredServices();
             }
 
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(OpenIdConnectDefaults.AuthenticationScheme);
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -165,10 +169,13 @@ namespace Microsoft.Identity.Web.Test
             });
 
             BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(OpenIdConnectDefaults.AuthenticationScheme);
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
 
             if (!string.IsNullOrEmpty(redirectUri))
             {
