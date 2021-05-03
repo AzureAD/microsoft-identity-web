@@ -16,7 +16,6 @@ namespace Microsoft.Identity.Web.Test
 {
     public class MicrosoftIdentityOptionsTests
     {
-        private MicrosoftIdentityOptions _microsoftIdentityOptions;
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
         private ServiceProvider _provider;
