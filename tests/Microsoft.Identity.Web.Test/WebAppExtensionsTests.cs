@@ -183,7 +183,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
+                .PostConfigure<MicrosoftIdentityOptions>((options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
