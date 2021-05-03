@@ -3,8 +3,13 @@
 
 using System;
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using NSubstitute.Extensions;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -14,6 +19,9 @@ namespace Microsoft.Identity.Web.Test
         private MicrosoftIdentityOptions _microsoftIdentityOptions;
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
+        private ServiceProvider _provider;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -58,29 +66,55 @@ namespace Microsoft.Identity.Web.Test
            string optionsName,
            MissingParam missingParam = MissingParam.None)
         {
-            _microsoftIdentityOptions = new MicrosoftIdentityOptions
-            {
-                ClientId = clientId,
-                Instance = instance,
-                TenantId = tenantid,
-            };
-
             if (optionsName == AzureAdB2C)
             {
-                _microsoftIdentityOptions.SignUpSignInPolicyId = signUpSignInPolicyId;
-                _microsoftIdentityOptions.Domain = domain;
+                _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+                {
+                    SignUpSignInPolicyId = signUpSignInPolicyId,
+                    Domain = domain,
+                    ClientId = clientId,
+                    Instance = instance,
+                    TenantId = tenantid,
+                });
             }
+            else
+            {
+                _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+                {
+                    ClientId = clientId,
+                    Instance = instance,
+                    TenantId = tenantid,
+                });
+            }
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
             if (missingParam != MissingParam.None)
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => MergedOptionsValidation.Validate(_microsoftIdentityOptions));
+                var exception = Assert.Throws<ArgumentNullException>(() => MergedOptionsValidation.Validate(mergedOptions));
 
                 CheckReturnValueAgainstExpectedMissingParam(missingParam, exception);
             }
             else
             {
-                MergedOptionsValidation.Validate(_microsoftIdentityOptions);
+                MergedOptionsValidation.Validate(mergedOptions);
             }
+        }
+
+        private void BuildTheRequiredServices()
+        {
+            var services = new ServiceCollection();
+            services.AddTransient(
+                provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(
+                provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            _provider = services.BuildServiceProvider();
         }
 
         private void CheckReturnValueAgainstExpectedMissingParam(MissingParam missingParam, ArgumentNullException exception)
