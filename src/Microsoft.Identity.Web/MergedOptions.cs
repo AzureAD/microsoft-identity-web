@@ -174,22 +174,27 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.ResetPasswordPolicyId = microsoftIdentityOptions.ResetPasswordPolicyId;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.Resource) && !string.IsNullOrEmpty(microsoftIdentityOptions.Resource))
             {
                 mergedOptions.Resource = microsoftIdentityOptions.Resource;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.ResponseMode) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseMode))
             {
                 mergedOptions.ResponseMode = microsoftIdentityOptions.ResponseMode;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.ResponseType) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseType))
             {
                 mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.ReturnUrlParameter) && !string.IsNullOrEmpty(microsoftIdentityOptions.ReturnUrlParameter))
             {
                 mergedOptions.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
             }
+
             mergedOptions.SaveTokens = microsoftIdentityOptions.SaveTokens;
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
             mergedOptions.SendX5C = microsoftIdentityOptions.SendX5C;
@@ -198,18 +203,22 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.SignInScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInScheme))
             {
                 mergedOptions.SignInScheme = microsoftIdentityOptions.SignInScheme;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.SignOutScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignOutScheme))
             {
                 mergedOptions.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
             }
+
             if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
             {
                 mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
             }
+
             mergedOptions.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
             mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
             mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
@@ -217,6 +226,7 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
             }
+
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
             mergedOptions.TokenValidationParameters ??= microsoftIdentityOptions.TokenValidationParameters;
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
@@ -263,6 +273,7 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.Instance = confidentialClientApplicationOptions.Instance;
             }
+
             mergedOptions.IsDefaultPlatformLoggingEnabled = confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
             mergedOptions.LegacyCacheCompatibilityEnabled = confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled;
             mergedOptions.LogLevel = confidentialClientApplicationOptions.LogLevel;

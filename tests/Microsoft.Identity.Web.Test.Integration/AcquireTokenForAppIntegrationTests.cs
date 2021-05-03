@@ -30,7 +30,6 @@ namespace Microsoft.Identity.Web.Test.Integration
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
 
-
         private readonly KeyVaultSecretsProvider _keyVault;
         private readonly string _ccaSecret;
         private readonly ITestOutputHelper _output;
