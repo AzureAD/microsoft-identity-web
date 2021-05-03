@@ -759,10 +759,10 @@ namespace Microsoft.Identity.Web.Test
             int expectedNumberOfProperties;
 #if DOTNET_CORE_31
             expectedNumberOfProperties = 54;
-            //System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #elif DOTNET_50
             expectedNumberOfProperties = 57;
-            //System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #endif
             Assert.Equal(expectedNumberOfProperties, numberOfProperties);
         }
