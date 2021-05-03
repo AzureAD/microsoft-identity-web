@@ -46,22 +46,50 @@ namespace Microsoft.Identity.Web
             mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
             mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;
             mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
-            mergedOptions.Authority ??= microsoftIdentityOptions.Authority;
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftIdentityOptions.Authority))
+            {
+                mergedOptions.Authority = microsoftIdentityOptions.Authority;
+            }
+
+#if DOTNET_50_AND_ABOVE
+            mergedOptions.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+#endif
             mergedOptions.Backchannel ??= microsoftIdentityOptions.Backchannel;
             mergedOptions.BackchannelHttpHandler ??= microsoftIdentityOptions.BackchannelHttpHandler;
             mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             mergedOptions.CallbackPath = microsoftIdentityOptions.CallbackPath;
-            mergedOptions.ClaimsIssuer ??= microsoftIdentityOptions.ClaimsIssuer;
+            if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClaimsIssuer))
+            {
+                mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
+            }
+
             mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
-            mergedOptions.ClientId ??= microsoftIdentityOptions.ClientId;
-            mergedOptions.ClientSecret ??= microsoftIdentityOptions.ClientSecret;
+            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
+            {
+                mergedOptions.ClientId = microsoftIdentityOptions.ClientId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
+            {
+                mergedOptions.ClientSecret = microsoftIdentityOptions.ClientSecret;
+            }
+
             mergedOptions.Configuration ??= microsoftIdentityOptions.Configuration;
             mergedOptions.ConfigurationManager ??= microsoftIdentityOptions.ConfigurationManager;
             mergedOptions.CorrelationCookie ??= microsoftIdentityOptions.CorrelationCookie;
             mergedOptions.DataProtectionProvider ??= microsoftIdentityOptions.DataProtectionProvider;
             mergedOptions.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
-            mergedOptions.Domain ??= microsoftIdentityOptions.Domain;
-            mergedOptions.EditProfilePolicyId ??= microsoftIdentityOptions.EditProfilePolicyId;
+
+            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftIdentityOptions.Domain))
+            {
+                mergedOptions.Domain = microsoftIdentityOptions.Domain;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.EditProfilePolicyId))
+            {
+                mergedOptions.EditProfilePolicyId = microsoftIdentityOptions.EditProfilePolicyId;
+            }
+
             mergedOptions.Events.OnAccessDenied += microsoftIdentityOptions.Events.OnAccessDenied;
             mergedOptions.Events.OnAuthenticationFailed += microsoftIdentityOptions.Events.OnAuthenticationFailed;
             mergedOptions.Events.OnAuthorizationCodeReceived += microsoftIdentityOptions.Events.OnAuthorizationCodeReceived;
@@ -75,47 +103,128 @@ namespace Microsoft.Identity.Web
             mergedOptions.Events.OnTokenResponseReceived += microsoftIdentityOptions.Events.OnTokenResponseReceived;
             mergedOptions.Events.OnTokenValidated += microsoftIdentityOptions.Events.OnTokenValidated;
             mergedOptions.Events.OnUserInformationReceived += microsoftIdentityOptions.Events.OnUserInformationReceived;
+
             mergedOptions.EventsType ??= microsoftIdentityOptions.EventsType;
-            mergedOptions.ForwardAuthenticate ??= microsoftIdentityOptions.ForwardAuthenticate;
-            mergedOptions.ForwardChallenge ??= microsoftIdentityOptions.ForwardChallenge;
-            mergedOptions.ForwardDefault ??= microsoftIdentityOptions.ForwardDefault;
+            if (string.IsNullOrEmpty(mergedOptions.ForwardAuthenticate) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardAuthenticate))
+            {
+                mergedOptions.ForwardAuthenticate = microsoftIdentityOptions.ForwardAuthenticate;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ForwardChallenge) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardChallenge))
+            {
+                mergedOptions.ForwardChallenge = microsoftIdentityOptions.ForwardChallenge;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ForwardDefault) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardDefault))
+            {
+                mergedOptions.ForwardDefault = microsoftIdentityOptions.ForwardDefault;
+            }
+
             mergedOptions.ForwardDefaultSelector ??= microsoftIdentityOptions.ForwardDefaultSelector;
-            mergedOptions.ForwardForbid ??= microsoftIdentityOptions.ForwardForbid;
-            mergedOptions.ForwardSignIn ??= microsoftIdentityOptions.ForwardSignIn;
-            mergedOptions.ForwardSignOut ??= microsoftIdentityOptions.ForwardSignOut;
+            if (string.IsNullOrEmpty(mergedOptions.ForwardForbid) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardForbid))
+            {
+                mergedOptions.ForwardForbid = microsoftIdentityOptions.ForwardForbid;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ForwardSignIn) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardSignIn))
+            {
+                mergedOptions.ForwardSignIn = microsoftIdentityOptions.ForwardSignIn;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ForwardSignOut) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardSignOut))
+            {
+                mergedOptions.ForwardSignOut = microsoftIdentityOptions.ForwardSignOut;
+            }
+
             mergedOptions.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
-            mergedOptions.Instance ??= microsoftIdentityOptions.Instance;
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
+            {
+                mergedOptions.Instance = microsoftIdentityOptions.Instance;
+            }
+
             mergedOptions.LegacyCacheCompatibilityEnabled = microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
+
+#if DOTNET_50_AND_ABOVE
+            mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
+#endif
+
             mergedOptions.MaxAge = microsoftIdentityOptions.MaxAge;
-            mergedOptions.MetadataAddress ??= microsoftIdentityOptions.MetadataAddress;
+            if (string.IsNullOrEmpty(mergedOptions.MetadataAddress) && !string.IsNullOrEmpty(microsoftIdentityOptions.MetadataAddress))
+            {
+                mergedOptions.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
+            }
+
             mergedOptions.NonceCookie ??= microsoftIdentityOptions.NonceCookie;
-            mergedOptions.Prompt ??= microsoftIdentityOptions.Prompt;
+            if (string.IsNullOrEmpty(mergedOptions.Prompt) && !string.IsNullOrEmpty(microsoftIdentityOptions.Prompt))
+            {
+                mergedOptions.Prompt = microsoftIdentityOptions.Prompt;
+            }
+
             mergedOptions.ProtocolValidator ??= microsoftIdentityOptions.ProtocolValidator;
+
+#if DOTNET_50_AND_ABOVE
+            mergedOptions.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
+#endif
+
             mergedOptions.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
             mergedOptions.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
             mergedOptions.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
             mergedOptions.RequireHttpsMetadata = microsoftIdentityOptions.RequireHttpsMetadata;
-            mergedOptions.ResetPasswordPolicyId ??= microsoftIdentityOptions.ResetPasswordPolicyId;
-            mergedOptions.Resource ??= microsoftIdentityOptions.Resource;
-            mergedOptions.ResponseMode ??= microsoftIdentityOptions.ResponseMode;
-            mergedOptions.ResponseType ??= microsoftIdentityOptions.ResponseType;
-            mergedOptions.ReturnUrlParameter ??= microsoftIdentityOptions.ReturnUrlParameter;
+            if (string.IsNullOrEmpty(mergedOptions.ResetPasswordPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResetPasswordPolicyId))
+            {
+                mergedOptions.ResetPasswordPolicyId = microsoftIdentityOptions.ResetPasswordPolicyId;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.Resource) && !string.IsNullOrEmpty(microsoftIdentityOptions.Resource))
+            {
+                mergedOptions.Resource = microsoftIdentityOptions.Resource;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.ResponseMode) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseMode))
+            {
+                mergedOptions.ResponseMode = microsoftIdentityOptions.ResponseMode;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.ResponseType) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseType))
+            {
+                mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.ReturnUrlParameter) && !string.IsNullOrEmpty(microsoftIdentityOptions.ReturnUrlParameter))
+            {
+                mergedOptions.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
+            }
             mergedOptions.SaveTokens = microsoftIdentityOptions.SaveTokens;
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
             mergedOptions.SendX5C = microsoftIdentityOptions.SendX5C;
             mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
-            mergedOptions.SignedOutRedirectUri ??= microsoftIdentityOptions.SignedOutRedirectUri;
-            mergedOptions.SignInScheme ??= microsoftIdentityOptions.SignInScheme;
-            mergedOptions.SignOutScheme ??= microsoftIdentityOptions.SignOutScheme;
-            mergedOptions.SignUpSignInPolicyId ??= microsoftIdentityOptions.SignUpSignInPolicyId;
+            if (string.IsNullOrEmpty(mergedOptions.SignedOutRedirectUri) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignedOutRedirectUri))
+            {
+                mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.SignInScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInScheme))
+            {
+                mergedOptions.SignInScheme = microsoftIdentityOptions.SignInScheme;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.SignOutScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignOutScheme))
+            {
+                mergedOptions.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
+            }
+            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
+            {
+                mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
+            }
             mergedOptions.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
             mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
             mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
-            mergedOptions.TenantId ??= microsoftIdentityOptions.TenantId;
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
+            {
+                mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
+            }
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
             mergedOptions.TokenValidationParameters ??= microsoftIdentityOptions.TokenValidationParameters;
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
-            mergedOptions.UserAssignedManagedIdentityClientId ??= microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
+            if (string.IsNullOrEmpty(mergedOptions.UserAssignedManagedIdentityClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.UserAssignedManagedIdentityClientId))
+            {
+                mergedOptions.UserAssignedManagedIdentityClientId = microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
+            }
+
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
         }
 
@@ -123,38 +232,99 @@ namespace Microsoft.Identity.Web
         {
             mergedOptions.AadAuthorityAudience = confidentialClientApplicationOptions.AadAuthorityAudience;
             mergedOptions.AzureCloudInstance = confidentialClientApplicationOptions.AzureCloudInstance;
-            mergedOptions.AzureRegion ??= confidentialClientApplicationOptions.AzureRegion;
+            if (string.IsNullOrEmpty(mergedOptions.AzureRegion) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.AzureRegion))
+            {
+                mergedOptions.AzureRegion = confidentialClientApplicationOptions.AzureRegion;
+            }
+
             mergedOptions.ClientCapabilities ??= confidentialClientApplicationOptions.ClientCapabilities;
-            mergedOptions.ClientId ??= confidentialClientApplicationOptions.ClientId;
-            mergedOptions.ClientName ??= confidentialClientApplicationOptions.ClientName;
-            mergedOptions.ClientSecret ??= confidentialClientApplicationOptions.ClientSecret;
-            mergedOptions.ClientVersion ??= confidentialClientApplicationOptions.ClientVersion;
+            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientId))
+            {
+                mergedOptions.ClientId = confidentialClientApplicationOptions.ClientId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ClientName) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientName))
+            {
+                mergedOptions.ClientName = confidentialClientApplicationOptions.ClientName;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientSecret))
+            {
+                mergedOptions.ClientSecret = confidentialClientApplicationOptions.ClientSecret;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ClientVersion) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientVersion))
+            {
+                mergedOptions.ClientVersion = confidentialClientApplicationOptions.ClientVersion;
+            }
+
             mergedOptions.EnablePiiLogging = confidentialClientApplicationOptions.EnablePiiLogging;
-            mergedOptions.Instance ??= confidentialClientApplicationOptions.Instance;
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance))
+            {
+                mergedOptions.Instance = confidentialClientApplicationOptions.Instance;
+            }
             mergedOptions.IsDefaultPlatformLoggingEnabled = confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
             mergedOptions.LegacyCacheCompatibilityEnabled = confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled;
             mergedOptions.LogLevel = confidentialClientApplicationOptions.LogLevel;
-            mergedOptions.RedirectUri ??= confidentialClientApplicationOptions.RedirectUri;
-            mergedOptions.TenantId ??= confidentialClientApplicationOptions.TenantId;
+            if (string.IsNullOrEmpty(mergedOptions.RedirectUri) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri))
+            {
+                mergedOptions.RedirectUri = confidentialClientApplicationOptions.RedirectUri;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId))
+            {
+                mergedOptions.TenantId = confidentialClientApplicationOptions.TenantId;
+            }
         }
 
         internal static void UpdateConfidentialClientApplicationOptionsFromMergedOptions(MergedOptions mergedOptions, ConfidentialClientApplicationOptions confidentialClientApplicationOptions)
         {
             confidentialClientApplicationOptions.AadAuthorityAudience = mergedOptions.AadAuthorityAudience;
             confidentialClientApplicationOptions.AzureCloudInstance = mergedOptions.AzureCloudInstance;
-            confidentialClientApplicationOptions.AzureRegion ??= mergedOptions.AzureRegion;
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.AzureRegion) && !string.IsNullOrEmpty(mergedOptions.AzureRegion))
+            {
+                confidentialClientApplicationOptions.AzureRegion = mergedOptions.AzureRegion;
+            }
+
             confidentialClientApplicationOptions.ClientCapabilities ??= mergedOptions.ClientCapabilities;
-            confidentialClientApplicationOptions.ClientId ??= mergedOptions.ClientId;
-            confidentialClientApplicationOptions.ClientName ??= mergedOptions.ClientName;
-            confidentialClientApplicationOptions.ClientSecret ??= mergedOptions.ClientSecret;
-            confidentialClientApplicationOptions.ClientVersion ??= mergedOptions.ClientVersion;
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientId) && !string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                confidentialClientApplicationOptions.ClientId = mergedOptions.ClientId;
+            }
+
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientName) && !string.IsNullOrEmpty(mergedOptions.ClientName))
+            {
+                confidentialClientApplicationOptions.ClientName = mergedOptions.ClientName;
+            }
+
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientSecret) && !string.IsNullOrEmpty(mergedOptions.ClientSecret))
+            {
+                confidentialClientApplicationOptions.ClientSecret = mergedOptions.ClientSecret;
+            }
+
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientVersion) && !string.IsNullOrEmpty(mergedOptions.ClientVersion))
+            {
+                confidentialClientApplicationOptions.ClientVersion = mergedOptions.ClientVersion;
+            }
+
             confidentialClientApplicationOptions.EnablePiiLogging = mergedOptions.EnablePiiLogging;
-            confidentialClientApplicationOptions.Instance ??= mergedOptions.Instance;
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                confidentialClientApplicationOptions.Instance = mergedOptions.Instance;
+            }
+
             confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled = mergedOptions.IsDefaultPlatformLoggingEnabled;
             confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled = mergedOptions.LegacyCacheCompatibilityEnabled;
             confidentialClientApplicationOptions.LogLevel = mergedOptions.LogLevel;
-            confidentialClientApplicationOptions.RedirectUri ??= mergedOptions.RedirectUri;
-            confidentialClientApplicationOptions.TenantId ??= mergedOptions.TenantId;
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri) && !string.IsNullOrEmpty(mergedOptions.RedirectUri))
+            {
+                confidentialClientApplicationOptions.RedirectUri = mergedOptions.RedirectUri;
+            }
+
+            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId) && !string.IsNullOrEmpty(mergedOptions.TenantId))
+            {
+                confidentialClientApplicationOptions.TenantId = mergedOptions.TenantId;
+            }
         }
 
         public void PrepareAuthorityInstanceForMsal()
