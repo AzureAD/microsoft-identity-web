@@ -27,6 +27,9 @@ namespace Microsoft.Identity.Web.Test.Integration
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
+
 
         private readonly KeyVaultSecretsProvider _keyVault;
         private readonly string _ccaSecret;
@@ -214,6 +217,11 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                  _provider.GetService<IMemoryCache>(),
                  _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
@@ -230,13 +238,13 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void BuildTheRequiredServices()
         {
-            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
                 Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
                 ClientId = TestConstants.ConfidentialClientId,
                 CallbackPath = string.Empty,
             });
-            IOptionsMonitor<ConfidentialClientApplicationOptions> applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
                 Instance = TestConstants.AadInstance,
                 TenantId = TestConstants.ConfidentialClientLabTenant,
@@ -248,9 +256,10 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             services.AddTokenAcquisition();
             services.AddTransient(
-                provider => microsoftIdentityOptionsMonitor);
+                provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
-                provider => applicationOptionsMonitor);
+                provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
             services.AddLogging();
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();
