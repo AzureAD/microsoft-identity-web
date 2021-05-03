@@ -170,19 +170,17 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>>((options, serviceProvider, mergedOptionsMonitor) =>
+                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                options,
+                serviceProvider,
+                mergedOptionsMonitor,
+                msIdOptionsMonitor,
+                msIdOptions) =>
                 {
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
-                    builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-                    {
-                        MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
-                    });
-
-                    builder.Services.PostConfigure<MicrosoftIdentityOptions>(jwtBearerScheme, options =>
-                    {
-                        MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
-                    });
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
 

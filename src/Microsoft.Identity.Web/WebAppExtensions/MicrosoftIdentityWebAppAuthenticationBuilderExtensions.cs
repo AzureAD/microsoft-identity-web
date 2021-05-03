@@ -273,23 +273,17 @@ namespace Microsoft.Identity.Web
 
             builder.AddOpenIdConnect(openIdConnectScheme, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,
-                msIdOptionsMonitor) =>
+                msIdOptionsMonitor,
+                msIdOptions) =>
                 {
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
-                    //builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-                    //{
-                    //    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
-                    //});
 
-                    //builder.Services.PostConfigure<MicrosoftIdentityOptions>(openIdConnectScheme, options =>
-                    //{
-                    //    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
-                    //});
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
                     PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
