@@ -34,7 +34,7 @@ In a Developer Command Prompt:
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.9.0`
+   `Set ClientSemVer=1.9.2`
 
 4. In ProjectTemplates open the Configuration.json file and add the client secrets (or your own config file) .
 
@@ -73,9 +73,9 @@ In a Developer Command Prompt:
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=1.9.0`
+   `Set ClientSemVer=1.9.2`
 
-3. Add client secrets to the Configuration.json file
+3. Add client secrets to the `ProjectTemplates\Configuration.json` file
 
    `"B2C_Client_ClientSecret": "secret_goes_here",`
 

@@ -1,3 +1,15 @@
+1.9.2
+==========
+### New Features:
+**Microsoft Identity Web now includes the Proof Key for Code Exchange (PKCE) on the Authorization Code Grant to minimize authorization code interception attacks**. See issue [#470](https://github.com/AzureAD/microsoft-identity-web/issues/470) for details.
+
+### Bug Fixes:
+**Revert fix for breaking change introduced in Microsoft.IdentityModel.* version="6.9"**, which was fixed in v.6.10. See issue [#1140](https://github.com/AzureAD/microsoft-identity-web/issues/1140) for details.
+
+**Standardize the value for `"Domain"` in `appsettings.json` of the templates**. See issue [#1148](https://github.com/AzureAD/microsoft-identity-web/issues/1148) for details.
+
+**Enable workaround to fix regression in App Services authentication due to case sensitivity**. See issue [#1163](https://github.com/AzureAD/microsoft-identity-web/issues/1163) for details.
+
 1.9.1
 ==========
 ### Bug Fixes:
