@@ -642,20 +642,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private void PrepareAuthorityInstanceForMsal(
-            MicrosoftIdentityOptions microsoftIdentityOptions,
-            ConfidentialClientApplicationOptions applicationOptions)
-        {
-            if (microsoftIdentityOptions.IsB2C && applicationOptions.Instance.EndsWith("/tfp/"))
-            {
-                applicationOptions.Instance = applicationOptions.Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
-            }
-            else
-            {
-                applicationOptions.Instance = applicationOptions.Instance.TrimEnd('/') + "/";
-            }
-        }
-
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string authority,

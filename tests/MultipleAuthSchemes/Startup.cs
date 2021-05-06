@@ -33,7 +33,7 @@ namespace mvcwebapp_graph
             var initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
 
             services.AddAuthentication()
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"), OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"), "openid2")
                     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
                         .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
                         .AddInMemoryTokenCaches();
@@ -44,8 +44,8 @@ namespace mvcwebapp_graph
                     .AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
                     .AddInMemoryTokenCaches();
 
-            services.Configure<MicrosoftIdentityOptions>(OpenIdConnectDefaults.AuthenticationScheme,
-                                             o => o.ClientSecret = "");
+            //services.Configure<MicrosoftIdentityOptions>(OpenIdConnectDefaults.AuthenticationScheme,
+            //                                 o => o.ClientSecret = "");
             services.AddControllersWithViews(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()

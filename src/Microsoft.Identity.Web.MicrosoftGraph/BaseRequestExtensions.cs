@@ -41,6 +41,18 @@ namespace Microsoft.Identity.Web
             });
         }
 
+        /// <summary>
+        /// Sets the authentication scheme that will be used by <see cref="IAuthenticationProvider"/> to authenticate this request.
+        /// This only works with the default authentication handler and default set of Microsoft Graph authentication providers.
+        /// If you use a custom authentication handler or authentication provider, you have to handle its retrieval in your implementation.
+        /// </summary>
+        /// <param name="baseRequest">The <see cref="IBaseRequest"/>.</param>
+        /// <param name="authenticationScheme">Authentication scheme used to authenticate this request.</param>
+        public static T WithAuthenticationScheme<T>(this T baseRequest, string authenticationScheme) where T : IBaseRequest
+        {
+            return SetParameter(baseRequest, options => options.AuthenticationScheme = authenticationScheme);
+        }
+
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
         {
             string authHandlerOptionKey = typeof(AuthenticationHandlerOption).ToString();
