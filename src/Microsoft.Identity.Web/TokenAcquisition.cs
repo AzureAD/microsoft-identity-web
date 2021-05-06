@@ -39,6 +39,7 @@ namespace Microsoft.Identity.Web
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
         private IConfidentialClientApplication? _application;
+        private bool retryClientCertificate;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
@@ -170,21 +171,29 @@ namespace Microsoft.Identity.Web
 
                 context.HandleCodeRedemption(null, result.IdToken);
             }
-            catch (MsalServiceException exMsal)
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
-                if (exMsal.ErrorCode == "AADSTS700027")
-                {
-                    DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                _application = null;
 
-                    // Retry
-                    await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes).ConfigureAwait(false);
-                }
+                // Retry
+                retryClientCertificate = true;
+                await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
                 Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, ex);
                 throw;
             }
+            finally
+            {
+                retryClientCertificate = false;
+            }
+        }
+
+        private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
+        {
+            return !retryClientCertificate && exMsal.ErrorCode == "invalid_client" && exMsal.Message.Contains("AADSTS700027");
         }
 
         /// <summary>
@@ -250,6 +259,15 @@ namespace Microsoft.Identity.Web
                      userFlow)
                      .ConfigureAwait(false);
             }
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
+            {
+                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                _application = null;
+
+                // Retry
+                retryClientCertificate = true;
+                return await GetAuthenticationResultForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
+            }
             catch (MsalUiRequiredException ex)
             {
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
@@ -258,6 +276,10 @@ namespace Microsoft.Identity.Web
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
+            }
+            finally
+            {
+                retryClientCertificate = false;
             }
         }
 
@@ -320,7 +342,23 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            return builder.ExecuteAsync();
+            try
+            {
+                return builder.ExecuteAsync();
+            }
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
+            {
+                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                _application = null;
+
+                // Retry
+                retryClientCertificate = true;
+                return GetAuthenticationResultForAppAsync(scope, tenant, tokenAcquisitionOptions);
+            }
+            finally
+            {
+                retryClientCertificate = false;
+            }
         }
 
         /// <summary>
@@ -573,6 +611,7 @@ namespace Microsoft.Identity.Web
                     if (certificate == null)
                     {
                         _logger.LogError("All client certificates passed-in in the configuration have expired or can't be loaded.");
+                        throw new ArgumentException("All client certificates passed-in in the configuration have expired or can't be loaded.");
                     }
 
                     builder.WithCertificate(certificate);
