@@ -7,10 +7,10 @@
             <span class="navbar-text text-dark">Hello @User.Identity.Name!</span>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">Sign out</a>
+            <a class="nav-link text-dark" href="/MicrosoftIdentity/Account/SignOut/openid2">Sign out</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">B2C Sign out</a>
+            <a class="nav-link text-dark" href="/MicrosoftIdentity/Account/SignOut/B2C">B2C Sign out</a>
         </li>
     }
     else

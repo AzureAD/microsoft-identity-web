@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string policy,
             [FromRoute] string scheme)
         {
-            // scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             Dictionary<string, string?> items = new Dictionary<string, string?>
             {
                 { Constants.Claims, claims },

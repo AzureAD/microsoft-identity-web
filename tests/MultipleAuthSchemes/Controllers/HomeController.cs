@@ -6,13 +6,13 @@ using Microsoft.Graph;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using mvcwebapp_graph.Models;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace mvcwebapp_graph.Controllers
 {
     [Authorize(AuthenticationSchemes = "openid2")]
     public class HomeController : Controller
     {
+        private const string OpenIdScheme = "openid2";
         private readonly ILogger<HomeController> _logger;
 
         private readonly GraphServiceClient _graphServiceClient;
@@ -23,11 +23,11 @@ namespace mvcwebapp_graph.Controllers
             _graphServiceClient = graphServiceClient;
        }
 
-        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes", AuthenticationScheme = "openid2")]
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes", AuthenticationScheme = OpenIdScheme)]
         public async Task<IActionResult> Index()
         {
             var user = await _graphServiceClient.Me.Request()
-                .WithAuthenticationScheme("openid2").GetAsync();
+                .WithAuthenticationScheme(OpenIdScheme).GetAsync();
             ViewData["ApiResult"] = user.DisplayName;
 
             return View();
