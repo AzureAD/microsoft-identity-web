@@ -43,6 +43,11 @@ namespace Microsoft.Identity.Web
         public string? ResetPasswordPolicyId { get; set; }
 
         /// <summary>
+        /// Requires that even if the host is detected to use HTTP, the redirect_url value should use HTTPS.
+        /// </summary>
+        public bool ForceHttpsOnRedirectUri { get; set; }
+
+        /// <summary>
         /// Gets the default user flow (which is signUpsignIn).
         /// </summary>
         public string? DefaultUserFlow => SignUpSignInPolicyId;

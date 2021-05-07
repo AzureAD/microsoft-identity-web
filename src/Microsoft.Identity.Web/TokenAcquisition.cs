@@ -416,9 +416,17 @@ namespace Microsoft.Identity.Web
 
             var application = GetOrBuildConfidentialClientApplication();
 
+            // If the configuration indicates that HTTPS should be used regardless of the detected protocol, swap to HTTPS
+            var redirectUri = application.AppConfig.RedirectUri;
+            if (redirectUri.StartsWith("http://", StringComparison.InvariantCulture) &&
+                application.AppConfig.ForceHttpsOnRedirectUrl)
+            {
+                redirectUri = redirectUri.Replace("http://", "https://");
+            }
+            
             string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={_applicationOptions.ClientId}"
-                + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
-                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
+                                + $"&response_type=code&redirect_uri={redirectUri}"
+                                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
             IDictionary<string, string> parameters = new Dictionary<string, string>()
                 {
