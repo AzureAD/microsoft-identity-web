@@ -20,7 +20,6 @@ namespace Microsoft.Identity.Web.Test
         private const string AzureAdB2C = Constants.AzureAdB2C;
         private ServiceProvider _provider;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -108,8 +107,6 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
             services.AddTransient(
                 provider => _microsoftIdentityOptionsMonitor);
-            services.AddTransient(
-                provider => _applicationOptionsMonitor);
             services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
             services.AddTokenAcquisition();
             services.AddLogging();

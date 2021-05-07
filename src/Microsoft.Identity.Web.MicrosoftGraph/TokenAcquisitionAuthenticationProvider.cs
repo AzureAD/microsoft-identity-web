@@ -34,12 +34,14 @@ namespace Microsoft.Identity.Web
             var scopes = _initialOptions.Scopes;
             bool appOnly = _initialOptions.AppOnly ?? false;
             string? tenant = _initialOptions.Tenant ?? null;
+            string? scheme = _initialOptions.AuthenticationScheme ?? null; // TOOD: IDK about the NUll
             // Extract per-request options from the request if present
             TokenAcquisitionAuthenticationProviderOption? msalAuthProviderOption = GetMsalAuthProviderOption(request);
             if (msalAuthProviderOption != null) {
                 scopes = msalAuthProviderOption.Scopes ?? scopes;
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
                 tenant = msalAuthProviderOption.Tenant ?? tenant;
+                scheme = msalAuthProviderOption.AuthenticationScheme ?? scheme;
             }
 
             if (!appOnly && scopes == null)
@@ -50,11 +52,11 @@ namespace Microsoft.Identity.Web
             string token;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, tenant).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, tenant, authenticationScheme: scheme).ConfigureAwait(false);
             }
             else
             {
-                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes!).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes!, authenticationScheme: scheme).ConfigureAwait(false);
             } 
 
             request.Headers.Authorization = new AuthenticationHeaderValue(Constants.Bearer, token);
