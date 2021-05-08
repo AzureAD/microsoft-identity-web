@@ -103,6 +103,8 @@ namespace Microsoft.Identity.Web
         internal const string ApplicationJson = "application/json";
         internal const string ISessionStore = "ISessionStore";
         internal const string True = "True";
+        internal const string InvalidClient = "invalid_client";
+        internal const string InvalidKeyError = "AADSTS700027";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

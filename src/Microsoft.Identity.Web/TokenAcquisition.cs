@@ -191,11 +191,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
-        {
-            return !retryClientCertificate && exMsal.ErrorCode == "invalid_client" && exMsal.Message.Contains("AADSTS700027");
-        }
-
         /// <summary>
         /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
@@ -520,6 +515,11 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
+        {
+            return !retryClientCertificate && exMsal.ErrorCode == Constants.InvalidClient && exMsal.Message.Contains(Constants.InvalidKeyError);
+        }
+
         private string BuildCurrentUriFromRequest(HttpContext httpContext, HttpRequest request)
         {
             // need to lock to avoid threading issues with code outside of this library
@@ -610,8 +610,13 @@ namespace Microsoft.Identity.Web
                     X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(_microsoftIdentityOptions.ClientCertificates);
                     if (certificate == null)
                     {
-                        _logger.LogError("All client certificates passed-in in the configuration have expired or can't be loaded.");
-                        throw new ArgumentException("All client certificates passed-in in the configuration have expired or can't be loaded.");
+                        Logger.TokenAcquisitionError(
+                            _logger,
+                            IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
+                            null);
+                        throw new ArgumentException(
+                            IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
+                            nameof(certificate));
                     }
 
                     builder.WithCertificate(certificate);
