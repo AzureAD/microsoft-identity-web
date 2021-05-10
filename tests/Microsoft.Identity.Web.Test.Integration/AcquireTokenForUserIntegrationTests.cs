@@ -42,7 +42,64 @@ namespace Microsoft.Identity.Web.Test.Integration
                 bool addInMemoryTokenCache = true)
         {
             // Arrange
-            var client = _factory.WithWebHostBuilder(builder =>
+            HttpClient client = CreateHttpClient(addInMemoryTokenCache);
+
+            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+
+            // Act
+            HttpResponseMessage response = await CreateHttpResponseMessage(webApiUrl, client, result).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        [Theory]
+        [InlineData(TestConstants.SecurePage2GetTokenForUserAsync)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApi)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
+        [InlineData(TestConstants.SecurePage2CallMicrosoftGraph)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        [InlineData(TestConstants.SecurePage2CallMicrosoftGraph, false)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApi, false)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric, false)]
+        public async Task GetTokenForUserWithDifferentAuthSchemeAsync(
+               string webApiUrl,
+               bool addInMemoryTokenCache = true)
+        {
+            // Arrange
+            HttpClient client = CreateHttpClient(addInMemoryTokenCache);
+
+            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+
+            // Act
+            HttpResponseMessage response = await CreateHttpResponseMessage(webApiUrl, client, result).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        private static async Task<HttpResponseMessage> CreateHttpResponseMessage(string webApiUrl, HttpClient client, AuthenticationResult result)
+        {
+            HttpResponseMessage response;
+            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                HttpMethod.Get, webApiUrl))
+            {
+                httpRequestMessage.Headers.Add(
+                    Constants.Authorization,
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0} {1}",
+                        Constants.Bearer,
+                        result.AccessToken));
+                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+            }
+
+            return response;
+        }
+
+        private HttpClient CreateHttpClient(bool addInMemoryTokenCache)
+        {
+            return _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
                 {
@@ -59,30 +116,10 @@ namespace Microsoft.Identity.Web.Test.Integration
                     services.BuildServiceProvider();
                 });
             })
-            .CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false,
-            });
-
-            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
-
-            // Act
-            HttpResponseMessage response;
-            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                HttpMethod.Get, webApiUrl))
-            {
-                httpRequestMessage.Headers.Add(
-                    Constants.Authorization,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1}",
-                        Constants.Bearer,
-                        result.AccessToken));
-                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
-            }
-
-            // Assert
-            Assert.True(response.IsSuccessStatusCode);
+                        .CreateClient(new WebApplicationFactoryClientOptions
+                        {
+                            AllowAutoRedirect = false,
+                        });
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
