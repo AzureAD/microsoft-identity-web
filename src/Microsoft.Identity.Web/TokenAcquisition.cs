@@ -616,7 +616,7 @@ namespace Microsoft.Identity.Web
                             null);
                         throw new ArgumentException(
                             IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                            nameof(certificate));
+                            nameof(_microsoftIdentityOptions.ClientCertificates));
                     }
 
                     builder.WithCertificate(certificate);
