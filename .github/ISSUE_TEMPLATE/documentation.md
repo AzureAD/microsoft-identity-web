@@ -19,4 +19,4 @@ assignees: ''
 - [ ] needs an example
 
 ### Description of the issue
-<!-- Descrbe the issue in detail here -->
+<!-- Describe the issue in detail here -->
