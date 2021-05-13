@@ -13,11 +13,11 @@ namespace Microsoft.Identity.Web
     {
         private static class Logger
         {
-            private static readonly Action<ILogger, string, Exception> s_tokenAcquisitionError =
-           LoggerMessage.Define<string>(
-               LogLevel.Information,
-               LoggingEventId.TokenAcquisitionError,
-               "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
+            private static readonly Action<ILogger, string, Exception?> s_tokenAcquisitionError =
+                LoggerMessage.Define<string>(
+                    LogLevel.Information,
+                    LoggingEventId.TokenAcquisitionError,
+                    "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
 
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.
@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
             public static void TokenAcquisitionError(
                 ILogger logger,
                 string msalErrorMessage,
-                Exception ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+                Exception? ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
         }
     }
 }
