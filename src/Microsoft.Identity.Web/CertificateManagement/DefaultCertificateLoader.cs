@@ -116,7 +116,12 @@ namespace Microsoft.Identity.Web
 
             KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
 
-            if (certificate.Properties.NotBefore <= DateTime.UtcNow && certificate.Properties.ExpiresOn <= DateTime.UtcNow)
+            if (certificate.Properties.NotBefore == null || certificate.Properties.ExpiresOn == null)
+            {
+                return null;
+            }
+
+            if (DateTimeOffset.UtcNow < certificate.Properties.NotBefore || DateTimeOffset.UtcNow > certificate.Properties.ExpiresOn)
             {
                 return null;
             }
