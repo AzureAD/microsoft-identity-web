@@ -1,3 +1,8 @@
+1.10.0
+==========
+### New Features:
+**Microsoft Identity Web now supports certificate rotation with the Azure KeyVault**. See issue [#956](https://github.com/AzureAD/microsoft-identity-web/issues/956) for details.
+
 1.9.2
 ==========
 ### New Features:
