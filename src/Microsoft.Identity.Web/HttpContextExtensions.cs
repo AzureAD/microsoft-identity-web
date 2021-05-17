@@ -19,7 +19,8 @@ namespace Microsoft.Identity.Web
             // lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
             lock (httpContext)
             {
-                httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebApi, token);
+                httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] = token;
+                //httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebApi, token);
             }
         }
 

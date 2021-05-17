@@ -116,10 +116,10 @@ namespace Microsoft.Identity.Web.Test.Integration
                     services.BuildServiceProvider();
                 });
             })
-                        .CreateClient(new WebApplicationFactoryClientOptions
-                        {
-                            AllowAutoRedirect = false,
-                        });
+                .CreateClient(new WebApplicationFactoryClientOptions
+                {
+                     AllowAutoRedirect = false,
+                });
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
