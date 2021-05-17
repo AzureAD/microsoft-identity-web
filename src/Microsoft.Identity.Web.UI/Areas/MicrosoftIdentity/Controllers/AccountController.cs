@@ -44,11 +44,41 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             var redirectUrl = Url.Content("~/");
-            return Challenge(
-                new AuthenticationProperties { RedirectUri = redirectUrl },
-                scheme);
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            properties.Items[Constants.Policy] = _options.Value?.SignInPolicyId;
+            return Challenge(properties, scheme);
         }
 
+        /// <summary>
+        /// Handles user sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign up the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUp([FromRoute] string scheme)
+        {
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            var redirectUrl = Url.Content("~/");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            properties.Items[Constants.Policy] = _options.Value?.SignUpPolicyId;
+            return Challenge(properties, scheme);
+        }
+
+        /// <summary>
+        /// Handles user sign in with an option to sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in or sign up the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUpSignIn([FromRoute] string scheme)
+        {
+            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            var redirectUrl = Url.Content("~/");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            properties.Items[Constants.Policy] = _options.Value?.SignUpSignInPolicyId;
+            return Challenge(properties, scheme);
+        }
+        
         /// <summary>
         /// Challenges the user.
         /// </summary>
@@ -58,7 +88,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="domainHint">Domain hint.</param>
         /// <param name="claims">Claims.</param>
         /// <param name="policy">AAD B2C policy.</param>
-        /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
+        /// <returns>Challenge generating a redirect to Azure AD.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult Challenge(
             string redirectUri,
