@@ -128,6 +128,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MultipleAuthSchemes", "Mult
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mvcwebapp-graph", "tests\MultipleAuthSchemes\mvcwebapp-graph.csproj", "{15B7F1B3-A438-4A42-BFFA-E3382543C037}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateMergeOptionsMethods", "tools\GenerateMergeOptionsMethods\GenerateMergeOptionsMethods.csproj", "{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -282,6 +284,10 @@ Global
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -335,6 +341,7 @@ Global
 		{BE7E71AD-7272-4431-B50D-357C61CE2F8F} = {2A2EB8D3-88F2-4FA2-8DDB-56B1F4755475}
 		{D3A42D78-8A23-44EB-9A1F-63CF58B56AAC} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037} = {D3A42D78-8A23-44EB-9A1F-63CF58B56AAC}
+		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF} = {20CDB9B2-D237-413A-8E76-A973597748B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

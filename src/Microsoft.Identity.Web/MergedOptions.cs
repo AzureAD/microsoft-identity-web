@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -335,6 +336,14 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId) && !string.IsNullOrEmpty(mergedOptions.TenantId))
             {
                 confidentialClientApplicationOptions.TenantId = mergedOptions.TenantId;
+            }
+        }
+
+        internal static void UpdateMergedOptionsFromJwtBearerOptions(JwtBearerOptions jwtBearerOptions, MergedOptions mergedOptions)
+        {
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(jwtBearerOptions.Authority))
+            {
+                mergedOptions.Authority = jwtBearerOptions.Authority;
             }
         }
 

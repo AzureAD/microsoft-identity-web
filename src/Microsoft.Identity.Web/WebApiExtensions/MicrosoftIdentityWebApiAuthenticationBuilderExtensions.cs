@@ -178,7 +178,7 @@ namespace Microsoft.Identity.Web
                 msIdOptions) =>
                 {
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
-
+                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 

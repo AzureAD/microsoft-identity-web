@@ -24,7 +24,7 @@ namespace mvcwebapp_graph.Controllers
             ScopeKeySection = "DownstreamB2CApi:Scopes", UserFlow = "b2c_1_susi", AuthenticationScheme = "B2C")]
         public async Task<IActionResult> Index()
         {
-            var value = await _downstreamWebApi.GetForUserAsync<Task>("DownstreamB2CApi", "", null, null, "B2C");
+            var value = await _downstreamWebApi.GetForUserAsync<Task>("DownstreamB2CApi", string.Empty, authenticationScheme:"B2C");
             return View(value);
         }
         public IActionResult Privacy()
