@@ -345,68 +345,6 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.Authority = jwtBearerOptions.Authority;
             }
-#if DECIDE_HERE
-            // TODO: I don't think that the assignments below are needed as we won't mix OpenIdConnect and JwtBearer for the same
-            // auth scheme
-#if DOTNET_50_AND_ABOVE
-            mergedOptions.AutomaticRefreshInterval = jwtBearerOptions.AutomaticRefreshInterval;
-#endif
-
-            mergedOptions.BackchannelHttpHandler ??= jwtBearerOptions.BackchannelHttpHandler;
-            mergedOptions.BackchannelTimeout = jwtBearerOptions.BackchannelTimeout;
-            if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(jwtBearerOptions.ClaimsIssuer))
-            {
-                mergedOptions.ClaimsIssuer = jwtBearerOptions.ClaimsIssuer;
-            }
-
-            mergedOptions.Configuration ??= jwtBearerOptions.Configuration;
-            mergedOptions.ConfigurationManager ??= jwtBearerOptions.ConfigurationManager;
-            if (string.IsNullOrEmpty(mergedOptions.ForwardAuthenticate) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardAuthenticate))
-            {
-                mergedOptions.ForwardAuthenticate = jwtBearerOptions.ForwardAuthenticate;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardChallenge) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardChallenge))
-            {
-                mergedOptions.ForwardChallenge = jwtBearerOptions.ForwardChallenge;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardDefault) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardDefault))
-            {
-                mergedOptions.ForwardDefault = jwtBearerOptions.ForwardDefault;
-            }
-
-            mergedOptions.ForwardDefaultSelector ??= jwtBearerOptions.ForwardDefaultSelector;
-            if (string.IsNullOrEmpty(mergedOptions.ForwardForbid) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardForbid))
-            {
-                mergedOptions.ForwardForbid = jwtBearerOptions.ForwardForbid;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardSignIn) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardSignIn))
-            {
-                mergedOptions.ForwardSignIn = jwtBearerOptions.ForwardSignIn;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardSignOut) && !string.IsNullOrEmpty(jwtBearerOptions.ForwardSignOut))
-            {
-                mergedOptions.ForwardSignOut = jwtBearerOptions.ForwardSignOut;
-            }
-
-#if DOTNET_50_AND_ABOVE
-            mergedOptions.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
-#endif
-            if (string.IsNullOrEmpty(mergedOptions.MetadataAddress) && !string.IsNullOrEmpty(jwtBearerOptions.MetadataAddress))
-            {
-                mergedOptions.MetadataAddress = jwtBearerOptions.MetadataAddress;
-            }
-
-#if DOTNET_50_AND_ABOVE
-            mergedOptions.RefreshInterval = jwtBearerOptions.RefreshInterval;
-#endif
-            mergedOptions.RefreshOnIssuerKeyNotFound = jwtBearerOptions.RefreshOnIssuerKeyNotFound;
-            mergedOptions.RequireHttpsMetadata = jwtBearerOptions.RequireHttpsMetadata;
-            mergedOptions.TokenValidationParameters ??= jwtBearerOptions.TokenValidationParameters;
-#endif
         }
 
         public void PrepareAuthorityInstanceForMsal()
