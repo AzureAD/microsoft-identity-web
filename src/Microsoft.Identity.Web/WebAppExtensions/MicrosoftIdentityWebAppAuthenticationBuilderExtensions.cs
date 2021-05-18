@@ -286,7 +286,7 @@ namespace Microsoft.Identity.Web
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
-                    PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, mergedOptions);
+                    PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
                         openIdConnectScheme,
@@ -398,7 +398,9 @@ namespace Microsoft.Identity.Web
                 });
         }
 
-        internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(OpenIdConnectOptions options, MergedOptions mergedOptions)
+        private static void PopulateOpenIdOptionsFromMergedOptions(
+            OpenIdConnectOptions options,
+            MergedOptions mergedOptions)
         {
             options.Authority = mergedOptions.Authority;
             options.ClientId = mergedOptions.ClientId;

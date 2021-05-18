@@ -183,6 +183,7 @@ namespace Microsoft.Identity.Web
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
+                    PopulateJwtBearerOptionsFromMergedOptions(options, mergedOptions);
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
@@ -251,6 +252,13 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
+        }
+
+        private static void PopulateJwtBearerOptionsFromMergedOptions(
+            JwtBearerOptions options,
+            MergedOptions mergedOptions)
+        {
+            options.Authority = mergedOptions.Authority;
         }
     }
 }
