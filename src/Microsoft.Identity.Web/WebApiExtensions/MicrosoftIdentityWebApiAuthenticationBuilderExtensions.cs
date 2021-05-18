@@ -178,12 +178,11 @@ namespace Microsoft.Identity.Web
                 msIdOptions) =>
                 {
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
-
+                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
-                    PopulateJwtBearerOptionsFromMergedOptions(options, mergedOptions);
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
@@ -252,13 +251,6 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
-        }
-
-        private static void PopulateJwtBearerOptionsFromMergedOptions(
-            JwtBearerOptions options,
-            MergedOptions mergedOptions)
-        {
-            options.Authority = mergedOptions.Authority;
         }
     }
 }
