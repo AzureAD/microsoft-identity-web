@@ -176,12 +176,12 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _application = null;
 
                 // Retry
                 retryClientCertificate = true;
-                await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes).ConfigureAwait(false);
+                await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes, authenticationScheme).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -268,7 +268,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _application = null;
 
                 // Retry
@@ -360,7 +360,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(_microsoftIdentityOptions.ClientCertificates);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _application = null;
 
                 // Retry
@@ -575,7 +575,6 @@ namespace Microsoft.Identity.Web
             return !retryClientCertificate && exMsal.ErrorCode == Constants.InvalidClient && exMsal.Message.Contains(Constants.InvalidKeyError);
         }
 
-        private string BuildCurrentUriFromRequest(HttpContext httpContext, HttpRequest request)
         private string BuildCurrentUriFromRequest(
             HttpContext httpContext,
             HttpRequest request,
@@ -679,7 +678,7 @@ namespace Microsoft.Identity.Web
                             null);
                         throw new ArgumentException(
                             IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                            nameof(_microsoftIdentityOptions.ClientCertificates));
+                            nameof(mergedOptions.ClientCertificates));
                     }
 
                     builder.WithCertificate(certificate);
