@@ -20,7 +20,6 @@ namespace Microsoft.Identity.Web
             lock (httpContext)
             {
                 httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] = token;
-                //httpContext.Items.Add(Constants.JwtSecurityTokenUsedToCallWebApi, token);
             }
         }
 

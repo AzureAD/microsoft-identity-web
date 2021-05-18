@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
 
 #if DOTNET_50_AND_ABOVE
             jwtBearerMergedOptions.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
-#endif 
+#endif
 
             if (string.IsNullOrEmpty(jwtBearerMergedOptions.MetadataAddress) && !string.IsNullOrEmpty(jwtBearerOptions.MetadataAddress))
             {
