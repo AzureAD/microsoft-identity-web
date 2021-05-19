@@ -19,6 +19,12 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.TokenAcquisitionError,
                     "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
 
+            private static readonly Action<ILogger, long, long, long, Exception?> s_tokenAcquisitionMsalAuthenticationResultTime =
+                LoggerMessage.Define<long, long, long>(
+                    LogLevel.Debug,
+                    LoggingEventId.TokenAcquisitionMsalAuthenticationResultTime,
+                    "[MsIdWeb] Time to get token with MSAL: DurationTotalInMs: {DurationTotalInMs} DurationInHttpInMs: {DurationInHttpInMs} DurationInCacheInMs: {DurationInCacheInMs} ");
+
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.
             /// </summary>
@@ -29,6 +35,26 @@ namespace Microsoft.Identity.Web
                 ILogger logger,
                 string msalErrorMessage,
                 Exception? ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+
+            /// <summary>
+            /// Logger for handling information specific to MSAL in token acquisition.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="durationTotalInMs">durationTotalInMs.</param>
+            /// <param name="durationInHttpInMs">durationInHttpInMs.</param>
+            /// <param name="durationInCacheInMs">durationInCacheInMs.</param>
+            /// <param name="ex">Exception from MSAL.NET.</param>
+            public static void TokenAcquisitionMsalAuthenticationResultTime(
+                ILogger logger,
+                long durationTotalInMs,
+                long durationInHttpInMs,
+                long durationInCacheInMs,
+                Exception? ex) => s_tokenAcquisitionMsalAuthenticationResultTime(
+                    logger,
+                    durationTotalInMs,
+                    durationInHttpInMs,
+                    durationInCacheInMs,
+                    ex);
         }
     }
 }
