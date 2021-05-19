@@ -3,8 +3,6 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
@@ -14,7 +12,6 @@ using Microsoft.Identity.Web.Test.Common;
 namespace IntegrationTestService.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("SecurePage")]
     [RequiredScope("user_impersonation")]
     public class WeatherForecastController : ControllerBase
@@ -43,7 +40,8 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]
         public async Task<HttpResponseMessage> CallDownstreamWebApiAsync()
         {
-            return await _downstreamWebApi.CallWebApiForUserAsync(TestConstants.SectionNameCalledApi);
+            return await _downstreamWebApi.CallWebApiForUserAsync(
+            TestConstants.SectionNameCalledApi);
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
@@ -52,7 +50,8 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => { 
+                options =>
+                {
                     options.RelativePath = "me";
                 });
             return user.DisplayName;
@@ -71,7 +70,8 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => {
+                options =>
+                {
                     options.RelativePath = "me";
                     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
                     /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()

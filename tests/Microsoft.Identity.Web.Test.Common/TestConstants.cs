@@ -135,7 +135,16 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
         public const string SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
         public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
+        public const string SecurePage2GetEmpty = "/SecurePage2/GetEmpty";
+        public const string SecurePage2GetTokenForUserAsync = "/SecurePage2/GetTokenForUserAsync";
+        public const string SecurePage2GetTokenForAppAsync = "/SecurePage2/GetTokenForAppAsync";
+        public const string SecurePage2CallDownstreamWebApi = "/SecurePage2/CallDownstreamWebApiAsync";
+        public const string SecurePage2CallDownstreamWebApiGeneric = "/SecurePage2/CallDownstreamWebApiGenericAsync";
+        public const string SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage2/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
+        public const string SecurePage2CallMicrosoftGraph = "/SecurePage2/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";
+        public const string CustomJwtScheme = "customJwt";
+        public const string CustomJwtScheme2 = "customJwt2";
 
         // Selenium Automation
         public const string WebSubmitId = "idSIButton9";

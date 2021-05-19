@@ -95,8 +95,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Assert config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(OidcScheme);
             configMock.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftIdentityWebApp_TestCommon(services, provider);
@@ -128,8 +128,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Assert config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(OidcScheme);
             configMock.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftIdentityWebApp_TestCommon(services, provider);
@@ -175,7 +175,7 @@ namespace Microsoft.Identity.Web.Test
 
             var redirectFunc = Substitute.For<Func<RedirectContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRedirectToIdentityProvider += redirectFunc;
@@ -218,7 +218,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -246,7 +246,7 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureFuncMock = Substitute.For<Func<RemoteFailureContext, Task>>();
             var services = new ServiceCollection()
-                .PostConfigure<MicrosoftIdentityOptions>((options) =>
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
                 {
                     options.Events ??= new OpenIdConnectEvents();
                     options.Events.OnRemoteFailure += remoteFailureFuncMock;
@@ -291,12 +291,12 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Assert config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<ConfidentialClientApplicationOptions>>().Get(OidcScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(OidcScheme);
 
             configMock.Received(1).GetSection(ConfigSectionName);
 
-            var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
 
             AddMicrosoftIdentityWebAppCallsWebApi_TestCommon(services, provider, oidcOptions, initialScopes);
             await AddMicrosoftIdentityWebAppCallsWebApi_TestAuthorizationCodeReceivedEvent(provider, oidcOptions, authCodeReceivedFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
@@ -601,7 +601,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(ServiceLifetime.Singleton, services.First(s => s.ServiceType == typeof(MicrosoftIdentityIssuerValidatorFactory)).Lifetime);
 
             // Assert properties set
-            var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
 
             Assert.Equal(CookieScheme, oidcOptions.SignInScheme);
             Assert.NotNull(oidcOptions.Authority);
@@ -658,7 +658,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var provider = services.BuildServiceProvider();
 
-            var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
 
             // Assert B2C name claim type
             Assert.Equal(ClaimConstants.Name, oidcOptions.TokenValidationParameters.NameClaimType);

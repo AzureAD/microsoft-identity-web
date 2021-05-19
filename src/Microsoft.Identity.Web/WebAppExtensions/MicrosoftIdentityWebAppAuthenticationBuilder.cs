@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -89,11 +90,11 @@ namespace Microsoft.Identity.Web
         {
             // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
             // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(configureMicrosoftIdentityOptions);
+            services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
 
             if (configureConfidentialClientApplicationOptions != null)
             {
-                services.Configure(configureConfidentialClientApplicationOptions);
+                services.Configure(openIdConnectScheme, configureConfidentialClientApplicationOptions);
             }
 
             services.AddHttpContextAccessor();
@@ -107,8 +108,18 @@ namespace Microsoft.Identity.Web
                 services.AddTokenAcquisition();
 
                 services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                   .Configure<IServiceProvider>((options, serviceProvider) =>
+                   .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                       options,
+                       serviceProvider,
+                       mergedOptionsMonitor,
+                       ccaOptionsMonitor,
+                       ccaOptions) =>
                    {
+                       MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
+
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
+
                        options.ResponseType = OpenIdConnectResponseType.Code;
 
                        // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts
@@ -131,7 +142,7 @@ namespace Microsoft.Identity.Web
                        options.Events.OnAuthorizationCodeReceived = async context =>
                        {
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope).ConfigureAwait(false);
+                           await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(context, options.Scope, openIdConnectScheme).ConfigureAwait(false);
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
 
@@ -161,7 +172,7 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context).ConfigureAwait(false);
+                           await tokenAcquisition.RemoveAccountAsync(context, openIdConnectScheme).ConfigureAwait(false);
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
 
         private readonly KeyVaultSecretsProvider _keyVault;
         private readonly string _ccaSecret;
@@ -213,6 +216,11 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                  _provider.GetService<IMemoryCache>(),
                  _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
@@ -220,33 +228,37 @@ namespace Microsoft.Identity.Web.Test.Integration
             _tokenAcquisition = new TokenAcquisition(
                  _msalTestTokenCacheProvider,
                  MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IOptions<MicrosoftIdentityOptions>>(),
-                 _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>(),
+                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  _provider);
+            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()
         {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                TenantId = TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientSecret = _ccaSecret,
+            });
+
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
             services.AddTransient(
-                provider => Options.Create(new MicrosoftIdentityOptions
-                {
-                    Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    CallbackPath = string.Empty,
-                }));
+                provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
-                provider => Options.Create(new ConfidentialClientApplicationOptions
-                {
-                    Instance = TestConstants.AadInstance,
-                    TenantId = TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    ClientSecret = _ccaSecret,
-                }));
+                provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
             services.AddLogging();
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();
