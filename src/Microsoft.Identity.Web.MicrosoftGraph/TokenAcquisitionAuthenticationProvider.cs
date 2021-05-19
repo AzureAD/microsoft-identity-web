@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
             var scopes = _initialOptions.Scopes;
             bool appOnly = _initialOptions.AppOnly ?? false;
             string? tenant = _initialOptions.Tenant ?? null;
-            string? scheme = _initialOptions.AuthenticationScheme ?? null; // TOOD: IDK about the NUll
+            string? scheme = _initialOptions.AuthenticationScheme ?? null;
             // Extract per-request options from the request if present
             TokenAcquisitionAuthenticationProviderOption? msalAuthProviderOption = GetMsalAuthProviderOption(request);
             if (msalAuthProviderOption != null) {
