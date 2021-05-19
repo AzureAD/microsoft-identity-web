@@ -1,3 +1,8 @@
+1.11.0
+==========
+### New Features:
+**Microsoft Identity Web now supports multiple authentication schemes**. This means, you can have several authentication schemes in the same ASP.NET Core app. Such as two Azure AD web apps, or an Azure AD app and an Azure AD B2C app, or a web app and a web API. Basically mixing authentication schemes in the same ASP.NET Core app. See the [wiki for details and code samples](https://github.com/AzureAD/microsoft-identity-web/wiki/Multiple-Authentication-Schemes) and related issues: [#549](https://github.com/AzureAD/microsoft-identity-web/issues/549), [#429](https://github.com/AzureAD/microsoft-identity-web/issues/429), [#958](https://github.com/AzureAD/microsoft-identity-web/issues/958), [#1126](https://github.com/AzureAD/microsoft-identity-web/issues/1126), [#971](https://github.com/AzureAD/microsoft-identity-web/issues/971), [#173](https://github.com/AzureAD/microsoft-identity-web/issues/173), [#955](https://github.com/AzureAD/microsoft-identity-web/issues/955), and [#1127](https://github.com/AzureAD/microsoft-identity-web/issues/1127).
+
 1.10.0
 ==========
 ### New Features:
