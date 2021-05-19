@@ -28,6 +28,7 @@ namespace Microsoft.Identity.Web
 
         // TokenAcquisition EventIds 300+
         public static readonly EventId TokenAcquisitionError = new EventId(300, "TokenAcquisitionError");
+        public static readonly EventId TokenAcquisitionMsalAuthenticationResultTime = new EventId(301, "TokenAcquisitionMsalAuthenticationResultTime");
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
