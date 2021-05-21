@@ -237,6 +237,7 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
+            mergedOptions._confidentialClientApplicationOptions = null;
         }
 
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
@@ -287,6 +288,8 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.TenantId = confidentialClientApplicationOptions.TenantId;
             }
+
+            mergedOptions._confidentialClientApplicationOptions = null;
         }
 
         internal static void UpdateConfidentialClientApplicationOptionsFromMergedOptions(MergedOptions mergedOptions, ConfidentialClientApplicationOptions confidentialClientApplicationOptions)
