@@ -54,10 +54,11 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => { 
+                authenticationScheme: TestConstants.CustomJwtScheme2,
+                downstreamWebApiOptionsOverride: options =>
+                {
                     options.RelativePath = "me";
-                },
-                authenticationScheme: TestConstants.CustomJwtScheme2);
+                });
             return user.DisplayName;
         }
 
@@ -75,14 +76,15 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options => {
+                authenticationScheme: TestConstants.CustomJwtScheme2,
+                downstreamWebApiOptionsOverride: options =>
+                {
                     options.RelativePath = "me";
                     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
                     /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
                     { { "slice", "testslice" } };*/ // doesn't work w/build automation
                     options.TokenAcquisitionOptions.ForceRefresh = true;
-                },
-                authenticationScheme: TestConstants.CustomJwtScheme2);
+                });
             return user.DisplayName;
         }
     }

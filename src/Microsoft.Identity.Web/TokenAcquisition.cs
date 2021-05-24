@@ -203,6 +203,8 @@ namespace Microsoft.Identity.Web
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
         /// <param name="tenantId">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
@@ -210,8 +212,6 @@ namespace Microsoft.Identity.Web
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition options object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
@@ -220,11 +220,11 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
+            string? authenticationScheme = null,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             if (scopes == null)
             {
@@ -279,7 +279,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 retryClientCertificate = true;
-                return await GetAuthenticationResultForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
+                return await GetAuthenticationResultForUserAsync(scopes, tenantId: tenantId, userFlow: userFlow, user: user, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -305,16 +305,16 @@ namespace Microsoft.Identity.Web
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
+        /// <param name="authenticationScheme">AuthenticationScheme to use.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">AuthenticationScheme to use.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
+            string? authenticationScheme = null,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             if (string.IsNullOrEmpty(scope))
             {
@@ -371,7 +371,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 retryClientCertificate = true;
-                return GetAuthenticationResultForAppAsync(scope, tenant, tokenAcquisitionOptions);
+                return GetAuthenticationResultForAppAsync(scope, tenant: tenant, tokenAcquisitionOptions: tokenAcquisitionOptions);
             }
             finally
             {
@@ -388,22 +388,22 @@ namespace Microsoft.Identity.Web
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
+        /// <param name="authenticationScheme">AuthenticationScheme to use.</param>
         /// <param name="tenant">Enables overriding of the tenant/account for the same identity. This is useful
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">AuthenticationScheme to use.</param>
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
+            string? authenticationScheme = null,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             AuthenticationResult authResult = await GetAuthenticationResultForAppAsync(
                 scope,
+                authenticationScheme,
                 tenant,
-                tokenAcquisitionOptions,
-                authenticationScheme).ConfigureAwait(false);
+                tokenAcquisitionOptions).ConfigureAwait(false);
             return authResult.AccessToken;
         }
 
@@ -416,6 +416,8 @@ namespace Microsoft.Identity.Web
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <param name="tenantId">Enables overriding of the tenant/account for the same identity. This is useful in the
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
@@ -423,8 +425,6 @@ namespace Microsoft.Identity.Web
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
@@ -433,20 +433,20 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
         IEnumerable<string> scopes,
+        string? authenticationScheme = null,
         string? tenantId = null,
         string? userFlow = null,
         ClaimsPrincipal? user = null,
-        TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-        string? authenticationScheme = null)
+        TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             AuthenticationResult result =
                 await GetAuthenticationResultForUserAsync(
                 scopes,
+                authenticationScheme,
                 tenantId,
                 userFlow,
                 user,
-                tokenAcquisitionOptions,
-                authenticationScheme).ConfigureAwait(false);
+                tokenAcquisitionOptions).ConfigureAwait(false);
             return result.AccessToken;
         }
 
@@ -464,7 +464,7 @@ namespace Microsoft.Identity.Web
             MsalUiRequiredException msalServiceException,
             HttpResponse? httpResponse = null)
         {
-            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, httpResponse, null);
+            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, null, httpResponse);
             return Task.CompletedTask;
         }
 
@@ -475,14 +475,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
-        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         public void ReplyForbiddenWithWwwAuthenticateHeader(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
-            HttpResponse? httpResponse = null,
-            string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme)
+            string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
+            HttpResponse? httpResponse = null)
         {
             // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
             string proposedAction = Constants.Consent;
