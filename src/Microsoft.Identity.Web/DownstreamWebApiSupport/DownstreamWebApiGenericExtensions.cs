@@ -49,10 +49,10 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                 serviceName,
+                authenticationScheme,
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
                 user,
-                null,
-                authenticationScheme).ConfigureAwait(false);
+                null).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
@@ -97,10 +97,10 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                serviceName,
+               authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Post),
                user,
-               input,
-               authenticationScheme).ConfigureAwait(false);
+               input).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
@@ -142,10 +142,10 @@ namespace Microsoft.Identity.Web
 
             await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
+              authenticationScheme,
               PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
               user,
-              input,
-              authenticationScheme).ConfigureAwait(false);
+              input).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -188,10 +188,10 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                serviceName,
+               authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
                user,
-               input,
-               authenticationScheme).ConfigureAwait(false);
+               input).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
@@ -229,10 +229,10 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
+              authenticationScheme,
               downstreamWebApiOptionsOverride,
               user,
-              null,
-              authenticationScheme).ConfigureAwait(false);
+              null).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
@@ -272,10 +272,10 @@ namespace Microsoft.Identity.Web
 
             await downstreamWebApi.CallWebApiForUserAsync(
              serviceName,
+             authenticationScheme,
              downstreamWebApiOptionsOverride,
              user,
-             input,
-             authenticationScheme).ConfigureAwait(false);
+             input).ConfigureAwait(false);
         }
 
         private static StringContent ConvertFromInput<TInput>(TInput input)

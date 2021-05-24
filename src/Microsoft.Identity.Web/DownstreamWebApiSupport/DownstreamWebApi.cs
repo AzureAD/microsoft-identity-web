@@ -45,10 +45,10 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
             string serviceName,
+            string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? content = null,
-            string? authenticationScheme = null)
+            StringContent? content = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
@@ -76,11 +76,11 @@ namespace Microsoft.Identity.Web
 
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 effectiveOptions.GetScopes(),
+                authenticationScheme,
                 effectiveOptions.Tenant,
                 userflow,
                 user,
-                effectiveOptions.TokenAcquisitionOptions,
-                authenticationScheme)
+                effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
@@ -103,17 +103,17 @@ namespace Microsoft.Identity.Web
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
+            string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            ClaimsPrincipal? user = null)
             where TOutput : class
         {
             HttpResponseMessage response = await CallWebApiForUserAsync(
                 serviceName,
+                authenticationScheme,
                 downstreamWebApiOptionsOverride,
                 user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
-                authenticationScheme).ConfigureAwait(false);
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
             try
             {
@@ -139,9 +139,9 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
+            string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            StringContent? content = null,
-            string? authenticationScheme = null)
+            StringContent? content = null)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
 
@@ -156,9 +156,9 @@ namespace Microsoft.Identity.Web
 
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
+                authenticationScheme,
                 effectiveOptions.Tenant,
-                effectiveOptions.TokenAcquisitionOptions,
-                authenticationScheme)
+                effectiveOptions.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
             HttpResponseMessage response;

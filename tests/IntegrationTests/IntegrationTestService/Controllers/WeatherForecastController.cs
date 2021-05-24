@@ -50,10 +50,10 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options =>
-                {
-                    options.RelativePath = "me";
-                });
+                downstreamWebApiOptionsOverride: options =>
+ {
+     options.RelativePath = "me";
+ });
             return user.DisplayName;
         }
 
@@ -70,14 +70,14 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                options =>
-                {
-                    options.RelativePath = "me";
-                    options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                downstreamWebApiOptionsOverride: options =>
+ {
+     options.RelativePath = "me";
+     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
                     /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
                     { { "slice", "testslice" } };*/ // doesn't work w/build automation
                     options.TokenAcquisitionOptions.ForceRefresh = true;
-                });
+ });
             return user.DisplayName;
         }
     }

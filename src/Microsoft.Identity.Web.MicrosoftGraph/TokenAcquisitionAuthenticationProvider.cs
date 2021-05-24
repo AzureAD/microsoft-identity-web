@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
             string token;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, tenant, authenticationScheme: scheme).ConfigureAwait(false);
+                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, authenticationScheme: scheme, tenant: tenant).ConfigureAwait(false);
             }
             else
             {

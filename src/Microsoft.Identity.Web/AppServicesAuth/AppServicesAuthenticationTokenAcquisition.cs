@@ -102,9 +102,9 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
+            string? authenticationScheme = null,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             // We could use MSI
             if (scope is null)
@@ -123,11 +123,11 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
+            string? authenticationScheme = null,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             var httpContext = CurrentHttpContext;
             string accessToken;
@@ -173,15 +173,15 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
+            string? authenticationScheme = null,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
             ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
-            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId, userFlow, user, tokenAcquisitionOptions).ConfigureAwait(false);
+            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId: tenantId, userFlow: userFlow, user: user, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
             string expiration = userClaims.FindFirstValue("exp");
             DateTimeOffset dateTimeOffset = (expiration != null)
                 ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
@@ -230,8 +230,8 @@ namespace Microsoft.Identity.Web
         public void ReplyForbiddenWithWwwAuthenticateHeader(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
-            HttpResponse? httpResponse = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            HttpResponse? httpResponse = null)
         {
             // Not implemented for the moment
             throw new NotImplementedException();
@@ -240,9 +240,9 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
+            string? authenticationScheme = null,
             string? tenant = null,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null)
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             throw new NotImplementedException();
         }

@@ -30,11 +30,11 @@ else
         {
             response = await downstreamAPI.CallWebApiForUserAsync(
                     "CalledApi",
-                    options =>
-                    {
-                        options.RelativePath = "api/todolist";
-                        options.UserFlow = "b2c_1_edit_profile";
-                    });
+                    calledDownstreamWebApiOptionsOverride: options =>
+ {
+     options.RelativePath = "api/todolist";
+     options.UserFlow = "b2c_1_edit_profile";
+ });
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
