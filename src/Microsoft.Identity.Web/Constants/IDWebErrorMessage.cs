@@ -70,6 +70,7 @@ namespace Microsoft.Identity.Web
         // Obsolete messages IDW10800 = "IDW10800:"
         public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0. ";
         public const string InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. ";
-        public const string ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete = "IDW10801: Use ReplyForbiddenWithWwwAuthenticateHeader instead. See https://aka.ms/ms-id-web/1.9.0. ";
+        public const string ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete = "IDW10802: Use ReplyForbiddenWithWwwAuthenticateHeader instead. See https://aka.ms/ms-id-web/1.9.0. ";
+        public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
     }
 }
