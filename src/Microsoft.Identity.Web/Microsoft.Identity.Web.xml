@@ -277,6 +277,15 @@
             <param name="certificateStoreName">Store name where to find the certificate.</param>
             <returns>A certificate description.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromStoreWithThumbprint(System.String,System.Security.Cryptography.X509Certificates.StoreLocation,System.Security.Cryptography.X509Certificates.StoreName)">
+            <summary>
+            Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
+            </summary>
+            <param name="certificateThumbprint">Certificate thumbprint.</param>
+            <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+            <param name="certificateStoreName">Store name where to find the certificate.</param>
+            <returns>A certificate description.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.CertificateDescription.FromStoreWithDistinguishedName(System.String,System.Security.Cryptography.X509Certificates.StoreLocation,System.Security.Cryptography.X509Certificates.StoreName)">
             <summary>
             Creates a certificate description from a certificate distinguished name (such as CN=name)

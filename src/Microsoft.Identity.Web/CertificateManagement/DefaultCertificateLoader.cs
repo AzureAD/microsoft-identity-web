@@ -108,8 +108,10 @@ namespace Microsoft.Identity.Web
             X509KeyStorageFlags x509KeyStorageFlags)
         {
             Uri keyVaultUri = new Uri(keyVaultUrl);
-            DefaultAzureCredentialOptions options = new DefaultAzureCredentialOptions();
-            options.ManagedIdentityClientId = UserAssignedManagedIdentityClientId;
+            DefaultAzureCredentialOptions options = new DefaultAzureCredentialOptions
+            {
+                ManagedIdentityClientId = UserAssignedManagedIdentityClientId,
+            };
             DefaultAzureCredential credential = new DefaultAzureCredential(options);
             CertificateClient certificateClient = new CertificateClient(keyVaultUri, credential);
             SecretClient secretClient = new SecretClient(keyVaultUri, credential);
