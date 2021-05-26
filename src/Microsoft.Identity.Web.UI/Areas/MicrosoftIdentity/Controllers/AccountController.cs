@@ -40,14 +40,24 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="scheme">Authentication scheme.</param>
         /// <param name="redirectUri">Redirect URI.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
-        [HttpGet("{scheme?}/{redirectUri?}")]
+        [HttpGet("{scheme?}")]
         public IActionResult SignIn(
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
+            string redirect;
+            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri))
+            {
+                redirect = redirectUri;
+            }
+            else
+            {
+                redirect = Url.Content("~/");
+            }
+
             return Challenge(
-                new AuthenticationProperties { RedirectUri = redirectUri ?? Url.Content("~/") },
+                new AuthenticationProperties { RedirectUri = redirect },
                 scheme);
         }
 
@@ -99,7 +109,8 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// <param name="scheme">Authentication scheme.</param>
         /// <returns>Sign out result.</returns>
         [HttpGet("{scheme?}")]
-        public IActionResult SignOut([FromRoute] string scheme)
+        public IActionResult SignOut(
+            [FromRoute] string scheme)
         {
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
