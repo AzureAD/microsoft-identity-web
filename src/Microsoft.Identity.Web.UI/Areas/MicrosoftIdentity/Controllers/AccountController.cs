@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             }
             else
             {
-                redirect = Url.Content("~/");
+                redirect = Url.Content("~/")!;
             }
 
             return Challenge(
