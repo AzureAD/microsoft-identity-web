@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateDescription.cs" Link="OptionClasses\CertificateDescription.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateSource.cs" Link="OptionClasses\CertificateSource.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MicrosoftIdentityOptions.cs" Link="OptionClasses\MicrosoftIdentityOptions.cs" />
