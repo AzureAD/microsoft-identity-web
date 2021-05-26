@@ -8,7 +8,8 @@
 }
 else
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li><a asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">Sign in</a></li>
-    </ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="/MicrosoftIdentity/Account/SignIn?redirectUri=/TodoList">Sign In</a></li>
+    <li><a href="/MicrosoftIdentity/Account/SignIn?redirectUri=https%3A%2F%2Fjwt.ms">Sign In jwt.ms</a></li>
+</ul>
 }
