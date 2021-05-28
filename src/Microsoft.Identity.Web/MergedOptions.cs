@@ -186,10 +186,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions.ResponseMode = microsoftIdentityOptions.ResponseMode;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.ResponseType) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseType))
-            {
-                mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
-            }
+            mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
 
             if (string.IsNullOrEmpty(mergedOptions.ReturnUrlParameter) && !string.IsNullOrEmpty(microsoftIdentityOptions.ReturnUrlParameter))
             {
