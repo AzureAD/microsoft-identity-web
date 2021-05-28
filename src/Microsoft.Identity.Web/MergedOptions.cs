@@ -229,7 +229,7 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
-            mergedOptions.TokenValidationParameters ??= microsoftIdentityOptions.TokenValidationParameters;
+            mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
             if (string.IsNullOrEmpty(mergedOptions.UserAssignedManagedIdentityClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.UserAssignedManagedIdentityClientId))
             {

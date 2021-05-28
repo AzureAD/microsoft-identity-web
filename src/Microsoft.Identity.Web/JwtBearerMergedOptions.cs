@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
             jwtBearerMergedOptions.RefreshOnIssuerKeyNotFound = jwtBearerOptions.RefreshOnIssuerKeyNotFound;
             jwtBearerMergedOptions.RequireHttpsMetadata = jwtBearerOptions.RequireHttpsMetadata;
             jwtBearerMergedOptions.SaveToken = jwtBearerOptions.SaveToken;
-            jwtBearerMergedOptions.TokenValidationParameters ??= jwtBearerOptions.TokenValidationParameters;
+            jwtBearerMergedOptions.TokenValidationParameters = jwtBearerOptions.TokenValidationParameters.Clone();
         }
     }
 }
