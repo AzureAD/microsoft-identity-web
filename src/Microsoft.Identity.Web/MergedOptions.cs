@@ -197,7 +197,10 @@ namespace Microsoft.Identity.Web
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
             mergedOptions.SendX5C = microsoftIdentityOptions.SendX5C;
             mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
-            mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            if (string.IsNullOrEmpty(mergedOptions.SignedOutRedirectUri) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignedOutRedirectUri))
+            {
+                mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            }
 
             if (string.IsNullOrEmpty(mergedOptions.SignInScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInScheme))
             {
