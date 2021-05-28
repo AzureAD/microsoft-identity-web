@@ -186,10 +186,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions.ResponseMode = microsoftIdentityOptions.ResponseMode;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.ResponseType) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResponseType))
-            {
-                mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
-            }
+            mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
 
             if (string.IsNullOrEmpty(mergedOptions.ReturnUrlParameter) && !string.IsNullOrEmpty(microsoftIdentityOptions.ReturnUrlParameter))
             {
@@ -200,10 +197,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
             mergedOptions.SendX5C = microsoftIdentityOptions.SendX5C;
             mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
-            if (string.IsNullOrEmpty(mergedOptions.SignedOutRedirectUri) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignedOutRedirectUri))
-            {
-                mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
-            }
+            mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
 
             if (string.IsNullOrEmpty(mergedOptions.SignInScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInScheme))
             {
