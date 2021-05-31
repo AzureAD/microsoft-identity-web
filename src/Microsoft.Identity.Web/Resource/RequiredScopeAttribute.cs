@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.Resource
         public string RequiredScopesConfigurationKey
         {
             get { return string.Empty; }
-            set { Arguments = new object[] { Constants.RequiredScopesSetting, value }; }
+            set { Arguments = new object[] { new string[] { Constants.RequiredScopesSetting, value } }; }
         }
 
         /// <summary>
