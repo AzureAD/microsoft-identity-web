@@ -1,7 +1,7 @@
 1.12.0
 ==========
 ### Bug Fixes:
-**Fix issue with `RequiredScope` Attribute on the API Controller**. See issues [#1223](https://github.com/AzureAD/microsoft-identity-web/issues/1223), [#1197](https://github.com/AzureAD/microsoft-identity-web/issues/1197), and [#1036](https://github.com/AzureAD/microsoft-identity-web/issues/1036).
+**Fix issue with `RequiredScope` attribute on the Controller** when used with `RequiredScopesConfigurationKey `. See issues [#1223](https://github.com/AzureAD/microsoft-identity-web/issues/1223), [#1197](https://github.com/AzureAD/microsoft-identity-web/issues/1197), and [#1036](https://github.com/AzureAD/microsoft-identity-web/issues/1036).
 
 **Fix `response_type` in `MergedOptions`**. Regression from 1.10 version. See [#1215](https://github.com/AzureAD/microsoft-identity-web/issues/1215) for details.
 
