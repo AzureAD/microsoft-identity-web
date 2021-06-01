@@ -1,3 +1,18 @@
+1.12.0
+==========
+### Bug Fixes:
+**Fix issue with `RequiredScope` attribute on the Controller** when used with `RequiredScopesConfigurationKey `. See issues [#1223](https://github.com/AzureAD/microsoft-identity-web/issues/1223), [#1197](https://github.com/AzureAD/microsoft-identity-web/issues/1197), and [#1036](https://github.com/AzureAD/microsoft-identity-web/issues/1036).
+
+**Fix `response_type` in `MergedOptions`**. Regression from 1.10 version. See [#1215](https://github.com/AzureAD/microsoft-identity-web/issues/1215) for details.
+
+**Fix `RoleClaimType` when set as part of the `MicrosoftIdentityOptions`**. Regression from 1.10 version. See [#1218](https://github.com/AzureAD/microsoft-identity-web/issues/1218) for details.
+
+**Microsoft Identity Web UI now displays a better error message when run in a Production enviornment to assist with debugging**. See issue [#1213](https://github.com/AzureAD/microsoft-identity-web/issues/1213) for details.
+
+**Microsoft Identity Web UI now honors a local redirect URI after sign-in**. This is if you want to redirect the user to a specific page within the add. See issue [#760](https://github.com/AzureAD/microsoft-identity-web/issues/760) for details.
+
+**Fix public API spelling of `CertificateDescription.FromStoreWithThumbprint`**. See issue [#791](https://github.com/AzureAD/microsoft-identity-web/issues/791) for details.
+
 1.11.0
 ==========
 ### New Features:
