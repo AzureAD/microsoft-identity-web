@@ -1341,40 +1341,9 @@
             Model class to hold information parsed from the Azure AD issuer endpoint.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.TenantDiscoveryEndpoint">
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Issuer">
             <summary>
-            Tenant discovery endpoint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.ApiVersion">
-            <summary>
-            API Version.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Metadata">
-            <summary>
-            List of metadata associated with the endpoint.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.Metadata">
-            <summary>
-            Model child class to hold alias information parsed from the Azure AD issuer endpoint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredNetwork">
-            <summary>
-            Preferred alias.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredCache">
-            <summary>
-            Preferred alias to cache tokens emitted by one of the aliases (to avoid
-            SSO islands).
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.Aliases">
-            <summary>
-            Aliases of issuer URLs which are equivalent.
+            Issuer associated with the OIDC endpoint.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.ITokenAcquisition">
@@ -1962,6 +1931,33 @@
             <param name="events">Events to subscribe to.</param>
             <returns><see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents"/> for chaining.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidator">
+            <summary>
+            Generic class that validates token issuer from the provided Azure AD authority.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
+            Personal accounts).
+            </summary>
+            <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
+            <param name="securityToken">Received security token.</param>
+            <param name="validationParameters">Token validation parameters.</param>
+            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+            authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
+            accepts both V1 and V2 tokens).</remarks>
+            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
+            <summary>Gets the tenant ID from a token.</summary>
+            <param name="securityToken">A JWT token.</param>
+            <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
+            <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory">
             <summary>
             Factory class for creating the IssuerValidator per authority.
@@ -1974,12 +1970,12 @@
             <param name="aadIssuerValidatorOptions">Options passed-in to create the AadIssuerValidator object.</param>
             <param name="httpClientFactory">HttpClientFactory.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
+        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetMicrosoftIdentityIssuerValidator(System.String)">
             <summary>
-            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            Gets an <see cref="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidator"/> for an authority.
             </summary>
             <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidator"/> for the aadAuthority.</returns>
             <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics">

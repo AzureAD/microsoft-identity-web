@@ -326,7 +326,7 @@ namespace Microsoft.Identity.Web
                         serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
 
                         options.TokenValidationParameters.IssuerValidator =
-                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
+                        microsoftIdentityIssuerValidatorFactory.GetMicrosoftIdentityIssuerValidator(options.Authority).Validate;
                     }
 
                     // Avoids having users being presented the select account dialog when they are already signed-in

@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web.InstanceDiscovery;
-using Microsoft.IdentityModel.Protocols;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -26,34 +23,22 @@ namespace Microsoft.Identity.Web.Resource
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            if (aadIssuerValidatorOptions?.Value?.HttpClientName != null && httpClientFactory != null)
-            {
-                _configManager =
-                new ConfigurationManager<IssuerMetadata>(
-                    Constants.AzureADIssuerMetadataUrl,
-                    new IssuerConfigurationRetriever(),
-                    httpClientFactory.CreateClient(aadIssuerValidatorOptions.Value.HttpClientName));
-            }
-            else
-           {
-                _configManager =
-                new ConfigurationManager<IssuerMetadata>(
-                    Constants.AzureADIssuerMetadataUrl,
-                    new IssuerConfigurationRetriever());
-            }
+            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
+            HttpClientFactory = httpClientFactory;
         }
 
-        private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
+        private readonly IDictionary<string, MicrosoftIdentityIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, MicrosoftIdentityIssuerValidator>();
 
-        private readonly ConfigurationManager<IssuerMetadata> _configManager;
+        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
+        private IHttpClientFactory HttpClientFactory { get; }
 
         /// <summary>
-        /// Gets an <see cref="AadIssuerValidator"/> for an authority.
+        /// Gets an <see cref="MicrosoftIdentityIssuerValidator"/> for an authority.
         /// </summary>
         /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-        /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
+        /// <returns>A <see cref="MicrosoftIdentityIssuerValidator"/> for the aadAuthority.</returns>
         /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        public AadIssuerValidator GetAadIssuerValidator(string aadAuthority)
+        internal MicrosoftIdentityIssuerValidator GetMicrosoftIdentityIssuerValidator(string aadAuthority)
         {
             if (string.IsNullOrEmpty(aadAuthority))
             {
@@ -63,21 +48,15 @@ namespace Microsoft.Identity.Web.Resource
             Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
             string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
 
-            if (_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
+            if (_issuerValidators.TryGetValue(authorityHost, out MicrosoftIdentityIssuerValidator? aadIssuerValidator))
             {
                 return aadIssuerValidator;
             }
 
-            // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-            IssuerMetadata issuerMetadata = _configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            // Add issuer aliases of the chosen authority to the cache
-            IEnumerable<string> aliases = issuerMetadata.Metadata
-                .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
-                .SelectMany(m => m.Aliases)
-                .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
-                .Distinct();
-            _issuerValidators[authorityHost] = new AadIssuerValidator(aliases);
+            _issuerValidators[authorityHost] = new MicrosoftIdentityIssuerValidator(
+                AadIssuerValidatorOptions,
+                HttpClientFactory,
+                aadAuthority);
 
             return _issuerValidators[authorityHost];
         }
