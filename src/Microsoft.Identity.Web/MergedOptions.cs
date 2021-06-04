@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
@@ -349,9 +350,9 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
-            if (IsB2C && Instance.EndsWith("/tfp/"))
+            if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
-                Instance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
+                Instance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
             }
             else
             {

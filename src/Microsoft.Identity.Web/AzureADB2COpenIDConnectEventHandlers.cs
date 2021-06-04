@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
             // Timestamp: 2018-03-05 02:49:35Z
             // ', error_uri: 'error_uri is null'.
             string message = context.Failure?.Message ?? string.Empty;
-            if (isOidcProtocolException && message.Contains(ErrorCodes.B2CForgottenPassword))
+            if (isOidcProtocolException && message.Contains(ErrorCodes.B2CForgottenPassword, StringComparison.OrdinalIgnoreCase))
             {
                 // If the user clicked the reset password link, redirect to the reset password route
                 context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
             // Correlation ID: d01c8878-0732-4eb2-beb8-da82a57432e0
             // Timestamp: 2018-03-05 02:56:49Z
             // ', error_uri: 'error_uri is null'.
-            else if (isOidcProtocolException && message.Contains(ErrorCodes.AccessDenied))
+            else if (isOidcProtocolException && message.Contains(ErrorCodes.AccessDenied, StringComparison.OrdinalIgnoreCase))
             {
                 context.Response.Redirect($"{context.Request.PathBase}/");
             }
@@ -102,8 +102,9 @@ namespace Microsoft.Identity.Web
         {
             if (!_userFlowToIssuerAddress.TryGetValue(userFlow, out var issuerAddress))
             {
-                issuerAddress = context.ProtocolMessage.IssuerAddress.ToLowerInvariant()
-                    .Replace($"/{defaultUserFlow?.ToLowerInvariant()}/", $"/{userFlow.ToLowerInvariant()}/");
+                issuerAddress = context.ProtocolMessage.IssuerAddress
+                    .Replace($"/{defaultUserFlow}/", $"/{userFlow}/", StringComparison.OrdinalIgnoreCase);
+                issuerAddress = issuerAddress.ToLowerInvariant();
 
                 _userFlowToIssuerAddress[userFlow] = issuerAddress;
             }

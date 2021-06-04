@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web.Resource
 
             try
             {
-                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
+                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId, StringComparison.OrdinalIgnoreCase));
                 Uri actualIssuerUri = new Uri(actualIssuer);
 
                 // Template authority is in the aliases

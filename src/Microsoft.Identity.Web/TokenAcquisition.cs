@@ -578,7 +578,9 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
         {
-            return !retryClientCertificate && exMsal.ErrorCode == Constants.InvalidClient && exMsal.Message.Contains(Constants.InvalidKeyError);
+            return !retryClientCertificate &&
+                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
+                exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
         }
 
         private string BuildCurrentUriFromRequest(
@@ -855,7 +857,8 @@ namespace Microsoft.Identity.Web
             {
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}");
+                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}",
+                    StringComparison.OrdinalIgnoreCase);
 
                 builder.WithB2CAuthority(b2cAuthority)
                        .WithSendX5C(mergedOptions.SendX5C);
@@ -932,7 +935,10 @@ namespace Microsoft.Identity.Web
             string authority;
             if (!string.IsNullOrEmpty(tenant))
             {
-                authority = application.Authority.Replace(new Uri(application.Authority).PathAndQuery, $"/{tenant}/");
+                authority = application.Authority.Replace(
+                    new Uri(application.Authority).PathAndQuery,
+                    $"/{tenant}/",
+                    StringComparison.OrdinalIgnoreCase);
             }
             else
             {
