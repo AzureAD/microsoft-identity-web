@@ -211,7 +211,7 @@ namespace Microsoft.Identity.Web
                         serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
 
                         options.TokenValidationParameters.IssuerValidator =
-                        microsoftIdentityIssuerValidatorFactory.GetMicrosoftIdentityIssuerValidator(options.Authority).Validate;
+                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token

@@ -27,18 +27,18 @@ namespace Microsoft.Identity.Web.Resource
             HttpClientFactory = httpClientFactory;
         }
 
-        private readonly IDictionary<string, MicrosoftIdentityIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, MicrosoftIdentityIssuerValidator>();
+        private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
         private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
         private IHttpClientFactory HttpClientFactory { get; }
 
         /// <summary>
-        /// Gets an <see cref="MicrosoftIdentityIssuerValidator"/> for an authority.
+        /// Gets an <see cref="AadIssuerValidator"/> for an authority.
         /// </summary>
         /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-        /// <returns>A <see cref="MicrosoftIdentityIssuerValidator"/> for the aadAuthority.</returns>
+        /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
         /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        internal MicrosoftIdentityIssuerValidator GetMicrosoftIdentityIssuerValidator(string aadAuthority)
+        public AadIssuerValidator GetAadIssuerValidator(string aadAuthority)
         {
             if (string.IsNullOrEmpty(aadAuthority))
             {
@@ -48,12 +48,12 @@ namespace Microsoft.Identity.Web.Resource
             Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
             string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
 
-            if (_issuerValidators.TryGetValue(authorityHost, out MicrosoftIdentityIssuerValidator? aadIssuerValidator))
+            if (_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
             {
                 return aadIssuerValidator;
             }
 
-            _issuerValidators[authorityHost] = new MicrosoftIdentityIssuerValidator(
+            _issuerValidators[authorityHost] = new AadIssuerValidator(
                 AadIssuerValidatorOptions,
                 HttpClientFactory,
                 aadAuthority);

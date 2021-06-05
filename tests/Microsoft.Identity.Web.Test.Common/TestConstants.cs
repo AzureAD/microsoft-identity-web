@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string UsGovIssuer = "https://login.microsoftonline.us/" + UsGovTenantId + "/v2.0";
         public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
-        public const string V1Issuer = "https://sts.windows.net/";
+        public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
 
         // B2C
@@ -77,7 +77,6 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CIssuerTfp = B2CInstance + "/" + ClaimConstants.Tfp + "/" + B2CTenantAsGuid + "/" + B2CSignUpSignInUserFlow + "/v2.0";
         public const string B2CCustomDomainTenant = "cpimtestpartners.onmicrosoft.com";
         public const string B2CCustomDomainUserFlow = "B2C_1_signupsignin_userflow";
-
 
         // Claims
         public const string ClaimNameTid = "tid";

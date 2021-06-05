@@ -41,7 +41,6 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             documentRetriever.GetDocumentAsync(metadataAddress, CancellationToken.None).Returns(Task.FromResult(metadata));
 
             var actualIssuerMetadata = await configurationRetriever.GetConfigurationAsync(metadataAddress, documentRetriever, CancellationToken.None).ConfigureAwait(false);
-
         }
     }
 }
