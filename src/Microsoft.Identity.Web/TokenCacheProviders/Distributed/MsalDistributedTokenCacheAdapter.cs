@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -72,6 +73,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey)
         {
+            await RemoveKeyAsync(cacheKey, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Removes a specific token cache, described by its cache key
+        /// from the distributed cache.
+        /// </summary>
+        /// <param name="cacheKey">Key of the cache to remove.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
+        protected override async Task RemoveKeyAsync(string cacheKey, CancellationToken cancellationToken)
+        {
             string remove = "Remove";
             _memoryCache.Remove(cacheKey);
 
@@ -79,7 +92,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             await L2OperationWithRetryOnFailureAsync(
                 remove,
-                (cacheKey) => _distributedCache.RemoveAsync(cacheKey),
+                (cacheKey) => _distributedCache.RemoveAsync(cacheKey, cancellationToken),
                 cacheKey).ConfigureAwait(false);
         }
 
@@ -92,6 +105,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
+            return await ReadCacheBytesAsync(cacheKey, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Read a specific token cache, described by its cache key, from the
+        /// distributed cache.
+        /// </summary>
+        /// <param name="cacheKey">Key of the cache item to retrieve.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>Read blob representing a token cache for the cache key
+        /// (account or app).</returns>
+        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CancellationToken cancellationToken)
+        {
             string read = "Read";
             // check memory cache first
             byte[]? result = (byte[])_memoryCache.Get(cacheKey);
@@ -99,14 +125,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (result == null)
             {
-                var measure = await Task.Run(async () =>
+                var measure = await Task.Run(
+                    async () =>
                 {
                     // not found in memory, check distributed cache
                     result = await L2OperationWithRetryOnFailureAsync(
                         read,
-                        (cacheKey) => _distributedCache.GetAsync(cacheKey),
+                        (cacheKey) => _distributedCache.GetAsync(cacheKey, cancellationToken),
                         cacheKey).ConfigureAwait(false);
-                }).Measure().ConfigureAwait(false);
+                }, cancellationToken).Measure().ConfigureAwait(false);
 
                 Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
 
@@ -128,7 +155,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             {
                 await L2OperationWithRetryOnFailureAsync(
                        "Refresh",
-                       (cacheKey) => _distributedCache.RefreshAsync(cacheKey),
+                       (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cancellationToken),
                        cacheKey,
                        result!).ConfigureAwait(false);
             }
@@ -146,6 +173,21 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override async Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
+            await WriteCacheBytesAsync(cacheKey, bytes, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Writes a token cache blob to the serialization cache (by key).
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="bytes">blob to write.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
+        protected override async Task WriteCacheBytesAsync(
+            string cacheKey,
+            byte[] bytes,
+            CancellationToken cancellationToken)
+        {
             string write = "Write";
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
@@ -160,7 +202,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             await L2OperationWithRetryOnFailureAsync(
                 write,
-                (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions),
+                (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions, cancellationToken),
                 cacheKey).Measure().ConfigureAwait(false);
         }
 

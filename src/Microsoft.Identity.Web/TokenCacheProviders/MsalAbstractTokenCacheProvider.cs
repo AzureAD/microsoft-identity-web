@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
@@ -106,6 +107,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected abstract Task WriteCacheBytesAsync(string cacheKey, byte[] bytes);
 
         /// <summary>
+        /// Method to be implemented by concrete cache serializers to write the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="bytes">Bytes to write.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed write operation.</returns>
+        protected virtual Task WriteCacheBytesAsync(string cacheKey, byte[] bytes, CancellationToken cancellationToken)
+        {
+            return WriteCacheBytesAsync(cacheKey, bytes); // default implementation avoids a breaking change.
+        }
+
+        /// <summary>
         /// Method to be implemented by concrete cache serializers to Read the cache bytes.
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
@@ -113,10 +126,32 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected abstract Task<byte[]> ReadCacheBytesAsync(string cacheKey);
 
         /// <summary>
+        /// Method to be implemented by concrete cache serializers to Read the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>Read bytes.</returns>
+        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CancellationToken cancellationToken)
+        {
+            return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
+        }
+
+        /// <summary>
         /// Method to be implemented by concrete cache serializers to remove an entry from the cache.
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <returns>A <see cref="Task"/> that represents a completed remove key operation.</returns>
         protected abstract Task RemoveKeyAsync(string cacheKey);
+
+        /// <summary>
+        /// Method to be implemented by concrete cache serializers to remove an entry from the cache.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>A <see cref="Task"/> that represents a completed remove key operation.</returns>
+        protected virtual Task RemoveKeyAsync(string cacheKey, CancellationToken cancellationToken)
+        {
+            return RemoveKeyAsync(cacheKey); // default implementation avoids a breaking change.
+        }
     }
 }

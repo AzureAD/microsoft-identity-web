@@ -55,7 +55,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>Read blob.</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            await _session.LoadAsync().ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Read a blob representing the token cache from its key.
+        /// </summary>
+        /// <param name="cacheKey">Key representing the token cache
+        /// (account or app).</param>
+        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <returns>Read blob.</returns>
+        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CancellationToken cancellationToken)
+        {
+            await _session.LoadAsync(cancellationToken).ConfigureAwait(false);
 
             _sessionLock.EnterReadLock();
             try

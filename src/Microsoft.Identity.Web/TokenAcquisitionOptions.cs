@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
@@ -47,6 +48,11 @@ namespace Microsoft.Identity.Web
         public PoPAuthenticationConfiguration? PoPConfiguration { get; set; }
 
         /// <summary>
+        /// todo.
+        /// </summary>
+        public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -58,6 +64,8 @@ namespace Microsoft.Identity.Web
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
+                PoPConfiguration = PoPConfiguration,
+                CancellationToken = CancellationToken,
             };
         }
     }
