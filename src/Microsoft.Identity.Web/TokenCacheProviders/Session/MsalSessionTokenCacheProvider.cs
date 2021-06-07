@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>Read blob.</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            return await ReadCacheBytesAsync(cacheKey, CancellationToken.None).ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -63,11 +63,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <param name="cacheKey">Key representing the token cache
         /// (account or app).</param>
-        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
         /// <returns>Read blob.</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CancellationToken cancellationToken)
+        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            await _session.LoadAsync(cancellationToken).ConfigureAwait(false);
+#pragma warning disable CA1062 // Validate arguments of public methods
+            await _session.LoadAsync(cacheSerializerHints.CancellationToken).ConfigureAwait(false);
+#pragma warning restore CA1062 // Validate arguments of public methods
 
             _sessionLock.EnterReadLock();
             try

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
@@ -53,23 +52,30 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             // The access operation resulted in a cache update.
             if (args.HasStateChanged)
             {
+                CacheSerializerHints cacheSerializerHints = CreateHintsFromArgs(args);
+
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3()).ConfigureAwait(false);
+                    await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3(), cacheSerializerHints).ConfigureAwait(false);
                 }
                 else
                 {
                     // No token in the cache. we can remove the cache entry
-                    await RemoveKeyAsync(args.SuggestedCacheKey).ConfigureAwait(false);
+                    await RemoveKeyAsync(args.SuggestedCacheKey, cacheSerializerHints).ConfigureAwait(false);
                 }
             }
+        }
+
+        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args)
+        {
+            return new CacheSerializerHints { CancellationToken = args.CancellationToken };
         }
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
             if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
             {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey).ConfigureAwait(false);
+                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
                 args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
             }
         }
@@ -111,9 +117,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="bytes">Bytes to write.</param>
-        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
         /// <returns>A <see cref="Task"/> that represents a completed write operation.</returns>
-        protected virtual Task WriteCacheBytesAsync(string cacheKey, byte[] bytes, CancellationToken cancellationToken)
+        protected virtual Task WriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints cacheSerializerHints)
         {
             return WriteCacheBytesAsync(cacheKey, bytes); // default implementation avoids a breaking change.
         }
@@ -129,9 +135,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Method to be implemented by concrete cache serializers to Read the cache bytes.
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
-        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
         /// <returns>Read bytes.</returns>
-        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CancellationToken cancellationToken)
+        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
         }
@@ -147,9 +153,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Method to be implemented by concrete cache serializers to remove an entry from the cache.
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
-        /// <param name="cancellationToken">Cancellation Token.</param>
+        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
         /// <returns>A <see cref="Task"/> that represents a completed remove key operation.</returns>
-        protected virtual Task RemoveKeyAsync(string cacheKey, CancellationToken cancellationToken)
+        protected virtual Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return RemoveKeyAsync(cacheKey); // default implementation avoids a breaking change.
         }
