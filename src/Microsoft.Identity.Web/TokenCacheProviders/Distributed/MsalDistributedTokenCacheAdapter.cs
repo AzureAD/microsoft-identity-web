@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// from the distributed cache.
         /// </summary>
         /// <param name="cacheKey">Key of the cache to remove.</param>
-        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// distributed cache.
         /// </summary>
         /// <param name="cacheKey">Key of the cache item to retrieve.</param>
-        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
@@ -183,7 +183,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="bytes">blob to write.</param>
-        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override async Task WriteCacheBytesAsync(
             string cacheKey,

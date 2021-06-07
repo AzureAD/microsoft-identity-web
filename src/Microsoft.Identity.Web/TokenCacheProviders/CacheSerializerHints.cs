@@ -6,12 +6,12 @@ using System.Threading;
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
     /// <summary>
-    /// todo.
+    /// Set of properties that the token cache serialization implementations might use to optimize the cache.
     /// </summary>
     public class CacheSerializerHints
     {
         /// <summary>
-        /// Todo.
+        /// CancellationToken enabling cooperative cancellation between threads, thread pool, or Task objects.
         /// </summary>
         public CancellationToken CancellationToken { get; set; }
     }

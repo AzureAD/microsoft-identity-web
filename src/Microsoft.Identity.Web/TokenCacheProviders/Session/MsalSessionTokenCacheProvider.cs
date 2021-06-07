@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -63,7 +62,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <param name="cacheKey">Key representing the token cache
         /// (account or app).</param>
-        /// <param name="cacheSerializerHints">cacheSerializerHints.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob.</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {

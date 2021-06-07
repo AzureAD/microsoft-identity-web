@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web
         public PoPAuthenticationConfiguration? PoPConfiguration { get; set; }
 
         /// <summary>
-        /// todo.
+        /// Cancellation token to be used when calling the token acquisition methods.
         /// </summary>
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
