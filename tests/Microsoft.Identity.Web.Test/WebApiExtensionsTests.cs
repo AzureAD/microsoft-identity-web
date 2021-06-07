@@ -289,7 +289,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     IgnoreNullValues = true,
                     PropertyNameCaseInsensitive = true,
-                }).Replace(":2", ": \"Base64Encoded\"");
+                }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
             var configAsDictionary = new Dictionary<string, string>()
             {
                 { configSectionName, null },

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace Microsoft.Identity.Web
         {
             foreach (string str in stringCollection)
             {
-                if (searchFor.Contains(str))
+                if (searchFor.Contains(str, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

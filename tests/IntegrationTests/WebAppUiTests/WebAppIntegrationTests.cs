@@ -39,8 +39,8 @@ namespace WebAppUiTests
             PerformLogin(driver, labResponse.User);
 
             // Assert
-            Assert.Contains(labResponse.User.Upn, driver.PageSource);
-            Assert.Contains(TestConstants.PhotoLabel, driver.PageSource);
+            Assert.Contains(labResponse.User.Upn, driver.PageSource, System.StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(TestConstants.PhotoLabel, driver.PageSource, System.StringComparison.OrdinalIgnoreCase);
             driver.Quit();
             driver.Dispose();
         }
@@ -64,7 +64,7 @@ namespace WebAppUiTests
             // Lab user needs to be a guest in the msidentity-samples-testing tenant
             Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Logging in ... Entering user name: {0}", user.Upn));
 
-            driver.FindElement(By.Id(fields.AADUsernameInputId)).SendKeys(user.Upn.Contains("EXT") ? user.HomeUPN : user.Upn);
+            driver.FindElement(By.Id(fields.AADUsernameInputId)).SendKeys(user.Upn.Contains("EXT", System.StringComparison.OrdinalIgnoreCase) ? user.HomeUPN : user.Upn);
 
             Trace.WriteLine("Logging in ... Clicking <Next> after user name");
 

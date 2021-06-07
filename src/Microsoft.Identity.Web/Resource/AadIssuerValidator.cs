@@ -162,7 +162,7 @@ namespace Microsoft.Identity.Web.Resource
 
             try
             {
-                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
+                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId, StringComparison.OrdinalIgnoreCase));
                 Uri actualIssuerUri = new Uri(actualIssuer);
 
                 return issuerFromTemplateUri.AbsoluteUri == actualIssuerUri.AbsoluteUri;
