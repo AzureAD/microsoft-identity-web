@@ -71,6 +71,7 @@ namespace Microsoft.Identity.Web.Test
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientIdEnvironmentVariable, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientSecretEnvironmentVariable, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthLogoutPathEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesWebSiteAuthApiPrefix, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable, string.Empty);
         }
 
