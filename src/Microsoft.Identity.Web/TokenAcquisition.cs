@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -362,7 +363,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                return builder.ExecuteAsync();
+                return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -746,7 +747,7 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
-                    return await builder.ExecuteAsync()
+                    return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
                                         .ConfigureAwait(false);
                 }
 
@@ -868,7 +869,7 @@ namespace Microsoft.Identity.Web
                 builder.WithAuthority(authority);
             }
 
-            return builder.ExecuteAsync();
+            return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

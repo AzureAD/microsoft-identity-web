@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -55,7 +54,21 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>Read blob.</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
         {
-            await _session.LoadAsync().ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Read a blob representing the token cache from its key.
+        /// </summary>
+        /// <param name="cacheKey">Key representing the token cache
+        /// (account or app).</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <returns>Read blob.</returns>
+        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+#pragma warning disable CA1062 // Validate arguments of public methods
+            await _session.LoadAsync(cacheSerializerHints.CancellationToken).ConfigureAwait(false);
+#pragma warning restore CA1062 // Validate arguments of public methods
 
             _sessionLock.EnterReadLock();
             try
