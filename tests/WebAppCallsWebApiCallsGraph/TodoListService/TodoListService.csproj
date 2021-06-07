@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.10.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.11.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.11.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
   </ItemGroup>
