@@ -53,8 +53,7 @@ namespace Microsoft.Identity.Web
                      string.Equals(
                          Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable),
                          AppServicesAuthAAD,
-                         StringComparison.OrdinalIgnoreCase)
-                     );
+                         StringComparison.OrdinalIgnoreCase));
             }
         }
 
