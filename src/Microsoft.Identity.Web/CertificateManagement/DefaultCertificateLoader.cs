@@ -304,7 +304,10 @@ namespace Microsoft.Identity.Web
             foreach (var certDescription in certificateDescriptions)
             {
                 defaultCertificateLoader.LoadIfNeeded(certDescription);
-                yield return certDescription.Certificate;
+                if (certDescription.Certificate != null)
+                {
+                    yield return certDescription.Certificate;
+                }
             }
         }
     }

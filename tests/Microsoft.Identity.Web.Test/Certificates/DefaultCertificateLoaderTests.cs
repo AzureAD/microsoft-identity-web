@@ -90,12 +90,16 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ReferenceOrValue = referenceOrValue,
             });
 
+            certDescriptions.Add(CertificateDescription.FromCertificate(null));
+
             IEnumerable<X509Certificate2> certificates = DefaultCertificateLoader.LoadAllCertificates(certDescriptions);
 
             Assert.NotNull(certificates);
             Assert.Equal(2, certificates.Count());
-            Assert.Equal("CN=ACS2ClientCertificate", certificates.First().Issuer);
-            Assert.Equal("CN=ACS2ClientCertificate", certificates.Last().Issuer);
+            Assert.Equal(3, certDescriptions.Count);
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.ElementAt(0).Issuer);
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.ElementAt(1).Issuer);
+            Assert.Null(certDescriptions.ElementAt(2).Certificate);
         }
 
         private IEnumerable<CertificateDescription> CreateCertificateDescriptions(
