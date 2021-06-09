@@ -975,14 +975,14 @@ namespace Microsoft.Identity.Web
 
         private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
         {
-            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                return Client.LogLevel.Info;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
                 || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
             {
                 return Client.LogLevel.Verbose;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
+            {
+                return Client.LogLevel.Info;
             }
             else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
             {
