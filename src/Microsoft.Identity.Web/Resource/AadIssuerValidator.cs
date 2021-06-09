@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Web.Resource
 
             if (validationParameters.ValidIssuers == null && validationParameters.ValidIssuer == null)
             {
-                if (securityToken.Issuer.EndsWith("v2.0"))
+                if (securityToken.Issuer.EndsWith("v2.0", StringComparison.OrdinalIgnoreCase))
                 {
                     if (AadIssuerV2 == null)
                     {
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.Resource
                     if (AadIssuerV1 == null)
                     {
                         IssuerMetadata issuerMetadata =
-                            CreateConfigManager(AadAuthority.Replace("/v2.0", string.Empty)).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                            CreateConfigManager(AadAuthority.Replace("/v2.0", string.Empty, StringComparison.OrdinalIgnoreCase)).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                         AadIssuerV1 = issuerMetadata.Issuer!;
                     }
 
