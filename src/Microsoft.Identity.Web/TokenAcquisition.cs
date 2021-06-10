@@ -258,6 +258,8 @@ namespace Microsoft.Identity.Web
                         authenticationResult.AuthenticationResultMetadata.DurationTotalInMs,
                         authenticationResult.AuthenticationResultMetadata.DurationInHttpInMs,
                         authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
+                        authenticationResult.AuthenticationResultMetadata.TokenSource.ToString(),
+                        authenticationResult.CorrelationId.ToString(),
                         null);
                     return authenticationResult;
                 }
