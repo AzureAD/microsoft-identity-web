@@ -1,3 +1,21 @@
+1.13.0
+==========
+### New Features:
+**Microsoft Identity Web now supports the CancellationToken**, in the Distributed and Session cache adapters and in the `TokenAcquisitionOptions` for the calls to MSAL.NET. See issue [#1239](https://github.com/AzureAD/microsoft-identity-web/issues/1239) for details.
+
+### Bug Fixes:
+**The order of the LogLevel in TokenAcquisition did not correctly honor the nested log settings**. See issue [#1250](https://github.com/AzureAD/microsoft-identity-web/issues/1250) for details.
+
+**Fix a bug with certificate rotation and not pass a null certificate value to Microsoft.IdentityModel**. See issue [#1243](https://github.com/AzureAD/microsoft-identity-web/issues/1243) for details.
+
+**When using EasyAuth, fix case insensitivity when specifying the default provider**. See issue [#1163](https://github.com/AzureAD/microsoft-identity-web/issues/1163) for details.
+
+**EasyAuth took a breaking change by not adding the logout path environment variable**, the logout error with EasyAuth v2 is fixed. See issue [#1234](https://github.com/AzureAD/microsoft-identity-web/issues/1234) for details.
+
+**Microsoft Identity Web now uses the `/.well-known/openid-configuration` endpoint to determine the issuer values**. Now the different clouds work as well. See issue [#1167](https://github.com/AzureAD/microsoft-identity-web/issues/1167) for details.
+
+**A lock in the response stream caused an exception when copying the content to a stream**. See issue [#1153](https://github.com/AzureAD/microsoft-identity-web/issues/1153) for details.
+
 1.12.0
 ==========
 ### Bug Fixes:
