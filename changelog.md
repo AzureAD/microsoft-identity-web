@@ -1,7 +1,7 @@
 1.13.0
 ==========
 ### New Features:
-**Microsoft Identity Web now supports the CancellationToken**, in the Distributed and Session cache adapaters and in the `TokenAcquisitionOptions` for the calls to MSAL.NET. See issue [#1239](https://github.com/AzureAD/microsoft-identity-web/issues/1239) for details.
+**Microsoft Identity Web now supports the CancellationToken**, in the Distributed and Session cache adapters and in the `TokenAcquisitionOptions` for the calls to MSAL.NET. See issue [#1239](https://github.com/AzureAD/microsoft-identity-web/issues/1239) for details.
 
 ### Bug Fixes:
 **The order of the LogLevel in TokenAcquisition did not correctly honor the nested log settings**. See issue [#1250](https://github.com/AzureAD/microsoft-identity-web/issues/1250) for details.
