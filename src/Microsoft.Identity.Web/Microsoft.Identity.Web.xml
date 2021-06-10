@@ -2412,7 +2412,7 @@
             <param name="msalErrorMessage">Specific log message from TokenAcquisition.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.Exception)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.String,System.String,System.Exception)">
             <summary>
             Logger for handling information specific to MSAL in token acquisition.
             </summary>
@@ -2420,6 +2420,8 @@
             <param name="durationTotalInMs">durationTotalInMs.</param>
             <param name="durationInHttpInMs">durationInHttpInMs.</param>
             <param name="durationInCacheInMs">durationInCacheInMs.</param>
+            <param name="tokenSource">cache or IDP.</param>
+            <param name="correlationId">correlationId.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionOptions">

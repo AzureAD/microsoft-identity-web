@@ -74,7 +74,26 @@ namespace Microsoft.Identity.Web.Resource
                 throw new SecurityTokenInvalidIssuerException(IDWebErrorMessage.TenantIdClaimNotPresentInToken);
             }
 
-            if (validationParameters.ValidIssuers == null && validationParameters.ValidIssuer == null)
+            if (validationParameters.ValidIssuers != null)
+            {
+                foreach (var validIssuerTemplate in validationParameters.ValidIssuers)
+                {
+                    if (IsValidIssuer(validIssuerTemplate, tenantId, actualIssuer))
+                    {
+                        return actualIssuer;
+                    }
+                }
+            }
+
+            if (validationParameters.ValidIssuer != null)
+            {
+                if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
+                {
+                    return actualIssuer;
+                }
+            }
+
+            try
             {
                 if (securityToken.Issuer.EndsWith("v2.0", StringComparison.OrdinalIgnoreCase))
                 {
@@ -105,24 +124,8 @@ namespace Microsoft.Identity.Web.Resource
                     }
                 }
             }
-
-            if (validationParameters.ValidIssuers != null)
+            catch
             {
-                foreach (var validIssuerTemplate in validationParameters.ValidIssuers)
-                {
-                    if (IsValidIssuer(validIssuerTemplate, tenantId, actualIssuer))
-                    {
-                        return actualIssuer;
-                    }
-                }
-            }
-
-            if (validationParameters.ValidIssuer != null)
-            {
-                if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
-                {
-                    return actualIssuer;
-                }
             }
 
             // If a valid issuer is not found, throw

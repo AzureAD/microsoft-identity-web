@@ -250,50 +250,6 @@ namespace Microsoft.Identity.Web.Test.Resource
             Assert.Equal(TestConstants.AadIssuer, actualIssuer);
         }
 
-        [Fact]
-        public void Validate_NotMatchedIssuer_ThrowsException()
-        {
-            var validator = new AadIssuerValidator(null, _httpClientFactory, TestConstants.AadIssuer);
-            var tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
-            var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
-            var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
-                    TestConstants.AadIssuer);
-
-            var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(TestConstants.AadIssuer, jwtSecurityToken, new TokenValidationParameters() { ValidIssuer = TestConstants.B2CIssuer }));
-            Assert.Equal(expectedErrorMessage, exception.Message);
-        }
-
-        [Fact]
-        public void Validate_NotMatchedToMultipleIssuers_ThrowsException()
-        {
-            var validator = new AadIssuerValidator(null, _httpClientFactory, TestConstants.AadIssuer);
-            var issClaim = new Claim(TestConstants.ClaimNameIss, TestConstants.AadIssuer);
-            var tidClaim = new Claim(TestConstants.ClaimNameTid, TestConstants.TenantIdAsGuid);
-            var jwtSecurityToken = new JwtSecurityToken(issuer: TestConstants.AadIssuer, claims: new[] { issClaim, tidClaim });
-            var expectedErrorMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
-                    TestConstants.AadIssuer);
-
-            var exception = Assert.Throws<SecurityTokenInvalidIssuerException>(() =>
-                validator.Validate(
-                    TestConstants.AadIssuer,
-                    jwtSecurityToken,
-                    new TokenValidationParameters()
-                    {
-                        ValidIssuers = new[]
-                        {
-                            "https://host1/{tenantid}/v2.0",
-                            "https://host2/{tenantid}/v2.0",
-                        },
-                    }));
-            Assert.Equal(expectedErrorMessage, exception.Message);
-        }
-
         // Regression test for https://github.com/Azure-Samples/active-directory-dotnet-native-aspnetcore-v2/issues/68
         // Similar to Validate_NotMatchedToMultipleIssuers_ThrowsException but uses B2C values
         [Fact]
