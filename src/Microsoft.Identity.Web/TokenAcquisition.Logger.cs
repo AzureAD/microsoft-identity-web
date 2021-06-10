@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
                 long durationTotalInMs,
                 long durationInHttpInMs,
                 long durationInCacheInMs,
-                string tokenSource, 
+                string tokenSource,
                 string correlationId,
                 Exception? ex) => s_tokenAcquisitionMsalAuthenticationResultTime(
                     logger,
