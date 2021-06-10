@@ -243,8 +243,9 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                AuthenticationResult? authenticationResult;
                 // Access token will return if call is from a web API
-                var authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+                authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
                     application,
                     authority,
                     scopes,
@@ -253,17 +254,12 @@ namespace Microsoft.Identity.Web
 
                 if (authenticationResult != null)
                 {
-                    Logger.TokenAcquisitionMsalAuthenticationResultTime(
-                        _logger,
-                        authenticationResult.AuthenticationResultMetadata.DurationTotalInMs,
-                        authenticationResult.AuthenticationResultMetadata.DurationInHttpInMs,
-                        authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
-                        null);
+                    LogAuthResult(authenticationResult);
                     return authenticationResult;
                 }
 
                 // If access token is null, this is a web app
-                return await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+                authenticationResult = await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
                      application,
                      user,
                      scopes,
@@ -272,6 +268,8 @@ namespace Microsoft.Identity.Web
                      userFlow,
                      null)
                      .ConfigureAwait(false);
+                LogAuthResult(authenticationResult);
+                return authenticationResult;
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -294,6 +292,21 @@ namespace Microsoft.Identity.Web
             finally
             {
                 retryClientCertificate = false;
+            }
+        }
+
+        private void LogAuthResult(AuthenticationResult? authenticationResult)
+        {
+            if (authenticationResult != null)
+            {
+                Logger.TokenAcquisitionMsalAuthenticationResultTime(
+                _logger,
+                authenticationResult.AuthenticationResultMetadata.DurationTotalInMs,
+                authenticationResult.AuthenticationResultMetadata.DurationInHttpInMs,
+                authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
+                authenticationResult.AuthenticationResultMetadata.TokenSource.ToString(),
+                authenticationResult.CorrelationId.ToString(),
+                null);
             }
         }
 
