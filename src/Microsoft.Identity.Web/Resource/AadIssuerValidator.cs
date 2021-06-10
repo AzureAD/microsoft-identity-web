@@ -102,7 +102,6 @@ namespace Microsoft.Identity.Web.Resource
                         IssuerMetadata issuerMetadata =
                             CreateConfigManager(AadAuthority).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                         AadIssuerV2 = issuerMetadata.Issuer!;
-
                     }
 
                     if (IsValidIssuer(AadIssuerV2, tenantId, actualIssuer))
