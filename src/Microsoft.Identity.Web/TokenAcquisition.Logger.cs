@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web
             /// <param name="durationTotalInMs">durationTotalInMs.</param>
             /// <param name="durationInHttpInMs">durationInHttpInMs.</param>
             /// <param name="durationInCacheInMs">durationInCacheInMs.</param>
-            /// <param name="tokenSource">cache or IDP</param>
+            /// <param name="tokenSource">cache or IDP.</param>
             /// <param name="correlationId">correlationId</param>
             /// <param name="ex">Exception from MSAL.NET.</param>
             public static void TokenAcquisitionMsalAuthenticationResultTime(
