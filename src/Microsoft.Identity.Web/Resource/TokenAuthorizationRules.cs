@@ -19,8 +19,20 @@ namespace Microsoft.Identity.Web.Resource
         /// </summary>
         /// <param name="tokenAuthorizationOptions">Merged options to direct the authorization.</param>
         /// <param name="claimsPrincipal">Claims in the token.</param>
-        internal static void ValidateApiAuthorization(ITokenAuthorizationOptions tokenAuthorizationOptions, ClaimsPrincipal claimsPrincipal)
+        public static void ValidateApiAuthorization(
+            ITokenAuthorizationOptions tokenAuthorizationOptions,
+            ClaimsPrincipal claimsPrincipal)
         {
+            if (tokenAuthorizationOptions is null)
+            {
+                throw new ArgumentNullException(nameof(tokenAuthorizationOptions));
+            }
+
+            if (claimsPrincipal is null)
+            {
+                throw new ArgumentNullException(nameof(claimsPrincipal));
+            }
+
             // Does the web API disallow app only tokens?
             if (!tokenAuthorizationOptions.ApiAllowsAppOnlyTokens)
             {
