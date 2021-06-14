@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Resource
             {
                 VerifyClaimIsInAcceptedValues(
                     claimsPrincipal,
-                    new[] { ClaimConstants.Oid, ClaimConstants.ObjectId},
+                    new[] { ClaimConstants.Oid, ClaimConstants.ObjectId },
                     tokenAuthorizationOptions.AllowedClientApplications,
                     IDWebErrorMessage.ApiAllowedClientApplicationsCantBeComputed,
                     IDWebErrorMessage.ApiClientApplicationNotAllowed);
