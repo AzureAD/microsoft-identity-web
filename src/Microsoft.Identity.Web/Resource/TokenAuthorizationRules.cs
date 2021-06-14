@@ -36,13 +36,13 @@ namespace Microsoft.Identity.Web.Resource
             // Does the web API disallow app only tokens?
             if (!tokenAuthorizationOptions.ApiAllowsAppOnlyTokens)
             {
-                VerifyClaimEquals(claimsPrincipal, ClaimConstants.Idtyp, "app", IDWebErrorMessage.ApiAllowsAppOnlyTokensCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsAppOnlyTokens);
+                VerifyClaimDoesNotExistOrDoesNotEquals(claimsPrincipal, ClaimConstants.Idtyp, "app", IDWebErrorMessage.ApiAllowsAppOnlyTokensCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsAppOnlyTokens);
             }
 
             // Does the web API disallow guest accounts?
             if (!tokenAuthorizationOptions.ApiAllowsGuestAccounts)
             {
-                VerifyClaimEquals(claimsPrincipal, ClaimConstants.Acct, "1", IDWebErrorMessage.ApiAllowsGuestAccountsCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsGuestAccounts);
+                VerifyClaimEquals(claimsPrincipal, ClaimConstants.Acct, "0", IDWebErrorMessage.ApiAllowsGuestAccountsCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsGuestAccounts);
             }
 
             // Does the web API demand specific tenants?
@@ -92,6 +92,31 @@ namespace Microsoft.Identity.Web.Resource
             if (string.Equals(claimValue, expectedValue, StringComparison.OrdinalIgnoreCase))
             {
                 throw new UnauthorizedAccessException(messageWhenUnexpectedClaimValue);
+            }
+        }
+
+        /// <summary>
+        /// Verify the value of a claim.
+        /// </summary>
+        /// <param name="claimsPrincipal">Claims.</param>
+        /// <param name="claimName">Name (type) of the claim to verify.</param>
+        /// <param name="expectedValue">Expected value.</param>
+        /// <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
+        /// <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
+        private static void VerifyClaimDoesNotExistOrDoesNotEquals(
+            ClaimsPrincipal claimsPrincipal,
+            string claimName,
+            string expectedValue,
+            string messageWhenClaimsNotFound,
+            string messageWhenUnexpectedClaimValue)
+        {
+            string? claimValue = ClaimsPrincipalExtensions.GetClaimValue(claimsPrincipal, claimName);
+            if (claimValue != null)
+            {
+                if (!string.Equals(claimValue, expectedValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new UnauthorizedAccessException(messageWhenUnexpectedClaimValue);
+                }
             }
         }
 

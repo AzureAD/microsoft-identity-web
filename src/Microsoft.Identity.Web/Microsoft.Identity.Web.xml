@@ -2204,6 +2204,16 @@
             <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
             <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
         </member>
+        <member name="M:Microsoft.Identity.Web.Resource.TokenAuthorizationRules.VerifyClaimDoesNotExistOrDoesNotEquals(System.Security.Claims.ClaimsPrincipal,System.String,System.String,System.String,System.String)">
+            <summary>
+            Verify the value of a claim.
+            </summary>
+            <param name="claimsPrincipal">Claims.</param>
+            <param name="claimName">Name (type) of the claim to verify.</param>
+            <param name="expectedValue">Expected value.</param>
+            <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
+            <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
+        </member>
         <member name="M:Microsoft.Identity.Web.Resource.TokenAuthorizationRules.VerifyClaimIsInAcceptedValues(System.Security.Claims.ClaimsPrincipal,System.String[],System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Verify the value of a claim.
