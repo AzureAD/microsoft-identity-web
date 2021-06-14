@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web
             return GetClaimValue(claimsPrincipal, ClaimConstants.NameIdentifierId);
         }
 
-        private static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
+        internal static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
         {
             if (claimsPrincipal == null)
             {

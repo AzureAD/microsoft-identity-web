@@ -698,6 +698,16 @@
             Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Idtyp">
+            <summary>
+            Optional claim used to determine the token type.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimConstants.Acct">
+            <summary>
+            Optional claim used to determine if the user account is a guest account.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.Constants">
             <summary>
             General constants for Microsoft Identity Web.
@@ -1797,6 +1807,35 @@
             See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ApiAllowsAppOnlyTokens">
+            <summary>
+            Applies to a web API: does the web API allow app-only tokens?.
+            </summary>
+            <remarks>
+            In the app registration you'll need to opt-in for the idtyp claim.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ApiAllowsGuestAccounts">
+            <summary>
+            Applies to a web API: does the web API allow guest accounts?.
+            </summary>
+            <remarks>
+            In the app registration for your web API, you'll need to opt-in for the acct claim.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.AllowedTenantIds">
+            <summary>
+            Applies to web apps and web APIs. Enables to provide the list
+            of tenant Ids the user of whom are allowed to call the web API
+            or log-in to the web app.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.AllowedClientApplications">
+            <summary>
+            Applies to web APIs. Enables to provide the list
+            of client applications allowed to call this API.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException">
             <summary>
              Microsoft Identity Web specific exception class for
@@ -2142,6 +2181,39 @@
             <param name="context">HttpContext (from the controller).</param>
             <param name="acceptedScopes">Scopes accepted by this web API.</param>
         </member>
+        <member name="T:Microsoft.Identity.Web.Resource.TokenAuthorizationRules">
+            <summary>
+            Rules to authorize an access token in a web API, depending on the
+            values of the <see cref="T:Microsoft.Identity.Web.ITokenAuthorizationOptions"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.TokenAuthorizationRules.ValidateApiAuthorization(Microsoft.Identity.Web.ITokenAuthorizationOptions,System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Validates the authorization of the token.
+            </summary>
+            <param name="tokenAuthorizationOptions">Merged options to direct the authorization.</param>
+            <param name="claimsPrincipal">Claims in the token.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.TokenAuthorizationRules.VerifyClaimEquals(System.Security.Claims.ClaimsPrincipal,System.String,System.String,System.String,System.String)">
+            <summary>
+            Verify the value of a claim.
+            </summary>
+            <param name="claimsPrincipal">Claims.</param>
+            <param name="claimName">Name (type) of the claim to verify.</param>
+            <param name="expectedValue">Expected value.</param>
+            <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
+            <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.TokenAuthorizationRules.VerifyClaimIsInAcceptedValues(System.Security.Claims.ClaimsPrincipal,System.String[],System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+            <summary>
+            Verify the value of a claim.
+            </summary>
+            <param name="claimsPrincipal">Claims.</param>
+            <param name="possibleClaimNames">Names (types) of the claims to verify.</param>
+            <param name="acceptedValues">Expected values.</param>
+            <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
+            <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
+        </member>
         <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
             <summary>
             Options passed-in to create the AadIssuerValidator object.
@@ -2151,6 +2223,40 @@
             <summary>
             Sets the name of the HttpClient to get from the IHttpClientFactory for use with the configuration manager.
             Needed when customizing the client such as configuring a proxy.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ITokenAuthorizationOptions">
+            <summary>
+            Properties related to authorization of access tokens in web APIs.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ITokenAuthorizationOptions.ApiAllowsAppOnlyTokens">
+            <summary>
+            Applies to a web API: does the web API allow app-only tokens?.
+            </summary>
+            <remarks>
+            In the app registration you'll need to opt-in for the idtyp claim.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ITokenAuthorizationOptions.ApiAllowsGuestAccounts">
+            <summary>
+            Applies to a web API: does the web API allow guest accounts?.
+            </summary>
+            <remarks>
+            In the app registration for your web API, you'll need to opt-in for the acct claim.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ITokenAuthorizationOptions.AllowedTenantIds">
+            <summary>
+            Applies to web apps and web APIs. Enables to provide the list
+            of tenant Ids the user of whom are allowed to call the web API
+            or log-in to the web app.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ITokenAuthorizationOptions.AllowedClientApplications">
+            <summary>
+            Applies to web APIs. Enables to provide the list
+            of client applications allowed to call this API.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.ServiceCollectionExtensions">

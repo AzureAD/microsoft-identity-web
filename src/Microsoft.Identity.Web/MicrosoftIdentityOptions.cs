@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// </summary>
-    public class MicrosoftIdentityOptions : OpenIdConnectOptions
+    public class MicrosoftIdentityOptions : OpenIdConnectOptions, ITokenAuthorizationOptions
     {
         /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
@@ -133,5 +133,34 @@ namespace Microsoft.Identity.Web
         /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
         /// </summary>
         public string? UserAssignedManagedIdentityClientId { get; set; }
+
+        /// <summary>
+        /// Applies to a web API: does the web API allow app-only tokens?.
+        /// </summary>
+        /// <remarks>
+        /// In the app registration you'll need to opt-in for the idtyp claim.
+        /// </remarks>
+        public bool ApiAllowsAppOnlyTokens { get; set; } = true;
+
+        /// <summary>
+        /// Applies to a web API: does the web API allow guest accounts?.
+        /// </summary>
+        /// <remarks>
+        /// In the app registration for your web API, you'll need to opt-in for the acct claim.
+        /// </remarks>
+        public bool ApiAllowsGuestAccounts { get; set; } = true;
+
+        /// <summary>
+        /// Applies to web apps and web APIs. Enables to provide the list
+        /// of tenant Ids the user of whom are allowed to call the web API
+        /// or log-in to the web app.
+        /// </summary>
+        public IEnumerable<string>? AllowedTenantIds { get; set; }
+
+        /// <summary>
+        /// Applies to web APIs. Enables to provide the list
+        /// of client applications allowed to call this API.
+        /// </summary>
+        public IEnumerable<string>? AllowedClientApplications { get; set; }
     }
 }
