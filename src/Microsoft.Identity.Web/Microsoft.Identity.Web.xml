@@ -1341,40 +1341,9 @@
             Model class to hold information parsed from the Azure AD issuer endpoint.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.TenantDiscoveryEndpoint">
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Issuer">
             <summary>
-            Tenant discovery endpoint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.ApiVersion">
-            <summary>
-            API Version.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Metadata">
-            <summary>
-            List of metadata associated with the endpoint.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.Metadata">
-            <summary>
-            Model child class to hold alias information parsed from the Azure AD issuer endpoint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredNetwork">
-            <summary>
-            Preferred alias.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.PreferredCache">
-            <summary>
-            Preferred alias to cache tokens emitted by one of the aliases (to avoid
-            SSO islands).
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.Metadata.Aliases">
-            <summary>
-            Aliases of issuer URLs which are equivalent.
+            Issuer associated with the OIDC endpoint.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.ITokenAcquisition">
@@ -1863,11 +1832,6 @@
             Generic class that validates token issuer from the provided Azure AD authority.
             </summary>
         </member>
-        <member name="F:Microsoft.Identity.Web.Resource.AadIssuerValidator._issuerAliases">
-            <summary>
-            A list of all Issuers across the various Azure AD instances.
-            </summary>
-        </member>
         <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
             <summary>
             Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
@@ -1878,8 +1842,7 @@
             <param name="validationParameters">Token validation parameters.</param>
             <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
             authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
-            accepts both V1 and V2 tokens).
-            Authority aliasing is also taken into account.</remarks>
+            accepts both V1 and V2 tokens).</remarks>
             <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
             <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
             <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
@@ -1890,13 +1853,6 @@
             <param name="securityToken">A JWT token.</param>
             <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
             <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
-        </member>
-        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetIssuerValidator(System.String)">
-            <summary>
-            This method is now Obsolete.
-            </summary>
-            <param name="aadAuthority">Aad authority.</param>
-            <returns>NotImplementedException.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
             <summary>
@@ -2456,7 +2412,7 @@
             <param name="msalErrorMessage">Specific log message from TokenAcquisition.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.Exception)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.String,System.String,System.Exception)">
             <summary>
             Logger for handling information specific to MSAL in token acquisition.
             </summary>
@@ -2464,6 +2420,8 @@
             <param name="durationTotalInMs">durationTotalInMs.</param>
             <param name="durationInHttpInMs">durationInHttpInMs.</param>
             <param name="durationInCacheInMs">durationInCacheInMs.</param>
+            <param name="tokenSource">cache or IDP.</param>
+            <param name="correlationId">correlationId.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionOptions">
@@ -2505,11 +2463,26 @@
             which MSAL can manage. See https://aka.ms/msal-net-pop.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken">
+            <summary>
+            Cancellation token to be used when calling the token acquisition methods.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionOptions.Clone">
             <summary>
             Clone the options (to be able to override them).
             </summary>
             <returns>A clone of the options.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints">
+            <summary>
+            Set of properties that the token cache serialization implementations might use to optimize the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.CancellationToken">
+            <summary>
+            CancellationToken enabling cooperative cancellation between threads, thread pool, or Task objects.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
             <summary>
@@ -2558,6 +2531,15 @@
             <param name="cacheKey">Key of the cache to remove.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Removes a specific token cache, described by its cache key
+            from the distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache to remove.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String)">
             <summary>
             Read a specific token cache, described by its cache key, from the
@@ -2567,12 +2549,31 @@
             <returns>Read blob representing a token cache for the cache key
             (account or app).</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Read a specific token cache, described by its cache key, from the
+            distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache item to retrieve.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>Read blob representing a token cache for the cache key
+            (account or app).</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[])">
             <summary>
             Writes a token cache blob to the serialization cache (by key).
             </summary>
             <param name="cacheKey">Cache key.</param>
             <param name="bytes">blob to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Writes a token cache blob to the serialization cache (by key).
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">blob to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger">
@@ -2835,7 +2836,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
             <summary>
-            if you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
+            If you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
             </summary>
             <param name="args">Token cache notification arguments.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
@@ -2855,6 +2856,15 @@
             <param name="bytes">Bytes to write.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to write the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String)">
             <summary>
             Method to be implemented by concrete cache serializers to Read the cache bytes.
@@ -2862,11 +2872,27 @@
             <param name="cacheKey">Cache key.</param>
             <returns>Read bytes.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to Read the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>Read bytes.</returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String)">
             <summary>
             Method to be implemented by concrete cache serializers to remove an entry from the cache.
             </summary>
             <param name="cacheKey">Cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to remove an entry from the cache.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider">
@@ -2907,6 +2933,15 @@
             </summary>
             <param name="cacheKey">Key representing the token cache
             (account or app).</param>
+            <returns>Read blob.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.ReadCacheBytesAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Read a blob representing the token cache from its key.
+            </summary>
+            <param name="cacheKey">Key representing the token cache
+            (account or app).</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
             <returns>Read blob.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">

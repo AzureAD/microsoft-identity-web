@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 string fileName = Path.GetFileName(filePath);
                 string[] segments = fileName.Split('-');
                 string userUpn = segments[0];
-                string number = userUpn.Substring(start, userUpn.IndexOf('@')-start);
+                string number = userUpn.Substring(start, userUpn.IndexOf('@', System.StringComparison.OrdinalIgnoreCase) -start);
 
                 accountIdByUserNumber.Add(int.Parse(number, CultureInfo.InvariantCulture), string.Join("-", segments.Skip(1)));
             }

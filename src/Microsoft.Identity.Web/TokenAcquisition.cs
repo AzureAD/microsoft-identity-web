@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -242,8 +243,9 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                AuthenticationResult? authenticationResult;
                 // Access token will return if call is from a web API
-                var authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+                authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
                     application,
                     authority,
                     scopes,
@@ -252,17 +254,12 @@ namespace Microsoft.Identity.Web
 
                 if (authenticationResult != null)
                 {
-                    Logger.TokenAcquisitionMsalAuthenticationResultTime(
-                        _logger,
-                        authenticationResult.AuthenticationResultMetadata.DurationTotalInMs,
-                        authenticationResult.AuthenticationResultMetadata.DurationInHttpInMs,
-                        authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
-                        null);
+                    LogAuthResult(authenticationResult);
                     return authenticationResult;
                 }
 
                 // If access token is null, this is a web app
-                return await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+                authenticationResult = await GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
                      application,
                      user,
                      scopes,
@@ -271,6 +268,8 @@ namespace Microsoft.Identity.Web
                      userFlow,
                      null)
                      .ConfigureAwait(false);
+                LogAuthResult(authenticationResult);
+                return authenticationResult;
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -293,6 +292,21 @@ namespace Microsoft.Identity.Web
             finally
             {
                 retryClientCertificate = false;
+            }
+        }
+
+        private void LogAuthResult(AuthenticationResult? authenticationResult)
+        {
+            if (authenticationResult != null)
+            {
+                Logger.TokenAcquisitionMsalAuthenticationResultTime(
+                _logger,
+                authenticationResult.AuthenticationResultMetadata.DurationTotalInMs,
+                authenticationResult.AuthenticationResultMetadata.DurationInHttpInMs,
+                authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
+                authenticationResult.AuthenticationResultMetadata.TokenSource.ToString(),
+                authenticationResult.CorrelationId.ToString(),
+                null);
             }
         }
 
@@ -362,7 +376,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                return builder.ExecuteAsync();
+                return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -578,7 +592,9 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
         {
-            return !retryClientCertificate && exMsal.ErrorCode == Constants.InvalidClient && exMsal.Message.Contains(Constants.InvalidKeyError);
+            return !retryClientCertificate &&
+                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
+                exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
         }
 
         private string BuildCurrentUriFromRequest(
@@ -744,7 +760,7 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
-                    return await builder.ExecuteAsync()
+                    return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
                                         .ConfigureAwait(false);
                 }
 
@@ -855,7 +871,8 @@ namespace Microsoft.Identity.Web
             {
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}");
+                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}",
+                    StringComparison.OrdinalIgnoreCase);
 
                 builder.WithB2CAuthority(b2cAuthority)
                        .WithSendX5C(mergedOptions.SendX5C);
@@ -865,7 +882,7 @@ namespace Microsoft.Identity.Web
                 builder.WithAuthority(authority);
             }
 
-            return builder.ExecuteAsync();
+            return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
         private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
@@ -932,7 +949,10 @@ namespace Microsoft.Identity.Web
             string authority;
             if (!string.IsNullOrEmpty(tenant))
             {
-                authority = application.Authority.Replace(new Uri(application.Authority).PathAndQuery, $"/{tenant}/");
+                authority = application.Authority.Replace(
+                    new Uri(application.Authority).PathAndQuery,
+                    $"/{tenant}/",
+                    StringComparison.OrdinalIgnoreCase);
             }
             else
             {
@@ -968,14 +988,14 @@ namespace Microsoft.Identity.Web
 
         private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
         {
-            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                return Client.LogLevel.Info;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
                 || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
             {
                 return Client.LogLevel.Verbose;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
+            {
+                return Client.LogLevel.Info;
             }
             else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
             {

@@ -293,7 +293,7 @@ namespace Microsoft.Identity.Web.Test
                     new Claim(ClaimConstants.PreferredUserName, TestConstants.Utid),
                 }));
 
-            Assert.Contains(TestConstants.B2CSignUpSignInUserFlow, b2cPattern);
+            Assert.Contains(TestConstants.B2CSignUpSignInUserFlow, b2cPattern, System.StringComparison.OrdinalIgnoreCase);
             Assert.Equal(b2cPattern, claimsPrincipalForB2c.GetMsalAccountId());
             Assert.Equal(aadPattern, claimsPrincipalForAad.GetMsalAccountId());
         }

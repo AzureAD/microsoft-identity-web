@@ -79,12 +79,9 @@ namespace Microsoft.Identity.Web.Resource
                 {
                     string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
 
-                    lock (context)
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        context.Response.WriteAsync(message);
-                        context.Response.CompleteAsync();
-                    }
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    context.Response.WriteAsync(message);
+                    context.Response.CompleteAsync();
 
                     throw new UnauthorizedAccessException(message);
                 }

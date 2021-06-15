@@ -71,6 +71,7 @@ namespace Microsoft.Identity.Web.Test
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientIdEnvironmentVariable, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthClientSecretEnvironmentVariable, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthLogoutPathEnvironmentVariable, string.Empty);
+            Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesWebSiteAuthApiPrefix, string.Empty);
             Environment.SetEnvironmentVariable(AppServicesAuthenticationInformation.AppServicesAuthIdentityProviderEnvironmentVariable, string.Empty);
         }
 
@@ -427,6 +428,8 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("true", "azureactivedirectory")]
         [InlineData("tRue", AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory)]
         [InlineData("true", AppServicesAuthenticationInformation.AppServicesAuthAzureActiveDirectory)]
+        [InlineData("tRue", AppServicesAuthenticationInformation.AppServicesAuthAAD)]
+        [InlineData("true", AppServicesAuthenticationInformation.AppServicesAuthAAD)]
         // Regression for https://github.com/AzureAD/microsoft-identity-web/issues/1163
         public void AppServices_EnvironmentTest(string appServicesEnvEnabledValue, string idpEnvValue)
         {

@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Web
 
             // For PEM, you'll need to extract the base64-encoded message body.
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
-            if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
+            if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.OrdinalIgnoreCase))
             {
                 return LoadFromBase64Encoded(secret.Value, x509KeyStorageFlags);
             }
@@ -304,7 +304,10 @@ namespace Microsoft.Identity.Web
             foreach (var certDescription in certificateDescriptions)
             {
                 defaultCertificateLoader.LoadIfNeeded(certDescription);
-                yield return certDescription.Certificate;
+                if (certDescription.Certificate != null)
+                {
+                    yield return certDescription.Certificate;
+                }
             }
         }
     }

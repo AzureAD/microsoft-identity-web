@@ -72,5 +72,6 @@ namespace Microsoft.Identity.Web
         public const string InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. ";
         public const string ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete = "IDW10802: Use ReplyForbiddenWithWwwAuthenticateHeader instead. See https://aka.ms/ms-id-web/1.9.0. ";
         public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
+        public const string AadIssuerValidatorIsObsolete = "IDW10804: Use MicrosoftIdentityIssuerValidator. ";
     }
 }

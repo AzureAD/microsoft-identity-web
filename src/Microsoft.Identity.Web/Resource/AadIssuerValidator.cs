@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Resource
@@ -15,15 +18,21 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     public class AadIssuerValidator
     {
-        /// <summary>
-        /// A list of all Issuers across the various Azure AD instances.
-        /// </summary>
-        private readonly ISet<string> _issuerAliases;
-
-        internal /*internal for tests*/ AadIssuerValidator(IEnumerable<string> aliases)
+        internal AadIssuerValidator(
+            IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
+            IHttpClientFactory httpClientFactory,
+            string aadAuthority)
         {
-            _issuerAliases = new HashSet<string>(aliases, StringComparer.OrdinalIgnoreCase);
+            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
+            HttpClientFactory = httpClientFactory;
+            AadAuthority = aadAuthority.TrimEnd('/');
         }
+
+        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
+        private IHttpClientFactory HttpClientFactory { get; }
+        internal string? AadIssuerV1 { get; set; }
+        internal string? AadIssuerV2 { get; set; }
+        internal string AadAuthority { get; set; }
 
         /// <summary>
         /// Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
@@ -34,13 +43,15 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="validationParameters">Token validation parameters.</param>
         /// <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
         /// authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
-        /// accepts both V1 and V2 tokens).
-        /// Authority aliasing is also taken into account.</remarks>
+        /// accepts both V1 and V2 tokens).</remarks>
         /// <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
         /// <exception cref="ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
         /// <exception cref="SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
-        public string Validate(string actualIssuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
+        public string Validate(
+            string actualIssuer,
+            SecurityToken securityToken,
+            TokenValidationParameters validationParameters)
         {
             if (string.IsNullOrEmpty(actualIssuer))
             {
@@ -74,9 +85,47 @@ namespace Microsoft.Identity.Web.Resource
                 }
             }
 
-            if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
+            if (validationParameters.ValidIssuer != null)
             {
-                return actualIssuer;
+                if (IsValidIssuer(validationParameters.ValidIssuer, tenantId, actualIssuer))
+                {
+                    return actualIssuer;
+                }
+            }
+
+            try
+            {
+                if (securityToken.Issuer.EndsWith("v2.0", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (AadIssuerV2 == null)
+                    {
+                        IssuerMetadata issuerMetadata =
+                            CreateConfigManager(AadAuthority).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                        AadIssuerV2 = issuerMetadata.Issuer!;
+                    }
+
+                    if (IsValidIssuer(AadIssuerV2, tenantId, actualIssuer))
+                    {
+                        return actualIssuer;
+                    }
+                }
+                else
+                {
+                    if (AadIssuerV1 == null)
+                    {
+                        IssuerMetadata issuerMetadata =
+                            CreateConfigManager(AadAuthority.Replace("/v2.0", string.Empty, StringComparison.OrdinalIgnoreCase)).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                        AadIssuerV1 = issuerMetadata.Issuer!;
+                    }
+
+                    if (IsValidIssuer(AadIssuerV1, tenantId, actualIssuer))
+                    {
+                        return actualIssuer;
+                    }
+                }
+            }
+            catch
+            {
             }
 
             // If a valid issuer is not found, throw
@@ -85,6 +134,26 @@ namespace Microsoft.Identity.Web.Resource
                     CultureInfo.InvariantCulture,
                     IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
                     actualIssuer));
+        }
+
+        private ConfigurationManager<IssuerMetadata> CreateConfigManager(
+            string aadAuthority)
+        {
+            if (AadIssuerValidatorOptions?.Value?.HttpClientName != null && HttpClientFactory != null)
+            {
+                return
+                 new ConfigurationManager<IssuerMetadata>(
+                     $"{aadAuthority}{Constants.OidcEndpoint}",
+                     new IssuerConfigurationRetriever(),
+                     HttpClientFactory.CreateClient(AadIssuerValidatorOptions.Value.HttpClientName));
+            }
+            else
+            {
+                return
+                new ConfigurationManager<IssuerMetadata>(
+                    $"{aadAuthority}{Constants.OidcEndpoint}",
+                    new IssuerConfigurationRetriever());
+            }
         }
 
         private bool IsValidIssuer(string validIssuerTemplate, string tenantId, string actualIssuer)
@@ -96,17 +165,10 @@ namespace Microsoft.Identity.Web.Resource
 
             try
             {
-                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
+                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId, StringComparison.OrdinalIgnoreCase));
                 Uri actualIssuerUri = new Uri(actualIssuer);
 
-                // Template authority is in the aliases
-                return _issuerAliases.Contains(issuerFromTemplateUri.Authority) &&
-                       // "iss" authority is in the aliases
-                       _issuerAliases.Contains(actualIssuerUri.Authority) &&
-                      // Template authority ends in the tenant ID
-                      IsValidTidInLocalPath(tenantId, issuerFromTemplateUri) &&
-                      // "iss" ends in the tenant ID
-                      IsValidTidInLocalPath(tenantId, actualIssuerUri);
+                return issuerFromTemplateUri.AbsoluteUri == actualIssuerUri.AbsoluteUri;
             }
             catch
             {
@@ -114,12 +176,6 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             return false;
-        }
-
-        private static bool IsValidTidInLocalPath(string tenantId, Uri uri)
-        {
-            string trimmedLocalPath = uri.LocalPath.Trim('/');
-            return trimmedLocalPath == tenantId || trimmedLocalPath == $"{tenantId}/v2.0";
         }
 
         /// <summary>Gets the tenant ID from a token.</summary>
@@ -191,17 +247,6 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             return string.Empty;
-        }
-
-        /// <summary>
-        /// This method is now Obsolete.
-        /// </summary>
-        /// <param name="aadAuthority">Aad authority.</param>
-        /// <returns>NotImplementedException.</returns>
-        [Obsolete(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete, true)]
-        public static AadIssuerValidator GetIssuerValidator(string aadAuthority)
-        {
-            throw new NotImplementedException(IDWebErrorMessage.AadIssuerValidatorGetIssuerValidatorIsObsolete);
         }
     }
 }

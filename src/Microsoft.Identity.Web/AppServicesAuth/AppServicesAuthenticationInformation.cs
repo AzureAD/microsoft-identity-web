@@ -23,7 +23,9 @@ namespace Microsoft.Identity.Web
         internal const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         internal const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         internal const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
+        internal const string AppServicesAuthAAD = "AAD";
         internal const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        internal const string AppServicesWebSiteAuthApiPrefix = "WEBSITE_AUTH_API_PREFIX";
         private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         // Artificially added by Microsoft.Identity.Web to help debugging App Services. See the Debug controller of the test app
@@ -43,10 +45,15 @@ namespace Microsoft.Identity.Web
                         Constants.True,
                         StringComparison.OrdinalIgnoreCase) &&
 
-                     string.Equals(
+                     (string.Equals(
                          Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable),
                          AppServicesAuthAzureActiveDirectory,
-                         StringComparison.OrdinalIgnoreCase);
+                         StringComparison.OrdinalIgnoreCase)
+                     ||
+                     string.Equals(
+                         Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable),
+                         AppServicesAuthAAD,
+                         StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -57,7 +64,22 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return Environment.GetEnvironmentVariable(AppServicesAuthLogoutPathEnvironmentVariable);
+                // Try $AppServicesAuthLogoutPathEnvironmentVariable (AppServices auth v1.0)
+                string? logoutPath = Environment.GetEnvironmentVariable(AppServicesAuthLogoutPathEnvironmentVariable);
+                if (!string.IsNullOrEmpty(logoutPath))
+                {
+                    return logoutPath;
+                }
+
+                // Try the $(AppServicesWebSiteAuthApiPrefix)
+                string? webSite = Environment.GetEnvironmentVariable(AppServicesWebSiteAuthApiPrefix);
+                if (!string.IsNullOrEmpty(webSite))
+                {
+                    return $"{webSite}/logout";
+                }
+
+                // Fallback
+                return "/.auth/logout";
             }
         }
 
