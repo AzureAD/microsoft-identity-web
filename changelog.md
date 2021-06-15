@@ -1,3 +1,8 @@
+1.13.1
+==========
+### Bug Fixes:
+**Fixes a regression that was introduced with the multi-scheme work** where the `LegacyCacheCompatibilityEnabled` value was taken from the `ConfidentialClientApplicationOptions` (default true), instead of the `MicrosoftIdentityOptions` (default false). See issue [#1268](https://github.com/AzureAD/microsoft-identity-web/issues/1268) for details.
+
 1.13.0
 ==========
 ### New Features:
