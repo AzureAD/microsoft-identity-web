@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web
         public IEnumerable<string>? AllowedTenantIds { get; set; }
 
         /// <summary>
-        /// Applies to web APIs. Enables to provide the list
+        /// Applies to web APIs. Enables you to provide the list
         /// of client applications allowed to call this API.
         /// </summary>
         public IEnumerable<string>? AllowedClientApplications { get; set; }
