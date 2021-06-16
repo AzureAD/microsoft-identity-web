@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web.InstanceDiscovery;
-using Microsoft.IdentityModel.Protocols;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -26,26 +23,14 @@ namespace Microsoft.Identity.Web.Resource
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            if (aadIssuerValidatorOptions?.Value?.HttpClientName != null && httpClientFactory != null)
-            {
-                _configManager =
-                new ConfigurationManager<IssuerMetadata>(
-                    Constants.AzureADIssuerMetadataUrl,
-                    new IssuerConfigurationRetriever(),
-                    httpClientFactory.CreateClient(aadIssuerValidatorOptions.Value.HttpClientName));
-            }
-            else
-           {
-                _configManager =
-                new ConfigurationManager<IssuerMetadata>(
-                    Constants.AzureADIssuerMetadataUrl,
-                    new IssuerConfigurationRetriever());
-            }
+            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
+            HttpClientFactory = httpClientFactory;
         }
 
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
-        private readonly ConfigurationManager<IssuerMetadata> _configManager;
+        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
+        private IHttpClientFactory HttpClientFactory { get; }
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
@@ -68,16 +53,10 @@ namespace Microsoft.Identity.Web.Resource
                 return aadIssuerValidator;
             }
 
-            // In the constructor, we hit the Azure AD issuer metadata endpoint and cache the aliases. The data is cached for 24 hrs.
-            IssuerMetadata issuerMetadata = _configManager.GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            // Add issuer aliases of the chosen authority to the cache
-            IEnumerable<string> aliases = issuerMetadata.Metadata
-                .Where(m => m.Aliases.Any(a => string.Equals(a, authorityHost, StringComparison.OrdinalIgnoreCase)))
-                .SelectMany(m => m.Aliases)
-                .Append(authorityHost) // For B2C scenarios, the alias will be the authority itself
-                .Distinct();
-            _issuerValidators[authorityHost] = new AadIssuerValidator(aliases);
+            _issuerValidators[authorityHost] = new AadIssuerValidator(
+                AadIssuerValidatorOptions,
+                HttpClientFactory,
+                aadAuthority);
 
             return _issuerValidators[authorityHost];
         }

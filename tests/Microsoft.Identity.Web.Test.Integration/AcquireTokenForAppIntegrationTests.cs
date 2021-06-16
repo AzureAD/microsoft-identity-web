@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         private TokenAcquisition _tokenAcquisition;
         private ServiceProvider _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
 
         private readonly KeyVaultSecretsProvider _keyVault;
         private readonly string _ccaSecret;
@@ -76,7 +79,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 // Assert
                 Assert.NotNull(authResult);
                 Assert.NotNull(authResult.AccessToken);
-                Assert.Contains(authHeaderPrefix, authResult.CreateAuthorizationHeader());
+                Assert.Contains(authHeaderPrefix, authResult.CreateAuthorizationHeader(), System.StringComparison.OrdinalIgnoreCase);
                 Assert.Null(authResult.IdToken);
                 Assert.Null(authResult.Account);
             }
@@ -104,17 +107,17 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task tokenResult() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(tokenResult).ConfigureAwait(false);
-            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message, System.StringComparison.OrdinalIgnoreCase);
 
             // Act & Assert
             async Task authResult() =>
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, metaTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
 
             ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResult).ConfigureAwait(false);
-            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex2.Message);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
 
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
@@ -132,7 +135,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, Constants.Consumers).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers).ConfigureAwait(false);
 
                 // Assert
                 Assert.NotNull(authResult);
@@ -143,7 +146,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             else
             {
                 string token =
-                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, Constants.Consumers).ConfigureAwait(false);
+                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers).ConfigureAwait(false);
 
                 // Assert
                 Assert.NotNull(token);
@@ -165,7 +168,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
 
                 // Assert
                 Assert.NotNull(authResult);
@@ -178,7 +181,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 string token =
                     await _tokenAcquisition.GetAccessTokenForAppAsync(
                         TestConstants.s_scopeForApp,
-                        TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+                        tenant: TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
 
                 // Assert
                 Assert.NotNull(token);
@@ -199,7 +202,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
 
-            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex.Message);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex.Message, System.StringComparison.OrdinalIgnoreCase);
 
             // Act & Assert
             async Task authResult() =>
@@ -207,12 +210,17 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResult).ConfigureAwait(false);
 
-            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex2.Message);
+            Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
         }
 
         private void InitializeTokenAcquisitionObjects()
         {
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
                  _provider.GetService<IMemoryCache>(),
                  _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
@@ -220,33 +228,37 @@ namespace Microsoft.Identity.Web.Test.Integration
             _tokenAcquisition = new TokenAcquisition(
                  _msalTestTokenCacheProvider,
                  MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IOptions<MicrosoftIdentityOptions>>(),
-                 _provider.GetService<IOptions<ConfidentialClientApplicationOptions>>(),
+                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  _provider);
+            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()
         {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                TenantId = TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientSecret = _ccaSecret,
+            });
+
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
             services.AddTransient(
-                provider => Options.Create(new MicrosoftIdentityOptions
-                {
-                    Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    CallbackPath = string.Empty,
-                }));
+                provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
-                provider => Options.Create(new ConfidentialClientApplicationOptions
-                {
-                    Instance = TestConstants.AadInstance,
-                    TenantId = TestConstants.ConfidentialClientLabTenant,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    ClientSecret = _ccaSecret,
-                }));
+                provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
             services.AddLogging();
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();

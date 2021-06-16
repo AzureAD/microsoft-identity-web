@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.Identity.Web
@@ -79,7 +80,26 @@ namespace Microsoft.Identity.Web
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
         /// <param name="certificateStoreName">Store name where to find the certificate.</param>
         /// <returns>A certificate description.</returns>
+        [Obsolete(IDWebErrorMessage.FromStoreWithThumprintIsObsolete, false)]
         public static CertificateDescription FromStoreWithThumprint(
+            string certificateThumbprint,
+            StoreLocation certificateStoreLocation = StoreLocation.CurrentUser,
+            StoreName certificateStoreName = StoreName.My)
+        {
+            return FromStoreWithThumbprint(
+                certificateThumbprint,
+                certificateStoreLocation,
+                certificateStoreName);
+        }
+
+        /// <summary>
+        /// Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
+        /// </summary>
+        /// <param name="certificateThumbprint">Certificate thumbprint.</param>
+        /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+        /// <param name="certificateStoreName">Store name where to find the certificate.</param>
+        /// <returns>A certificate description.</returns>
+        public static CertificateDescription FromStoreWithThumbprint(
             string certificateThumbprint,
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser,
             StoreName certificateStoreName = StoreName.My)

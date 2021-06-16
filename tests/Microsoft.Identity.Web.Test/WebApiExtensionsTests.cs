@@ -65,8 +65,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(JwtBearerScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(JwtBearerScheme);
             config.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftIdentityWebApi_TestCommon(services, provider, false);
@@ -110,8 +110,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<JwtBearerOptions>>().Create(JwtBearerScheme);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(JwtBearerScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(JwtBearerScheme);
             config.Received(1).GetSection(ConfigSectionName);
 
             AddMicrosoftIdentityWebApi_TestCommon(services, provider, false);
@@ -289,7 +289,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     IgnoreNullValues = true,
                     PropertyNameCaseInsensitive = true,
-                }).Replace(":2", ": \"Base64Encoded\"");
+                }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
             var configAsDictionary = new Dictionary<string, string>()
             {
                 { configSectionName, null },
@@ -329,8 +329,8 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
 
             // Assert config bind actions added correctly
-            provider.GetRequiredService<IOptionsFactory<ConfidentialClientApplicationOptions>>().Create(string.Empty);
-            provider.GetRequiredService<IOptionsFactory<MicrosoftIdentityOptions>>().Create(string.Empty);
+            provider.GetRequiredService<IOptionsMonitor<ConfidentialClientApplicationOptions>>().Get(JwtBearerScheme);
+            provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>().Get(JwtBearerScheme);
 
             configMock.Received(1).GetSection(ConfigSectionName);
 

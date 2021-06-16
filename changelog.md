@@ -1,3 +1,67 @@
+1.13.1
+==========
+### Bug Fixes:
+**Fixes a regression that was introduced with the multi-scheme work** where the `LegacyCacheCompatibilityEnabled` value was taken from the `ConfidentialClientApplicationOptions` (default true), instead of the `MicrosoftIdentityOptions` (default false). See issue [#1268](https://github.com/AzureAD/microsoft-identity-web/issues/1268) for details.
+
+1.13.0
+==========
+### New Features:
+**Microsoft Identity Web now supports the CancellationToken**, in the Distributed and Session cache adapters and in the `TokenAcquisitionOptions` for the calls to MSAL.NET. See issue [#1239](https://github.com/AzureAD/microsoft-identity-web/issues/1239) for details.
+
+### Bug Fixes:
+**The order of the LogLevel in TokenAcquisition did not correctly honor the nested log settings**. See issue [#1250](https://github.com/AzureAD/microsoft-identity-web/issues/1250) for details.
+
+**Fix a bug with certificate rotation and not pass a null certificate value to Microsoft.IdentityModel**. See issue [#1243](https://github.com/AzureAD/microsoft-identity-web/issues/1243) for details.
+
+**When using EasyAuth, fix case insensitivity when specifying the default provider**. See issue [#1163](https://github.com/AzureAD/microsoft-identity-web/issues/1163) for details.
+
+**EasyAuth took a breaking change by not adding the logout path environment variable**, the logout error with EasyAuth v2 is fixed. See issue [#1234](https://github.com/AzureAD/microsoft-identity-web/issues/1234) for details.
+
+**Microsoft Identity Web now uses the `/.well-known/openid-configuration` endpoint to determine the issuer values**. Now the different clouds work as well. See issue [#1167](https://github.com/AzureAD/microsoft-identity-web/issues/1167) for details.
+
+**A lock in the response stream caused an exception when copying the content to a stream**. See issue [#1153](https://github.com/AzureAD/microsoft-identity-web/issues/1153) for details.
+
+1.12.0
+==========
+### Bug Fixes:
+**Fix issue with `RequiredScope` attribute on the Controller** when used with `RequiredScopesConfigurationKey `. See issues [#1223](https://github.com/AzureAD/microsoft-identity-web/issues/1223), [#1197](https://github.com/AzureAD/microsoft-identity-web/issues/1197), and [#1036](https://github.com/AzureAD/microsoft-identity-web/issues/1036).
+
+**Fix `response_type` in `MergedOptions`**. Regression from 1.10 version. See [#1215](https://github.com/AzureAD/microsoft-identity-web/issues/1215) for details.
+
+**Fix `RoleClaimType` when set as part of the `MicrosoftIdentityOptions`**. Regression from 1.10 version. See [#1218](https://github.com/AzureAD/microsoft-identity-web/issues/1218) for details.
+
+**Microsoft Identity Web UI now displays a better error message when run in a Production enviornment to assist with debugging**. See issue [#1213](https://github.com/AzureAD/microsoft-identity-web/issues/1213) for details.
+
+**Microsoft Identity Web UI now honors a local redirect URI after sign-in**. This is if you want to redirect the user to a specific page within the add. See issue [#760](https://github.com/AzureAD/microsoft-identity-web/issues/760) for details.
+
+**Fix public API spelling of `CertificateDescription.FromStoreWithThumbprint`**. See issue [#791](https://github.com/AzureAD/microsoft-identity-web/issues/791) for details.
+
+1.11.0
+==========
+### New Features:
+**Microsoft Identity Web now supports multiple authentication schemes**. This means, you can have several authentication schemes in the same ASP.NET Core app. Such as two Azure AD web apps, or an Azure AD app and an Azure AD B2C app, or a web app and a web API. Basically mixing authentication schemes in the same ASP.NET Core app. See the [wiki for details and code samples](https://github.com/AzureAD/microsoft-identity-web/wiki/Multiple-Authentication-Schemes) and related issues: [#549](https://github.com/AzureAD/microsoft-identity-web/issues/549), [#429](https://github.com/AzureAD/microsoft-identity-web/issues/429), [#958](https://github.com/AzureAD/microsoft-identity-web/issues/958), [#1126](https://github.com/AzureAD/microsoft-identity-web/issues/1126), [#971](https://github.com/AzureAD/microsoft-identity-web/issues/971), [#173](https://github.com/AzureAD/microsoft-identity-web/issues/173), [#955](https://github.com/AzureAD/microsoft-identity-web/issues/955), and [#1127](https://github.com/AzureAD/microsoft-identity-web/issues/1127).
+
+### Fundamentals:
+
+**Microsoft Identity Web provides more logging regarding the time spent in the MSAL.NET cache**. See [logging](https://github.com/AzureAD/microsoft-identity-web/wiki/Logging) for information on setting up the logs, and use debug or trace to access the cache specific MSAL.NET logs. 
+
+1.10.0
+==========
+### New Features:
+**Microsoft Identity Web now supports certificate rotation with the Azure KeyVault**. See issue [#956](https://github.com/AzureAD/microsoft-identity-web/issues/956) for details.
+
+1.9.2
+==========
+### New Features:
+**Microsoft Identity Web now includes the Proof Key for Code Exchange (PKCE) on the Authorization Code Grant to minimize authorization code interception attacks**. See issue [#470](https://github.com/AzureAD/microsoft-identity-web/issues/470) for details.
+
+### Bug Fixes:
+**Revert fix for breaking change introduced in Microsoft.IdentityModel.* version="6.9"**, which was fixed in v.6.10. See issue [#1140](https://github.com/AzureAD/microsoft-identity-web/issues/1140) for details.
+
+**Standardize the value for `"Domain"` in `appsettings.json` of the templates**. See issue [#1148](https://github.com/AzureAD/microsoft-identity-web/issues/1148) for details.
+
+**Enable workaround to fix regression in App Services authentication due to case sensitivity**. See issue [#1163](https://github.com/AzureAD/microsoft-identity-web/issues/1163) for details.
+
 1.9.1
 ==========
 ### Bug Fixes:

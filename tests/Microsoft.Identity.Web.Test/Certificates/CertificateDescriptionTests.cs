@@ -64,10 +64,10 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
         [Theory]
         [InlineData("440A5BE6", StoreLocation.LocalMachine, StoreName.Root)]
-        public void TestFromStoreWithThumprint(string certificateThumbprint, StoreLocation storeLocation, StoreName storeName)
+        public void TestFromStoreWithThumbprint(string certificateThumbprint, StoreLocation storeLocation, StoreName storeName)
         {
             CertificateDescription certificateDescription =
-                CertificateDescription.FromStoreWithThumprint(certificateThumbprint, storeLocation, storeName);
+                CertificateDescription.FromStoreWithThumbprint(certificateThumbprint, storeLocation, storeName);
             Assert.Equal(CertificateSource.StoreWithThumbprint, certificateDescription.SourceType);
             Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.Container);
             Assert.Equal(certificateThumbprint, certificateDescription.ReferenceOrValue);

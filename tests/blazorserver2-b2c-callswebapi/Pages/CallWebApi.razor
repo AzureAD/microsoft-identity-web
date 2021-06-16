@@ -29,8 +29,10 @@ else
         {
             response = await downstreamAPI.CallWebApiForUserAsync(
                     "CalledApi",
-                    options => { options.RelativePath = "api/todolist";
-                    }) ;
+                    calledDownstreamWebApiOptionsOverride: options =>
+                    {
+                        options.RelativePath = "api/todolist";
+                    });
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

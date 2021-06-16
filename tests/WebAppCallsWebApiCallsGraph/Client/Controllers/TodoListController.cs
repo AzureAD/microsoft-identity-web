@@ -81,11 +81,11 @@ namespace TodoListClient.Controllers
             await _downstreamWebApi.CallWebApiForUserAsync<Todo, Todo>(
                 ServiceName,
                 todo,
-                options =>
-                {
-                    options.HttpMethod = HttpMethod.Patch;
-                    options.RelativePath = $"api/todolist/{todo.Id}";
-                });
+                downstreamWebApiOptionsOverride: options =>
+ {
+     options.HttpMethod = HttpMethod.Patch;
+     options.RelativePath = $"api/todolist/{todo.Id}";
+ });
             return RedirectToAction("Index");
         }
 
@@ -111,11 +111,11 @@ namespace TodoListClient.Controllers
         {
             await _downstreamWebApi.CallWebApiForUserAsync(
                 ServiceName,
-                options =>
-                {
-                    options.HttpMethod = HttpMethod.Delete;
-                    options.RelativePath = $"api/todolist/{id}";
-                });
+                calledDownstreamWebApiOptionsOverride: options =>
+ {
+     options.HttpMethod = HttpMethod.Delete;
+     options.RelativePath = $"api/todolist/{id}";
+ });
             return RedirectToAction("Index");
         }
     }

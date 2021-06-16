@@ -16,18 +16,20 @@ namespace Microsoft.Identity.Web
     public static class AppServicesAuthenticationInformation
     {
         // Environment variables.
-        private const string AppServicesAuthEnabledEnvironmentVariable = "WEBSITE_AUTH_ENABLED";            // True
-        private const string AppServicesAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER"; // for instance https://sts.windows.net/<tenantId>/
-        private const string AppServicesAuthClientIdEnvironmentVariable = "WEBSITE_AUTH_CLIENT_ID";         // A GUID
-        private const string AppServicesAuthClientSecretEnvironmentVariable = "WEBSITE_AUTH_CLIENT_SECRET"; // A string
-        private const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
-        private const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
-        private const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
-        private const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        internal const string AppServicesAuthEnabledEnvironmentVariable = "WEBSITE_AUTH_ENABLED";            // True
+        internal const string AppServicesAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER"; // for instance https://sts.windows.net/<tenantId>/
+        internal const string AppServicesAuthClientIdEnvironmentVariable = "WEBSITE_AUTH_CLIENT_ID";         // A GUID
+        internal const string AppServicesAuthClientSecretEnvironmentVariable = "WEBSITE_AUTH_CLIENT_SECRET"; // A string
+        internal const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
+        internal const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
+        internal const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
+        internal const string AppServicesAuthAAD = "AAD";
+        internal const string AppServicesAuthIdTokenHeader = "X-MS-TOKEN-AAD-ID-TOKEN";
+        internal const string AppServicesWebSiteAuthApiPrefix = "WEBSITE_AUTH_API_PREFIX";
         private const string AppServicesAuthIdpTokenHeader = "X-MS-CLIENT-PRINCIPAL-IDP";
 
         // Artificially added by Microsoft.Identity.Web to help debugging App Services. See the Debug controller of the test app
-        private const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
+        internal const string AppServicesAuthDebugHeadersEnvironmentVariable = "APP_SERVICES_AUTH_LOCAL_DEBUG";
 
         /// <summary>
         /// Is App Services authentication enabled?.
@@ -36,8 +38,22 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return (Environment.GetEnvironmentVariable(AppServicesAuthEnabledEnvironmentVariable) == Constants.True)
-                    && Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable) == AppServicesAuthAzureActiveDirectory;
+                return
+
+                    string.Equals(
+                        Environment.GetEnvironmentVariable(AppServicesAuthEnabledEnvironmentVariable),
+                        Constants.True,
+                        StringComparison.OrdinalIgnoreCase) &&
+
+                     (string.Equals(
+                         Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable),
+                         AppServicesAuthAzureActiveDirectory,
+                         StringComparison.OrdinalIgnoreCase)
+                     ||
+                     string.Equals(
+                         Environment.GetEnvironmentVariable(AppServicesAuthIdentityProviderEnvironmentVariable),
+                         AppServicesAuthAAD,
+                         StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -48,7 +64,22 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return Environment.GetEnvironmentVariable(AppServicesAuthLogoutPathEnvironmentVariable);
+                // Try $AppServicesAuthLogoutPathEnvironmentVariable (AppServices auth v1.0)
+                string? logoutPath = Environment.GetEnvironmentVariable(AppServicesAuthLogoutPathEnvironmentVariable);
+                if (!string.IsNullOrEmpty(logoutPath))
+                {
+                    return logoutPath;
+                }
+
+                // Try the $(AppServicesWebSiteAuthApiPrefix)
+                string? webSite = Environment.GetEnvironmentVariable(AppServicesWebSiteAuthApiPrefix);
+                if (!string.IsNullOrEmpty(webSite))
+                {
+                    return $"{webSite}/logout";
+                }
+
+                // Fallback
+                return "/.auth/logout";
             }
         }
 
@@ -93,7 +124,7 @@ namespace Microsoft.Identity.Web
         {
             string? headerPlusValue = Environment.GetEnvironmentVariable(AppServicesAuthDebugHeadersEnvironmentVariable)
                 ?.Split(';')
-                ?.FirstOrDefault(h => h.StartsWith(header));
+                ?.FirstOrDefault(h => h.StartsWith(header, StringComparison.OrdinalIgnoreCase));
             return headerPlusValue?.Substring(header.Length + 1);
         }
 #endif

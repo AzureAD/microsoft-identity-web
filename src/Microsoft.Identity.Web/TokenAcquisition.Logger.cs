@@ -13,11 +13,22 @@ namespace Microsoft.Identity.Web
     {
         private static class Logger
         {
-            private static readonly Action<ILogger, string, Exception> s_tokenAcquisitionError =
-           LoggerMessage.Define<string>(
-               LogLevel.Information,
-               LoggingEventId.TokenAcquisitionError,
-               "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
+            private static readonly Action<ILogger, string, Exception?> s_tokenAcquisitionError =
+                LoggerMessage.Define<string>(
+                    LogLevel.Information,
+                    LoggingEventId.TokenAcquisitionError,
+                    "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
+
+            private static readonly Action<ILogger, long, long, long, string, string, Exception?> s_tokenAcquisitionMsalAuthenticationResultTime =
+                LoggerMessage.Define<long, long, long, string, string>(
+                    LogLevel.Debug,
+                    LoggingEventId.TokenAcquisitionMsalAuthenticationResultTime,
+                    "[MsIdWeb] Time to get token with MSAL: " +
+                    "DurationTotalInMs: {DurationTotalInMs} " +
+                    "DurationInHttpInMs: {DurationInHttpInMs} " +
+                    "DurationInCacheInMs: {DurationInCacheInMs} " +
+                    "TokenSource: {TokenSource} " +
+                    "CorrelationId: {CorrelationId} ");
 
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.
@@ -28,7 +39,33 @@ namespace Microsoft.Identity.Web
             public static void TokenAcquisitionError(
                 ILogger logger,
                 string msalErrorMessage,
-                Exception ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+                Exception? ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+
+            /// <summary>
+            /// Logger for handling information specific to MSAL in token acquisition.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="durationTotalInMs">durationTotalInMs.</param>
+            /// <param name="durationInHttpInMs">durationInHttpInMs.</param>
+            /// <param name="durationInCacheInMs">durationInCacheInMs.</param>
+            /// <param name="tokenSource">cache or IDP.</param>
+            /// <param name="correlationId">correlationId.</param>
+            /// <param name="ex">Exception from MSAL.NET.</param>
+            public static void TokenAcquisitionMsalAuthenticationResultTime(
+                ILogger logger,
+                long durationTotalInMs,
+                long durationInHttpInMs,
+                long durationInCacheInMs,
+                string tokenSource,
+                string correlationId,
+                Exception? ex) => s_tokenAcquisitionMsalAuthenticationResultTime(
+                    logger,
+                    durationTotalInMs,
+                    durationInHttpInMs,
+                    durationInCacheInMs,
+                    tokenSource,
+                    correlationId,
+                    ex);
         }
     }
 }

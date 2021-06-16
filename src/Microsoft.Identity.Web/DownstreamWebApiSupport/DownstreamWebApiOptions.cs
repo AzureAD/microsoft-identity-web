@@ -62,6 +62,12 @@ namespace Microsoft.Identity.Web
         public TokenAcquisitionOptions TokenAcquisitionOptions { get; set; } = new TokenAcquisitionOptions();
 
         /// <summary>
+        /// Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
+        /// </summary>
+        public string? AuthenticationScheme { get; set; }
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -75,6 +81,7 @@ namespace Microsoft.Identity.Web
                 Tenant = Tenant,
                 UserFlow = UserFlow,
                 HttpMethod = HttpMethod,
+                AuthenticationScheme = AuthenticationScheme,
                 TokenAcquisitionOptions = TokenAcquisitionOptions.Clone(),
             };
         }

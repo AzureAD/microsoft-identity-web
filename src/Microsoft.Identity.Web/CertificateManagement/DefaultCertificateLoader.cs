@@ -102,19 +102,31 @@ namespace Microsoft.Identity.Web
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        private static X509Certificate2 LoadFromKeyVault(
+        private static X509Certificate2? LoadFromKeyVault(
             string keyVaultUrl,
             string certificateName,
             X509KeyStorageFlags x509KeyStorageFlags)
         {
             Uri keyVaultUri = new Uri(keyVaultUrl);
-            DefaultAzureCredentialOptions options = new DefaultAzureCredentialOptions();
-            options.ManagedIdentityClientId = UserAssignedManagedIdentityClientId;
+            DefaultAzureCredentialOptions options = new DefaultAzureCredentialOptions
+            {
+                ManagedIdentityClientId = UserAssignedManagedIdentityClientId,
+            };
             DefaultAzureCredential credential = new DefaultAzureCredential(options);
             CertificateClient certificateClient = new CertificateClient(keyVaultUri, credential);
             SecretClient secretClient = new SecretClient(keyVaultUri, credential);
 
             KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
+
+            if (certificate.Properties.NotBefore == null || certificate.Properties.ExpiresOn == null)
+            {
+                return null;
+            }
+
+            if (DateTimeOffset.UtcNow < certificate.Properties.NotBefore || DateTimeOffset.UtcNow > certificate.Properties.ExpiresOn)
+            {
+                return null;
+            }
 
             // Return a certificate with only the public key if the private key is not exportable.
             if (certificate.Policy?.Exportable != true)
@@ -143,7 +155,7 @@ namespace Microsoft.Identity.Web
 
             // For PEM, you'll need to extract the base64-encoded message body.
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
-            if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.InvariantCultureIgnoreCase))
+            if (Constants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.OrdinalIgnoreCase))
             {
                 return LoadFromBase64Encoded(secret.Value, x509KeyStorageFlags);
             }
@@ -203,6 +215,17 @@ namespace Microsoft.Identity.Web
             }
 
             return cert;
+        }
+
+        internal static void ResetCertificates(IEnumerable<CertificateDescription>? clientCertificates)
+        {
+            if (clientCertificates != null)
+            {
+                foreach (var cert in clientCertificates)
+                {
+                    cert.Certificate = null;
+                }
+            }
         }
 
         private static X509Certificate2 LoadFromPath(
@@ -266,9 +289,13 @@ namespace Microsoft.Identity.Web
         internal /*for test only*/ static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
         {
             DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            CertificateDescription certDescription = certificateDescription.First();
-            defaultCertificateLoader.LoadIfNeeded(certDescription);
-            return certDescription.Certificate;
+            CertificateDescription? certDescription = certificateDescription.FirstOrDefault(c =>
+            {
+                defaultCertificateLoader.LoadIfNeeded(c);
+                return c.Certificate != null;
+            });
+
+            return certDescription?.Certificate;
         }
 
         internal /*for test only*/ static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
@@ -277,7 +304,10 @@ namespace Microsoft.Identity.Web
             foreach (var certDescription in certificateDescriptions)
             {
                 defaultCertificateLoader.LoadIfNeeded(certDescription);
-                yield return certDescription.Certificate;
+                if (certDescription.Certificate != null)
+                {
+                    yield return certDescription.Certificate;
+                }
             }
         }
     }

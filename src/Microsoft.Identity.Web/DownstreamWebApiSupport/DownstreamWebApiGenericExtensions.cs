@@ -30,13 +30,16 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
             string relativePath,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -46,6 +49,7 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                 serviceName,
+                authenticationScheme,
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
                 user,
                 null).ConfigureAwait(false);
@@ -71,6 +75,8 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -78,7 +84,8 @@ namespace Microsoft.Identity.Web
             string relativePath,
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -90,6 +97,7 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                serviceName,
+               authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Post),
                user,
                input).ConfigureAwait(false);
@@ -113,6 +121,8 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -120,7 +130,8 @@ namespace Microsoft.Identity.Web
             string relativePath,
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
         {
             if (downstreamWebApi is null)
             {
@@ -131,6 +142,7 @@ namespace Microsoft.Identity.Web
 
             await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
+              authenticationScheme,
               PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
               user,
               input).ConfigureAwait(false);
@@ -154,6 +166,8 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -161,7 +175,8 @@ namespace Microsoft.Identity.Web
             string relativePath,
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -173,6 +188,7 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                serviceName,
+               authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
                user,
                input).ConfigureAwait(false);
@@ -195,12 +211,15 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -210,6 +229,7 @@ namespace Microsoft.Identity.Web
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
+              authenticationScheme,
               downstreamWebApiOptionsOverride,
               user,
               null).ConfigureAwait(false);
@@ -232,13 +252,16 @@ namespace Microsoft.Identity.Web
         /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
         /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task GetForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
         {
             if (downstreamWebApi is null)
             {
@@ -249,6 +272,7 @@ namespace Microsoft.Identity.Web
 
             await downstreamWebApi.CallWebApiForUserAsync(
              serviceName,
+             authenticationScheme,
              downstreamWebApiOptionsOverride,
              user,
              input).ConfigureAwait(false);

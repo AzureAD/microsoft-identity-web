@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateDescription.cs" Link="OptionClasses\CertificateDescription.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateSource.cs" Link="OptionClasses\CertificateSource.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\MicrosoftIdentityOptions.cs" Link="OptionClasses\MicrosoftIdentityOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.32.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0-*" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0-*" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.11.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.11.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
+  </ItemGroup>
+  
+</Project>

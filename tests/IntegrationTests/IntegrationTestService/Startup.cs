@@ -28,10 +28,18 @@ namespace IntegrationTestService
             KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
             string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
-            var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                                  .AddMicrosoftIdentityWebApi(Configuration, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                                  .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
                                         .AddDownstreamWebApi(
+                                            TestConstants.SectionNameCalledApi,
+                                            Configuration.GetSection(TestConstants.SectionNameCalledApi))
+                                        .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
+
+            services.AddAuthentication()
+                                  .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: TestConstants.CustomJwtScheme2, configSectionName: "AzureAd2", subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
+                                  .EnableTokenAcquisitionToCallDownstreamApi()
+                                         .AddDownstreamWebApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
@@ -41,10 +49,11 @@ namespace IntegrationTestService
                 options.ClientSecret = ccaSecret;
             });
 
-            services.AddRazorPages(options =>
-            {
-                options.Conventions.AuthorizePage("/SecurePage");
-            });
+            services.AddRazorPages();
+            //services.AddRazorPages(options =>
+            //{
+            //    options.Conventions.AuthorizePage("/SecurePage");
+            //});
             services.AddControllers();
         }
 

@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string ClientId = "87f0ee88-8251-48b3-8825-e0c9563f5234";
         public const string GuestTenantId = "guest-tenant-id";
         public const string HomeTenantId = "home-tenant-id";
-        public const string TenantIdAsGuid = "da41245a5-11b3-996c-00a8-4d99re19f292";
+        public const string TenantIdAsGuid = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
         public const string ObjectIdAsGuid = "6364bb70-9521-3fa8-989d-c2c19ff90223";
         public const string Domain = "contoso.onmicrosoft.com";
         public const string Uid = "my-home-object-id";
@@ -47,6 +47,9 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AuthorityOrganizationsUSWithV2 = AuthorityOrganizationsUSTenant + "/v2.0";
         public const string AuthorityWithTenantSpecifiedWithV2 = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
+        public const string UsGovIssuer = "https://login.microsoftonline.us/" + UsGovTenantId + "/v2.0";
+        public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+        public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
 
         // B2C
@@ -58,20 +61,22 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CHost = "fabrikamb2c.b2clogin.com";
         public const string B2CInstance = "https://fabrikamb2c.b2clogin.com";
         public const string B2CInstance2 = "https://catb2c.b2clogin.com";
-        public const string B2CCustomDomainInstance = "https://catsAreAmazing.com";
+        public const string B2CCustomDomainInstance = "https://public.msidlabb2c.com";
         public const string B2CLoginMicrosoft = "https://login.microsoftonline.com";
         public const string ClientSecret = "catsarecool";
 
         public const string B2CAuthority = B2CInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;
         public const string B2CAuthorityWithV2 = B2CAuthority + "/v2.0";
-        public const string B2CCustomDomainAuthority = B2CCustomDomainInstance + "/" + B2CTenant + "/" + B2CSignUpSignInUserFlow;
+        public const string B2CCustomDomainAuthority = B2CCustomDomainInstance + "/" + B2CCustomDomainTenant + "/" + B2CCustomDomainUserFlow;
         public const string B2CCustomDomainAuthorityWithV2 = B2CCustomDomainAuthority + "/v2.0";
 
         public const string B2CIssuer = B2CInstance + "/" + B2CTenantAsGuid + "/v2.0";
         public const string B2CIssuer2 = B2CInstance2 + "/" + B2CTenantAsGuid + "/v2.0";
-        public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CTenantAsGuid + "/v2.0";
+        public const string B2CCustomDomainIssuer = B2CCustomDomainInstance + "/" + B2CCustomDomainTenant + "/v2.0";
         public const string Scopes = "openid profile offline_access api://someapi";
         public const string B2CIssuerTfp = B2CInstance + "/" + ClaimConstants.Tfp + "/" + B2CTenantAsGuid + "/" + B2CSignUpSignInUserFlow + "/v2.0";
+        public const string B2CCustomDomainTenant = "cpimtestpartners.onmicrosoft.com";
+        public const string B2CCustomDomainUserFlow = "B2C_1_signupsignin_userflow";
 
         // Claims
         public const string ClaimNameTid = "tid";
@@ -135,7 +140,16 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePageCallDownstreamWebApiGeneric = "/SecurePage/CallDownstreamWebApiGenericAsync";
         public const string SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
         public const string SecurePageCallMicrosoftGraph = "/SecurePage/CallMicrosoftGraph";
+        public const string SecurePage2GetEmpty = "/SecurePage2/GetEmpty";
+        public const string SecurePage2GetTokenForUserAsync = "/SecurePage2/GetTokenForUserAsync";
+        public const string SecurePage2GetTokenForAppAsync = "/SecurePage2/GetTokenForAppAsync";
+        public const string SecurePage2CallDownstreamWebApi = "/SecurePage2/CallDownstreamWebApiAsync";
+        public const string SecurePage2CallDownstreamWebApiGeneric = "/SecurePage2/CallDownstreamWebApiGenericAsync";
+        public const string SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage2/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
+        public const string SecurePage2CallMicrosoftGraph = "/SecurePage2/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";
+        public const string CustomJwtScheme = "customJwt";
+        public const string CustomJwtScheme2 = "customJwt2";
 
         // Selenium Automation
         public const string WebSubmitId = "idSIButton9";

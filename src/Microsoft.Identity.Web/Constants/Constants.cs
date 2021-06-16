@@ -70,6 +70,7 @@ namespace Microsoft.Identity.Web
         internal const string AzureADIssuerMetadataUrl = "https://login.microsoftonline.com/common/discovery/instance?authorization_endpoint=https://login.microsoftonline.com/common/oauth2/v2.0/authorize&api-version=1.1";
 #pragma warning restore S1075 // URIs should not be hardcoded
         internal const string FallbackAuthority = "https://login.microsoftonline.com/";
+        internal const string OidcEndpoint = "/.well-known/openid-configuration";
 
         // RegisterValidAudience
         internal const string Version = "ver";
@@ -103,6 +104,8 @@ namespace Microsoft.Identity.Web
         internal const string ApplicationJson = "application/json";
         internal const string ISessionStore = "ISessionStore";
         internal const string True = "True";
+        internal const string InvalidClient = "invalid_client";
+        internal const string InvalidKeyError = "AADSTS700027";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

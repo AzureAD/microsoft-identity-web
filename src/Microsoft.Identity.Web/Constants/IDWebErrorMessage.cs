@@ -25,6 +25,7 @@ namespace Microsoft.Identity.Web
         public const string ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. ";
         public const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         public const string MissingRequiredScopesForAuthorizationFilter = "IDW10108: RequiredScope Attribute does not contain a value. The scopes need to be set on the controller, the page or action. See https://aka.ms/ms-id-web/required-scope-attribute. ";
+        public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope or roles claim was found in the bearer token. ";
@@ -69,6 +70,8 @@ namespace Microsoft.Identity.Web
         // Obsolete messages IDW10800 = "IDW10800:"
         public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0. ";
         public const string InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. ";
-        public const string ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete = "IDW10801: Use ReplyForbiddenWithWwwAuthenticateHeader instead. See https://aka.ms/ms-id-web/1.9.0. ";
+        public const string ReplyForbiddenWithWwwAuthenticateHeaderAsyncIsObsolete = "IDW10802: Use ReplyForbiddenWithWwwAuthenticateHeader instead. See https://aka.ms/ms-id-web/1.9.0. ";
+        public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
+        public const string AadIssuerValidatorIsObsolete = "IDW10804: Use MicrosoftIdentityIssuerValidator. ";
     }
 }
