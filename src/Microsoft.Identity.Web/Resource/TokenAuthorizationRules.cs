@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web.Resource
             // Does the web API disallow app only tokens?
             if (!tokenAuthorizationOptions.ApiAllowsAppOnlyTokens)
             {
-                VerifyClaimDoesNotExistOrDoesNotEquals(claimsPrincipal, ClaimConstants.Idtyp, "app", IDWebErrorMessage.ApiAllowsAppOnlyTokensCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsAppOnlyTokens);
+                VerifyClaimDoesNotExistOrDoesNotEqual(claimsPrincipal, ClaimConstants.Idtyp, "app", IDWebErrorMessage.ApiAllowsAppOnlyTokensCantBeComputed, IDWebErrorMessage.ApiDoesNotAllowsAppOnlyTokens);
             }
 
             // Does the web API disallow guest accounts?
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web.Resource
                 throw new UnauthorizedAccessException(messageWhenClaimsNotFound);
             }
 
-            if (string.Equals(claimValue, expectedValue, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(claimValue, expectedValue, StringComparison.OrdinalIgnoreCase))
             {
                 throw new UnauthorizedAccessException(messageWhenUnexpectedClaimValue);
             }
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="expectedValue">Expected value.</param>
         /// <param name="messageWhenClaimsNotFound">Error message thrown when the claim is not found.</param>
         /// <param name="messageWhenUnexpectedClaimValue">Error message thrown when claim value is not the expected one.</param>
-        private static void VerifyClaimDoesNotExistOrDoesNotEquals(
+        private static void VerifyClaimDoesNotExistOrDoesNotEqual(
             ClaimsPrincipal claimsPrincipal,
             string claimName,
             string expectedValue,
@@ -141,7 +141,7 @@ namespace Microsoft.Identity.Web.Resource
                 throw new UnauthorizedAccessException(messageWhenClaimsNotFound);
             }
 
-            if (acceptedValues.Contains(claimValue, StringComparer.OrdinalIgnoreCase))
+            if (!acceptedValues.Contains(claimValue, StringComparer.OrdinalIgnoreCase))
             {
                 throw new UnauthorizedAccessException(messageWhenUnexpectedClaimValue);
             }
