@@ -21,7 +21,7 @@ namespace TodoListService.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    [RequiredScope("access_as_user")] 
+    //[RequiredScope("access_as_user")] 
     public class CallbackController : Controller
     {
         private readonly ITokenAcquisition _tokenAcquisition; // do not remove
@@ -30,29 +30,39 @@ namespace TodoListService.Controllers
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
 
         private ILogger _logger;
+        ILongRunningProcessContextFactory _longRunningProcessAssertionCache;
 
         public CallbackController(
             IHttpContextAccessor contextAccessor,
             ITokenAcquisition tokenAcquisition,
-            ILogger<CallbackController> logger)
+            ILogger<CallbackController> logger,
+            ILongRunningProcessContextFactory longRunningProcessAssertionCache)
         {
             _tokenAcquisition = tokenAcquisition;
             _logger = logger;
+            _longRunningProcessAssertionCache = longRunningProcessAssertionCache;
         }
 
 
         // GET: api/values
         // [RequiredScope("access_as_user")]
         [HttpGet]
-        public async Task GetAsync()
+        [AllowAnonymous]
+        public async Task GetAsync(string key)
         {
             _logger.LogWarning($"Callback called {DateTime.Now}");
-            string owner = User.GetDisplayName();
-            // Below is for testing multi-tenants
-            var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
 
-            if (result.AuthenticationResultMetadata.TokenSource == Microsoft.Identity.Client.TokenSource.IdentityProvider)
+            using (_longRunningProcessAssertionCache.UseKey(HttpContext, key))
             {
+                var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+
+                _logger.LogWarning($"OBO token acquired from {result.AuthenticationResultMetadata.TokenSource}");
+
+                // For breakpoint
+                if (result.AuthenticationResultMetadata.TokenSource == Microsoft.Identity.Client.TokenSource.IdentityProvider)
+                {
+                }
+
             }
         }
     }

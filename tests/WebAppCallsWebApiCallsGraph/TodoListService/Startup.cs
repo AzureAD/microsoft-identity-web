@@ -11,6 +11,7 @@ using Microsoft.Identity.Web;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using System;
 
 namespace TodoListService
 {
@@ -63,6 +64,7 @@ namespace TodoListService
 #endif
 
             services.AddControllers();
+            services.AddSingleton<ILongRunningProcessContextFactory, LongRunningProcessContextFactory>();
 
             // below code is how customers would use a proxy
             //services.Configure<AadIssuerValidatorOptions>(options => { options.HttpClientName = "cats"; });
