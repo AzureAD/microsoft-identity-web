@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web
         public bool ApiAllowsGuestAccounts { get; set; } = true;
 
         /// <summary>
-        /// Applies to web apps and web APIs. Enables to provide the list
+        /// Applies to web apps and web APIs. Enables you to provide the list
         /// of tenant Ids the user of whom are allowed to call the web API
         /// or log-in to the web app.
         /// </summary>
