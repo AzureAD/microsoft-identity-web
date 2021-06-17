@@ -24,11 +24,7 @@ namespace TodoListService.Controllers
     //[RequiredScope("access_as_user")] 
     public class CallbackController : Controller
     {
-        private readonly ITokenAcquisition _tokenAcquisition; // do not remove
-        // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
-        // In-memory TodoList
-        private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
-
+        private readonly ITokenAcquisition _tokenAcquisition; 
         private ILogger _logger;
         ILongRunningProcessContextFactory _longRunningProcessAssertionCache;
 

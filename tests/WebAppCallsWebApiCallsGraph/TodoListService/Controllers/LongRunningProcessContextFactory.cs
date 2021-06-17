@@ -30,7 +30,7 @@ namespace TodoListService
         public string CreateKey(HttpContext httpContext)
         {
             JwtSecurityToken token = httpContext.Items["JwtSecurityTokenUsedToCallWebAPI"] as JwtSecurityToken;
-            string key = "1";
+            string key = Guid.NewGuid().ToString();
             privateAssertionOfKey.TryAdd(key, token);
             return key;
         }
