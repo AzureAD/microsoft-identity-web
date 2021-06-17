@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using TodoListService.Models;
 
@@ -22,12 +25,15 @@ namespace TodoListService.Controllers
         // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         // In-memory TodoList
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
+        ILongRunningProcessContextFactory _longRunningProcessAssertionCache;
 
         public TodoListController(
             IHttpContextAccessor contextAccessor,
-            ITokenAcquisition tokenAcquisition)
+            ITokenAcquisition tokenAcquisition,
+            ILongRunningProcessContextFactory longRunningProcessAssertionCache)
         {
             _tokenAcquisition = tokenAcquisition;
+            _longRunningProcessAssertionCache = longRunningProcessAssertionCache;
 
             // Pre-populate with sample data
             if (TodoStore.Count == 0)
@@ -44,7 +50,13 @@ namespace TodoListService.Controllers
         {
             string owner = User.GetDisplayName();
             // Below is for testing multi-tenants
-             await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+            var result = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
+
+            var result2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read.all" },
+                tokenAcquisitionOptions: new TokenAcquisitionOptions { ForceRefresh = true }).ConfigureAwait(false); // for testing OBO
+
+            RegisterPeriodicCallbackForLongProcessing();
+
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
 
@@ -52,8 +64,31 @@ namespace TodoListService.Controllers
             return TodoStore.Values.Where(x => x.Owner == owner);
         }
 
+        /// <summary>
+        /// This methods the processing of user data where the web API periodically checks the user
+        /// date (think of OneDrive producing albums)
+        /// </summary>
+        private void RegisterPeriodicCallbackForLongProcessing()
+        {
+            // Get the token incoming to the web API - we could do better here.
+            string key = _longRunningProcessAssertionCache.CreateKey(HttpContext);
+
+            // Build the URL to the callback controller, based on the request.
+            var request = HttpContext.Request;
+            string url = request.Scheme + "://" + request.Host + request.Path.Value.Replace("todolist", "callback") + $"?key={key}";
+
+            // Setup a timer so that the API calls back the callback every 10 mins.
+            Timer timer = new Timer(async (state) =>
+            {
+                HttpClient httpClient = new HttpClient();
+                
+                var message = await httpClient.GetAsync(url);
+            }, null, 1000, 1000 * 60 * 10);
+        }
+
+
         // GET: api/values
-       // [RequiredScope("Weather.Write")]
+        // [RequiredScope("Weather.Write")]
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
