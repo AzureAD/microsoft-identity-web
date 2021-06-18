@@ -46,13 +46,17 @@ namespace TodoListService.Controllers
         [AllowAnonymous]
         public async Task GetAsync(string key)
         {
-            _logger.LogWarning($"Callback called {DateTime.Now}");
+            var request = HttpContext.Request;
+            string calledUrl = request.Scheme + "://" + request.Host + request.Path.Value + Request.QueryString;
+
+            _logger.LogWarning($"{DateTime.UtcNow}: {calledUrl}");
 
             using (_longRunningProcessAssertionCache.UseKey(HttpContext, key))
             {
                 var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
 
-                _logger.LogWarning($"OBO token acquired from {result.AuthenticationResultMetadata.TokenSource}");
+                _logger.LogWarning($"OBO token acquired from {result.AuthenticationResultMetadata.TokenSource} expires {result.ExpiresOn.UtcDateTime}");
+
 
                 // For breakpoint
                 if (result.AuthenticationResultMetadata.TokenSource == Microsoft.Identity.Client.TokenSource.IdentityProvider)
