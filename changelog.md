@@ -30,7 +30,7 @@
 
 **Fix `RoleClaimType` when set as part of the `MicrosoftIdentityOptions`**. Regression from 1.10 version. See [#1218](https://github.com/AzureAD/microsoft-identity-web/issues/1218) for details.
 
-**Microsoft Identity Web UI now displays a better error message when run in a Production enviornment to assist with debugging**. See issue [#1213](https://github.com/AzureAD/microsoft-identity-web/issues/1213) for details.
+**Microsoft Identity Web UI now displays a better error message when run in a Production environment to assist with debugging**. See issue [#1213](https://github.com/AzureAD/microsoft-identity-web/issues/1213) for details.
 
 **Microsoft Identity Web UI now honors a local redirect URI after sign-in**. This is if you want to redirect the user to a specific page within the add. See issue [#760](https://github.com/AzureAD/microsoft-identity-web/issues/760) for details.
 
