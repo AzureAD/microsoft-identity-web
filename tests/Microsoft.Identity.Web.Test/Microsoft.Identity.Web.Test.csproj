@@ -57,6 +57,7 @@
     <Compile Include="MsalTokenCacheProviderTests.cs" />
     <Compile Include="Certificates\CertificateDescriptionTests.cs"/>
     <Compile Include="Certificates\DefaultCertificateLoaderTests.cs"/>
+    <Compile Include="CacheExtensionsTests.cs"/>
   </ItemGroup>
 
 </Project>
