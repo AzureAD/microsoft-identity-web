@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         /// the services collection and configuring its options.
         /// </summary>
         /// <returns>The confidential client application.</returns>
-        /// <param name="app">MSAL.NET cca object.</param>
+        /// <param name="confidentialClientApp">Confidential client application.</param>
         /// <param name="initializeCaches">Action that you'll use to add a cache serialization
         /// to the service collection passed as an argument.</param>
         /// <returns>The application for chaining.</returns>
@@ -61,13 +61,13 @@ namespace Microsoft.Identity.Web
         /// </example>
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>
-        public static IConfidentialClientApplication AddTokenCaches(
-            this IConfidentialClientApplication app,
+        internal static IConfidentialClientApplication AddTokenCaches(
+            this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeCaches)
         {
-            if (app is null)
+            if (confidentialClientApp is null)
             {
-                throw new ArgumentNullException(nameof(app));
+                throw new ArgumentNullException(nameof(confidentialClientApp));
             }
 
             if (initializeCaches is null)
@@ -84,9 +84,9 @@ namespace Microsoft.Identity.Web
 
             IServiceProvider serviceProvider = hostBuilder.Build().Services;
             IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
-            msalTokenCacheProvider.Initialize(app.UserTokenCache);
-            msalTokenCacheProvider.Initialize(app.AppTokenCache);
-            return app;
+            msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
+            msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
+            return confidentialClientApp;
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
         /// application. Don't use this method in ASP.NET Core: rather use:
         /// <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
         /// </summary>
-        /// <param name="app">Application.</param>
+        /// <param name="confidentialClientApp">Confidential client application.</param>
         /// <returns>The application for chaining.</returns>
         /// <example>
         ///
@@ -108,24 +108,24 @@ namespace Microsoft.Identity.Web
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>
         public static IConfidentialClientApplication AddInMemoryTokenCaches(
-            this IConfidentialClientApplication app)
+            this IConfidentialClientApplication confidentialClientApp)
         {
-            if (app is null)
+            if (confidentialClientApp is null)
             {
-                throw new ArgumentNullException(nameof(app));
+                throw new ArgumentNullException(nameof(confidentialClientApp));
             }
 
-            app.AddTokenCaches(services =>
+            confidentialClientApp.AddTokenCaches(services =>
             {
                 services.AddInMemoryTokenCaches();
             });
-            return app;
+            return confidentialClientApp;
         }
 
         /// <summary>
         /// Add a distributed token cache.
         /// </summary>
-        /// <param name="app">Application.</param>
+        /// <param name="confidentialClientApp">Confidential client application.</param>
         /// <param name="initializeDistributedCache">Action taking a <see cref="IServiceCollection"/>
         /// and by which you initialize your distributed cache.</param>
         /// <returns>The application for chaining.</returns>
@@ -150,12 +150,12 @@ namespace Microsoft.Identity.Web
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>
         public static IConfidentialClientApplication AddDistributedTokenCaches(
-            this IConfidentialClientApplication app,
+            this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeDistributedCache)
         {
-            if (app is null)
+            if (confidentialClientApp is null)
             {
-                throw new ArgumentNullException(nameof(app));
+                throw new ArgumentNullException(nameof(confidentialClientApp));
             }
 
             if (initializeDistributedCache is null)
@@ -163,12 +163,12 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(initializeDistributedCache));
             }
 
-            app.AddTokenCaches(services =>
+            confidentialClientApp.AddTokenCaches(services =>
             {
                 services.AddDistributedTokenCaches();
                 initializeDistributedCache(services);
             });
-            return app;
+            return confidentialClientApp;
         }
     }
 }

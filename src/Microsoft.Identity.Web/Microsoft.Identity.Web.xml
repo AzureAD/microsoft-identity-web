@@ -3054,7 +3054,7 @@
              the services collection and configuring its options.
              </summary>
              <returns>The confidential client application.</returns>
-             <param name="app">MSAL.NET cca object.</param>
+             <param name="confidentialClientApp">Confidential client application.</param>
              <param name="initializeCaches">Action that you'll use to add a cache serialization
              to the service collection passed as an argument.</param>
              <returns>The application for chaining.</returns>
@@ -3088,7 +3088,7 @@
                    });
               });
              </code>
-            
+             If using distributed token caches, use AddDistributedTokenCaches.
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
@@ -3098,9 +3098,8 @@
              Add an in-memory well partitioned token cache to MSAL.NET confidential client
              application. Don't use this method in ASP.NET Core: rather use:
              <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
-             In net462 and net472, you'll need to reference Microsoft.Extensions.Caching.Memory.
              </summary>
-             <param name="app">Application.</param>
+             <param name="confidentialClientApp">Confidential client application.</param>
              <returns>The application for chaining.</returns>
              <example>
             
@@ -3118,7 +3117,7 @@
              <summary>
              Add a distributed token cache.
              </summary>
-             <param name="app">Application.</param>
+             <param name="confidentialClientApp">Confidential client application.</param>
              <param name="initializeDistributedCache">Action taking a <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
              and by which you initialize your distributed cache.</param>
              <returns>The application for chaining.</returns>
