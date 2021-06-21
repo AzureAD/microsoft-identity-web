@@ -3041,6 +3041,107 @@
             Utility methods used by L1/L2 cache.
             </summary>
         </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheExtensions">
+            <summary>
+            Extension methods to expose a simplified developer experience for
+            adding token caches to MSAL.NET confidential client applications
+            in ASP.NET, or .NET Core, or .NET FW.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+             <summary>
+             Use a token cache and choose the serialization part by adding it to
+             the services collection and configuring its options.
+             </summary>
+             <returns>The confidential client application.</returns>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <param name="initializeCaches">Action that you'll use to add a cache serialization
+             to the service collection passed as an argument.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+            
+             The following code adds a distributed in-memory token cache.
+            
+             <code>
+              app.AddTokenCaches(services =>
+              {
+                  // In memory distributed token cache
+                  // In net472, requires to reference Microsoft.Extensions.Caching.Memory
+                  services.AddDistributedTokenCaches();
+                  services.AddDistributedMemoryCache();
+              });
+             </code>
+            
+             The following code adds a token cache based on REDIS and initializes
+             its configuration.
+            
+             <code>
+              app.AddTokenCaches(services =>
+              {
+                   services.AddDistributedTokenCaches();
+                   // Redis token cache
+                   // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
+                   services.AddStackExchangeRedisCache(options =>
+                   {
+                       options.Configuration = "localhost";
+                       options.InstanceName = "Redis";
+                   });
+              });
+             </code>
+             If using distributed token caches, use AddDistributedTokenCaches.
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication)">
+             <summary>
+             Add an in-memory well partitioned token cache to MSAL.NET confidential client
+             application. Don't use this method in ASP.NET Core: rather use:
+             <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
+             </summary>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+            
+             The following code adds an in-memory token cache.
+            
+             <code>
+              app.AddInMemoryTokenCaches();
+             </code>
+            
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+             <summary>
+             Add a distributed token cache.
+             </summary>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <param name="initializeDistributedCache">Action taking a <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
+             and by which you initialize your distributed cache.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+             The following code adds a token cache based on REDIS and initializes
+             its configuration.
+            
+             <code>
+              app.AddDistributedTokenCaches(services =>
+              {
+                   // Redis token cache
+                   // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
+                   services.AddStackExchangeRedisCache(options =>
+                   {
+                       options.Configuration = "localhost";
+                       options.InstanceName = "Redis";
+                   });
+              });
+             </code>
+            
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder">
             <summary>
             Authentication builder for a web API.
