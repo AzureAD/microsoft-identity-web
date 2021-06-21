@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web
         ///       });
         ///  });
         /// </code>
-        ///
+        /// If using distributed token caches, use AddDistributedTokenCaches.
         /// </example>
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>
@@ -93,7 +93,6 @@ namespace Microsoft.Identity.Web
         /// Add an in-memory well partitioned token cache to MSAL.NET confidential client
         /// application. Don't use this method in ASP.NET Core: rather use:
         /// <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
-        /// In net462 and net472, you'll need to reference Microsoft.Extensions.Caching.Memory.
         /// </summary>
         /// <param name="app">Application.</param>
         /// <returns>The application for chaining.</returns>
@@ -116,8 +115,6 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(app));
             }
 
-            // In memory token cache
-            // In net472, requires to reference Microsoft.Extensions.Caching.Memory
             app.AddTokenCaches(services =>
             {
                 services.AddInMemoryTokenCaches();
