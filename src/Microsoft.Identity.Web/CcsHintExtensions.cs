@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
     public static class CcsHintExtensions
     {
         /// <summary>
-        /// Sets the CSS Routing hint.
+        /// Sets the CCS Routing hint.
         /// </summary>
         /// <typeparam name="T">Builder type.</typeparam>
         /// <param name="builder">Builder.</param>
