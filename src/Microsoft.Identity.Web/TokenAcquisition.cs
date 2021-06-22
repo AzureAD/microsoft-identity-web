@@ -967,8 +967,7 @@ namespace Microsoft.Identity.Web
                 string? tid = user.GetTenantId();
                 if (!string.IsNullOrEmpty(oid) && !string.IsNullOrEmpty(tid))
                 {
-                    string hint = $"oid:{oid}@{tid}";
-                    return hint;
+                    return $"oid:{oid}@{tid}";
                 }
             }
 
