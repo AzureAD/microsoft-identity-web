@@ -128,5 +128,9 @@ namespace Microsoft.Identity.Web
         // AccountController.Challenge parameters
         internal const string LoginHintParameter = "loginHint";
         internal const string DomainHintParameter = "domainHint";
+
+        // CCS
+        internal const string XAnchorMailbox = "x-anchormailbox";
+        internal const string Upn = "upn";
     }
 }
