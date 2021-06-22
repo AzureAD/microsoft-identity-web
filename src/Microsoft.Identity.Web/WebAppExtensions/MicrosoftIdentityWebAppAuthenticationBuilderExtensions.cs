@@ -334,11 +334,12 @@ namespace Microsoft.Identity.Web
                     var redirectToIdpHandler = options.Events.OnRedirectToIdentityProvider;
                     options.Events.OnRedirectToIdentityProvider = async context =>
                     {
-                        var login = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
-                        if (!string.IsNullOrWhiteSpace(login))
+                        var loginHint = context.Properties.GetParameter<string>(OpenIdConnectParameterNames.LoginHint);
+                        if (!string.IsNullOrWhiteSpace(loginHint))
                         {
-                            context.ProtocolMessage.LoginHint = login;
+                            context.ProtocolMessage.LoginHint = loginHint;
 
+                            context.ProtocolMessage.SetParameter(Constants.XAnchorMailbox, $"{Constants.Upn}:{loginHint}");
                             // delete the login_hint from the Properties when we are done otherwise
                             // it will take up extra space in the cookie.
                             context.Properties.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);

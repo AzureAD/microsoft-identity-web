@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 
@@ -158,10 +159,23 @@ namespace Microsoft.Identity.Web
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
+
+                string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                string? ccsRoutingHint = string.Empty;
+                if (!string.IsNullOrEmpty(clientInfo))
+                {
+                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo);
+                    if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
+                    {
+                        ccsRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
+                    }
+                }
+
                 var builder = application
-                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context.ProtocolMessage.Code)
+                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context!.ProtocolMessage!.Code)
                     .WithSendX5C(mergedOptions.SendX5C)
-                    .WithPkceCodeVerifier(codeVerifier);
+                    .WithPkceCodeVerifier(codeVerifier)
+                    .WithExtraHttpHeaders(new Dictionary<string, string> { { Constants.XAnchorMailbox, ccsRoutingHint } });
 
                 if (mergedOptions.IsB2C)
                 {
@@ -746,6 +760,7 @@ namespace Microsoft.Identity.Web
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
                                     .WithSendX5C(mergedOptions.SendX5C)
+                                    .WithCcsRoutingHint(GetUserFromHttpContext())
                                     .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)
@@ -881,6 +896,8 @@ namespace Microsoft.Identity.Web
             {
                 builder.WithAuthority(authority);
             }
+
+            builder.WithCcsRoutingHint(GetUserFromHttpContext());
 
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
