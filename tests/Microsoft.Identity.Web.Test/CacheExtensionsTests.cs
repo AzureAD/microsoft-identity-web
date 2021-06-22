@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Test
         public void InMemoryCacheExtensionsTests()
         {
             CreateCca();
-            _confidentialApp.AddInMemoryTokenCaches();
+            _confidentialApp.AddInMemoryTokenCache();
 
             Assert.NotNull(_confidentialApp.UserTokenCache);
             Assert.NotNull(_confidentialApp.AppTokenCache);
@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void InMemoryCacheExtensions_NoCca_ThrowsException_Tests()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCaches());
+            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache());
 
             Assert.Equal("confidentialClientApp", ex.ParamName);
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test
         public void DistributedCacheExtensionsTests()
         {
             CreateCca();
-            _confidentialApp.AddDistributedTokenCaches(services =>
+            _confidentialApp.AddDistributedTokenCache(services =>
             {
                 services.AddDistributedMemoryCache();
             });
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DistributedCacheExtensions_NoCca_ThrowsException_Tests()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCaches(services =>
+            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(services =>
             {
                 services.AddDistributedMemoryCache();
             }));
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web.Test
         {
             CreateCca();
 
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCaches(null));
+            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null));
 
             Assert.Equal("initializeDistributedCache", ex.ParamName);
         }
