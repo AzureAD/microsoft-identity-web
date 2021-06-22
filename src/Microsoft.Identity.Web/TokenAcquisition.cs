@@ -760,8 +760,8 @@ namespace Microsoft.Identity.Web
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
                                     .WithSendX5C(mergedOptions.SendX5C)
-                                    .WithAuthority(authority)
-                                    .WithExtraHttpHeaders(new Dictionary<string, string> { { Constants.XAnchorMailbox, CreateCcsRoutingHintFromHttpContext() } });
+                                    .WithCcsRoutingHint(GetUserFromHttpContext())
+                                    .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)
                     {
@@ -867,8 +867,7 @@ namespace Microsoft.Identity.Web
 
             var builder = application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
-                    .WithSendX5C(mergedOptions.SendX5C)
-                    .WithExtraHttpHeaders(new Dictionary<string, string> { { Constants.XAnchorMailbox, CreateCcsRoutingHintFromHttpContext() } });
+                    .WithSendX5C(mergedOptions.SendX5C);
 
             if (tokenAcquisitionOptions != null)
             {
@@ -897,6 +896,8 @@ namespace Microsoft.Identity.Web
             {
                 builder.WithAuthority(authority);
             }
+
+            builder.WithCcsRoutingHint(GetUserFromHttpContext());
 
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
@@ -956,22 +957,6 @@ namespace Microsoft.Identity.Web
             }
 
             return user;
-        }
-
-        private string CreateCcsRoutingHintFromHttpContext()
-        {
-            ClaimsPrincipal? user = GetUserFromHttpContext();
-            if (user != null)
-            {
-                string? oid = user.GetObjectId();
-                string? tid = user.GetTenantId();
-                if (!string.IsNullOrEmpty(oid) && !string.IsNullOrEmpty(tid))
-                {
-                    return $"oid:{oid}@{tid}";
-                }
-            }
-
-            return string.Empty;
         }
 
         internal /*for tests*/ string CreateAuthorityBasedOnTenantIfProvided(
