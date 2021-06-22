@@ -233,14 +233,14 @@
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="T:Microsoft.Identity.Web.CcsHintExtensions">
+        <member name="T:Microsoft.Identity.Web.CcsRoutingHintExtensions">
             <summary>
             Extension methods to send CCS headers.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.CcsHintExtensions.WithCcsRoutingHint``1(Microsoft.Identity.Client.AbstractAcquireTokenParameterBuilder{``0},System.Security.Claims.ClaimsPrincipal)">
+        <member name="M:Microsoft.Identity.Web.CcsRoutingHintExtensions.WithCcsRoutingHint``1(Microsoft.Identity.Client.AbstractAcquireTokenParameterBuilder{``0},System.Security.Claims.ClaimsPrincipal)">
             <summary>
-            Sets the CSS Routing hint.
+            Sets the CCS routing hint.
             </summary>
             <typeparam name="T">Builder type.</typeparam>
             <param name="builder">Builder.</param>

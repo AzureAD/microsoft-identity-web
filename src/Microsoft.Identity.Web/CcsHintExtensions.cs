@@ -11,10 +11,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension methods to send CCS headers.
     /// </summary>
-    public static class CcsHintExtensions
+    internal static class CcsRoutingHintExtensions
     {
         /// <summary>
-        /// Sets the CCS Routing hint.
+        /// Sets the CCS routing hint.
         /// </summary>
         /// <typeparam name="T">Builder type.</typeparam>
         /// <param name="builder">Builder.</param>
@@ -25,16 +25,15 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user)
             where T : AbstractAcquireTokenParameterBuilder<T>
         {
-            string ccsRoutingHint = CreateCcsRoutingHintFromHttpContext(user);
             builder.WithExtraHttpHeaders(new Dictionary<string, string>
             {
-                { Constants.XAnchorMailbox, ccsRoutingHint },
+                { Constants.XAnchorMailbox, CreateCcsRoutingHintFromHttpContext(user) },
             });
 
             return builder;
         }
 
-        private static string CreateCcsRoutingHintFromHttpContext(ClaimsPrincipal? user)
+        internal static string CreateCcsRoutingHintFromHttpContext(ClaimsPrincipal? user)
         {
             if (user != null)
             {
