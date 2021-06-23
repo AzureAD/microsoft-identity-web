@@ -1,3 +1,13 @@
+1.14.0
+==========
+### New Features:
+**Microsoft Identity Web now provides a more simplified developer experience with the MSAL.NET token cache**, available for ASP.NET, .NET Core, or .NET Framework. See issue [#1277](https://github.com/AzureAD/microsoft-identity-web/issues/1277) for details.
+
+**Microsoft Identity Web supports, out of the box, AAD Cached Credential Service (CCS) which operates as an AAD backup**, by sending a routing hint to the /authorize and /token endpoints. See issue [#1146](https://github.com/AzureAD/microsoft-identity-web/issues/1146) for details.
+
+### Bug Fixes:
+**Fix isue regarding specifying multiple decryption certificates**. See issue [#1243](https://github.com/AzureAD/microsoft-identity-web/issues/1243) for details.
+
 1.13.1
 ==========
 ### Bug Fixes:
