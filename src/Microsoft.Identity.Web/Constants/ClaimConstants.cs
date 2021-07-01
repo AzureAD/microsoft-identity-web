@@ -99,5 +99,15 @@ namespace Microsoft.Identity.Web
         /// Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
         /// </summary>
         public const string NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+        /// <summary>
+        /// Optional claim used to determine the token type.
+        /// </summary>
+        public const string Idtyp = "idtyp";
+
+        /// <summary>
+        /// Optional claim used to determine if the user account is a guest account.
+        /// </summary>
+        public const string Acct = "acct";
     }
 }

@@ -110,6 +110,8 @@
     <Compile Remove="DownstreamWebApiSupport\**" />
     <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
+    <Compile Include="Resource\ITokenAuthorizationOptions.cs" />
+    <Compile Include="Resource\TokenAuthorizationRules.cs" />
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />
     <Compile Remove="TokenCacheProviders\Session\**" />

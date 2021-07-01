@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Runtime.Serialization;
+
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -36,6 +38,14 @@ namespace Microsoft.Identity.Web
         public const string BlazorServerUserNotSet = "IDW10206: Using Blazor server but the user was not properly set. ";
         public const string CalledApiScopesAreNull = "IDW10207: The CalledApiScopes cannot be null. ";
         public const string ScopesRequiredToCallMicrosoftGraph = "IDW10208: You need to either pass-in scopes to AddMicrosoftGraph, in the appsettings.json file, or with .WithScopes() on the Graph queries. See https://aka.ms/ms-id-web/microsoftGraph. ";
+        public const string ApiAllowsAppOnlyTokensCantBeComputed = "IDW10209: You set the 'ApiAllowsAppOnlyTokens' configuration to false, but didn't opt-in to the 'idtyp' optional claim in the app registration. See https://aka.ms/ms-id-web/webapi-authorization. ";
+        public const string ApiDoesNotAllowsAppOnlyTokens = "IDW10210: This web API does not allow app-only tokens. ";
+        public const string ApiAllowsGuestAccountsCantBeComputed = "IDW10211: You set the 'ApiAllowsGuestAccounts' configuration to false, but didn't opt-in to the 'acct' optional claim in the app registration. See https://aka.ms/ms-id-web/webapi-authorization. ";
+        public const string ApiDoesNotAllowsGuestAccounts = "IDW10212: This web API does not allow guest accounts. ";
+        public const string ApiAllowedTenantsCantBeComputed = "IDW10213: You set the 'AllowedTenantIds' configuration, but the `tid` or `tenantId` claims are not found. See https://aka.ms/ms-id-web/webapi-authorization. ";
+        public const string ApiTenantNotAllowed = "IDW10214: This web API does not allow this tenant. ";
+        public const string ApiAllowedClientApplicationsCantBeComputed = "IDW10215: You set the 'AllowedClientApplications' configuration, but the `oid` or `objectid` claims are not found. See https://aka.ms/ms-id-web/webapi-authorization. ";
+        public const string ApiClientApplicationNotAllowed = "IDW10216: This web API does not allow this client application. ";
 
         // Token Validation IDW10300 = "IDW10300:"
         public const string IssuerMetadataUrlIsRequired = "IDW10301: Azure AD Issuer metadata address URL is required. ";

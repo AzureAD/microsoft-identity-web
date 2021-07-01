@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -240,6 +241,9 @@ namespace Microsoft.Identity.Web
                         {
                             throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
                         }
+
+                        // Validates the token authorization rules.
+                        TokenAuthorizationRules.ValidateApiAuthorization(mergedOptions, context!.Principal!);
 
                         await tokenValidatedHandler(context).ConfigureAwait(false);
                     };
