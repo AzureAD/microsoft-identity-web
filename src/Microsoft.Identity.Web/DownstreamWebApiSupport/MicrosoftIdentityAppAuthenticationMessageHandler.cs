@@ -48,7 +48,12 @@ namespace Microsoft.Identity.Web
                 options.TokenAcquisitionOptions)
                 .ConfigureAwait(false);
 
-            // add authorization header
+            // add or replace authorization header
+            if (request.Headers.Contains(Constants.Authorization))
+            {
+                request.Headers.Remove(Constants.Authorization);
+            }
+
             request.Headers.Add(
                 Constants.Authorization,
                 authResult.CreateAuthorizationHeader());
