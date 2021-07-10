@@ -175,7 +175,7 @@ namespace Microsoft.Identity.Web
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context!.ProtocolMessage!.Code)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(codeVerifier)
-                    .WithExtraHttpHeaders(new Dictionary<string, string> { { Constants.XAnchorMailbox, ccsRoutingHint } });
+                    .WithCcsRoutingHint(ccsRoutingHint);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -755,12 +755,12 @@ namespace Microsoft.Identity.Web
                     // In the case the token is a JWE (encrypted token), we use the decrypted token.
                     string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
                                                 : validatedToken.InnerToken.RawData;
+
                     var builder = application
                                     .AcquireTokenOnBehalfOf(
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
                                     .WithSendX5C(mergedOptions.SendX5C)
-                                    .WithCcsRoutingHint(GetUserFromHttpContext())
                                     .WithAuthority(authority);
 
                     if (tokenAcquisitionOptions != null)
@@ -773,6 +773,12 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
+                    }
+
+                    ClaimsPrincipal? user = GetUserFromHttpContext();
+                    if (user != null)
+                    {
+                        builder.WithCcsRoutingHint(user.GetObjectId(), user.GetTenantId());
                     }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
@@ -896,8 +902,6 @@ namespace Microsoft.Identity.Web
             {
                 builder.WithAuthority(authority);
             }
-
-            builder.WithCcsRoutingHint(GetUserFromHttpContext());
 
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
