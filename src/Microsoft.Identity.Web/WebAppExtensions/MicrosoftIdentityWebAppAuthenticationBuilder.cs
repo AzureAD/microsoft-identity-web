@@ -120,6 +120,12 @@ namespace Microsoft.Identity.Web
                        MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
                        MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(openIdConnectScheme), mergedOptions); // w/auth scheme
 
+                       ccaOptionsMonitor.OnChange((options, scheme) =>
+                       {
+                           MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
+                           MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(options, mergedOptionsToUpdate);
+                       });
+
                        options.ResponseType = OpenIdConnectResponseType.Code;
 
                        // This scope is needed to get a refresh token when users sign-in with their Microsoft personal accounts

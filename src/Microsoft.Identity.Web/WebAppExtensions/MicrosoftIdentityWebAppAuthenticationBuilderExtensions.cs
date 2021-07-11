@@ -301,6 +301,12 @@ namespace Microsoft.Identity.Web
                     MergedOptionsValidation.Validate(mergedOptions);
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
+                    msIdOptionsMonitor.OnChange( (options, scheme) =>
+                    {
+                        MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
+                        MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptionsToUpdate);
+                    });
+
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
                         openIdConnectScheme,
                         mergedOptions,
