@@ -3081,7 +3081,7 @@
               {
                   // In memory distributed token cache
                   // In net472, requires to reference Microsoft.Extensions.Caching.Memory
-                  services.AddDistributedTokenCaches();
+                  services.AddDistributedTokenCache();
                   services.AddDistributedMemoryCache();
               });
              </code>
@@ -3092,7 +3092,7 @@
              <code>
               app.AddTokenCaches(services =>
               {
-                   services.AddDistributedTokenCaches();
+                   services.AddDistributedTokenCache();
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
                    services.AddStackExchangeRedisCache(options =>
@@ -3102,16 +3102,16 @@
                    });
               });
              </code>
-             If using distributed token caches, use AddDistributedTokenCaches.
+             If using distributed token caches, use AddDistributedTokenCache.
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication)">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication)">
              <summary>
              Add an in-memory well partitioned token cache to MSAL.NET confidential client
              application. Don't use this method in ASP.NET Core: rather use:
-             <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
+             <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
              </summary>
              <param name="confidentialClientApp">Confidential client application.</param>
              <returns>The application for chaining.</returns>
@@ -3120,14 +3120,14 @@
              The following code adds an in-memory token cache.
             
              <code>
-              app.AddInMemoryTokenCaches();
+              app.AddInMemoryTokenCache();
              </code>
             
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
              <summary>
              Add a distributed token cache.
              </summary>
@@ -3140,7 +3140,7 @@
              its configuration.
             
              <code>
-              app.AddDistributedTokenCaches(services =>
+              app.AddDistributedTokenCache(services =>
               {
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis

@@ -103,6 +103,12 @@ namespace Microsoft.Identity.Web
                     MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions);
 
+                    ccaOptionsMonitor.OnChange((options, scheme) =>
+                    {
+                        MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
+                        MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(options, mergedOptionsToUpdate);
+                    });
+
                     options.Events ??= new JwtBearerEvents();
 
                     var onTokenValidatedHandler = options.Events.OnTokenValidated;
