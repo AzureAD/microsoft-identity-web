@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
 
@@ -236,6 +237,16 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
             mergedOptions._confidentialClientApplicationOptions = null;
+
+            mergedOptions.Scope.Clear();
+
+            foreach (var scope in microsoftIdentityOptions.Scope)
+            {
+                if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                {
+                    mergedOptions.Scope.Add(scope);
+                }
+            }
         }
 
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
