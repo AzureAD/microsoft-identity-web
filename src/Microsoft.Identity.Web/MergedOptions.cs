@@ -238,6 +238,8 @@ namespace Microsoft.Identity.Web
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
             mergedOptions._confidentialClientApplicationOptions = null;
 
+            mergedOptions.Scope.Clear();
+
             foreach (var scope in microsoftIdentityOptions.Scope)
             {
                 if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
