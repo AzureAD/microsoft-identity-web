@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web.Resource
                     if (AadIssuerV1 == null)
                     {
                         IssuerMetadata issuerMetadata =
-                            CreateConfigManager(AadAuthority.Replace("/v2.0", string.Empty, StringComparison.OrdinalIgnoreCase)).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                            CreateConfigManager(CreateV1Authority()).GetConfigurationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                         AadIssuerV1 = issuerMetadata.Issuer!;
                     }
 
@@ -134,6 +134,16 @@ namespace Microsoft.Identity.Web.Resource
                     CultureInfo.InvariantCulture,
                     IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
                     actualIssuer));
+        }
+
+        private string CreateV1Authority()
+        {
+            if (AadAuthority.Contains(Constants.Organizations, StringComparison.OrdinalIgnoreCase))
+            {
+                return AadAuthority.Replace($"{Constants.Organizations}/v2.0", Constants.Common, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return AadAuthority.Replace("/v2.0", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         private ConfigurationManager<IssuerMetadata> CreateConfigManager(
