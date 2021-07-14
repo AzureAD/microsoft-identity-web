@@ -1,3 +1,10 @@
+1.14.1
+==========
+### Bug Fixes:
+**Fix an issue with issuer validation with v1 tokens using `/organizations`**. See issues [#1310](https://github.com/AzureAD/microsoft-identity-web/issues/1310) and [#1290](https://github.com/AzureAD/microsoft-identity-web/issues/1290).
+**Deterministic builds are now enabled on Azure DevOps**. See issue [#1308](https://github.com/AzureAD/microsoft-identity-web/issues/1308).
+**Fix `MergedOption` to merge the scopes**. See issue [#1296](https://github.com/AzureAD/microsoft-identity-web/issues/1296).
+
 1.14.0
 ==========
 ### New Features:
