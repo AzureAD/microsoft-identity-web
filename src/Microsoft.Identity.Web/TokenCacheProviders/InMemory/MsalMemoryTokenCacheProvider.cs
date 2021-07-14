@@ -73,9 +73,30 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
         protected override Task WriteCacheBytesAsync(string cacheKey, byte[] bytes)
         {
+            return WriteCacheBytesAsync(cacheKey, bytes, new CacheSerializerHints());
+        }
+
+        /// <summary>
+        /// Writes a token cache blob to the serialization cache (identified by its key).
+        /// </summary>
+        /// <param name="cacheKey">Token cache key.</param>
+        /// <param name="bytes">Bytes to write.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
+        protected override Task WriteCacheBytesAsync(
+            string cacheKey,
+            byte[] bytes,
+            CacheSerializerHints cacheSerializerHints)
+        {
+            TimeSpan? cacheExpiry = null;
+            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
+            {
+                cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
+            }
+
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
-                AbsoluteExpirationRelativeToNow = _cacheOptions.AbsoluteExpirationRelativeToNow,
+                AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
                 Size = bytes?.Length,
             };
 

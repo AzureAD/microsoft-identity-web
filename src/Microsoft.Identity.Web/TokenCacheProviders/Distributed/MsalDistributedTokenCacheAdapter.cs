@@ -191,9 +191,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             CacheSerializerHints cacheSerializerHints)
         {
             string write = "Write";
+
+            TimeSpan? cacheExpiry = null;
+            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
+            {
+                cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
+            }
+
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
-                AbsoluteExpirationRelativeToNow = _expirationTime,
+                AbsoluteExpirationRelativeToNow = cacheExpiry ?? _expirationTime,
                 Size = bytes?.Length,
             };
 
@@ -204,7 +211,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             await L2OperationWithRetryOnFailureAsync(
                 write,
-                (cacheKey) => _distributedCache.SetAsync(cacheKey, bytes, _distributedCacheOptions, cacheSerializerHints.CancellationToken),
+                (cacheKey) => _distributedCache.SetAsync(
+                    cacheKey,
+                    bytes,
+                    _distributedCacheOptions,
+                    cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                 cacheKey).Measure().ConfigureAwait(false);
         }
 
