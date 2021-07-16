@@ -79,30 +79,37 @@ namespace ConfigureGeneratedApplications
 
             if (filePath.EndsWith(".json"))
             {
-                string fileContent = System.IO.File.ReadAllText(filePath);
-                JsonElement jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
-                                                                                  serializerOptionsWithComments);
-
-                foreach (PropertyMapping propertyMapping in file.Properties)
+                if (System.IO.File.Exists(filePath))
                 {
-                    string value = configuration.GetParameterValue(propertyMapping.SetFrom);
-                    Console.WriteLine($"{propertyMapping.Property} = '{value}'");
+                    string fileContent = System.IO.File.ReadAllText(filePath);
+                    JsonElement jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
+                                                                                      serializerOptionsWithComments);
 
-                    string[] path = propertyMapping.Property.Split(':');
-
-                    JsonElement element = jsonContent;
-                    foreach (string segment in path)
+                    foreach (PropertyMapping propertyMapping in file.Properties)
                     {
-                        JsonProperty prop = element.EnumerateObject().FirstOrDefault(e => e.Name == segment);
-                        element = prop.Value;
+                        string value = configuration.GetParameterValue(propertyMapping.SetFrom);
+                        Console.WriteLine($"{propertyMapping.Property} = '{value}'");
+
+                        string[] path = propertyMapping.Property.Split(':');
+
+                        JsonElement element = jsonContent;
+                        foreach (string segment in path)
+                        {
+                            JsonProperty prop = element.EnumerateObject().FirstOrDefault(e => e.Name == segment);
+                            element = prop.Value;
+                        }
+
+                        string replaceFrom = element.ValueKind == JsonValueKind.Number ? element.GetInt32().ToString(CultureInfo.InvariantCulture) : element.ToString();
+                        int index = GetIndex(element);
+                        int length = replaceFrom.Length;
+                        string replaceBy = configuration.GetParameterValue(propertyMapping.SetFrom);
+
+                        AddReplacement(filePath, index, length, replaceFrom, replaceBy);
                     }
-
-                    string replaceFrom = element.ValueKind == JsonValueKind.Number ? element.GetInt32().ToString(CultureInfo.InvariantCulture) : element.ToString();
-                    int index = GetIndex(element);
-                    int length = replaceFrom.Length;
-                    string replaceBy = configuration.GetParameterValue(propertyMapping.SetFrom);
-
-                    AddReplacement(filePath, index, length, replaceFrom, replaceBy);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"File doesn't exist `{filePath}`");
                 }
             }
 
