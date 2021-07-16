@@ -1018,49 +1018,9 @@
             Path relative to the <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.BaseUrl"/> (for instance "me").
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.Scopes">
-            <summary>
-            Space separated scopes required to call the downstream web API.
-            For instance "user.read mail.read".
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.Tenant">
-            <summary>
-            [Optional] tenant ID. This is used for specific scenarios where
-            the application needs to call a downstream web API on  behalf of a user in several tenants.
-            It would mostly be used from code, not from the configuration.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.UserFlow">
-            <summary>
-            [Optional]. User flow (in the case of a B2C downstream web API). If not
-            specified, the B2C downstream web API will be called with the default user flow from
-            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
-            </summary>
-        </member>
         <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod">
             <summary>
             HTTP method used to call this downstream web API (by default Get).
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.IsProofOfPossessionRequest">
-            <summary>
-            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
-            rather than a Bearer token.
-            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
-            which MSAL can manage. See https://aka.ms/msal-net-pop.
-            Set to true to enable PoP tokens automatically.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.TokenAcquisitionOptions">
-            <summary>
-             Options passed-in to create the token acquisition object which calls into MSAL .NET.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.AuthenticationScheme">
-            <summary>
-            Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.Clone">
@@ -1074,12 +1034,6 @@
             Return the downstream web API URL.
             </summary>
             <returns>URL of the downstream web API.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.GetScopes">
-            <summary>
-            Returns the scopes.
-            </summary>
-            <returns>Scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.System#ICloneable#Clone">
             <summary>
@@ -1257,6 +1211,173 @@
             <param name="content">HTTP content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler">
+            <summary>
+            A DelegatingHandler implementation that add an authorization header with a token for the application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler"/> class.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition service.</param>
+            <param name="namedMessageHandlerOptions">Named options provider.</param>
+            <param name="serviceName">Name of the service describing the downstream web API.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler">
+            <summary>
+            Base class for Microsoft Identity authentication message handlers.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler.TokenAcquisition">
+            <summary>
+            Gets the token acquisition service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler"/> class.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition service.</param>
+            <param name="namedMessageHandlerOptions">Named options provider.</param>
+            <param name="serviceName">Name of the service describing the downstream web API.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler.GetOptionsForRequest(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Gets the options for the specified request.
+            </summary>
+            <param name="request">The request.</param>
+            <returns>The configured options.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions">
+            <summary>
+            Base options passed-in to authenticate with Microsoft Identity.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.Scopes">
+            <summary>
+            Space separated scopes required to call the downstream web API.
+            For instance "user.read mail.read".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.Tenant">
+            <summary>
+            [Optional] tenant ID. This is used for specific scenarios where
+            the application needs to call a downstream web API on  behalf of a user in several tenants.
+            It would mostly be used from code, not from the configuration.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.UserFlow">
+            <summary>
+            [Optional]. User flow (in the case of a B2C downstream web API). If not
+            specified, the B2C downstream web API will be called with the default user flow from
+            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.IsProofOfPossessionRequest">
+            <summary>
+            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+            rather than a Bearer token.
+            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+            which MSAL can manage. See https://aka.ms/msal-net-pop.
+            Set to true to enable PoP tokens automatically.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.TokenAcquisitionOptions">
+            <summary>
+             Options passed-in to create the token acquisition object which calls into MSAL .NET.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.AuthenticationScheme">
+            <summary>
+            Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.GetScopes">
+            <summary>
+            Returns the scopes.
+            </summary>
+            <returns>Scopes.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions">
+            <summary>
+            Extension for IHttpClientBuilder for startup initialization of Microsoft Identity authentication handlers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds a named Microsoft Identity user authentication message handler related to a specific configuration section.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="serviceName">Name of the configuration for the service.</param>
+            <param name="configuration">Configuration.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+            <summary>
+            Adds a named Microsoft Identity user authentication message handler initialized with delegates.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="serviceName">Name of the configuration for the service.</param>
+            <param name="configureOptions">Action to configure the options.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds a named Microsoft Identity application authentication message handler related to a specific configuration section.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="serviceName">Name of the configuration for the service.</param>
+            <param name="configuration">Configuration.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+            <summary>
+            Adds a named Microsoft Identity application authentication message handler initialized with delegates.
+            </summary>
+            <param name="builder">Builder.</param>
+            <param name="serviceName">Name of the configuration for the service.</param>
+            <param name="configureOptions">Action to configure the options.</param>
+            <returns>The builder for chaining.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions">
+            <summary>
+            Options passed-in to Microsoft Identity message handlers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.Clone">
+            <summary>
+            Clone the options (to be able to override them).
+            </summary>
+            <returns>A clone of the options.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.System#ICloneable#Clone">
+            <summary>
+            Clone the options (to be able to override them).
+            </summary>
+            <returns>A clone of the options.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler">
+            <summary>
+            A DelegatingHandler implementation that add an authorization header with a token on behalf of the current user.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions},Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler"/> class.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition service.</param>
+            <param name="namedMessageHandlerOptions">Named options provider.</param>
+            <param name="microsoftIdentityOptions">Configuration options.</param>
+            <param name="serviceName">Name of the service describing the downstream web API.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.Extensions">
             <summary>
@@ -3081,7 +3202,7 @@
               {
                   // In memory distributed token cache
                   // In net472, requires to reference Microsoft.Extensions.Caching.Memory
-                  services.AddDistributedTokenCaches();
+                  services.AddDistributedTokenCache();
                   services.AddDistributedMemoryCache();
               });
              </code>
@@ -3092,7 +3213,7 @@
              <code>
               app.AddTokenCaches(services =>
               {
-                   services.AddDistributedTokenCaches();
+                   services.AddDistributedTokenCache();
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
                    services.AddStackExchangeRedisCache(options =>
@@ -3102,16 +3223,16 @@
                    });
               });
              </code>
-             If using distributed token caches, use AddDistributedTokenCaches.
+             If using distributed token caches, use AddDistributedTokenCache.
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication)">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication)">
              <summary>
              Add an in-memory well partitioned token cache to MSAL.NET confidential client
              application. Don't use this method in ASP.NET Core: rather use:
-             <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
+             <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
              </summary>
              <param name="confidentialClientApp">Confidential client application.</param>
              <returns>The application for chaining.</returns>
@@ -3120,14 +3241,14 @@
              The following code adds an in-memory token cache.
             
              <code>
-              app.AddInMemoryTokenCaches();
+              app.AddInMemoryTokenCache();
              </code>
             
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
              <summary>
              Add a distributed token cache.
              </summary>
@@ -3140,7 +3261,7 @@
              its configuration.
             
              <code>
-              app.AddDistributedTokenCaches(services =>
+              app.AddDistributedTokenCache(services =>
               {
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
