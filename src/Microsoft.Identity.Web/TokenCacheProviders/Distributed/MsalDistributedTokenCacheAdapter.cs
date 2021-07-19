@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
                                             ILogger<MsalDistributedTokenCacheAdapter> logger,
                                             IServiceProvider? serviceProvider = null)
-            : base(serviceProvider)
+            : base(GetServiceProvider(distributedCacheOptions, serviceProvider))
         {
             if (distributedCacheOptions == null)
             {
@@ -66,6 +66,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 _expirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
             }
+        }
+
+        private static IServiceProvider? GetServiceProvider(
+            IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
+            IServiceProvider? serviceProvider)
+        {
+            if (distributedCacheOptions == null)
+            {
+                throw new ArgumentNullException(nameof(distributedCacheOptions));
+            }
+
+            return distributedCacheOptions.Value.Encrypt ? serviceProvider : null;
         }
 
         /// <summary>

@@ -39,12 +39,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <param name="session">Session for the current user.</param>
         /// <param name="logger">Logger.</param>
-        /// <param name="serviceProvider">Service provider.</param>
         public MsalSessionTokenCacheProvider(
             ISession session,
-            ILogger<MsalSessionTokenCacheProvider> logger,
-            IServiceProvider? serviceProvider = null)
-            : base(serviceProvider)
+            ILogger<MsalSessionTokenCacheProvider> logger)
+            : base(null)
         {
             _session = session;
             _logger = logger;
