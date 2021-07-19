@@ -22,6 +22,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     {
         private readonly IServiceProvider? _serviceProvider;
         private readonly IDataProtector? _protector;
+        private string DefaultPurpose = "msal_cache";
 
         /// <summary>
         /// Constructor.
@@ -34,9 +35,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             {
                 IDataProtectionProvider? dataProtectionProvider = _serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
 #if DOTNET_472 || DOTNET_462
-                _protector = dataProtectionProvider?.Create("msal_cache");
+                _protector = dataProtectionProvider?.Create(DefaultPurpose);
 #else
-                _protector = dataProtectionProvider?.CreateProtector("msal_cache");
+                _protector = dataProtectionProvider?.CreateProtector(DefaultPurpose);
 #endif
             }
         }
