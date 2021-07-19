@@ -39,10 +39,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="distributedCache">Distributed cache instance to use.</param>
         /// <param name="distributedCacheOptions">Options for the token cache.</param>
         /// <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+        /// <param name="serviceProvider">Service provider.</param>
         public MsalDistributedTokenCacheAdapter(
                                             IDistributedCache distributedCache,
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
-                                            ILogger<MsalDistributedTokenCacheAdapter> logger)
+                                            ILogger<MsalDistributedTokenCacheAdapter> logger,
+                                            IServiceProvider? serviceProvider = null)
+            : base(serviceProvider)
         {
             if (distributedCacheOptions == null)
             {

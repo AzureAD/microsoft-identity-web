@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -38,9 +39,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <param name="session">Session for the current user.</param>
         /// <param name="logger">Logger.</param>
+        /// <param name="serviceProvider">Service provider.</param>
         public MsalSessionTokenCacheProvider(
             ISession session,
-            ILogger<MsalSessionTokenCacheProvider> logger)
+            ILogger<MsalSessionTokenCacheProvider> logger,
+            IServiceProvider? serviceProvider = null)
+            : base(serviceProvider)
         {
             _session = session;
             _logger = logger;
