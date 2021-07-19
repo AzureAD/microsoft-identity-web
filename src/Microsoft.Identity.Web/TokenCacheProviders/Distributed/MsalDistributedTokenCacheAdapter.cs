@@ -77,6 +77,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 throw new ArgumentNullException(nameof(distributedCacheOptions));
             }
 
+            // returns serviceProvider if Encrypt is true, otherwise null.
             return distributedCacheOptions.Value.Encrypt ? serviceProvider : null;
         }
 
