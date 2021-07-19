@@ -58,6 +58,7 @@
     <Compile Include="Certificates\CertificateDescriptionTests.cs"/>
     <Compile Include="Certificates\DefaultCertificateLoaderTests.cs"/>
     <Compile Include="CacheExtensionsTests.cs"/>
+    <Compile Include="CacheEncryptionTests.cs"/>
   </ItemGroup>
 
 </Project>

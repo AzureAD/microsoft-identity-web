@@ -2,8 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+#if DOTNET_472 || DOTNET_462
+using IDataProtectionProvider = Microsoft.Owin.Security.DataProtection.IDataProtectionProvider;
+using IDataProtector = Microsoft.Owin.Security.DataProtection.IDataProtector;
+#else
+using IDataProtectionProvider = Microsoft.AspNetCore.DataProtection.IDataProtectionProvider;
+using IDataProtector = Microsoft.AspNetCore.DataProtection.IDataProtector;
+#endif
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
@@ -13,6 +21,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// <seealso cref="Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
+        private readonly IDataProtector? _protector;
+        private const string DefaultPurpose = "msal_cache";
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+        /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        protected MsalAbstractTokenCacheProvider(IServiceProvider? serviceProvider = null)
+        {
+            if (serviceProvider != null)
+            {
+                IDataProtectionProvider? dataProtectionProvider = serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
+#if DOTNET_472 || DOTNET_462
+                _protector = dataProtectionProvider?.Create(DefaultPurpose);
+#else
+                _protector = dataProtectionProvider?.CreateProtector(DefaultPurpose);
+#endif
+            }
+        }
+
         /// <summary>
         /// Initializes the token cache serialization.
         /// </summary>
@@ -56,7 +85,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey, args.TokenCache.SerializeMsalV3(), cacheSerializerHints).ConfigureAwait(false);
+                    await WriteCacheBytesAsync(args.SuggestedCacheKey, ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
                 }
                 else
                 {
@@ -66,6 +95,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
+        private byte[] ProtectBytes(byte[] msalBytes)
+        {
+            if (msalBytes != null && _protector != null)
+            {
+                return _protector.Protect(msalBytes);
+            }
+
+            return msalBytes!;
+        }
+
         private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
@@ -73,8 +112,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
             {
                 byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
-                args.TokenCache.DeserializeMsalV3(tokenCacheBytes, shouldClearExistingCache: true);
+
+                args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
             }
+        }
+
+        private byte[] UnprotectBytes(byte[] msalBytes)
+        {
+            if (msalBytes != null && _protector != null)
+            {
+                try
+                {
+                    return _protector.Unprotect(msalBytes);
+                }
+                catch (CryptographicException)
+                {
+                    // Also handles case of previously unencrypted cache
+                    return msalBytes;
+                }
+              }
+
+            return msalBytes!;
         }
 
         /// <summary>
