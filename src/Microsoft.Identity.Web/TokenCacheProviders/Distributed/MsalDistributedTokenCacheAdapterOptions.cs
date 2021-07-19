@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <summary>
         /// Should the token cache be encrypted.
         /// </summary>
+        /// The default is <c>false.</c>
         public bool Encrypt { get; set; }
     }
 }
