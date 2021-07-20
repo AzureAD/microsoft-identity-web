@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Xunit;
 
@@ -14,8 +15,8 @@ namespace Microsoft.Identity.Web.Test
 {
     public class L1L2CacheTests
     {
-        private const string _defaultCacheKey = "default-key";
-        private const string _anotherCacheKey = "another-key";
+        private const string DefaultCacheKey = "default-key";
+        private const string AnotherCacheKey = "another-key";
         private ServiceProvider _provider;
         private readonly TestMsalDistributedTokenCacheAdapter _testCacheAdapter;
 
@@ -43,7 +44,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache.dict);
 
             // Act
-            await _testCacheAdapter.TestWriteCacheBytesAsync(_defaultCacheKey, cache).ConfigureAwait(false);
+            await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
@@ -58,12 +59,12 @@ namespace Microsoft.Identity.Web.Test
             cache[0] = 4;
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
-            _testCacheAdapter._memoryCache.Set(_defaultCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
+            _testCacheAdapter._memoryCache.Set(DefaultCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache.dict);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(4, result[0]);
@@ -76,12 +77,12 @@ namespace Microsoft.Identity.Web.Test
             byte[] cache = new byte[3];
             cache[0] = 4;
             AssertCacheValues(_testCacheAdapter);
-            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cache);
+            _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cache);
             Assert.Single(L2Cache.dict);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(4, result[0]);
@@ -99,7 +100,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result);
@@ -116,11 +117,11 @@ namespace Microsoft.Identity.Web.Test
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache.dict);
-            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
+            _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result);
@@ -137,18 +138,18 @@ namespace Microsoft.Identity.Web.Test
             cacheL2[0] = 9;
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
-            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
-            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+            _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache.dict);
 
             // Act & Assert
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(_defaultCacheKey).ConfigureAwait(false);
+            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(9, result[0]);
             Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache.dict);
 
-            byte[] result2 = await _testCacheAdapter.TestReadCacheBytesAsync(_anotherCacheKey).ConfigureAwait(false);
+            byte[] result2 = await _testCacheAdapter.TestReadCacheBytesAsync(AnotherCacheKey).ConfigureAwait(false);
             Assert.Equal(4, result2[0]);
             Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache.dict);
@@ -162,11 +163,11 @@ namespace Microsoft.Identity.Web.Test
             cacheL1[0] = 4;
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
-            _testCacheAdapter._memoryCache.Set(_defaultCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            _testCacheAdapter._memoryCache.Set(DefaultCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+            await _testCacheAdapter.TestRemoveKeyAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
@@ -180,11 +181,11 @@ namespace Microsoft.Identity.Web.Test
             cacheL2[0] = 4;
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
-            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+            _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);
             Assert.Single(L2Cache.dict);
 
             // Act
-            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+            await _testCacheAdapter.TestRemoveKeyAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
@@ -199,14 +200,14 @@ namespace Microsoft.Identity.Web.Test
             byte[] cacheL2 = new byte[2];
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
-            _testCacheAdapter._memoryCache.Set(_anotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
-            _testCacheAdapter._distributedCache.Set(_defaultCacheKey, cacheL2);
+            _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
+            _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);
 
             // Act & Assert
-            await _testCacheAdapter.TestRemoveKeyAsync(_defaultCacheKey).ConfigureAwait(false);
+            await _testCacheAdapter.TestRemoveKeyAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache.dict);
-            await _testCacheAdapter.TestRemoveKeyAsync(_anotherCacheKey).ConfigureAwait(false);
+            await _testCacheAdapter.TestRemoveKeyAsync(AnotherCacheKey).ConfigureAwait(false);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache.dict);
         }
@@ -229,38 +230,6 @@ namespace Microsoft.Identity.Web.Test
         private static IDistributedCache MakeMockDistributedCache()
         {
             return new TestDistributedCache();
-        }
-    }
-
-    public class TestMsalDistributedTokenCacheAdapter : MsalDistributedTokenCacheAdapter
-    {
-        /// <summary>
-        /// This is standard text.
-        /// </summary>
-        /// <param name="distributedCache">l2.</param>
-        /// <param name="distributedCacheOptions">l2 options.</param>
-        /// <param name="logger">logger.</param>
-        public TestMsalDistributedTokenCacheAdapter(
-            IDistributedCache distributedCache,
-            IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
-            ILogger<MsalDistributedTokenCacheAdapter> logger)
-            : base(distributedCache, distributedCacheOptions, logger)
-        {
-        }
-
-        public async Task TestRemoveKeyAsync(string cacheKey)
-        {
-            await RemoveKeyAsync(cacheKey).ConfigureAwait(false);
-        }
-
-        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes)
-        {
-            await WriteCacheBytesAsync(cacheKey, bytes).ConfigureAwait(false);
-        }
-
-        public async Task<byte[]> TestReadCacheBytesAsync(string cacheKey)
-        {
-            return await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
         }
     }
 }
