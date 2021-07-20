@@ -5,6 +5,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Xunit;
 
