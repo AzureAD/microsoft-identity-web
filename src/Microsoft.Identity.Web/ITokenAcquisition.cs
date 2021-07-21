@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     public interface ITokenAcquisition
     {
         /// <summary>
-        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
         /// <summary>
-        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
+        /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
