@@ -39,5 +39,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// Default is 1.
         /// </summary>
         internal double L1ExpirationTimeRatio { get; set; } = 1;
+
+        /// <summary>
+        /// Should the token cache be encrypted.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool Encrypt { get; set; }
     }
 }

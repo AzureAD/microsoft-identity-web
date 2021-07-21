@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         private readonly TimeSpan? _expirationTime;
         private readonly string _distributedCacheType = "DistributedCache"; // for logging
         private readonly string _memoryCacheType = "MemoryCache"; // for logging
+        private const string DefaultPurpose = "msal_cache";
 
         /// <summary>
         /// MSAL distributed token cache options.
@@ -39,10 +41,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="distributedCache">Distributed cache instance to use.</param>
         /// <param name="distributedCacheOptions">Options for the token cache.</param>
         /// <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+        /// <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+        /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
         public MsalDistributedTokenCacheAdapter(
                                             IDistributedCache distributedCache,
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
-                                            ILogger<MsalDistributedTokenCacheAdapter> logger)
+                                            ILogger<MsalDistributedTokenCacheAdapter> logger,
+                                            IServiceProvider? serviceProvider = null)
+            : base(GetDataProtector(distributedCacheOptions, serviceProvider))
         {
             if (distributedCacheOptions == null)
             {
@@ -63,6 +69,24 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 _expirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
             }
+        }
+
+        private static IDataProtector? GetDataProtector(
+            IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
+            IServiceProvider? serviceProvider)
+        {
+            if (distributedCacheOptions == null)
+            {
+                throw new ArgumentNullException(nameof(distributedCacheOptions));
+            }
+
+            if (serviceProvider != null && distributedCacheOptions.Value.Encrypt)
+            {
+                IDataProtectionProvider? dataProtectionProvider = serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
+                return dataProtectionProvider?.CreateProtector(DefaultPurpose);
+            }
+
+            return null;
         }
 
         /// <summary>

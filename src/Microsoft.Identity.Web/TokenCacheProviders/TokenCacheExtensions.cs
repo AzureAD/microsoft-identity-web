@@ -80,6 +80,7 @@ namespace Microsoft.Identity.Web
                 .ConfigureServices(services =>
                  {
                      initializeCaches(services);
+                     services.AddDataProtection();
                  });
 
             IServiceProvider serviceProvider = hostBuilder.Build().Services;

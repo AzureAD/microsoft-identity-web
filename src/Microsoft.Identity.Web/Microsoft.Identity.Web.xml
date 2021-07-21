@@ -2498,6 +2498,12 @@
             CancellationToken enabling cooperative cancellation between threads, thread pool, or Task objects.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.SuggestedCacheExpiry">
+            <summary>
+            Suggested cache expiry based on the in-coming token. Use to optimize cache eviction
+            with the app token cache.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
             <summary>
             Extension class used to add distributed token cache serializer to MSAL.
@@ -2529,13 +2535,15 @@
             MSAL distributed token cache options.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter},System.IServiceProvider)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
             </summary>
             <param name="distributedCache">Distributed cache instance to use.</param>
             <param name="distributedCacheOptions">Options for the token cache.</param>
             <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+            <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+            will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
             <summary>
@@ -2720,6 +2728,12 @@
             Default is 1.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.Encrypt">
+            <summary>
+            Should the token cache be encrypted.
+            </summary>
+            The default is <c>false.</c>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
             <summary>
             MSAL token cache provider interface.
@@ -2820,11 +2834,27 @@
             <param name="bytes">Bytes to write.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Writes a token cache blob to the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
             <summary>
             Token cache provider with default implementation.
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.AspNetCore.DataProtection.IDataProtector)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="dataProtector">Service provider. Can be null, in which case the token cache
+            will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
             <summary>
@@ -3081,7 +3111,7 @@
               {
                   // In memory distributed token cache
                   // In net472, requires to reference Microsoft.Extensions.Caching.Memory
-                  services.AddDistributedTokenCaches();
+                  services.AddDistributedTokenCache();
                   services.AddDistributedMemoryCache();
               });
              </code>
@@ -3092,7 +3122,7 @@
              <code>
               app.AddTokenCaches(services =>
               {
-                   services.AddDistributedTokenCaches();
+                   services.AddDistributedTokenCache();
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
                    services.AddStackExchangeRedisCache(options =>
@@ -3102,16 +3132,16 @@
                    });
               });
              </code>
-             If using distributed token caches, use AddDistributedTokenCaches.
+             If using distributed token caches, use AddDistributedTokenCache.
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication)">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication)">
              <summary>
              Add an in-memory well partitioned token cache to MSAL.NET confidential client
              application. Don't use this method in ASP.NET Core: rather use:
-             <code>services.AddInMemoryTokenCaches()</code> in ConfigureServices.
+             <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
              </summary>
              <param name="confidentialClientApp">Confidential client application.</param>
              <returns>The application for chaining.</returns>
@@ -3120,14 +3150,14 @@
              The following code adds an in-memory token cache.
             
              <code>
-              app.AddInMemoryTokenCaches();
+              app.AddInMemoryTokenCache();
              </code>
             
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
              <summary>
              Add a distributed token cache.
              </summary>
@@ -3140,7 +3170,7 @@
              its configuration.
             
              <code>
-              app.AddDistributedTokenCaches(services =>
+              app.AddDistributedTokenCache(services =>
               {
                    // Redis token cache
                    // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis

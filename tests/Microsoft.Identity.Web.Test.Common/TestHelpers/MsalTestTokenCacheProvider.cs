@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
         public MsalTestTokenCacheProvider(
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : base(null)
         {
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions?.Value;
