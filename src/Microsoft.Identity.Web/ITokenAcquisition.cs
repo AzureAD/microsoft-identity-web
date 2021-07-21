@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
-        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
-        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
-        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller, this method gets an access token
-        /// for a downstream API on behalf of the user account which claims are provided in the <see cref="HttpContext.User"/>
+        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
         /// member of the controller's <see cref="HttpContext"/> parameter.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
