@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using TodoListService.Models;
 
 namespace TodoListService.Controllers
@@ -55,7 +55,7 @@ namespace TodoListService.Controllers
             var result2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read.all" },
                 tokenAcquisitionOptions: new TokenAcquisitionOptions { ForceRefresh = true }).ConfigureAwait(false); // for testing OBO
 
-            RegisterPeriodicCallbackForLongProcessing();
+            await RegisterPeriodicCallbackForLongProcessing(null);
 
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
@@ -68,14 +68,15 @@ namespace TodoListService.Controllers
         /// This methods the processing of user data where the web API periodically checks the user
         /// date (think of OneDrive producing albums)
         /// </summary>
-        private void RegisterPeriodicCallbackForLongProcessing()
+        private async Task RegisterPeriodicCallbackForLongProcessing(string keyHint)
         {
             // Get the token incoming to the web API - we could do better here.
-            string key = _longRunningProcessAssertionCache.CreateKey(HttpContext);
+            string key = await _longRunningProcessAssertionCache.CreateKey(HttpContext, keyHint);
 
             // Build the URL to the callback controller, based on the request.
             var request = HttpContext.Request;
-            string url = request.Scheme + "://" + request.Host + request.Path.Value.Replace("todolist", "callback") + $"?key={key}";
+            string endpointPath = request.Path.Value.Replace("todolist", "callback", StringComparison.OrdinalIgnoreCase);
+            string url = $"{request.Scheme}://{request.Host}{endpointPath}?key={key}";
 
             // Setup a timer so that the API calls back the callback every 10 mins.
             Timer timer = new Timer(async (state) =>
