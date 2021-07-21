@@ -13,9 +13,6 @@ using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Xunit;
-#if DOTNET_472 || DOTNET_462
-using Microsoft.Owin.Security.DataProtection;
-#endif
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -67,11 +64,7 @@ namespace Microsoft.Identity.Web.Test
                .ConfigureLogging(logger => { })
                .ConfigureServices(services =>
                {
-#if DOTNET_472 || DOTNET_462
-                   services.AddSingleton<IDataProtectionProvider, DpapiDataProtectionProvider>();
-#else
                    services.AddDataProtection();
-#endif
                    services.AddLogging();
                    services.AddDistributedTokenCaches();
                    services.AddSingleton<IMsalTokenCacheProvider, TestMsalDistributedTokenCacheAdapter>();
