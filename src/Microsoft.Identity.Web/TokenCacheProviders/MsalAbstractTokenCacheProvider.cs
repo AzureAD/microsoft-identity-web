@@ -4,14 +4,8 @@
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
-#if DOTNET_472 || DOTNET_462
-using IDataProtectionProvider = Microsoft.Owin.Security.DataProtection.IDataProtectionProvider;
-using IDataProtector = Microsoft.Owin.Security.DataProtection.IDataProtector;
-#else
-using IDataProtectionProvider = Microsoft.AspNetCore.DataProtection.IDataProtectionProvider;
-using IDataProtector = Microsoft.AspNetCore.DataProtection.IDataProtector;
-#endif
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
@@ -34,11 +28,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             if (serviceProvider != null)
             {
                 IDataProtectionProvider? dataProtectionProvider = serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
-#if DOTNET_472 || DOTNET_462
-                _protector = dataProtectionProvider?.Create(DefaultPurpose);
-#else
                 _protector = dataProtectionProvider?.CreateProtector(DefaultPurpose);
-#endif
             }
         }
 

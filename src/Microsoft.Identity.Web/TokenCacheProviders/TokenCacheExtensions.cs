@@ -8,9 +8,6 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-#if DOTNET_472 || DOTNET_462
-using Microsoft.Owin.Security.DataProtection;
-#endif
 
 namespace Microsoft.Identity.Web
 {
@@ -83,9 +80,7 @@ namespace Microsoft.Identity.Web
                 .ConfigureServices(services =>
                  {
                      initializeCaches(services);
-#if DOTNET_472 || DOTNET_462
-                     services.AddSingleton<IDataProtectionProvider, DpapiDataProtectionProvider>();
-#endif
+                     services.AddDataProtection();
                  });
 
             IServiceProvider serviceProvider = hostBuilder.Build().Services;
