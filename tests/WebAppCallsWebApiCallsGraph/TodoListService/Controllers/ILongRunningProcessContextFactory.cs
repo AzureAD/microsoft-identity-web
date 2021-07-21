@@ -1,12 +1,11 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace TodoListService
 {
     public interface ILongRunningProcessContextFactory
     {
-        string CreateKey(HttpContext http);
-        LongRunningProcessContext UseKey(HttpContext httpContext, string key);
+        Task<string> CreateKey(HttpContext http, string keyHint = null);
+        Task<LongRunningProcessContext> UseKey(HttpContext httpContext, string key);
     }
 }
