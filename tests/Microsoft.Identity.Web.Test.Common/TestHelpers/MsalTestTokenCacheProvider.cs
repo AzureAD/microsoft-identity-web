@@ -14,9 +14,8 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
     {
         public MsalTestTokenCacheProvider(
             IMemoryCache memoryCache,
-            IOptions<MsalMemoryTokenCacheOptions> cacheOptions,
-            IServiceProvider serviceProvider = null)
-            : base(serviceProvider)
+            IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : base(null)
         {
             MemoryCache = memoryCache;
             _cacheOptions = cacheOptions?.Value;

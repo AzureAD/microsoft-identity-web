@@ -2849,11 +2849,11 @@
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(System.IServiceProvider)">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.AspNetCore.DataProtection.IDataProtector)">
             <summary>
             Constructor.
             </summary>
-            <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+            <param name="dataProtector">Service provider. Can be null, in which case the token cache
             will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">

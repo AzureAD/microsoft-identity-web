@@ -16,20 +16,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
         private readonly IDataProtector? _protector;
-        private const string DefaultPurpose = "msal_cache";
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+        /// <param name="dataProtector">Service provider. Can be null, in which case the token cache
         /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
-        protected MsalAbstractTokenCacheProvider(IServiceProvider? serviceProvider = null)
+        protected MsalAbstractTokenCacheProvider(IDataProtector? dataProtector = null)
         {
-            if (serviceProvider != null)
-            {
-                IDataProtectionProvider? dataProtectionProvider = serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
-                _protector = dataProtectionProvider?.CreateProtector(DefaultPurpose);
-            }
+            _protector = dataProtector;
         }
 
         /// <summary>
@@ -120,7 +115,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                     // Also handles case of previously unencrypted cache
                     return msalBytes;
                 }
-              }
+            }
 
             return msalBytes!;
         }

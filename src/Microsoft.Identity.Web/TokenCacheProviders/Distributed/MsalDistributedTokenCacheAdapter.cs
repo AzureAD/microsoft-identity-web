@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         private readonly TimeSpan? _expirationTime;
         private readonly string _distributedCacheType = "DistributedCache"; // for logging
         private readonly string _memoryCacheType = "MemoryCache"; // for logging
+        private const string DefaultPurpose = "msal_cache";
 
         /// <summary>
         /// MSAL distributed token cache options.
@@ -46,7 +48,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
                                             ILogger<MsalDistributedTokenCacheAdapter> logger,
                                             IServiceProvider? serviceProvider = null)
-            : base(GetServiceProvider(distributedCacheOptions, serviceProvider))
+            : base(GetDataProtector(distributedCacheOptions, serviceProvider))
         {
             if (distributedCacheOptions == null)
             {
@@ -69,7 +71,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             }
         }
 
-        private static IServiceProvider? GetServiceProvider(
+        private static IDataProtector? GetDataProtector(
             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
             IServiceProvider? serviceProvider)
         {
@@ -78,8 +80,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 throw new ArgumentNullException(nameof(distributedCacheOptions));
             }
 
-            // returns serviceProvider if Encrypt is true, otherwise null.
-            return distributedCacheOptions.Value.Encrypt ? serviceProvider : null;
+            if (serviceProvider != null && distributedCacheOptions.Value.Encrypt)
+            {
+                IDataProtectionProvider? dataProtectionProvider = serviceProvider.GetService(typeof(IDataProtectionProvider)) as IDataProtectionProvider;
+                return dataProtectionProvider?.CreateProtector(DefaultPurpose);
+            }
+
+            return null;
         }
 
         /// <summary>
