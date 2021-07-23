@@ -1018,49 +1018,9 @@
             Path relative to the <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.BaseUrl"/> (for instance "me").
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.Scopes">
-            <summary>
-            Space separated scopes required to call the downstream web API.
-            For instance "user.read mail.read".
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.Tenant">
-            <summary>
-            [Optional] tenant ID. This is used for specific scenarios where
-            the application needs to call a downstream web API on  behalf of a user in several tenants.
-            It would mostly be used from code, not from the configuration.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.UserFlow">
-            <summary>
-            [Optional]. User flow (in the case of a B2C downstream web API). If not
-            specified, the B2C downstream web API will be called with the default user flow from
-            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
-            </summary>
-        </member>
         <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod">
             <summary>
             HTTP method used to call this downstream web API (by default Get).
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.IsProofOfPossessionRequest">
-            <summary>
-            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
-            rather than a Bearer token.
-            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
-            which MSAL can manage. See https://aka.ms/msal-net-pop.
-            Set to true to enable PoP tokens automatically.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.TokenAcquisitionOptions">
-            <summary>
-             Options passed-in to create the token acquisition object which calls into MSAL .NET.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.AuthenticationScheme">
-            <summary>
-            Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.Clone">
@@ -1074,12 +1034,6 @@
             Return the downstream web API URL.
             </summary>
             <returns>URL of the downstream web API.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.GetScopes">
-            <summary>
-            Returns the scopes.
-            </summary>
-            <returns>Scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.System#ICloneable#Clone">
             <summary>
@@ -1299,6 +1253,57 @@
             <param name="request">The request.</param>
             <returns>The configured options.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions">
+            <summary>
+            Base options passed-in to authenticate with Microsoft Identity.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.Scopes">
+            <summary>
+            Space separated scopes required to call the downstream web API.
+            For instance "user.read mail.read".
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.Tenant">
+            <summary>
+            [Optional] tenant ID. This is used for specific scenarios where
+            the application needs to call a downstream web API on  behalf of a user in several tenants.
+            It would mostly be used from code, not from the configuration.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.UserFlow">
+            <summary>
+            [Optional]. User flow (in the case of a B2C downstream web API). If not
+            specified, the B2C downstream web API will be called with the default user flow from
+            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.IsProofOfPossessionRequest">
+            <summary>
+            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
+            rather than a Bearer token.
+            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
+            which MSAL can manage. See https://aka.ms/msal-net-pop.
+            Set to true to enable PoP tokens automatically.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.TokenAcquisitionOptions">
+            <summary>
+             Options passed-in to create the token acquisition object which calls into MSAL .NET.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.AuthenticationScheme">
+            <summary>
+            Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions.GetScopes">
+            <summary>
+            Returns the scopes.
+            </summary>
+            <returns>Scopes.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions">
             <summary>
             Extension for IHttpClientBuilder for startup initialization of Microsoft Identity authentication handlers.
@@ -1344,52 +1349,6 @@
             <summary>
             Options passed-in to Microsoft Identity message handlers.
             </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.Scopes">
-            <summary>
-            Space separated scopes required to call the downstream web API.
-            For instance "user.read mail.read".
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.Tenant">
-            <summary>
-            [Optional] tenant ID. This is used for specific scenarios where
-            the application needs to call a downstream web API on  behalf of a user in several tenants.
-            It would mostly be used from code, not from the configuration.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.UserFlow">
-            <summary>
-            [Optional]. User flow (in the case of a B2C downstream web API). If not
-            specified, the B2C downstream web API will be called with the default user flow from
-            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow"/>.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.IsProofOfPossessionRequest">
-            <summary>
-            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
-            rather than a Bearer token.
-            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
-            which MSAL can manage. See https://aka.ms/msal-net-pop.
-            Set to true to enable PoP tokens automatically.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.TokenAcquisitionOptions">
-            <summary>
-             Options passed-in to create the token acquisition object which calls into MSAL .NET.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.AuthenticationScheme">
-            <summary>
-            Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.GetScopes">
-            <summary>
-            Returns the scopes.
-            </summary>
-            <returns>Scopes.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions.Clone">
             <summary>
