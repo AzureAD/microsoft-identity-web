@@ -1,3 +1,8 @@
+1.15.1
+==========
+### Bug Fixes:
+**Add `EnableCacheSynchronization` to merged options**. See issue [#1345](https://github.com/AzureAD/microsoft-identity-web/issues/1345).
+
 1.15.0
 ==========
 ### New Features:
