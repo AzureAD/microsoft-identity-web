@@ -3,8 +3,11 @@
 ### New Features:
 **Microsoft Identity Web now provides a token cache encryption strategy for the Distributed token cache**. See issue [#1044](https://github.com/AzureAD/microsoft-identity-web/issues/1044) for details.
 
+**Microsoft Identity Web now provides a DelegatingHandler which uses `ITokenAcquisition` to get a token and inject it in the Authorization HTTP headers**. See issue [#1131](https://github.com/AzureAD/microsoft-identity-web/issues/1131) for details.
+
 ### Bug Fixes:
 **Update XML comment and link**. See issues [#1325](https://github.com/AzureAD/microsoft-identity-web/issues/1325) and [#1322](https://github.com/AzureAD/microsoft-identity-web/issues/1322).
+
 **Update the CCS routing implementation to remove technical debt**. See issue [#1303](https://github.com/AzureAD/microsoft-identity-web/issues/1303).
 
 1.14.1
