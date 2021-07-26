@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web
         public bool IsDefaultPlatformLoggingEnabled { get; set; }
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
+        public bool EnableCacheSynchronization { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -287,6 +288,7 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.IsDefaultPlatformLoggingEnabled = confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
             // mergedOptions.LegacyCacheCompatibilityEnabled = confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled; // must be set through id web options
+            mergedOptions.EnableCacheSynchronization = confidentialClientApplicationOptions.EnableCacheSynchronization;
             mergedOptions.LogLevel = confidentialClientApplicationOptions.LogLevel;
             if (string.IsNullOrEmpty(mergedOptions.RedirectUri) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri))
             {
@@ -339,6 +341,7 @@ namespace Microsoft.Identity.Web
 
             confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled = mergedOptions.IsDefaultPlatformLoggingEnabled;
             confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled = mergedOptions.LegacyCacheCompatibilityEnabled;
+            confidentialClientApplicationOptions.EnableCacheSynchronization = mergedOptions.EnableCacheSynchronization;
             confidentialClientApplicationOptions.LogLevel = mergedOptions.LogLevel;
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri) && !string.IsNullOrEmpty(mergedOptions.RedirectUri))
             {
