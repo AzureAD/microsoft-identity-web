@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Graph;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -49,17 +50,30 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            string token;
+            AuthenticationResult authenticationResult;
             if (appOnly)
             {
-                token = await _tokenAcquisition.GetAccessTokenForAppAsync(Constants.DefaultGraphScope, authenticationScheme: scheme, tenant: tenant).ConfigureAwait(false);
+                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                    Constants.DefaultGraphScope,
+                    authenticationScheme: scheme,
+                    tenant: tenant).ConfigureAwait(false);
             }
             else
             {
-                token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes!, authenticationScheme: scheme).ConfigureAwait(false);
-            } 
+                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                    scopes!,
+                    authenticationScheme: scheme).ConfigureAwait(false);
+            }
 
-            request.Headers.Authorization = new AuthenticationHeaderValue(Constants.Bearer, token);
+            // add or replace authorization header
+            if (request.Headers.Contains(Constants.Authorization))
+            {
+                request.Headers.Remove(Constants.Authorization);
+            }
+
+            request.Headers.Add(
+                Constants.Authorization,
+                authenticationResult.CreateAuthorizationHeader());
         }
 
         /// <summary>
