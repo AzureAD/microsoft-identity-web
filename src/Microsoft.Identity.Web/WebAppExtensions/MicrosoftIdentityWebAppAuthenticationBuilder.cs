@@ -117,8 +117,8 @@ namespace Microsoft.Identity.Web
                    {
                        MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
-                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
-                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
+                       MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(openIdConnectScheme), mergedOptions); // w/auth scheme
 
                        options.ResponseType = OpenIdConnectResponseType.Code;
 
