@@ -1,3 +1,12 @@
+1.15.2
+==========
+Update to the latest version of MSAL .NET (4.35.1).
+
+### Bug Fixes:
+**Use `CreateAuthorizationHeader()` for GraphClientService requests,** which enables support for other schemes, like PoP. See issue (#1355)[https://github.com/AzureAD/microsoft-identity-web/issues/1355] for details.
+
+**Fix NullReferenceException when customer invokes `OnTokenValidated`**. Microsoft Identity Web now processes the custom `OnTokenValidated` after setting the OBO token. See issue [#1348](https://github.com/AzureAD/microsoft-identity-web/issues/1348) for details.
+
 1.15.1
 ==========
 ### Bug Fixes:
