@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 

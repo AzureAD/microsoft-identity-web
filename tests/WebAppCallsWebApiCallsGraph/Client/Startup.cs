@@ -64,10 +64,7 @@ namespace WebApp_OpenIDConnect_DotNet
 #endif
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddMicrosoftIdentityWebApp(options =>
-              {
-                  Configuration.GetSection("AzureAd").Bind(options);
-              })
+              .AddMicrosoftIdentityWebApp(Configuration)
                  .EnableTokenAcquisitionToCallDownstreamApi()
                      .AddDownstreamWebApi("TodoList", Configuration.GetSection("TodoList"))
                      .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
@@ -78,8 +75,8 @@ namespace WebApp_OpenIDConnect_DotNet
 #else
                      .AddInMemoryTokenCaches();
 #endif
-            services.Configure<MicrosoftIdentityOptions>(
-                                             o => o.ClientSecret = "");
+            //services.Configure<MicrosoftIdentityOptions>(
+            //                                 o => o.ClientSecret = "");
 
             services.AddControllersWithViews(options =>
             {
