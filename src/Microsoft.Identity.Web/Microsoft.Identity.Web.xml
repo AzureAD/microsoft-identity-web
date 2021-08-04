@@ -3454,7 +3454,7 @@
             Extensions for the <see cref="T:Microsoft.AspNetCore.Authentication.AuthenticationBuilder"/> for startup initialization.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication to a web app with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default,
@@ -3465,12 +3465,13 @@
             <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
             <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenID Connect events.
             </param>
             <returns>The <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,Microsoft.Extensions.Configuration.IConfigurationSection,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
@@ -3479,12 +3480,13 @@
             <param name="configurationSection">The configuration section from which to get the options.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
             <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenID Connect events.
             </param>
             <returns>The authentication builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             </summary>
@@ -3493,12 +3495,13 @@
             <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
             <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenID Connect events.
             </param>
             <returns>The authentication builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebAppWithConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean,Microsoft.Extensions.Configuration.IConfigurationSection)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebAppWithConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.String,System.Boolean,Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
             Add authentication with Microsoft identity platform.
             </summary>
@@ -3507,13 +3510,14 @@
             <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
             <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenID Connect events.
             </param>
             <param name="configurationSection">Configuration section.</param>
             <returns>The authentication builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(Microsoft.AspNetCore.Authentication.AuthenticationBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions},System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             </summary>
@@ -3522,6 +3526,7 @@
             <param name="configureCookieAuthenticationOptions">The action to configure <see cref="T:Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions"/>.</param>
             <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
             <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenID Connect events.
             </param>
@@ -3555,7 +3560,7 @@
             Extension for IServiceCollection for startup initialization.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions.AddMicrosoftIdentityWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions.AddMicrosoftIdentityWebAppAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Add authentication with Microsoft identity platform.
             This method expects the configuration file will have a section, (by default named "AzureAd"), with the necessary settings to
@@ -3570,6 +3575,7 @@
             several OpenIdConnect identity providers.</param>
             <param name="cookieScheme">Optional name for the cookie authentication scheme
             (by default OpenIdConnectDefaults.AuthenticationScheme).</param>
+            <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the OpenIdConnect events.
             </param>

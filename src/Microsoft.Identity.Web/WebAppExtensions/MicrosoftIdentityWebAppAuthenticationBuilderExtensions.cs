@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
@@ -33,6 +32,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
         /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? displayName = Constants.DefaultDisplayName,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (configuration == null)
@@ -61,6 +62,7 @@ namespace Microsoft.Identity.Web
                 configurationSection,
                 openIdConnectScheme,
                 cookieScheme,
+                displayName,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
         }
 
@@ -72,6 +74,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configurationSection">The configuration section from which to get the options.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
         /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
@@ -81,6 +84,7 @@ namespace Microsoft.Identity.Web
             IConfigurationSection configurationSection,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? displayName = Constants.DefaultDisplayName,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -98,6 +102,7 @@ namespace Microsoft.Identity.Web
                 null,
                 openIdConnectScheme,
                 cookieScheme,
+                displayName,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 configurationSection);
         }
@@ -110,6 +115,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
         /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
@@ -120,6 +126,7 @@ namespace Microsoft.Identity.Web
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            string? displayName = Constants.DefaultDisplayName,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
         {
             if (builder == null)
@@ -132,6 +139,7 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
+                displayName,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
         }
 
@@ -143,6 +151,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
         /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
@@ -154,6 +163,7 @@ namespace Microsoft.Identity.Web
                 Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
                 string openIdConnectScheme,
                 string? cookieScheme,
+                string? displayName,
                 bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 IConfigurationSection configurationSection)
         {
@@ -163,6 +173,7 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
+                displayName,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
 
             return new MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
@@ -180,6 +191,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureCookieAuthenticationOptions">The action to configure <see cref="CookieAuthenticationOptions"/>.</param>
         /// <param name="openIdConnectScheme">The OpenID Connect scheme name to be used. By default it uses "OpenIdConnect".</param>
         /// <param name="cookieScheme">The cookie-based scheme name to be used. By default it uses "Cookies".</param>
+        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the OpenID Connect events.
         /// </param>
@@ -190,6 +202,7 @@ namespace Microsoft.Identity.Web
         Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
         string openIdConnectScheme,
         string? cookieScheme,
+        string? displayName,
         bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (!AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
@@ -200,6 +213,7 @@ namespace Microsoft.Identity.Web
                 configureCookieAuthenticationOptions,
                 openIdConnectScheme,
                 cookieScheme,
+                displayName,
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
             }
             else
@@ -221,6 +235,7 @@ namespace Microsoft.Identity.Web
             Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions,
             string openIdConnectScheme,
             string? cookieScheme,
+            string? displayName,
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
         {
             if (builder == null)
@@ -271,7 +286,7 @@ namespace Microsoft.Identity.Web
                 return;
             }
 
-            builder.AddOpenIdConnect(openIdConnectScheme, options => { });
+            builder.AddOpenIdConnect(openIdConnectScheme, displayName: displayName, options => { });
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                 .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
                 options,
