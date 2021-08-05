@@ -91,7 +91,13 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftIdentityWebApp(
+                configMock,
+                ConfigSectionName,
+                OidcScheme,
+                CookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: subscribeToDiagnostics,
+                displayName: "cat");
 
             var provider = services.BuildServiceProvider();
 
@@ -124,7 +130,7 @@ namespace Microsoft.Identity.Web.Test
                 ConfigSectionName,
                 OidcScheme,
                 CookieScheme,
-                subscribeToDiagnostics);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -149,7 +155,12 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToDiagnostics);
+                .AddMicrosoftIdentityWebApp(
+                _configureMsOptions,
+                _configureCookieOptions,
+                OidcScheme,
+                CookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: subscribeToDiagnostics);
 
             var provider = services.BuildServiceProvider();
 
@@ -185,7 +196,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
             await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -205,7 +216,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                    .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, false);
+                    .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
             await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEvent(services, redirectFunc).ConfigureAwait(false);
         }
@@ -228,7 +239,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, false);
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
             await AddMicrosoftIdentityWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
@@ -256,7 +267,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddSingleton((provider) => _env);
 
             new AuthenticationBuilder(services)
-                .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, false);
+                .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
             await AddMicrosoftIdentityWebApp_TestB2cSpecificSetup(services, remoteFailureFuncMock).ConfigureAwait(false);
         }
