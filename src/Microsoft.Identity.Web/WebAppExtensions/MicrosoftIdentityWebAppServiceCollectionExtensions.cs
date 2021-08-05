@@ -28,10 +28,8 @@ namespace Microsoft.Identity.Web
         /// several OpenIdConnect identity providers.</param>
         /// <param name="cookieScheme">Optional name for the cookie authentication scheme
         /// (by default OpenIdConnectDefaults.AuthenticationScheme).</param>
-        /// <param name="displayName">A display name for the authentication handler.. Default is "Microsoft Identity Platform".</param>
-        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">
-        /// Set to true if you want to debug, or just understand the OpenIdConnect events.
-        /// </param>
+        /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenIdConnect events.</param>
+        /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebAppAuthentication(
             this IServiceCollection services,
@@ -39,8 +37,8 @@ namespace Microsoft.Identity.Web
             string configSectionName = Constants.AzureAd,
             string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
             string cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            string? displayName = Constants.DefaultDisplayName,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false)
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string? displayName = null)
         {
             AuthenticationBuilder builder = services.AddAuthentication(openIdConnectScheme);
             return builder.AddMicrosoftIdentityWebApp(
@@ -48,8 +46,8 @@ namespace Microsoft.Identity.Web
                 configSectionName,
                 openIdConnectScheme,
                 cookieScheme,
-                displayName,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents);
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                displayName);
         }
     }
 }
