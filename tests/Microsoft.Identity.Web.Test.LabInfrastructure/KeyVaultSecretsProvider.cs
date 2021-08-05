@@ -11,9 +11,9 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
     public class KeyVaultSecretsProvider : IDisposable
     {
-        private const string _buildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
-        private const string _mSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        private KeyVaultClient _keyVaultClient;
+        private const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
+        private const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
+        private readonly KeyVaultClient _keyVaultClient;
 
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
@@ -59,12 +59,12 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
         public SecretBundle GetMsidLabSecret(string secretName)
         {
-            return _keyVaultClient.GetSecretAsync(_mSIDLabLabKeyVaultName, secretName).GetAwaiter().GetResult();
+            return _keyVaultClient.GetSecretAsync(MSIDLabLabKeyVaultName, secretName).GetAwaiter().GetResult();
         }
 
         public X509Certificate2 GetCertificateWithPrivateMaterial(string certName)
         {
-            SecretBundle secret = _keyVaultClient.GetSecretAsync(_buildAutomationKeyVaultName, certName).GetAwaiter().GetResult();
+            SecretBundle secret = _keyVaultClient.GetSecretAsync(BuildAutomationKeyVaultName, certName).GetAwaiter().GetResult();
             X509Certificate2 certificate = new X509Certificate2(Convert.FromBase64String(secret.Value));
             return certificate;
         }
