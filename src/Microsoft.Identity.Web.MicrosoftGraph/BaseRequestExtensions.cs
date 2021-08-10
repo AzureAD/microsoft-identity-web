@@ -56,7 +56,18 @@ namespace Microsoft.Identity.Web
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
         {
             string authHandlerOptionKey = typeof(AuthenticationHandlerOption).FullName!;
-            AuthenticationHandlerOption authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
+            AuthenticationHandlerOption authHandlerOptions;
+
+            try
+            {
+                authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
+            }
+            catch (Exception)
+            {
+                authHandlerOptionKey = typeof(AuthenticationHandlerOption).Name!;
+                authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
+            }
+
             TokenAcquisitionAuthenticationProviderOption msalAuthProviderOption = authHandlerOptions?.AuthenticationProviderOption as TokenAcquisitionAuthenticationProviderOption ?? new TokenAcquisitionAuthenticationProviderOption();
 
             action(msalAuthProviderOption);
