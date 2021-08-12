@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
             {
                 _tempData = _factory.GetTempData(context);
 
-                _tempData.Add(Name, message);
+                _tempData[Name] = message;
                 _tempData.Save();
             }
         }
