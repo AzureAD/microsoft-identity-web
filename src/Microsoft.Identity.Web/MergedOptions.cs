@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.Configuration ??= microsoftIdentityOptions.Configuration;
             mergedOptions.ConfigurationManager ??= microsoftIdentityOptions.ConfigurationManager;
-            mergedOptions.CorrelationCookie ??= microsoftIdentityOptions.CorrelationCookie;
+            mergedOptions.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
             mergedOptions.DataProtectionProvider ??= microsoftIdentityOptions.DataProtectionProvider;
             mergedOptions.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
 
@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
             }
 
-            mergedOptions.NonceCookie ??= microsoftIdentityOptions.NonceCookie;
+            mergedOptions.NonceCookie = microsoftIdentityOptions.NonceCookie;
             if (string.IsNullOrEmpty(mergedOptions.Prompt) && !string.IsNullOrEmpty(microsoftIdentityOptions.Prompt))
             {
                 mergedOptions.Prompt = microsoftIdentityOptions.Prompt;
