@@ -18,6 +18,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
+        private static IServiceProvider serviceProvider;
+
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
         /// the services collection and configuring its options.
@@ -75,15 +77,19 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(initializeCaches));
             }
 
-            IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
-                .ConfigureLogging(logger => { })
-                .ConfigureServices(services =>
-                 {
-                     initializeCaches(services);
-                     services.AddDataProtection();
-                 });
+            if (serviceProvider == null)
+            {
+                IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
+                    .ConfigureLogging(logger => { })
+                    .ConfigureServices(services =>
+                    {
+                        initializeCaches(services);
+                        services.AddDataProtection();
+                    });
 
-            IServiceProvider serviceProvider = hostBuilder.Build().Services;
+                serviceProvider = hostBuilder.Build().Services;
+            }
+
             IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
             msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
             msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
