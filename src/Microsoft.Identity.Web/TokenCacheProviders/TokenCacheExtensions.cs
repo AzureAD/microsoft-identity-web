@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web
                     });
 
                 serviceProvider = hostBuilder.Build().Services;
-                s_serviceProviderFromAction.Add(initializeCaches.Method, serviceProvider);
+                s_serviceProviderFromAction[initializeCaches.Method] = serviceProvider;
             }
 
             IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
