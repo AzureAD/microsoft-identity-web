@@ -45,5 +45,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// </summary>
         /// The default is <c>false.</c>
         public bool Encrypt { get; set; }
+
+        /// <summary>
+        /// Disable the L1 (InMemory) cache.
+        /// Useful in scenarios where multiple apps share the same
+        /// L2 cache.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool DisableL1Cache { get; set; }
     }
 }

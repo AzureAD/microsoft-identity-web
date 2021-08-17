@@ -41,6 +41,7 @@ namespace TodoListService
             });
             services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
             {
+                //options.DisableL1Cache = true;
                 options.OnL2CacheFailure = (ex) =>
                 {
                     if (ex is StackExchange.Redis.RedisConnectionException)

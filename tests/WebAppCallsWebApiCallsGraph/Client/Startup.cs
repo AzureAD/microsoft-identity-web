@@ -51,6 +51,7 @@ namespace WebApp_OpenIDConnect_DotNet
             });
             services.Configure<MsalDistributedTokenCacheAdapterOptions>(options => 
             {
+                //options.DisableL1Cache = true;
                 options.OnL2CacheFailure = (ex) =>
                 {
                     if (ex is StackExchange.Redis.RedisConnectionException)

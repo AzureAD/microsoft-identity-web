@@ -64,6 +64,40 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(0, testCache._memoryCache.Count);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void MsalDistributedTokenCacheAdapterOptions_DisableL1Cache(bool disableL1Cache)
+        {
+            // Arrange
+            var msalDistributedTokenOptions = Options.Create(
+                new MsalDistributedTokenCacheAdapterOptions()
+                {
+                    DisableL1Cache = disableL1Cache,
+                });
+            BuildTheRequiredServices();
+
+            // Act
+            var testCache = new TestMsalDistributedTokenCacheAdapter(
+                new TestDistributedCache(),
+                msalDistributedTokenOptions,
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+
+            // Assert
+            Assert.NotNull(testCache);
+            Assert.NotNull(testCache._distributedCache);
+
+            if (!disableL1Cache)
+            {
+                Assert.NotNull(testCache._memoryCache);
+                Assert.Equal(0, testCache._memoryCache.Count);
+            }
+            else
+            {
+                Assert.Null(testCache._memoryCache);
+            }
+        }
+
         private void BuildTheRequiredServices()
         {
             var services = new ServiceCollection();
