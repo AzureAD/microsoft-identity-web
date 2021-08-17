@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +21,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-        private static readonly Dictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
-            = new Dictionary<MethodInfo, IServiceProvider>();
+        private static readonly IDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
+            = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
