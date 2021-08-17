@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// .NET Core Memory cache.
         /// </summary>
         internal /*for tests*/ readonly IDistributedCache _distributedCache;
-        internal /*for tests*/ readonly MemoryCache _memoryCache;
+        internal /*for tests*/ readonly MemoryCache? _memoryCache;
         private readonly ILogger<MsalDistributedTokenCacheAdapter> _logger;
         private readonly TimeSpan? _expirationTime;
         private readonly string _distributedCacheType = "DistributedCache"; // for logging
@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             string remove = "Remove";
 
-            if (!_distributedCacheOptions.DisableL1Cache)
+            if (_memoryCache != null)
             {
                 _memoryCache.Remove(cacheKey);
 
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             string read = "Read";
             byte[]? result = null;
 
-            if (!_distributedCacheOptions.DisableL1Cache)
+            if (_memoryCache != null)
             {
                 // check memory cache first
                 result = (byte[])_memoryCache.Get(cacheKey);
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
 
-                if (!_distributedCacheOptions.DisableL1Cache)
+                if (_memoryCache != null)
                 {
                     // back propagate to memory cache
                     if (result != null)
@@ -239,7 +239,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
             }
 
-            if (!_distributedCacheOptions.DisableL1Cache)
+            if (_memoryCache != null)
             {
                 MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
                 {
