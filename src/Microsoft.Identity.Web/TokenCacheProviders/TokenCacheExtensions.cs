@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Client;
@@ -18,7 +20,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-        private static IServiceProvider serviceProvider;
+        private static Dictionary<MethodInfo, IServiceProvider> serviceProviderFromAction
+            = new Dictionary<MethodInfo, IServiceProvider>();
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
@@ -77,7 +80,9 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(initializeCaches));
             }
 
-            if (serviceProvider == null)
+            // Maintain a dictionary of service providers per `initializeCaches` delegate.
+            IServiceProvider? serviceProvider;
+            if (!serviceProviderFromAction.TryGetValue(initializeCaches.Method, out serviceProvider))
             {
                 IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
                     .ConfigureLogging(logger => { })
@@ -88,6 +93,7 @@ namespace Microsoft.Identity.Web
                     });
 
                 serviceProvider = hostBuilder.Build().Services;
+                serviceProviderFromAction.Add(initializeCaches.Method, serviceProvider);
             }
 
             IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
