@@ -111,7 +111,6 @@ namespace Microsoft.Identity.Web
                     {
                         context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
                         await onTokenValidatedHandler(context).ConfigureAwait(false);
-                        context.Success();
                     };
                 });
         }
