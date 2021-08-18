@@ -1,3 +1,21 @@
+1.16.0
+==========
+Update to IdentityModel 6.* and Microsoft.Graph 4.2.0 and Microsoft.Graph.Beta 4.7.0-preview.
+
+### New Features:
+**The `MsalDistributedTokenCacheAdapterOptions` now expose a boolean `DisableL1Cache`**, which will disable the InMemory (L1) cache. See issue (#1388)[https://github.com/AzureAD/microsoft-identity-web/issues/1388] for details.
+
+**When using IdentityServer, Microsoft Identity Web provides an overload to define the `DisplayName` of the Identity Provider**. See issue [#808](https://github.com/AzureAD/microsoft-identity-web/issues/808) for details.
+
+### Bug Fixes:
+**In .NET Framework, when recreating the CCA each time, the cache is not hit**. Now the ServiceProvider for the InMemory cache is not instantiated each time. See issue [#1390](https://github.com/AzureAD/microsoft-identity-web/issues/1390) for details.
+
+**The NonceCookie and CorrelationCookie configurations are now hooked up correctly in Microsoft Identity Web**. See issue [#1262](https://github.com/AzureAD/microsoft-identity-web/issues/1262) for details.
+
+**Fix a transitive `ArgumentException` when adding a preexisting key in the Temp Data**. See PR [#1382](https://github.com/AzureAD/microsoft-identity-web/pull/1382) for details.
+
+**Fix a `KeyNotFoundException` when calling `WithAppOnly()`**. See issue [#1365](https://github.com/AzureAD/microsoft-identity-web/pull/1365) and PR [#1377](https://github.com/AzureAD/microsoft-identity-web/pull/1377/files) for details.
+
 1.15.2
 ==========
 Update to the latest version of MSAL .NET (4.35.1).
