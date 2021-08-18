@@ -666,6 +666,14 @@
             </summary>
             The default is <c>false.</c>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.DisableL1Cache">
+            <summary>
+            Disable the L1 (InMemory) cache.
+            Useful in scenarios where multiple apps share the same
+            L2 cache.
+            </summary>
+            The default is <c>false.</c>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
             <summary>
             MSAL token cache provider interface.
