@@ -3,12 +3,12 @@
 Update to IdentityModel 6.* and Microsoft.Graph 4.2.0 and Microsoft.Graph.Beta 4.7.0-preview.
 
 ### New Features:
-**The `MsalDistributedTokenCacheAdapterOptions` now expose a boolean `DisableL1Cache`**, which will disable the InMemory (L1) cache. See issue (#1388)[https://github.com/AzureAD/microsoft-identity-web/issues/1388] for details.
+**The `MsalDistributedTokenCacheAdapterOptions` now expose a boolean `DisableL1Cache`**, which will bypass the InMemory (L1) cache and only use the Distributed cache. See issue (#1388)[https://github.com/AzureAD/microsoft-identity-web/issues/1388] for details.
 
-**When using IdentityServer, Microsoft Identity Web provides an overload to define the `DisplayName` of the Identity Provider**. See issue [#808](https://github.com/AzureAD/microsoft-identity-web/issues/808) for details.
+**When using ASP.NET Individual auth, Microsoft Identity Web provides an overload to define the `DisplayName` of the Identity Provider**. See issue [#808](https://github.com/AzureAD/microsoft-identity-web/issues/808) for details.
 
 ### Bug Fixes:
-**In .NET Framework, when recreating the CCA each time, the cache is not hit**. Now the ServiceProvider for the InMemory cache is not instantiated each time. See issue [#1390](https://github.com/AzureAD/microsoft-identity-web/issues/1390) for details.
+**In .NET Framework, when recreating the CCA each time, the cache is not hit**. Now the ServiceProvider for the InMemory or Distributed cache is not instantiated each time. See issue [#1390](https://github.com/AzureAD/microsoft-identity-web/issues/1390) for details.
 
 **The NonceCookie and CorrelationCookie configurations are now hooked up correctly in Microsoft Identity Web**. See issue [#1262](https://github.com/AzureAD/microsoft-identity-web/issues/1262) for details.
 
