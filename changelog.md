@@ -16,6 +16,8 @@ Update to IdentityModel 6.* and Microsoft.Graph 4.2.0 and Microsoft.Graph.Beta 4
 
 **Fix a `KeyNotFoundException` when calling `WithAppOnly()`**. See issue [#1365](https://github.com/AzureAD/microsoft-identity-web/pull/1365) and PR [#1377](https://github.com/AzureAD/microsoft-identity-web/pull/1377/files) for details.
 
+**Remove `context.Success()` in the web API so that further middleware processing can occur**. See issue [#929](https://github.com/AzureAD/microsoft-identity-web/issues/929) for details. 
+
 1.15.2
 ==========
 Update to the latest version of MSAL .NET (4.35.1).
