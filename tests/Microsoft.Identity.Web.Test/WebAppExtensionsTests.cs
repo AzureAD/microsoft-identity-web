@@ -25,6 +25,7 @@ using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.Identity.Web.Util;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
 using NSubstitute.Extensions;

@@ -3,6 +3,7 @@
 
 using System;
 using System.Text;
+using Microsoft.Identity.Web.Util;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
