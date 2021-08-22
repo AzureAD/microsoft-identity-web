@@ -57,6 +57,14 @@ namespace Microsoft.Identity.Web
         {
             if (context != null)
             {
+                string? claims = null;
+                dynamic dynamicContext = context.Exception;
+                if (dynamicContext.Message.Contains("Continuous access evaluation resulted in claims challenge", StringComparison.OrdinalIgnoreCase))
+                {
+                    // extract the claims
+                    claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(dynamicContext.ResponseHeaders);
+                }
+
                 MsalUiRequiredException? msalUiRequiredException = FindMsalUiRequiredExceptionIfAny(context.Exception);
                 if (msalUiRequiredException != null &&
                     IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(msalUiRequiredException))
@@ -114,7 +122,7 @@ namespace Microsoft.Identity.Web
 
                     AuthenticationProperties properties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                         incrementalConsentScopes,
-                        msalUiRequiredException,
+                        claims ?? msalUiRequiredException.Claims,
                         user,
                         UserFlow);
 

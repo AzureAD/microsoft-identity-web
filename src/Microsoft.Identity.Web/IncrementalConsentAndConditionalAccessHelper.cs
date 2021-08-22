@@ -42,21 +42,16 @@ namespace Microsoft.Identity.Web
         /// Build authentication properties needed for incremental consent.
         /// </summary>
         /// <param name="scopes">Scopes to request.</param>
-        /// <param name="ex"><see cref="MsalUiRequiredException"/> instance.</param>
+        /// <param name="claims">Claims.</param>
         /// <param name="user">User.</param>
         /// <param name="userflow">Userflow being invoked for AAD B2C.</param>
         /// <returns>AuthenticationProperties.</returns>
         public static AuthenticationProperties BuildAuthenticationProperties(
             string[]? scopes,
-            MsalUiRequiredException ex,
+            string claims,
             ClaimsPrincipal user,
             string? userflow = null)
         {
-            if (ex == null)
-            {
-                throw new ArgumentNullException(nameof(ex));
-            }
-
             scopes ??= new string[0];
             var properties = new AuthenticationProperties();
 
@@ -83,9 +78,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Additional claims required (for instance MFA)
-            if (!string.IsNullOrEmpty(ex.Claims))
+            if (!string.IsNullOrEmpty(claims))
             {
-                properties.Items.Add(OidcConstants.AdditionalClaims, ex.Claims);
+                properties.Items.Add(OidcConstants.AdditionalClaims, claims);
             }
 
             // Include current userflow for B2C
@@ -95,6 +90,32 @@ namespace Microsoft.Identity.Web
             }
 
             return properties;
+        }
+
+        /// <summary>
+        /// Build authentication properties needed for incremental consent.
+        /// </summary>
+        /// <param name="scopes">Scopes to request.</param>
+        /// <param name="ex"><see cref="MsalUiRequiredException"/> instance.</param>
+        /// <param name="user">User.</param>
+        /// <param name="userflow">Userflow being invoked for AAD B2C.</param>
+        /// <returns>AuthenticationProperties.</returns>
+        public static AuthenticationProperties BuildAuthenticationProperties(
+        string[]? scopes,
+        MsalUiRequiredException ex,
+        ClaimsPrincipal user,
+        string? userflow = null)
+        {
+            if (ex == null)
+            {
+                throw new ArgumentNullException(nameof(ex));
+            }
+
+            return BuildAuthenticationProperties(
+                scopes,
+                ex.Claims,
+                user,
+                userflow);
         }
     }
 }

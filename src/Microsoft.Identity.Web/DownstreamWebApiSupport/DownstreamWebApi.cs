@@ -74,15 +74,6 @@ namespace Microsoft.Identity.Web
                 userflow = effectiveOptions.UserFlow;
             }
 
-            AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
-                effectiveOptions.GetScopes(),
-                authenticationScheme,
-                effectiveOptions.Tenant,
-                userflow,
-                user,
-                effectiveOptions.TokenAcquisitionOptions)
-                .ConfigureAwait(false);
-
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
                 apiUrl))
@@ -92,10 +83,74 @@ namespace Microsoft.Identity.Web
                     httpRequestMessage.Content = content;
                 }
 
-                httpRequestMessage.Headers.Add(
-                    Constants.Authorization,
-                    authResult.CreateAuthorizationHeader());
-                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                HttpResponseMessage httpResponse = await CallProtectedWebApi(
+                    httpRequestMessage,
+                    authenticationScheme,
+                    user,
+                    effectiveOptions,
+                    userflow).ConfigureAwait(false);
+
+                if (ProcessClaimsChallengeFromResponseHeader(
+                    effectiveOptions,
+                    effectiveOptions.IsProofOfPossessionRequest ? Constants.Pop : Constants.Bearer,
+                    httpResponse))
+                {
+                    httpResponse = await CallProtectedWebApi(
+                    httpRequestMessage,
+                    authenticationScheme,
+                    user,
+                    effectiveOptions,
+                    userflow).ConfigureAwait(false);
+                }
+
+                return httpResponse;
+            }
+        }
+
+        private async Task<HttpResponseMessage> CallProtectedWebApi(
+            HttpRequestMessage httpRequestMessage,
+            string? authenticationScheme,
+            ClaimsPrincipal? user,
+            DownstreamWebApiOptions effectiveOptions,
+            string? userflow)
+        {
+            AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                effectiveOptions.GetScopes(),
+                authenticationScheme,
+                effectiveOptions.Tenant,
+                userflow,
+                user,
+                effectiveOptions.TokenAcquisitionOptions)
+                .ConfigureAwait(false);
+
+            if (httpRequestMessage.Headers.Contains(Constants.Authorization))
+            {
+                httpRequestMessage.Headers.Remove(Constants.Authorization);
+            }
+
+            httpRequestMessage.Headers.Add(
+                Constants.Authorization,
+                authResult.CreateAuthorizationHeader());
+            HttpResponseMessage httpResponse = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+
+            return httpResponse;
+        }
+
+        private bool ProcessClaimsChallengeFromResponseHeader(
+            DownstreamWebApiOptions effectiveOptions,
+            string tokenType,
+            HttpResponseMessage httpResponse)
+        {
+            string claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(httpResponse.Headers, tokenType);
+
+            if (!string.IsNullOrEmpty(claimChallenge))
+            {
+                effectiveOptions.TokenAcquisitionOptions.Claims = claimChallenge;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
