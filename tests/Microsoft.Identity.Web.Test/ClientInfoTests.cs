@@ -5,6 +5,7 @@ using System;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Util;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test

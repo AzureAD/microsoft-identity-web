@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-        private static readonly IDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
+        private static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
             = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
 
         /// <summary>
@@ -81,20 +81,23 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(initializeCaches));
             }
 
-            // Maintain a dictionary of service providers per `initializeCaches` delegate.
-            if (!s_serviceProviderFromAction.TryGetValue(initializeCaches.Method, out IServiceProvider? serviceProvider))
+            // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
+            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, (m) =>
             {
-                IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
-                    .ConfigureLogging(logger => { })
-                    .ConfigureServices(services =>
-                    {
-                        initializeCaches(services);
-                        services.AddDataProtection();
-                    });
+                lock (s_serviceProviderFromAction)
+                {
+                    IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
+                        .ConfigureLogging(logger => { })
+                        .ConfigureServices(services =>
+                        {
+                            initializeCaches(services);
+                            services.AddDataProtection();
+                        });
 
-                serviceProvider = hostBuilder.Build().Services;
-                s_serviceProviderFromAction[initializeCaches.Method] = serviceProvider;
-            }
+                    IServiceProvider sp = hostBuilder.Build().Services;
+                    return sp;
+                }
+            });
 
             IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
             msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);

@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Text;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.Util
 {
     internal static class Base64UrlHelpers
     {
