@@ -3,7 +3,6 @@
 
 using System.Net;
 using System.Net.Http;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Util;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
