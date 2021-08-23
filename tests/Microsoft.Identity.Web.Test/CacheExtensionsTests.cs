@@ -27,78 +27,22 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        // bug: https://github.com/AzureAD/microsoft-identity-web/issues/1390
-        public async Task InMemoryCacheExtensionsAgainTestsAsync()
+        public async Task CacheExtensions_CcaAlreadyExists_TestsAsync()
         {
             AuthenticationResult result;
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory).ConfigureAwait(false);
+            // new InMemory serializer and new cca
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addInstanceMock: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, false, false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, true, false).ConfigureAwait(false);
+            // new DistributedInMemory and same cca
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, false, false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-        }
-
-        private enum CacheType
-        {
-            InMemory,
-            DistributedInMemory,
-        }
-
-        private static async Task<AuthenticationResult> CreateAppAndGetTokenAsync(
-            CacheType cacheType,
-            bool addTokenMock = true,
-            bool addInstanceMock = true)
-        {
-            using (MockHttpClientFactory mockHttp = new MockHttpClientFactory())
-            using (var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler())
-            using (var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler())
-            {
-
-                if (addInstanceMock)
-                {
-                    mockHttp.AddMockHandler(discoveryHandler);
-                }
-
-                // for when the token is requested from ESTS
-                if (addTokenMock)
-                {
-                    mockHttp.AddMockHandler(tokenHandler);
-                }
-
-                var confidentialApp = ConfidentialClientApplicationBuilder
-                               .Create(TestConstants.ClientId)
-                               .WithAuthority(TestConstants.AuthorityCommonTenant)
-                               .WithHttpClientFactory(mockHttp)
-                               .WithClientSecret(TestConstants.ClientSecret)
-                               .Build();
-
-                switch (cacheType)
-                {
-                    case CacheType.InMemory:
-                        confidentialApp.AddInMemoryTokenCache();
-                        break;
-
-                    case CacheType.DistributedInMemory:
-                        confidentialApp.AddDistributedTokenCache(services =>
-                        {
-                            services.AddDistributedMemoryCache();
-                            services.AddLogging(configure => configure.AddConsole())
-                            .Configure<LoggerFilterOptions>(options => options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Warning);
-                        });
-                        break;
-                }
-
-                var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                    .ExecuteAsync().ConfigureAwait(false);
-
-                return result;
-            }
         }
 
         [Fact]
@@ -141,6 +85,60 @@ namespace Microsoft.Identity.Web.Test
             var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null));
 
             Assert.Equal("initializeDistributedCache", ex.ParamName);
+        }
+
+        private enum CacheType
+        {
+            InMemory,
+            DistributedInMemory,
+        }
+
+        private static async Task<AuthenticationResult> CreateAppAndGetTokenAsync(
+            CacheType cacheType,
+            bool addTokenMock = true,
+            bool addInstanceMock = false)
+        {
+            using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
+            using var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler();
+            using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
+            if (addInstanceMock)
+            {
+                mockHttp.AddMockHandler(discoveryHandler);
+            }
+
+            // for when the token is requested from ESTS
+            if (addTokenMock)
+            {
+                mockHttp.AddMockHandler(tokenHandler);
+            }
+
+            var confidentialApp = ConfidentialClientApplicationBuilder
+                           .Create(TestConstants.ClientId)
+                           .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithHttpClientFactory(mockHttp)
+                           .WithClientSecret(TestConstants.ClientSecret)
+                           .Build();
+
+            switch (cacheType)
+            {
+                case CacheType.InMemory:
+                    confidentialApp.AddInMemoryTokenCache();
+                    break;
+
+                case CacheType.DistributedInMemory:
+                    confidentialApp.AddDistributedTokenCache(services =>
+                    {
+                        services.AddDistributedMemoryCache();
+                        services.AddLogging(configure => configure.AddConsole())
+                        .Configure<LoggerFilterOptions>(options => options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Warning);
+                    });
+                    break;
+            }
+
+            var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
+                .ExecuteAsync().ConfigureAwait(false);
+
+            return result;
         }
 
         private void CreateCca()

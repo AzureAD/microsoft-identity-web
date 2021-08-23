@@ -12,6 +12,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     public class MockHttpMessageHandler : HttpMessageHandler
     {
         public HttpResponseMessage ResponseMessage { get; set; }
+
         public string ExpectedUrl { get; set; }
 
         public HttpMethod ExpectedMethod { get; set; }
@@ -19,7 +20,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         public Exception ExceptionToThrow { get; set; }
 
         /// <summary>
-        /// Once the http message is executed, this property holds the request message
+        /// Once the http message is executed, this property holds the request message.
         /// </summary>
         public HttpRequestMessage ActualRequestMessage { get; private set; }
 
