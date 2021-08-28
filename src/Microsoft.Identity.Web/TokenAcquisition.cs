@@ -12,12 +12,14 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -41,7 +43,7 @@ namespace Microsoft.Identity.Web
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
         private IConfidentialClientApplication? _application;
-        private bool retryClientCertificate;
+        private bool _retryClientCertificate;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
@@ -194,7 +196,7 @@ namespace Microsoft.Identity.Web
                 _application = null;
 
                 // Retry
-                retryClientCertificate = true;
+                _retryClientCertificate = true;
                 await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes, authenticationScheme).ConfigureAwait(false);
             }
             catch (MsalException ex)
@@ -204,7 +206,7 @@ namespace Microsoft.Identity.Web
             }
             finally
             {
-                retryClientCertificate = false;
+                _retryClientCertificate = false;
             }
         }
 
@@ -290,7 +292,7 @@ namespace Microsoft.Identity.Web
                 _application = null;
 
                 // Retry
-                retryClientCertificate = true;
+                _retryClientCertificate = true;
                 return await GetAuthenticationResultForUserAsync(scopes, tenantId: tenantId, userFlow: userFlow, user: user, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
@@ -304,7 +306,7 @@ namespace Microsoft.Identity.Web
             }
             finally
             {
-                retryClientCertificate = false;
+                _retryClientCertificate = false;
             }
         }
 
@@ -397,12 +399,12 @@ namespace Microsoft.Identity.Web
                 _application = null;
 
                 // Retry
-                retryClientCertificate = true;
+                _retryClientCertificate = true;
                 return GetAuthenticationResultForAppAsync(scope, tenant: tenant, tokenAcquisitionOptions: tokenAcquisitionOptions);
             }
             finally
             {
-                retryClientCertificate = false;
+                _retryClientCertificate = false;
             }
         }
 
@@ -598,14 +600,15 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                return (CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
-                 ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme;
+                return _serviceProvider.GetRequiredService<IAuthenticationSchemeProvider>()?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
+                    ((CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
+                    ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme);
             }
         }
 
         private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
         {
-            return !retryClientCertificate &&
+            return !_retryClientCertificate &&
                 string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
                 exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
         }

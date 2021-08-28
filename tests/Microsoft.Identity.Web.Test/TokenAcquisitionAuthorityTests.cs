@@ -3,6 +3,8 @@
 
 using System.Globalization;
 using System.Net.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +37,6 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);
-            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()
@@ -45,9 +46,10 @@ namespace Microsoft.Identity.Web.Test
                 provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
                 provider => _applicationOptionsMonitor);
-            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
+            services.Configure<MergedOptions>(options => { });
             services.AddTokenAcquisition();
             services.AddLogging();
+            services.AddAuthentication();
             _provider = services.BuildServiceProvider();
         }
 
@@ -90,6 +92,25 @@ namespace Microsoft.Identity.Web.Test
             else
             {
                 Assert.Equal(app.Authority, _tokenAcquisition.CreateAuthorityBasedOnTenantIfProvided(app, tenant));
+            }
+        }
+
+        [Theory]
+        [InlineData(JwtBearerDefaults.AuthenticationScheme)]
+        [InlineData(OpenIdConnectDefaults.AuthenticationScheme)]
+        [InlineData(null)]
+        public void VerifyCorrectSchemeTests(string scheme)
+        {
+            BuildTheRequiredServices();
+            InitializeTokenAcquisitionObjects();
+
+            if (!string.IsNullOrEmpty(scheme))
+            {
+                Assert.Equal(scheme, _tokenAcquisition.GetEffectiveAuthenticationScheme(scheme));
+            }
+            else
+            {
+                Assert.Equal(OpenIdConnectDefaults.AuthenticationScheme, _tokenAcquisition.GetEffectiveAuthenticationScheme(scheme));
             }
         }
 
