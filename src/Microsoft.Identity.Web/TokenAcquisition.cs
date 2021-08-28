@@ -600,7 +600,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                return _serviceProvider.GetRequiredService<IAuthenticationSchemeProvider>()?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
+                return _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
                     ((CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
                     ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme);
             }
