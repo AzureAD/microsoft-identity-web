@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     LoggingEventId.MemoryCacheNegativeExpiry,
-                    "[MsIdWeb] {CacheType}: {Operation} The SuggestedCacheExpiry from MSAL was negative. ");
+                    "[MsIdWeb] {CacheType}: {Operation} The TokenCacheNotificationArgs.SuggestedCacheExpiry from MSAL was negative. ");
 
             private static readonly Action<ILogger, string, string, int, Exception?> s_l1CacheCount =
                 LoggerMessage.Define<string, string, int>(
