@@ -92,6 +92,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
             {
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
+                if (cacheExpiry < TimeSpan.Zero)
+                {
+                    cacheExpiry = TimeSpan.FromMilliseconds(1);
+                }
             }
 
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
