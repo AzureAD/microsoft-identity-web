@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 namespace Microsoft.Identity.Web.Test.Common.TestHelpers
@@ -32,9 +33,9 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             await RemoveKeyAsync(cacheKey).ConfigureAwait(false);
         }
 
-        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes)
+        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints cacheSerializerHints = null)
         {
-            await WriteCacheBytesAsync(cacheKey, bytes).ConfigureAwait(false);
+            await WriteCacheBytesAsync(cacheKey, bytes, cacheSerializerHints).ConfigureAwait(false);
         }
 
         public async Task<byte[]> TestReadCacheBytesAsync(string cacheKey)
