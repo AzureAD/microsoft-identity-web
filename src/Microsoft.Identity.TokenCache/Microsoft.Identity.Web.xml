@@ -4,16 +4,6 @@
         <name>Microsoft.Identity.TokenCache</name>
     </assembly>
     <members>
-        <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
-            <summary>
-            Constants related to the error messages.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.LoggingEventId">
-            <summary>
-            EventIds for Logging.
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints">
             <summary>
             Set of properties that the token cache serialization implementations might use to optimize the cache.
@@ -578,6 +568,16 @@
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
+        </member>
+        <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
+            <summary>
+            Constants related to the error messages.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.LoggingEventId">
+            <summary>
+            EventIds for Logging.
+            </summary>
         </member>
     </members>
 </doc>

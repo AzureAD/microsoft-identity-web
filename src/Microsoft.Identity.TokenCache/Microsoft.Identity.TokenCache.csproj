@@ -42,20 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
     <Compile Include="..\Microsoft.Identity.Web\LoggingEventId.cs" Link="LoggingEventId.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\CacheSerializerHints.cs" Link="CacheSerializerHints.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\Distributed\DistributedTokenCacheAdapterExtension.cs" Link="Distributed\DistributedTokenCacheAdapterExtension.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\Distributed\MsalDistributedTokenCacheAdapter.cs" Link="Distributed\MsalDistributedTokenCacheAdapter.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\Distributed\MsalDistributedTokenCacheAdapter.Logger.cs" Link="Distributed\MsalDistributedTokenCacheAdapter.Logger.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\Distributed\MsalDistributedTokenCacheAdapterOptions.cs" Link="Distributed\MsalDistributedTokenCacheAdapterOptions.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\IMsalTokenCacheProvider.cs" Link="IMsalTokenCacheProvider.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\InMemory\InMemoryTokenCacheProviderExtension.cs" Link="InMemory\InMemoryTokenCacheProviderExtension.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\InMemory\MsalMemoryTokenCacheOptions.cs" Link="InMemory\MsalMemoryTokenCacheOptions.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\InMemory\MsalMemoryTokenCacheProvider.cs" Link="InMemory\MsalMemoryTokenCacheProvider.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\MeasureDurationResult.cs" Link="MeasureDurationResult.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\MsalAbstractTokenCacheProvider.cs" Link="MsalAbstractTokenCacheProvider.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\TokenCacheExtensions.cs" Link="TokenCacheExtensions.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\TokenCacheProviders\Utility.cs" Link="Utility.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,7 +58,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1; net5.0; netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -79,16 +67,6 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
-    <DefineConstants>$(DefineConstants);DOTNET_472</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
-    <DefineConstants>$(DefineConstants);DOTNET_462</DefineConstants>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -116,7 +94,7 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.8" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.*" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.*" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.*" />
@@ -139,11 +117,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Distributed\" />
-    <Folder Include="InMemory\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
