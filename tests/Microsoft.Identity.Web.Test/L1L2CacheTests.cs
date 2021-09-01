@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Xunit;
 
@@ -49,6 +50,30 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache.dict);
+        }
+
+        [Fact]
+        public async Task WriteCache_NegativeExpiry_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            AssertCacheValues(_testCacheAdapter);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache.dict);
+            CacheSerializerHints cacheSerializerHints = new CacheSerializerHints();
+            cacheSerializerHints.SuggestedCacheExpiry = System.DateTimeOffset.Now - System.TimeSpan.FromHours(1);
+
+            // Act
+            await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache, cacheSerializerHints).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache.dict);
+            await Task.Delay(1000).ConfigureAwait(false);
+
+            Assert.Null(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
+            await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
         }
 
         [Fact]
