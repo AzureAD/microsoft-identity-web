@@ -132,6 +132,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateMergeOptionsMethods
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.TokenCache", "src\Microsoft.Identity.TokenCache\Microsoft.Identity.TokenCache.csproj", "{7885DFBB-0D20-4115-86E2-709C2E12253B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Certificate", "src\Microsoft.Identity.Certificate\Microsoft.Identity.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -294,6 +296,10 @@ Global
 		{7885DFBB-0D20-4115-86E2-709C2E12253B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7885DFBB-0D20-4115-86E2-709C2E12253B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7885DFBB-0D20-4115-86E2-709C2E12253B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

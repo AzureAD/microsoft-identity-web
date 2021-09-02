@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
         /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
         /// <param name="certificateStoreName">Store name where to find the certificate.</param>
         /// <returns>A certificate description.</returns>
-        [Obsolete(IDWebErrorMessage.FromStoreWithThumprintIsObsolete, false)]
+        [Obsolete(CertificateErrorMessage.FromStoreWithThumprintIsObsolete, false)]
         public static CertificateDescription FromStoreWithThumprint(
             string certificateThumbprint,
             StoreLocation certificateStoreLocation = StoreLocation.CurrentUser,
@@ -238,7 +238,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public string? Base64EncodedValue { get; set; }
 
-#if DOTNET_462
+#if DOTNET_462 || DOTNET_STANDARD_20
         /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
         /// </summary>
