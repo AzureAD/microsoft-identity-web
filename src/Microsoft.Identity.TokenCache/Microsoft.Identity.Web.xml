@@ -569,11 +569,6 @@
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
-        <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
-            <summary>
-            Constants related to the error messages.
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.LoggingEventId">
             <summary>
             EventIds for Logging.

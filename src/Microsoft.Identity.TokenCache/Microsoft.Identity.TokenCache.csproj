@@ -42,11 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
-    <Compile Include="..\Microsoft.Identity.Web\LoggingEventId.cs" Link="LoggingEventId.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

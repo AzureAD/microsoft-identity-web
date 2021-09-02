@@ -23,6 +23,7 @@
   </PropertyGroup>  
   
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.TokenCache\Microsoft.Identity.TokenCache.csproj" />
     <ProjectReference Condition="'$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'netcoreapp3.1'" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
@@ -55,10 +56,10 @@
     <Compile Remove="*.cs" />
     <Compile Remove="**\*.cs" />
     <Compile Include="MsalTokenCacheProviderTests.cs" />
-    <Compile Include="Certificates\CertificateDescriptionTests.cs"/>
-    <Compile Include="Certificates\DefaultCertificateLoaderTests.cs"/>
-    <Compile Include="CacheExtensionsTests.cs"/>
-    <Compile Include="CacheEncryptionTests.cs"/>
+    <Compile Include="Certificates\CertificateDescriptionTests.cs" />
+    <Compile Include="Certificates\DefaultCertificateLoaderTests.cs" />
+    <Compile Include="CacheExtensionsTests.cs" />
+    <Compile Include="CacheEncryptionTests.cs" />
   </ItemGroup>
 
 </Project>

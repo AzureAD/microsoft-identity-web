@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="tokenCache">Token cache for which to initialize the serialization.</param>
         /// <returns>A <see cref="Task"/> that represents a completed initialization operation.</returns>
-        [Obsolete(IDWebErrorMessage.InitializeAsyncIsObsolete, true)]
+        [Obsolete(TokenCacheErrorMessage.InitializeAsyncIsObsolete, true)]
         Task InitializeAsync(ITokenCache tokenCache);
 
         /// <summary>
