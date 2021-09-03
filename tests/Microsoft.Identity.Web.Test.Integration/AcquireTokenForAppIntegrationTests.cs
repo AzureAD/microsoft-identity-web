@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -212,6 +215,33 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
+        }
+
+        [Fact]
+        public async Task GetAccessTokenForApp_WithAnonymousController_Async()
+        {
+            var serviceCollection = new ServiceCollection();
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "AzureAd:Instance", "https://login.microsoftonline.com/" },
+                    { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
+                    { "AzureAd:ClientId", TestConstants.ConfidentialClientId },
+                    { "AzureAd:ClientSecret", _ccaSecret },
+                })
+                .Build();
+            serviceCollection.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(configuration)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            var services = serviceCollection.BuildServiceProvider();
+
+            var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+
+            var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+
+            Assert.NotNull(token);
         }
 
         private void InitializeTokenAcquisitionObjects()
