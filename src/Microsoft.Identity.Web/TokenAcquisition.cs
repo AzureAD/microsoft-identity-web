@@ -358,6 +358,13 @@ namespace Microsoft.Identity.Web
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
+            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
+                mergedOptionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
+            }
+
             if (string.IsNullOrEmpty(tenant))
             {
                 tenant = mergedOptions.TenantId;
