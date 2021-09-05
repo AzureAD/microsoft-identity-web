@@ -98,16 +98,16 @@ namespace Microsoft.Identity.Web
                        ccaOptionsMonitor,
                        ccaOptions) =>
                 {
-                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerAuthenticationScheme);
-
-                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
-                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions); // w/auth scheme
-
                     ccaOptionsMonitor.OnChange((options, scheme) =>
                     {
                         MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
                         MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(options, mergedOptionsToUpdate);
                     });
+
+                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerAuthenticationScheme);
+
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions); // w/auth scheme
 
                     options.Events ??= new JwtBearerEvents();
 

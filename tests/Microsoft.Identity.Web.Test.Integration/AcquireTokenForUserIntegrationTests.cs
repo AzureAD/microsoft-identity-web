@@ -7,8 +7,10 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTestService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
@@ -48,6 +50,21 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act
             HttpResponseMessage response = await CreateHttpResponseMessage(webApiUrl, client, result).ConfigureAwait(false);
+
+            // Assert
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async Task GetTokenForUser_ChangedOptions_TestAsync()
+        {
+            // Arrange
+            HttpClient client = CreateHttpClient(false);
+
+            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+
+            // Act
+            HttpResponseMessage response = await CreateHttpResponseMessage(TestConstants.SecurePageGetTokenForUserAsync, client, result).ConfigureAwait(false);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);

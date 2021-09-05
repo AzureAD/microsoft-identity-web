@@ -3,8 +3,11 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Graph;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
@@ -30,9 +33,18 @@ namespace IntegrationTestService.Controllers
             _graphServiceClient = graphServiceClient;
         }
 
+        //[HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
+        //public async Task<string> GetTokenAsync()
+        //{
+        //    return await _tokenAcquisition.GetAccessTokenForUserAsync(
+        //        TestConstants.s_userReadScope).ConfigureAwait(false);
+        //}
+
         [HttpGet(TestConstants.SecurePageGetTokenForUserAsync)]
         public async Task<string> GetTokenAsync()
         {
+            var ccaOptions = HttpContext.RequestServices.GetService(typeof(IOptionsMonitor<ConfidentialClientApplicationOptions>)) as IOptionsMonitor<ConfidentialClientApplicationOptions>;
+            ccaOptions.Get(JwtBearerDefaults.AuthenticationScheme).ClientId = "blabla";
             return await _tokenAcquisition.GetAccessTokenForUserAsync(
                 TestConstants.s_userReadScope).ConfigureAwait(false);
         }
@@ -50,10 +62,10 @@ namespace IntegrationTestService.Controllers
             var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 null,
-                downstreamWebApiOptionsOverride: options =>
- {
-     options.RelativePath = "me";
- });
+                downstreamWebApiOptionsOverride: options => 
+                {
+                    options.RelativePath = "me";
+                });
             return user.DisplayName;
         }
 
@@ -71,13 +83,13 @@ namespace IntegrationTestService.Controllers
                 TestConstants.SectionNameCalledApi,
                 null,
                 downstreamWebApiOptionsOverride: options =>
- {
-     options.RelativePath = "me";
-     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
-                    /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
-                    { { "slice", "testslice" } };*/ // doesn't work w/build automation
-                    options.TokenAcquisitionOptions.ForceRefresh = true;
- });
+                {
+                     options.RelativePath = "me";
+                     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                     /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
+                     { { "slice", "testslice" } };*/ // doesn't work w/build automation
+                     options.TokenAcquisitionOptions.ForceRefresh = true;
+                 });
             return user.DisplayName;
         }
     }

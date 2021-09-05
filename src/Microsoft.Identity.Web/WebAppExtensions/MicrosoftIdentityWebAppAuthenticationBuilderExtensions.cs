@@ -293,6 +293,12 @@ namespace Microsoft.Identity.Web
                 msIdOptionsMonitor,
                 msIdOptions) =>
                 {
+                    msIdOptionsMonitor.OnChange((options, scheme) =>
+                    {
+                        MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
+                        MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptionsToUpdate);
+                    });
+
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
@@ -300,12 +306,6 @@ namespace Microsoft.Identity.Web
 
                     MergedOptionsValidation.Validate(mergedOptions);
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
-
-                    msIdOptionsMonitor.OnChange( (options, scheme) =>
-                    {
-                        MergedOptions mergedOptionsToUpdate = mergedOptionsMonitor.Get(scheme);
-                        MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, mergedOptionsToUpdate);
-                    });
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
                         openIdConnectScheme,

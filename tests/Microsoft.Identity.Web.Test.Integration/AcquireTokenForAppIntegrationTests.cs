@@ -244,6 +244,39 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.NotNull(token);
         }
 
+        [Fact]
+        public async Task GetAccessTokenForApp_UpdateOptionsInRuntime_Async()
+        {
+            var serviceCollection = new ServiceCollection();
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "AzureAd:Instance", "https://login.microsoftonline.com/" },
+                    { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
+                    { "AzureAd:ClientId", TestConstants.ConfidentialClientId },
+                    { "AzureAd:ClientSecret", _ccaSecret },
+                })
+                .Build();
+            serviceCollection.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(configuration)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            var services = serviceCollection.BuildServiceProvider();
+
+            var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+
+            var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+
+            Assert.NotNull(token);
+
+            var ccaOptions = services.GetRequiredService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
+            ccaOptions.Get(JwtBearerDefaults.AuthenticationScheme).ClientId = "blabla";
+
+            var token2 = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+
+        }
+
         private void InitializeTokenAcquisitionObjects()
         {
             MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);

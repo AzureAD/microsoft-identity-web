@@ -50,10 +50,10 @@ namespace IntegrationTestService
             });
 
             services.AddRazorPages();
-            //services.AddRazorPages(options =>
-            //{
-            //    options.Conventions.AuthorizePage("/SecurePage");
-            //});
+            services.AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizePage("/SecurePage");
+            });
             services.AddControllers();
         }
 
