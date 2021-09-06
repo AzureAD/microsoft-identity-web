@@ -429,7 +429,6 @@ namespace Microsoft.Identity.Web
 
             options.RequireHttpsMetadata = mergedOptions.RequireHttpsMetadata;
             options.MetadataAddress = mergedOptions.MetadataAddress;
-            options.Events = mergedOptions.Events;
             options.MaxAge = mergedOptions.MaxAge;
             options.ProtocolValidator = mergedOptions.ProtocolValidator;
             options.SignedOutCallbackPath = mergedOptions.SignedOutCallbackPath;
@@ -471,7 +470,6 @@ namespace Microsoft.Identity.Web
             options.ReturnUrlParameter = mergedOptions.ReturnUrlParameter;
             options.SignInScheme = mergedOptions.SignInScheme;
             options.RemoteAuthenticationTimeout = mergedOptions.RemoteAuthenticationTimeout;
-            options.Events = mergedOptions.Events;
             options.SaveTokens = mergedOptions.SaveTokens;
             options.CorrelationCookie = mergedOptions.CorrelationCookie;
             options.ClaimsIssuer = mergedOptions.ClaimsIssuer;
