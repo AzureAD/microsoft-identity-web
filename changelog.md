@@ -1,3 +1,12 @@
+1.16.1
+==========
+Update to Microsoft.Graph 4.4.0, Microsoft.Graph.Beta 4.11.0-preview, and MSAL.NET 4.36.0.
+
+### Bug Fixes:
+**Handle a `SuggestedCacheExpiry` in the past**. See issue [#1419](https://github.com/AzureAD/microsoft-identity-web/issues/1419) for details.
+
+**Fix a `NullReferenceException` when calling `GetTokenForApp` from an anonymous controller**. See issues [#1372](https://github.com/AzureAD/microsoft-identity-web/issues/1372) and [#1348](https://github.com/AzureAD/microsoft-identity-web/issues/1348) for details.
+
 1.16.0
 ==========
 Update to IdentityModel 6.* and Microsoft.Graph 4.2.0 and Microsoft.Graph.Beta 4.7.0-preview.
