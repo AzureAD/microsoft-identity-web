@@ -23,7 +23,8 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(clientInfo), IDWebErrorMessage.ClientInfoReturnedFromServerIsNull);
             }
 
-            return DeserializeFromJson(Base64UrlHelpers.DecodeToBytes(clientInfo));
+            var bytes = Base64UrlHelpers.DecodeBytes(clientInfo);
+            return bytes != null ? DeserializeFromJson(bytes) : null;
         }
 
         internal static ClientInfo? DeserializeFromJson(byte[] jsonByteArray)
