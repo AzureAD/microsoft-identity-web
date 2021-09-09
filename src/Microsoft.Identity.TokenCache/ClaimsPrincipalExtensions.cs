@@ -12,6 +12,67 @@ namespace Microsoft.Identity.Web
     public static class ClaimsPrincipalExtensions
     {
         /// <summary>
+        /// New Object id claim: "oid".
+        /// </summary>
+        private const string Oid = "oid";
+
+        /// <summary>
+        /// Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
+        /// </summary>
+        private const string ObjectId = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+
+        /// <summary>
+        /// Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+        /// </summary>
+        private const string TenantId = "http://schemas.microsoft.com/identity/claims/tenantid";
+
+        /// <summary>
+        /// New Tenant Id claim: "tid".
+        /// </summary>
+        private const string Tid = "tid";
+
+        /// <summary>
+        /// PreferredUserName: "preferred_username".
+        /// </summary>
+        private const string PreferredUserName = "preferred_username";
+
+        /// <summary>
+        /// Name claim: "name".
+        /// </summary>
+        private const string Name = "name";
+
+        /// <summary>
+        /// UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
+        /// </summary>
+        private const string UserFlow = "http://schemas.microsoft.com/claims/authnclassreference";
+
+        /// <summary>
+        /// Tfp claim: "tfp".
+        /// </summary>
+        private const string Tfp = "tfp";
+
+        /// <summary>
+        /// UniqueObjectIdentifier: "uid".
+        /// Home Object Id.
+        /// </summary>
+        private const string UniqueObjectIdentifier = "uid";
+
+        /// <summary>
+        /// UniqueTenantIdentifier: "utid".
+        /// Home Tenant Id.
+        /// </summary>
+        private const string UniqueTenantIdentifier = "utid";
+
+        /// <summary>
+        /// Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+        /// </summary>
+        private const string NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+        private const string MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
+        private const string Consumers = "consumers";
+        private const string Organizations = "organizations";
+
+        /// <summary>
         /// Gets the account identifier for an MSAL.NET account from a <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <param name="claimsPrincipal">Claims principal.</param>
@@ -44,7 +105,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetObjectId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.Oid, ClaimConstants.ObjectId);
+            return GetClaimValue(claimsPrincipal, Oid, ObjectId);
         }
 
         /// <summary>
@@ -55,7 +116,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
         public static string? GetTenantId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.Tid, ClaimConstants.TenantId);
+            return GetClaimValue(claimsPrincipal, Tid, TenantId);
         }
 
         /// <summary>
@@ -83,7 +144,7 @@ namespace Microsoft.Identity.Web
             string? tenantId = GetTenantId(claimsPrincipal);
             string? domainHint = string.IsNullOrWhiteSpace(tenantId)
                 ? null
-                : tenantId!.Equals(Constants.MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Constants.Consumers : Constants.Organizations;
+                : tenantId!.Equals(MsaTenantId, StringComparison.OrdinalIgnoreCase) ? Consumers : Organizations;
 
             return domainHint;
         }
@@ -99,9 +160,9 @@ namespace Microsoft.Identity.Web
         {
             return GetClaimValue(
                 claimsPrincipal,
-                ClaimConstants.PreferredUserName,
+                PreferredUserName,
                 ClaimsIdentity.DefaultNameClaimType,
-                ClaimConstants.Name);
+                Name);
         }
 
         /// <summary>
@@ -111,7 +172,7 @@ namespace Microsoft.Identity.Web
         /// <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetUserFlowId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.Tfp, ClaimConstants.UserFlow);
+            return GetClaimValue(claimsPrincipal, Tfp, UserFlow);
         }
 
         /// <summary>
@@ -121,7 +182,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeObjectId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueObjectIdentifier);
+            return GetClaimValue(claimsPrincipal, UniqueObjectIdentifier);
         }
 
         /// <summary>
@@ -131,7 +192,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetHomeTenantId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.UniqueTenantIdentifier);
+            return GetClaimValue(claimsPrincipal, UniqueTenantIdentifier);
         }
 
         /// <summary>
@@ -141,7 +202,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetNameIdentifierId(this ClaimsPrincipal claimsPrincipal)
         {
-            return GetClaimValue(claimsPrincipal, ClaimConstants.NameIdentifierId);
+            return GetClaimValue(claimsPrincipal, NameIdentifierId);
         }
 
         private static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
@@ -163,11 +224,9 @@ namespace Microsoft.Identity.Web
             return null;
         }
 
-#if NET472 || NET462
         private static string? FindFirstValue(this ClaimsPrincipal claimsPrincipal, string type)
         {
              return claimsPrincipal.FindFirst(type)?.Value;
         }
-#endif
     }
 }

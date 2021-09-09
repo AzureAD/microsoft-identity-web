@@ -468,6 +468,142 @@
             Utility methods used by L1/L2 cache.
             </summary>
         </member>
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
+            <summary>
+            Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Oid">
+            <summary>
+            New Object id claim: "oid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.ObjectId">
+            <summary>
+            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Tid">
+            <summary>
+            New Tenant Id claim: "tid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.PreferredUserName">
+            <summary>
+            PreferredUserName: "preferred_username".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Name">
+            <summary>
+            Name claim: "name".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UserFlow">
+            <summary>
+            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Tfp">
+            <summary>
+            Tfp claim: "tfp".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UniqueObjectIdentifier">
+            <summary>
+            UniqueObjectIdentifier: "uid".
+            Home Object Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UniqueTenantIdentifier">
+            <summary>
+            UniqueTenantIdentifier: "utid".
+            Home Tenant Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.NameIdentifierId">
+            <summary>
+            Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the account identifier for an MSAL.NET account from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims principal.</param>
+            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the unique object ID.</param>
+            <remarks>This method returns the object ID both in case the developer has enabled or not claims mapping.</remarks>
+            <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the tenant ID.</param>
+            <returns>Tenant ID of the identity, or <c>null</c> if it cannot be found.</returns>
+            <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the login-hint associated with a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to complete the login-hint.</param>
+            <returns>The login hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the domain-hint associated with an identity.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to compute the domain-hint.</param>
+            <returns> The domain hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Get the display name for the signed-in user, from the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims about the user/account.</param>
+            <returns>A string containing the display name for the user, as determined by Azure AD (v1.0) and Microsoft identity platform (v2.0) tokens,
+            or <c>null</c> if the claims cannot be found.</returns>
+            <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims. </remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user flow ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
+            <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
+            <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheExtensions">
             <summary>
             Extension methods to expose a simplified developer experience for
