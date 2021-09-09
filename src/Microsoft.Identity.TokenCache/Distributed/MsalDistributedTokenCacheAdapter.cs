@@ -237,6 +237,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
             {
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
+                if (cacheExpiry < TimeSpan.Zero)
+                {
+                    cacheExpiry = TimeSpan.FromMilliseconds(1);
+                    Logger.MemoryCacheNegativeExpiry(_logger, _memoryCacheType, write, null);
+                }
             }
 
             if (_memoryCache != null)
