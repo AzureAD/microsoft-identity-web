@@ -121,13 +121,22 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheRead(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Exception)">
             <summary>
-            Memory cache remove.
+            Memory cache read.
             </summary>
             <param name="logger">ILogger.</param>
             <param name="cacheType">Distributed or Memory.</param>
             <param name="operation">Cache operation (Read, Write, etc...).</param>
             <param name="cacheKey">MSAL.NET cache key.</param>
             <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheNegativeExpiry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
+            <summary>
+            Memory cache negative expiry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
             <param name="ex">Exception.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheRemove(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
