@@ -55,13 +55,13 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         [Theory]
         [InlineData(TestConstants.SecurePage2GetTokenForUserAsync)]
-        [InlineData(TestConstants.SecurePage2CallDownstreamWebApi)]
-        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
-        [InlineData(TestConstants.SecurePage2CallMicrosoftGraph)]
-        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        [InlineData(TestConstants.SecurePage2CallMicrosoftGraph, false)]
-        [InlineData(TestConstants.SecurePage2CallDownstreamWebApi, false)]
-        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric, false)]
+        //[InlineData(TestConstants.SecurePage2CallDownstreamWebApi)]
+        //[InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
+        //[InlineData(TestConstants.SecurePage2CallMicrosoftGraph)]
+        //[InlineData(TestConstants.SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
+        //[InlineData(TestConstants.SecurePage2CallMicrosoftGraph, false)]
+        //[InlineData(TestConstants.SecurePage2CallDownstreamWebApi, false)]
+        //[InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric, false)]
         public async Task GetTokenForUserWithDifferentAuthSchemeAsync(
                string webApiUrl,
                bool addInMemoryTokenCache = true)
