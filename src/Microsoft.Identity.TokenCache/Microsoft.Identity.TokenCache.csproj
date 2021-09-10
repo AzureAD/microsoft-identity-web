@@ -92,12 +92,21 @@
     <PackageReference Include="System.Text.Encodings.Web" Version="5.0.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.*" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.*" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.*" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.*" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="3.1.*" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.0.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="2.0.*" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.18" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.18" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.18" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.18" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="3.1.18" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
   </ItemGroup>
 
