@@ -12,6 +12,7 @@ using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TodoListService
 {
@@ -66,6 +67,22 @@ namespace TodoListService
 
             services.AddControllers();
             services.AddSingleton<ILongRunningProcessContextFactory, LongRunningProcessContextFactory>();
+
+            services.AddAuthorization();
+            //services.AddAuthorization(options =>
+            //        options.AddPolicy("foo", policyBuilder => 
+            //        {
+            //            // Extension metbod to read config, and call the code that needs to be be done.
+            //            //policyBuilder.RequireClaim("scp", "value");
+            //            //policyBuilder.RequireAssertion(context => { context.Succeed(); });
+            //            policyBuilder.RequireScope("access_as_user");
+            //        }));
+
+            
+            
+            // Works with GRPC, Signal R, MVC.
+            // Tests on all the.
+            // 
 
             // below code is how customers would use a proxy
             //services.Configure<AadIssuerValidatorOptions>(options => { options.HttpClientName = "cats"; });

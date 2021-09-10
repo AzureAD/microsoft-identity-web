@@ -2172,6 +2172,11 @@
             For details, see https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.AcceptedScopes">
+            <summary>
+            Scopes accepted by this web API.
+            </summary>
+        </member>
         <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey">
             <summary>
             Fully qualified name of the configuration key containing the required scopes (separated
@@ -2209,10 +2214,16 @@
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor">
             <summary>
-            Default constructor, to be used along with the <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey"/>
-            property when you want to get the scopes to validate from the configuration, instead
-            of hardcoding them in the code.
+            Default constructor.
             </summary>
+            <example>
+            <code>
+            [RequiredScope(RequiredScopesConfigurationKey="AzureAD:Scope")]
+            class Controller : BaseController
+            {
+            }
+            </code>
+            </example>
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeFilter.#ctor(System.String[])">
             <summary>
@@ -2723,7 +2734,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheNegativeExpiry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
             <summary>
-            Memory cache write.
+            Memory cache negative expiry.
             </summary>
             <param name="logger">ILogger.</param>
             <param name="cacheType">Distributed or Memory.</param>
@@ -3310,6 +3321,19 @@
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
+        <member name="T:Microsoft.Identity.Web.HasScopeHandler">
+            <summary>
+             Authorizer handler which needs to be called for the ScopeAuthorizationRequirement requirement type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.HasScopeHandler.HandleRequirementAsync(Microsoft.AspNetCore.Authorization.AuthorizationHandlerContext,Microsoft.Identity.Web.ScopeAuthorizationRequirement)">
+            <summary>
+            Makes a decision if authorization is allowed based on the scope requirements specified.
+            </summary>
+            <param name="context">The authorization context.</param>
+            <param name="requirement">The requirement to evaluate.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder">
             <summary>
             Authentication builder for a web API.
@@ -3407,6 +3431,50 @@
             <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.PolicyBuilderExtensions">
+            <summary>
+            Extensions for building the RequiredScope policy during application startup.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScope(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.String[])">
+            <summary>
+            Adds a <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/> to the current instance which requires
+            that the current user has the specified claim and that the claim value must be one of the allowed values.
+            </summary>
+            <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
+            <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <returns>A reference to this instance after the operation has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScope(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/> to the current instance which requires
+            that the current user has the specified claim and that the claim value must be one of the allowed values.
+            </summary>
+            <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
+            <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <returns>A reference to this instance after the operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement">
+            <summary>
+            Implements an <see cref="T:Microsoft.AspNetCore.Authorization.IAuthorizationHandler"/> and <see cref="T:Microsoft.AspNetCore.Authorization.IAuthorizationRequirement"/>
+            which requires at least one instance of the specified claim type, and, if allowed values are specified,
+            the claim value must be any of the allowed values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeAuthorizationRequirement.#ctor(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/>.
+            </summary>
+            <param name="allowedValues">The optional list of scope values.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ScopeAuthorizationRequirement.AllowedValues">
+            <summary>
+            Gets the optional list of scope values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeAuthorizationRequirement.ToString">
+            <inheritdoc />
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
             <summary>
