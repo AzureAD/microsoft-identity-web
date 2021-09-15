@@ -9,10 +9,10 @@
     <DefineConstants>$(DefineConstants);WEB</DefineConstants>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
-    <Title>Microsoft Identity Token Cache</Title>
+    <Title>Microsoft Identity Web Token Cache</Title>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Product>Microsoft Identity Token Cache</Product>
+    <Product>Microsoft Identity Web Token Cache</Product>
     <Description>
       This package bring token cache serializers for MSAL.NET confidential client applications.
     </Description>

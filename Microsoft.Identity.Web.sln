@@ -130,9 +130,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mvcwebapp-graph", "tests\Mu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateMergeOptionsMethods", "tools\GenerateMergeOptionsMethods\GenerateMergeOptionsMethods.csproj", "{5B9AD363-6A27-4AF2-939E-B20E7C941ADF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.TokenCache", "src\Microsoft.Identity.TokenCache\Microsoft.Identity.TokenCache.csproj", "{7885DFBB-0D20-4115-86E2-709C2E12253B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenCache", "src\Microsoft.Identity.TokenCache\Microsoft.Identity.Web.TokenCache.csproj", "{7885DFBB-0D20-4115-86E2-709C2E12253B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Certificate", "src\Microsoft.Identity.Certificate\Microsoft.Identity.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

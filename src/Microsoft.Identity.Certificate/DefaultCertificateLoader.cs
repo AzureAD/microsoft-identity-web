@@ -83,6 +83,60 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /// <summary>
+        /// Load the first certificate from the certificate description list.
+        /// </summary>
+        /// <param name="certificateDescriptions">Description of the certificates.</param>
+        /// <returns>First certificate in the certificate description list.</returns>
+        public static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescriptions)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            CertificateDescription? certDescription = certificateDescriptions.FirstOrDefault(c =>
+            {
+                defaultCertificateLoader.LoadIfNeeded(c);
+                return c.Certificate != null;
+            });
+
+            return certDescription?.Certificate;
+        }
+
+        /// <summary>
+        /// Load all the certificates from the certificate description list.
+        /// </summary>
+        /// <param name="certificateDescriptions">Description of the certificates.</param>
+        /// <returns>All the certificates in the certificate description list.</returns>
+        public static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            if (certificateDescriptions != null)
+            {
+                foreach (var certDescription in certificateDescriptions)
+                {
+                    defaultCertificateLoader.LoadIfNeeded(certDescription);
+                    if (certDescription.Certificate != null)
+                    {
+                        yield return certDescription.Certificate;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resets all the certificates in the certificate description list.
+        /// Use, for example, before a retry.
+        /// </summary>
+        /// <param name="certificateDescriptions">Description of the certificates.</param>
+        public static void ResetCertificates(IEnumerable<CertificateDescription>? certificateDescriptions)
+        {
+            if (certificateDescriptions != null)
+            {
+                foreach (var cert in certificateDescriptions)
+                {
+                    cert.Certificate = null;
+                }
+            }
+        }
+
         private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, X509KeyStorageFlags x509KeyStorageFlags)
         {
             byte[] decoded = Convert.FromBase64String(certificateBase64);
@@ -217,17 +271,6 @@ namespace Microsoft.Identity.Web
             return cert;
         }
 
-        internal static void ResetCertificates(IEnumerable<CertificateDescription>? clientCertificates)
-        {
-            if (clientCertificates != null)
-            {
-                foreach (var cert in clientCertificates)
-                {
-                    cert.Certificate = null;
-                }
-            }
-        }
-
         private static X509Certificate2 LoadFromPath(
             string certificateFileName,
             string? password = null)
@@ -284,31 +327,6 @@ namespace Microsoft.Identity.Web
             // Return the first certificate in the collection, has the right name and is current.
             var cert = signingCert.OfType<X509Certificate2>().OrderByDescending(c => c.NotBefore).FirstOrDefault();
             return cert;
-        }
-
-        internal /*for test only*/ static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescription)
-        {
-            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            CertificateDescription? certDescription = certificateDescription.FirstOrDefault(c =>
-            {
-                defaultCertificateLoader.LoadIfNeeded(c);
-                return c.Certificate != null;
-            });
-
-            return certDescription?.Certificate;
-        }
-
-        internal /*for test only*/ static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
-        {
-            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            foreach (var certDescription in certificateDescriptions)
-            {
-                defaultCertificateLoader.LoadIfNeeded(certDescription);
-                if (certDescription.Certificate != null)
-                {
-                    yield return certDescription.Certificate;
-                }
-            }
         }
     }
 }

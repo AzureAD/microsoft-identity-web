@@ -136,8 +136,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Certificate\Microsoft.Identity.Certificate.csproj" />
-    <ProjectReference Include="..\Microsoft.Identity.TokenCache\Microsoft.Identity.TokenCache.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Microsoft.Identity.Certificate</name>
+        <name>Microsoft.Identity.Web.Certificate</name>
     </assembly>
     <members>
         <member name="T:Microsoft.Identity.Web.CertificateConstants">
@@ -230,6 +230,27 @@
             Load the certificate from the description, if needed.
             </summary>
             <param name="certificateDescription">Description of the certificate.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadFirstCertificate(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Load the first certificate from the certificate description list.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
+            <returns>First certificate in the certificate description list.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadAllCertificates(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Load all the certificates from the certificate description list.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
+            <returns>All the certificates in the certificate description list.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.ResetCertificates(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Resets all the certificates in the certificate description list.
+            Use, for example, before a retry.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadFromKeyVault(System.String,System.String,System.Security.Cryptography.X509Certificates.X509KeyStorageFlags)">
             <summary>

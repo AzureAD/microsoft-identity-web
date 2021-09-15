@@ -9,10 +9,10 @@
     <DefineConstants>$(DefineConstants);WEB</DefineConstants>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
-    <Title>Microsoft Identity Certificate</Title>
+    <Title>Microsoft Identity Web Certificate</Title>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Product>Microsoft Identity Certificate</Product>
+    <Product>Microsoft Identity Web Certificate</Product>
     <Description>
       This package brings certificate management for MSAL.NET.
     </Description>
