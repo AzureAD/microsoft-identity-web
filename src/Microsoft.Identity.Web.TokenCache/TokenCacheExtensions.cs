@@ -175,6 +175,7 @@ namespace Microsoft.Identity.Web
             confidentialClientApp.AddTokenCaches(services =>
             {
                 services.AddDistributedTokenCaches();
+                services.AddDataProtection();
                 initializeDistributedCache(services);
             });
             return confidentialClientApp;
