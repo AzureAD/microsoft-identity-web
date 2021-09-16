@@ -49,6 +49,8 @@ namespace IntegrationTestService
                 options.ClientSecret = ccaSecret;
             });
 
+          //  services.AddAuthorization();
+
             services.AddRazorPages();
             //services.AddRazorPages(options =>
             //{

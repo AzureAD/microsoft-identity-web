@@ -2,28 +2,54 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
     internal class RequiredScopePolicyProvider : IAuthorizationPolicyProvider
     {
-        public RequiredScopePolicyProvider(IConfiguration configuration)
+        public RequiredScopePolicyProvider(
+            IConfiguration configuration,
+            IOptionsMonitor<MergedOptions> optionsMonitor,
+            ILogger<RequiredScopePolicyProvider> logger)
         {
             _configuration = configuration;
+            _optionsMonitor = optionsMonitor;
+            _logger = logger;
         }
 
-        public IConfiguration _configuration;
-        public const string PolicyPrefix = "RequiredScope(";
+        private readonly IConfiguration _configuration;
+        private readonly IOptionsMonitor<MergedOptions> _optionsMonitor;
+        private readonly ILogger<RequiredScopePolicyProvider> _logger;
+        private const string PolicyPrefix = "RequiredScope(";
 
         public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
         {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            return Task.FromResult<AuthorizationPolicy>(null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            return Task.FromResult(CreateDefaultPolicy());
+        }
+
+        private AuthorizationPolicy CreateDefaultPolicy()
+        {
+            // We need to verify if that prevents anonymous controller
+            // Otherwise have a dummy policy
+            return new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAssertion(context =>
+                {
+                    return _optionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme).AllowWebApiToBeAuthorizedByACL
+                               || context!.User.Claims.Any(x => x.Type == ClaimConstants.Scope
+                                   || x.Type == ClaimConstants.Scp
+                                   || x.Type == ClaimConstants.Roles
+                                   || x.Type == ClaimConstants.Role);
+                })
+                .Build();
+
+            // TODO: How can API developers debug the policies to understand why token is not accepted?
         }
 
         public Task<AuthorizationPolicy> GetFallbackPolicyAsync()
