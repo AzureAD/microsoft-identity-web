@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
@@ -86,16 +84,11 @@ namespace Microsoft.Identity.Web
             {
                 lock (s_serviceProviderFromAction)
                 {
-                    IHostBuilder hostBuilder = Host.CreateDefaultBuilder()
-                        .ConfigureLogging(logger => { })
-                        .ConfigureServices(services =>
-                        {
-                            initializeCaches(services);
-                            services.AddDataProtection();
-                        });
+                    ServiceCollection services = new ServiceCollection();
+                    initializeCaches(services);
+                    services.AddLogging();
 
-                    IServiceProvider sp = hostBuilder.Build().Services;
-                    return sp;
+                    return services.BuildServiceProvider();
                 }
             });
 
