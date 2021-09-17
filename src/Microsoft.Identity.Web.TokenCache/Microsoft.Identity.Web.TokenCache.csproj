@@ -98,9 +98,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.18" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="3.1.18" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="3.0.0" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
   </ItemGroup>
 
