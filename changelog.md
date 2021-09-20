@@ -1,3 +1,7 @@
+1.17.0
+==========
+**Microsoft.Identity.Web now provides two additional NuGet packages: Microsoft.Identity.Web.TokenCache and Microsoft.Identity.Web.Certificate**. These packages are for ASP.NET Framework and .NET Core apps who want to use the token cache serializers and/or the certificate loader, but do not want all the dependencies brought by the full Microsoft.Identity.Web package. If you are on ASP.NET Core, continue to use Microsoft.Identity.Web. See issue [#1431](https://github.com/AzureAD/microsoft-identity-web/issues/1431) for details.
+
 1.16.1
 ==========
 Update to Microsoft.Graph 4.4.0, Microsoft.Graph.Beta 4.11.0-preview, and MSAL.NET 4.36.0.
