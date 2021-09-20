@@ -1466,11 +1466,6 @@
             Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityOptions.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.MicrosoftIdentityOptions"/> class.
-            </summary>
-        </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.Instance">
             <summary>
             Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".

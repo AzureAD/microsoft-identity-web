@@ -14,14 +14,6 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityOptions : OpenIdConnectOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MicrosoftIdentityOptions"/> class.
-        /// </summary>
-        public MicrosoftIdentityOptions()
-        {
-            SignedOutRedirectUri = "/Account/SignedOut";
-        }
-
-        /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
         /// </summary>
         public string Instance { get; set; } = null!;

@@ -119,8 +119,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             else
             {
                 scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-                var callbackUrl = Url.Page(_optionsMonitor.Get(scheme).SignedOutRedirectUri, pageHandler: null, values: null, protocol: Request.Scheme);
-
+                var callbackUrl = Url.Page("/Account/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
                 return SignOut(
                      new AuthenticationProperties
                      {
