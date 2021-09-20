@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Web.Certificate</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Web.CertificateConstants">
+            <summary>
+            General constants for Microsoft Identity Certificates.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.CertificateDescription">
+            <summary>
+            Description of a certificate.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Creates a certificate description from a certificate (by code).
+            </summary>
+            <param name="x509certificate2">Certificate.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromKeyVault(System.String,System.String)">
+            <summary>
+            Creates a certificate description from Key Vault.
+            </summary>
+            <param name="keyVaultUrl">The Key Vault URL.</param>
+            <param name="keyVaultCertificateName">The name of the certificate in Key Vault.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(System.String)">
+            <summary>
+            Creates a certificate description from a Base64 encoded value.
+            </summary>
+            <param name="base64EncodedValue">Base64 encoded certificate value.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromPath(System.String,System.String)">
+            <summary>
+            Creates a certificate description from path on disk.
+            </summary>
+            <param name="path">Path where to find the certificate file.</param>
+            <param name="password">Certificate password.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromStoreWithThumprint(System.String,System.Security.Cryptography.X509Certificates.StoreLocation,System.Security.Cryptography.X509Certificates.StoreName)">
+            <summary>
+            Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
+            </summary>
+            <param name="certificateThumbprint">Certificate thumbprint.</param>
+            <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+            <param name="certificateStoreName">Store name where to find the certificate.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromStoreWithThumbprint(System.String,System.Security.Cryptography.X509Certificates.StoreLocation,System.Security.Cryptography.X509Certificates.StoreName)">
+            <summary>
+            Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
+            </summary>
+            <param name="certificateThumbprint">Certificate thumbprint.</param>
+            <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+            <param name="certificateStoreName">Store name where to find the certificate.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.CertificateDescription.FromStoreWithDistinguishedName(System.String,System.Security.Cryptography.X509Certificates.StoreLocation,System.Security.Cryptography.X509Certificates.StoreName)">
+            <summary>
+            Creates a certificate description from a certificate distinguished name (such as CN=name)
+            and store location (Certificate Manager on Windows, for instance).
+            </summary>
+            <param name="certificateDistinguishedName">Certificate distinguished named.</param>
+            <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+            <param name="certificateStoreName">Store name where to find the certificate.</param>
+            <returns>A certificate description.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.SourceType">
+            <summary>
+            Type of the source of the certificate.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.Container">
+            <summary>
+            Container in which to find the certificate.
+            <list type="bullet">
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.KeyVault"/>, then
+            the container is the Key Vault base URL.</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Base64Encoded"/>, then
+            this value is not used.</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Path"/>, then
+            this value is the path on disk where to find the certificate.</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName"/>,
+            or <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint"/>, then
+            this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.KeyVaultUrl">
+            <summary>
+            URL of the Key Vault, for instance https://msidentitywebsamples.vault.azure.net.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateStorePath">
+            <summary>
+            Certificate store path, for instance "CurrentUser/My".
+            </summary>
+            <remarks>This property should only be used in conjunction with DistinguishedName or Thumbprint.</remarks>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateDistinguishedName">
+            <summary>
+            Certificate distinguished name.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.KeyVaultCertificateName">
+            <summary>
+            Name of the certificate in Key Vault.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateThumbprint">
+            <summary>
+            Certificate thumbprint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateDiskPath">
+            <summary>
+            Path on disk to the certificate.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificatePassword">
+            <summary>
+            Path on disk to the certificate password.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.Base64EncodedValue">
+            <summary>
+            Base64 encoded certificate value.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.X509KeyStorageFlags">
+            <summary>
+             Defines where and how to import the private key of an X.509 certificate.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.ReferenceOrValue">
+            <summary>
+            Reference to the certificate or value.
+            </summary>
+            <list type="bullet">
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.KeyVault"/>, then
+            the reference is the name of the certificate in Key Vault (maybe the version?).</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Base64Encoded"/>, then
+            this value is the base 64 encoded certificate itself.</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Path"/>, then
+            this value is the password to access the certificate (if needed).</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName"/>,
+            this value is the distinguished name.</item>
+            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint"/>,
+            this value is the thumbprint.</item>
+            </list>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.Certificate">
+            <summary>
+            The certificate, either provided directly in code
+            or loaded from the description.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.CertificateErrorMessage">
+            <summary>
+            Constants related to the error messages.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.CertificateSource">
+            <summary>
+            Source for a certificate.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.Certificate">
+            <summary>
+            Certificate itself.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.KeyVault">
+            <summary>
+            From an Azure Key Vault.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.Base64Encoded">
+            <summary>
+            Base64 encoded string directly from the configuration.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.Path">
+            <summary>
+            From local path on disk.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint">
+            <summary>
+            From the certificate store, described by its thumbprint.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName">
+            <summary>
+            From the certificate store, described by its distinguished name.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.DefaultCertificateLoader">
+             <summary>
+             Certificate Loader.
+             Only use when loading a certificate from a daemon application, or an ASP NET app, using MSAL .NET directly.
+             For an ASP NET Core app, <b>Microsoft Identity Web will handle the certificate loading</b> for you.
+             <example><code>
+             IConfidentialClientApplication app;
+             ICertificateLoader certificateLoader = new DefaultCertificateLoader();
+                 certificateLoader.LoadIfNeeded(config.CertificateDescription);
+            
+                app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
+                       .WithCertificate(config.CertificateDescription.Certificate)
+                       .WithAuthority(new Uri(config.Authority))
+                       .Build();
+             </code></example>
+             </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.DefaultCertificateLoader.UserAssignedManagedIdentityClientId">
+            <summary>
+            User assigned managed identity client ID (as opposed to system assigned managed identity)
+            See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription)">
+            <summary>
+            Load the certificate from the description, if needed.
+            </summary>
+            <param name="certificateDescription">Description of the certificate.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadFirstCertificate(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Load the first certificate from the certificate description list.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
+            <returns>First certificate in the certificate description list.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadAllCertificates(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Load all the certificates from the certificate description list.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
+            <returns>All the certificates in the certificate description list.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.ResetCertificates(System.Collections.Generic.IEnumerable{Microsoft.Identity.Web.CertificateDescription})">
+            <summary>
+            Resets all the certificates in the certificate description list.
+            Use, for example, before a retry.
+            </summary>
+            <param name="certificateDescriptions">Description of the certificates.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.LoadFromKeyVault(System.String,System.String,System.Security.Cryptography.X509Certificates.X509KeyStorageFlags)">
+            <summary>
+            Load a certificate from Key Vault, including the private key.
+            </summary>
+            <param name="keyVaultUrl">URL of Key Vault.</param>
+            <param name="certificateName">Name of the certificate.</param>
+            <param name="x509KeyStorageFlags">Defines where and how to import the private key of an X.509 certificate.</param>
+            <returns>An <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/> certificate.</returns>
+            <remarks>This code is inspired by Heath Stewart's code in:
+            https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultCertificateLoader.FindCertificateByCriterium(System.Security.Cryptography.X509Certificates.X509Store,System.Security.Cryptography.X509Certificates.X509FindType,System.String)">
+            <summary>
+            Find a certificate by criteria.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ICertificateLoader">
+             <summary>
+             Interface to implement loading of a certificate.
+             Only use when loading a certificate from a daemon application, or an ASP NET app, using MSAL .NET directly.
+             For an ASP NET Core app, <b>Microsoft Identity Web will handle the certificate loading</b> for you.
+             <example><code>
+             IConfidentialClientApplication app;
+             ICertificateLoader certificateLoader = new DefaultCertificateLoader();
+                 certificateLoader.LoadIfNeeded(config.CertificateDescription);
+            
+                app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
+                       .WithCertificate(config.CertificateDescription.Certificate)
+                       .WithAuthority(new Uri(config.Authority))
+                       .Build();
+             </code></example>
+             </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ICertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription)">
+            <summary>
+            Load the certificate from the description, if needed.
+            </summary>
+            <param name="certificateDescription">Description of the certificate.</param>
+        </member>
+    </members>
+</doc>

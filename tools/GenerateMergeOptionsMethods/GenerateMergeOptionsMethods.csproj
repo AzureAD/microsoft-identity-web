@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateDescription.cs" Link="OptionClasses\CertificateDescription.cs" />
-    <Compile Include="..\..\src\Microsoft.Identity.Web\CertificateManagement\CertificateSource.cs" Link="OptionClasses\CertificateSource.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />
@@ -33,6 +31,10 @@
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
   </ItemGroup>
   
 </Project>

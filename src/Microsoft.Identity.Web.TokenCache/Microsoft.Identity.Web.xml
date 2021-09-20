@@ -1,0 +1,723 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Web.TokenCache</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints">
+            <summary>
+            Set of properties that the token cache serialization implementations might use to optimize the cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.CancellationToken">
+            <summary>
+            CancellationToken enabling cooperative cancellation between threads, thread pool, or Task objects.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.SuggestedCacheExpiry">
+            <summary>
+            Suggested cache expiry based on the in-coming token. Use to optimize cache eviction
+            with the app token cache.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension">
+            <summary>
+            Extension class used to add distributed token cache serializer to MSAL.
+            See https://aka.ms/ms-id-web/token-cache-serialization for details.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds the .NET Core distributed cache based app token cache to the service collection.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns>A <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to chain.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter">
+            <summary>
+            An implementation of the token cache for both Confidential and Public clients backed by a Distributed Cache.
+            The Distributed Cache (L2), by default creates a Memory Cache (L1), for faster look up, resulting in a two level cache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+            <summary>
+            LoggingMessage class for MsalDistributedTokenCacheAdapter.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCache">
+            <summary>
+            .NET Core Memory cache.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._distributedCacheOptions">
+            <summary>
+            MSAL distributed token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.#ctor(Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter},System.IServiceProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter"/> class.
+            </summary>
+            <param name="distributedCache">Distributed cache instance to use.</param>
+            <param name="distributedCacheOptions">Options for the token cache.</param>
+            <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+            <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+            will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a specific token cache, described by its cache key
+            from the distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache to remove.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Removes a specific token cache, described by its cache key
+            from the distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache to remove.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Read a specific token cache, described by its cache key, from the
+            distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache item to retrieve.</param>
+            <returns>Read blob representing a token cache for the cache key
+            (account or app).</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Read a specific token cache, described by its cache key, from the
+            distributed cache.
+            </summary>
+            <param name="cacheKey">Key of the cache item to retrieve.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>Read blob representing a token cache for the cache key
+            (account or app).</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (by key).
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">blob to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Writes a token cache blob to the serialization cache (by key).
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">blob to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger">
+            <summary>
+            LoggingMessage class for MsalDistributedTokenCacheAdapter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheRead(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Exception)">
+            <summary>
+            Memory cache read.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheNegativeExpiry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
+            <summary>
+            Memory cache negative expiry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheRemove(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
+            <summary>
+            Memory cache remove.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheCount(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Int32,System.Exception)">
+            <summary>
+            Memory cache count.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="count">L1 cache count.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.DistributedCacheState(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Boolean,System.Exception)">
+            <summary>
+            L2 cache state logging.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.DistributedCacheStateWithTime(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Int32,System.Boolean,System.Double,System.Exception)">
+            <summary>
+            L2 cache state logging.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="time">Time in milliseconds.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.DistributedCacheRetry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
+            <summary>
+            L2 cache retry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.DistributedCacheReadTime(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Double,System.Exception)">
+            <summary>
+            L2 cache retry.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="time">Time in milliseconds.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.DistributedCacheConnectionError(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Boolean,System.String,System.Exception)">
+            <summary>
+            L2 cache error.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheType">Distributed or Memory.</param>
+            <param name="operation">Cache operation (Read, Write, etc...).</param>
+            <param name="inRetry">L2 cache retry due to possible connection issue.</param>
+            <param name="errorMessage">Error message.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.BackPropagateL2toL1(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Exception)">
+            <summary>
+            Back propagate L2 to L1.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
+            <param name="ex">Exception.</param>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions">
+            <summary>
+            Options for the MSAL token cache serialization adapter,
+            which delegates the serialization to the IDistributedCache implementations
+            available with .NET Core.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1CacheOptions">
+            <summary>
+            Options of the In Memory (L1) cache.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.OnL2CacheFailure">
+            <summary>
+            Callback offered to the app to be notified when the L2 cache fails.
+            This way the app is given the possibility to act on the L2 cache,
+            for instance, in the case of Redis, to reconnect. This is left to the application as it's
+            the only one that knows about the real implementation of the L2 cache.
+            The handler should return <c>true</c> if the cache should try again the operation, and
+            <c>false</c> otherwise. When <c>true</c> is passed and the retry fails, an exception
+            will be thrown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1ExpirationTimeRatio">
+            <summary>
+            Value more than 0, less than 1, to set the In Memory (L1) cache
+            expiration time values relative to the Distributed (L2) cache.
+            Default is 1.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.Encrypt">
+            <summary>
+            Should the token cache be encrypted.
+            </summary>
+            The default is <c>false.</c>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.DisableL1Cache">
+            <summary>
+            Disable the L1 (InMemory) cache.
+            Useful in scenarios where multiple apps share the same
+            L2 cache.
+            </summary>
+            The default is <c>false.</c>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
+            <summary>
+            MSAL token cache provider interface.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes a token cache (which can be a user token cache or an app token cache).
+            </summary>
+            <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes a token cache (which can be a user token cache or an app token cache).
+            </summary>
+            <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(System.String)">
+            <summary>
+            Clear the user token cache.
+            </summary>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension">
+            <summary>
+            Extension class used to add an in-memory token cache serializer to MSAL.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Adds both the app and per-user in-memory token caches.</summary>
+            <param name="services">The services collection to add to.</param>
+            <returns>the services (for chaining).</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions">
+            <summary>
+            MSAL's in-memory token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions"/> class.
+            By default, the sliding expiration is set for 14 days.</summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow">
+            <summary>
+            Gets or sets the value of the duration after which the cache entry will expire unless it's used
+            This is the duration the tokens are kept in memory cache.
+            In production, a higher value, up-to 90 days is recommended.
+            </summary>
+            <value>
+            The AbsoluteExpirationRelativeToNow value.
+            </value>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider">
+            <summary>
+            An implementation of token cache for both Confidential and Public clients backed by MemoryCache.
+            </summary>
+            <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._memoryCache">
+            <summary>
+            .NET Core Memory cache.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider._cacheOptions">
+            <summary>
+            MSAL memory token cache options.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.Extensions.Options.IOptions{Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions})">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="memoryCache">serialization cache.</param>
+            <param name="cacheOptions">Memory cache options.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Removes a token cache identified by its key, from the serialization
+            cache.
+            </summary>
+            <param name="cacheKey">token cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when key removal has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Reads a blob from the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <returns>Read Bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Writes a token cache blob to the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Writes a token cache blob to the serialization cache (identified by its key).
+            </summary>
+            <param name="cacheKey">Token cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when a write operation has completed.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider">
+            <summary>
+            Token cache provider with default implementation.
+            </summary>
+            <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.AspNetCore.DataProtection.IDataProtector)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="dataProtector">Service provider. Can be null, in which case the token cache
+            will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache)">
+            <summary>
+            Initializes the token cache serialization.
+            </summary>
+            <param name="tokenCache">Token cache to serialize/deserialize.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed initialization operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnAfterAccessAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            Raised AFTER MSAL added the new token in its in-memory copy of the cache.
+            This notification is called every time MSAL accesses the cache, not just when a write takes place:
+            If MSAL's current operation resulted in a cache change, the property TokenCacheNotificationArgs.HasStateChanged will be set to true.
+            If that is the case, we call the TokenCache.SerializeMsalV3() to get a binary blob representing the latest cache content – and persist it.
+            </summary>
+            <param name="args">Contains parameters used by the MSAL call accessing the cache.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs)">
+            <summary>
+            If you want to ensure that no concurrent write takes place, use this notification to place a lock on the entry.
+            </summary>
+            <param name="args">Token cache notification arguments.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(System.String)">
+            <summary>
+            Clear the cache.
+            </summary>
+            <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed clear operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[])">
+            <summary>
+            Method to be implemented by concrete cache serializers to write the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(System.String,System.Byte[],Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to write the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="bytes">Bytes to write.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed write operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to Read the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>Read bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to Read the cache bytes.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>Read bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String)">
+            <summary>
+            Method to be implemented by concrete cache serializers to remove an entry from the cache.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(System.String,Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints)">
+            <summary>
+            Method to be overridden by concrete cache serializers to remove an entry from the cache.
+            </summary>
+            <param name="cacheKey">Cache key.</param>
+            <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Utility">
+            <summary>
+            Utility methods used by L1/L2 cache.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClaimsPrincipalExtensions">
+            <summary>
+            Extensions for <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Oid">
+            <summary>
+            New Object id claim: "oid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.ObjectId">
+            <summary>
+            Old Object Id claim: http://schemas.microsoft.com/identity/claims/objectidentifier.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Tid">
+            <summary>
+            New Tenant Id claim: "tid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.PreferredUserName">
+            <summary>
+            PreferredUserName: "preferred_username".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Name">
+            <summary>
+            Name claim: "name".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UserFlow">
+            <summary>
+            UserFlow claim: "http://schemas.microsoft.com/claims/authnclassreference".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.Tfp">
+            <summary>
+            Tfp claim: "tfp".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UniqueObjectIdentifier">
+            <summary>
+            UniqueObjectIdentifier: "uid".
+            Home Object Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.UniqueTenantIdentifier">
+            <summary>
+            UniqueTenantIdentifier: "utid".
+            Home Tenant Id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClaimsPrincipalExtensions.NameIdentifierId">
+            <summary>
+            Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the account identifier for an MSAL.NET account from a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims principal.</param>
+            <returns>A string corresponding to an account identifier as defined in <see cref="P:Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the unique object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the unique object ID.</param>
+            <remarks>This method returns the object ID both in case the developer has enabled or not claims mapping.</remarks>
+            <returns>Unique object ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the tenant ID.</param>
+            <returns>Tenant ID of the identity, or <c>null</c> if it cannot be found.</returns>
+            <remarks>This method returns the tenant ID both in case the developer has enabled or not claims mapping.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the login-hint associated with a <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to complete the login-hint.</param>
+            <returns>The login hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the domain-hint associated with an identity.
+            </summary>
+            <param name="claimsPrincipal">Identity for which to compute the domain-hint.</param>
+            <returns> The domain hint for the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Get the display name for the signed-in user, from the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">Claims about the user/account.</param>
+            <returns>A string containing the display name for the user, as determined by Azure AD (v1.0) and Microsoft identity platform (v2.0) tokens,
+            or <c>null</c> if the claims cannot be found.</returns>
+            <remarks>See https://docs.microsoft.com/azure/active-directory/develop/id-tokens#payload-claims. </remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the user flow ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the user flow ID.</param>
+            <returns>User flow ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Object ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Object ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeTenantId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the Home Tenant ID associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the sub claim.</param>
+            <returns>Home Tenant ID (sub) of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Gets the NameIdentifierId associated with the <see cref="T:System.Security.Claims.ClaimsPrincipal"/>.
+            </summary>
+            <param name="claimsPrincipal">The <see cref="T:System.Security.Claims.ClaimsPrincipal"/> from which to retrieve the <c>NameIdentifierId</c> claim.</param>
+            <returns>Name identifier ID of the identity, or <c>null</c> if it cannot be found.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheExtensions">
+            <summary>
+            Extension methods to expose a simplified developer experience for
+            adding token caches to MSAL.NET confidential client applications
+            in ASP.NET, or .NET Core, or .NET FW.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddTokenCaches(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+             <summary>
+             Use a token cache and choose the serialization part by adding it to
+             the services collection and configuring its options.
+             </summary>
+             <returns>The confidential client application.</returns>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <param name="initializeCaches">Action that you'll use to add a cache serialization
+             to the service collection passed as an argument.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+            
+             The following code adds a distributed in-memory token cache.
+            
+             <code>
+              app.AddTokenCaches(services =>
+              {
+                  // In memory distributed token cache
+                  // In net472, requires to reference Microsoft.Extensions.Caching.Memory
+                  services.AddDistributedTokenCache();
+                  services.AddDistributedMemoryCache();
+              });
+             </code>
+            
+             The following code adds a token cache based on REDIS and initializes
+             its configuration.
+            
+             <code>
+              app.AddTokenCaches(services =>
+              {
+                   services.AddDistributedTokenCache();
+                   // Redis token cache
+                   // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
+                   services.AddStackExchangeRedisCache(options =>
+                   {
+                       options.Configuration = "localhost";
+                       options.InstanceName = "Redis";
+                   });
+              });
+             </code>
+             If using distributed token caches, use AddDistributedTokenCache.
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication)">
+             <summary>
+             Add an in-memory well partitioned token cache to MSAL.NET confidential client
+             application. Don't use this method in ASP.NET Core: rather use:
+             <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
+             </summary>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+            
+             The following code adds an in-memory token cache.
+            
+             <code>
+              app.AddInMemoryTokenCache();
+             </code>
+            
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+             <summary>
+             Add a distributed token cache.
+             </summary>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <param name="initializeDistributedCache">Action taking a <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
+             and by which you initialize your distributed cache.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+             The following code adds a token cache based on REDIS and initializes
+             its configuration.
+            
+             <code>
+              app.AddDistributedTokenCache(services =>
+              {
+                   // Redis token cache
+                   // Requires to reference Microsoft.Extensions.Caching.StackExchangeRedis
+                   services.AddStackExchangeRedisCache(options =>
+                   {
+                       options.Configuration = "localhost";
+                       options.InstanceName = "Redis";
+                   });
+              });
+             </code>
+            
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
+        <member name="T:Microsoft.Identity.Web.LoggingEventId">
+            <summary>
+            EventIds for Logging.
+            </summary>
+        </member>
+    </members>
+</doc>
