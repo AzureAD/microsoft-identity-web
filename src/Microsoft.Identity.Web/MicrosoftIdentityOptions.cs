@@ -148,7 +148,5 @@ namespace Microsoft.Identity.Web
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public PathString ErrorPath { get; set; } = new PathString("/MicrosoftIdentity/Account/Error");
-
-
     }
 }
