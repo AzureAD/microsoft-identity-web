@@ -136,14 +136,14 @@ namespace Microsoft.Identity.Web
         public string? UserAssignedManagedIdentityClientId { get; set; }
 
         /// <summary>
-        /// Sets the ResetPassword route path.
+        /// ResetPassword path within the application's base path.
         /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public PathString ResetPasswordPath { get; set; } = new PathString("/MicrosoftIdentity/Account/ResetPassword");
 
         /// <summary>
-        /// Sets the Error route path.
+        /// Error path within the application's base path.
         /// Defaults to the value /MicrosoftIdentity/Account/Error,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
