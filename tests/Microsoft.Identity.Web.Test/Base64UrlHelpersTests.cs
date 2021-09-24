@@ -61,32 +61,9 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("", "")] // Empty string
         public void DecodeToString_ValidBase64UrlString_ReturnsDecodedString(string stringToDecode, string expectedDecodedString)
         {
-            var actualDecodedString = Base64UrlHelpers.DecodeToString(stringToDecode);
+            var actualDecodedString = Base64UrlHelpers.Decode(stringToDecode);
 
             Assert.Equal(expectedDecodedString, actualDecodedString);
-        }
-
-        [Theory]
-        [InlineData("123456")]
-        [InlineData("")]
-        public void CreateString_UTF8Bytes_ReturnsValidString(string stringToCreate)
-        {
-            var resultString = Base64UrlHelpers.CreateString(Encoding.UTF8.GetBytes(stringToCreate));
-
-            Assert.Equal(stringToCreate, resultString);
-        }
-
-        [Theory]
-        [InlineData("123456")]
-        public void CreateString_NonUTF8Bytes_ReturnsInvalidString(string stringToCreate)
-        {
-            var resultString = Base64UrlHelpers.CreateString(Encoding.UTF32.GetBytes(stringToCreate));
-
-            Assert.NotEqual(stringToCreate, resultString);
-
-            resultString = Base64UrlHelpers.CreateString(Encoding.Unicode.GetBytes(stringToCreate));
-
-            Assert.NotEqual(stringToCreate, resultString);
         }
 
         [Theory]
@@ -100,7 +77,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var expectedDecodedByteArray = Encoding.UTF8.GetBytes(expectedDecodedString);
 
-            var actualDecodedByteArray = Base64UrlHelpers.DecodeToBytes(stringToDecode);
+            var actualDecodedByteArray = Base64UrlHelpers.DecodeBytes(stringToDecode);
 
             Assert.Equal(expectedDecodedByteArray, actualDecodedByteArray);
         }
@@ -110,10 +87,10 @@ namespace Microsoft.Identity.Web.Test
         {
             var stringToDecodeWithInvalidLength = "MTIzNDU21";
 
-            Action decodeAction = () => Base64UrlHelpers.DecodeToBytes(stringToDecodeWithInvalidLength);
+            Action decodeAction = () => Base64UrlHelpers.DecodeBytes(stringToDecodeWithInvalidLength);
 
             var exception = Assert.Throws<ArgumentException>(decodeAction);
-            Assert.Equal(IDWebErrorMessage.InvalidBase64UrlString + " (Parameter 'arg')", exception.Message);
+            Assert.Equal(IDWebErrorMessage.InvalidBase64UrlString + " (Parameter 'str')", exception.Message);
         }
     }
 }
