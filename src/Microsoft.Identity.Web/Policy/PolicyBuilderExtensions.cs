@@ -10,6 +10,14 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for building the RequiredScope policy during application startup.
     /// </summary>
+    /// <example>
+    /// <code>
+    /// services.AddAuthorization(o =>
+    /// { o.AddPolicy("Custom",
+    ///     policyBuilder =>policyBuilder.RequireScope("access_as_user"));
+    /// });
+    /// </code>
+    /// </example>
     public static class PolicyBuilderExtensions
     {
         /// <summary>

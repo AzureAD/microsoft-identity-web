@@ -161,8 +161,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
-            builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-            // builder.Services.AddSingleton<IAuthorizationPolicyProvider, RequiredScopePolicyProvider>();
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
@@ -229,6 +227,23 @@ namespace Microsoft.Identity.Web
                     {
                         options.Events = new JwtBearerEvents();
                     }
+
+                    // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
+                    // be used from the controllers.
+                    var tokenValidatedHandler = options.Events.OnTokenValidated;
+                    options.Events.OnTokenValidated = async context =>
+                    {
+                        if (!mergedOptions.AllowWebApiToBeAuthorizedByACL
+                            && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
+                                || x.Type == ClaimConstants.Scp
+                                || x.Type == ClaimConstants.Roles
+                                || x.Type == ClaimConstants.Role))
+                        {
+                            throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
+                        }
+
+                        await tokenValidatedHandler(context).ConfigureAwait(false);
+                    };
 
                     if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                     {

@@ -22,7 +22,8 @@ namespace TodoListService.Controllers
     */
     //[Authorize(Policy = "foo")]
     [Route("api/[controller]")]
-    [RequiredScope("access_as_user")]
+    //[RequiredScope("access_as_user")]
+    [Authorize]
     //[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     public class TodoListController : Controller
     {

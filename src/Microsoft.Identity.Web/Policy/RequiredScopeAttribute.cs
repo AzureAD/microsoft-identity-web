@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -20,7 +19,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        public IEnumerable<string> AcceptedScopes { get; set; }
+        public IEnumerable<string>? AcceptedScope { get; set; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated
@@ -34,7 +33,7 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
         /// </code>
         /// </example>
-        public string RequiredScopesConfigurationKey { get; set; }
+        public string? RequiredScopeConfigurationKey { get; set; }
 
         /// <summary>
         /// Verifies that the web API is called with the right scopes.
@@ -53,11 +52,11 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope("access_as_user")]
         /// </code>
         /// </example>
-        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopesConfigurationKey"/>
+        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopeConfigurationKey"/>
         /// if you want to express the required scopes from the configuration.
         public RequiredScopeAttribute(params string[] acceptedScopes)
         {
-            AcceptedScopes = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
+            AcceptedScope = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
         }
 
         /// <summary>

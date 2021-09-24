@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
-    [RequiredScope("access_as_user", RequiredScopesConfigurationKey ="AzureAd:Scopes")]
+    [RequiredScope("access_as_user", RequiredScopeConfigurationKey = "AzureAd:Scopes")]
     public class RequiredScopePolicyTests
     {
         private IServiceProvider _provider;
@@ -23,25 +23,23 @@ namespace Microsoft.Identity.Web.Test.Resource
         private const string SingleScope = "access_as_user";
         private const string UserRead = "user.read";
         private const string PolicyName = "foo";
-        private const string AttributePolicyName = "RequiredScope(access_as_user|)";
-        private const string AttributeSectionPolicyName = "RequiredScope(access_as_user|AzureAd)";
 
         [Theory]
         [InlineData(PolicyName, ClaimConstants.Scp)]
+        [InlineData(PolicyName, ClaimConstants.Scp, true)]
         [InlineData(PolicyName, ClaimConstants.Scope)]
-        [InlineData(AttributePolicyName, ClaimConstants.Scp, true)]
-        [InlineData(AttributePolicyName, ClaimConstants.Scope, true)]
-        [InlineData(AttributeSectionPolicyName, ClaimConstants.Scope, true)]
+        [InlineData(PolicyName, ClaimConstants.Scope, true)]
+        [RequiredScope(RequiredScopeConfigurationKey = "AzureAd:Scopes")]
         public async void VerifyUserHasAnyAcceptedScope_TestAsync(
             string policyName,
             string claimType,
-            bool isRequiredScopePolicy = false)
+            bool withConfig = false)
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
                 policyName,
                 SingleScope,
-                isRequiredScopePolicy);
+                withConfig);
 
             var user = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[] { new Claim(claimType, SingleScope) }));
@@ -55,21 +53,20 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         [Theory]
         [InlineData(PolicyName, SingleScope, ClaimConstants.Scp)]
+        [InlineData(PolicyName, SingleScope, ClaimConstants.Scp, true)]
         [InlineData(PolicyName, SingleScope, ClaimConstants.Scope)]
-        [InlineData(AttributePolicyName, SingleScope, ClaimConstants.Scp, true)]
-        [InlineData(AttributePolicyName, SingleScope, ClaimConstants.Scope, true)]
-        [InlineData(AttributeSectionPolicyName, SingleScope, ClaimConstants.Scope, true)]
+        [InlineData(PolicyName, SingleScope, ClaimConstants.Scope, true)]
         public async void VerifyUserHasAnyAcceptedScope_OneScopeMatches_TestAsync(
             string policyName,
             string scopes,
             string claimType,
-            bool isRequiredScopePolicy = false)
+            bool withConfig = false)
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
                 policyName,
                 scopes,
-                isRequiredScopePolicy);
+                withConfig);
 
             var user = new ClaimsPrincipal(
                 new ClaimsIdentity(new Claim[] { new Claim(claimType, MultipleScopes) }));
@@ -136,7 +133,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         private IAuthorizationService BuildAuthorizationService(
         string policy,
         string scopes,
-        bool isRequiredScopePolicy = false)
+        bool withConfig = false)
         {
             var configAsDictionary = new Dictionary<string, string>()
             {
@@ -160,16 +157,20 @@ namespace Microsoft.Identity.Web.Test.Resource
                 {
                     options.AddPolicy(policy, policyBuilder =>
                     {
-                        policyBuilder.RequireScope(scopes?.Split(' '));
+                        if (withConfig)
+                        {
+                            policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement() { RequiredScopesConfigurationKey = $"{ConfigSectionName}:Scope" });
+                        }
+                        else
+                        {
+                            policyBuilder.RequireScope(scopes?.Split(' '));
+                        }
                     });
                 });
                 services.AddLogging();
                 services.AddOptions();
-                services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-                if (isRequiredScopePolicy)
-                {
-                    services.AddSingleton<IAuthorizationPolicyProvider, RequiredScopePolicyProvider>();
-                }
+                services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
+                services.AddRequiredScopeAuthorization();
             });
             _provider = hostBuilder.Build().Services;
             return _provider.GetRequiredService<IAuthorizationService>();
