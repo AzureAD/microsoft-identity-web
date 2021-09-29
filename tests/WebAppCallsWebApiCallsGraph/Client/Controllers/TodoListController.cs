@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;

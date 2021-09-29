@@ -12,6 +12,7 @@ using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TodoListService
 {
@@ -67,6 +68,41 @@ namespace TodoListService
             services.AddControllers();
             services.AddSingleton<ILongRunningProcessContextFactory, LongRunningProcessContextFactory>();
 
+            #region
+            /*
+            // 1) With the requirement, applies to all endpoints which have [Authorize(Policy = "foo")]
+            services.AddAuthorization(options =>
+                    options.AddPolicy("foo", policyBuilder =>
+                    {
+                        policyBuilder.AddRequirements(new ScopeAuthorizationRequirement(new[] { "access_as_cat" }));
+                        policyBuilder.RequireScope("access_as_cat");
+                    }));
+
+            */
+
+            /*
+            // 2) With the policy builder extension method, applies to all endpoints which have [Authorize(Policy = "foo")]
+            services.AddAuthorization(options =>
+                    options.AddPolicy("foo", policyBuilder =>
+                    {
+                        policyBuilder.RequireScope("access_as_cat");
+                    }));
+            */
+
+            // 3a) With the attribute (backwards compat). Applies to all endpoints which have [Authorize][RequiredScope("access_as_user")]
+
+            // 3b) With the attribute (backwards compat). Applies to all endpoints which have [Authorize][RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
+
+            // 4) With explicit mapping (new. See Configure(IApplicationBuilder app, IWebHostEnvironment env))
+            #endregion
+
+
+
+
+            // Works with GRPC, Signal R, MVC.
+            // Tests on all the.
+            // 
+
             // below code is how customers would use a proxy
             //services.Configure<AadIssuerValidatorOptions>(options => { options.HttpClientName = "cats"; });
             //services.AddHttpClient("cats", c =>
@@ -101,6 +137,9 @@ namespace TodoListService
             {
                 endpoints.MapControllers();
             });
+
+            // Future
+            // app.MapGet("/api/todolist2", [Authorize][RequiredScope("access_as_user")] () => "Hello World!")
         }
     }
 }

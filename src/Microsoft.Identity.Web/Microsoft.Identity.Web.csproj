@@ -115,6 +115,7 @@
     <Compile Remove="DownstreamWebApiSupport\**" />
     <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
+    <Compile Remove="Policy\**" />
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />
     <Compile Remove="TokenCacheProviders\Session\**" />

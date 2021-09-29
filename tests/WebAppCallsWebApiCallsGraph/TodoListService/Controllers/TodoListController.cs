@@ -16,9 +16,15 @@ using TodoListService.Models;
 
 namespace TodoListService.Controllers
 {
-    [Authorize]
+    /* equivalent 
+    [Authorize(Policy = "RequiredScope(|AzureAd:Scope")]
+    [Authorize(Policy = "RequiredScope(User.Read")]
+    */
+    //[Authorize(Policy = "foo")]
     [Route("api/[controller]")]
-    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
+    [RequiredScope("access_as_user")]
+    [Authorize]
+    //[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     public class TodoListController : Controller
     {
         private readonly ITokenAcquisition _tokenAcquisition; // do not remove

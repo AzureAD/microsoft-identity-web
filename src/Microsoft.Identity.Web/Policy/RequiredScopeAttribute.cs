@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -12,8 +13,14 @@ namespace Microsoft.Identity.Web.Resource
     /// choice, use either one or the other of the constructors.
     /// For details, see https://aka.ms/ms-id-web/required-scope-attribute.
     /// </summary>
-    public class RequiredScopeAttribute : TypeFilterAttribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class RequiredScopeAttribute : Attribute, IAuthRequiredScopeMetadata
     {
+        /// <summary>
+        /// Scopes accepted by this web API.
+        /// </summary>
+        public IEnumerable<string>? AcceptedScope { get; set; }
+
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated
         /// by spaces).
@@ -26,11 +33,7 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
         /// </code>
         /// </example>
-        public string RequiredScopesConfigurationKey
-        {
-            get { return string.Empty; }
-            set { Arguments = new object[] { new string[] { Constants.RequiredScopesSetting, value } }; }
-        }
+        public string? RequiredScopeConfigurationKey { get; set; }
 
         /// <summary>
         /// Verifies that the web API is called with the right scopes.
@@ -49,24 +52,26 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope("access_as_user")]
         /// </code>
         /// </example>
-        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopesConfigurationKey"/>
+        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopeConfigurationKey"/>
         /// if you want to express the required scopes from the configuration.
         public RequiredScopeAttribute(params string[] acceptedScopes)
-            : base(typeof(RequiredScopeFilter))
         {
-            Arguments = new object[] { acceptedScopes };
-            IsReusable = true;
+            AcceptedScope = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
         }
 
         /// <summary>
-        /// Default constructor, to be used along with the <see cref="RequiredScopesConfigurationKey"/>
-        /// property when you want to get the scopes to validate from the configuration, instead
-        /// of hardcoding them in the code.
+        /// Default constructor.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// [RequiredScope(RequiredScopesConfigurationKey="AzureAD:Scope")]
+        /// class Controller : BaseController
+        /// {
+        /// }
+        /// </code>
+        /// </example>
         public RequiredScopeAttribute()
-            : base(typeof(RequiredScopeFilter))
         {
-            IsReusable = true;
         }
     }
 }

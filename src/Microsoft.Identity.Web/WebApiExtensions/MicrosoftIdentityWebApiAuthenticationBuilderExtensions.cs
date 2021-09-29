@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -161,6 +161,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
