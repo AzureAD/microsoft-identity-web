@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyUserHasAnyAcceptedScope_RequiredScopesMissing_FailsAsync()
+        public async void VerifyUserHasAnyAcceptedScope_RequiredScopesMissingAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web.Test.Resource
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
 
             // Assert
-            Assert.False(allowed.Succeeded);
+            Assert.True(allowed.Succeeded);
         }
 
         [Fact]
