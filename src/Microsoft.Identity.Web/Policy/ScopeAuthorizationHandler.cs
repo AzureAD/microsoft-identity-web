@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
                 scopes = _configuration.GetValue<string>(requirement?.RequiredScopesConfigurationKey)?.Split(' ');
             }
 
-            if (scopes == null)
+            if (scopes is null)
             {
                 scopes = requirement?.AllowedValues ?? data?.AcceptedScope;
             }
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
             // Can't determine what to do without scope metadata, so proceed
             if (scopes is null)
             {
-                //context.Succeed(requirement);
+                context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
