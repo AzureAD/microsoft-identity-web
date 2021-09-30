@@ -162,13 +162,13 @@ namespace Microsoft.Identity.Web
                 // Share the ID token though
 
                 string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
-                string? ccsRoutingHint = string.Empty;
+                string? backUpAuthRoutingHint = string.Empty;
                 if (!string.IsNullOrEmpty(clientInfo))
                 {
                     ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo);
                     if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
                     {
-                        ccsRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
+                        backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
                     }
                 }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Web
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context!.ProtocolMessage!.Code)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(codeVerifier)
-                    .WithCcsRoutingHint(ccsRoutingHint);
+                    .WithCcsRoutingHint(backUpAuthRoutingHint);
 
                 if (mergedOptions.IsB2C)
                 {

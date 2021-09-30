@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Web
         internal const string LoginHintParameter = "loginHint";
         internal const string DomainHintParameter = "domainHint";
 
-        // CCS
+        // Backup authentication system
         internal const string XAnchorMailbox = "x-anchormailbox";
         internal const string Upn = "upn";
     }
