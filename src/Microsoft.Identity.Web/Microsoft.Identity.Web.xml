@@ -1619,12 +1619,12 @@
             in order to validate scopes in the scope claims.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.AcceptedScopes">
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.AcceptedScope">
             <summary>
             Scopes accepted by this web API.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.RequiredScopesConfigurationKey">
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.RequiredScopeConfigurationKey">
             <summary>
             Fully qualified name of the configuration key containing the required scopes (separated
             by spaces).
@@ -1670,12 +1670,12 @@
             For details, see https://aka.ms/ms-id-web/required-scope-attribute.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.AcceptedScopes">
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.AcceptedScope">
             <summary>
             Scopes accepted by this web API.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey">
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopeConfigurationKey">
             <summary>
             Fully qualified name of the configuration key containing the required scopes (separated
             by spaces).
@@ -1707,7 +1707,7 @@
              [RequiredScope("access_as_user")]
              </code>
              </example>
-             <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey"/>
+             <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopeConfigurationKey"/>
              if you want to express the required scopes from the configuration.
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor">
@@ -1990,14 +1990,14 @@
             <param name="services">The services being configured.</param>
             <returns>Services.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.RequiredScopeExtensions.RequireScopes``1(``0,System.String[])">
+        <member name="M:Microsoft.Identity.Web.RequiredScopeExtensions.RequireScope``1(``0,System.String[])">
             <summary>
-            This method adds metadata to route endpoint to descript required scopes. It's the imperative version of
+            This method adds metadata to route endpoint to describe required scopes. It's the imperative version of
             the [RequiredScope] attribute.
             </summary>
             <typeparam name="TBuilder">Class implementing <see cref="T:Microsoft.AspNetCore.Builder.IEndpointConventionBuilder"/>.</typeparam>
             <param name="endpointConventionBuilder">To customize the endpoints.</param>
-            <param name="scopes">Scopes.</param>
+            <param name="scope">Scope.</param>
             <returns>Builder.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.RequireScopeOptions">
@@ -2531,6 +2531,56 @@
              </remarks>
              <param name="services">The services collection to add to.</param>
              <returns>The service collection.</returns>
+        </member>
+        <member name="F:Microsoft.Identity.Web.Util.Base64UrlHelpers.s_base64Table">
+            <summary>
+            Encoding table.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Util.Base64UrlHelpers.Encode(System.String)">
+            <summary>
+            The following functions perform base64url encoding which differs from regular base64 encoding as follows
+            * padding is skipped so the pad character '=' doesn't have to be percent encoded
+            * the 62nd and 63rd regular base64 encoding characters ('+' and '/') are replace with ('-' and '_')
+            The changes make the encoding alphabet file and URL safe.
+            </summary>
+            <param name="arg">string to encode.</param>
+            <returns>Base64Url encoding of the UTF8 bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Util.Base64UrlHelpers.Encode(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Converts a subset of an array of 8-bit unsigned integers to its equivalent string representation that is encoded with base-64-url digits. Parameters specify
+            the subset as an offset in the input array, and the number of elements in the array to convert.
+            </summary>
+            <param name="inArray">An array of 8-bit unsigned integers.</param>
+            <param name="offset">The number of elements of inArray to convert.</param>
+            <param name="length">An offset in inArray.</param>
+            <returns>The string representation in base 64 url encoding of length elements of inArray, starting at position offset.</returns>
+            <exception cref="T:System.ArgumentNullException">'inArray' is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">offset or length is negative OR offset plus length is greater than the length of inArray.</exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Util.Base64UrlHelpers.Encode(System.Byte[])">
+            <summary>
+            Converts a subset of an array of 8-bit unsigned integers to its equivalent string representation that is encoded with base-64-url digits. Parameters specify
+            the subset as an offset in the input array, and the number of elements in the array to convert.
+            </summary>
+            <param name="inArray">An array of 8-bit unsigned integers.</param>
+            <returns>The string representation in base 64 url encoding of length elements of inArray, starting at position offset.</returns>
+            <exception cref="T:System.ArgumentNullException">'inArray' is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">offset or length is negative OR offset plus length is greater than the length of inArray.</exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Util.Base64UrlHelpers.DecodeBytes(System.String)">
+            <summary>
+             Converts the specified string, which encodes binary data as base-64-url digits, to an equivalent 8-bit unsigned integer array.</summary>
+            <param name="str">base64Url encoded string.</param>
+            <returns>UTF8 bytes.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Util.Base64UrlHelpers.Decode(System.String)">
+            <summary>
+            Decodes the string from Base64UrlEncoded to UTF8.
+            </summary>
+            <param name="arg">string to decode.</param>
+            <returns>UTF8 string.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder">
             <summary>

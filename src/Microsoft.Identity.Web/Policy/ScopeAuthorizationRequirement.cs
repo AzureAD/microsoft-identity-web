@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets the optional list of scope values from configuration.
         /// </summary>
-        public string RequiredScopesConfigurationKey { get; set; }
+        public string? RequiredScopesConfigurationKey { get; set; }
 
         /// <inheritdoc />
         public override string ToString()
