@@ -33,15 +33,20 @@ namespace Microsoft.Identity.Web
         ///  Makes a decision if authorization is allowed based on a specific requirement.
         /// </summary>
         /// <param name="context">AuthorizationHandlerContext.</param>
-        /// <param name="requirement">Scope requirement.</param>
+        /// <param name="requirement">Scope authorization requirement.</param>
         /// <returns>Task.</returns>
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             ScopeAuthorizationRequirement requirement)
         {
-            if (context == null)
+            if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
+            }
+
+            if (requirement is null)
+            {
+                throw new ArgumentNullException(nameof(requirement));
             }
 
             // The resource is either the HttpContext or the Endpoint directly when used with the
@@ -56,14 +61,14 @@ namespace Microsoft.Identity.Web
             var data = endpoint?.Metadata.GetMetadata<IAuthRequiredScopeMetadata>();
 
             IEnumerable<string>? scopes = null;
-            if (requirement?.RequiredScopesConfigurationKey != null)
+            if (requirement.RequiredScopesConfigurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(requirement?.RequiredScopesConfigurationKey)?.Split(' ');
+                scopes = _configuration.GetValue<string>(requirement.RequiredScopesConfigurationKey)?.Split(' ');
             }
 
             if (scopes is null)
             {
-                scopes = requirement?.AllowedValues ?? data?.AcceptedScope;
+                scopes = requirement.AllowedValues ?? data?.AcceptedScope;
             }
 
             // Can't determine what to do without scope metadata, so proceed
