@@ -54,7 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph" Version="4.4.0" />
+    <PackageReference Include="Microsoft.Graph" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
