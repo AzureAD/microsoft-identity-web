@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
 {
@@ -133,5 +134,19 @@ namespace Microsoft.Identity.Web
         /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
         /// </summary>
         public string? UserAssignedManagedIdentityClientId { get; set; }
+
+        /// <summary>
+        /// Sets the ResetPassword route path.
+        /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
+        /// which is the value used by Microsoft.Identity.Web.UI.
+        /// </summary>
+        public PathString ResetPasswordPath { get; set; } = new PathString("/MicrosoftIdentity/Account/ResetPassword");
+
+        /// <summary>
+        /// Sets the Error route path.
+        /// Defaults to the value /MicrosoftIdentity/Account/Error,
+        /// which is the value used by Microsoft.Identity.Web.UI.
+        /// </summary>
+        public PathString ErrorPath { get; set; } = new PathString("/MicrosoftIdentity/Account/Error");
     }
 }

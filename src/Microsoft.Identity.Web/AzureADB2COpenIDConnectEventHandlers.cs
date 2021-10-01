@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web
             if (isOidcProtocolException && message.Contains(ErrorCodes.B2CForgottenPassword, StringComparison.OrdinalIgnoreCase))
             {
                 // If the user clicked the reset password link, redirect to the reset password route
-                context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{SchemeName}");
+                context.Response.Redirect($"{context.Request.PathBase}{Options.ResetPasswordPath}/{SchemeName}");
             }
 
             // Access denied errors happen when a user cancels an action on the Azure Active Directory B2C UI. We just redirect back to
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Web
             {
                 _errorAccessor.SetMessage(context.HttpContext, message);
 
-                context.Response.Redirect($"{context.Request.PathBase}/MicrosoftIdentity/Account/Error");
+                context.Response.Redirect($"{context.Request.PathBase}{Options.ErrorPath}");
             }
 
             return Task.CompletedTask;
