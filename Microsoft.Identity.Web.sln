@@ -134,6 +134,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Client", "..\msal\src\client\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj", "{DE8ADBE2-884E-429A-BC28-CB5C0BF53241}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -300,6 +302,10 @@ Global
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE8ADBE2-884E-429A-BC28-CB5C0BF53241}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE8ADBE2-884E-429A-BC28-CB5C0BF53241}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE8ADBE2-884E-429A-BC28-CB5C0BF53241}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE8ADBE2-884E-429A-BC28-CB5C0BF53241}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

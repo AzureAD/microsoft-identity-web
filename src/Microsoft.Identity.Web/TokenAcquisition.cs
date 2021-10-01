@@ -25,6 +25,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.Identity.Web
@@ -693,6 +694,11 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
+                if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
+                {
+                    builder. .UseSharedCache();
+                }
+
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
                 {
@@ -731,9 +737,14 @@ namespace Microsoft.Identity.Web
 
                 IConfidentialClientApplication app = builder.Build();
                 _application = app;
+                
                 // Initialize token cache providers
-                _tokenCacheProvider.Initialize(app.AppTokenCache);
-                _tokenCacheProvider.Initialize(app.UserTokenCache);
+                if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
+                {
+                    _tokenCacheProvider.Initialize(app.AppTokenCache);
+                    _tokenCacheProvider.Initialize(app.UserTokenCache);
+                }
+
                 return app;
             }
             catch (Exception ex)

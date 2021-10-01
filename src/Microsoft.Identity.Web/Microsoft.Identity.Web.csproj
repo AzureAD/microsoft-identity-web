@@ -128,7 +128,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.36.0" />
 
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205">
       <PrivateAssets>all</PrivateAssets>
@@ -137,6 +136,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\msal\src\client\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>
