@@ -47,6 +47,8 @@ namespace Microsoft.Identity.Web
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
+            mergedOptions.ResetPasswordPath = microsoftIdentityOptions.ResetPasswordPath;
+            mergedOptions.ErrorPath = microsoftIdentityOptions.ErrorPath;
             mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
             mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;
             mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
