@@ -73,5 +73,10 @@ namespace Microsoft.Identity.Web.Resource
         public RequiredScopeAttribute()
         {
         }
+
+        /// <summary>
+        /// Unused: Compatibility of interface with the Authorization Filter.
+        /// </summary>
+        public bool IsReusable { get; set; }
     }
 }
