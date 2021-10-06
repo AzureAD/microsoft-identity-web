@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
 
             public IEnumerable<string>? AcceptedScope { get; }
 
-            public string? RequiredScopeConfigurationKey { get; }
+            public string? RequiredScopesConfigurationKey { get; }
         }
     }
 }

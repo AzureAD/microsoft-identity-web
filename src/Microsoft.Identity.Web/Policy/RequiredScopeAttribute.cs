@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
         /// </code>
         /// </example>
-        public string? RequiredScopeConfigurationKey { get; set; }
+        public string? RequiredScopesConfigurationKey { get; set; }
 
         /// <summary>
         /// Verifies that the web API is called with the right scopes.
@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web.Resource
         /// [RequiredScope("access_as_user")]
         /// </code>
         /// </example>
-        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopeConfigurationKey"/>
+        /// <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="RequiredScopesConfigurationKey"/>
         /// if you want to express the required scopes from the configuration.
         public RequiredScopeAttribute(params string[] acceptedScopes)
         {

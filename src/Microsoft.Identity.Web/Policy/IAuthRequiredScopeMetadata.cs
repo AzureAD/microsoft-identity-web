@@ -21,6 +21,6 @@ namespace Microsoft.Identity.Web
         /// Fully qualified name of the configuration key containing the required scopes (separated
         /// by spaces).
         /// </summary>
-        string? RequiredScopeConfigurationKey { get; }
+        string? RequiredScopesConfigurationKey { get; }
     }
 }
