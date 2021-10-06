@@ -129,7 +129,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.36.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.37.0-preview" />
 
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205">
       <PrivateAssets>all</PrivateAssets>
