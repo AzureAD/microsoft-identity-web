@@ -1582,6 +1582,20 @@
             See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath">
+            <summary>
+            Sets the ResetPassword route path.
+            Defaults to /MicrosoftIdentity/Account/ResetPassword,
+            which is the value used by Microsoft.Identity.Web.UI.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ErrorPath">
+            <summary>
+            Sets the Error route path.
+            Defaults to the value /MicrosoftIdentity/Account/Error,
+            which is the value used by Microsoft.Identity.Web.UI.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException">
             <summary>
              Microsoft Identity Web specific exception class for
@@ -1624,7 +1638,7 @@
             Scopes accepted by this web API.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.RequiredScopeConfigurationKey">
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeMetadata.RequiredScopesConfigurationKey">
             <summary>
             Fully qualified name of the configuration key containing the required scopes (separated
             by spaces).
@@ -1675,7 +1689,7 @@
             Scopes accepted by this web API.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopeConfigurationKey">
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey">
             <summary>
             Fully qualified name of the configuration key containing the required scopes (separated
             by spaces).
@@ -1707,7 +1721,7 @@
              [RequiredScope("access_as_user")]
              </code>
              </example>
-             <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopeConfigurationKey"/>
+             <seealso cref="M:RequiredScopeAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.RequiredScopesConfigurationKey"/>
              if you want to express the required scopes from the configuration.
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.#ctor">
@@ -1722,6 +1736,11 @@
             }
             </code>
             </example>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeAttribute.IsReusable">
+            <summary>
+            Unused: Compatibility of interface with the Authorization Filter.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
             <summary>
@@ -2030,7 +2049,7 @@
              Makes a decision if authorization is allowed based on a specific requirement.
             </summary>
             <param name="context">AuthorizationHandlerContext.</param>
-            <param name="requirement">Scope requirement.</param>
+            <param name="requirement">Scope authorization requirement.</param>
             <returns>Task.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement">

@@ -1,3 +1,16 @@
+1.18.0
+==========
+Update to Microsoft.Graph 4.6.0, Microsoft.Graph.Beta 4.14.0-preview, and MSAL.NET 4.36.2.
+
+### New Features:
+**Change RequiredScope to be based on policies and not filters**. This enables new scenarios that do not rely on MVC filters. See issue [#1002](https://github.com/AzureAD/microsoft-identity-web/issues/1002) for details.
+
+### Bug Fixes:
+**Allow customizing the UI processing by decoupling the `Microsoft.Identity.Web` and `Microsoft.Identity.Web.Ui` packages**. See issue [#1034](https://github.com/AzureAD/microsoft-identity-web/issues/1034) for details.
+
+**Use `backup authentication system` in docs and comments** instead of CCS. See issue [#1464](https://github.com/AzureAD/microsoft-identity-web/issues/1464) for details.
+
+
 1.17.0
 ==========
 **Microsoft.Identity.Web now provides two additional NuGet packages: Microsoft.Identity.Web.TokenCache and Microsoft.Identity.Web.Certificate**. These packages are for ASP.NET Framework and .NET Core apps who want to use the token cache serializers and/or the certificate loader, but do not want all the dependencies brought by the full Microsoft.Identity.Web package. If you are on ASP.NET Core, continue to use Microsoft.Identity.Web. See issue [#1431](https://github.com/AzureAD/microsoft-identity-web/issues/1431) for details.

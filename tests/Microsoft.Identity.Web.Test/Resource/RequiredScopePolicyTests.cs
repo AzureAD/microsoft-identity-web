@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
 {
-    [RequiredScope("access_as_user", RequiredScopeConfigurationKey = "AzureAd:Scopes")]
+    [RequiredScope("access_as_user", RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     public class RequiredScopePolicyTests
     {
         private IServiceProvider _provider;
@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [InlineData(PolicyName, ClaimConstants.Scp, true)]
         [InlineData(PolicyName, ClaimConstants.Scope)]
         [InlineData(PolicyName, ClaimConstants.Scope, true)]
-        [RequiredScope(RequiredScopeConfigurationKey = "AzureAd:Scopes")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         public async void VerifyUserHasAnyAcceptedScope_TestAsync(
             string policyName,
             string claimType,
