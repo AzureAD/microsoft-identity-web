@@ -102,6 +102,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.37.0-preview" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.12.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.12.2" />
     <PackageReference Include="System.Text.Encodings.Web" Version="5.0.1" />
@@ -136,7 +137,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\msal\src\client\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>

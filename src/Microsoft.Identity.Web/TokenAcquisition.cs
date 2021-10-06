@@ -696,7 +696,7 @@ namespace Microsoft.Identity.Web
 
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
                 {
-                    builder. .UseSharedCache();
+                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
                 }
 
                 // The redirect URI is not needed for OBO
