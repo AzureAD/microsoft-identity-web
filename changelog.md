@@ -1,3 +1,7 @@
+1.19.0-preview
+==========
+**This preview release contains a preview version of MSAL.NET, 4.37.0-preview,** which includes token cache improvements. The `.AddMemoryCache` should now be much faster, but the memory is not bounded, nor does it have any eviction policies, so not recommended for use in production if user flows are involved (`GetTokenForUser`). Once MSAL.NET releases 4.37.0, Microsoft.Identity.Web will release an out of preview version as well. 
+
 1.18.0
 ==========
 Update to Microsoft.Graph 4.6.0, Microsoft.Graph.Beta 4.14.0-preview, and MSAL.NET 4.36.2.
