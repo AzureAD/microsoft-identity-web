@@ -155,7 +155,11 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
-            builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
+            if (!builder.Services.Any(s => s.ImplementationType != null && typeof(IAuthenticationHandler).IsAssignableFrom(s.ImplementationType)))
+            {
+                builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
+            }
+
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
 
             builder.Services.AddHttpContextAccessor();

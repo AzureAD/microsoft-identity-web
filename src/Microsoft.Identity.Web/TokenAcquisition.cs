@@ -251,6 +251,13 @@ namespace Microsoft.Identity.Web
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
+            // Case where JwtBearer is not added. We still want to get the options for CCA
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
+                mergedOptionsMonitor.Get(authenticationScheme);
+            }
+
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
