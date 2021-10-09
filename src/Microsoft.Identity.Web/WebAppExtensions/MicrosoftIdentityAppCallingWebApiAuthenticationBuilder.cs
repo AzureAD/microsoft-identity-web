@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class MicrosoftIdentityAppCallsWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
-        internal MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
             : base(services, configurationSection)

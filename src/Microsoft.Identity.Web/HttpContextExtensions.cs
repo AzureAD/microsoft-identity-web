@@ -3,6 +3,7 @@
 
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -28,12 +29,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="httpContext">HTTP context associated with the current request.</param>
         /// <returns><see cref="JwtSecurityToken"/> used to call the web API.</returns>
-        internal static JwtSecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
+        internal static SecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
         {
             // lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
             lock (httpContext)
             {
-                return httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] as JwtSecurityToken;
+                return httpContext.Items[Constants.JwtSecurityTokenUsedToCallWebApi] as SecurityToken;
             }
         }
     }

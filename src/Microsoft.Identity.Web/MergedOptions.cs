@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// Merges the MicrosoftIdentityWebOptions and the ConfidentialClientApplicationOptions.
     /// </summary>
-    internal class MergedOptions : MicrosoftIdentityOptions
+    public class MergedOptions : MicrosoftIdentityOptions
     {
         private ConfidentialClientApplicationOptions? _confidentialClientApplicationOptions;
 
@@ -252,7 +252,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
+        public static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
         {
             mergedOptions.AadAuthorityAudience = confidentialClientApplicationOptions.AadAuthorityAudience;
             mergedOptions.AzureCloudInstance = confidentialClientApplicationOptions.AzureCloudInstance;

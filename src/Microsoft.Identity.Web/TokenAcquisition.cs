@@ -26,6 +26,8 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.Identity.Web
@@ -250,6 +252,12 @@ namespace Microsoft.Identity.Web
 
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
+
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
+                mergedOptionsMonitor.Get(authenticationScheme);
+            }
 
             user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
@@ -767,15 +775,12 @@ namespace Microsoft.Identity.Web
             try
             {
                 // In web API, validatedToken will not be null
-                JwtSecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
+                SecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
-                if (validatedToken != null)
+                string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
+                if (tokenUsedToCallTheWebApi != null)
                 {
-                    // In the case the token is a JWE (encrypted token), we use the decrypted token.
-                    string tokenUsedToCallTheWebApi = validatedToken.InnerToken == null ? validatedToken.RawData
-                                                : validatedToken.InnerToken.RawData;
-
                     var builder = application
                                     .AcquireTokenOnBehalfOf(
                                         scopes.Except(_scopesRequestedByMsal),
@@ -815,6 +820,26 @@ namespace Microsoft.Identity.Web
                     ex);
                 throw;
             }
+        }
+
+        private static string? GetActualToken(SecurityToken? validatedToken)
+        {
+            JwtSecurityToken? jwtSecurityToken = validatedToken as JwtSecurityToken;
+            if (jwtSecurityToken != null)
+            {
+                // In the case the token is a JWE (encrypted token), we use the decrypted token.
+                return jwtSecurityToken.InnerToken == null ? jwtSecurityToken.RawData
+                                            : jwtSecurityToken.InnerToken.RawData;
+            }
+
+            JsonWebToken? jsonWebToken = validatedToken as JsonWebToken;
+            if (jsonWebToken != null)
+            {
+                // In the case the token is a JWE (encrypted token), we use the decrypted token.
+                return jsonWebToken.InnerToken == null ? jsonWebToken.EncodedToken
+                                            : jsonWebToken.InnerToken.EncodedToken;
+            }
+            return null;
         }
 
         /// <summary>
