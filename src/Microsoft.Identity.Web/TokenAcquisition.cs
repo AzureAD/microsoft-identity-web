@@ -694,11 +694,6 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
-                if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
-                {
-                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
-                }
-
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
                 {
@@ -739,11 +734,8 @@ namespace Microsoft.Identity.Web
                 _application = app;
 
                 // Initialize token cache providers
-                if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
-                {
-                    _tokenCacheProvider.Initialize(app.AppTokenCache);
-                    _tokenCacheProvider.Initialize(app.UserTokenCache);
-                }
+                _tokenCacheProvider.Initialize(app.AppTokenCache);
+                _tokenCacheProvider.Initialize(app.UserTokenCache);
 
                 return app;
             }
