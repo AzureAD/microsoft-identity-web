@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Protocols;
 using NSubstitute;
 using Xunit;
 
-namespace Microsoft.Identity.Web.Test.InstanceDiscovery
+namespace Microsoft.Identity.Web.IssuerValidator.Test
 {
     public class IssuerConfigurationRetrieverTests
     {
@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
 
-            string expectedErrorMessage = IDWebErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
+            string expectedErrorMessage = IssuerValidatorErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
             Assert.Equal(expectedErrorMessage, exception.Message);
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
             Assert.Equal(expectedErrorMessage, exception.Message);
 
             exception = await Assert.ThrowsAsync<ArgumentNullException>("retriever", () => configurationRetriever.GetConfigurationAsync("address", null, CancellationToken.None)).ConfigureAwait(false);
-            Assert.Equal(IDWebErrorMessage.NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
+            Assert.Equal(IssuerValidatorErrorMessage.NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
         }
 
         [Fact]

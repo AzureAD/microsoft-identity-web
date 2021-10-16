@@ -27,12 +27,12 @@ namespace Microsoft.Identity.Web.InstanceDiscovery
         {
             if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentNullException(nameof(address), IDWebErrorMessage.IssuerMetadataUrlIsRequired);
+                throw new ArgumentNullException(nameof(address), IssuerValidatorErrorMessage.IssuerMetadataUrlIsRequired);
             }
 
             if (retriever == null)
             {
-                throw new ArgumentNullException(nameof(retriever), IDWebErrorMessage.NoMetadataDocumentRetrieverProvided);
+                throw new ArgumentNullException(nameof(retriever), IssuerValidatorErrorMessage.NoMetadataDocumentRetrieverProvided);
             }
 
             var options = new JsonSerializerOptions

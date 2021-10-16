@@ -4,8 +4,8 @@
 using System;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.InstanceDiscovery;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols;
@@ -19,17 +19,15 @@ namespace Microsoft.Identity.Web.Resource
     public class AadIssuerValidator
     {
         internal AadIssuerValidator(
-            IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
-            IHttpClientFactory httpClientFactory,
+            HttpClient httpClient,
             string aadAuthority)
         {
-            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
-            HttpClientFactory = httpClientFactory;
+            HttpClient = httpClient;
             AadAuthority = aadAuthority.TrimEnd('/');
         }
 
-        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
-        private IHttpClientFactory HttpClientFactory { get; }
+        private AadIssuerValidatorOptions AadIssuerValidatorOptions { get; }
+        private HttpClient HttpClient { get; }
         internal string? AadIssuerV1 { get; set; }
         internal string? AadIssuerV2 { get; set; }
         internal string AadAuthority { get; set; }
@@ -71,7 +69,7 @@ namespace Microsoft.Identity.Web.Resource
             string tenantId = GetTenantIdFromToken(securityToken);
             if (string.IsNullOrWhiteSpace(tenantId))
             {
-                throw new SecurityTokenInvalidIssuerException(IDWebErrorMessage.TenantIdClaimNotPresentInToken);
+                throw new SecurityTokenInvalidIssuerException(IssuerValidatorErrorMessage.TenantIdClaimNotPresentInToken);
             }
 
             if (validationParameters.ValidIssuers != null)
@@ -132,36 +130,46 @@ namespace Microsoft.Identity.Web.Resource
             throw new SecurityTokenInvalidIssuerException(
                 string.Format(
                     CultureInfo.InvariantCulture,
-                    IDWebErrorMessage.IssuerDoesNotMatchValidIssuers,
+                    IssuerValidatorErrorMessage.IssuerDoesNotMatchValidIssuers,
                     actualIssuer));
         }
 
         private string CreateV1Authority()
         {
-            if (AadAuthority.Contains(Constants.Organizations, StringComparison.OrdinalIgnoreCase))
+#if DOTNET_STANDARD_20 || DOTNET_462 || DOTNET_472
+            if (AadAuthority.Contains(IssuerValidatorConstants.Organizations))
             {
-                return AadAuthority.Replace($"{Constants.Organizations}/v2.0", Constants.Common, StringComparison.OrdinalIgnoreCase);
+                return AadAuthority.Replace($"{IssuerValidatorConstants.Organizations}/v2.0", IssuerValidatorConstants.Common);
+            }
+
+            return AadAuthority.Replace("/v2.0", string.Empty);
+#else
+
+            if (AadAuthority.Contains(IssuerValidatorConstants.Organizations, StringComparison.OrdinalIgnoreCase))
+            {
+                return AadAuthority.Replace($"{IssuerValidatorConstants.Organizations}/v2.0", IssuerValidatorConstants.Common, StringComparison.OrdinalIgnoreCase);
             }
 
             return AadAuthority.Replace("/v2.0", string.Empty, StringComparison.OrdinalIgnoreCase);
+#endif
         }
 
         private ConfigurationManager<IssuerMetadata> CreateConfigManager(
             string aadAuthority)
         {
-            if (AadIssuerValidatorOptions?.Value?.HttpClientName != null && HttpClientFactory != null)
+            if (HttpClient != null)
             {
                 return
                  new ConfigurationManager<IssuerMetadata>(
-                     $"{aadAuthority}{Constants.OidcEndpoint}",
+                     $"{aadAuthority}{IssuerValidatorConstants.OidcEndpoint}",
                      new IssuerConfigurationRetriever(),
-                     HttpClientFactory.CreateClient(AadIssuerValidatorOptions.Value.HttpClientName));
+                     HttpClient);
             }
             else
             {
                 return
                 new ConfigurationManager<IssuerMetadata>(
-                    $"{aadAuthority}{Constants.OidcEndpoint}",
+                    $"{aadAuthority}{IssuerValidatorConstants.OidcEndpoint}",
                     new IssuerConfigurationRetriever());
             }
         }
@@ -175,7 +183,11 @@ namespace Microsoft.Identity.Web.Resource
 
             try
             {
+#if DOTNET_STANDARD_20 || DOTNET_462 || DOTNET_472
+                Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId));
+#else
                 Uri issuerFromTemplateUri = new Uri(validIssuerTemplate.Replace("{tenantid}", tenantId, StringComparison.OrdinalIgnoreCase));
+#endif
                 Uri actualIssuerUri = new Uri(actualIssuer);
 
                 return issuerFromTemplateUri.AbsoluteUri == actualIssuerUri.AbsoluteUri;
@@ -196,12 +208,12 @@ namespace Microsoft.Identity.Web.Resource
         {
             if (securityToken is JwtSecurityToken jwtSecurityToken)
             {
-                if (jwtSecurityToken.Payload.TryGetValue(ClaimConstants.Tid, out object? tid))
+                if (jwtSecurityToken.Payload.TryGetValue(IssuerValidatorConstants.Tid, out object? tid))
                 {
                     return (string)tid;
                 }
 
-                jwtSecurityToken.Payload.TryGetValue(ClaimConstants.TenantId, out object? tenantId);
+                jwtSecurityToken.Payload.TryGetValue(IssuerValidatorConstants.TenantId, out object? tenantId);
                 if (tenantId != null)
                 {
                     return (string)tenantId;
@@ -213,13 +225,13 @@ namespace Microsoft.Identity.Web.Resource
 
             if (securityToken is JsonWebToken jsonWebToken)
             {
-                jsonWebToken.TryGetPayloadValue(ClaimConstants.Tid, out string? tid);
+                jsonWebToken.TryGetPayloadValue(IssuerValidatorConstants.Tid, out string? tid);
                 if (tid != null)
                 {
                     return tid;
                 }
 
-                jsonWebToken.TryGetPayloadValue(ClaimConstants.TenantId, out string? tenantId);
+                jsonWebToken.TryGetPayloadValue(IssuerValidatorConstants.TenantId, out string? tenantId);
                 if (tenantId != null)
                 {
                     return tenantId;
@@ -251,9 +263,9 @@ namespace Microsoft.Identity.Web.Resource
                 return uri.Segments[1].TrimEnd('/');
             }
 
-            if (uri.Segments.Length == 5 && uri.Segments[1].TrimEnd('/') == ClaimConstants.Tfp)
+            if (uri.Segments.Length == 5 && uri.Segments[1].TrimEnd('/') == IssuerValidatorConstants.Tfp)
             {
-                throw new SecurityTokenInvalidIssuerException(IDWebErrorMessage.B2CTfpIssuerNotSupported);
+                throw new SecurityTokenInvalidIssuerException(IssuerValidatorErrorMessage.B2CTfpIssuerNotSupported);
             }
 
             return string.Empty;

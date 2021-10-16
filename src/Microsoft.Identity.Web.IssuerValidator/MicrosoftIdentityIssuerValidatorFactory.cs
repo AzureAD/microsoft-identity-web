@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -17,20 +16,16 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityIssuerValidatorFactory"/> class.
         /// </summary>
-        /// <param name="aadIssuerValidatorOptions">Options passed-in to create the AadIssuerValidator object.</param>
-        /// <param name="httpClientFactory">HttpClientFactory.</param>
+        /// <param name="httpClient">HttpClientFactory.</param>
         public MicrosoftIdentityIssuerValidatorFactory(
-            IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
-            IHttpClientFactory httpClientFactory)
+            HttpClient httpClient)
         {
-            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
-            HttpClientFactory = httpClientFactory;
+            HttpClient = httpClient;
         }
 
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
-        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
-        private IHttpClientFactory HttpClientFactory { get; }
+        private HttpClient HttpClient { get; }
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
@@ -46,7 +41,7 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
+            string authorityHost = authorityUri?.Authority ?? new Uri(IssuerValidatorConstants.FallbackAuthority).Authority;
 
             if (_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
             {
@@ -54,8 +49,7 @@ namespace Microsoft.Identity.Web.Resource
             }
 
             _issuerValidators[authorityHost] = new AadIssuerValidator(
-                AadIssuerValidatorOptions,
-                HttpClientFactory,
+                HttpClient,
                 aadAuthority);
 
             return _issuerValidators[authorityHost];
