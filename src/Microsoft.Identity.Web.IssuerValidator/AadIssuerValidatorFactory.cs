@@ -9,16 +9,16 @@ using System.Net.Http;
 namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
-    /// Factory class for creating the IssuerValidator per authority.
+    /// Factory class for creating the AadIssuerValidator per authority.
     /// </summary>
     public class AadIssuerValidatorFactory
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AadIssuerValidatorFactory"/> class.
         /// </summary>
-        /// <param name="httpClient">HttpClientFactory.</param>
+        /// <param name="httpClient">Optional HttpClient to use to retrieve the endpoint metadata (can be null).</param>
         public AadIssuerValidatorFactory(
-            HttpClient? httpClient)
+            HttpClient? httpClient = null)
         {
             HttpClient = httpClient;
         }

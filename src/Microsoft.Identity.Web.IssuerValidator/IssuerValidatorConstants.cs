@@ -8,8 +8,6 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal class IssuerValidatorConstants
     {
-        public const string MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
-        public const string Consumers = "consumers";
         public const string Organizations = "organizations";
         public const string Common = "common";
         public const string OidcEndpoint = "/.well-known/openid-configuration";
