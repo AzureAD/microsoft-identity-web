@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Protocols;
 using NSubstitute;
 using Xunit;
 
-namespace Microsoft.Identity.Web.Test.InstanceDiscovery
+namespace Microsoft.Identity.Web.IssuerValidator.Test
 {
     public class IssuerConfigurationRetrieverTests
     {
@@ -18,16 +18,29 @@ namespace Microsoft.Identity.Web.Test.InstanceDiscovery
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
 
-            string expectedErrorMessage = IDWebErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
-
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
-            Assert.Equal(expectedErrorMessage, exception.Message);
 
-            exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(string.Empty, null, CancellationToken.None)).ConfigureAwait(false);
+#if DOTNET_462 || DOTNET_472
+            string netFrameworkErrorMessage = "IDW10301: Azure AD Issuer metadata address URL is required. \r\nParameter name: address";
+            Assert.Equal(netFrameworkErrorMessage, exception.Message);
+#else
+            string expectedErrorMessage = IssuerValidatorErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
             Assert.Equal(expectedErrorMessage, exception.Message);
+#endif
+            exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(string.Empty, null, CancellationToken.None)).ConfigureAwait(false);
+#if DOTNET_462 || DOTNET_472
+            Assert.Equal(netFrameworkErrorMessage, exception.Message);
+#else
+            Assert.Equal(expectedErrorMessage, exception.Message);
+#endif
 
             exception = await Assert.ThrowsAsync<ArgumentNullException>("retriever", () => configurationRetriever.GetConfigurationAsync("address", null, CancellationToken.None)).ConfigureAwait(false);
-            Assert.Equal(IDWebErrorMessage.NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
+#if DOTNET_462 || DOTNET_472
+            netFrameworkErrorMessage = "IDW10302: No metadata document retriever is provided. \r\nParameter name: retriever";
+            Assert.Equal(netFrameworkErrorMessage, exception.Message);
+#else
+            Assert.Equal(IssuerValidatorErrorMessage.NoMetadataDocumentRetrieverProvided + " (Parameter 'retriever')", exception.Message);
+#endif
         }
 
         [Fact]

@@ -6,7 +6,7 @@
     <members>
         <member name="T:Microsoft.Identity.Web.CertificateConstants">
             <summary>
-            General constants for Microsoft Identity Certificates.
+            General constants for Microsoft Identity Web Certificates.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.CertificateDescription">

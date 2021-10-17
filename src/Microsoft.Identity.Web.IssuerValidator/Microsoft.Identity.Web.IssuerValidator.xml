@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Web.IssuerValidator</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
+            <summary>
+            Generic class that validates token issuer from the provided Azure AD authority.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
+            Personal accounts).
+            </summary>
+            <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
+            <param name="securityToken">Received security token.</param>
+            <param name="validationParameters">Token validation parameters.</param>
+            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
+            authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
+            accepts both V1 and V2 tokens).</remarks>
+            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
+            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
+            <summary>Gets the tenant ID from a token.</summary>
+            <param name="securityToken">A JWT token.</param>
+            <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
+            <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory">
+            <summary>
+            Factory class for creating the IssuerValidator per authority.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory.#ctor(System.Net.Http.HttpClient)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory"/> class.
+            </summary>
+            <param name="httpClient">HttpClientFactory.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
+            <summary>
+            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            </summary>
+            <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
+        </member>
+        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
+            <summary>
+            An implementation of IConfigurationRetriever geared towards Azure AD issuers metadata.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever.GetConfigurationAsync(System.String,Microsoft.IdentityModel.Protocols.IDocumentRetriever,System.Threading.CancellationToken)">
+            <summary>Retrieves a populated configuration given an address and an <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/>.</summary>
+            <param name="address">Address of the discovery document.</param>
+            <param name="retriever">The <see cref="T:Microsoft.IdentityModel.Protocols.IDocumentRetriever"/> to use to read the discovery document.</param>
+            <param name="cancel">A cancellation token that can be used by other objects or threads to receive notice of cancellation. <see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task`1"/> that, when completed, returns <see cref="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata"/> from the configuration.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">address - Azure AD Issuer metadata address URL is required
+            or retriever - No metadata document retriever is provided.</exception>
+        </member>
+        <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata">
+            <summary>
+            Model class to hold information parsed from the Azure AD issuer endpoint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.InstanceDiscovery.IssuerMetadata.Issuer">
+            <summary>
+            Issuer associated with the OIDC endpoint.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.IssuerValidatorConstants">
+            <summary>
+            General constants for Microsoft Identity Web Issuer Validator.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IssuerValidatorConstants.TenantId">
+            <summary>
+            Old TenantId claim: "http://schemas.microsoft.com/identity/claims/tenantid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IssuerValidatorConstants.Tid">
+            <summary>
+            New Tenant Id claim: "tid".
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.IssuerValidatorConstants.Tfp">
+            <summary>
+            Tfp claim: "tfp".
+            </summary>
+        </member>
+    </members>
+</doc>

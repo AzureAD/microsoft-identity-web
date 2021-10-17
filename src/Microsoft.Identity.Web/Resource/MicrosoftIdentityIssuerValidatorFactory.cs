@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 
@@ -23,42 +21,42 @@ namespace Microsoft.Identity.Web.Resource
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
-            HttpClientFactory = httpClientFactory;
+            if (aadIssuerValidatorOptions is null)
+            {
+                throw new ArgumentNullException(nameof(aadIssuerValidatorOptions));
+            }
+
+            if (httpClientFactory is null)
+            {
+                throw new ArgumentNullException(nameof(httpClientFactory));
+            }
+
+            AadIssuerValidatorFactory = new AadIssuerValidatorFactory(GetHttpClient(aadIssuerValidatorOptions, httpClientFactory));
         }
 
-        private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
+        private AadIssuerValidatorFactory AadIssuerValidatorFactory { get; set; }
 
-        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
-        private IHttpClientFactory HttpClientFactory { get; }
+        private static HttpClient? GetHttpClient(
+            IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
+            IHttpClientFactory httpClientFactory)
+        {
+            if (!string.IsNullOrEmpty(aadIssuerValidatorOptions.Value.HttpClientName))
+            {
+                return httpClientFactory.CreateClient(aadIssuerValidatorOptions.Value.HttpClientName);
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
         /// </summary>
-        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
+        /// <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/.</param>
         /// <returns>A <see cref="AadIssuerValidator"/> for the aadAuthority.</returns>
         /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         public AadIssuerValidator GetAadIssuerValidator(string aadAuthority)
         {
-            if (string.IsNullOrEmpty(aadAuthority))
-            {
-                throw new ArgumentNullException(nameof(aadAuthority));
-            }
-
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
-
-            if (_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
-            {
-                return aadIssuerValidator;
-            }
-
-            _issuerValidators[authorityHost] = new AadIssuerValidator(
-                AadIssuerValidatorOptions,
-                HttpClientFactory,
-                aadAuthority);
-
-            return _issuerValidators[authorityHost];
+            return AadIssuerValidatorFactory.GetAadIssuerValidator(aadAuthority);
         }
     }
 }

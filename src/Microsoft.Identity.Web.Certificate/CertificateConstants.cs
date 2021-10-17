@@ -4,7 +4,7 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// General constants for Microsoft Identity Certificates.
+    /// General constants for Microsoft Identity Web Certificates.
     /// </summary>
     internal static class CertificateConstants
     {
