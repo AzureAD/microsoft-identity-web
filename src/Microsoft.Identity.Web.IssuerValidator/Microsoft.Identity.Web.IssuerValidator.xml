@@ -31,35 +31,24 @@
             <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
             <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
         </member>
-        <member name="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory">
+        <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory">
             <summary>
             Factory class for creating the IssuerValidator per authority.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.#ctor(System.Net.Http.HttpClient)">
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory.#ctor(System.Net.Http.HttpClient)">
             <summary>
-            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory"/> class.
+            Initializes a new instance of the <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory"/> class.
             </summary>
             <param name="httpClient">HttpClientFactory.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
+        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
             <summary>
             Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
             </summary>
             <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
             <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
             <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
-        </member>
-        <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
-            <summary>
-            Options passed-in to create the AadIssuerValidator object.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AadIssuerValidatorOptions.HttpClientName">
-            <summary>
-            Sets the name of the HttpClient to get from the IHttpClientFactory for use with the configuration manager.
-            Needed when customizing the client such as configuring a proxy.
-            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.InstanceDiscovery.IssuerConfigurationRetriever">
             <summary>
