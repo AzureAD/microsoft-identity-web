@@ -19,15 +19,14 @@ namespace Microsoft.Identity.Web.Resource
     public class AadIssuerValidator
     {
         internal AadIssuerValidator(
-            HttpClient httpClient,
+            HttpClient? httpClient,
             string aadAuthority)
         {
             HttpClient = httpClient;
             AadAuthority = aadAuthority.TrimEnd('/');
         }
 
-        private AadIssuerValidatorOptions AadIssuerValidatorOptions { get; }
-        private HttpClient HttpClient { get; }
+        private HttpClient? HttpClient { get; }
         internal string? AadIssuerV1 { get; set; }
         internal string? AadIssuerV2 { get; set; }
         internal string AadAuthority { get; set; }

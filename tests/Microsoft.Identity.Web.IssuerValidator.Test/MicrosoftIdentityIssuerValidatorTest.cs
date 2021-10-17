@@ -17,13 +17,13 @@ namespace Microsoft.Identity.Web.IssuerValidator.Test
 {
     public class MicrosoftIdentityIssuerValidatorTest
     {
-        private readonly MicrosoftIdentityIssuerValidatorFactory _issuerValidatorFactory;
+        private readonly AadIssuerValidatorFactory _issuerValidatorFactory;
         private readonly HttpClient _httpClient;
 
         public MicrosoftIdentityIssuerValidatorTest()
         {
             _httpClient = new HttpClient();
-            _issuerValidatorFactory = new MicrosoftIdentityIssuerValidatorFactory(_httpClient);
+            _issuerValidatorFactory = new AadIssuerValidatorFactory(_httpClient);
         }
 
         [Fact]

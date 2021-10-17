@@ -11,21 +11,21 @@ namespace Microsoft.Identity.Web.Resource
     /// <summary>
     /// Factory class for creating the IssuerValidator per authority.
     /// </summary>
-    public class MicrosoftIdentityIssuerValidatorFactory
+    public class AadIssuerValidatorFactory
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MicrosoftIdentityIssuerValidatorFactory"/> class.
+        /// Initializes a new instance of the <see cref="AadIssuerValidatorFactory"/> class.
         /// </summary>
         /// <param name="httpClient">HttpClientFactory.</param>
-        public MicrosoftIdentityIssuerValidatorFactory(
-            HttpClient httpClient)
+        public AadIssuerValidatorFactory(
+            HttpClient? httpClient)
         {
             HttpClient = httpClient;
         }
 
         private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
 
-        private HttpClient HttpClient { get; }
+        private HttpClient? HttpClient { get; }
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
