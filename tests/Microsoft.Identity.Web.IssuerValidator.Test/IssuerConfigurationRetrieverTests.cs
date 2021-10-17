@@ -18,14 +18,13 @@ namespace Microsoft.Identity.Web.IssuerValidator.Test
         {
             var configurationRetriever = new IssuerConfigurationRetriever();
 
-            string expectedErrorMessage = IssuerValidatorErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
-
             var exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(null, null, CancellationToken.None)).ConfigureAwait(false);
 
 #if DOTNET_462 || DOTNET_472
             string netFrameworkErrorMessage = "IDW10301: Azure AD Issuer metadata address URL is required. \r\nParameter name: address";
             Assert.Equal(netFrameworkErrorMessage, exception.Message);
 #else
+            string expectedErrorMessage = IssuerValidatorErrorMessage.IssuerMetadataUrlIsRequired + " (Parameter 'address')";
             Assert.Equal(expectedErrorMessage, exception.Message);
 #endif
             exception = await Assert.ThrowsAsync<ArgumentNullException>("address", () => configurationRetriever.GetConfigurationAsync(string.Empty, null, CancellationToken.None)).ConfigureAwait(false);
