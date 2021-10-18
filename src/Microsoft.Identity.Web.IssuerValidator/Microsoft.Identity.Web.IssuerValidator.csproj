@@ -14,7 +14,7 @@
     <Company>Microsoft Corporation</Company>
     <Product>Microsoft Identity Web Issuer Validator</Product>
     <Description>
-      This package brings certificate management for MSAL.NET.
+     This package brings issuer validation with Azure Active Directory, including support for authority aliases and sovereign clouds.
     </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
