@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Internal
     public class WebApiBuildersInternal
     {
         /// <summary>
-        /// Enables token acquisition with Microsoft.Identity.Service.Essentials (MISE).
+        /// Enables token acquisition which is not specific to JWT, such as when using Microsoft.Identity.Service.Essentials (MISE).
         /// Developers should continue to use `EnableTokenAcquisitionToCallDownstreamApi`.
         /// This API is not considered part of the public API and may change.
         /// </summary>
