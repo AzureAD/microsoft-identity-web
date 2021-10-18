@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web.Internal
         /// <param name="services">The services being configured.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionWithMise(
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string authenticationScheme,
             IServiceCollection services,

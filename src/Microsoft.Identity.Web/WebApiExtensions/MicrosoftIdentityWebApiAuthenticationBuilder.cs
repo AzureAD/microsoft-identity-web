@@ -100,7 +100,8 @@ namespace Microsoft.Identity.Web
                 {
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerAuthenticationScheme);
 
-                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
+                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions); // w/auth scheme
 
                     options.Events ??= new JwtBearerEvents();
 
