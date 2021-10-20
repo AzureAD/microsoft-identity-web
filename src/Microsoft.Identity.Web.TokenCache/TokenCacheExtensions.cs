@@ -19,8 +19,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-        private static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
-            = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+        private static readonly ConcurrentDictionary<Delegate, IServiceProvider> s_serviceProviderFromAction
+            = new ConcurrentDictionary<Delegate, IServiceProvider>();
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
             }
 
             // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
-            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, (m) =>
+            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches, (m) =>
             {
                 lock (s_serviceProviderFromAction)
                 {
