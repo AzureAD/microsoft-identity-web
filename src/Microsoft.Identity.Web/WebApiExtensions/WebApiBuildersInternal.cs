@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Internal
     /// <summary>
     /// Web API authentication builder.
     /// </summary>
-    public class WebApiBuildersInternal
+    public static class WebApiBuildersInternal
     {
         /// <summary>
         /// Enables token acquisition which is not specific to JWT, such as when using Microsoft.Identity.Service.Essentials (MISE).
