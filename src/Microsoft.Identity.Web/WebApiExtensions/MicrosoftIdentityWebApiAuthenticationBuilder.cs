@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
         {
             services.Configure(jwtBearerAuthenticationScheme, configureConfidentialClientApplicationOptions);
 
-            WebApiBuildersInternal.EnableTokenAcquisition(
+            WebApiBuilders.EnableTokenAcquisition(
                 configureConfidentialClientApplicationOptions,
                 jwtBearerAuthenticationScheme,
                 services,
