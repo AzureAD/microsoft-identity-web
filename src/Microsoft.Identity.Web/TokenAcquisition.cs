@@ -255,15 +255,13 @@ namespace Microsoft.Identity.Web
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
-            string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenantId);
-
             try
             {
                 AuthenticationResult? authenticationResult;
                 // Access token will return if call is from a web API
                 authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
                     application,
-                    authority,
+                    tenantId,
                     scopes,
                     tokenAcquisitionOptions,
                     mergedOptions).ConfigureAwait(false);
@@ -279,7 +277,7 @@ namespace Microsoft.Identity.Web
                      application,
                      user,
                      scopes,
-                     authority,
+                     tenantId,
                      mergedOptions,
                      userFlow,
                      null)
@@ -378,12 +376,11 @@ namespace Microsoft.Identity.Web
 
             // Use MSAL to get the right token to call the API
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
-            string authority = CreateAuthorityBasedOnTenantIfProvided(application, tenant);
 
             var builder = application
                    .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C)
-                   .WithAuthority(authority);
+                   .WithTenantId(tenant);
 
             if (tokenAcquisitionOptions != null)
             {
@@ -694,6 +691,11 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
+                if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
+                {
+                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
+                }
+
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
                 {
@@ -734,8 +736,11 @@ namespace Microsoft.Identity.Web
                 _application = app;
 
                 // Initialize token cache providers
-                _tokenCacheProvider.Initialize(app.AppTokenCache);
-                _tokenCacheProvider.Initialize(app.UserTokenCache);
+                if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
+                {
+                    _tokenCacheProvider.Initialize(app.AppTokenCache);
+                    _tokenCacheProvider.Initialize(app.UserTokenCache);
+                }
 
                 return app;
             }
@@ -751,7 +756,7 @@ namespace Microsoft.Identity.Web
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
-           string authority,
+           string? tenantId,
            IEnumerable<string> scopes,
            TokenAcquisitionOptions? tokenAcquisitionOptions,
            MergedOptions mergedOptions)
@@ -772,8 +777,12 @@ namespace Microsoft.Identity.Web
                                     .AcquireTokenOnBehalfOf(
                                         scopes.Except(_scopesRequestedByMsal),
                                         new UserAssertion(tokenUsedToCallTheWebApi))
-                                    .WithSendX5C(mergedOptions.SendX5C)
-                                    .WithAuthority(authority);
+                                    .WithSendX5C(mergedOptions.SendX5C);
+
+                    if (!string.IsNullOrEmpty(tenantId))
+                    {
+                        builder.WithTenantId(tenantId);
+                    }
 
                     if (tokenAcquisitionOptions != null)
                     {
@@ -815,7 +824,7 @@ namespace Microsoft.Identity.Web
         /// <param name="application"><see cref="IConfidentialClientApplication"/>.</param>
         /// <param name="claimsPrincipal">Claims principal for the user on behalf of whom to get a token.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="authority">(optional) Authority based on a specific tenant for which to acquire a token to access the scopes
+        /// <param name="tenantId">(optional) TenantID based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user described in the claimsPrincipal.</param>
         /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
@@ -824,7 +833,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
-            string? authority,
+            string? tenantId,
             MergedOptions mergedOptions,
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -851,7 +860,7 @@ namespace Microsoft.Identity.Web
                 application,
                 account,
                 scopes,
-                authority,
+                tenantId,
                 mergedOptions,
                 userFlow,
                 tokenAcquisitionOptions).ConfigureAwait(false);
@@ -864,7 +873,7 @@ namespace Microsoft.Identity.Web
         /// <param name="account">User IAccount for which to acquire a token.
         /// See <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</param>
         /// <param name="scopes">Scopes for the downstream API to call.</param>
-        /// <param name="authority">Authority based on a specific tenant for which to acquire a token to access the scopes
+        /// <param name="tenantId">TenantID based on a specific tenant for which to acquire a token to access the scopes
         /// on behalf of the user.</param>
         /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
@@ -873,7 +882,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication application,
             IAccount? account,
             IEnumerable<string> scopes,
-            string? authority,
+            string? tenantId,
             MergedOptions mergedOptions,
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
@@ -910,9 +919,9 @@ namespace Microsoft.Identity.Web
                 builder.WithB2CAuthority(b2cAuthority)
                        .WithSendX5C(mergedOptions.SendX5C);
             }
-            else
+            else if (!string.IsNullOrEmpty(tenantId))
             {
-                builder.WithAuthority(authority);
+                builder.WithTenantId(tenantId);
             }
 
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
@@ -973,26 +982,6 @@ namespace Microsoft.Identity.Web
             }
 
             return user;
-        }
-
-        internal /*for tests*/ string CreateAuthorityBasedOnTenantIfProvided(
-            IConfidentialClientApplication application,
-            string? tenant)
-        {
-            string authority;
-            if (!string.IsNullOrEmpty(tenant))
-            {
-                authority = application.Authority.Replace(
-                    new Uri(application.Authority).PathAndQuery,
-                    $"/{tenant}/",
-                    StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                authority = application.Authority;
-            }
-
-            return authority;
         }
 
         private void Log(

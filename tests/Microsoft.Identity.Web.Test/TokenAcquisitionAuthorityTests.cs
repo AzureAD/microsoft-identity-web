@@ -54,48 +54,6 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.GuestTenantId)]
-        [InlineData(TestConstants.HomeTenantId)]
-        [InlineData(null)]
-        [InlineData("")]
-        public void VerifyCorrectAuthorityUsedInTokenAcquisitionTests(string tenant)
-        {
-            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
-            {
-                Authority = TestConstants.AuthorityCommonTenant,
-                ClientId = TestConstants.ConfidentialClientId,
-                CallbackPath = string.Empty,
-            });
-
-            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
-            {
-                Instance = TestConstants.AadInstance,
-                ClientId = TestConstants.ConfidentialClientId,
-                ClientSecret = TestConstants.ClientSecret,
-            });
-
-            BuildTheRequiredServices();
-            InitializeTokenAcquisitionObjects();
-            IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
-                 .CreateWithApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme))
-                 .WithAuthority(TestConstants.AuthorityCommonTenant).Build();
-
-            if (!string.IsNullOrEmpty(tenant))
-            {
-                Assert.Equal(
-                    string.Format(
-                        CultureInfo.InvariantCulture, "{0}/{1}/", TestConstants.AadInstance, tenant),
-                    _tokenAcquisition.CreateAuthorityBasedOnTenantIfProvided(
-                        app,
-                        tenant));
-            }
-            else
-            {
-                Assert.Equal(app.Authority, _tokenAcquisition.CreateAuthorityBasedOnTenantIfProvided(app, tenant));
-            }
-        }
-
-        [Theory]
         [InlineData(JwtBearerDefaults.AuthenticationScheme)]
         [InlineData(OpenIdConnectDefaults.AuthenticationScheme)]
         [InlineData(null)]
