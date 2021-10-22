@@ -1041,7 +1041,7 @@
             <returns>
               <c>true</c> if the specified string collection contains any; otherwise, <c>false</c>.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.StoreTokenUsedToCallWebAPI(Microsoft.AspNetCore.Http.HttpContext,System.IdentityModel.Tokens.Jwt.JwtSecurityToken)">
+        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.StoreTokenUsedToCallWebAPI(Microsoft.AspNetCore.Http.HttpContext,Microsoft.IdentityModel.Tokens.SecurityToken)">
             <summary>
             Keep the validated token associated with the HTTP request.
             </summary>
@@ -1054,7 +1054,7 @@
             Get the parsed information about the token used to call the web API.
             </summary>
             <param name="httpContext">HTTP context associated with the current request.</param>
-            <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> used to call the web API.</returns>
+            <returns><see cref="T:Microsoft.IdentityModel.Tokens.SecurityToken"/> used to call the web API.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.ILoginErrorAccessor">
             <summary>
@@ -2698,6 +2698,23 @@
             <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Internal.WebApiBuildersInternal">
+            <summary>
+            Web API authentication builder.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Internal.WebApiBuildersInternal.EnableTokenAcquisition(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String,Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Enables token acquisition which is not specific to JWT, such as when using Microsoft.Identity.Service.Essentials (MISE).
+            Developers should continue to use `EnableTokenAcquisitionToCallDownstreamApi`.
+            This API is not considered part of the public API and may change.
+            </summary>
+            <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="T:Microsoft.Identity.Client.ConfidentialClientApplicationOptions"/>.</param>
+            <param name="authenticationScheme">Authentication scheme.</param>
+            <param name="services">The services being configured.</param>
+            <param name="configuration">Configuration.</param>
+            <returns>The authentication builder to chain.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
             <summary>
