@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Internal;
 
 namespace Microsoft.Identity.Web
 {
@@ -73,7 +74,8 @@ namespace Microsoft.Identity.Web
             CallsWebApiImplementation(
                 Services,
                 JwtBearerAuthenticationScheme,
-                configureConfidentialClientApplicationOptions);
+                configureConfidentialClientApplicationOptions,
+                ConfigurationSection);
 
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
                 Services,
@@ -83,26 +85,22 @@ namespace Microsoft.Identity.Web
         internal static void CallsWebApiImplementation(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
-            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
+            Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
+            IConfigurationSection? configurationSection = null)
         {
             services.Configure(jwtBearerAuthenticationScheme, configureConfidentialClientApplicationOptions);
 
-            services.AddTokenAcquisition();
+            WebApiBuilders.EnableTokenAcquisition(
+                configureConfidentialClientApplicationOptions,
+                jwtBearerAuthenticationScheme,
+                services,
+                configurationSection);
+
             services.AddHttpContextAccessor();
 
             services.AddOptions<JwtBearerOptions>(jwtBearerAuthenticationScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
-                       options,
-                       serviceProvider,
-                       mergedOptionsMonitor,
-                       ccaOptionsMonitor,
-                       ccaOptions) =>
+                .Configure((options) =>
                 {
-                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerAuthenticationScheme);
-
-                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions.Value, mergedOptions); // legacy scenario w/out auth scheme
-                    MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptionsMonitor.Get(jwtBearerAuthenticationScheme), mergedOptions); // w/auth scheme
-
                     options.Events ??= new JwtBearerEvents();
 
                     var onTokenValidatedHandler = options.Events.OnTokenValidated;
