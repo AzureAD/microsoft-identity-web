@@ -25,6 +25,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
