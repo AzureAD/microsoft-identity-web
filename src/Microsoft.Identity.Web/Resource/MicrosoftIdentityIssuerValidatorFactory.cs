@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Validators;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -23,14 +22,22 @@ namespace Microsoft.Identity.Web.Resource
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
         {
-            AadIssuerValidatorOptions = aadIssuerValidatorOptions;
-            HttpClientFactory = httpClientFactory;
+            HttpClient = GetHttpClient(aadIssuerValidatorOptions, httpClientFactory);
         }
 
-        private readonly IDictionary<string, AadIssuerValidator> _issuerValidators = new ConcurrentDictionary<string, AadIssuerValidator>();
+        private static HttpClient? GetHttpClient(
+           IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
+           IHttpClientFactory httpClientFactory)
+        {
+            if (!string.IsNullOrEmpty(aadIssuerValidatorOptions?.Value?.HttpClientName) && httpClientFactory != null)
+            {
+                return httpClientFactory.CreateClient(aadIssuerValidatorOptions.Value.HttpClientName);
+            }
 
-        private IOptions<AadIssuerValidatorOptions> AadIssuerValidatorOptions { get; }
-        private IHttpClientFactory HttpClientFactory { get; }
+            return null;
+        }
+
+        private HttpClient? HttpClient { get; }
 
         /// <summary>
         /// Gets an <see cref="AadIssuerValidator"/> for an authority.
@@ -40,25 +47,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <exception cref="ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         public AadIssuerValidator GetAadIssuerValidator(string aadAuthority)
         {
-            if (string.IsNullOrEmpty(aadAuthority))
-            {
-                throw new ArgumentNullException(nameof(aadAuthority));
-            }
-
-            Uri.TryCreate(aadAuthority, UriKind.Absolute, out Uri? authorityUri);
-            string authorityHost = authorityUri?.Authority ?? new Uri(Constants.FallbackAuthority).Authority;
-
-            if (_issuerValidators.TryGetValue(authorityHost, out AadIssuerValidator? aadIssuerValidator))
-            {
-                return aadIssuerValidator;
-            }
-
-            _issuerValidators[authorityHost] = new AadIssuerValidator(
-                AadIssuerValidatorOptions,
-                HttpClientFactory,
-                aadAuthority);
-
-            return _issuerValidators[authorityHost];
+            return AadIssuerValidator.GetAadIssuerValidator(aadAuthority, HttpClient);
         }
     }
 }

@@ -1742,33 +1742,6 @@
             Unused: Compatibility of interface with the Authorization Filter.
             </summary>
         </member>
-        <member name="T:Microsoft.Identity.Web.Resource.AadIssuerValidator">
-            <summary>
-            Generic class that validates token issuer from the provided Azure AD authority.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.Validate(System.String,Microsoft.IdentityModel.Tokens.SecurityToken,Microsoft.IdentityModel.Tokens.TokenValidationParameters)">
-            <summary>
-            Validate the issuer for multi-tenant applications of various audiences (Work and School accounts, or Work and School accounts +
-            Personal accounts).
-            </summary>
-            <param name="actualIssuer">Issuer to validate (will be tenanted).</param>
-            <param name="securityToken">Received security token.</param>
-            <param name="validationParameters">Token validation parameters.</param>
-            <remarks>The issuer is considered as valid if it has the same HTTP scheme and authority as the
-            authority from the configuration file, has a tenant ID, and optionally v2.0 (this web API
-            accepts both V1 and V2 tokens).</remarks>
-            <returns>The <c>issuer</c> if it's valid, or otherwise <c>SecurityTokenInvalidIssuerException</c> is thrown.</returns>
-            <exception cref="T:System.ArgumentNullException"> if <paramref name="securityToken"/> is null.</exception>
-            <exception cref="T:System.ArgumentNullException"> if <paramref name="validationParameters"/> is null.</exception>
-            <exception cref="T:Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">if the issuer is invalid. </exception>
-        </member>
-        <member name="M:Microsoft.Identity.Web.Resource.AadIssuerValidator.GetTenantIdFromToken(Microsoft.IdentityModel.Tokens.SecurityToken)">
-            <summary>Gets the tenant ID from a token.</summary>
-            <param name="securityToken">A JWT token.</param>
-            <returns>A string containing the tenant ID, if found or <see cref="F:System.String.Empty"/>.</returns>
-            <remarks>Only <see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/> and <see cref="T:Microsoft.IdentityModel.JsonWebTokens.JsonWebToken"/> are acceptable types.</remarks>
-        </member>
         <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
             <summary>
             Interface implemented by diagnostics for the JWT Bearer middleware.
@@ -1847,10 +1820,10 @@
         </member>
         <member name="M:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(System.String)">
             <summary>
-            Gets an <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for an authority.
+            Gets an <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for an authority.
             </summary>
             <param name="aadAuthority">The authority to create the validator for, e.g. https://login.microsoftonline.com/. </param>
-            <returns>A <see cref="T:Microsoft.Identity.Web.Resource.AadIssuerValidator"/> for the aadAuthority.</returns>
+            <returns>A <see cref="T:Microsoft.IdentityModel.Validators.AadIssuerValidator"/> for the aadAuthority.</returns>
             <exception cref="T:System.ArgumentNullException">if <paramref name="aadAuthority"/> is null or empty.</exception>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics">
@@ -2699,14 +2672,15 @@
             Set to true if you want to debug, or just understand the JwtBearer events.</param>
             <returns>The authentication builder to chain extension methods.</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.Internal.WebApiBuildersInternal">
+        <member name="T:Microsoft.Identity.Web.Internal.WebApiBuilders">
             <summary>
             Web API authentication builder.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.Internal.WebApiBuildersInternal.EnableTokenAcquisition(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String,Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String,Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
-            Enables token acquisition which is not specific to JWT, such as when using Microsoft.Identity.Service.Essentials (MISE).
+            Allows a higher level abstraction of security token (i.e. System.IdentityModel.Tokens.Jwt and more modern, Microsoft.IdentityModel.JsonWebTokens)
+            to be used with Microsoft Identity Web.
             Developers should continue to use `EnableTokenAcquisitionToCallDownstreamApi`.
             This API is not considered part of the public API and may change.
             </summary>
