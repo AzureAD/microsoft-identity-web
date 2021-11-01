@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.18.0</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.19.0</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <PackageVersion>$(ClientSemVer)</PackageVersion>
 
