@@ -1,3 +1,15 @@
+1.19.0
+==========
+Update to Microsoft.Graph 4.8.0, Microsoft.Graph.Beta 4.18.0-preview, Microsoft.IdentityModel 6.14, and MSAL.NET 4.37.0.
+
+### New Features:
+**A new assembly, Microsoft.IdentityModel.Validators, is now leveraged in Microsoft.Identity.Web as the AadIssuerValidator. It provides an issuer validator for the Microsoft identity platform (AAD and AAD B2C)**, working for single and multi-tenant applications and v1 and v2 token types. See [Identity.Model](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/pull/1736) and [#1487](https://github.com/AzureAD/microsoft-identity-web/issues/1487). 
+
+**Microsoft.Identity.Web now supports authentication handlers other than JwtBearer,** and surfaces a higher level abstraction of security token, but we recommend developers continue to use `EnableTokenAcquisitionToCallDownstreamApi`. See [#1498](https://github.com/AzureAD/microsoft-identity-web/pull/1498).
+
+### Bug Fixes:
+**Make `Certificate` in `CertificateDescription.cs` `protected internal`.** See [#1484](https://github.com/AzureAD/microsoft-identity-web/pull/1484).
+
 1.19.0-preview
 ==========
 **This preview release contains a preview version of MSAL.NET, 4.37.0-preview,** which includes token cache improvements. The `.AddMemoryCache` should now be much faster, but the memory is not bounded, nor does it have any eviction policies, so not recommended for use in production if user flows are involved (`GetTokenForUser`). Once MSAL.NET releases 4.37.0, Microsoft.Identity.Web will release an out of preview version as well. 
