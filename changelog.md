@@ -3,7 +3,7 @@
 Update to Microsoft.Graph 4.8.0, Microsoft.Graph.Beta 4.18.0-preview, Microsoft.IdentityModel 6.14, and MSAL.NET 4.37.0.
 
 ### New Features:
-**A new assembly, Microsoft.IdentityModel.Validators, is now leveraged in Microsoft.Identity.Web as the AadIssuerValidator. It provides an issuer validator for the Microsoft identity platform (AAD and AAD B2C)**, working for single and multi-tenant applications and v1 and v2 token types. See [Identity.Model](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/pull/1736) and [#1487](https://github.com/AzureAD/microsoft-identity-web/issues/1487). 
+**A new assembly, [Microsoft.IdentityModel.Validators](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/tree/dev/src/Microsoft.IdentityModel.Validators), is now leveraged in Microsoft.Identity.Web as the AadIssuerValidator. It provides an issuer validator for the Microsoft identity platform (AAD and AAD B2C)**, working for single and multi-tenant applications and v1 and v2 token types. See [Identity.Model](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/pull/1736) and [#1487](https://github.com/AzureAD/microsoft-identity-web/issues/1487). The `MicrosoftIdentityIssuerValidatorFactory` is still in Microsoft.Identity.Web and leverages this new Identity.Model library
 
 **Microsoft.Identity.Web now supports authentication handlers other than JwtBearer,** and surfaces a higher level abstraction of security token, but we recommend developers continue to use `EnableTokenAcquisitionToCallDownstreamApi`. See [#1498](https://github.com/AzureAD/microsoft-identity-web/pull/1498).
 
