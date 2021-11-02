@@ -93,7 +93,6 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a web API.
-        /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
         /// <code>
