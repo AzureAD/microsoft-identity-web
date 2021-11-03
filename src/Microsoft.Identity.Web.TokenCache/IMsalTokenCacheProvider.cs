@@ -27,6 +27,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         void Initialize(ITokenCache tokenCache);
 
         /// <summary>
+        /// Safely initializes a token cache (which can be a user token cache or an app token cache).
+        /// </summary>
+        /// <param name="tokenCache">Token cache for which to initialize the serialization.</param>
+        /// <remarks>The safe terminology denotes to not propagating exceptions from caching layer to service, instead fallbacking to eSTS call.</remarks>
+        void SafeInitialize(ITokenCache tokenCache);
+
+        /// <summary>
         /// Clear the user token cache.
         /// </summary>
         /// <param name="homeAccountId">HomeAccountId for a user account in the cache.</param>

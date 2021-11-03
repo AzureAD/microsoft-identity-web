@@ -47,6 +47,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             tokenCache.SetBeforeWriteAsync(OnBeforeWriteAsync);
         }
 
+        /// <inheritdoc/>
+        public void SafeInitialize(ITokenCache tokenCache)
+        {
+            if (tokenCache == null)
+            {
+                throw new ArgumentNullException(nameof(tokenCache));
+            }
+
+            tokenCache.SetBeforeAccessAsync(SafeOnBeforeAccessAsync);
+            tokenCache.SetAfterAccessAsync(SafeOnAfterAccessAsync);
+            tokenCache.SetBeforeWriteAsync(SafeOnBeforeWriteAsync);
+        }
+
         /// <summary>
         /// Initializes the token cache serialization.
         /// </summary>
@@ -86,6 +99,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
+        private Task SafeOnAfterAccessAsync(TokenCacheNotificationArgs args)
+        {
+            try
+            {
+                return OnAfterAccessAsync(args);
+            }
+            catch (Exception ex)
+            {
+                // TODO: log!
+                return Task.CompletedTask;
+            }
+        }
+
         private byte[] ProtectBytes(byte[] msalBytes)
         {
             if (msalBytes != null && _protector != null)
@@ -106,6 +132,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 byte[] tokenCacheBytes = await ReadCacheBytesAsync(key, CreateHintsFromArgs(args)).ConfigureAwait(false);
 
                 args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
+            }
+        }
+
+        private Task SafeOnBeforeAccessAsync(TokenCacheNotificationArgs args)
+        {
+            try
+            {
+                return OnBeforeAccessAsync(args);
+            }
+            catch (Exception ex)
+            {
+                // TODO: log!
+                return Task.CompletedTask;
             }
         }
 
@@ -135,6 +174,19 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected virtual Task OnBeforeWriteAsync(TokenCacheNotificationArgs args)
         {
             return Task.CompletedTask;
+        }
+
+        private Task SafeOnBeforeWriteAsync(TokenCacheNotificationArgs args)
+        {
+            try
+            {
+                return OnBeforeWriteAsync(args);
+            }
+            catch (Exception ex)
+            {
+                // TODO: log!
+                return Task.CompletedTask;
+            }
         }
 
         /// <summary>
