@@ -92,10 +92,7 @@ namespace Microsoft.Identity.Web
                 }
             });
 
-            IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
-            msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
-            msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
-            return confidentialClientApp;
+            return confidentialClientApp.AddIdWebCache(serviceProvider);
         }
 
         /// <summary>
@@ -128,6 +125,31 @@ namespace Microsoft.Identity.Web
             {
                 services.AddInMemoryTokenCaches();
             });
+            return confidentialClientApp;
+        }
+
+        /// <summary>
+        /// Add an in-memory well partitioned token cache to MSAL.NET confidential client
+        /// application based on preconfigured DI.
+        /// </summary>
+        /// <param name="confidentialClientApp">Confidential client application.</param>
+        /// <param name="serviceProvider">The built service instances based on preconfigured <see cref="IServiceCollection"/>.</param>
+        /// <returns>The application with cache.</returns>
+        /// <remarks>Please invoke the <see cref="InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(IServiceCollection)"/> 
+        /// or <see cref="DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(IServiceCollection)"/> on service startup.</remarks>
+        public static IConfidentialClientApplication AddIdWebCache(
+            this IConfidentialClientApplication confidentialClientApp,
+            IServiceProvider serviceProvider)
+        {
+            if (confidentialClientApp is null)
+            {
+                throw new ArgumentNullException(nameof(confidentialClientApp));
+            }
+
+            var msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
+            msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
+            msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
+
             return confidentialClientApp;
         }
 
