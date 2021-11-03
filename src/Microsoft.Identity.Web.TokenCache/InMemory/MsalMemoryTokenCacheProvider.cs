@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.TokenCache;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 {
@@ -28,10 +29,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// Constructor.
         /// </summary>
         /// <param name="memoryCache">serialization cache.</param>
+        /// <param name="cacheKeyProvider">Instance of <see cref="IMsalTokenCacheKeyProvider"/> type.</param>
         /// <param name="cacheOptions">Memory cache options.</param>
         public MsalMemoryTokenCacheProvider(
             IMemoryCache memoryCache,
+            IMsalTokenCacheKeyProvider cacheKeyProvider,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : base(null, cacheKeyProvider)
         {
             if (cacheOptions == null)
             {
@@ -40,6 +44,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="memoryCache">serialization cache.</param>
+        /// <param name="cacheOptions">Memory cache options.</param>
+        public MsalMemoryTokenCacheProvider(
+            IMemoryCache memoryCache,
+            IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
+            : this(memoryCache, new MsalTokenCacheKeyProvider(), cacheOptions)
+        {
         }
 
         /// <summary>

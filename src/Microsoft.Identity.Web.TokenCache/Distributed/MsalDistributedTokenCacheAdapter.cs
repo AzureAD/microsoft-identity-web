@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.TokenCache;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -48,7 +49,26 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
                                             ILogger<MsalDistributedTokenCacheAdapter> logger,
                                             IServiceProvider? serviceProvider = null)
-            : base(GetDataProtector(distributedCacheOptions, serviceProvider))
+            : this(distributedCache, new MsalTokenCacheKeyProvider(), distributedCacheOptions, logger, serviceProvider)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MsalDistributedTokenCacheAdapter"/> class.
+        /// </summary>
+        /// <param name="distributedCache">Distributed cache instance to use.</param>
+        /// <param name="cacheKeyProvider">Instance of <see cref="IMsalTokenCacheKeyProvider"/> type.</param>
+        /// <param name="distributedCacheOptions">Options for the token cache.</param>
+        /// <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+        /// <param name="serviceProvider">Service provider. Can be null, in which case the token cache
+        /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        public MsalDistributedTokenCacheAdapter(
+                                            IDistributedCache distributedCache,
+                                            IMsalTokenCacheKeyProvider cacheKeyProvider,
+                                            IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
+                                            ILogger<MsalDistributedTokenCacheAdapter> logger,
+                                            IServiceProvider? serviceProvider = null)
+            : base(GetDataProtector(distributedCacheOptions, serviceProvider), cacheKeyProvider)
         {
             if (distributedCacheOptions == null)
             {

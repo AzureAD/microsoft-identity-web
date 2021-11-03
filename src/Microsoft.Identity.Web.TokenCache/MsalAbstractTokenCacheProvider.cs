@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.TokenCache;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
@@ -16,15 +17,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
         private readonly IDataProtector? _protector;
+        private readonly IMsalTokenCacheKeyProvider _cacheKeyProvider;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="dataProtector">Service provider. Can be null, in which case the token cache
         /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
-        protected MsalAbstractTokenCacheProvider(IDataProtector? dataProtector = null)
+        /// <param name="cacheKeyProvider">Instance of <see cref="IMsalTokenCacheKeyProvider"/> type.</param>
+        protected MsalAbstractTokenCacheProvider(IDataProtector? dataProtector = null, IMsalTokenCacheKeyProvider? cacheKeyProvider = null)
         {
             _protector = dataProtector;
+            _cacheKeyProvider = cacheKeyProvider ?? new MsalTokenCacheKeyProvider();
         }
 
         /// <summary>
@@ -70,12 +74,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey, ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
+                    var key = _cacheKeyProvider.GetKey(args);
+                    await WriteCacheBytesAsync(key, ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
                 }
                 else
                 {
                     // No token in the cache. we can remove the cache entry
-                    await RemoveKeyAsync(args.SuggestedCacheKey, cacheSerializerHints).ConfigureAwait(false);
+                    var key = _cacheKeyProvider.GetKey(args);
+                    await RemoveKeyAsync(key, cacheSerializerHints).ConfigureAwait(false);
                 }
             }
         }
@@ -94,9 +100,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
+            var key = _cacheKeyProvider.GetKey(args);
+            if (!string.IsNullOrEmpty(key))
             {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
+                byte[] tokenCacheBytes = await ReadCacheBytesAsync(key, CreateHintsFromArgs(args)).ConfigureAwait(false);
 
                 args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
             }
