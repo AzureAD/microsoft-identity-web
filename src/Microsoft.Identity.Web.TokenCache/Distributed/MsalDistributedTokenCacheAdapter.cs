@@ -214,13 +214,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     }
                 }
             }
-            else
+            else if (!_distributedCacheOptions.DisableOnAccessRefresh)
             {
                 await L2OperationWithRetryOnFailureAsync(
-                       "Refresh",
-                       (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
-                       cacheKey,
-                       result!).ConfigureAwait(false);
+                    "Refresh",
+                    (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
+                    cacheKey,
+                    result!).ConfigureAwait(false);
             }
 
 #pragma warning disable CS8603 // Possible null reference return.

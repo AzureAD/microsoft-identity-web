@@ -53,5 +53,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// </summary>
         /// The default is <c>false.</c>
         public bool DisableL1Cache { get; set; }
+
+        /// <summary>
+        /// Disable distributed cache refresh for sliding expiration window.
+        /// </summary>
+        /// <remarks>Useful for scenarios where memory pressue is not of concern.</remarks>
+        /// The default is <c>false.</c>
+        public bool DisableOnAccessRefresh { get; set; }
     }
 }
