@@ -1,3 +1,10 @@
+1.19.1
+==========
+Update to Microsoft.Graph 4.9.0, Microsoft.Graph.Beta 4.19.0-preview, Microsoft.IdentityModel 6.14.1.
+
+### Bug Fixes:
+**Bug fix in M.IM.Validators when dealing with multiple auth schemes**. See [release notes](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/6.14.1) for details.
+
 1.19.0
 ==========
 Update to Microsoft.Graph 4.8.0, Microsoft.Graph.Beta 4.18.0-preview, Microsoft.IdentityModel 6.14, and MSAL.NET 4.37.0.
