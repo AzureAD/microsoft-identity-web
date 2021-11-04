@@ -1,6 +1,9 @@
-1.19.1
+1.20.0
 ==========
 Update to Microsoft.Graph 4.9.0, Microsoft.Graph.Beta 4.19.0-preview, Microsoft.IdentityModel 6.14.1.
+
+### New Features:
+**Microsoft.Identity.Web.TokenCache now offers the possiblity of defining MemoryCacheOptions**, such as eviction and size limit options with the InMemoryCache for .NET Framework. See issue [#1521](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/pull/1521) for details.
 
 ### Bug Fixes:
 **Bug fix in M.IM.Validators when dealing with multiple auth schemes**. See [release notes](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/6.14.1) for details.
