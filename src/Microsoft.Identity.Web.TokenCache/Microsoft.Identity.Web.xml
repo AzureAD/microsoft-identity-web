@@ -665,6 +665,28 @@
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
         </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection})">
+             <summary>
+             Add an in-memory well partitioned token cache to MSAL.NET confidential client
+             application. Don't use this method in ASP.NET Core: rather use:
+             <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
+             </summary>
+             <param name="confidentialClientApp">Confidential client application.</param>
+             <param name="initializeMemoryCache">Action taking a <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
+             and by which you initialize your memory cache.</param>
+             <returns>The application for chaining.</returns>
+             <example>
+            
+             The following code adds an in-memory token cache.
+            
+             <code>
+              app.AddInMemoryTokenCache();
+             </code>
+            
+             </example>
+             <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+             instead.</remarks>
+        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(Microsoft.Identity.Client.IConfidentialClientApplication)">
              <summary>
              Add an in-memory well partitioned token cache to MSAL.NET confidential client

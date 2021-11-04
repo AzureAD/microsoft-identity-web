@@ -104,6 +104,8 @@ namespace Microsoft.Identity.Web
         /// <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
         /// </summary>
         /// <param name="confidentialClientApp">Confidential client application.</param>
+        /// <param name="initializeMemoryCache">Action taking a <see cref="IServiceCollection"/>
+        /// and by which you initialize your memory cache.</param>
         /// <returns>The application for chaining.</returns>
         /// <example>
         ///
@@ -117,12 +119,48 @@ namespace Microsoft.Identity.Web
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>
         public static IConfidentialClientApplication AddInMemoryTokenCache(
+            this IConfidentialClientApplication confidentialClientApp,
+            Action<IServiceCollection> initializeMemoryCache)
+        {
+            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
+            _ = initializeMemoryCache ?? throw new ArgumentNullException(nameof(initializeMemoryCache));
+
+            confidentialClientApp.AddTokenCaches(services =>
+            {
+                services.AddInMemoryTokenCaches();
+                initializeMemoryCache(services);
+            });
+            return confidentialClientApp;
+        }
+
+        /// <summary>
+        /// Add an in-memory well partitioned token cache to MSAL.NET confidential client
+        /// application. Don't use this method in ASP.NET Core: rather use:
+        /// <code>services.AddInMemoryTokenCache()</code> in ConfigureServices.
+        /// </summary>
+        /// <param name="confidentialClientApp">Confidential client application.</param>
+        /// <returns>The application for chaining.</returns>
+        /// <example>
+        ///
+        /// The following code adds an in-memory token cache.
+        ///
+        /// <code>
+        ///  app.AddInMemoryTokenCache(services =>
+        ///  {
+        ///       services.Configure&lt;MsalMemoryTokenCacheOptions&gt;(options =>
+        ///       {
+        ///           options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1); // for example
+        ///       });
+        ///  });
+        /// </code>
+        ///
+        /// </example>
+        /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
+        /// instead.</remarks>
+        public static IConfidentialClientApplication AddInMemoryTokenCache(
             this IConfidentialClientApplication confidentialClientApp)
         {
-            if (confidentialClientApp is null)
-            {
-                throw new ArgumentNullException(nameof(confidentialClientApp));
-            }
+            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
 
             confidentialClientApp.AddTokenCaches(services =>
             {
@@ -162,15 +200,9 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeDistributedCache)
         {
-            if (confidentialClientApp is null)
-            {
-                throw new ArgumentNullException(nameof(confidentialClientApp));
-            }
+            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
 
-            if (initializeDistributedCache is null)
-            {
-                throw new ArgumentNullException(nameof(initializeDistributedCache));
-            }
+            _ = initializeDistributedCache ?? throw new ArgumentNullException(nameof(initializeDistributedCache));
 
             confidentialClientApp.AddTokenCaches(services =>
             {
