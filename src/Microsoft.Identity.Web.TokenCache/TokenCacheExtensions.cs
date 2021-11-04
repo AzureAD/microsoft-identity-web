@@ -103,13 +103,7 @@ namespace Microsoft.Identity.Web
         /// The following code adds an in-memory token cache.
         ///
         /// <code>
-        ///  app.AddInMemoryTokenCache(services =>
-        ///  {
-        ///       services.Configure&lt;MsalMemoryTokenCacheOptions&gt;(options =>
-        ///       {
-        ///           options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1); // for example
-        ///       });
-        ///  });
+        ///  app.AddInMemoryTokenCache();
         /// </code>
         ///
         /// </example>
@@ -141,7 +135,13 @@ namespace Microsoft.Identity.Web
         /// The following code adds an in-memory token cache.
         ///
         /// <code>
-        ///  app.AddInMemoryTokenCache();
+        ///  app.AddInMemoryTokenCache(services =>
+        ///  {
+        ///       services.Configure&lt;MemoryCacheOptions&gt;(options =>
+        ///       {
+        ///           options.SizeLimit = 5000000; // in bytes (5 Mb), for example
+        ///       });
+        ///  });
         /// </code>
         ///
         /// </example>
