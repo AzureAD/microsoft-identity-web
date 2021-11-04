@@ -81,7 +81,6 @@ namespace Microsoft.Identity.Web.Test
         public void InMemoryCache_WithServices_NoService_ThrowsException_Tests()
         {
             CreateCca();
-
             var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache(null));
 
             Assert.Equal("initializeMemoryCache", ex.ParamName);
@@ -115,7 +114,6 @@ namespace Microsoft.Identity.Web.Test
         public void DistributedCacheExtensions_NoService_ThrowsException_Tests()
         {
             CreateCca();
-
             var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null));
 
             Assert.Equal("initializeDistributedCache", ex.ParamName);
