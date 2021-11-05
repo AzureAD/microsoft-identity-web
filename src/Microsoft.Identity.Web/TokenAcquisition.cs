@@ -803,6 +803,7 @@ namespace Microsoft.Identity.Web
                                            scopes.Except(_scopesRequestedByMsal),
                                            tokenUsedToCallTheWebApi,
                                            ref sessionKey);
+                        tokenAcquisitionOptions.LongRunningWebApiSessionKey = sessionKey;
                     }
                 }
                 else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))

@@ -52,13 +52,19 @@ namespace TodoListService.Controllers
         public async Task<IEnumerable<Todo>> GetAsync()
         {
             string owner = User.GetDisplayName();
+
+            // TODO:
+            // If this line is after the normal OBO, then this throws a 
+            // MsalClientException telling the OBO key already exists.
+            // Given the OBO token is the same we should probably just return the key?
+            await RegisterPeriodicCallbackForLongProcessing(null);
+
             // Below is for testing multi-tenants
             var result = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
 
             var result2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read.all" },
                 tokenAcquisitionOptions: new TokenAcquisitionOptions { ForceRefresh = true }).ConfigureAwait(false); // for testing OBO
 
-            await RegisterPeriodicCallbackForLongProcessing(null);
 
             // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
@@ -76,10 +82,10 @@ namespace TodoListService.Controllers
             // Get the token incoming to the web API - we could do better here.
             TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions()
             {
-                LongRunningWebApiSessionKey = keyHint
+                LongRunningWebApiSessionKey = keyHint ?? TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto
             };
 
-            await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }, tokenAcquisitionOptions: tokenAcquisitionOptions);
+            _= await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }, tokenAcquisitionOptions: tokenAcquisitionOptions);
             string key = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
 
             // Build the URL to the callback controller, based on the request.
