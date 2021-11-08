@@ -29,6 +29,9 @@ jobs:
       inputs:
         projects: 'Microsoft.Identity.Web.sln'
         command: 'restore'
+    - task: NuGetAuthenticate@0
+      inputs:
+        nuGetServiceConnections: 'VSTS Internal'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
