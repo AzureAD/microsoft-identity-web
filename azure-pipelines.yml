@@ -37,25 +37,25 @@ jobs:
         command: 'custom'
         projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
         custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Logging -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+        arguments: 'package Microsoft.IdentityModel.Logging -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
         projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
         custom: 'add' 
-        arguments: 'package Microsoft.IdentityModel.Protocols.OpenIdConnect -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+        arguments: 'package Microsoft.IdentityModel.Protocols.OpenIdConnect -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
         projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
         custom: 'add'
-        arguments: 'package System.IdentityModel.Tokens.Jwt -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+        arguments: 'package System.IdentityModel.Tokens.Jwt -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
         projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
         custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+        arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
     - task: VSBuild@1
       inputs:
         solution: Microsoft.Identity.Web.sln
