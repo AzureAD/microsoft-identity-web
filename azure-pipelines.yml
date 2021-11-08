@@ -27,6 +27,30 @@ jobs:
           sonar.exclusions=tests\**
     - task: DotNetCoreCLI@2
       inputs:
+        command: 'custom'
+        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
+        custom: 'add'
+        arguments: 'package Microsoft.IdentityModel.Logging -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'custom'
+        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
+        custom: 'add' 
+        arguments: 'package Microsoft.IdentityModel.Protocols.OpenIdConnect -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'custom'
+        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
+        custom: 'add'
+        arguments: 'package System.IdentityModel.Tokens.Jwt -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'custom'
+        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
+        custom: 'add'
+        arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+    - task: DotNetCoreCLI@2
+      inputs:
         projects: 'Microsoft.Identity.Web.sln'
         command: 'restore'
     - task: VSBuild@1
