@@ -56,6 +56,8 @@ jobs:
         projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
         custom: 'add'
         arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
+- task: NuGetAuthenticate@0
+  inputs:
     - task: VSBuild@1
       inputs:
         solution: Microsoft.Identity.Web.sln
