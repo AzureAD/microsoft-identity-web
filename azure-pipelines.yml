@@ -31,7 +31,7 @@ jobs:
         command: 'restore'
     - task: NuGetAuthenticate@0
       inputs:
-        nuGetServiceConnections: 'VSTS Internal'
+        nuGetServiceConnections: 8e5ffc7d-d807-496b-b527-0ed7274cdfcd
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
