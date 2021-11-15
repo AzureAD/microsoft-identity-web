@@ -70,6 +70,7 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
+            mergedOptions.ClientAssertion ??= microsoftIdentityOptions.ClientAssertion;
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
             {
                 mergedOptions.ClientId = microsoftIdentityOptions.ClientId;

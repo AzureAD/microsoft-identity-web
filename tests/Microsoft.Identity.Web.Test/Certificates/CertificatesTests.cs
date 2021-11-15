@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             // Should not throw
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, null);
         }
 
         [Theory]
@@ -52,7 +52,30 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             // Should not throw
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, null);
+        }
+
+        public void ValidateCredentialType_ClientAssertion(string base64Encoded)
+        {
+            // Arrange
+            CertificateDescription certificateDescription =
+                    CertificateDescription.FromBase64Encoded(base64Encoded);
+
+            MicrosoftIdentityOptions microsoftIdentityOptions = new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AuthorityCommonTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientAssertion = new ClientAssertionDescription(() => { return new ClientAssertion("clientAssertion", DateTime.Now.AddSeconds(20)); }),
+            };
+
+            ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
+            {
+                ClientSecret = string.Empty,
+            };
+
+            // Act & Assert
+            // Should not throw
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, microsoftIdentityOptions.ClientAssertion);
         }
 
         [Fact]
@@ -72,7 +95,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act
             Action credentialAction = () =>
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, null);
 
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);
@@ -102,7 +125,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act
             Action credentialAction = () =>
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates);
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, null);
 
             // Assert
             var exception = Assert.Throws<MsalClientException>(credentialAction);

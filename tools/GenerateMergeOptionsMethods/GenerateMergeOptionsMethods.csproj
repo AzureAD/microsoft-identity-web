@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\src\Microsoft.Identity.Web\ClientAssertion.cs" Link="OptionClasses\ClientAssertion.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web\ClientAssertionDescription.cs" Link="OptionClasses\ClientAssertionDescription.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />

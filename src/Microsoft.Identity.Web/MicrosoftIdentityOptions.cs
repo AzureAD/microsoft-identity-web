@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -70,7 +71,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal bool HasClientCredentials
         {
-            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any());
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any()) || (ClientAssertion != null);
         }
 
         /// <summary>
@@ -147,5 +148,20 @@ namespace Microsoft.Identity.Web
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public PathString ErrorPath { get; set; } = new PathString("/MicrosoftIdentity/Account/Error");
+
+        /// <summary>
+        /// Delegates enabling the application to provide a client assertion instead of
+        /// <see cref="ClientCertificates"/> or client secrets.
+        /// </summary>
+        /// <example>
+        /// In Startup.cs, after AddMicrosoftIdentityWebXX, add another instruction:
+        /// <code>
+        /// services.ConfigureOptions&lt;MicrosoftIdentityOptions&gt;(OpenIdConnectDefaults.AuthenticationScheme,
+        /// options => {
+        ///   options.ClientAssertionProvider = GetClientAssertionProvider();
+        /// });
+        /// </code>
+        /// </example>
+        public ClientAssertionDescription? ClientAssertion;
     }
 }

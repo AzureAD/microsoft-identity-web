@@ -41,9 +41,10 @@ namespace Microsoft.Identity.Web
 
         public static void ValidateEitherClientCertificateOrClientSecret(
             string? clientSecret,
-            IEnumerable<CertificateDescription>? cert)
+            IEnumerable<CertificateDescription>? cert,
+            ClientAssertionDescription? clientAssertionDescription)
         {
-            if (string.IsNullOrEmpty(clientSecret) && (cert == null))
+            if (string.IsNullOrEmpty(clientSecret) && (cert == null) && (clientAssertionDescription == null))
             {
                 throw new MsalClientException(
                     ErrorCodes.MissingClientCredentials,
