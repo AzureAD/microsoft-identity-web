@@ -798,7 +798,7 @@ namespace Microsoft.Identity.Web
                             sessionKey = null;
                         }
 
-                        builder = application
+                        builder = (application as ILongRunningWebApi)?
                                        .InitiateLongRunningProcessInWebApi(
                                            scopes.Except(_scopesRequestedByMsal),
                                            tokenUsedToCallTheWebApi,
@@ -809,7 +809,7 @@ namespace Microsoft.Identity.Web
                 else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                 {
                     string sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
-                    builder = application
+                    builder = (application as ILongRunningWebApi)?
                                    .AcquireTokenInLongRunningProcess(
                                        scopes.Except(_scopesRequestedByMsal),
                                        sessionKey);

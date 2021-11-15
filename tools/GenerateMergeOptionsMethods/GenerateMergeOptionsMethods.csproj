@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.37.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.38.0-preview-obo-2" />
   </ItemGroup>
 
   <ItemGroup>
