@@ -44,6 +44,7 @@ namespace Microsoft.Identity.Web
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
+        internal bool MergedWithCca { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -254,6 +255,7 @@ namespace Microsoft.Identity.Web
 
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
         {
+            mergedOptions.MergedWithCca = true;
             mergedOptions.AadAuthorityAudience = confidentialClientApplicationOptions.AadAuthorityAudience;
             mergedOptions.AzureCloudInstance = confidentialClientApplicationOptions.AzureCloudInstance;
             if (string.IsNullOrEmpty(mergedOptions.AzureRegion) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.AzureRegion))

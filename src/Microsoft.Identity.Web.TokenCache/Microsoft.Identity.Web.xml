@@ -704,10 +704,11 @@
               {
                    services.Configure&lt;MemoryCacheOptions&gt;(options =>
                    {
-                       options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1); // for example
+                       options.SizeLimit = 5000000; // in bytes (5 Mb), for example
                    });
               });
              </code>
+            
              </example>
              <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
              instead.</remarks>
