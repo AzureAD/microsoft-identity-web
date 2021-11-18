@@ -32,6 +32,15 @@ jobs:
     - task: NuGetAuthenticate@0
       inputs:
         nuGetServiceConnections: 'VSTS Internal'
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          Update-Package Microsoft.IdentityModel.Logging
+          -ProjectName Microsoft.Identity.Web
+          -Version Higest 
+          -Source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json
+          -IncludePrerelease
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
