@@ -370,7 +370,7 @@ namespace Microsoft.Identity.Web
             }
 
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-            
+
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
