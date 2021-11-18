@@ -35,6 +35,10 @@ jobs:
     - task: NuGetAuthenticate@0
       inputs:
         nuGetServiceConnections: 'VSTS Internal'
+    - task: NuGetCommand@2
+      inputs:
+        command: 'custom'
+        arguments: 'update Microsoft.Identity.Web.sln -DependencyVersion Highest -Id Microsoft.IdentityModel.Logging -PreRelease -Source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'custom'
