@@ -777,15 +777,47 @@ namespace Microsoft.Identity.Web
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
+                AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-                    var builder = application
-                                    .AcquireTokenOnBehalfOf(
-                                        scopes.Except(_scopesRequestedByMsal),
-                                        new UserAssertion(tokenUsedToCallTheWebApi))
-                                    .WithSendX5C(mergedOptions.SendX5C);
 
+                    if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+                    {
+                        builder = application
+                                        .AcquireTokenOnBehalfOf(
+                                            scopes.Except(_scopesRequestedByMsal),
+                                            new UserAssertion(tokenUsedToCallTheWebApi));
+                    }
+                    else
+                    {
+                        string? sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                        if (sessionKey == TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto)
+                        {
+                            sessionKey = null;
+                        }
+
+                        builder = (application as ILongRunningWebApi)?
+                                       .InitiateLongRunningProcessInWebApi(
+                                           scopes.Except(_scopesRequestedByMsal),
+                                           tokenUsedToCallTheWebApi,
+                                           ref sessionKey);
+                        tokenAcquisitionOptions.LongRunningWebApiSessionKey = sessionKey;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+                {
+                    string sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                    builder = (application as ILongRunningWebApi)?
+                                   .AcquireTokenInLongRunningProcess(
+                                       scopes.Except(_scopesRequestedByMsal),
+                                       sessionKey);
+                }
+
+                if (builder != null)
+                {
+                    builder.WithSendX5C(mergedOptions.SendX5C);
                     if (!string.IsNullOrEmpty(tenantId))
                     {
                         builder.WithTenantId(tenantId);

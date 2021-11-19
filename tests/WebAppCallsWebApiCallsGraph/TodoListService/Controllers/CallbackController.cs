@@ -18,17 +18,14 @@ namespace TodoListService.Controllers
     {
         private readonly ITokenAcquisition _tokenAcquisition; 
         private ILogger _logger;
-        ILongRunningProcessContextFactory _longRunningProcessAssertionCache;
 
         public CallbackController(
             IHttpContextAccessor contextAccessor,
             ITokenAcquisition tokenAcquisition,
-            ILogger<CallbackController> logger,
-            ILongRunningProcessContextFactory longRunningProcessAssertionCache)
+            ILogger<CallbackController> logger)
         {
             _tokenAcquisition = tokenAcquisition;
             _logger = logger;
-            _longRunningProcessAssertionCache = longRunningProcessAssertionCache;
         }
 
 
@@ -43,10 +40,12 @@ namespace TodoListService.Controllers
 
             _logger.LogWarning($"{DateTime.UtcNow}: {calledUrl}");
 
-            using (await _longRunningProcessAssertionCache.UseKey(HttpContext, key))
-            {
+                TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions()
+                {
+                    LongRunningWebApiSessionKey = key
+                };
                 var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
-                    new string[] { "user.read" })
+                    new string[] { "user.read" }, tokenAcquisitionOptions: tokenAcquisitionOptions)
                     .ConfigureAwait(false); // for testing OBO
 
                 _logger.LogWarning($"OBO token acquired from {result.AuthenticationResultMetadata.TokenSource} expires {result.ExpiresOn.UtcDateTime}");
@@ -57,7 +56,6 @@ namespace TodoListService.Controllers
                 {
                 }
 
-            }
         }
     }
 }

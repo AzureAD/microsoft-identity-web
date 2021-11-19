@@ -53,6 +53,22 @@ namespace Microsoft.Identity.Web
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
         /// <summary>
+        /// Key used for long running web APIs that need to call downstream web
+        /// APIs on behalf of the user. Can be null, if you are not developing a long
+        /// running web API, <see cref="LongRunningWebApiSessionKeyAuto"/> if you want
+        /// Microsoft.Identity.Web to allocate a session key for you, or your own string
+        /// if you want to associate the session with some information you have externally
+        /// (for instance a Microsoft Graph hook identifier).
+        /// </summary>
+        public string? LongRunningWebApiSessionKey { get; set; }
+
+        /// <summary>
+        /// Value that can be used for <see cref="LongRunningWebApiSessionKey"/> so that
+        /// MSAL.NET allocates the long running web api session key for the developer.
+        /// </summary>
+        public static string LongRunningWebApiSessionKeyAuto = "AllocateForMe";
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
