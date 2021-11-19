@@ -25,30 +25,17 @@ jobs:
         projectName: 'microsoft-identity-web'
         extraProperties: |
           sonar.exclusions=tests\**
-    - task: DotNetCoreCLI@2
+    - task: PowerShell@2
       inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Logging -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add' 
-        arguments: 'package Microsoft.IdentityModel.Protocols.OpenIdConnect -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package System.IdentityModel.Tokens.Jwt -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-* --interactive'
+        targetType: 'inline'
+        script: |
+          $xml = [Xml] (Get-Content src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj)
+          
+          $proj = [xml](Get-Content src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj)
+          $proj.GetElementsByTagName("IdentityModelVersion") | foreach {
+              $_."#text" = '6.14.2-preview-21104225527'
+          }
+          $proj.Save("src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj")
     - task: DotNetCoreCLI@2
       inputs:
         projects: 'Microsoft.Identity.Web.sln'
