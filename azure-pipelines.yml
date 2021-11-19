@@ -25,20 +25,21 @@ jobs:
         projectName: 'microsoft-identity-web'
         extraProperties: |
           sonar.exclusions=tests\**
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          $xml = [Xml] (Get-Content src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj)
+          
+          $proj = [xml](Get-Content src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj)
+          $proj.GetElementsByTagName("IdentityModelVersion") | foreach {
+              $_."#text" = '6.*-*'
+          }
+          $proj.Save("src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj")
     - task: DotNetCoreCLI@2
       inputs:
         projects: 'Microsoft.Identity.Web.sln'
         command: 'restore'
-    - task: NuGetToolInstaller@1
-      inputs:
-        versionSpec: 
-    - task: NuGetAuthenticate@0
-      inputs:
-        nuGetServiceConnections: 'VSTS Internal'
-    - task: NuGetCommand@2
-      inputs:
-        command: 'custom'
-        arguments: 'update Microsoft.Identity.Web.sln -DependencyVersion Highest -Id Microsoft.IdentityModel.Logging -Id Microsoft.IdentityModel.Protocols.OpenIdConnect -Id System.IdentityModel.Tokens.Jwt -Id Microsoft.IdentityModel.Validators -PreRelease -Source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json'
     - task: VSBuild@1
       inputs:
         solution: Microsoft.Identity.Web.sln
