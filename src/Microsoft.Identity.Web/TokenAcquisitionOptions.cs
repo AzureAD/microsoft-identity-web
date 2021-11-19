@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Key used for long running web APIs that need to call downstream web
-        /// APIs on behalf of the user. Can be null, if you are not developping a long
+        /// APIs on behalf of the user. Can be null, if you are not developing a long
         /// running web API, <see cref="LongRunningWebApiSessionKeyAuto"/> if you want
         /// Microsoft.Identity.Web to allocate a session key for you, or your own string
         /// if you want to associate the session with some information you have externally
