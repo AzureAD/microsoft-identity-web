@@ -82,7 +82,14 @@ namespace Microsoft.Identity.Web
 
         internal MergedOptions GetOptions(string authenticationScheme)
         {
-            return _mergedOptionsMonitor.Get(authenticationScheme);
+            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
+            if (!mergedOptions.MergedWithCca)
+            {
+                var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
+                ccaOptionsMonitor?.Get(authenticationScheme);
+            }
+
+            return mergedOptions;
         }
 
         /// <summary>
@@ -363,13 +370,14 @@ namespace Microsoft.Identity.Web
             }
 
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
+
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
             if (string.IsNullOrEmpty(mergedOptions.Instance))
             {
-                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
-                mergedOptionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
+                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>();
+                mergedOptionsMonitor?.Get(JwtBearerDefaults.AuthenticationScheme);
             }
 
             if (string.IsNullOrEmpty(tenant))
