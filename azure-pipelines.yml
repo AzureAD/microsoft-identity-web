@@ -38,31 +38,7 @@ jobs:
     - task: NuGetCommand@2
       inputs:
         command: 'custom'
-        arguments: 'update Microsoft.Identity.Web.sln -DependencyVersion Highest -Id Microsoft.IdentityModel.Logging -PreRelease -Source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Logging -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add' 
-        arguments: 'package Microsoft.IdentityModel.Protocols.OpenIdConnect -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package System.IdentityModel.Tokens.Jwt -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'custom'
-        projects: 'src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj'
-        custom: 'add'
-        arguments: 'package Microsoft.IdentityModel.Validators -s https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -v 6.*-*'
+        arguments: 'update Microsoft.Identity.Web.sln -DependencyVersion Highest -Id Microsoft.IdentityModel.Logging -Id Microsoft.IdentityModel.Protocols.OpenIdConnect -Id System.IdentityModel.Tokens.Jwt -Id Microsoft.IdentityModel.Validators -PreRelease -Source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json'
     - task: VSBuild@1
       inputs:
         solution: Microsoft.Identity.Web.sln
