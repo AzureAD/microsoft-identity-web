@@ -33,7 +33,7 @@ jobs:
           
           $proj = [xml](Get-Content src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj)
           $proj.GetElementsByTagName("IdentityModelVersion") | foreach {
-              $_."#text" = '6.*-*'
+              $_."#text" = '6.14.2-preview-21104225527'
           }
           $proj.Save("src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj")
     - task: DotNetCoreCLI@2
