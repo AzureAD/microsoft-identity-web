@@ -62,6 +62,7 @@ namespace Microsoft.Identity.Web
             {
                 authenticationResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                     scopes!,
+                    tenantId: tenant,
                     authenticationScheme: scheme).ConfigureAwait(false);
             }
 
