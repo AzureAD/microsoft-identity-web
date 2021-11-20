@@ -790,7 +790,6 @@ namespace Microsoft.Identity.Web
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
