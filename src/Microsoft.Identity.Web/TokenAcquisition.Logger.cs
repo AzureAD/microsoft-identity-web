@@ -19,8 +19,8 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.TokenAcquisitionError,
                     "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
 
-            private static readonly Action<ILogger, long, long, long, string, string, Exception?> s_tokenAcquisitionMsalAuthenticationResultTime =
-                LoggerMessage.Define<long, long, long, string, string>(
+            private static readonly Action<ILogger, long, long, long, string, string, string, Exception?> s_tokenAcquisitionMsalAuthenticationResultTime =
+                LoggerMessage.Define<long, long, long, string, string, string>(
                     LogLevel.Debug,
                     LoggingEventId.TokenAcquisitionMsalAuthenticationResultTime,
                     "[MsIdWeb] Time to get token with MSAL: " +
@@ -28,7 +28,8 @@ namespace Microsoft.Identity.Web
                     "DurationInHttpInMs: {DurationInHttpInMs} " +
                     "DurationInCacheInMs: {DurationInCacheInMs} " +
                     "TokenSource: {TokenSource} " +
-                    "CorrelationId: {CorrelationId} ");
+                    "CorrelationId: {CorrelationId} " +
+                    "CacheRefreshReason: {CacheRefreshReason} ");
 
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.
@@ -50,6 +51,7 @@ namespace Microsoft.Identity.Web
             /// <param name="durationInCacheInMs">durationInCacheInMs.</param>
             /// <param name="tokenSource">cache or IDP.</param>
             /// <param name="correlationId">correlationId.</param>
+            /// <param name="cacheRefreshReason">cacheRefreshReason.</param>
             /// <param name="ex">Exception from MSAL.NET.</param>
             public static void TokenAcquisitionMsalAuthenticationResultTime(
                 ILogger logger,
@@ -58,6 +60,7 @@ namespace Microsoft.Identity.Web
                 long durationInCacheInMs,
                 string tokenSource,
                 string correlationId,
+                string cacheRefreshReason,
                 Exception? ex) => s_tokenAcquisitionMsalAuthenticationResultTime(
                     logger,
                     durationTotalInMs,
@@ -65,6 +68,7 @@ namespace Microsoft.Identity.Web
                     durationInCacheInMs,
                     tokenSource,
                     correlationId,
+                    cacheRefreshReason,
                     ex);
         }
     }

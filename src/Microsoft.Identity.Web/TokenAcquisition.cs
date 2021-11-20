@@ -335,6 +335,7 @@ namespace Microsoft.Identity.Web
                 authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
                 authenticationResult.AuthenticationResultMetadata.TokenSource.ToString(),
                 authenticationResult.CorrelationId.ToString(),
+                authenticationResult.AuthenticationResultMetadata.CacheRefreshReason.ToString(),
                 null);
             }
         }
