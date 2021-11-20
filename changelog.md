@@ -1,6 +1,9 @@
-1.20.1
+1.21.0
 ==========
 Update to Microsoft.Graph 4.10.0, Microsoft.Graph.Beta 4.20.0-preview, MSAL.NET 4.38.0
+
+### New Features:
+**Microsoft.Identity.Web now supports a long running process in web APIs**, by leveraging new APIs in MSAL.NET 4.38.0. See the [Long running process](https://github.com/AzureAD/microsoft-identity-web/wiki/get-token-in-event-handler) article and issue [#1414](https://github.com/AzureAD/microsoft-identity-web/issues/1414) for details.
 
 ### Bug Fixes:
 **Honor `TenantId` in `.WithAppOnly()`**. See issue [#1536](https://github.com/AzureAD/microsoft-identity-web/issues/1536) for details.
