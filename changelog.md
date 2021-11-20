@@ -1,3 +1,14 @@
+1.20.1
+==========
+Update to Microsoft.Graph 4.10.0, Microsoft.Graph.Beta 4.20.0-preview, MSAL.NET 4.38.0
+
+### Bug Fixes:
+**Honor `TenantId` in `.WithAppOnly()`**. See issue [#1536](https://github.com/AzureAD/microsoft-identity-web/issues/1536) for details.
+
+**Azure Region not prepended to the endpoint**, have fixed a regression in the `MergedOptions`. See issue [#1535](https://github.com/AzureAD/microsoft-identity-web/issues/1535) for details.
+
+**Update `Microsoft.AspNetCore.Authentication.JwtBearer` to 5.0.12**, due to security vulnerability in previous version. See issue [#1532](https://github.com/AzureAD/microsoft-identity-web/issues/1532) for details.
+
 1.20.0
 ==========
 Update to Microsoft.Graph 4.9.0, Microsoft.Graph.Beta 4.19.0-preview, Microsoft.IdentityModel 6.14.1.
