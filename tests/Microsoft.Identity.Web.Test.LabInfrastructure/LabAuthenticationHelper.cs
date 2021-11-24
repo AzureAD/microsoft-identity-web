@@ -13,10 +13,10 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
     public static class LabAuthenticationHelper
     {
-        private static InMemoryTokenCache s_staticCache = new InMemoryTokenCache();
+        private static readonly InMemoryTokenCache s_staticCache = new InMemoryTokenCache();
         private const string LabAccessConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         private const string LabAccessPublicClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
-        private const string LabAccessThumbPrint = "A7F68F87199F412451BF0FB364A3358A949D2CA8";
+        private const string LabAccessThumbPrint = "378938210C976692D7F523B8C4FFBB645D17CE92";
         private const string DataFileName = "data.txt";
         private static readonly LabAccessAuthenticationType s_defaultAuthType = LabAccessAuthenticationType.ClientCertificate;
         private static readonly string s_secret;
