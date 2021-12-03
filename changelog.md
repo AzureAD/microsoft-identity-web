@@ -1,3 +1,7 @@
+1.21.1
+==========
+Update to Microsoft.Graph 4.11.0, Microsoft.Graph.Beta 4.22.0-preview, MSAL.NET 4.39.0, Microsoft.IdentityModel 6.15.0.
+
 1.21.0
 ==========
 Update to Microsoft.Graph 4.10.0, Microsoft.Graph.Beta 4.20.0-preview, MSAL.NET 4.38.0
