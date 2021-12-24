@@ -33,6 +33,7 @@ jobs:
       inputs:
         solution: Microsoft.Identity.Web.sln
         vsVersion: '17.0'
+        msbuildArgs: '/p:DisableSystemTestJsonSourceGenerator=true'
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests'
       inputs:
