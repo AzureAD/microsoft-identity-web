@@ -10,7 +10,7 @@ pr:
 jobs:
 - job: "Sonar"
   pool:
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2022'
     demands:
     - msbuild
   steps:

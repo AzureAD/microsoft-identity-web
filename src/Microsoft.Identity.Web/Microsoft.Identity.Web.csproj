@@ -60,7 +60,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DisableSystemTextJsonSourceGenerator>true</DisableSystemTextJsonSourceGenerator>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
