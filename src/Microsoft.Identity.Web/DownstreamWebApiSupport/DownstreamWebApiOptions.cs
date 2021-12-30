@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Provides an opportunity to customize the HttpRequestMessage. For example,
         /// to customize the headers. This is called after the message was formed, including
-        /// the AuthorizationHeader, and just before the message is sent.
+        /// the Authorization header, and just before the message is sent.
         /// </summary>
         public Action<HttpRequestMessage>? CustomizeHttpRequestMessage { get; set; }
 
