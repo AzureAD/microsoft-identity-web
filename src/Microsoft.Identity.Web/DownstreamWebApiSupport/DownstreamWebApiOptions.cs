@@ -28,6 +28,13 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
+        /// Provides an opportunity to customize the HttpRequestMessage. For example,
+        /// to customize the headers. This is called after the message was formed, including
+        /// the AuthorizationHeader, and just before the message is sent.
+        /// </summary>
+        public Action<HttpRequestMessage>? CustomizeHttpRequestMessage { get; set; }
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>

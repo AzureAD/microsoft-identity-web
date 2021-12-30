@@ -95,6 +95,7 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
+                effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
                 return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
         }
@@ -174,6 +175,7 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
+                effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
 
