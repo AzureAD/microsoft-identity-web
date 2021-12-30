@@ -673,6 +673,13 @@
             HTTP method used to call this downstream web API (by default Get).
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.DownstreamWebApiOptions.CustomizeHttpRequestMessage">
+            <summary>
+            Provides an opportunity to customize the HttpRequestMessage. For example,
+            to customize the headers. This is called after the message was formed, including
+            the AuthorizationHeader, and just before the message is sent.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.Clone">
             <summary>
             Clone the options (to be able to override them).
@@ -2320,7 +2327,7 @@
             <param name="msalErrorMessage">Specific log message from TokenAcquisition.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.String,System.String,System.Exception)">
+        <member name="M:Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger,System.Int64,System.Int64,System.Int64,System.String,System.String,System.String,System.Exception)">
             <summary>
             Logger for handling information specific to MSAL in token acquisition.
             </summary>
@@ -2330,6 +2337,7 @@
             <param name="durationInCacheInMs">durationInCacheInMs.</param>
             <param name="tokenSource">cache or IDP.</param>
             <param name="correlationId">correlationId.</param>
+            <param name="cacheRefreshReason">cacheRefreshReason.</param>
             <param name="ex">Exception from MSAL.NET.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionOptions">
