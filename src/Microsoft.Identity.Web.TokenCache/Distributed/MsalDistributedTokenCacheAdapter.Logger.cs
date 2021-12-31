@@ -58,12 +58,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     LoggingEventId.MemoryCacheRead,
                     "[MsIdWeb] {CacheType}: {Operation} cacheKey {CacheKey} cache size {Size} ");
 
-            private static readonly Action<ILogger, string, string, Exception?> s_l1CacheNegativeExpiry =
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    LoggingEventId.MemoryCacheNegativeExpiry,
-                    "[MsIdWeb] {CacheType}: {Operation} The TokenCacheNotificationArgs.SuggestedCacheExpiry from MSAL was negative. ");
-
             private static readonly Action<ILogger, string, string, int, Exception?> s_l1CacheCount =
                 LoggerMessage.Define<string, string, int>(
                     LogLevel.Debug,
@@ -97,23 +91,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     operation,
                     cacheKey,
                     cacheSize,
-                    ex);
-
-            /// <summary>
-            /// Memory cache negative expiry.
-            /// </summary>
-            /// <param name="logger">ILogger.</param>
-            /// <param name="cacheType">Distributed or Memory.</param>
-            /// <param name="operation">Cache operation (Read, Write, etc...).</param>
-            /// <param name="ex">Exception.</param>
-            public static void MemoryCacheNegativeExpiry(
-                ILogger logger,
-                string cacheType,
-                string operation,
-                Exception? ex) => s_l1CacheNegativeExpiry(
-                    logger,
-                    cacheType,
-                    operation,
                     ex);
 
             /// <summary>

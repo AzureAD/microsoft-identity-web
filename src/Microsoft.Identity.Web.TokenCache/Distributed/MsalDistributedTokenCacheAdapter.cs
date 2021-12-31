@@ -233,22 +233,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             string write = "Write";
 
-            TimeSpan? cacheExpiry = null;
-            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
-            {
-                cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
-                if (cacheExpiry < TimeSpan.Zero)
-                {
-                    cacheExpiry = TimeSpan.FromMilliseconds(1);
-                    Logger.MemoryCacheNegativeExpiry(_logger, _memoryCacheType, write, null);
-                }
-            }
+            DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
 
             if (_memoryCache != null)
             {
                 MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
                 {
-                    AbsoluteExpirationRelativeToNow = cacheExpiry ?? _expirationTime,
+                    AbsoluteExpiration = cacheExpiry ?? _distributedCacheOptions.AbsoluteExpiration,
+                    AbsoluteExpirationRelativeToNow = _expirationTime,
                     Size = bytes?.Length,
                 };
 
@@ -258,12 +250,25 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count, null);
             }
 
+            if ((cacheExpiry != null && _distributedCacheOptions.AbsoluteExpiration != null && _distributedCacheOptions.AbsoluteExpiration < cacheExpiry)
+               || (cacheExpiry == null && _distributedCacheOptions.AbsoluteExpiration != null))
+            {
+                cacheExpiry = _distributedCacheOptions.AbsoluteExpiration;
+            }
+
+            DistributedCacheEntryOptions distributedCacheEntryOptions = new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpiration = cacheExpiry,
+                AbsoluteExpirationRelativeToNow = _distributedCacheOptions.AbsoluteExpirationRelativeToNow,
+                SlidingExpiration = _distributedCacheOptions.SlidingExpiration,
+            };
+
             await L2OperationWithRetryOnFailureAsync(
             write,
             (cacheKey) => _distributedCache.SetAsync(
                 cacheKey,
                 bytes,
-                _distributedCacheOptions,
+                distributedCacheEntryOptions,
                 cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
             cacheKey).Measure().ConfigureAwait(false);
         }
