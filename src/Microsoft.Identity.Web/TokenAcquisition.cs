@@ -687,7 +687,7 @@ namespace Microsoft.Identity.Web
             MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
                  mergedOptions.ClientSecret,
                  mergedOptions.ClientCertificates,
-                 mergedOptions.ClientAssertion);
+                 mergedOptions.ClientAssertionDescription);
 
             try
             {
@@ -724,16 +724,9 @@ namespace Microsoft.Identity.Web
                     builder.WithAuthority(authority);
                 }
 
-                if (mergedOptions.ClientAssertion != null)
+                if (mergedOptions.ClientAssertionDescription != null)
                 {
-                    string clientAssertion = mergedOptions.ClientAssertion.SignedAssertion;
-                    if (clientAssertion == null)
-                    {
-                        Logger.TokenAcquisitionError(
-                            _logger,
-                            IDWebErrorMessage.ClientAssertionCannotBeRetrieved,
-                            null);
-                    }
+                    builder.WithClientAssertion(mergedOptions.ClientAssertionDescription.GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

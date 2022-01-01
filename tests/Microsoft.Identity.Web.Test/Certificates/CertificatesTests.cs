@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
@@ -65,7 +66,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ConfidentialClientId,
-                ClientAssertion = new ClientAssertionDescription(() => { return new ClientAssertion("clientAssertion", DateTime.Now.AddSeconds(20)); }),
+                ClientAssertionDescription = new ClientAssertionDescription((_) => { return Task.FromResult(new ClientAssertion("clientAssertion", DateTime.Now.AddSeconds(20))); }),
             };
 
             ConfidentialClientApplicationOptions options = new ConfidentialClientApplicationOptions
@@ -75,7 +76,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             // Should not throw
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, microsoftIdentityOptions.ClientAssertion);
+            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(options.ClientSecret, microsoftIdentityOptions.ClientCertificates, microsoftIdentityOptions.ClientAssertionDescription);
         }
 
         [Fact]

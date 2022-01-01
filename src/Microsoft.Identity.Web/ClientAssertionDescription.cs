@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
 {
@@ -15,7 +17,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="clientAssertionProvider">delegate providing the client assertion
         /// when it is necessary.</param>
-        public ClientAssertionDescription(Func<ClientAssertion> clientAssertionProvider)
+        public ClientAssertionDescription(Func<CancellationToken, Task<ClientAssertion>> clientAssertionProvider)
         {
             ClientAssertionProvider = clientAssertionProvider;
         }
@@ -23,7 +25,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// delegate to get the client assertion.
         /// </summary>
-        protected Func<ClientAssertion> ClientAssertionProvider { get; private set; }
+        protected Func<CancellationToken, Task<ClientAssertion>> ClientAssertionProvider { get; private set; }
 
         /// <summary>
         /// Client assertion.
@@ -33,23 +35,23 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the signed assertion (and refreshes it if needed).
         /// </summary>
-        public string SignedAssertion
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The signed assertion.</returns>
+        public async Task<string> GetSignedAssertion(CancellationToken cancellationToken)
         {
-            get
+            if (_clientAssertion == null || (Expiry != null && DateTime.Now > Expiry))
             {
-                if (_clientAssertion == null || (Expiry != null && DateTime.Now > Expiry))
-                {
-                    _clientAssertion = ClientAssertionProvider();
-                }
-
-                return _clientAssertion.SignedAssertion;
+                // TODO: pass-in the cancellation token
+                _clientAssertion = await ClientAssertionProvider(cancellationToken).ConfigureAwait(false);
             }
+
+            return _clientAssertion.SignedAssertion;
         }
 
         /// <summary>
         /// Expiry of the client assertion.
         /// </summary>
-        public DateTime? Expiry
+        public DateTimeOffset? Expiry
         {
             get
             {

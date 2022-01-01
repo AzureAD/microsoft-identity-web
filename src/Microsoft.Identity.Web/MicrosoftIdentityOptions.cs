@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal bool HasClientCredentials
         {
-            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any()) || (ClientAssertion != null);
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any()) || (ClientAssertionDescription != null);
         }
 
         /// <summary>
@@ -162,6 +162,6 @@ namespace Microsoft.Identity.Web
         /// });
         /// </code>
         /// </example>
-        public ClientAssertionDescription? ClientAssertion;
+        public ClientAssertionDescription? ClientAssertionDescription { get; set; }
     }
 }

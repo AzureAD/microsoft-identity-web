@@ -11,11 +11,13 @@ namespace Microsoft.Identity.Web
     public class ClientAssertion
     {
         /// <summary>
-        /// Constructor of a ClientAssertion.
+        /// Constructor of a ClientAssertion, which can be used instead
+        /// of client secret or client certificates to authenticate the
+        /// confidential client application.
         /// </summary>
         /// <param name="signedAssertion">Signed assertion.</param>
         /// <param name="expiry">Optional expiry.</param>
-        public ClientAssertion(string signedAssertion, DateTime? expiry)
+        public ClientAssertion(string signedAssertion, DateTimeOffset? expiry)
         {
             SignedAssertion = signedAssertion;
             Expiry = expiry;
@@ -29,6 +31,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Expiry of the client assertion.
         /// </summary>
-        public DateTime? Expiry { get; private set; }
+        public DateTimeOffset? Expiry { get; private set; }
     }
 }
