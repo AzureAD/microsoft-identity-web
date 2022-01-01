@@ -92,7 +92,8 @@ namespace WebAppCallsMicrosoftGraph
         }
 
         /// <summary>
-        /// Prototype of certificate-less authentication using a certificate 
+        /// Prototype of certificate-less authentication using a signed assertion
+        /// acquired with MSI (federated identity)
         /// </summary>
         /// <returns></returns>
         private async Task<ClientAssertion> GetSignedAssertionFromMsi(CancellationToken cancellationToken)

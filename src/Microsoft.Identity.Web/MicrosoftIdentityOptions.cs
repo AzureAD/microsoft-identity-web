@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web
         /// <code>
         /// services.ConfigureOptions&lt;MicrosoftIdentityOptions&gt;(OpenIdConnectDefaults.AuthenticationScheme,
         /// options => {
-        ///   options.ClientAssertionProvider = GetClientAssertionProvider();
+        ///   options.ClientAssertionDescription = GetClientAssertionProvider();
         /// });
         /// </code>
         /// </example>

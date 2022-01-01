@@ -14,9 +14,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
         // https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Credentials/appId/86699d80-dd21-476a-bcd1-7c1a3d471f75/isMSAApp/
         // [InlineData(CertificateSource.KeyVault, TestConstants.KeyVaultContainer, TestConstants.KeyVaultReference)]
         // [InlineData(CertificateSource.Path, @"c:\temp\WebAppCallingWebApiCert.pfx", "")]
-        [InlineData(CertificateSource.StoreWithDistinguishedName, "LocalMachine/My", "CN=S2SMiddleTier")]
         // [InlineData(CertificateSource.StoreWithThumbprint, "CurrentUser/My", "962D129A859174EE8B5596985BD18EFEB6961684")]
-        // [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
+        [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
         [Theory]
         public void TestDefaultCertificateLoader(CertificateSource certificateSource, string container, string referenceOrValue)
         {

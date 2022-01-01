@@ -41,7 +41,6 @@ namespace Microsoft.Identity.Web
         {
             if (_clientAssertion == null || (Expiry != null && DateTime.Now > Expiry))
             {
-                // TODO: pass-in the cancellation token
                 _clientAssertion = await ClientAssertionProvider(cancellationToken).ConfigureAwait(false);
             }
 
