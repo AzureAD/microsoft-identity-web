@@ -31,15 +31,12 @@ namespace TodoListService.Controllers
         // The Web API will only accept tokens 1) for users, and 2) having the access_as_user scope for this API
         // In-memory TodoList
         private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
-        ILongRunningProcessContextFactory _longRunningProcessAssertionCache;
 
         public TodoListController(
             IHttpContextAccessor contextAccessor,
-            ITokenAcquisition tokenAcquisition,
-            ILongRunningProcessContextFactory longRunningProcessAssertionCache)
+            ITokenAcquisition tokenAcquisition)
         {
             _tokenAcquisition = tokenAcquisition;
-            _longRunningProcessAssertionCache = longRunningProcessAssertionCache;
 
             // Pre-populate with sample data
             if (TodoStore.Count == 0)
@@ -55,6 +52,7 @@ namespace TodoListService.Controllers
         public async Task<IEnumerable<Todo>> GetAsync()
         {
             string owner = User.GetDisplayName();
+
             // Below is for testing multi-tenants
             var result = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }).ConfigureAwait(false); // for testing OBO
 
@@ -77,7 +75,13 @@ namespace TodoListService.Controllers
         private async Task RegisterPeriodicCallbackForLongProcessing(string keyHint)
         {
             // Get the token incoming to the web API - we could do better here.
-            string key = await _longRunningProcessAssertionCache.CreateKey(HttpContext, keyHint);
+            TokenAcquisitionOptions tokenAcquisitionOptions = new TokenAcquisitionOptions()
+            {
+                LongRunningWebApiSessionKey = keyHint ?? TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto
+            };
+
+            _= await _tokenAcquisition.GetAuthenticationResultForUserAsync(new string[] { "user.read" }, tokenAcquisitionOptions: tokenAcquisitionOptions);
+            string key = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
 
             // Build the URL to the callback controller, based on the request.
             var request = HttpContext.Request;

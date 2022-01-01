@@ -66,8 +66,6 @@ namespace TodoListService
 #endif
 
             services.AddControllers();
-            services.AddSingleton<ILongRunningProcessContextFactory, LongRunningProcessContextFactory>();
-
             #region
             /*
             // 1) With the requirement, applies to all endpoints which have [Authorize(Policy = "foo")]

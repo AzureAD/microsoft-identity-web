@@ -87,23 +87,17 @@ namespace Microsoft.Identity.Web.Test
             CancellationToken cancellationToken = CancellationToken.None;
             string suggestedCacheKey = "key";
             DateTimeOffset? suggestedCacheExpiry = null;
-            TokenCacheNotificationArgs args = Activator.CreateInstance(
-                typeof(TokenCacheNotificationArgs),
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null,
-                new object[]
-                {
+            TokenCacheNotificationArgs args = new TokenCacheNotificationArgs(
                     tokenCacheSerializer,
                     clientId,
                     account,
                     hasStateChanged,
                     isAppCache,
-                    hasTokens,
-                    cancellationToken,
                     suggestedCacheKey,
+                    hasTokens,
                     suggestedCacheExpiry,
-                },
-                null) as TokenCacheNotificationArgs;
+                    cancellationToken);
+
             return args;
         }
     }

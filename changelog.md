@@ -1,3 +1,21 @@
+1.21.1
+==========
+Update to Microsoft.Graph 4.11.0, Microsoft.Graph.Beta 4.22.0-preview, MSAL.NET 4.39.0, Microsoft.IdentityModel 6.15.0.
+
+1.21.0
+==========
+Update to Microsoft.Graph 4.10.0, Microsoft.Graph.Beta 4.20.0-preview, MSAL.NET 4.38.0
+
+### New Features:
+**Microsoft.Identity.Web now supports a long running process in web APIs**, by leveraging new APIs in MSAL.NET 4.38.0. See the [Long running process](https://github.com/AzureAD/microsoft-identity-web/wiki/get-token-in-event-handler) article and issue [#1414](https://github.com/AzureAD/microsoft-identity-web/issues/1414) for details.
+
+### Bug Fixes:
+**Honor `TenantId` in `.WithAppOnly()`**. See issue [#1536](https://github.com/AzureAD/microsoft-identity-web/issues/1536) for details.
+
+**Azure Region not prepended to the endpoint**, have fixed a regression in the `MergedOptions`. See issue [#1535](https://github.com/AzureAD/microsoft-identity-web/issues/1535) for details.
+
+**Update `Microsoft.AspNetCore.Authentication.JwtBearer` to 5.0.12**, due to security vulnerability in previous version. See issue [#1532](https://github.com/AzureAD/microsoft-identity-web/issues/1532) for details.
+
 1.20.0
 ==========
 Update to Microsoft.Graph 4.9.0, Microsoft.Graph.Beta 4.19.0-preview, Microsoft.IdentityModel 6.14.1.

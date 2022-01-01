@@ -82,7 +82,14 @@ namespace Microsoft.Identity.Web
 
         internal MergedOptions GetOptions(string authenticationScheme)
         {
-            return _mergedOptionsMonitor.Get(authenticationScheme);
+            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
+            if (!mergedOptions.MergedWithCca)
+            {
+                var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
+                ccaOptionsMonitor?.Get(authenticationScheme);
+            }
+
+            return mergedOptions;
         }
 
         /// <summary>
@@ -328,6 +335,7 @@ namespace Microsoft.Identity.Web
                 authenticationResult.AuthenticationResultMetadata.DurationInCacheInMs,
                 authenticationResult.AuthenticationResultMetadata.TokenSource.ToString(),
                 authenticationResult.CorrelationId.ToString(),
+                authenticationResult.AuthenticationResultMetadata.CacheRefreshReason.ToString(),
                 null);
             }
         }
@@ -363,13 +371,14 @@ namespace Microsoft.Identity.Web
             }
 
             authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
+
             MergedOptions mergedOptions = GetOptions(authenticationScheme);
 
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
             if (string.IsNullOrEmpty(mergedOptions.Instance))
             {
-                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
-                mergedOptionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
+                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>();
+                mergedOptionsMonitor?.Get(JwtBearerDefaults.AuthenticationScheme);
             }
 
             if (string.IsNullOrEmpty(tenant))
@@ -783,15 +792,46 @@ namespace Microsoft.Identity.Web
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
+                AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-                    var builder = application
-                                    .AcquireTokenOnBehalfOf(
-                                        scopes.Except(_scopesRequestedByMsal),
-                                        new UserAssertion(tokenUsedToCallTheWebApi))
-                                    .WithSendX5C(mergedOptions.SendX5C);
+                    if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+                    {
+                        builder = application
+                                        .AcquireTokenOnBehalfOf(
+                                            scopes.Except(_scopesRequestedByMsal),
+                                            new UserAssertion(tokenUsedToCallTheWebApi));
+                    }
+                    else
+                    {
+                        string? sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                        if (sessionKey == TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto)
+                        {
+                            sessionKey = null;
+                        }
 
+                        builder = (application as ILongRunningWebApi)?
+                                       .InitiateLongRunningProcessInWebApi(
+                                           scopes.Except(_scopesRequestedByMsal),
+                                           tokenUsedToCallTheWebApi,
+                                           ref sessionKey);
+                        tokenAcquisitionOptions.LongRunningWebApiSessionKey = sessionKey;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+                {
+                    string sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                    builder = (application as ILongRunningWebApi)?
+                                   .AcquireTokenInLongRunningProcess(
+                                       scopes.Except(_scopesRequestedByMsal),
+                                       sessionKey);
+                }
+
+                if (builder != null)
+                {
+                    builder.WithSendX5C(mergedOptions.SendX5C);
                     if (!string.IsNullOrEmpty(tenantId))
                     {
                         builder.WithTenantId(tenantId);
