@@ -16,12 +16,6 @@ namespace Microsoft.Identity.Web
         public const string ProvideEitherScopeKeySectionOrScopes = "IDW10101: Either provide the '{0}' or the '{1}' to the 'AuthorizeForScopes'. ";
         public const string ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection = "IDW10102: The {0} is provided but the IConfiguration instance is not present in the services collection. ";
         public const string NoScopesProvided = "IDW10103: No scopes provided in scopes... ";
-        public const string ClientSecretAndCertficateNull =
-               "IDW10104: Both client secret and client certificate cannot be null or whitespace, " +
-               "and only ONE must be included in the configuration of the web app when calling a web API. " +
-               "For instance, in the appsettings.json file. ";
-        public const string BothClientSecretAndCertificateProvided = "IDW10105: Both client secret and client certificate, " +
-                   "cannot be included in the configuration of the web app when calling a web API. ";
         public const string ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. ";
         public const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         public const string MissingRequiredScopesForAuthorizationFilter = "IDW10108: RequiredScope Attribute does not contain a value. The scopes need to be set on the controller, the page or action. See https://aka.ms/ms-id-web/required-scope-attribute. ";

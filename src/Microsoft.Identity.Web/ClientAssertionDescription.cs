@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Description of a client assertion.
+    /// Description of a client assertion in the application configuration. 
+    /// See https://aka.ms/ms-id-web/client-assertions.
     /// </summary>
     public class ClientAssertionDescription
     {

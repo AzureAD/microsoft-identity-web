@@ -12,8 +12,8 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Constructor of a ClientAssertion, which can be used instead
-        /// of client secret or client certificates to authenticate the
-        /// confidential client application.
+        /// of a client secret or client certificates to authenticate the
+        /// confidential client application. See https://aka.ms/ms-id-web/client-assertions.
         /// </summary>
         /// <param name="signedAssertion">Signed assertion.</param>
         /// <param name="expiry">Optional expiry.</param>
