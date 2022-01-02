@@ -273,8 +273,8 @@
         <member name="M:Microsoft.Identity.Web.ClientAssertion.#ctor(System.String,System.Nullable{System.DateTimeOffset})">
             <summary>
             Constructor of a ClientAssertion, which can be used instead
-            of client secret or client certificates to authenticate the
-            confidential client application.
+            of a client secret or client certificates to authenticate the
+            confidential client application. See https://aka.ms/ms-id-web/client-assertions.
             </summary>
             <param name="signedAssertion">Signed assertion.</param>
             <param name="expiry">Optional expiry.</param>
@@ -291,7 +291,8 @@
         </member>
         <member name="T:Microsoft.Identity.Web.ClientAssertionDescription">
             <summary>
-            Description of a client assertion.
+            Description of a client assertion in the application configuration.
+            See https://aka.ms/ms-id-web/client-assertions.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{Microsoft.Identity.Web.ClientAssertion}})">
