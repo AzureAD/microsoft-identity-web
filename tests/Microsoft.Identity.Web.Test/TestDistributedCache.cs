@@ -10,13 +10,23 @@ namespace Microsoft.Identity.Web.Test
 {
     public class TestDistributedCache : IDistributedCache
     {
-        public readonly ConcurrentDictionary<string, byte[]> dict = new ConcurrentDictionary<string, byte[]>();
+        internal readonly ConcurrentDictionary<string, Entry> _dict = new ConcurrentDictionary<string, Entry>();
 
         public byte[] Get(string key)
         {
-            if (dict.TryGetValue(key, out var value))
+            if (_dict.TryGetValue(key, out var value))
             {
-                return dict[key];
+                return _dict[key].Value;
+            }
+
+            return null;
+        }
+
+        public DistributedCacheEntryOptions GetDistributedCacheEntryOptions(string key)
+        {
+            if (_dict.TryGetValue(key, out var value))
+            {
+                return _dict[key].DistributedCacheEntryOptions;
             }
 
             return null;
@@ -40,7 +50,7 @@ namespace Microsoft.Identity.Web.Test
 
         public void Remove(string key)
         {
-            dict.TryRemove(key, out var _);
+            _dict.TryRemove(key, out var _);
         }
 
         public Task RemoveAsync(string key, CancellationToken token = default)
@@ -51,13 +61,25 @@ namespace Microsoft.Identity.Web.Test
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
-            dict[key] = value;
+            _dict[key] = new Entry(value, options);
         }
 
         public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
             Set(key, value, options);
             return Task.CompletedTask;
+        }
+
+        internal class Entry
+        {
+            public byte[] Value { get; set; }
+            public DistributedCacheEntryOptions DistributedCacheEntryOptions { get; set; }
+
+            public Entry(byte[] value, DistributedCacheEntryOptions options)
+            {
+                Value = value;
+                DistributedCacheEntryOptions = options;
+            }
         }
     }
 }
