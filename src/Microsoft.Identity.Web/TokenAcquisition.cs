@@ -693,11 +693,6 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
-                 mergedOptions.ClientSecret,
-                 mergedOptions.ClientCertificates,
-                 mergedOptions.ClientAssertionDescription);
-
             try
             {
                 var builder = ConfidentialClientApplicationBuilder

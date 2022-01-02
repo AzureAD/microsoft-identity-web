@@ -2,10 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -36,25 +33,6 @@ namespace Microsoft.Identity.Web
                 {
                     throw new ArgumentNullException(options.TenantId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
                 }
-            }
-        }
-
-        public static void ValidateEitherClientCertificateOrClientSecret(
-            string? clientSecret,
-            IEnumerable<CertificateDescription>? cert,
-            ClientAssertionDescription? clientAssertionDescription)
-        {
-            if (string.IsNullOrEmpty(clientSecret) && (cert == null) && (clientAssertionDescription == null))
-            {
-                throw new MsalClientException(
-                    ErrorCodes.MissingClientCredentials,
-                    IDWebErrorMessage.ClientSecretAndCertficateNull);
-            }
-            else if (!string.IsNullOrEmpty(clientSecret) && (cert != null))
-            {
-                throw new MsalClientException(
-                    ErrorCodes.DuplicateClientCredentials,
-                    IDWebErrorMessage.BothClientSecretAndCertificateProvided);
             }
         }
     }

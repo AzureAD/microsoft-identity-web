@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// delegate to get the client assertion.
         /// </summary>
-        protected Func<CancellationToken, Task<ClientAssertion>> ClientAssertionProvider { get; private set; }
+        protected Func<CancellationToken, Task<ClientAssertion>> ClientAssertionProvider { get; set; }
 
         /// <summary>
         /// Client assertion.
@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         public async Task<string> GetSignedAssertion(CancellationToken cancellationToken)
         {
-            if (_clientAssertion == null || (Expiry != null && DateTime.Now > Expiry))
+            if (_clientAssertion == null || (Expiry != null && DateTimeOffset.Now > Expiry))
             {
                 _clientAssertion = await ClientAssertionProvider(cancellationToken).ConfigureAwait(false);
             }

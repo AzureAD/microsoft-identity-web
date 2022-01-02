@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +21,7 @@ namespace Microsoft.Identity.Web.Test
                     n++;
                     return Task.FromResult(new ClientAssertion(
                         n.ToString(CultureInfo.InvariantCulture),
-                        DateTime.Now + TimeSpan.FromSeconds(1)));
+                        DateTimeOffset.Now + TimeSpan.FromSeconds(1)));
                 });
 
             string assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
@@ -27,7 +30,7 @@ namespace Microsoft.Identity.Web.Test
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("1", assertion);
 
-            await Task.Delay(clientAssertionDescription.Expiry.Value.UtcDateTime-DateTime.UtcNow).ConfigureAwait(false);
+            await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now).ConfigureAwait(false);
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("2", assertion);
         }
