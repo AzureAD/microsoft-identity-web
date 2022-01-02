@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-#define USE_SIGNED_ASSERTION
+
+// #define USE_SIGNED_ASSERTION
 using System;
 using System.Threading;
 using System.Threading.Tasks;
