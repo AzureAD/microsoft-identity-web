@@ -693,10 +693,6 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
-            MergedOptionsValidation.ValidateEitherClientCertificateOrClientSecret(
-                 mergedOptions.ClientSecret,
-                 mergedOptions.ClientCertificates);
-
             try
             {
                 var builder = ConfidentialClientApplicationBuilder
@@ -730,6 +726,11 @@ namespace Microsoft.Identity.Web
                 {
                     authority = $"{mergedOptions.Instance}{mergedOptions.TenantId}/";
                     builder.WithAuthority(authority);
+                }
+
+                if (mergedOptions.ClientAssertionDescription != null)
+                {
+                    builder.WithClientAssertion(mergedOptions.ClientAssertionDescription.GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

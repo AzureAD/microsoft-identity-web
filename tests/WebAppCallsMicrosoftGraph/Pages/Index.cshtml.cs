@@ -38,7 +38,12 @@ namespace WebAppCallsMicrosoftGraph.Pages
                 }
                 ViewData["name"] = user.DisplayName;
 
-                var graphData = await _downstreamWebApi.CallWebApiForUserAsync("GraphBeta");
+                var graphData = await _downstreamWebApi.CallWebApiForUserAsync(
+                    "GraphBeta"
+#if USE_SIGNED_ASSERTION
+                    , calledDownstreamWebApiOptionsOverride: o => o.TokenAcquisitionOptions.ExtraQueryParameters.Add("dc", "ESTS-PUB-WUS2-AZ1-FD000-TEST1")
+#endif
+                    );
             }
             catch (Exception)
             {

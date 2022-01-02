@@ -265,6 +265,65 @@
              </code>
              </example>
         </member>
+        <member name="T:Microsoft.Identity.Web.ClientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertion.#ctor(System.String,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Constructor of a ClientAssertion, which can be used instead
+            of a client secret or client certificates to authenticate the
+            confidential client application. See https://aka.ms/ms-id-web/client-assertions.
+            </summary>
+            <param name="signedAssertion">Signed assertion.</param>
+            <param name="expiry">Optional expiry.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertion.SignedAssertion">
+            <summary>
+            Signed assertion.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertion.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClientAssertionDescription">
+            <summary>
+            Description of a client assertion in the application configuration.
+            See https://aka.ms/ms-id-web/client-assertions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{Microsoft.Identity.Web.ClientAssertion}})">
+            <summary>
+            Constructor of a ClientAssertionDescription.
+            </summary>
+            <param name="clientAssertionProvider">delegate providing the client assertion
+            when it is necessary.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.ClientAssertionProvider">
+            <summary>
+            delegate to get the client assertion.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClientAssertionDescription._clientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.GetSignedAssertion(System.Threading.CancellationToken)">
+            <summary>
+            Get the signed assertion (and refreshes it if needed).
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.ClaimConstants">
             <summary>
             Constants for claim types.
@@ -677,7 +736,7 @@
             <summary>
             Provides an opportunity to customize the HttpRequestMessage. For example,
             to customize the headers. This is called after the message was formed, including
-            the AuthorizationHeader, and just before the message is sent.
+            the Authorization header, and just before the message is sent.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApiOptions.Clone">
@@ -1544,6 +1603,21 @@
               </code>
               See also https://aka.ms/ms-id-web-certificates.
               </example>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientAssertionDescription">
+            <summary>
+            Delegates enabling the application to provide a client assertion instead of
+            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCertificates"/> or client secrets.
+            </summary>
+            <example>
+            In Startup.cs, after AddMicrosoftIdentityWebXX, add another instruction:
+            <code>
+            services.ConfigureOptions&lt;MicrosoftIdentityOptions&gt;(OpenIdConnectDefaults.AuthenticationScheme,
+            options => {
+              options.ClientAssertionDescription = GetClientAssertionProvider();
+            });
+            </code>
+            </example>
         </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates">
             <summary>
