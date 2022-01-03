@@ -49,6 +49,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            await Task.Delay(1).ConfigureAwait(false); // needed for L2 fire&forget
             Assert.Single(L2Cache._dict);
         }
 
@@ -60,6 +61,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Null(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
+
             await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
         }
@@ -149,6 +151,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(memoryCacheExpectedCount, _testCacheAdapter._memoryCache.Count);
+            await Task.Delay(1).ConfigureAwait(false); // needed for L2 fire&forget
             Assert.Single(L2Cache._dict);
         }
 
