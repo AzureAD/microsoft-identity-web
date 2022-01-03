@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(memoryCacheExpectedCount, _testCacheAdapter._memoryCache.Count);
-            await Task.Delay(1).ConfigureAwait(false); // needed for L2 fire&forget
+            await Task.Delay(10).ConfigureAwait(false); // needed for L2 fire&forget
             Assert.Single(L2Cache._dict);
         }
 
