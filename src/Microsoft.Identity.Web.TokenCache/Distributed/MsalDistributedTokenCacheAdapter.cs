@@ -263,14 +263,29 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 SlidingExpiration = _distributedCacheOptions.SlidingExpiration,
             };
 
-            await L2OperationWithRetryOnFailureAsync(
-            write,
-            (cacheKey) => _distributedCache.SetAsync(
-                cacheKey,
-                bytes,
-                distributedCacheEntryOptions,
-                cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-            cacheKey).Measure().ConfigureAwait(false);
+            if (_distributedCacheOptions.DisableL1Cache)
+            {
+                await L2OperationWithRetryOnFailureAsync(
+                    write,
+                    (cacheKey) => _distributedCache.SetAsync(
+                        cacheKey,
+                        bytes,
+                        distributedCacheEntryOptions,
+                        cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                    cacheKey).Measure().ConfigureAwait(false);
+            }
+            else
+            {
+               _ = Task.Run(async () => await
+                L2OperationWithRetryOnFailureAsync(
+                write,
+                (cacheKey) => _distributedCache.SetAsync(
+                    cacheKey,
+                    bytes,
+                    distributedCacheEntryOptions,
+                    cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                cacheKey).Measure().ConfigureAwait(false));
+            }
         }
 
         private async Task L2OperationWithRetryOnFailureAsync(
