@@ -45,11 +45,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache._dict);
 
             // Act
+            TestDistributedCache.resetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
-            await Task.Delay(1).ConfigureAwait(false); // needed for L2 fire&forget
+            TestDistributedCache.resetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 
@@ -147,11 +148,12 @@ namespace Microsoft.Identity.Web.Test
             cacheSerializerHints.SuggestedCacheExpiry = dateTimeOffset;
 
             // Act
+            TestDistributedCache.resetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache, cacheSerializerHints).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(memoryCacheExpectedCount, _testCacheAdapter._memoryCache.Count);
-            await Task.Delay(10).ConfigureAwait(false); // needed for L2 fire&forget
+            TestDistributedCache.resetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 
