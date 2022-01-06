@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal bool HasClientCredentials
         {
-            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any()) || (ClientAssertionDescription != null);
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any());
         }
 
         /// <summary>
@@ -91,21 +91,6 @@ namespace Microsoft.Identity.Web
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CertificateDescription>? ClientCertificates { get; set; }
-
-        /// <summary>
-        /// Delegates enabling the application to provide a client assertion instead of
-        /// <see cref="ClientCertificates"/> or client secrets.
-        /// </summary>
-        /// <example>
-        /// In Startup.cs, after AddMicrosoftIdentityWebXX, add another instruction:
-        /// <code>
-        /// services.ConfigureOptions&lt;MicrosoftIdentityOptions&gt;(OpenIdConnectDefaults.AuthenticationScheme,
-        /// options => {
-        ///   options.ClientAssertionDescription = GetClientAssertionProvider();
-        /// });
-        /// </code>
-        /// </example>
-        public ClientAssertionDescription? ClientAssertionDescription { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a web API.

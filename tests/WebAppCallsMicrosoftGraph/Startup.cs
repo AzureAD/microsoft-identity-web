@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// #define USE_SIGNED_ASSERTION
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Identity;
+#define USE_SIGNED_ASSERTION
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -15,8 +10,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Graph;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 
@@ -46,18 +39,6 @@ namespace WebAppCallsMicrosoftGraph
                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                            .AddDownstreamWebApi("GraphBeta", Configuration.GetSection("GraphBeta"))
                            .AddInMemoryTokenCaches();
-
-#if USE_SIGNED_ASSERTION
-            string userAssignedManagedIdentityClientId = Configuration.GetValue<string>("AzureAdCertless:UserAssignedManagedIdentityClientId");
-            // How to use a signed assertion instead of a secret or certificate
-            services.Configure<MicrosoftIdentityOptions>(
-                    o => {
-                        o.ClientSecret = null;
-                        o.ClientCertificates = null;
-                        o.ClientAssertionDescription = new MsiSignedAssertionProvider(userAssignedManagedIdentityClientId);
-                    }
-               );
-#endif
 
             //services.Configure<ConfidentialClientApplicationOptions>(OpenIdConnectDefaults.AuthenticationScheme,
             //    options => { options.AzureRegion = ConfidentialClientApplication.AttemptRegionDiscovery; });
@@ -102,35 +83,6 @@ namespace WebAppCallsMicrosoftGraph
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddMicrosoftIdentityUI();
         }
-
-#if USE_SIGNED_ASSERTION
-        // Do we want to provide this class as product code?
-        // Or change default certificate loader so that it provides it?
-        internal class MsiSignedAssertionProvider : ClientAssertionDescription
-        {
-            public MsiSignedAssertionProvider(string userAssignedManagedIdentityClientId) : base(null)
-            {
-                this.userAssignedManagedIdentityClientId = userAssignedManagedIdentityClientId;
-                ClientAssertionProvider = GetSignedAssertionFromMsi;
-            }
-
-            private string userAssignedManagedIdentityClientId;
-
-            /// <summary>
-            /// Prototype of certificate-less authentication using a signed assertion
-            /// acquired with MSI (federated identity)
-            /// </summary>
-            /// <returns></returns>
-            private async Task<ClientAssertion> GetSignedAssertionFromMsi(CancellationToken cancellationToken)
-            {
-                var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedManagedIdentityClientId });
-                var result = await credential.GetTokenAsync(
-                    new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),
-                    cancellationToken);
-                return new ClientAssertion(result.Token, result.ExpiresOn);
-            }
-        }
-#endif
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -8,7 +8,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Client assertion.
     /// </summary>
-    public class ClientAssertion
+    internal class ClientAssertion
     {
         /// <summary>
         /// Constructor of a ClientAssertion, which can be used instead
