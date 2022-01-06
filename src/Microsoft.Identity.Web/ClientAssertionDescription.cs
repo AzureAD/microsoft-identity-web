@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// Description of a client assertion in the application configuration.
     /// See https://aka.ms/ms-id-web/client-assertions.
     /// </summary>
-    public class ClientAssertionDescription
+    internal class ClientAssertionDescription
     {
         /// <summary>
         /// Constructor of a ClientAssertionDescription.

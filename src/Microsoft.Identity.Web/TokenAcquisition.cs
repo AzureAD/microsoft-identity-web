@@ -728,9 +728,13 @@ namespace Microsoft.Identity.Web
                     builder.WithAuthority(authority);
                 }
 
-                if (mergedOptions.ClientAssertionDescription != null)
+                // Case where no client certificates and not client secret was provided, but the user assigned
+                // managed identity was set. In that case we leverage the MsiSignedAssertion to be cert-less.
+                if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
+                    && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
+                    && !string.IsNullOrWhiteSpace(mergedOptions.UserAssignedManagedIdentityClientId))
                 {
-                    builder.WithClientAssertion(mergedOptions.ClientAssertionDescription.GetSignedAssertion);
+                    builder.WithClientAssertion(new MsiSignedAssertionProvider(mergedOptions.UserAssignedManagedIdentityClientId).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

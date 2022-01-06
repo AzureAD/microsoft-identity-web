@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Test
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("1", assertion);
 
-            await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now).ConfigureAwait(false);
+            await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("2", assertion);
         }
