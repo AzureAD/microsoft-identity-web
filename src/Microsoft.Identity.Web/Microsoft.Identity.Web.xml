@@ -1604,21 +1604,6 @@
               See also https://aka.ms/ms-id-web-certificates.
               </example>
         </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientAssertionDescription">
-            <summary>
-            Delegates enabling the application to provide a client assertion instead of
-            <see cref="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCertificates"/> or client secrets.
-            </summary>
-            <example>
-            In Startup.cs, after AddMicrosoftIdentityWebXX, add another instruction:
-            <code>
-            services.ConfigureOptions&lt;MicrosoftIdentityOptions&gt;(OpenIdConnectDefaults.AuthenticationScheme,
-            options => {
-              options.ClientAssertionDescription = GetClientAssertionProvider();
-            });
-            </code>
-            </example>
-        </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates">
             <summary>
             Description of the certificates used to decrypt an encrypted token in a web API.
@@ -1705,6 +1690,13 @@
             <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
             <param name="scopes">Scopes to request.</param>
             <param name="userflow">Userflow used in B2C.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MsiSignedAssertionProvider.GetSignedAssertionFromMsi(System.Threading.CancellationToken)">
+            <summary>
+            Prototype of certificate-less authentication using a signed assertion
+            acquired with MSI (federated identity).
+            </summary>
+            <returns>The signed assertion.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.IAuthRequiredScopeMetadata">
             <summary>
