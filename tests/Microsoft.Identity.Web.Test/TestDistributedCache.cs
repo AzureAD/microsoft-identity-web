@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web.Test
     public class TestDistributedCache : IDistributedCache
     {
         internal readonly ConcurrentDictionary<string, Entry> _dict = new ConcurrentDictionary<string, Entry>();
-        internal static ManualResetEventSlim resetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
+        internal static ManualResetEventSlim ResetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
 
         public byte[] Get(string key)
         {
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.Test
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
             _dict[key] = new Entry(value, options);
-            resetEvent.Set();
+            ResetEvent.Set();
         }
 
         public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
