@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web.Internal
 
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
                 services,
-                configuration as IConfigurationSection);
+                configuration);
         }
     }
 }
