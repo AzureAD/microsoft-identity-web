@@ -2766,7 +2766,7 @@
             Web API authentication builder.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String,Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(System.Action{Microsoft.Identity.Client.ConfidentialClientApplicationOptions},System.String,Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfigurationSection)">
             <summary>
             Allows a higher level abstraction of security token (i.e. System.IdentityModel.Tokens.Jwt and more modern, Microsoft.IdentityModel.JsonWebTokens)
             to be used with Microsoft Identity Web.
@@ -2776,7 +2776,7 @@
             <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="T:Microsoft.Identity.Client.ConfidentialClientApplicationOptions"/>.</param>
             <param name="authenticationScheme">Authentication scheme.</param>
             <param name="services">The services being configured.</param>
-            <param name="configuration">Configuration.</param>
+            <param name="configuration">IConfigurationSection.</param>
             <returns>The authentication builder to chain.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder">
