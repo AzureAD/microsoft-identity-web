@@ -35,10 +35,13 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
         }
 
-        [Fact]
-        public async Task WriteCache_WritesInL1L2_TestAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task WriteCache_WritesInL1L2_TestAsync(bool enableAsyncL2Write)
         {
             // Arrange
+            _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>().Value.EnableAsyncL2Write = enableAsyncL2Write;
             byte[] cache = new byte[3];
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
