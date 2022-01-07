@@ -23,13 +23,13 @@ namespace Microsoft.Identity.Web.Internal
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <param name="authenticationScheme">Authentication scheme.</param>
         /// <param name="services">The services being configured.</param>
-        /// <param name="configuration">Configuration.</param>
+        /// <param name="configuration">IConfigurationSection.</param>
         /// <returns>The authentication builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string authenticationScheme,
             IServiceCollection services,
-            IConfiguration? configuration)
+            IConfigurationSection? configuration)
         {
             services.AddOptions<ConfidentialClientApplicationOptions>(authenticationScheme)
                             .Configure<IOptionsMonitor<MergedOptions>>((
@@ -37,6 +37,7 @@ namespace Microsoft.Identity.Web.Internal
                             {
                                 configureConfidentialClientApplicationOptions(ccaOptions);
                                 MergedOptions mergedOptions = mergedOptionsMonitor.Get(authenticationScheme);
+                                configuration.Bind(mergedOptions);
                                 MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions, mergedOptions);
                             });
 
@@ -44,7 +45,7 @@ namespace Microsoft.Identity.Web.Internal
 
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
                 services,
-                configuration as IConfigurationSection);
+                configuration);
         }
     }
 }
