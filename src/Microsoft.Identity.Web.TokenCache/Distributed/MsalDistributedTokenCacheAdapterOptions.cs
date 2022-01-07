@@ -53,5 +53,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// </summary>
         /// The default is <c>false.</c>
         public bool DisableL1Cache { get; set; }
+
+        /// <summary>
+        /// Enable writing to the L2 cache to be async (fire and forget).
+        /// This improves performance as the MSAL.NET will not have to wait
+        /// for the write to complete.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool EnableAsyncL2Write { get; set; }
     }
 }
