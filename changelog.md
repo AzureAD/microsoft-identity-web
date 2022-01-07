@@ -1,3 +1,20 @@
+1.22.0
+==========
+### New Features:
+**Microsoft Identity Web, as a proof of concept, supports certificate-less auth using Managed Service Identity (MSI)**. See issue [#1585](https://github.com/AzureAD/microsoft-identity-web/issues/1585) for details.
+
+**Microsoft Identity Web now allows you set the request headers for the IDownstreamWebAPI**. See issues [#1063](https://github.com/AzureAD/microsoft-identity-web/issues/1063) and [#891](https://github.com/AzureAD/microsoft-identity-web/issues/891) for details.
+
+**Microsoft.Identity.Web.TokenCache exposes a boolean `EnableAsyncL2Write` as part of the `MsalDistributedTokenCacheAdapterOptions`**, which enables you to do async writes (fire and forget) to the L2 cache. See issue [#1047](https://github.com/AzureAD/microsoft-identity-web/issues/1047) and [#1526](https://github.com/AzureAD/microsoft-identity-web/issues/1526) for details.
+
+### Bug Fixes:
+**When integrating with the MISE pipeline, client certificates are now taken into account when calling downstream APIs in controllers**. See issue [#1583](https://github.com/AzureAD/microsoft-identity-web/issues/1583) for details.
+
+**When using the L1/L2 cache, the L2 eviction is now based on the token expiration value from MSAL.NET**, similar to what is done with the L1 eviction. See issue [#1566](https://github.com/AzureAD/microsoft-identity-web/issues/1566) for details.
+
+### Compliance:
+**Add an SBOM generate to release builds**. See issue [#1546](https://github.com/AzureAD/microsoft-identity-web/issues/1546) for details.
+
 1.21.1
 ==========
 Update to Microsoft.Graph 4.11.0, Microsoft.Graph.Beta 4.22.0-preview, MSAL.NET 4.39.0, Microsoft.IdentityModel 6.15.0.
@@ -53,7 +70,6 @@ Update to Microsoft.Graph 4.6.0, Microsoft.Graph.Beta 4.14.0-preview, and MSAL.N
 **Allow customizing the UI processing by decoupling the `Microsoft.Identity.Web` and `Microsoft.Identity.Web.Ui` packages**. See issue [#1034](https://github.com/AzureAD/microsoft-identity-web/issues/1034) for details.
 
 **Use `backup authentication system` in docs and comments** instead of CCS. See issue [#1464](https://github.com/AzureAD/microsoft-identity-web/issues/1464) for details.
-
 
 1.17.0
 ==========
