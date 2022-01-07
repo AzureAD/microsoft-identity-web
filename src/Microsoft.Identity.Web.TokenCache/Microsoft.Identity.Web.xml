@@ -258,6 +258,14 @@
             </summary>
             The default is <c>false.</c>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.EnableAsyncL2Write">
+            <summary>
+            Enable writing to the L2 cache to be async (fire and forget).
+            This improves performance as the MSAL.NET will not have to wait
+            for the write to complete.
+            </summary>
+            The default is <c>false.</c>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
             <summary>
             MSAL token cache provider interface.
