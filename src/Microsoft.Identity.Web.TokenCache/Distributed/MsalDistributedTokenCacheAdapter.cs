@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            string remove = "Remove";
+            const string remove = "Remove";
 
             if (_memoryCache != null)
             {
@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            string read = "Read";
+            const string read = "Read";
             byte[]? result = null;
 
             if (_memoryCache != null)
@@ -231,7 +231,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             byte[] bytes,
             CacheSerializerHints cacheSerializerHints)
         {
-            string write = "Write";
+            const string write = "Write";
 
             DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
 
@@ -263,14 +263,29 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 SlidingExpiration = _distributedCacheOptions.SlidingExpiration,
             };
 
-            await L2OperationWithRetryOnFailureAsync(
-            write,
-            (cacheKey) => _distributedCache.SetAsync(
-                cacheKey,
-                bytes,
-                distributedCacheEntryOptions,
-                cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-            cacheKey).Measure().ConfigureAwait(false);
+            if (_distributedCacheOptions.DisableL1Cache || !_distributedCacheOptions.EnableAsyncL2Write)
+            {
+                await L2OperationWithRetryOnFailureAsync(
+                    write,
+                    (cacheKey) => _distributedCache.SetAsync(
+                        cacheKey,
+                        bytes,
+                        distributedCacheEntryOptions,
+                        cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                    cacheKey).Measure().ConfigureAwait(false);
+            }
+            else
+            {
+                _ = Task.Run(async () => await
+                 L2OperationWithRetryOnFailureAsync(
+                 write,
+                 (cacheKey) => _distributedCache.SetAsync(
+                     cacheKey,
+                     bytes,
+                     distributedCacheEntryOptions,
+                     cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                 cacheKey).Measure().ConfigureAwait(false));
+            }
         }
 
         private async Task L2OperationWithRetryOnFailureAsync(

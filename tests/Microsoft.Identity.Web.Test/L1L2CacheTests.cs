@@ -35,20 +35,25 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
         }
 
-        [Fact]
-        public async Task WriteCache_WritesInL1L2_TestAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task WriteCache_WritesInL1L2_TestAsync(bool enableAsyncL2Write)
         {
             // Arrange
+            _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>().Value.EnableAsyncL2Write = enableAsyncL2Write;
             byte[] cache = new byte[3];
             AssertCacheValues(_testCacheAdapter);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
 
             // Act
+            TestDistributedCache.ResetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            TestDistributedCache.ResetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 
@@ -60,6 +65,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Null(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
+
             await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
         }
@@ -145,10 +151,12 @@ namespace Microsoft.Identity.Web.Test
             cacheSerializerHints.SuggestedCacheExpiry = dateTimeOffset;
 
             // Act
+            TestDistributedCache.ResetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache, cacheSerializerHints).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(memoryCacheExpectedCount, _testCacheAdapter._memoryCache.Count);
+            TestDistributedCache.ResetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 
