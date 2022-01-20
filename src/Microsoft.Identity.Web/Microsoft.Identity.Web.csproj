@@ -103,7 +103,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.15.1" />
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="5.0.1" />
