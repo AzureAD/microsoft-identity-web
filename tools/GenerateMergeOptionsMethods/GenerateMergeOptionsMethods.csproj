@@ -18,7 +18,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0-*" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0-*" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.15.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
   </ItemGroup>
