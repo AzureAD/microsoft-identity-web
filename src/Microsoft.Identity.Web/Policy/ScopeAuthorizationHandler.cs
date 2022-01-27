@@ -61,9 +61,12 @@ namespace Microsoft.Identity.Web
             var data = endpoint?.Metadata.GetMetadata<IAuthRequiredScopeMetadata>();
 
             IEnumerable<string>? scopes = null;
-            if (requirement.RequiredScopesConfigurationKey != null)
+
+            var configurationKey = requirement.RequiredScopesConfigurationKey ?? data?.RequiredScopesConfigurationKey;
+
+            if (configurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(requirement.RequiredScopesConfigurationKey)?.Split(' ');
+                scopes = _configuration.GetValue<string>(configurationKey)?.Split(' ');
             }
 
             if (scopes is null)
