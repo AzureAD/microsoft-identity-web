@@ -3,8 +3,6 @@
 
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 
@@ -29,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="request">HttpRequest message to authenticate.</param>
         /// <returns>A Task (as this is an async method).</returns>
-        public async Task AuthenticateRequestAsync(HttpRequestMessage request)
+        public async System.Threading.Tasks.Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
             // Default options to settings provided during intialization
             var scopes = _initialOptions.Scopes;
