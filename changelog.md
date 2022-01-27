@@ -3,7 +3,7 @@
 Update to Microsoft.IdentityModel 6.15.1.
 
 ### Bug Fixes:
-**Microsoft.Identity.Web now also checkes the `data.RequiredScopesConfigurationKey` when setting the `RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")` attribute**. See issue [#1600](https://github.com/AzureAD/microsoft-identity-web/issues/1600) for details.
+**Microsoft.Identity.Web now also checks the `data.RequiredScopesConfigurationKey` when setting the `RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")` attribute**. See issue [#1600](https://github.com/AzureAD/microsoft-identity-web/issues/1600) for details.
 
 **Fix issue around user assigned managed identity when loading KeyVault certificates**. See issue [#1598](https://github.com/AzureAD/microsoft-identity-web/issues/1598) for details.
 
