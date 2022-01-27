@@ -16,15 +16,15 @@ jobs:
   steps:
     - template: build/template-install-dotnet-core.yaml
     - template: build/template-install-keyvault-secrets.yaml
-    - task: SonarCloudPrepare@1
-      inputs:
-        SonarCloud: 'SonarCloud-microsoft_identity_web'
-        organization: 'azuread'
-        scannerMode: 'MSBuild'
-        projectKey: 'AzureAD_microsoft-identity-web'
-        projectName: 'microsoft-identity-web'
-        extraProperties: |
-          sonar.exclusions=tests\**
+    # - task: SonarCloudPrepare@1
+    #   inputs:
+    #     SonarCloud: 'SonarCloud-microsoft_identity_web'
+    #     organization: 'azuread'
+    #     scannerMode: 'MSBuild'
+    #     projectKey: 'AzureAD_microsoft-identity-web'
+    #     projectName: 'microsoft-identity-web'
+    #     extraProperties: |
+    #       sonar.exclusions=tests\**
     - task: DotNetCoreCLI@2
       inputs:
         projects: 'Microsoft.Identity.Web.sln'
@@ -39,7 +39,7 @@ jobs:
         command: test
         projects: 'tests/**/Microsoft.Identity.Web.Test*.csproj'
         arguments: '--collect "Code coverage"'
-    - task: SonarCloudAnalyze@1
-    - task: SonarCloudPublish@1
-      inputs:
-        pollingTimeoutSec: '300'
+    # - task: SonarCloudAnalyze@1
+    # - task: SonarCloudPublish@1
+    #   inputs:
+    #     pollingTimeoutSec: '300'
