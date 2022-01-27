@@ -89,6 +89,7 @@ namespace Microsoft.Identity.Web
                 ccaOptionsMonitor?.Get(authenticationScheme);
             }
 
+            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 

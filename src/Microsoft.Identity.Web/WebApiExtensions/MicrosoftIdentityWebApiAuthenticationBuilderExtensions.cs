@@ -218,6 +218,7 @@ namespace Microsoft.Identity.Web
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     if (mergedOptions.TokenDecryptionCertificates != null)
                     {
+                        DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
                         IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCertificates);
                         IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
