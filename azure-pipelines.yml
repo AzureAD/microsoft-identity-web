@@ -38,7 +38,7 @@ jobs:
       inputs:
         command: test
         projects: 'tests/**/Microsoft.Identity.Web.Test*.csproj'
-        arguments: '--collect "Code coverage"'
+    #    arguments: '--collect "Code coverage"'
     # - task: SonarCloudAnalyze@1
     # - task: SonarCloudPublish@1
     #   inputs:
