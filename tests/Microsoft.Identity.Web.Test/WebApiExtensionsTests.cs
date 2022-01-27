@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Web.Test
                 s_tokenDecryptionCertificatesDescription,
                 new JsonSerializerOptions
                 {
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
                     PropertyNameCaseInsensitive = true,
                 }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
             var configAsDictionary = new Dictionary<string, string>()
