@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.Internal
                             {
                                 configureConfidentialClientApplicationOptions(ccaOptions);
                                 MergedOptions mergedOptions = mergedOptionsMonitor.Get(authenticationScheme);
-                                configuration.Bind(mergedOptions);
+                                configuration?.Bind(mergedOptions);
                                 MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions, mergedOptions);
                             });
 

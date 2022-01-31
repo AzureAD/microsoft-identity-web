@@ -87,6 +87,8 @@ namespace Microsoft.Identity.Web
             {
                 var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
                 ccaOptionsMonitor?.Get(authenticationScheme);
+                var bearerMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>(); // supports event handlers
+                bearerMonitor?.Get(authenticationScheme);
             }
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
