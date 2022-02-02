@@ -1,3 +1,8 @@
+1.22.3
+==========
+### Bug Fixes:
+**Fix a null reference when the web API is initialized with delegates and called from an event handler, without configuration**. See issues [#1615](https://github.com/AzureAD/microsoft-identity-web/issues/1615) and [#1602](https://github.com/AzureAD/microsoft-identity-web/issues/1602) for details.
+
 1.22.2
 ==========
 Update to Microsoft.IdentityModel 6.15.1.
