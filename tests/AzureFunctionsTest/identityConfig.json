@@ -1,0 +1,8 @@
+﻿{
+    "AzureAd": {
+        "Instance": "https://login.microsoftonline.com/",
+        "Domain": "msidentitysamplestesting.onmicrosoft.com",
+        "TenantId": "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab",
+        "ClientId": "a4c2469b-cf84-4145-8f5f-cb7bacf814bc"
+    }
+}
