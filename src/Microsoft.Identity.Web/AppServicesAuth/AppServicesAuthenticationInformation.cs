@@ -20,6 +20,7 @@ namespace Microsoft.Identity.Web
         internal const string AppServicesAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER"; // for instance https://sts.windows.net/<tenantId>/
         internal const string AppServicesAuthClientIdEnvironmentVariable = "WEBSITE_AUTH_CLIENT_ID";         // A GUID
         internal const string AppServicesAuthClientSecretEnvironmentVariable = "WEBSITE_AUTH_CLIENT_SECRET"; // A string
+        internal const string AppServicesAuthClientSecretSettingName = "WEBSITE_AUTH_CLIENT_SECRET_SETTING_NAME"; // A string
         internal const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         internal const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         internal const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
@@ -101,7 +102,8 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return Environment.GetEnvironmentVariable(AppServicesAuthClientSecretEnvironmentVariable);
+                var settingName = Environment.GetEnvironmentVariable(AppServicesAuthClientSecretSettingName) ?? AppServicesAuthClientSecretEnvironmentVariable;
+                return Environment.GetEnvironmentVariable(settingName);
             }
         }
 
