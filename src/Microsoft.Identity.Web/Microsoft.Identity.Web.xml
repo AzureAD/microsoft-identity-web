@@ -473,6 +473,12 @@
             The name of the policy to check against a specific user flow.
             </summary>
         </member>
+        <member name="F:Microsoft.Identity.Web.Constants.SpaAuthCode">
+            <summary>
+            SpaAuthCode.
+            Key to retreive SpaAuthCode from the HttpContext.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.IDWebErrorMessage">
             <summary>
             Constants related to the error messages.
@@ -1629,6 +1635,13 @@
             so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
             This saves the application admin from the need to explicitly manage the certificate rollover
             (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
+            </summary>
+            The default is <c>false.</c>
+        </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.WithSpaAuthCode">
+            <summary>
+            Requests an auth code for the frontend (SPA using MSAL.js for instance). 
+            See https://aka.ms/msal-net/spa-auth-code for details.
             </summary>
             The default is <c>false.</c>
         </member>

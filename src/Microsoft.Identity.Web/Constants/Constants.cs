@@ -55,6 +55,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public const string Policy = "policy";
 
+        /// <summary>
+        /// SpaAuthCode.
+        /// Key to retreive SpaAuthCode from the HttpContext.
+        /// </summary>
+        public const string SpaAuthCode = "SpaAuthCode";
+
         // IssuerMetadata
         internal const string TenantDiscoveryEndpoint = "tenant_discovery_endpoint";
         internal const string ApiVersion = "api-version";

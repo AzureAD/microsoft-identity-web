@@ -121,6 +121,13 @@ namespace Microsoft.Identity.Web
         public bool SendX5C { get; set; }
 
         /// <summary>
+        /// Requests an auth code for the frontend (SPA using MSAL.js for instance). 
+        /// See https://aka.ms/msal-net/spa-auth-code for details.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool WithSpaAuthCode { get; set; }
+
+        /// <summary>
         /// Daemon applications can validate a token based on roles, or using the ACL-based authorization
         /// pattern to control tokens without a roles claim. If using ACL-based authorization,
         /// Microsoft Identity Web will not throw if roles or scopes are not in the Claims.
