@@ -76,7 +76,6 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Description of the certificates used to prove the identity of the web app or web API.
-        /// For the moment only the first certificate is considered.
         /// </summary>
         /// <example> An example in the appsetting.json:
         /// <code>
