@@ -1,3 +1,10 @@
+1.23.0
+==========
+Update to MSAL.NET 4.41.0.
+
+### New Features: 
+**Microsoft Identity Web now supports hybrid SPA**. See issue [#1528](https://github.com/AzureAD/microsoft-identity-web/issues/1528) for details.
+
 1.22.3
 ==========
 ### Bug Fixes:
