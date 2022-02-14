@@ -94,8 +94,6 @@ namespace Microsoft.Identity.Web.Test.Integration
                 // Assert
                 Assert.NotNull(token);
             }
-
-            AssertAppTokenInMemoryCache(TestConstants.ConfidentialClientId, 1);
         }
 
         [Theory]
@@ -295,12 +293,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             _provider = services.BuildServiceProvider();
         }
 
-        private void AssertAppTokenInMemoryCache(string clientId, int tokenCount)
-        {
-            string appTokenKey = clientId + "_" + TestConstants.ConfidentialClientLabTenant + "_AppTokenCache";
-            Assert.True(_msalTestTokenCacheProvider.MemoryCache.TryGetValue(appTokenKey, out _));
-            Assert.Equal(tokenCount, _msalTestTokenCacheProvider.Count);
-        }
     }
 #endif //FROM_GITHUB_ACTION
 }
