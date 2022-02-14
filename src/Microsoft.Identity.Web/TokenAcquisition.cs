@@ -189,7 +189,8 @@ namespace Microsoft.Identity.Web
                     .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context!.ProtocolMessage!.Code)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(codeVerifier)
-                    .WithCcsRoutingHint(backUpAuthRoutingHint);
+                    .WithCcsRoutingHint(backUpAuthRoutingHint)
+                    .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -202,6 +203,10 @@ namespace Microsoft.Identity.Web
                                           .ConfigureAwait(false);
 
                 context.HandleCodeRedemption(null, result.IdToken);
+                if (!string.IsNullOrEmpty(result.SpaAuthCode))
+                {
+                    CurrentHttpContext?.Session.SetString(Constants.SpaAuthCode, result.SpaAuthCode);
+                }
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {

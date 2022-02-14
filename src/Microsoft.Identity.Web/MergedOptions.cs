@@ -202,6 +202,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.SaveTokens = microsoftIdentityOptions.SaveTokens;
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
             mergedOptions.SendX5C = microsoftIdentityOptions.SendX5C;
+            mergedOptions.WithSpaAuthCode = microsoftIdentityOptions.WithSpaAuthCode;
             mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
             if (string.IsNullOrEmpty(mergedOptions.SignedOutRedirectUri) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignedOutRedirectUri))
             {
