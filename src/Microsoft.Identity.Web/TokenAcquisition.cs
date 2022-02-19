@@ -303,7 +303,7 @@ namespace Microsoft.Identity.Web
                      tenantId,
                      mergedOptions,
                      userFlow,
-                     null)
+                     tokenAcquisitionOptions)
                      .ConfigureAwait(false);
                 LogAuthResult(authenticationResult);
                 return authenticationResult;
