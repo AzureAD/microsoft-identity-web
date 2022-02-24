@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// Token cache provider with default implementation.
     /// </summary>
     /// <seealso cref="Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
-    public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
+    public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider, ICacheSerializer
     {
         private readonly IDataProtector? _protector;
 
@@ -159,7 +159,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="bytes">Bytes to write.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>A <see cref="Task"/> that represents a completed write operation.</returns>
-        protected virtual Task WriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints cacheSerializerHints)
+        public virtual Task WriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints cacheSerializerHints)
         {
             return WriteCacheBytesAsync(cacheKey, bytes); // default implementation avoids a breaking change.
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read bytes.</returns>
-        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        public virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
         }
@@ -195,7 +195,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>A <see cref="Task"/> that represents a completed remove key operation.</returns>
-        protected virtual Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        public virtual Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return RemoveKeyAsync(cacheKey); // default implementation avoids a breaking change.
         }

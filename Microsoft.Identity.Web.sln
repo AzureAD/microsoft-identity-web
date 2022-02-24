@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{FD55C071-48D1-4FE8-8B1D-773E067FEC91}"
 EndProject
@@ -133,6 +133,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenCache", "src\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj", "{7885DFBB-0D20-4115-86E2-709C2E12253B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.CacheSerializer", "src\Microsoft.Identity.Web.CacheSerializer\Microsoft.Identity.Web.CacheSerializer.csproj", "{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -300,6 +302,10 @@ Global
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

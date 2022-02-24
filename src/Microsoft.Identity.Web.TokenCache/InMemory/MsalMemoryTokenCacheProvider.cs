@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <param name="bytes">Bytes to write.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>A <see cref="Task"/> that completes when a write operation has completed.</returns>
-        protected override Task WriteCacheBytesAsync(
+        public override Task WriteCacheBytesAsync(
             string cacheKey,
             byte[] bytes,
             CacheSerializerHints cacheSerializerHints)

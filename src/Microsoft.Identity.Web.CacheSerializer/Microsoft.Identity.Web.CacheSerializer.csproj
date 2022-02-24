@@ -9,12 +9,12 @@
     <DefineConstants>$(DefineConstants);WEB</DefineConstants>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
-    <Title>Microsoft Identity Web Token Cache</Title>
+    <Title>Microsoft Identity Web Cache Serializer</Title>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Product>Microsoft Identity Web Token Cache</Product>
+    <Product>Microsoft Identity Web Cache Serializer</Product>
     <Description>
-      This package bring token cache serializers for MSAL.NET confidential client applications.
+      This package brings a cache serializer for MSAL.NET confidential client applications.
     </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,7 +22,7 @@
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
     <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
     <PackageTags>Microsoft Identity Web;Microsoft identity platform;Microsoft.Identity.Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization</PackageTags>
-    <ProjectGuid>{7885DFBB-0D20-4115-86E2-709C2E12253B}</ProjectGuid>
+    <ProjectGuid>{BD5BA856-3E5B-4D1D-A4F5-0D0DB95B1340}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Label="Source Link">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -31,9 +31,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="CacheSerializerHints.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
@@ -113,10 +110,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Identity.Client" Version="4.41.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Web.CacheSerializer\Microsoft.Identity.Web.CacheSerializer.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
