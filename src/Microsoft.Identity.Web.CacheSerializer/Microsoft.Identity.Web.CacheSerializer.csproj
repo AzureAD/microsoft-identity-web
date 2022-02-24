@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45; netcoreapp3.1; net462; net472; net5.0; netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -71,6 +71,10 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
 
   <PropertyGroup>
     <!-- The MSAL.snk has both private and public keys -->
@@ -81,36 +85,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>Microsoft.Identity.Web.xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.8" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="5.0.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="2.1.0" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="3.0.0" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.41.0" />
-  </ItemGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
