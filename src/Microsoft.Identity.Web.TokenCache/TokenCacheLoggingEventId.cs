@@ -21,6 +21,7 @@ namespace Microsoft.Identity.Web
         public static readonly EventId MemoryCacheRead = new EventId(106, "MemoryCacheRead");
         public static readonly EventId MemoryCacheCount = new EventId(107, "MemoryCacheCount");
         public static readonly EventId BackPropagateL2toL1 = new EventId(108, "BackPropagateL2toL1");
+        public static readonly EventId CacheDeserializationError = new EventId(109, "CacheDeserializationError");
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

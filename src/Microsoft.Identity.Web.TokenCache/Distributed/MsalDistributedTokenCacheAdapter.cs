@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
                                             ILogger<MsalDistributedTokenCacheAdapter> logger,
                                             IServiceProvider? serviceProvider = null)
-            : base(GetDataProtector(distributedCacheOptions, serviceProvider))
+            : base(GetDataProtector(distributedCacheOptions, serviceProvider), logger)
         {
             if (distributedCacheOptions == null)
             {
