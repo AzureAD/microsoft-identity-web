@@ -116,18 +116,23 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 {
                     args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
                 }
-                catch (Exception ex)
+                catch (MsalClientException exception)
                 {
-                    // clears the cache
-                    args.TokenCache.DeserializeMsalV3(null, shouldClearExistingCache: true);
                     if (_logger != null)
                     {
                         Logger.CacheDeserializationError(
                           _logger,
                           args.SuggestedCacheKey,
-                          ex.Message,
-                          ex);
+                          _protector != null,
+                          exception.Message,
+                          exception);
                     }
+                    // Adding a better message specifically for JSON parsing error
+                    if (exception.ErrorCode == MsalError.JsonParseError)
+                    {
+                        throw new MsalClientException(MsalError.JsonParseError, TokenCacheErrorMessage.ExceptionDeserializingCache, exception);
+                    }
+                    throw;
                 }
             }
         }

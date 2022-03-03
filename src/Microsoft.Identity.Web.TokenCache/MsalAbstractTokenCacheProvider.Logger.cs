@@ -16,26 +16,29 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         private static class Logger
         {
-            private static readonly Action<ILogger, string, string, Exception> s_cacheDeserializationError =
-                LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, bool, string, Exception> s_cacheDeserializationError =
+                LoggerMessage.Define<string, bool, string>(
                     LogLevel.Warning,
                     LoggingEventId.DistributedCacheConnectionError,
-                    "[MsIdWeb] Unable to deserialize cache entry. Cache key : {CacheKey} Error message: {ErrorMessage} ");
+                    "[MsIdWeb] Unable to deserialize cache entry. Cache key : {CacheKey}. Encryption enabled: {EncryptionEnabled}. Error message: {ErrorMessage} ");
 
             /// <summary>
             /// Cache deserialization error.
             /// </summary>
             /// <param name="logger">ILogger.</param>
             /// <param name="cacheKey">MSAL.NET cache key.</param>
+            /// <param name="encryptionEnabled">Whether cache is encrypted or not.</param>
             /// <param name="errorMessage">Error message.</param>
             /// <param name="ex">Exception.</param>
             public static void CacheDeserializationError(
                 ILogger logger,
                 string cacheKey,
+                bool encryptionEnabled,
                 string errorMessage,
                 Exception ex) => s_cacheDeserializationError(
                     logger,
                     cacheKey,
+                    encryptionEnabled,
                     errorMessage,
                     ex);
         }
