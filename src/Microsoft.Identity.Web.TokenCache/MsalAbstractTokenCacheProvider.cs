@@ -5,6 +5,7 @@ using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
@@ -13,9 +14,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// Token cache provider with default implementation.
     /// </summary>
     /// <seealso cref="Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
-    public abstract class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
+    public abstract partial class MsalAbstractTokenCacheProvider : IMsalTokenCacheProvider
     {
         private readonly IDataProtector? _protector;
+        private readonly ILogger<MsalAbstractTokenCacheProvider>? _logger;
 
         /// <summary>
         /// Constructor.
@@ -25,6 +27,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected MsalAbstractTokenCacheProvider(IDataProtector? dataProtector = null)
         {
             _protector = dataProtector;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="dataProtector">Service provider. Can be null, in which case the token cache
+        /// will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        /// <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
+        protected MsalAbstractTokenCacheProvider(IDataProtector? dataProtector, ILogger<MsalAbstractTokenCacheProvider> logger)
+        {
+            _protector = dataProtector;
+            _logger = logger;
         }
 
         /// <summary>
@@ -98,7 +112,28 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             {
                 byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
 
-                args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
+                try
+                {
+                    args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
+                }
+                catch (MsalClientException exception)
+                {
+                    if (_logger != null)
+                    {
+                        Logger.CacheDeserializationError(
+                          _logger,
+                          args.SuggestedCacheKey,
+                          _protector != null,
+                          exception.Message,
+                          exception);
+                    }
+                    // Adding a better message specifically for JSON parsing error
+                    if (exception.ErrorCode == MsalError.JsonParseError)
+                    {
+                        throw new MsalClientException(MsalError.JsonParseError, TokenCacheErrorMessage.ExceptionDeserializingCache, exception);
+                    }
+                    throw;
+                }
             }
         }
 
