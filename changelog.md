@@ -1,3 +1,12 @@
+1.23.1
+==========
+Update to MSAL.NET 4.42.0.
+
+### Bug Fixes:
+**Microsoft.Identity.Web.TokenCache now throws an actionable error message when the L2 cache deserialization fails**, which can happen when the encrypt key of a shared distributed cache are different on different machines. See issues [#1643](https://github.com/AzureAD/microsoft-identity-web/issues/1643) and [MSAL issue 3162](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3162) for details.
+
+**Fix a null reference when using ITokenAcquisition in a background callback in a web wepp**.
+
 1.23.0
 ==========
 Update to MSAL.NET 4.41.0.
