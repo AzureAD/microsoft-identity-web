@@ -386,7 +386,13 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Instance))
             {
                 var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>();
-                mergedOptionsMonitor?.Get(JwtBearerDefaults.AuthenticationScheme);
+                mergedOptionsMonitor?.Get(authenticationScheme);
+            }
+            // Case of an anonymous controller called from a web app
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>();
+                mergedOptionsMonitor?.Get(authenticationScheme);
             }
 
             if (string.IsNullOrEmpty(tenant))
