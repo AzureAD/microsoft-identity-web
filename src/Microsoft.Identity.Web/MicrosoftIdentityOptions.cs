@@ -4,11 +4,53 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+#if !NET472 && !NET462
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+#endif
+
+#if NET472 || NET462
+using PathString = System.String;
+#endif
 
 namespace Microsoft.Identity.Web
 {
+#if NET472 || NET462
+    /// <summary>
+    /// OpenIdConnect options
+    /// </summary>
+    public class OpenIdConnectOptions
+    {
+        /// <summary>
+        /// Gets or sets the Authority to use when making OpenIdConnect calls.
+        /// </summary>
+        public string? Authority
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Client secret used to authenticate a confidential client app to AAD
+        /// (alternatively use client certificates)
+        /// </summary>
+        public string? ClientSecret { get; set; }
+
+        /// <summary>
+        /// Gets or sets the 'client_id' (application ID) as appears in the 
+        /// application registration.
+        /// </summary>
+        public string? ClientId
+        {
+            get;
+            set;
+        }
+    }
+#endif
+
     /// <summary>
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// </summary>
@@ -146,13 +188,13 @@ namespace Microsoft.Identity.Web
         /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
-        public PathString ResetPasswordPath { get; set; } = new PathString("/MicrosoftIdentity/Account/ResetPassword");
+        public PathString ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
 
         /// <summary>
         /// Sets the Error route path.
         /// Defaults to the value /MicrosoftIdentity/Account/Error,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
-        public PathString ErrorPath { get; set; } = new PathString("/MicrosoftIdentity/Account/Error");
+        public PathString ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
     }
 }

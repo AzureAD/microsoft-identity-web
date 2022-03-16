@@ -6,38 +6,34 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-    internal partial class TokenAcquisition : ITokenAcquisitionInternal
+    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
     {
-        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+#if NET472 || NET462
+        class OAuthConstants
+        {
+            public static readonly string CodeVerifierKey = "code_verifier";
+        }
+#endif
+
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -47,53 +43,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private IConfidentialClientApplication? _application;
         private bool _retryClientCertificate;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
-
-        /// <summary>
-        /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
-        /// configure the confidential client application and a token cache provider.
-        /// This constructor is called by ASP.NET Core dependency injection.
-        /// </summary>
-        /// <param name="tokenCacheProvider">The App token cache provider.</param>
-        /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
-        /// <param name="mergedOptionsMonitor">Configuration options.</param>
-        /// <param name="httpClientFactory">HTTP client factory.</param>
-        /// <param name="logger">Logger.</param>
-        /// <param name="serviceProvider">Service provider.</param>
-        public TokenAcquisition(
-            IMsalTokenCacheProvider tokenCacheProvider,
-            IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
-            IHttpClientFactory httpClientFactory,
-            ILogger<TokenAcquisition> logger,
-            IServiceProvider serviceProvider)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _mergedOptionsMonitor = mergedOptionsMonitor;
-            _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
-            _logger = logger;
-            _serviceProvider = serviceProvider;
-        }
-
-        internal MergedOptions GetOptions(string authenticationScheme)
-        {
-            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
-            if (!mergedOptions.MergedWithCca)
-            {
-                var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
-                ccaOptionsMonitor?.Get(authenticationScheme);
-                var bearerMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>(); // supports event handlers
-                bearerMonitor?.Get(authenticationScheme);
-            }
-
-            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
-            return mergedOptions;
-        }
+        private readonly ITokenAcquisitionHost _tokenAcquisitionHost;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -117,68 +70,46 @@ namespace Microsoft.Identity.Web
             StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// This handler is executed after the authorization code is received (once the user signs-in and consents) during the
-        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow'>authorization code flow</a> in a web app.
-        /// It uses the code to request an access token from the Microsoft identity platform and caches the tokens and an entry about the signed-in user's account in the MSAL's token cache.
-        /// The access token (and refresh token) provided in the <see cref="AuthorizationCodeReceivedContext"/>, once added to the cache, are then used to acquire more tokens using the
-        /// <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a> for the signed-in user's account,
-        /// in order to call to downstream APIs.
+        /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
+        /// configure the confidential client application and a token cache provider.
+        /// This constructor is called by ASP.NET Core dependency injection.
         /// </summary>
-        /// <param name="context">The context used when an 'AuthorizationCode' is received over the OpenIdConnect protocol.</param>
-        /// <param name="scopes">scopes to request access to.</param>
-        /// <param name="authenticationScheme">Authentication scheme to use (by default, OpenIdConnectDefaults.AuthenticationScheme).</param>
-        /// <example>
-        /// From the configuration of the Authentication of the ASP.NET Core web API:
-        /// <code>OpenIdConnectOptions options;</code>
-        ///
-        /// Subscribe to the authorization code received event:
-        /// <code>
-        ///  options.Events = new OpenIdConnectEvents();
-        ///  options.Events.OnAuthorizationCodeReceived = OnAuthorizationCodeReceived;
-        /// }
-        /// </code>
-        ///
-        /// And then in the OnAuthorizationCodeRecieved method, call <see cref="AddAccountToCacheFromAuthorizationCodeAsync"/>:
-        /// <code>
-        /// private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
-        /// {
-        ///   var tokenAcquisition = context.HttpContext.RequestServices.GetRequiredService&lt;ITokenAcquisition&gt;();
-        ///    await _tokenAcquisition.AddAccountToCacheFromAuthorizationCode(context, new string[] { "user.read" });
-        /// }
-        /// </code>
-        /// </example>
-        public async Task AddAccountToCacheFromAuthorizationCodeAsync(
-            AuthorizationCodeReceivedContext context,
-            IEnumerable<string> scopes,
-            string authenticationScheme /*= OpenIdConnectDefaults.AuthenticationScheme*/)
+        /// <param name="tokenCacheProvider">The App token cache provider.</param>
+        /// <param name="tokenAcquisitionHost">Host of the token acquisition.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="serviceProvider">Service provider.</param>
+        public TokenAcquisition(
+            IMsalTokenCacheProvider tokenCacheProvider,
+            ITokenAcquisitionHost tokenAcquisitionHost,
+            IHttpClientFactory httpClientFactory,
+            ILogger<TokenAcquisition> logger,
+            IServiceProvider serviceProvider)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            _tokenCacheProvider = tokenCacheProvider;
+            _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _logger = logger;
+            _serviceProvider = serviceProvider;
+            _tokenAcquisitionHost = tokenAcquisitionHost;
+        }
 
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-
-            authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = GetOptions(authenticationScheme);
+        public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(IEnumerable<string> scopes, string authCode, string authenticationScheme, string? clientInfo, string? codeVerifier, string? userFlow)
+        {
+            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
 
             try
             {
                 var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
-                context.TokenEndpointRequest.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
 
-                string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
                 string? backUpAuthRoutingHint = string.Empty;
                 if (!string.IsNullOrEmpty(clientInfo))
                 {
-                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo);
+                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo!);
                     if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
                     {
                         backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
@@ -186,7 +117,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 var builder = application
-                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), context!.ProtocolMessage!.Code)
+                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), authCode)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(codeVerifier)
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
@@ -194,7 +125,7 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.IsB2C)
                 {
-                    string? userFlow = context.Principal?.GetUserFlowId();
+
                     var authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
@@ -202,11 +133,12 @@ namespace Microsoft.Identity.Web
                 var result = await builder.ExecuteAsync()
                                           .ConfigureAwait(false);
 
-                context.HandleCodeRedemption(null, result.IdToken);
                 if (!string.IsNullOrEmpty(result.SpaAuthCode))
                 {
-                    CurrentHttpContext?.Session.SetString(Constants.SpaAuthCode, result.SpaAuthCode);
+                    _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
+
+                return result.IdToken;
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -215,7 +147,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                await AddAccountToCacheFromAuthorizationCodeAsync(context, scopes, authenticationScheme).ConfigureAwait(false);
+                await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -226,6 +158,8 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
+
+            return authenticationScheme;
         }
 
         /// <summary>
@@ -233,7 +167,7 @@ namespace Microsoft.Identity.Web
         /// for a downstream API using;
         /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in web APIs, for the user account that is ascertained from claims provided in the <see cref="HttpContext.User"/>
+        /// in web APIs, for the user account that is ascertained from claims provided in the current claims principal.
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -265,8 +199,8 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scopes));
             }
 
-            authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = GetOptions(authenticationScheme);
+            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
 
             if (string.IsNullOrEmpty(mergedOptions.Instance))
             {
@@ -274,7 +208,7 @@ namespace Microsoft.Identity.Web
                 mergedOptionsMonitor.Get(authenticationScheme);
             }
 
-            user = await GetAuthenticatedUserAsync(user).ConfigureAwait(false);
+            user = await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
@@ -378,29 +312,19 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
+            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
 
-            MergedOptions mergedOptions = GetOptions(authenticationScheme);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
 
-            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
-            if (string.IsNullOrEmpty(mergedOptions.Instance))
-            {
-                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>();
-                mergedOptionsMonitor?.Get(authenticationScheme);
-            }
-            // Case of an anonymous controller called from a web app
-            if (string.IsNullOrEmpty(mergedOptions.Instance))
-            {
-                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>();
-                mergedOptionsMonitor?.Get(authenticationScheme);
-            }
+            // Question for Jenny: Shall we merge inside GetOptions?
+            _tokenAcquisitionHost.ProcessOptionsForAnonymousControllers(authenticationScheme, mergedOptions);
 
             if (string.IsNullOrEmpty(tenant))
             {
                 tenant = mergedOptions.TenantId;
             }
 
-            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant))
+            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant!))
             {
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
             }
@@ -477,7 +401,7 @@ namespace Microsoft.Identity.Web
         /// for a downstream API using;
         /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
         /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
-        /// in web APIs, for the user account that is ascertained from the claims provided in the <see cref="HttpContext.User"/>
+        /// in web APIs, for the user account that is ascertained from the claims provided in the current claims principal.
         /// instance of the current HttpContext.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
@@ -516,129 +440,39 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Used in web APIs (no user interaction).
-        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
-        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
-        /// </summary>
-        /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
-        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
-        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
-            IEnumerable<string> scopes,
-            MsalUiRequiredException msalServiceException,
-            HttpResponse? httpResponse = null)
-        {
-            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, null, httpResponse);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Used in web APIs (no user interaction).
-        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
-        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
-        /// </summary>
-        /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
-        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        public void ReplyForbiddenWithWwwAuthenticateHeader(
-            IEnumerable<string> scopes,
-            MsalUiRequiredException msalServiceException,
-            string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
-            HttpResponse? httpResponse = null)
-        {
-            // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
-            string proposedAction = Constants.Consent;
-            if (msalServiceException.ErrorCode == MsalError.InvalidGrantError && AcceptedTokenVersionMismatch(msalServiceException))
-            {
-                throw msalServiceException;
-            }
-
-            authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = GetOptions(authenticationScheme);
-
-            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
-
-            string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={mergedOptions.ClientId}"
-                + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
-                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
-
-            IDictionary<string, string> parameters = new Dictionary<string, string>()
-                {
-                    { Constants.ConsentUrl, consentUrl },
-                    { Constants.Claims, msalServiceException.Claims },
-                    { Constants.Scopes, string.Join(",", scopes) },
-                    { Constants.ProposedAction, proposedAction },
-                };
-
-            string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
-
-            httpResponse ??= CurrentHttpContext?.Response;
-
-            if (httpResponse == null)
-            {
-                throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);
-            }
-
-            var headers = httpResponse.Headers;
-            httpResponse.StatusCode = (int)HttpStatusCode.Forbidden;
-
-            headers[HeaderNames.WWWAuthenticate] = new StringValues($"{Constants.Bearer} {parameterString}");
-        }
-
-        /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache.
         /// </summary>
-        /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
-        /// OpenID Connect event.</param>
+        /// <param name="user">User</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A <see cref="Task"/> that represents a completed account removal operation.</returns>
         public async Task RemoveAccountAsync(
-            RedirectContext context,
+            ClaimsPrincipal user,
             string? authenticationScheme)
         {
-            ClaimsPrincipal user = context.HttpContext.User;
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
             {
-                authenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
-                MergedOptions mergedOptions = GetOptions(authenticationScheme);
+                authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+                MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
 
                 IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication(mergedOptions);
 
                 if (mergedOptions.IsB2C)
                 {
-                    await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
+                    await _tokenCacheProvider.ClearAsync(userId!).ConfigureAwait(false);
                 }
                 else
                 {
-                    string? identifier = context.HttpContext.User.GetMsalAccountId();
+                    string? identifier = user.GetMsalAccountId();
                     IAccount account = await app.GetAccountAsync(identifier).ConfigureAwait(false);
 
                     if (account != null)
                     {
                         await app.RemoveAsync(account).ConfigureAwait(false);
-                        await _tokenCacheProvider.ClearAsync(userId).ConfigureAwait(false);
+                        await _tokenCacheProvider.ClearAsync(userId!).ConfigureAwait(false);
                     }
                 }
-            }
-        }
-
-        /// <inheritdoc/>
-        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
-        {
-            if (authenticationScheme != null)
-            {
-                return authenticationScheme;
-            }
-            else
-            {
-                return _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
-                    ((CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
-                    ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme);
             }
         }
 
@@ -646,24 +480,11 @@ namespace Microsoft.Identity.Web
         {
             return !_retryClientCertificate &&
                 string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
+#if !NET472 && !NET462
                 exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private string BuildCurrentUriFromRequest(
-            HttpContext httpContext,
-            HttpRequest request,
-            MergedOptions mergedOptions)
-        {
-            // need to lock to avoid threading issues with code outside of this library
-            // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-            lock (httpContext)
-            {
-                return UriHelper.BuildAbsolute(
-                    request.Scheme,
-                    request.Host,
-                    request.PathBase,
-                    mergedOptions.CallbackPath.Value ?? string.Empty);
-            }
+#else
+                exMsal.Message.Contains(Constants.InvalidKeyError);
+#endif
         }
 
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
@@ -688,23 +509,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private IConfidentialClientApplication BuildConfidentialClientApplication(MergedOptions mergedOptions)
         {
-            var httpContext = CurrentHttpContext;
-            var request = httpContext?.Request;
-            string? currentUri = null;
-
-            if (!string.IsNullOrEmpty(mergedOptions.ConfidentialClientApplicationOptions.RedirectUri))
-            {
-                currentUri = mergedOptions.ConfidentialClientApplicationOptions.RedirectUri;
-            }
-
-            if (request != null && string.IsNullOrEmpty(currentUri))
-            {
-                currentUri = BuildCurrentUriFromRequest(
-                    httpContext!,
-                    request,
-                    mergedOptions);
-            }
-
+            string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
             try
@@ -748,7 +553,7 @@ namespace Microsoft.Identity.Web
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
                     && !string.IsNullOrWhiteSpace(mergedOptions.UserAssignedManagedIdentityClientId))
                 {
-                    builder.WithClientAssertion(new MsiSignedAssertionProvider(mergedOptions.UserAssignedManagedIdentityClientId).GetSignedAssertion);
+                    builder.WithClientAssertion(new MsiSignedAssertionProvider(mergedOptions.UserAssignedManagedIdentityClientId!).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)
@@ -790,6 +595,8 @@ namespace Microsoft.Identity.Web
             }
         }
 
+      
+
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string? tenantId,
@@ -800,8 +607,8 @@ namespace Microsoft.Identity.Web
             try
             {
                 // In web API, validatedToken will not be null
-                SecurityToken? validatedToken = CurrentHttpContext?.GetTokenUsedToCallWebAPI();
-
+                SecurityToken? validatedToken = _tokenAcquisitionHost.GetTokenUsedToCallWebAPI(); 
+                
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
@@ -819,7 +626,7 @@ namespace Microsoft.Identity.Web
                     }
                     else
                     {
-                        string? sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                        string? sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey;
                         if (sessionKey == TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto)
                         {
                             sessionKey = null;
@@ -835,7 +642,7 @@ namespace Microsoft.Identity.Web
                 }
                 else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                 {
-                    string sessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey;
+                    string sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey!;
                     builder = (application as ILongRunningWebApi)?
                                    .AcquireTokenInLongRunningProcess(
                                        scopes.Except(_scopesRequestedByMsal),
@@ -862,7 +669,7 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
-                    ClaimsPrincipal? user = GetUserFromHttpContext();
+                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
                     if (user != null)
                     {
                         builder.WithCcsRoutingHint(user.GetObjectId(), user.GetTenantId());
@@ -1000,8 +807,11 @@ namespace Microsoft.Identity.Web
             {
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
-                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}",
-                    StringComparison.OrdinalIgnoreCase);
+                    $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}"
+#if !NET472 && !NET462
+                    ,StringComparison.OrdinalIgnoreCase
+#endif
+                    );
 
                 builder.WithB2CAuthority(b2cAuthority)
                        .WithSendX5C(mergedOptions.SendX5C);
@@ -1021,54 +831,11 @@ namespace Microsoft.Identity.Web
             // way to distinguish the case.
             // This is subject to change in the future
             return msalServiceException.Message.Contains(
-                ErrorCodes.B2CPasswordResetErrorCode,
-                StringComparison.InvariantCulture);
-        }
-
-        private ClaimsPrincipal? GetUserFromHttpContext()
-        {
-            var httpContext = CurrentHttpContext;
-            if (httpContext != null)
-            {
-                // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
-                lock (httpContext)
-                {
-                    return httpContext.User;
-                }
-            }
-
-            return null;
-        }
-
-        private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
-        {
-            if (user == null)
-            {
-                user = GetUserFromHttpContext();
-            }
-
-            if (user == null)
-            {
-                try
-                {
-                    AuthenticationStateProvider? authenticationStateProvider =
-                        _serviceProvider.GetService(typeof(AuthenticationStateProvider))
-                        as AuthenticationStateProvider;
-
-                    if (authenticationStateProvider != null)
-                    {
-                        // AuthenticationState provider is only available in Blazor
-                        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync().ConfigureAwait(false);
-                        user = state.User;
-                    }
-                }
-                catch
-                {
-                    // do nothing.
-                }
-            }
-
-            return user;
+                ErrorCodes.B2CPasswordResetErrorCode
+#if !NET472 && !NET462
+                ,StringComparison.InvariantCulture
+#endif
+                );
         }
 
         private void Log(
@@ -1119,6 +886,11 @@ namespace Microsoft.Identity.Web
             {
                 return null;
             }
+        }
+
+        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
+        {
+            return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
     }
 }

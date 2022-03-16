@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
+#if !NET472 && !NET462 
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+#endif
 
 namespace Microsoft.Identity.Web
 {
@@ -12,6 +15,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal interface ITokenAcquisitionInternal : ITokenAcquisition
     {
+#if !NET472 && !NET462
         /// <summary>
         /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received (after the user
         /// signed-in and consented)
@@ -46,15 +50,36 @@ namespace Microsoft.Identity.Web
             AuthorizationCodeReceivedContext context,
             IEnumerable<string> scopes,
             string authenticationScheme = OpenIdConnectDefaults.AuthenticationScheme);
+#else
+        /// <summary>
+        /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received (after the user
+        /// signed-in and consented)
+        /// the token redeemed from the <paramref name="authCode"/>"/> is added to the cache, so that it can then be used to acquire another token on-behalf-of the
+        /// same user in order to call to downstream APIs.
+        /// </summary>
+        /// <param name="scopes">Scopes to request. Can be empty</param>
+        /// <param name="authCode">Authorization code</param>
+        /// <param name="authenticationScheme">Authentication scheme to use (config section)</param>
+        /// <param name="clientInfo">Client Info obtained with the code</param>
+        /// <param name="codeVerifier">PKCE code verifier</param>
+        /// <param name="userFlow">User flow in the case of B2C</param>
+        /// <returns>The ID Token.</returns>
+        Task<string> AddAccountToCacheFromAuthorizationCodeAsync(
+            IEnumerable<string> scopes, 
+            string authCode, 
+            string authenticationScheme, 
+            string? clientInfo, 
+            string? codeVerifier, 
+            string? userFlow);
+#endif
 
         /// <summary>
         /// Removes the account associated with context.HttpContext.User from the MSAL.NET cache.
         /// </summary>
-        /// <param name="context">RedirectContext passed-in to a <see cref="OpenIdConnectEvents.OnRedirectToIdentityProviderForSignOut"/>
-        /// OpenID Connect event.</param>
+        /// <param name="user">Signed in user</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
         /// <returns>A <see cref="Task"/> that represents a completed remove from cache operation.</returns>
-        Task RemoveAccountAsync(RedirectContext context, string? authenticationScheme = null);
+        Task RemoveAccountAsync(ClaimsPrincipal user, string? authenticationScheme = null);
     }
 }

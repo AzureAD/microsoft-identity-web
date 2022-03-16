@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+#if !NET472 && !NET462 
 using Microsoft.AspNetCore.Http;
+#endif
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -15,6 +17,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public interface ITokenAcquisition
     {
+#if !NET472 && !NET462
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
@@ -44,11 +47,11 @@ namespace Microsoft.Identity.Web
                 user,
                 tokenAcquisitionOptions);
         }
+#endif
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// for a downstream API on behalf of the user account for which the claims are provided in the current user
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
@@ -69,10 +72,10 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
+#if !NET472 && !NET462
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// for a downstream API on behalf of the user account for which the claims are provided in the current user
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tenantId">Enables to override the tenant/account for the same identity. This is useful in the
@@ -98,11 +101,11 @@ namespace Microsoft.Identity.Web
                 user,
                 tokenAcquisitionOptions);
         }
+#endif
 
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// for a downstream API on behalf of the user account for which the claims are provided in the current user
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
@@ -123,6 +126,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
+#if !NET472 && !NET462
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -147,6 +151,7 @@ namespace Microsoft.Identity.Web
                 tenant,
                 tokenAcquisitionOptions);
         }
+#endif
 
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -169,6 +174,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
+#if !NET472 && !NET462
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -193,6 +199,7 @@ namespace Microsoft.Identity.Web
                 tenant,
                 tokenAcquisitionOptions);
         }
+#endif
 
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -215,6 +222,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
+#if !NET472 && !NET462
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
@@ -250,6 +258,7 @@ namespace Microsoft.Identity.Web
         MsalUiRequiredException msalServiceException,
         string? authenticationScheme,
         HttpResponse? httpResponse = null);
+#endif
 
         /// <summary>
         /// Get the effective authentication scheme based on the context.
@@ -260,6 +269,7 @@ namespace Microsoft.Identity.Web
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</returns>
         string GetEffectiveAuthenticationScheme(string? authenticationScheme);
 
+#if !NET472 && !NET462
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
@@ -274,5 +284,6 @@ namespace Microsoft.Identity.Web
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
         HttpResponse? httpResponse = null);
+#endif
     }
 }

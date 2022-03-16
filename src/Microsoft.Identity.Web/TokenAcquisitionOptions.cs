@@ -14,6 +14,19 @@ namespace Microsoft.Identity.Web
     public class TokenAcquisitionOptions
     {
         /// <summary>
+        /// Enables to override the tenant/account for the same identity. This is useful in multi-tenant apps 
+        /// in the cases where a given account is a guest in other tenants, and you want to acquire tokens 
+        /// for a specific tenant.
+        /// </summary>
+        /// <remarks>Can be the tenant ID or domain name.</remarks>
+        public string? Tenant { get; set; }
+
+        /// <summary>
+        /// Uses a particular user flow (in the case of AzureAD B2C)
+        /// </summary>
+        public string? UserFlow { get; set; }
+
+        /// <summary>
         /// Sets the correlation id to be used in the authentication request
         /// to the /token endpoint.
         /// </summary>

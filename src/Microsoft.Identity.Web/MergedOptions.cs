@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NET472 && !NET462
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+#endif
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -48,19 +50,15 @@ namespace Microsoft.Identity.Web
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
-            mergedOptions.ResetPasswordPath = microsoftIdentityOptions.ResetPasswordPath;
-            mergedOptions.ErrorPath = microsoftIdentityOptions.ErrorPath;
-            mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
-            mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;
-            mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
-            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftIdentityOptions.Authority))
-            {
-                mergedOptions.Authority = microsoftIdentityOptions.Authority;
-            }
 
 #if DOTNET_50_AND_ABOVE
-            mergedOptions.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+            mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
 #endif
+
+#if !NET472 && !NET462
+// ASP.NET Core specific
+            mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
+            mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
             mergedOptions.Backchannel ??= microsoftIdentityOptions.Backchannel;
             mergedOptions.BackchannelHttpHandler ??= microsoftIdentityOptions.BackchannelHttpHandler;
             mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
@@ -69,33 +67,11 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
             }
-
-            mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
-            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
-            {
-                mergedOptions.ClientId = microsoftIdentityOptions.ClientId;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
-            {
-                mergedOptions.ClientSecret = microsoftIdentityOptions.ClientSecret;
-            }
-
             mergedOptions.Configuration ??= microsoftIdentityOptions.Configuration;
             mergedOptions.ConfigurationManager ??= microsoftIdentityOptions.ConfigurationManager;
             mergedOptions.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
             mergedOptions.DataProtectionProvider ??= microsoftIdentityOptions.DataProtectionProvider;
             mergedOptions.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
-
-            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftIdentityOptions.Domain))
-            {
-                mergedOptions.Domain = microsoftIdentityOptions.Domain;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.EditProfilePolicyId))
-            {
-                mergedOptions.EditProfilePolicyId = microsoftIdentityOptions.EditProfilePolicyId;
-            }
 
             mergedOptions.Events.OnAccessDenied += microsoftIdentityOptions.Events.OnAccessDenied;
             mergedOptions.Events.OnAuthenticationFailed += microsoftIdentityOptions.Events.OnAuthenticationFailed;
@@ -148,12 +124,6 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.Instance = microsoftIdentityOptions.Instance;
             }
-
-            mergedOptions.LegacyCacheCompatibilityEnabled = microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
-
-#if DOTNET_50_AND_ABOVE
-            mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
-#endif
 
             mergedOptions.MaxAge = microsoftIdentityOptions.MaxAge;
             if (string.IsNullOrEmpty(mergedOptions.MetadataAddress) && !string.IsNullOrEmpty(microsoftIdentityOptions.MetadataAddress))
@@ -219,32 +189,16 @@ namespace Microsoft.Identity.Web
                 mergedOptions.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
-            {
-                mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
-            }
-
             mergedOptions.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
             mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
             mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
-            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
-            {
-                mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
-            }
 
-            mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
-            if (string.IsNullOrEmpty(mergedOptions.UserAssignedManagedIdentityClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.UserAssignedManagedIdentityClientId))
-            {
-                mergedOptions.UserAssignedManagedIdentityClientId = microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
-            }
 
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
-            mergedOptions._confidentialClientApplicationOptions = null;
 
             mergedOptions.Scope.Clear();
-
             foreach (var scope in microsoftIdentityOptions.Scope)
             {
                 if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
@@ -252,6 +206,60 @@ namespace Microsoft.Identity.Web
                     mergedOptions.Scope.Add(scope);
                 }
             }
+#if DOTNET_50_AND_ABOVE
+            mergedOptions.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+#endif
+#endif
+            // Non ASP.NET Core specific
+            mergedOptions.ResetPasswordPath = microsoftIdentityOptions.ResetPasswordPath;
+            mergedOptions.ErrorPath = microsoftIdentityOptions.ErrorPath;
+            mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftIdentityOptions.Authority))
+            {
+                mergedOptions.Authority = microsoftIdentityOptions.Authority;
+            }
+
+            mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
+            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
+            {
+                mergedOptions.ClientId = microsoftIdentityOptions.ClientId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
+            {
+                mergedOptions.ClientSecret = microsoftIdentityOptions.ClientSecret;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftIdentityOptions.Domain))
+            {
+                mergedOptions.Domain = microsoftIdentityOptions.Domain;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.EditProfilePolicyId))
+            {
+                mergedOptions.EditProfilePolicyId = microsoftIdentityOptions.EditProfilePolicyId;
+            }
+
+            mergedOptions.LegacyCacheCompatibilityEnabled = microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
+
+            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
+            {
+                mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
+            {
+                mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
+            }
+
+            mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
+
+            if (string.IsNullOrEmpty(mergedOptions.UserAssignedManagedIdentityClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.UserAssignedManagedIdentityClientId))
+            {
+                mergedOptions.UserAssignedManagedIdentityClientId = microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
+            }
+
+            mergedOptions._confidentialClientApplicationOptions = null;
         }
 
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
@@ -359,6 +367,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
+#if !NET472 && !NET462
         internal static void UpdateMergedOptionsFromJwtBearerOptions(JwtBearerOptions jwtBearerOptions, MergedOptions mergedOptions)
         {
             if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(jwtBearerOptions.Authority))
@@ -366,12 +375,17 @@ namespace Microsoft.Identity.Web
                 mergedOptions.Authority = jwtBearerOptions.Authority;
             }
         }
+#endif
 
         public void PrepareAuthorityInstanceForMsal()
         {
             if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
+#if !NET472 && !NET462
                 Instance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
+#else
+                Instance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
+#endif
             }
             else
             {

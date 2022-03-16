@@ -61,11 +61,13 @@ namespace Microsoft.Identity.Web
             if (isTokenAcquisitionSingleton)
             {
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
             else
             {
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
 
