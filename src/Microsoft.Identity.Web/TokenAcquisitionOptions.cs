@@ -89,6 +89,8 @@ namespace Microsoft.Identity.Web
         {
             return new TokenAcquisitionOptions
             {
+                Tenant = Tenant,
+                UserFlow = UserFlow,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
