@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+#define UseMicrosoftGraphSdk
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,36 +17,14 @@ namespace daemon_console
     /// </summary>
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            try
-            {
-                RunAsync().GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
-            }
-
-            Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
-        }
-
-        private static async Task RunAsync()
-        {
-            // Read the configuration from a file
-            IConfiguration Configuration;
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(System.IO.Directory.GetCurrentDirectory())
-             .AddJsonFile("appsettings.json");
-            Configuration = builder.Build();
+            IConfiguration configuration = ReadConfiguration();
 
             // Add services
             ServiceCollection services = new ServiceCollection();
 
-            services.Configure<MicrosoftIdentityOptions>(option => Configuration.Bind(option));
+            services.Configure<MicrosoftIdentityOptions>(option => configuration.Bind(option));
             services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
 
             // Add a cache
@@ -54,24 +33,32 @@ namespace daemon_console
 
             var serviceProvider = services.BuildServiceProvider();
 
-
-
-
-#if WithTokenAcquisition
-            AuthenticationResult result = null;
-            // Get the token acquisition service
-            ITokenAcquisition? tokenAcquisition = serviceProvider.GetService<ITokenAcquisition>();
-            string scope = Configuration.GetValue<string>("Scopes");
-            result = await tokenAcquisition.GetAuthenticationResultForAppAsync(scope, null);
-#else
+#if UseMicrosoftGraphSdk
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var users = await graphServiceClient.Users
                 .Request()
                 .WithAppOnly()
                 .GetAsync();
-
             Console.WriteLine($"{users.Count} users");
+#else
+            // Get the token acquisition service
+            ITokenAcquisition? tokenAcquisition = serviceProvider.GetService<ITokenAcquisition>();
+            string scope = configuration.GetValue<string>("Scopes");
+            var result = await tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", null);
+            Console.WriteLine($"Token expires on {result.ExpiresOn}");
+
 #endif
+        }
+
+        private static IConfiguration ReadConfiguration()
+        {
+            // Read the configuration from a file
+            IConfiguration Configuration;
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(System.IO.Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.json");
+            Configuration = builder.Build();
+            return Configuration;
         }
     }
 }
