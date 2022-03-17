@@ -253,14 +253,18 @@ namespace Microsoft.Identity.Web.Test.Integration
                  _provider.GetService<IMemoryCache>(),
                  _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
 
+            var tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
+                _provider.GetService<ILogger<TokenAcquisition>>(),
+                _provider);
             _tokenAcquisition = new TokenAcquisition(
                  _msalTestTokenCacheProvider,
-                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
+                 tokenAcquisitionAspnetCoreHost,
                  _provider);
-            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
+            tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()

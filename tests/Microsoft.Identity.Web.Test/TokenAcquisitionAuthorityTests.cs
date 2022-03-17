@@ -22,20 +22,25 @@ namespace Microsoft.Identity.Web.Test
     public class TokenAcquisitionAuthorityTests
     {
         private TokenAcquisition _tokenAcquisition;
+        private TokenAcquisitionAspnetCoreHost _tokenAcquisitionAspnetCoreHost;
         private ServiceProvider _provider;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
 
         private void InitializeTokenAcquisitionObjects()
         {
+            _tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
+                _provider.GetService<ILogger<TokenAcquisition>>(),
+                _provider);
             _tokenAcquisition = new TokenAcquisition(
                 new MsalTestTokenCacheProvider(
                 _provider.GetService<IMemoryCache>(),
                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
-                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
+                _tokenAcquisitionAspnetCoreHost,
                 _provider);
         }
 
