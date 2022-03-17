@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{FD55C071-48D1-4FE8-8B1D-773E067FEC91}"
 EndProject
@@ -133,6 +133,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenCache", "src\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj", "{7885DFBB-0D20-4115-86E2-709C2E12253B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Daemon", "Daemon", "{5D970909-98CF-415C-A598-D60B4B4AD8A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon-app", "tests\daemon-app\Daemon-app\Daemon-app.csproj", "{8C557C25-25C9-45B6-B2D3-77093893EBC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -300,6 +304,10 @@ Global
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -354,6 +362,8 @@ Global
 		{D3A42D78-8A23-44EB-9A1F-63CF58B56AAC} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037} = {D3A42D78-8A23-44EB-9A1F-63CF58B56AAC}
 		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF} = {20CDB9B2-D237-413A-8E76-A973597748B0}
+		{5D970909-98CF-415C-A598-D60B4B4AD8A9} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5} = {5D970909-98CF-415C-A598-D60B4B4AD8A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

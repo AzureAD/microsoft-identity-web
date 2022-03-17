@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.Hosts;
 
 namespace Microsoft.Identity.Web
 {
@@ -41,6 +42,7 @@ namespace Microsoft.Identity.Web
 
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
+            ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
@@ -48,6 +50,7 @@ namespace Microsoft.Identity.Web
                     // The service was already added, but not with the right lifetime
                     services.Remove(tokenAcquisitionService);
                     services.Remove(tokenAcquisitionInternalService);
+                    services.Remove(tokenAcquisitionhost);
                 }
                 else
                 {
@@ -57,18 +60,27 @@ namespace Microsoft.Identity.Web
             }
 
             // Token acquisition service
-            services.AddHttpContextAccessor();
             if (isTokenAcquisitionSingleton)
             {
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+#if !NET472 && !NET462
+                services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+#else
+                services.AddSingleton<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+#endif
             }
             else
             {
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+#if !NET472 && !NET462
+                services.AddHttpContextAccessor();
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+#else
+                services.AddScoped<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+#endif
             }
 
             return services;

@@ -131,6 +131,7 @@
     <Compile Include="ClientAssertionDescription.cs" />
     <Compile Include="ClientInfo.cs" />
     <Compile Include="MicrosoftIdentityWebChallengeUserException.cs" />
+    <Compile Include="ServiceCollectionExtensions.cs" />
     <Compile Include="MsalAspNetCoreHttpClientFactory.cs" />
     <Compile Include="IdHelper.cs" />
     <Compile Remove="AppServicesAuth\**" />
