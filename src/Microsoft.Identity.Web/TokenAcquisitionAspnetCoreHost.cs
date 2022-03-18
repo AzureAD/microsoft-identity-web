@@ -53,6 +53,17 @@ namespace Microsoft.Identity.Web
         public MergedOptions GetOptions(string authenticationScheme)
         {
             var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
+
+            // THIS IS A CHANGE: @jennyf19. Let's discuss if we want to merge this with
+            // ProcessOptionsForAnonymousControllers() below
+            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
+            if (string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                var microsoftIdentityOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>();
+                var microsoftIdentityOptions = microsoftIdentityOptionsMonitor?.Get(authenticationScheme);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptions, mergedOptions);
+            }
+
             if (!mergedOptions.MergedWithCca)
             {
                 var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
