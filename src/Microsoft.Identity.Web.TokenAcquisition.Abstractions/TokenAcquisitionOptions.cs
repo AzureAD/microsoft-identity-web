@@ -27,6 +27,11 @@ namespace Microsoft.Identity.Web
         public string? UserFlow { get; set; }
 
         /// <summary>
+        /// Requires a particular authentication scheme / settings
+        /// </summary>
+        public string? AuthenticationScheme{ get; set; }
+
+        /// <summary>
         /// Sets the correlation id to be used in the authentication request
         /// to the /token endpoint.
         /// </summary>

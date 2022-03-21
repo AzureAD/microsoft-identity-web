@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-#define UseMicrosoftGraphSdk
+//#define UseMicrosoftGraphSdk
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -41,8 +41,8 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Get the token acquisition service
-            ITokenAcquisition? tokenAcquisition = app.Services.GetService<ITokenAcquisition>();
-            var result = await tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", null, null);
+            ITokenAcquirer tokenAcquirer = app.Services.GetRequiredService<ITokenAcquirer>();
+            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif

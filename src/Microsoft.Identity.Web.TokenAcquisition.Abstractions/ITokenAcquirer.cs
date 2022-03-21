@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -16,13 +15,10 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-        /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
-        /// member of the controller's <see cref="HttpContext"/> parameter.
+        /// for a downstream API on behalf of the user account for which the claims are provided in the current user
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
@@ -30,7 +26,6 @@ namespace Microsoft.Identity.Web
         Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null,
             ClaimsPrincipal? user = null);
 
         /// <summary>
@@ -43,12 +38,9 @@ namespace Microsoft.Identity.Web
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
         Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            string? authenticationScheme = null);
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
     }
 }

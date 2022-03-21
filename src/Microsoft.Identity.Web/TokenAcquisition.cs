@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
+    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirer
     {
 #if NET472 || NET462
         class OAuthConstants
@@ -891,6 +891,16 @@ namespace Microsoft.Identity.Web
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+        }
+
+        Task<AuthenticationResult> ITokenAcquirer.GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, TokenAcquisitionOptions? tokenAcquisitionOptions, ClaimsPrincipal? user)
+        {
+            return GetAuthenticationResultForUserAsync(scopes, tokenAcquisitionOptions?.AuthenticationScheme, tokenAcquisitionOptions?.Tenant, tokenAcquisitionOptions?.UserFlow, user, tokenAcquisitionOptions);
+        }
+
+        Task<AuthenticationResult> ITokenAcquirer.GetAuthenticationResultForAppAsync(string scope, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            return GetAuthenticationResultForAppAsync(scope, tokenAcquisitionOptions?.AuthenticationScheme, tokenAcquisitionOptions?.Tenant, tokenAcquisitionOptions);
         }
     }
 }

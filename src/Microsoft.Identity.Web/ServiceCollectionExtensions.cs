@@ -63,6 +63,7 @@ namespace Microsoft.Identity.Web
             if (isTokenAcquisitionSingleton)
             {
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
+                services.AddSingleton(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
 #if !NET472 && !NET462
                 services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
@@ -74,6 +75,7 @@ namespace Microsoft.Identity.Web
             else
             {
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+                services.AddScoped(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
 #if !NET472 && !NET462
                 services.AddHttpContextAccessor();
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();

@@ -42,9 +42,9 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Get the token acquisition service
-            ITokenAcquisition? tokenAcquisition = serviceProvider.GetService<ITokenAcquisition>();
+            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
             string scope = configuration.GetValue<string>("Scopes");
-            var result = await tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", null);
+            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif

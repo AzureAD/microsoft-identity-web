@@ -1203,41 +1203,6 @@
             Issuer associated with the OIDC endpoint.
             </summary>
         </member>
-        <member name="T:Microsoft.Identity.Web.ITokenAcquirer">
-            <summary>
-            Interface for the token acquisition service (encapsulating MSAL.NET).
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ITokenAcquirer.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Web.TokenAcquisitionOptions,System.String,System.Security.Claims.ClaimsPrincipal)">
-            <summary>
-            Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-            for a downstream API on behalf of the user account for which the claims are provided in the <see cref="P:Microsoft.AspNetCore.Http.HttpContext.User"/>
-            member of the controller's <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/> parameter.
-            </summary>
-            <param name="scopes">Scopes to request for the downstream API to call.</param>
-            <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-            <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web APIs.</param>
-            <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
-            user (in a web app), or the user for which the token was received (in a web API)
-            cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
-            <returns>An <see cref="T:Microsoft.Identity.Client.AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ITokenAcquirer.GetAuthenticationResultForAppAsync(System.String,Microsoft.Identity.Web.TokenAcquisitionOptions,System.String)">
-            <summary>
-            Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
-            using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
-            </summary>
-            <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
-            should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
-            Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
-            in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
-            several calls to get tokens for other resources).</param>
-            <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-            <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-            if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
-            <returns>An authentication result for the app itself, based on its scopes.</returns>
-        </member>
         <member name="T:Microsoft.Identity.Web.ITokenAcquisition">
             <summary>
             Interface for the token acquisition service (encapsulating MSAL.NET).
@@ -2474,85 +2439,6 @@
         </member>
         <member name="M:Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.GetEffectiveAuthenticationScheme(System.String)">
             <inheritdoc/>
-        </member>
-        <member name="T:Microsoft.Identity.Web.TokenAcquisitionOptions">
-            <summary>
-            Options passed-in to create the token acquisition object which calls into MSAL .NET.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.Tenant">
-            <summary>
-            Enables to override the tenant/account for the same identity. This is useful in multi-tenant apps 
-            in the cases where a given account is a guest in other tenants, and you want to acquire tokens 
-            for a specific tenant.
-            </summary>
-            <remarks>Can be the tenant ID or domain name.</remarks>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.UserFlow">
-            <summary>
-            Uses a particular user flow (in the case of AzureAD B2C)
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.CorrelationId">
-            <summary>
-            Sets the correlation id to be used in the authentication request
-            to the /token endpoint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.ExtraQueryParameters">
-            <summary>
-            Sets Extra Query Parameters for the query string in the HTTP authentication request.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.Claims">
-            <summary>
-            A string with one or multiple claims to request.
-            Normally used with Conditional Access.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.ForceRefresh">
-            <summary>
-            Specifies if the token request will ignore the access token in the token cache
-            and will attempt to acquire a new access token.
-            If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
-            Use this option with care and only when needed, for instance, if you know that conditional access policies have changed,
-            for it induces performance degradation, as the token cache is not utilized.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.PoPConfiguration">
-            <summary>
-            Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
-            rather than a Bearer token.
-            PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
-            which MSAL can manage. See https://aka.ms/msal-net-pop.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken">
-            <summary>
-            Cancellation token to be used when calling the token acquisition methods.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.TokenAcquisitionOptions.LongRunningWebApiSessionKey">
-            <summary>
-            Key used for long running web APIs that need to call downstream web
-            APIs on behalf of the user. Can be null, if you are not developing a long
-            running web API, <see cref="F:Microsoft.Identity.Web.TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto"/> if you want
-            Microsoft.Identity.Web to allocate a session key for you, or your own string
-            if you want to associate the session with some information you have externally
-            (for instance a Microsoft Graph hook identifier).
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto">
-            <summary>
-            Value that can be used for <see cref="P:Microsoft.Identity.Web.TokenAcquisitionOptions.LongRunningWebApiSessionKey"/> so that
-            MSAL.NET allocates the long running web api session key for the developer.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.TokenAcquisitionOptions.Clone">
-            <summary>
-            Clone the options (to be able to override them).
-            </summary>
-            <returns>A clone of the options.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider">
              <summary>
