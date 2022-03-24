@@ -3,8 +3,9 @@
 
 using System;
 using System.Net.Http;
-
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
@@ -65,6 +66,13 @@ namespace Microsoft.Identity.Web
 
             return options;
         }
+
+        /// <summary>
+        /// Method to abstract getting the auth token itself. Useful for subclasses to customize token acquisition behavior.
+        /// </summary>
+        /// <param name="options">Token acquisition options</param>
+        /// <returns>The <see cref="AuthenticationResult"/> token.</returns>
+        protected abstract Task<AuthenticationResult> GetTokenAsync(MicrosoftIdentityAuthenticationMessageHandlerOptions options);
 
         private static void CreateProofOfPossessionConfiguration(MicrosoftIdentityAuthenticationMessageHandlerOptions options, Uri apiUri, HttpMethod method)
         {
