@@ -5,7 +5,6 @@ using System;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
@@ -32,13 +31,12 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
-                return new MicrosoftIdentityUserAuthenticationMessageHandler(
-                    services.GetRequiredService<ITokenAcquisition>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
-                    serviceName);
+                return services
+                    .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
+                    .CreateUserHandler(services, serviceName);
             });
 
             return builder;
@@ -62,13 +60,12 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(serviceName, configureOptions);
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
-                return new MicrosoftIdentityUserAuthenticationMessageHandler(
-                    services.GetRequiredService<ITokenAcquisition>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
-                    serviceName);
+                return services
+                    .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
+                    .CreateUserHandler(services, serviceName);
             });
 
             return builder;
@@ -92,12 +89,12 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
-                return new MicrosoftIdentityAppAuthenticationMessageHandler(
-                    services.GetRequiredService<ITokenAcquisition>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
-                    serviceName);
+                return services
+                    .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
+                    .CreateAppHandler(services, serviceName);
             });
 
             return builder;
@@ -121,12 +118,12 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(serviceName, configureOptions);
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
-                return new MicrosoftIdentityAppAuthenticationMessageHandler(
-                    services.GetRequiredService<ITokenAcquisition>(),
-                    services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
-                    serviceName);
+                return services
+                    .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
+                    .CreateAppHandler(services, serviceName);
             });
 
             return builder;
