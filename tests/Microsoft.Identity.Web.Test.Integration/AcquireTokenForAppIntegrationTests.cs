@@ -260,7 +260,8 @@ namespace Microsoft.Identity.Web.Test.Integration
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  _provider);
-            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
+            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out string effectiveAuthenticationScheme);
+            Assert.Equal(OpenIdConnectDefaults.AuthenticationScheme, effectiveAuthenticationScheme);
         }
 
         private void BuildTheRequiredServices()
