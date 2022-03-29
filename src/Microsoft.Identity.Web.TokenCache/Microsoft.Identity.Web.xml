@@ -487,12 +487,13 @@
             LoggingMessage class for MsalAbstractTokenCacheProvider.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Logger.CacheDeserializationError(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Logger.CacheDeserializationError(Microsoft.Extensions.Logging.ILogger,System.String,System.Boolean,System.String,System.Exception)">
             <summary>
             Cache deserialization error.
             </summary>
             <param name="logger">ILogger.</param>
             <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="encryptionEnabled">Whether cache is encrypted or not.</param>
             <param name="errorMessage">Error message.</param>
             <param name="ex">Exception.</param>
         </member>
