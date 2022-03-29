@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
-            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 return services
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(serviceName, configureOptions);
-            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 return services
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
-            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 return services
@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure(serviceName, configureOptions);
-            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, MicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 return services
