@@ -18,9 +18,6 @@ namespace Microsoft.Identity.Web
         /// Creates an instance of a <see cref="DelegatingHandler"/> that adds
         /// an authorization header with a token for an application.
         /// </summary>
-        /// <param name="serviceProvider">
-        /// The <see cref="IServiceProvider"/> to resolve dependencies from.
-        /// </param>
         /// <param name="serviceName">
         /// Name of the service describing the downstream web API. Used to
         /// retrieve the appropriate config section.
@@ -28,14 +25,12 @@ namespace Microsoft.Identity.Web
         /// <returns>
         /// The <see cref="DelegatingHandler"/>.
         /// </returns>
-        DelegatingHandler CreateAppHandler(IServiceProvider serviceProvider, string? serviceName);
+        DelegatingHandler CreateAppHandler(string? serviceName);
 
         /// <summary>
         /// Creates an instance of a <see cref="DelegatingHandler"/> that adds
         /// an authorization header with a token on behalf of the current user.
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// The <see cref="IServiceProvider"/> to resolve dependencies from.
         /// <param name="serviceName">
         /// Name of the service describing the downstream web API. Used to
         /// retrieve the appropriate config section.
@@ -43,7 +38,7 @@ namespace Microsoft.Identity.Web
         /// <returns>
         /// The <see cref="DelegatingHandler"/>.
         /// </returns>
-        DelegatingHandler CreateUserHandler(IServiceProvider serviceProvider, string? serviceName);
+        DelegatingHandler CreateUserHandler(string? serviceName);
     }
 
     /// <summary>
@@ -51,22 +46,35 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class MicrosoftIdentityAuthenticationDelegatingHandlerFactory : IMicrosoftIdentityAuthenticationDelegatingHandlerFactory
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="MicrosoftIdentityAuthenticationDelegatingHandlerFactory"/>.
+        /// </summary>
+        /// <param name="serviceProvider">
+        /// The <see cref="IServiceProvider"/> to resolve dependencies from.
+        /// </param>
+        public MicrosoftIdentityAuthenticationDelegatingHandlerFactory(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         /// <inheritdoc/>
-        public DelegatingHandler CreateAppHandler(IServiceProvider serviceProvider, string? serviceName)
+        public DelegatingHandler CreateAppHandler(string? serviceName)
         {
             return new MicrosoftIdentityAppAuthenticationMessageHandler(
-                serviceProvider.GetRequiredService<ITokenAcquisition>(),
-                serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
+                _serviceProvider.GetRequiredService<ITokenAcquisition>(),
+                _serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
                 serviceName);
         }
 
         /// <inheritdoc/>
-        public DelegatingHandler CreateUserHandler(IServiceProvider serviceProvider, string? serviceName)
+        public DelegatingHandler CreateUserHandler(string? serviceName)
         {
             return new MicrosoftIdentityUserAuthenticationMessageHandler(
-                serviceProvider.GetRequiredService<ITokenAcquisition>(),
-                serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
-                serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
+                _serviceProvider.GetRequiredService<ITokenAcquisition>(),
+                _serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions>>(),
+                _serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>(),
                 serviceName);
         }
     }

@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
             {
                 return services
                     .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
-                    .CreateUserHandler(services, serviceName);
+                    .CreateUserHandler(serviceName);
             });
 
             return builder;
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web
             {
                 return services
                     .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
-                    .CreateUserHandler(services, serviceName);
+                    .CreateUserHandler(serviceName);
             });
 
             return builder;
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
             {
                 return services
                     .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
-                    .CreateAppHandler(services, serviceName);
+                    .CreateAppHandler(serviceName);
             });
 
             return builder;
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web
             {
                 return services
                     .GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>()
-                    .CreateAppHandler(services, serviceName);
+                    .CreateAppHandler(serviceName);
             });
 
             return builder;

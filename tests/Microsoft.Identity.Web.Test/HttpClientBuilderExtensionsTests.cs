@@ -51,12 +51,12 @@ namespace Microsoft.Identity.Web.Test
             {
             }
 
-            public DelegatingHandler CreateAppHandler(IServiceProvider serviceProvider, string serviceName)
+            public DelegatingHandler CreateAppHandler(string serviceName)
             {
                 return new CustomMicrosoftIdentityAuthenticationAppHandler();
             }
 
-            public DelegatingHandler CreateUserHandler(IServiceProvider serviceProvider, string serviceName)
+            public DelegatingHandler CreateUserHandler(string serviceName)
             {
                 return new CustomMicrosoftIdentityAuthenticationUserHandler();
             }
@@ -172,10 +172,10 @@ namespace Microsoft.Identity.Web.Test
             var factory = provider.GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory), factory.GetType());
 
-            var appHandler = factory.CreateAppHandler(provider, string.Empty);
+            var appHandler = factory.CreateAppHandler(string.Empty);
             Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CustomMicrosoftIdentityAuthenticationAppHandler), appHandler.GetType());
 
-            var userHandler = factory.CreateUserHandler(provider, string.Empty);
+            var userHandler = factory.CreateUserHandler(string.Empty);
             Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CustomMicrosoftIdentityAuthenticationUserHandler), userHandler.GetType());
         }
     }
