@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Interface to a class that provides the <see cref="DelegatingHandler"/> that
-    /// addes an authorization header with a token for the application.
+    /// adds an authorization header with a token for the application.
     /// </summary>
     public interface IMicrosoftIdentityAuthenticationDelegatingHandlerFactory
     {
