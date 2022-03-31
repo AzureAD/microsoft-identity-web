@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
         /// several OpenIdConnect identity providers.</param>
         /// <param name="cookieScheme">Optional name for the cookie authentication scheme
-        /// (by default OpenIdConnectDefaults.AuthenticationScheme).</param>
+        /// (by default CookieAuthenticationDefaults.AuthenticationScheme).</param>
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenIdConnect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
