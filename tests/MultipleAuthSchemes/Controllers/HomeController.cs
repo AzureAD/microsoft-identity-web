@@ -27,7 +27,8 @@ namespace mvcwebapp_graph.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _graphServiceClient.Me.Request()
-                .WithAuthenticationScheme(OpenIdScheme).GetAsync();
+                .WithAuthenticationScheme(OpenIdScheme)
+                .GetAsync();
             ViewData["ApiResult"] = user.DisplayName;
 
             return View();
