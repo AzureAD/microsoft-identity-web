@@ -169,8 +169,8 @@ namespace Microsoft.Identity.Web
 
         private static bool IsAjaxRequest(HttpRequest request)
         {
-            return string.Equals(request.Query[Constants.XRequestedWith], Constants.XmlHttpRequest, StringComparison.Ordinal) ||
-                string.Equals(request.Headers[Constants.XRequestedWith], Constants.XmlHttpRequest, StringComparison.Ordinal);
+            return request.Query[Constants.XRequestedWith] == Constants.XmlHttpRequest ||
+                request.Headers[Constants.XRequestedWith] == Constants.XmlHttpRequest;
         }
     }
 }
