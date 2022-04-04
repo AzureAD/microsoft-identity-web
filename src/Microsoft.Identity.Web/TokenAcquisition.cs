@@ -749,7 +749,7 @@ namespace Microsoft.Identity.Web
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
                     && !string.IsNullOrWhiteSpace(mergedOptions.UserAssignedManagedIdentityClientId))
                 {
-                    builder.WithClientAssertion(new MsiSignedAssertionProvider(mergedOptions.UserAssignedManagedIdentityClientId).GetSignedAssertion);
+                    builder.WithClientAssertion(new AzureFederatedTokenProvider(mergedOptions.UserAssignedManagedIdentityClientId).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)
