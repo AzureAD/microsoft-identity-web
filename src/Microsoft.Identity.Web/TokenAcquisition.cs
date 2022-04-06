@@ -719,6 +719,11 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
+                if (mergedOptions.IdentityFederation != null && mergedOptions.IdentityFederation.IsEnabled)
+                {
+                    builder.WithExtraQueryParameters("dc=ESTS-PUB-WUS2-AZ1-FD000-TEST1");
+                }
+
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
                 {
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
