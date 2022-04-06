@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#define USE_SIGNED_ASSERTION
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -31,12 +33,12 @@ namespace WebAppCallsMicrosoftGraph.Pages
          
             try
             {
-                using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
-                {
-                    byte[] photoByte = ((MemoryStream)photoStream).ToArray();
-                    ViewData["photo"] = Convert.ToBase64String(photoByte);
-                }
-                ViewData["name"] = user.DisplayName;
+                //using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
+                //{
+                //    byte[] photoByte = ((MemoryStream)photoStream).ToArray();
+                //    ViewData["photo"] = Convert.ToBase64String(photoByte);
+                //}
+                //ViewData["name"] = user.DisplayName;
 
                 var graphData = await _downstreamWebApi.CallWebApiForUserAsync(
                     "GraphBeta"
@@ -44,6 +46,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
                     , calledDownstreamWebApiOptionsOverride: o => o.TokenAcquisitionOptions.ExtraQueryParameters.Add("dc", "ESTS-PUB-WUS2-AZ1-FD000-TEST1")
 #endif
                     );
+                ViewData["json"] = await graphData.Content.ReadAsStringAsync();
             }
             catch (Exception)
             {

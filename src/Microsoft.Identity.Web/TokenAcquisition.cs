@@ -747,9 +747,11 @@ namespace Microsoft.Identity.Web
                 // managed identity was set. In that case we leverage the MsiSignedAssertion to be cert-less.
                 if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
-                    && !string.IsNullOrWhiteSpace(mergedOptions.UserAssignedManagedIdentityClientId))
+                    && mergedOptions.IdentityFederation != null
+                    && !string.IsNullOrWhiteSpace(mergedOptions.IdentityFederation.SubjectIdentifier)
+                    && mergedOptions.IdentityFederation.IsEnabled)
                 {
-                    builder.WithClientAssertion(new AzureFederatedTokenProvider(mergedOptions.UserAssignedManagedIdentityClientId).GetSignedAssertion);
+                    builder.WithClientAssertion(new AzureFederatedTokenProvider(mergedOptions.IdentityFederation.SubjectIdentifier).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

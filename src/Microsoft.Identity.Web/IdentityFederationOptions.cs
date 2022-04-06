@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -16,7 +12,7 @@ namespace Microsoft.Identity.Web
         /// Is IdentityFederation enabled?
         /// </summary>
         /// The default is <c>false.</c>
-        public bool? IsEnabled { get; set; }
+        public bool IsEnabled { get; set; }
 
         /// <summary>
         /// The value is used to establish a connection between external workload identities

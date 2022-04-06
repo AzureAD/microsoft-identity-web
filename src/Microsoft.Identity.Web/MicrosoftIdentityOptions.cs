@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Options for configuring Identity Federation options
         /// </summary>
-        public IdentityFederationOptions? IdentityFederationOptions { get; set; }
+        public IdentityFederationOptions? IdentityFederation { get; set; }
 
         /// <summary>
         /// Sets the ResetPassword route path.

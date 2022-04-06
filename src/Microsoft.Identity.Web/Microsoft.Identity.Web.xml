@@ -1749,9 +1749,9 @@
             See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.IdentityFederationOptions">
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.IdentityFederation">
             <summary>
-            
+            Options for configuring Identity Federation options
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath">
