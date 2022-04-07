@@ -8,27 +8,26 @@ using Azure.Identity;
 
 namespace Microsoft.Identity.Web
 {
-    // Do we want to provide this class as product code?
-    // Or change default certificate loader so that it provides it?
-    internal class MsiSignedAssertionProvider : ClientAssertionDescription
+    internal class AzureFederatedTokenProvider : ClientAssertionDescription
     {
-        public MsiSignedAssertionProvider(string userAssignedManagedIdentityClientId)
+        public AzureFederatedTokenProvider(string? federatedClientId)
             : base(null!)
         {
-            this.userAssignedManagedIdentityClientId = userAssignedManagedIdentityClientId;
-            ClientAssertionProvider = GetSignedAssertionFromMsi;
+            _federatedClientId = federatedClientId;
+            ClientAssertionProvider = GetSignedAssertionFromFederatedTokenProvider;
         }
 
-        private string userAssignedManagedIdentityClientId;
+        private readonly string? _federatedClientId;
 
         /// <summary>
         /// Prototype of certificate-less authentication using a signed assertion
         /// acquired with MSI (federated identity).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        private async Task<ClientAssertion> GetSignedAssertionFromMsi(CancellationToken cancellationToken)
+        private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
         {
-            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedManagedIdentityClientId });
+            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
+
             var result = await credential.GetTokenAsync(
                 new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),
                 cancellationToken).ConfigureAwait(false);
