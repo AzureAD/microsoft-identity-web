@@ -135,6 +135,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.IdentityFederation\Microsoft.Identity.Web.IdentityFederation.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>
 
