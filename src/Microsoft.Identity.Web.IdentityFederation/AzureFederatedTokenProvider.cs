@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Prototype of certificate-less authentication using a signed assertion
-        /// acquired with MSI (federated identity).
+        /// acquired with Managed Identity (federated identity).
         /// </summary>
         /// <returns>The signed assertion.</returns>
         private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
