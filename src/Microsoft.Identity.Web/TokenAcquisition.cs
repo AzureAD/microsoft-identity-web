@@ -721,7 +721,7 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.IdentityFederation != null && mergedOptions.IdentityFederation.IsEnabled)
                 {
-                    builder.WithExtraQueryParameters("dc=ESTS-PUB-WUS2-AZ1-FD000-TEST1");
+                    builder.WithExtraQueryParameters("dc=ESTS-PUB-WUS2-AZ1-FD000-TEST2");
                 }
 
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
