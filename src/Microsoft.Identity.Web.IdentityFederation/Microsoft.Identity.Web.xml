@@ -4,12 +4,45 @@
         <name>Microsoft.Identity.Web.IdentityFederation</name>
     </assembly>
     <members>
+        <member name="T:Microsoft.Identity.Web.AzureFederatedTokenProvider">
+            <summary>
+            See https://aka.ms/ms-id-web/identity-federation.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.#ctor(System.String)">
+            <summary>
+            See https://aka.ms/ms-id-web/identity-federation.
+            </summary>
+            <param name="federatedClientId"></param>
+        </member>
         <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.GetSignedAssertionFromFederatedTokenProvider(System.Threading.CancellationToken)">
             <summary>
             Prototype of certificate-less authentication using a signed assertion
             acquired with MSI (federated identity).
             </summary>
             <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AzureFederatedTokenProvider.ClientAssertionProvider">
+            <summary>
+            Delegate to get the client assertion.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.AzureFederatedTokenProvider._clientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.GetSignedAssertion(System.Threading.CancellationToken)">
+            <summary>
+            Get the signed assertion (and refreshes it if needed).
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.AzureFederatedTokenProvider.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.ClientAssertion">
             <summary>
