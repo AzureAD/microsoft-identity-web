@@ -51,7 +51,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -60,15 +60,6 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);DOTNET_STANDARD_20</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
-    <DefineConstants>$(DefineConstants);DOTNET_462</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
