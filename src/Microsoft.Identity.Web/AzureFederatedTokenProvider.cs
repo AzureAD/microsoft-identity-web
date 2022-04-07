@@ -26,15 +26,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
         {
-            DefaultAzureCredential credential;
-            if (!string.IsNullOrEmpty(_federatedClientId))
-            {
-                credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
-            }
-            else
-            {
-                credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-            }
+            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
 
             var result = await credential.GetTokenAsync(
                 new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),
