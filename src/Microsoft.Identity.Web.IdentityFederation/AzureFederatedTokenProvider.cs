@@ -17,6 +17,13 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// See https://aka.ms/ms-id-web/identity-federation.
         /// </summary>
+        public AzureFederatedTokenProvider(): this(null)
+        {           
+        }
+
+        /// <summary>
+        /// See https://aka.ms/ms-id-web/identity-federation.
+        /// </summary>
         /// <param name="federatedClientId"></param>
         public AzureFederatedTokenProvider(string? federatedClientId)
         {
