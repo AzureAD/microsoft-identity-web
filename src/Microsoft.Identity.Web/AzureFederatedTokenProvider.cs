@@ -10,14 +10,14 @@ namespace Microsoft.Identity.Web
 {
     internal class AzureFederatedTokenProvider : ClientAssertionDescription
     {
-        public AzureFederatedTokenProvider(string federatedClientId)
+        public AzureFederatedTokenProvider(string? federatedClientId)
             : base(null!)
         {
             _federatedClientId = federatedClientId;
             ClientAssertionProvider = GetSignedAssertionFromFederatedTokenProvider;
         }
 
-        private readonly string _federatedClientId;
+        private readonly string? _federatedClientId;
 
         /// <summary>
         /// Prototype of certificate-less authentication using a signed assertion
@@ -26,7 +26,16 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
         {
-            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
+            DefaultAzureCredential credential;
+            if (!string.IsNullOrEmpty(_federatedClientId))
+            {
+                credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
+            }
+            else
+            {
+                credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
+            }
+
             var result = await credential.GetTokenAsync(
                 new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),
                 cancellationToken).ConfigureAwait(false);

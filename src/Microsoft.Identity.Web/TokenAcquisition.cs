@@ -753,7 +753,6 @@ namespace Microsoft.Identity.Web
                 if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
                     && mergedOptions.IdentityFederation != null
-                    && !string.IsNullOrWhiteSpace(mergedOptions.IdentityFederation.SubjectIdentifier)
                     && mergedOptions.IdentityFederation.IsEnabled)
                 {
                     builder.WithClientAssertion(new AzureFederatedTokenProvider(mergedOptions.IdentityFederation.SubjectIdentifier).GetSignedAssertion);
