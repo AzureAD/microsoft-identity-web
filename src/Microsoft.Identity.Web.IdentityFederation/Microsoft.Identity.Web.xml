@@ -9,6 +9,11 @@
             See https://aka.ms/ms-id-web/identity-federation.
             </summary>
         </member>
+        <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.#ctor">
+            <summary>
+            See https://aka.ms/ms-id-web/identity-federation.
+            </summary>
+        </member>
         <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.#ctor(System.String)">
             <summary>
             See https://aka.ms/ms-id-web/identity-federation.
@@ -18,7 +23,7 @@
         <member name="M:Microsoft.Identity.Web.AzureFederatedTokenProvider.GetSignedAssertionFromFederatedTokenProvider(System.Threading.CancellationToken)">
             <summary>
             Prototype of certificate-less authentication using a signed assertion
-            acquired with MSI (federated identity).
+            acquired with Managed Identity (federated identity).
             </summary>
             <returns>The signed assertion.</returns>
         </member>
