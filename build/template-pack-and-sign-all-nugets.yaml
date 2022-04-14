@@ -49,12 +49,12 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate'
     AssemblyName: 'Microsoft.Identity.Web.Certificate*'
 
-    # Pack and sign Microsoft.Identity.Web.IdentityFederation
+    # Pack and sign Microsoft.Identity.Web.Certificateless
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.IdentityFederation'
-    AssemblyName: 'Microsoft.Identity.Web.IdentityFederation*'
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
+    AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
 
 # Pack and sign Microsoft.Identity.Web.ProjectTemplates
 - template: template-pack-and-sign-nuget.yaml

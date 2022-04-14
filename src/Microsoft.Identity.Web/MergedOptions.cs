@@ -240,7 +240,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions.UserAssignedManagedIdentityClientId = microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
             }
 
-            mergedOptions.IdentityFederation ??= microsoftIdentityOptions.IdentityFederation;
+            mergedOptions.ClientCredentialsUsingManagedIdentity ??= microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity;
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
             mergedOptions._confidentialClientApplicationOptions = null;
 

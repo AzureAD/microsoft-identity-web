@@ -141,9 +141,9 @@ namespace Microsoft.Identity.Web
         public string? UserAssignedManagedIdentityClientId { get; set; }
 
         /// <summary>
-        /// Options for configuring Identity Federation options
+        /// Options for configuring certificateless
         /// </summary>
-        public IdentityFederationOptions? IdentityFederation { get; set; }
+        public CertificatelessOptions? ClientCredentialsUsingManagedIdentity { get; set; }
 
         /// <summary>
         /// Sets the ResetPassword route path.
