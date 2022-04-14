@@ -4,13 +4,13 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options for configuring Identity Federation options.
-    /// See https://aka.ms/ms-id-web/identity-federation.
+    /// Options for configuring CertificatelessOptions.
+    /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class IdentityFederationOptions
+    public class CertificatelessOptions
     {
         /// <summary>
-        /// Is IdentityFederation enabled?
+        /// Is certificateless enabled?
         /// </summary>
         /// The default is <c>false.</c>
         public bool IsEnabled { get; set; }
@@ -23,6 +23,6 @@ namespace Microsoft.Identity.Web
         /// Can be null if you are using the machine assigned managed identity.
         /// Needs to be assigned if you are using a user assigned managed identity.
         /// </summary>
-        public string? SubjectIdentifier { get; set; }
+        public string? ManagedIdentityObjectId { get; set; }
     }
 }

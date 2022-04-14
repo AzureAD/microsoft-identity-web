@@ -10,37 +10,37 @@ using Azure.Identity;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// See https://aka.ms/ms-id-web/identity-federation.
+    /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class AzureFederatedTokenProvider
+    public class ManagedIdentityClientAssertion
     {
         /// <summary>
-        /// See https://aka.ms/ms-id-web/identity-federation.
+        /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        public AzureFederatedTokenProvider(): this(null)
+        public ManagedIdentityClientAssertion(): this(null)
         {           
         }
 
         /// <summary>
-        /// See https://aka.ms/ms-id-web/identity-federation.
+        /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        /// <param name="federatedClientId"></param>
-        public AzureFederatedTokenProvider(string? federatedClientId)
+        /// <param name="managedIdentityClientId"></param>
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
-            _federatedClientId = federatedClientId;
+            _managedIdentityClientId = managedIdentityClientId;
             ClientAssertionProvider = GetSignedAssertionFromFederatedTokenProvider;
         }
 
-        private readonly string? _federatedClientId;
+        private readonly string? _managedIdentityClientId;
 
         /// <summary>
         /// Prototype of certificate-less authentication using a signed assertion
-        /// acquired with Managed Identity (federated identity).
+        /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
         private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
         {
-            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _federatedClientId });
+            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _managedIdentityClientId });
 
             var result = await credential.GetTokenAsync(
                 new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),

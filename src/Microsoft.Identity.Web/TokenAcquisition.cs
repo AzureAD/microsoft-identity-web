@@ -719,7 +719,7 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
-                if (mergedOptions.IdentityFederation != null && mergedOptions.IdentityFederation.IsEnabled)
+                if (mergedOptions.ClientCredentialsUsingManagedIdentity != null && mergedOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
                 {
                     builder.WithExtraQueryParameters("dc=ESTS-PUB-WUS2-AZ1-FD000-TEST2");
                 }
@@ -752,10 +752,10 @@ namespace Microsoft.Identity.Web
                 // managed identity was set. In that case we leverage the MsiSignedAssertion to be cert-less.
                 if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
-                    && mergedOptions.IdentityFederation != null
-                    && mergedOptions.IdentityFederation.IsEnabled)
+                    && mergedOptions.ClientCredentialsUsingManagedIdentity != null
+                    && mergedOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
                 {
-                    builder.WithClientAssertion(new AzureFederatedTokenProvider(mergedOptions.IdentityFederation.SubjectIdentifier).GetSignedAssertion);
+                    builder.WithClientAssertion(new ManagedIdentityClientAssertion(mergedOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

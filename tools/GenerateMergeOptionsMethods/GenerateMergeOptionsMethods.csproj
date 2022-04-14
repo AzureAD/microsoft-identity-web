@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Microsoft.Identity.Web.IdentityFederation\ClientAssertion.cs" Link="ClientAssertion.cs" />
-    <Compile Include="..\..\src\Microsoft.Identity.Web.IdentityFederation\ClientAssertionDescription.cs" Link="ClientAssertionDescription.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web.Certificateless\ClientAssertion.cs" Link="ClientAssertion.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web.Certificateless\ClientAssertionDescription.cs" Link="ClientAssertionDescription.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\MicrosoftIdentityOptions.cs" Link="OptionClasses\MicrosoftIdentityOptions.cs" />
@@ -35,8 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.IdentityFederation\Microsoft.Identity.Web.IdentityFederation.csproj" />
   </ItemGroup>
   
 </Project>

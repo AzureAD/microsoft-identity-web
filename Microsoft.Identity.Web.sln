@@ -134,7 +134,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.IdentityFederation", "src\Microsoft.Identity.Web.IdentityFederation\Microsoft.Identity.Web.IdentityFederation.csproj", "{01AA87C9-75BB-42DE-A71E-2932229224B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificateless", "src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj", "{01AA87C9-75BB-42DE-A71E-2932229224B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
