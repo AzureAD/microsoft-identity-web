@@ -96,12 +96,14 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
+                AuthenticationScheme = AuthenticationScheme,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
                 PoPConfiguration = PoPConfiguration,
                 CancellationToken = CancellationToken,
+                LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };
         }
     }
