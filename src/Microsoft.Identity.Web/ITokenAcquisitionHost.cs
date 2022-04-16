@@ -7,11 +7,8 @@ namespace Microsoft.Identity.Web
 {
     internal interface ITokenAcquisitionHost
     {
-        MergedOptions GetOptions(string authenticationScheme);
+        MergedOptions GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme);
 
-        // TODO: discuss if we don't want to merge with GetOptions
-        void ProcessOptionsForAnonymousControllers(string authenticationScheme, MergedOptions mergedOptions);
-        
         void SetSession(string key, string value);
         string GetEffectiveAuthenticationScheme(string? authenticationScheme);
         string? GetCurrentRedirectUri(MergedOptions mergedOptions);

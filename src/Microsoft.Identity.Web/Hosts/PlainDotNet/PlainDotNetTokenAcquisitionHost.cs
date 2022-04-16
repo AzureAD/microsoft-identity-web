@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Globalization;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -26,7 +28,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         Task<ClaimsPrincipal?> ITokenAcquisitionHost.GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
-            return null;
+            return Task.FromResult<ClaimsPrincipal?>(null);
         }
 
         string? ITokenAcquisitionHost.GetCurrentRedirectUri(MergedOptions mergedOptions)
@@ -39,9 +41,10 @@ namespace Microsoft.Identity.Web.Hosts
             return authenticationScheme!;
         }
 
-        MergedOptions ITokenAcquisitionHost.GetOptions(string authenticationScheme)
+        MergedOptions ITokenAcquisitionHost.GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme)
         {
             var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
+            effectiveAuthenticationScheme = authenticationScheme;
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(
              /*authenticationScheme == null ? _optionsMonitor.CurrentValue :*/ _optionsMonitor.Get(authenticationScheme),
              mergedOptions);
@@ -58,10 +61,6 @@ namespace Microsoft.Identity.Web.Hosts
         ClaimsPrincipal? ITokenAcquisitionHost.GetUserFromRequest()
         {
             return null;
-        }
-
-        void ITokenAcquisitionHost.ProcessOptionsForAnonymousControllers(string authenticationScheme, MergedOptions mergedOptions)
-        {
         }
 
         void ITokenAcquisitionHost.SetHttpResponse(HttpStatusCode statusCode, string wwwAuthenticate)

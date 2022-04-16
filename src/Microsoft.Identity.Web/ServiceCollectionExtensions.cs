@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null)
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
                 {

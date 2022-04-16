@@ -265,65 +265,6 @@
              </code>
              </example>
         </member>
-        <member name="T:Microsoft.Identity.Web.ClientAssertion">
-            <summary>
-            Client assertion.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClientAssertion.#ctor(System.String,System.Nullable{System.DateTimeOffset})">
-            <summary>
-            Constructor of a ClientAssertion, which can be used instead
-            of a client secret or client certificates to authenticate the
-            confidential client application. See https://aka.ms/ms-id-web/client-assertions.
-            </summary>
-            <param name="signedAssertion">Signed assertion.</param>
-            <param name="expiry">Optional expiry.</param>
-        </member>
-        <member name="P:Microsoft.Identity.Web.ClientAssertion.SignedAssertion">
-            <summary>
-            Signed assertion.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.ClientAssertion.Expiry">
-            <summary>
-            Expiry of the client assertion.
-            </summary>
-        </member>
-        <member name="T:Microsoft.Identity.Web.ClientAssertionDescription">
-            <summary>
-            Description of a client assertion in the application configuration.
-            See https://aka.ms/ms-id-web/client-assertions.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{Microsoft.Identity.Web.ClientAssertion}})">
-            <summary>
-            Constructor of a ClientAssertionDescription.
-            </summary>
-            <param name="clientAssertionProvider">delegate providing the client assertion
-            when it is necessary.</param>
-        </member>
-        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.ClientAssertionProvider">
-            <summary>
-            delegate to get the client assertion.
-            </summary>
-        </member>
-        <member name="F:Microsoft.Identity.Web.ClientAssertionDescription._clientAssertion">
-            <summary>
-            Client assertion.
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.GetSignedAssertion(System.Threading.CancellationToken)">
-            <summary>
-            Get the signed assertion (and refreshes it if needed).
-            </summary>
-            <param name="cancellationToken">Cancellation token.</param>
-            <returns>The signed assertion.</returns>
-        </member>
-        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.Expiry">
-            <summary>
-            Expiry of the client assertion.
-            </summary>
-        </member>
         <member name="T:Microsoft.Identity.Web.ClaimConstants">
             <summary>
             Constants for claim types.
@@ -529,6 +470,25 @@
             Reference: https://www.chromium.org/updates/same-site/incompatible-clients.
             </remarks>
             <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory">
+            <summary>
+            The default implementation of <see cref="T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory"/>.
+            </summary>
+            <param name="serviceProvider">
+            The <see cref="T:System.IServiceProvider"/> to resolve dependencies from.
+            </param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateAppHandler(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateUserHandler(System.String)">
+            <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApi">
             <summary>
@@ -934,6 +894,38 @@
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory">
+            <summary>
+            Interface to a class that provides the <see cref="T:System.Net.Http.DelegatingHandler"/> that
+            adds an authorization header with a token for the application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateAppHandler(System.String)">
+            <summary>
+            Creates an instance of a <see cref="T:System.Net.Http.DelegatingHandler"/> that adds
+            an authorization header with a token for an application.
+            </summary>
+            <param name="serviceName">
+            Name of the service describing the downstream web API. Used to
+            retrieve the appropriate config section.
+            </param>
+            <returns>
+            The <see cref="T:System.Net.Http.DelegatingHandler"/>.
+            </returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateUserHandler(System.String)">
+            <summary>
+            Creates an instance of a <see cref="T:System.Net.Http.DelegatingHandler"/> that adds
+            an authorization header with a token on behalf of the current user.
+            </summary>
+            <param name="serviceName">
+            Name of the service describing the downstream web API. Used to
+            retrieve the appropriate config section.
+            </param>
+            <returns>
+            The <see cref="T:System.Net.Http.DelegatingHandler"/>.
+            </returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler">
             <summary>
             A DelegatingHandler implementation that add an authorization header with a token for the application.
@@ -1066,6 +1058,19 @@
             <param name="serviceName">Name of the configuration for the service.</param>
             <param name="configureOptions">Action to configure the options.</param>
             <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAuthenticationHandlerCore(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Func{Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory,System.Net.Http.DelegatingHandler})">
+            <summary>
+            Adds the common configuration for message handlers.
+            </summary>
+            <param name="builder">
+            The <see cref="T:Microsoft.Extensions.DependencyInjection.IHttpClientBuilder"/> to configure.
+            </param>
+            <param name="configureHandler">
+            A Func that takes the <see cref="T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory"/> and returns
+            the <see cref="T:System.Net.Http.DelegatingHandler"/>. This func allows us to reuse the logic to add message handlers,
+            while allowing the caller to decide if it needs an app handler or a user handler.
+            </param>
         </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions">
             <summary>
@@ -1655,6 +1660,11 @@
             See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCredentialsUsingManagedIdentity">
+            <summary>
+            Options for configuring certificateless
+            </summary>
+        </member>
         <member name="P:Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath">
             <summary>
             Sets the ResetPassword route path.
@@ -1698,13 +1708,6 @@
             <param name="msalUiRequiredException">Exception thrown by MSAL when a user challenge is encountered.</param>
             <param name="scopes">Scopes to request.</param>
             <param name="userflow">Userflow used in B2C.</param>
-        </member>
-        <member name="M:Microsoft.Identity.Web.MsiSignedAssertionProvider.GetSignedAssertionFromMsi(System.Threading.CancellationToken)">
-            <summary>
-            Prototype of certificate-less authentication using a signed assertion
-            acquired with MSI (federated identity).
-            </summary>
-            <returns>The signed assertion.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.IAuthRequiredScopeMetadata">
             <summary>
@@ -2920,7 +2923,7 @@
             (by default OpenIdConnectDefaults.AuthenticationScheme). This can be specified when you want to support
             several OpenIdConnect identity providers.</param>
             <param name="cookieScheme">Optional name for the cookie authentication scheme
-            (by default OpenIdConnectDefaults.AuthenticationScheme).</param>
+            (by default CookieAuthenticationDefaults.AuthenticationScheme).</param>
             <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenIdConnect events.</param>
             <param name="displayName">A display name for the authentication handler.</param>
             <returns>The authentication builder to chain extension methods.</returns>

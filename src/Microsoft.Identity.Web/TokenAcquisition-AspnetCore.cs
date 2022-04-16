@@ -92,8 +92,7 @@ namespace Microsoft.Identity.Web
                 throw msalServiceException;
             }
 
-            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 

@@ -50,6 +50,7 @@ namespace Microsoft.Identity.Web
         public const string ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. ";
         public const string MicrosoftIdentityWebChallengeUserException = "IDW10502: An MsalUiRequiredException was thrown due to a challenge for the user. " +
            "See https://aka.ms/ms-id-web/ca_incremental-consent. ";
+        public const string ProvidedAuthenticationSchemeIsIncorrect = "IDW10503: Cannot determine the cloud Instance. The provided authentication scheme was '{0}'. Microsoft.Identity.Web inferred '{1}' as the authentication scheme. Available authentication schemes are '{2}'. See https://aka.ms/id-web/authSchemes. ";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";
@@ -58,7 +59,7 @@ namespace Microsoft.Identity.Web
         public const string OnlyPkcs12IsSupported = "IDW10701: Only PKCS #12 content type is supported. Found Content-Type: {0}. ";
         public const string IncorrectNumberOfUriSegments = "IDW10702: Number of URI segments is incorrect: {0}, URI: {1}. ";
         public const string InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. " +
-            "StoreLocation must be one of 'CurrentUser', 'CurrentMachine'. " +
+            "StoreLocation must be one of 'CurrentUser', 'LocalMachine'. " +
             "StoreName must be empty or one of '{0}'. ";
 
         // Obsolete messages IDW10800 = "IDW10800:"

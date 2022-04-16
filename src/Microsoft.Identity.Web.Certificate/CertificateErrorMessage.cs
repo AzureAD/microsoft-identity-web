@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         public const string OnlyPkcs12IsSupported = "IDW10701: Only PKCS #12 content type is supported. Found Content-Type: {0}. ";
         public const string IncorrectNumberOfUriSegments = "IDW10702: Number of URI segments is incorrect: {0}, URI: {1}. ";
         public const string InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. " +
-            "StoreLocation must be one of 'CurrentUser', 'CurrentMachine'. " +
+            "StoreLocation must be one of 'CurrentUser', 'LocalMachine'. " +
             "StoreName must be empty or one of '{0}'. ";
 
         // Obsolete messages IDW10800 = "IDW10800:"

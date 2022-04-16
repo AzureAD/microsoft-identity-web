@@ -35,19 +35,26 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraphBeta*'
 
-# Pack and sign Microsoft.Identity.TokenCache
+# Pack and sign Microsoft.Identity.Web.TokenCache
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache'
     AssemblyName: 'Microsoft.Identity.Web.TokenCache*'
 
-# Pack and sign Microsoft.Identity.Certificate
+# Pack and sign Microsoft.Identity.Web.Certificate
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate'
     AssemblyName: 'Microsoft.Identity.Web.Certificate*'
+
+    # Pack and sign Microsoft.Identity.Web.Certificateless
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
+    AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
 
 # Pack and sign Microsoft.Identity.Web.ProjectTemplates
 - template: template-pack-and-sign-nuget.yaml

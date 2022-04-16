@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -50,47 +52,54 @@ namespace Microsoft.Identity.Web
             _serviceProvider = serviceProvider;
         }
 
-        public MergedOptions GetOptions(string authenticationScheme)
+        public MergedOptions GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme)
         {
-            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
+            effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
 
-            // THIS IS A CHANGE: @jennyf19. Let's discuss if we want to merge this with
-            // ProcessOptionsForAnonymousControllers() below
-            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
-            if (string.IsNullOrEmpty(mergedOptions.ClientId))
-            {
-                var microsoftIdentityOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>();
-                var microsoftIdentityOptions = microsoftIdentityOptionsMonitor?.Get(authenticationScheme);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptions, mergedOptions);
-            }
+            var mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
 
             if (!mergedOptions.MergedWithCca)
             {
-                var ccaOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
-                ccaOptionsMonitor?.Get(authenticationScheme);
-                var bearerMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>(); // supports event handlers
-                bearerMonitor?.Get(authenticationScheme);
+                _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
+            }
+
+            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
+            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                JwtBearerOptions? jwtBearerOptions = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>()?.Get(effectiveAuthenticationScheme); // supports event handlers
+                if (jwtBearerOptions != null)
+                {
+                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(jwtBearerOptions, mergedOptions);
+                }
+            }
+
+            // Case of an anonymous controller called from a web app
+            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>()?.Get(effectiveAuthenticationScheme);
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                MicrosoftIdentityOptions? microsoftIdentityOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>()?.Get(effectiveAuthenticationScheme);
+                if (microsoftIdentityOptions != null)
+                {
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptions, mergedOptions);
+                }
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                var availableSchemes = _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetAllSchemesAsync()?.Result?.Select(a => a.Name);
+                string msg = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect,
+                    authenticationScheme, effectiveAuthenticationScheme, availableSchemes != null ? string.Join(",", availableSchemes) : string.Empty);
+                throw new InvalidOperationException(msg);
             }
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 
-        public void ProcessOptionsForAnonymousControllers(string? authenticationScheme, MergedOptions mergedOptions)
-        {
-            // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
-            if (string.IsNullOrEmpty(mergedOptions.Instance))
-            {
-                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>();
-                mergedOptionsMonitor?.Get(authenticationScheme);
-            }
-            // Case of an anonymous controller called from a web app
-            if (string.IsNullOrEmpty(mergedOptions.Instance))
-            {
-                var mergedOptionsMonitor = _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>();
-                mergedOptionsMonitor?.Get(authenticationScheme);
-            }
-        }
 
         public void SetSession(string key, string value)
         {
@@ -153,7 +162,7 @@ namespace Microsoft.Identity.Web
 
         public void SetHttpResponse(HttpStatusCode statusCode, string wwwAuthenticate)
         {
-            var httpResponse  = CurrentHttpContext?.Response;
+            var httpResponse = CurrentHttpContext?.Response;
             if (httpResponse == null)
             {
                 throw new InvalidOperationException(IDWebErrorMessage.HttpContextAndHttpResponseAreNull);

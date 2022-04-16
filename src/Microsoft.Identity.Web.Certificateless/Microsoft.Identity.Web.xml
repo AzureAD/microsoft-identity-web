@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Identity.Web.Certificateless</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Identity.Web.CertificatelessOptions">
+            <summary>
+            Options for configuring CertificatelessOptions.
+            See https://aka.ms/ms-id-web/certificateless.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificatelessOptions.IsEnabled">
+            <summary>
+            Is certificateless enabled?
+            </summary>
+            The default is <c>false.</c>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificatelessOptions.ManagedIdentityObjectId">
+            <summary>
+            The value is used to establish a connection between external workload identities
+            and Azure Active Directory. If Azure AD is the issuer, this value should be the object
+            ID of the managed identity service principal in the tenant that will be used to 
+            impersonate the app.
+            Can be null if you are using the machine assigned managed identity.
+            Needs to be assigned if you are using a user assigned managed identity.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertion.#ctor(System.String,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Constructor of a ClientAssertion, which can be used instead
+            of a client secret or client certificates to authenticate the
+            confidential client application. See https://aka.ms/ms-id-web/client-assertions.
+            </summary>
+            <param name="signedAssertion">Signed assertion.</param>
+            <param name="expiry">Optional expiry.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertion.SignedAssertion">
+            <summary>
+            Signed assertion.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertion.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ClientAssertionDescription">
+            <summary>
+            Description of a client assertion in the application configuration.
+            See https://aka.ms/ms-id-web/client-assertions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{Microsoft.Identity.Web.ClientAssertion}})">
+            <summary>
+            Constructor of a ClientAssertionDescription.
+            </summary>
+            <param name="clientAssertionProvider">delegate providing the client assertion
+            when it is necessary.</param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.ClientAssertionProvider">
+            <summary>
+            delegate to get the client assertion.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ClientAssertionDescription._clientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ClientAssertionDescription.GetSignedAssertion(System.Threading.CancellationToken)">
+            <summary>
+            Get the signed assertion (and refreshes it if needed).
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ClientAssertionDescription.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ManagedIdentityClientAssertion">
+            <summary>
+            See https://aka.ms/ms-id-web/certificateless.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ManagedIdentityClientAssertion.#ctor">
+            <summary>
+            See https://aka.ms/ms-id-web/certificateless.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ManagedIdentityClientAssertion.#ctor(System.String)">
+            <summary>
+            See https://aka.ms/ms-id-web/certificateless.
+            </summary>
+            <param name="managedIdentityClientId"></param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ManagedIdentityClientAssertion.GetSignedAssertionFromFederatedTokenProvider(System.Threading.CancellationToken)">
+            <summary>
+            Prototype of certificate-less authentication using a signed assertion
+            acquired with managed identity (certificateless).
+            </summary>
+            <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ManagedIdentityClientAssertion.ClientAssertionProvider">
+            <summary>
+            Delegate to get the client assertion.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Identity.Web.ManagedIdentityClientAssertion._clientAssertion">
+            <summary>
+            Client assertion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ManagedIdentityClientAssertion.GetSignedAssertion(System.Threading.CancellationToken)">
+            <summary>
+            Get the signed assertion (and refreshes it if needed).
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The signed assertion.</returns>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ManagedIdentityClientAssertion.Expiry">
+            <summary>
+            Expiry of the client assertion.
+            </summary>
+        </member>
+    </members>
+</doc>

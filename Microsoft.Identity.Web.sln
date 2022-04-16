@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.1.32228.430
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web", "src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj", "{FD55C071-48D1-4FE8-8B1D-773E067FEC91}"
 EndProject
@@ -149,6 +149,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApi", "tests\aspnet-mvc\OwinWebApi\OwinWebApi.csproj", "{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition.Abstractions", "src\Microsoft.Identity.Web.TokenAcquisition.Abstractions\Microsoft.Identity.Web.TokenAcquisition.Abstractions.csproj", "{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificateless", "src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj", "{01AA87C9-75BB-42DE-A71E-2932229224B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -332,6 +334,10 @@ Global
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

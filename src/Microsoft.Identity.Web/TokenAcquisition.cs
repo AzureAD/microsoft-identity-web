@@ -95,8 +95,11 @@ namespace Microsoft.Identity.Web
 
         public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(IEnumerable<string> scopes, string authCode, string authenticationScheme, string? clientInfo, string? codeVerifier, string? userFlow)
         {
-            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
+            if (scopes == null)
+            {
+                throw new ArgumentNullException(nameof(scopes));
+            }
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out string effectiveAuthenticationScheme);
 
             try
             {
@@ -199,14 +202,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(scopes));
             }
 
-            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
-
-            if (string.IsNullOrEmpty(mergedOptions.Instance))
-            {
-                var mergedOptionsMonitor = _serviceProvider.GetRequiredService<IOptionsMonitor<ConfidentialClientApplicationOptions>>();
-                mergedOptionsMonitor.Get(authenticationScheme);
-            }
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
             user = await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
@@ -312,12 +308,8 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
-
-            // Question for Jenny: Shall we merge inside GetOptions?
-            _tokenAcquisitionHost.ProcessOptionsForAnonymousControllers(authenticationScheme, mergedOptions);
 
             if (string.IsNullOrEmpty(tenant))
             {
@@ -453,8 +445,7 @@ namespace Microsoft.Identity.Web
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
             {
-                authenticationScheme = _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
-                MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme);
+                MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
                 IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication(mergedOptions);
 
@@ -523,6 +514,11 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
+                if (mergedOptions.ClientCredentialsUsingManagedIdentity != null && mergedOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
+                {
+                    builder.WithExtraQueryParameters("dc=ESTS-PUB-WUS2-AZ1-FD000-TEST2");
+                }
+
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
                 {
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
@@ -551,9 +547,10 @@ namespace Microsoft.Identity.Web
                 // managed identity was set. In that case we leverage the MsiSignedAssertion to be cert-less.
                 if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
                     && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
-                    && !string.IsNullOrWhiteSpace(mergedOptions.UserAssignedManagedIdentityClientId))
+                    && mergedOptions.ClientCredentialsUsingManagedIdentity != null
+                    && mergedOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
                 {
-                    builder.WithClientAssertion(new MsiSignedAssertionProvider(mergedOptions.UserAssignedManagedIdentityClientId!).GetSignedAssertion);
+                    builder.WithClientAssertion(new ManagedIdentityClientAssertion(mergedOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId).GetSignedAssertion);
                 }
 
                 if (mergedOptions.ClientCertificates != null)

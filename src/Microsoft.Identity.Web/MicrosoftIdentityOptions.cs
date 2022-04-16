@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.IdentityModel.Protocols;
@@ -182,6 +181,11 @@ namespace Microsoft.Identity.Web
         /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
         /// </summary>
         public string? UserAssignedManagedIdentityClientId { get; set; }
+
+        /// <summary>
+        /// Options for configuring certificateless
+        /// </summary>
+        public CertificatelessOptions? ClientCredentialsUsingManagedIdentity { get; set; }
 
         /// <summary>
         /// Sets the ResetPassword route path.

@@ -196,6 +196,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
 
+            mergedOptions.ClientCredentialsUsingManagedIdentity ??= microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity;
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
 
             mergedOptions.Scope.Clear();
