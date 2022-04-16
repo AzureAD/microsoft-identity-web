@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard13</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard13;net472</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
