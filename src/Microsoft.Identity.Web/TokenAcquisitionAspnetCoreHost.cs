@@ -115,9 +115,20 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                return _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
-                    ((CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
-                    ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme);
+                IAuthenticationSchemeProvider authenticationSchemeProvider = _serviceProvider.GetService<IAuthenticationSchemeProvider>();
+                if (authenticationSchemeProvider != null)
+                {
+                    return authenticationSchemeProvider?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??
+                        ((CurrentHttpContext?.GetTokenUsedToCallWebAPI() != null)
+                        ? JwtBearerDefaults.AuthenticationScheme : OpenIdConnectDefaults.AuthenticationScheme);
+                }
+
+                // Will never happen in ASP.NET Core web app, web APIs where services.AddAuthentication is added
+                // This will happen in ASP.NET Core daemons
+                else
+                {
+                    return String.Empty;
+                }
             }
         }
 

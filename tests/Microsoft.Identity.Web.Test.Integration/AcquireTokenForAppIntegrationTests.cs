@@ -264,7 +264,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                  _provider.GetService<ILogger<TokenAcquisition>>(),
                  tokenAcquisitionAspnetCoreHost,
                  _provider);
-            tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme);
+            tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _);
         }
 
         private void BuildTheRequiredServices()
@@ -286,6 +286,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme);
             services.AddTransient(
                 provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(

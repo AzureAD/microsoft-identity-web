@@ -120,10 +120,6 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
-            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
-            {
-                mergedOptions.Instance = microsoftIdentityOptions.Instance;
-            }
 
             mergedOptions.MaxAge = microsoftIdentityOptions.MaxAge;
             if (string.IsNullOrEmpty(mergedOptions.MetadataAddress) && !string.IsNullOrEmpty(microsoftIdentityOptions.MetadataAddress))
@@ -142,7 +138,6 @@ namespace Microsoft.Identity.Web
 #if DOTNET_50_AND_ABOVE
             mergedOptions.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
 #endif
-
             mergedOptions.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
             mergedOptions.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
             mergedOptions.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
@@ -212,6 +207,10 @@ namespace Microsoft.Identity.Web
 #endif
 #endif
             // Non ASP.NET Core specific
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
+            {
+                mergedOptions.Instance = microsoftIdentityOptions.Instance;
+            }
             mergedOptions.ResetPasswordPath = microsoftIdentityOptions.ResetPasswordPath;
             mergedOptions.ErrorPath = microsoftIdentityOptions.ErrorPath;
             mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;

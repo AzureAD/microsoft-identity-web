@@ -31,11 +31,19 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
-                    Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
-                    Assert.Equal(typeof(TokenAcquisition), actual.ImplementationType);
+                    Assert.Equal(typeof(ITokenAcquirer), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
-                    Assert.Null(actual.ImplementationFactory);
+                    Assert.NotNull(actual.ImplementationFactory);
                 },
+               actual =>
+               {
+                   Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                   Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
+                   Assert.Equal(typeof(TokenAcquisition), actual.ImplementationType);
+                   Assert.Null(actual.ImplementationInstance);
+                   Assert.Null(actual.ImplementationFactory);
+               },
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);

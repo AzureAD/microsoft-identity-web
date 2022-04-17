@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Hosts
     internal class PlainDotNetTokenAcquisitionHost : ITokenAcquisitionHost
     {
 
-        IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
+        IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
 
@@ -21,53 +21,57 @@ namespace Microsoft.Identity.Web.Hosts
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor)
         {
-            _optionsMonitor = optionsMonitor;
+            _microsoftIdentityOptionsMonitor = optionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
         }
 
-        Task<ClaimsPrincipal?> ITokenAcquisitionHost.GetAuthenticatedUserAsync(ClaimsPrincipal? user)
+        public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
             return Task.FromResult<ClaimsPrincipal?>(null);
         }
 
-        string? ITokenAcquisitionHost.GetCurrentRedirectUri(MergedOptions mergedOptions)
+        public string? GetCurrentRedirectUri(MergedOptions mergedOptions)
         {
             return null;
         }
 
-        string ITokenAcquisitionHost.GetEffectiveAuthenticationScheme(string? authenticationScheme)
+        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
-            return authenticationScheme!;
+            return authenticationScheme ?? string.Empty;
         }
 
-        MergedOptions ITokenAcquisitionHost.GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme)
+        public MergedOptions GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme)
         {
-            var mergedOptions = _mergedOptionsMonitor.Get(authenticationScheme);
-            effectiveAuthenticationScheme = authenticationScheme;
-            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(
-             /*authenticationScheme == null ? _optionsMonitor.CurrentValue :*/ _optionsMonitor.Get(authenticationScheme),
-             mergedOptions);
+            effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
+            var mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
+
+            if (!mergedOptions.MergedWithCca)
+            {
+                _ccaOptionsMonitor.Get(effectiveAuthenticationScheme);
+            }
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme), mergedOptions);
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 
-        SecurityToken? ITokenAcquisitionHost.GetTokenUsedToCallWebAPI()
+        public SecurityToken? GetTokenUsedToCallWebAPI()
         {
             return null;
         }
 
-        ClaimsPrincipal? ITokenAcquisitionHost.GetUserFromRequest()
+        public ClaimsPrincipal? GetUserFromRequest()
         {
             return null;
         }
 
-        void ITokenAcquisitionHost.SetHttpResponse(HttpStatusCode statusCode, string wwwAuthenticate)
+        public void SetHttpResponse(HttpStatusCode statusCode, string wwwAuthenticate)
         {
         }
 
-        void ITokenAcquisitionHost.SetSession(string key, string value)
+        public void SetSession(string key, string value)
         {
         }
     }

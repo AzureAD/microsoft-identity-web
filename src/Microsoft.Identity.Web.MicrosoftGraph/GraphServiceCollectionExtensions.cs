@@ -9,8 +9,17 @@ using Microsoft.Graph;
 
 namespace Microsoft.Identity.Web
 {
+    /// <summary>
+    /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
+    /// to add support to call Microsoft Graph.
+    /// </summary>
     public static class GraphServiceCollectionExtensions
     {
+        /// <summary>
+        /// Add support to call Microsoft Graph. From a named option and a configuration section.
+        /// </summary>
+        /// <param name="services">Builder.</param>
+        /// <returns>The service collection to chain.</returns>
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services)
         {
             services.AddTokenAcquisition();
@@ -18,6 +27,12 @@ namespace Microsoft.Identity.Web
             return services.AddMicrosoftGraph(options => { });
         }
 
+        /// <summary>
+        /// Add support to call Microsoft Graph. From a base Graph URL and a default scope.
+        /// </summary>
+        /// <param name="services">Builder.</param>
+        /// <param name="configureMicrosoftGraphOptions">Delegate to configure the graph service options</param>
+        /// <returns>The service collection to chain.</returns>
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, Action<MicrosoftGraphOptions> configureMicrosoftGraphOptions)
         {
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests

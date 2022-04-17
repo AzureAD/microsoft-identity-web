@@ -22,8 +22,8 @@ namespace daemon_console
         {
             var builder = WebApplication.CreateBuilder(args);
             var services = builder.Services;
-
-            services.Configure<MicrosoftIdentityOptions>("OpenIdConnect", option => builder.Configuration.Bind(option));
+            
+            services.Configure<MicrosoftIdentityOptions>(option => builder.Configuration.Bind(option));
             services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
 
             // Add a cache
