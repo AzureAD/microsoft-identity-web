@@ -5,20 +5,24 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using Microsoft.Graph;
 using Microsoft.Identity.Web;
 
 namespace OwinWebApi.Controllers
 {
     [Authorize]
-    public class ValuesController : ApiController
+    public class TodoListController : ApiController
     {
         // GET api/values
         public IEnumerable<string> Get()
         {
-            ITokenAcquisition tokenAcquisition = HttpContext.Current.GetTokenAcquisition();
             GraphServiceClient graphServiceClient = HttpContext.Current.GetGraphServiceClient();
+            var me = graphServiceClient.Me.Request().GetAsync().GetAwaiter().GetResult();
 
-            return new string[] { "value1", "value2" };
+            return new string[] { "value1", "value2", me.DisplayName };
+
+            //ITokenAcquisition tokenAcquisition = HttpContext.Current.GetTokenAcquisition();
+
         }
 
         // GET api/values/5
