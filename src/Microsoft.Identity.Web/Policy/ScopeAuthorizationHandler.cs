@@ -81,14 +81,18 @@ namespace Microsoft.Identity.Web
                 return Task.CompletedTask;
             }
 
-            Claim? scopeClaim = context.User.FindFirst(ClaimConstants.Scp) ?? context.User.FindFirst(ClaimConstants.Scope);
+            var scopeClaims = context.User.FindAll(ClaimConstants.Scp)
+              .Union(context.User.FindAll(ClaimConstants.Scope))
+              .ToList();
 
-            if (scopeClaim is null)
+            if (!scopeClaims.Any())
             {
                 return Task.CompletedTask;
             }
 
-            if (scopeClaim != null && scopeClaim.Value.Split(' ').Intersect(scopes).Any())
+            var hasScope = scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
+
+            if (hasScope)
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;
