@@ -1,20 +1,22 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Hosts
 {
-    internal class PlainDotNetTokenAcquisitionHost : ITokenAcquisitionHost
+    internal class OwinTokenAcquisitionHost : ITokenAcquisitionHost
     {
 
         IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
 
-        public PlainDotNetTokenAcquisitionHost(
+        public OwinTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor)
@@ -57,12 +59,15 @@ namespace Microsoft.Identity.Web.Hosts
 
         public SecurityToken? GetTokenUsedToCallWebAPI()
         {
-            return null;
+            object o = (HttpContext.Current.User.Identity as ClaimsIdentity)?.BootstrapContext;
+
+            // TODO: do better as this won't do for JWE and wastes time. The token was already decrypted.
+            return new JsonWebToken(o as string);
         }
 
         public ClaimsPrincipal? GetUserFromRequest()
         {
-            return null;
+            return HttpContext.Current.User as ClaimsPrincipal;
         }
 
         public void SetHttpResponse(HttpStatusCode statusCode, string wwwAuthenticate)
