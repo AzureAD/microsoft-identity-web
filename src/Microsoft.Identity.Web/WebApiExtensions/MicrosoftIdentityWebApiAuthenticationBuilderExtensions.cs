@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
@@ -240,7 +241,8 @@ namespace Microsoft.Identity.Web
                                 || x.Type == ClaimConstants.Roles
                                 || x.Type == ClaimConstants.Role))
                         {
-                            throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
+                            throw new UnauthorizedAccessException(string.Format(CultureInfo.InvariantCulture,
+                                IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken, jwtBearerScheme));
                         }
 
                         await tokenValidatedHandler(context).ConfigureAwait(false);
