@@ -1,3 +1,23 @@
+1.24.0
+==========
+Update to Microsoft.IdentityModel 6.17.0.
+
+### New Features:
+**Preview only. Support cert-less authentication**. See issues [#1591](https://github.com/AzureAD/microsoft-identity-web/issues/1591) and [#1699](https://github.com/AzureAD/microsoft-identity-web/issues/1699) for details.
+
+**Improved support for inheriting/customizing `MicrosoftIdentity*AuthenticationHandler`**. See issue [#1667](https://github.com/AzureAD/microsoft-identity-web/issues/1667) for details.
+
+### Bug Fixes:
+**Fix a regression in ScopeAuthorizationHandler**. See issue [#1707](https://github.com/AzureAD/microsoft-identity-web/issues/1707) for details.
+
+**Fix null ref in merged options and log the AuthenticationScheme that was used**. See issues [#1440](https://github.com/AzureAD/microsoft-identity-web/issues/1440) and [#1443](https://github.com/AzureAD/microsoft-identity-web/issues/1443) for details.
+
+**Fix xml parameter description**. See issue [#1677](https://github.com/AzureAD/microsoft-identity-web/issues/1677) for details.
+
+**Fix reading environment variable in app service auth**. See issue [#1506](https://github.com/AzureAD/microsoft-identity-web/issues/1506) for details.
+
+**Fix error message in DefaultCertficateLoader**. See issue [#1702](https://github.com/AzureAD/microsoft-identity-web/issues/1702) for details.
+
 1.23.1
 ==========
 Update to MSAL.NET 4.42.0.
