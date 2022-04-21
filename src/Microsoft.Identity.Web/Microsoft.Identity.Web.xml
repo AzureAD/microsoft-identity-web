@@ -2251,7 +2251,7 @@
              </code>
              </example>
         </member>
-        <member name="F:Microsoft.Identity.Web.TokenAcquisition._application">
+        <member name="F:Microsoft.Identity.Web.TokenAcquisition._applicationsByAuthorityClientId">
             <summary>
              Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
             </summary>

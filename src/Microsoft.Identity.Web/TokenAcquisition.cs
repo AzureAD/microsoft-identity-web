@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -41,7 +42,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
-        private IConfidentialClientApplication? _application;
+        private ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
         private bool _retryClientCertificate;
         private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
@@ -146,7 +147,7 @@ namespace Microsoft.Identity.Web
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
-                _application = null;
+                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -163,6 +164,11 @@ namespace Microsoft.Identity.Web
             }
 
             return authenticationScheme;
+        }
+
+        private static string GetApplicationKey(MergedOptions mergedOptions)
+        {
+            return mergedOptions.Instance! + mergedOptions.ClientId;
         }
 
         /// <summary>
@@ -241,7 +247,7 @@ namespace Microsoft.Identity.Web
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
-                _application = null;
+                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -348,7 +354,7 @@ namespace Microsoft.Identity.Web
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
-                _application = null;
+                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -481,18 +487,17 @@ namespace Microsoft.Identity.Web
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
            MergedOptions mergedOptions)
         {
-            if (_application == null)
+            IConfidentialClientApplication? application;
+            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) || application == null)
             {
                 lock (_applicationSyncObj)
                 {
-                    if (_application == null)
-                    {
-                        _application = BuildConfidentialClientApplication(mergedOptions);
-                    }
+                    application = BuildConfidentialClientApplication(mergedOptions);
+                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
                 }
             }
 
-            return _application;
+            return application;
         }
 
         /// <summary>
@@ -571,7 +576,6 @@ namespace Microsoft.Identity.Web
                 }
 
                 IConfidentialClientApplication app = builder.Build();
-                _application = app;
 
                 // Initialize token cache providers
                 if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
@@ -592,7 +596,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-      
+
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
@@ -604,8 +608,8 @@ namespace Microsoft.Identity.Web
             try
             {
                 // In web API, validatedToken will not be null
-                SecurityToken? validatedToken = _tokenAcquisitionHost.GetTokenUsedToCallWebAPI(); 
-                
+                SecurityToken? validatedToken = _tokenAcquisitionHost.GetTokenUsedToCallWebAPI();
+
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
@@ -806,7 +810,7 @@ namespace Microsoft.Identity.Web
                     new Uri(application.Authority).PathAndQuery,
                     $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}"
 #if !NET472 && !NET462
-                    ,StringComparison.OrdinalIgnoreCase
+                    , StringComparison.OrdinalIgnoreCase
 #endif
                     );
 
@@ -830,7 +834,7 @@ namespace Microsoft.Identity.Web
             return msalServiceException.Message.Contains(
                 ErrorCodes.B2CPasswordResetErrorCode
 #if !NET472 && !NET462
-                ,StringComparison.InvariantCulture
+                , StringComparison.InvariantCulture
 #endif
                 );
         }
