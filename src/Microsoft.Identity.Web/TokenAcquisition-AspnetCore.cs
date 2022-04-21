@@ -47,7 +47,6 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _tokenAcquisitionHost = tokenAcquisitionHost;
-            _serviceProvider = serviceProvider;
         }
 
 

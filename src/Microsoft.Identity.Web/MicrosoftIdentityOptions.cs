@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
         /// </summary>
-        public string Instance { get; set; } // = "https://login.microsoftonline.com/";
+        public string Instance { get; set; } = null!; // = "https://login.microsoftonline.com/";
 
         /// <summary>
         /// Gets or sets the tenant ID.

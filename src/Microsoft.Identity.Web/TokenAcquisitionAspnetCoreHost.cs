@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                IAuthenticationSchemeProvider authenticationSchemeProvider = _serviceProvider.GetService<IAuthenticationSchemeProvider>();
+                IAuthenticationSchemeProvider? authenticationSchemeProvider = _serviceProvider?.GetService<IAuthenticationSchemeProvider>();
                 if (authenticationSchemeProvider != null)
                 {
                     return authenticationSchemeProvider?.GetDefaultAuthenticateSchemeAsync()?.Result?.Name ??

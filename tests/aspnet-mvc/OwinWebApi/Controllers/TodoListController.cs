@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using Todo = OwinWebApi.Models.Todo;
@@ -19,11 +18,16 @@ namespace OwinWebApi.Controllers
         // GET api/values
         public async Task<IEnumerable<Todo>> Get()
         {
+            // Example calling Graph
             GraphServiceClient? graphServiceClient = HttpContext.Current.GetGraphServiceClient();
-            var me = await graphServiceClient?.Me.Request().GetAsync();
+            var me = await graphServiceClient?.Me?.Request()?.GetAsync();
 
-            //ITokenAcquisition tokenAcquisition = HttpContext.Current.GetTokenAcquisition();
-            string owner = (HttpContext.Current.User as ClaimsPrincipal).GetDisplayName();
+            // Example getting a token to call a downstream web API
+            ITokenAcquirer tokenAcquirer = HttpContext.Current.GetTokenAcquirer();
+            var result = await tokenAcquirer.GetAuthenticationResultForUserAsync(new[] { "user.read" });
+
+            // return the item
+            string owner = (HttpContext.Current.User as ClaimsPrincipal)?.GetDisplayName();
             return todoStore.Values.Where(x => x.Owner == owner);
 
         }
@@ -49,7 +53,7 @@ namespace OwinWebApi.Controllers
             var firstTodo = todoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault();
             int id = firstTodo == null ? 0 : firstTodo.Id + 1;
 
-            Todo todonew = new Todo() { Id = id, Owner = (HttpContext.Current.User as ClaimsPrincipal).GetDisplayName(), Title = todo.Title };
+            Todo todonew = new Todo() { Id = id, Owner = (HttpContext.Current.User as ClaimsPrincipal)?.GetDisplayName(), Title = todo.Title };
             todoStore.Add(id, todonew);
 
             return Ok(todo);
