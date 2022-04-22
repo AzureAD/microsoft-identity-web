@@ -264,8 +264,7 @@ namespace Microsoft.Identity.Web
                         || x.Type == ClaimConstants.Roles
                         || x.Type == ClaimConstants.Role))
                 {
-                    throw new UnauthorizedAccessException(string.Format(CultureInfo.InvariantCulture,
-                        IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken, jwtBearerScheme));
+                    context.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken, jwtBearerScheme));
                 }
 
                 await tokenValidatedHandler(context).ConfigureAwait(false);
