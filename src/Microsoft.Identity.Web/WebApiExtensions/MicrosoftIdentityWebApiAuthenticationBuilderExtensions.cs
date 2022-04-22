@@ -232,7 +232,11 @@ namespace Microsoft.Identity.Web
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.
-                    ChainOnTokenValidatedEventForClaimsValidation(options.Events, jwtBearerScheme, mergedOptions.AllowWebApiToBeAuthorizedByACL);
+
+                    if (!mergedOptions.AllowWebApiToBeAuthorizedByACL)
+                    {
+                        ChainOnTokenValidatedEventForClaimsValidation(options.Events, jwtBearerScheme);
+                    }
 
                     if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                     {
@@ -250,14 +254,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="events">The <see cref="JwtBearerEvents"/> object to modify.</param>
         /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
-        /// <param name="allowWebApiToBeAuthorizedByACL">If <see langword="true"/>, tokens are not required to have Scopes or Roles.</param>
-        internal static void ChainOnTokenValidatedEventForClaimsValidation(JwtBearerEvents events, string jwtBearerScheme, bool allowWebApiToBeAuthorizedByACL)
+        internal static void ChainOnTokenValidatedEventForClaimsValidation(JwtBearerEvents events, string jwtBearerScheme)
         {
             var tokenValidatedHandler = events.OnTokenValidated;
             events.OnTokenValidated = async context =>
             {
-                if (!allowWebApiToBeAuthorizedByACL
-                    && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
+                if (!context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
                         || x.Type == ClaimConstants.Scp
                         || x.Type == ClaimConstants.Roles
                         || x.Type == ClaimConstants.Role))

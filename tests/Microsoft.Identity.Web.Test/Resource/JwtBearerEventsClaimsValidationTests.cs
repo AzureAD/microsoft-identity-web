@@ -31,7 +31,12 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         protected abstract HttpContext CreateHttpContext();
 
-        protected abstract JwtBearerEvents CreateJwtBearerEvents();
+        protected virtual JwtBearerEvents CreateJwtBearerEvents()
+        {
+            var events = new JwtBearerEvents();
+            MicrosoftIdentityWebApiAuthenticationBuilderExtensions.ChainOnTokenValidatedEventForClaimsValidation(events, JwtBearerDefaults.AuthenticationScheme);
+            return events;
+        }
     }
 
     public class TokenValidated_MissingScopesAndRoles : JwtBearerEventsClaimsValidationTests
@@ -39,13 +44,6 @@ namespace Microsoft.Identity.Web.Test.Resource
         protected override HttpContext CreateHttpContext()
         {
             return HttpContextUtilities.CreateHttpContext();
-        }
-
-        protected override JwtBearerEvents CreateJwtBearerEvents()
-        {
-            var events = new JwtBearerEvents();
-            MicrosoftIdentityWebApiAuthenticationBuilderExtensions.ChainOnTokenValidatedEventForClaimsValidation(events, JwtBearerDefaults.AuthenticationScheme, false);
-            return events;
         }
 
         [Fact]
@@ -63,38 +61,8 @@ namespace Microsoft.Identity.Web.Test.Resource
             return HttpContextUtilities.CreateHttpContext(new[] { "scope" }, new[] { "role" });
         }
 
-        protected override JwtBearerEvents CreateJwtBearerEvents()
-        {
-            var events = new JwtBearerEvents();
-            MicrosoftIdentityWebApiAuthenticationBuilderExtensions.ChainOnTokenValidatedEventForClaimsValidation(events, JwtBearerDefaults.AuthenticationScheme, false);
-            return events;
-        }
-
         [Fact]
         public async Task TokenValidated_WithScopesAndRoles_AuthenticationSucceeds()
-        {
-            Assert.True(_tokenContext.Result.Succeeded);
-            await _jwtEvents.TokenValidated(_tokenContext).ConfigureAwait(false);
-            Assert.True(_tokenContext.Result.Succeeded);
-        }
-    }
-
-    public class TokenValidated_WithACLAuthorization : JwtBearerEventsClaimsValidationTests
-    {
-        protected override HttpContext CreateHttpContext()
-        {
-            return HttpContextUtilities.CreateHttpContext();
-        }
-
-        protected override JwtBearerEvents CreateJwtBearerEvents()
-        {
-            var events = new JwtBearerEvents();
-            MicrosoftIdentityWebApiAuthenticationBuilderExtensions.ChainOnTokenValidatedEventForClaimsValidation(events, JwtBearerDefaults.AuthenticationScheme, true);
-            return events;
-        }
-
-        [Fact]
-        public async Task TokenValidated_WithACLAuthorization_AuthenticationSucceeds()
         {
             Assert.True(_tokenContext.Result.Succeeded);
             await _jwtEvents.TokenValidated(_tokenContext).ConfigureAwait(false);
