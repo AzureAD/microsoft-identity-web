@@ -248,8 +248,8 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that is missing
-        /// both Roles and Scopes claims should be rejected. To enforce that rule, add an event handler to the beginning of the
+        /// In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that
+        /// has neither Roles nor Scopes claims should be rejected. To enforce that rule, add an event handler to the beginning of the
         /// <see cref="JwtBearerEvents.OnTokenValidated"/> handler chain that rejects tokens that don't meet the rules.
         /// </summary>
         /// <param name="events">The <see cref="JwtBearerEvents"/> object to modify.</param>
