@@ -173,13 +173,13 @@
       <Project>{98f57cc8-01a0-49f3-b859-ddc4f8f5cd2f}</Project>
       <Name>Microsoft.Identity.Web.TokenAcquisition.Abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj">
+      <Project>{08a3972d-c8bc-4b49-8625-b24c4c1bb47c}</Project>
+      <Name>Microsoft.Identity.Web.TokenAcquisition</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj">
       <Project>{7885dfbb-0d20-4115-86e2-709c2e12253b}</Project>
       <Name>Microsoft.Identity.Web.TokenCache</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj">
-      <Project>{fd55c071-48d1-4fe8-8b1d-773e067fec91}</Project>
-      <Name>Microsoft.Identity.Web</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
