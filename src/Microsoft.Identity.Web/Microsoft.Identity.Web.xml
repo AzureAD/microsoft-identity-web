@@ -1771,6 +1771,15 @@
             Set to true if you want to debug, or just understand the JWT bearer events.</param>
             <returns>The authentication builder to chain.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions.ChainOnTokenValidatedEventForClaimsValidation(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents,System.String)">
+            <summary>
+            In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that is missing
+            both Roles and Scopes claims should be rejected. To enforce that rule, add an event handler to the beginning of the
+            <see cref="P:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents.OnTokenValidated"/> handler chain that rejects tokens that don't meet the rules.
+            </summary>
+            <param name="events">The <see cref="T:Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents"/> object to modify.</param>
+            <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        </member>
         <member name="T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration">
             <summary>
             Builder for web API authentication with configuration.

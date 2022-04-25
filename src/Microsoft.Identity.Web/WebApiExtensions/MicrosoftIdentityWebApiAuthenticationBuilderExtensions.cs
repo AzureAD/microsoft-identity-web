@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
@@ -231,20 +232,11 @@ namespace Microsoft.Identity.Web
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.
-                    var tokenValidatedHandler = options.Events.OnTokenValidated;
-                    options.Events.OnTokenValidated = async context =>
-                    {
-                        if (!mergedOptions.AllowWebApiToBeAuthorizedByACL
-                            && !context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
-                                || x.Type == ClaimConstants.Scp
-                                || x.Type == ClaimConstants.Roles
-                                || x.Type == ClaimConstants.Role))
-                        {
-                            throw new UnauthorizedAccessException(IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken);
-                        }
 
-                        await tokenValidatedHandler(context).ConfigureAwait(false);
-                    };
+                    if (!mergedOptions.AllowWebApiToBeAuthorizedByACL)
+                    {
+                        ChainOnTokenValidatedEventForClaimsValidation(options.Events, jwtBearerScheme);
+                    }
 
                     if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
                     {
@@ -253,6 +245,30 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
+        }
+
+        /// <summary>
+        /// In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that
+        /// has neither Roles nor Scopes claims should be rejected. To enforce that rule, add an event handler to the beginning of the
+        /// <see cref="JwtBearerEvents.OnTokenValidated"/> handler chain that rejects tokens that don't meet the rules.
+        /// </summary>
+        /// <param name="events">The <see cref="JwtBearerEvents"/> object to modify.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        internal static void ChainOnTokenValidatedEventForClaimsValidation(JwtBearerEvents events, string jwtBearerScheme)
+        {
+            var tokenValidatedHandler = events.OnTokenValidated;
+            events.OnTokenValidated = async context =>
+            {
+                if (!context!.Principal!.Claims.Any(x => x.Type == ClaimConstants.Scope
+                        || x.Type == ClaimConstants.Scp
+                        || x.Type == ClaimConstants.Roles
+                        || x.Type == ClaimConstants.Role))
+                {
+                    context.Fail(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.NeitherScopeOrRolesClaimFoundInToken, jwtBearerScheme));
+                }
+
+                await tokenValidatedHandler(context).ConfigureAwait(false);
+            };
         }
     }
 }
