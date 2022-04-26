@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         public SecurityToken? GetTokenUsedToCallWebAPI()
         {
-            object o = (HttpContext.Current.User.Identity as ClaimsIdentity)?.BootstrapContext;
+            object? o = (HttpContext.Current.User.Identity as ClaimsIdentity)?.BootstrapContext;
 
             // TODO: do better as this won't do for JWE and wastes time. The token was already decrypted.
             return new JsonWebToken(o as string);
