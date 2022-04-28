@@ -11,8 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.IdentityModel.Abstractions;
+using Microsoft.IdentityModel.Extensions.AspNetCore;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web
@@ -293,6 +297,8 @@ namespace Microsoft.Identity.Web
                 msIdOptionsMonitor,
                 msIdOptions) =>
                 {
+                    SetIdentityModelLogger(serviceProvider);
+
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
@@ -482,6 +488,33 @@ namespace Microsoft.Identity.Web
             options.ForwardSignIn = mergedOptions.ForwardSignIn;
             options.ForwardSignOut = mergedOptions.ForwardSignOut;
             options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
+        }
+
+        private static void SetIdentityModelLogger(IServiceProvider serviceProvider)
+        {
+            if (serviceProvider != null)
+            {
+                // initialize logger only once
+                if (LogHelper.Logger != NullIdentityModelLogger.Instance)
+                    return;
+                
+                // check if an ILogger was already created by user
+                ILogger logger = serviceProvider.GetService<ILogger<IdentityModelLoggerAdapter>>();
+                if (logger == null)
+                {
+                    var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+                    if (loggerFactory != null)
+                        logger = loggerFactory.CreateLogger<IdentityModelLoggerAdapter>();
+                }
+
+                // return if user hasn't configured any logging
+                if (logger == null)
+                    return;
+
+                // initialize Wilson logger
+                IIdentityLogger identityLogger = new IdentityModelLoggerAdapter(logger);
+                LogHelper.Logger = identityLogger;
+            }
         }
     }
 }
