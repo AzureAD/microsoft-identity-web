@@ -297,7 +297,7 @@ namespace Microsoft.Identity.Web
                 msIdOptionsMonitor,
                 msIdOptions) =>
                 {
-                    SetIdentityModelLogger(serviceProvider);
+                    MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
 
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
@@ -488,33 +488,6 @@ namespace Microsoft.Identity.Web
             options.ForwardSignIn = mergedOptions.ForwardSignIn;
             options.ForwardSignOut = mergedOptions.ForwardSignOut;
             options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
-        }
-
-        private static void SetIdentityModelLogger(IServiceProvider serviceProvider)
-        {
-            if (serviceProvider != null)
-            {
-                // initialize logger only once
-                if (LogHelper.Logger != NullIdentityModelLogger.Instance)
-                    return;
-                
-                // check if an ILogger was already created by user
-                ILogger logger = serviceProvider.GetService<ILogger<IdentityModelLoggerAdapter>>();
-                if (logger == null)
-                {
-                    var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-                    if (loggerFactory != null)
-                        logger = loggerFactory.CreateLogger<IdentityModelLoggerAdapter>();
-                }
-
-                // return if user hasn't configured any logging
-                if (logger == null)
-                    return;
-
-                // initialize Wilson logger
-                IIdentityLogger identityLogger = new IdentityModelLoggerAdapter(logger);
-                LogHelper.Logger = identityLogger;
-            }
         }
     }
 }

@@ -1456,6 +1456,17 @@
             EventIds for Logging.
             </summary>
         </member>
+        <member name="T:Microsoft.Identity.Web.LoggingOptions">
+            <summary>
+            LoggingOptions class for passing in Identity specific logging options.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.LoggingOptions.EnablePiiLogging">
+            <summary>
+            Enable Pii Logging from configuration.
+            Default is false.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.MergedOptions">
             <summary>
             Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.

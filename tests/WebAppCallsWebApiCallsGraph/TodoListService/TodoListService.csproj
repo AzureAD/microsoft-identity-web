@@ -16,18 +16,21 @@
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.16.1-preview-30427231238"/>
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.16.1-preview-30427231238"/>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.16.1-preview-30427231238"/>
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.16.1-preview-30427231238" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.16.1-preview-30427231238" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.1-preview-30427231238" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.1-preview-30427231238" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.16.1-preview-30427231238" />
   </ItemGroup>
 
 </Project>
