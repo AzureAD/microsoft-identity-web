@@ -6,6 +6,7 @@ using System.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web.Hosts;
+using Microsoft.Identity.Web.OWIN;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 using Microsoft.Owin.Security.Jwt;
@@ -19,15 +20,16 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class AppBuilderExtension
     {
+        static internal TokenAcquirerFactory? TokenAcquirerFactory { get; set; }
         /// <summary>
         /// Configuration
         /// </summary>
-        static internal IConfiguration? Configuration { get; set; }
+        static internal IConfiguration? Configuration { get { return TokenAcquirerFactory?.Configuration; } }
 
         /// <summary>
         /// Service Provider
         /// </summary>
-        static internal IServiceProvider? ServiceProvider { get; set; }
+        static internal IServiceProvider? ServiceProvider { get { return TokenAcquirerFactory?.ServiceProvider; } }
 
         /// <summary>
         /// Adds a protected web API
@@ -45,10 +47,8 @@ namespace Microsoft.Identity.Web
             Action<OAuthBearerAuthenticationOptions>? updateOptions = null,
             string configurationSection = "AzureAd")
         {
-            ReadConfiguration();
-
-            // Add services
-            ServiceCollection services = new ServiceCollection();
+            TokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+            var services = TokenAcquirerFactory.Services;
 
             // Configure the Microsoft identity options
             services.Configure(
@@ -81,11 +81,15 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            ServiceProvider = services.BuildServiceProvider();
-            string authority = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
+            TokenAcquirerFactory.Build();
+            string instance = Configuration.GetValue<string>($"{configurationSection}:Instance");
+            string tenantId = Configuration.GetValue<string>($"{configurationSection}:TenantId");
+            string clientId = Configuration.GetValue<string>($"{configurationSection}:ClientId");
+            string audience = Configuration.GetValue<string>($"{configurationSection}:Audience");
+            string authority = instance + tenantId + "/v2.0";
             TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
             {
-                ValidAudience = Configuration.GetValue<string>("AzureAd:Audience") ?? Configuration.GetValue<string>("AzureAd:ClientId"),
+                ValidAudience = audience ?? clientId,
                 IssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority).Validate,
                 SaveSigninToken = true,
             };
@@ -93,32 +97,13 @@ namespace Microsoft.Identity.Web
             {
                 AccessTokenFormat = new JwtFormat(tokenValidationParameters, new OpenIdConnectCachingSecurityTokenProvider(authority+ "/.well-known/openid-configuration"))
             };
+
             if (updateOptions != null)
             {
                 updateOptions(options);
             }
 
             return app.UseOAuthBearerAuthentication(options);
-        }
-
-        private static IConfiguration ReadConfiguration()
-        {
-            if (Configuration == null)
-            {
-                // Read the configuration from a file
-                var builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-                 .AddInMemoryCollection(new Dictionary<string, string>()
-                 {
-                     ["AzureAd:Instance"] = ConfigurationManager.AppSettings["ida:Instance"] ?? "https://login.microsoftonline.com/",
-                     ["AzureAd:ClientId"] = ConfigurationManager.AppSettings["ida:ClientId"],
-                     ["AzureAd:TenantId"] = ConfigurationManager.AppSettings["ida:Tenant"],
-                     ["AzureAd:Audience"] = ConfigurationManager.AppSettings["ida:Audience"],
-                 })
-                 .SetBasePath(HttpContext.Current.Request.PhysicalApplicationPath)
-                 .AddJsonFile("appsettings.json", optional: true);
-                Configuration = builder.Build();
-            }
-            return Configuration;
         }
     }
 }

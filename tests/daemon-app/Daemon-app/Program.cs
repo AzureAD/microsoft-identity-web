@@ -19,10 +19,9 @@ namespace daemon_console
     {
         static async Task Main(string[] args)
         {
-            IConfiguration configuration = ReadConfiguration();
-
-            // Add services
-            ServiceCollection services = new ServiceCollection();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IConfiguration configuration = tokenAcquirerFactory.Configuration;
+            IServiceCollection services = tokenAcquirerFactory.Services;
 
             services.Configure<MicrosoftIdentityOptions>(option => configuration.Bind(option));
             services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
@@ -31,7 +30,7 @@ namespace daemon_console
             services.AddDistributedTokenCaches();
             services.AddDistributedMemoryCache(); /* or SQL, Redis, ... */
 
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = tokenAcquirerFactory.Build();
 
 #if UseMicrosoftGraphSdk
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
@@ -48,17 +47,6 @@ namespace daemon_console
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif
-        }
-
-        private static IConfiguration ReadConfiguration()
-        {
-            // Read the configuration from a file
-            IConfiguration Configuration;
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(System.IO.Directory.GetCurrentDirectory())
-             .AddJsonFile("appsettings.json");
-            Configuration = builder.Build();
-            return Configuration;
         }
     }
 }
