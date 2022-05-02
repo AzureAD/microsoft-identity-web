@@ -52,6 +52,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Get the default instance.
+        /// </summary>
+        static internal TokenAcquirerFactory FromConfigurationAndServices(IConfiguration configuration, ServiceCollection services)
+        {
+            TokenAcquirerFactory factory = new TokenAcquirerFactory();
+            factory.Services = services;
+            factory.Configuration = configuration;
+
+            if (defaultInstance == null)
+            {
+                defaultInstance = factory;
+            }
+            return defaultInstance;
+        }
+
+        /// <summary>
         /// Build the Token acquirer
         /// </summary>
         /// <returns></returns>
