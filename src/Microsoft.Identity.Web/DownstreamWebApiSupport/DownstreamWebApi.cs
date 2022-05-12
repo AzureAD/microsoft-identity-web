@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
-#if NET5_0_OR_GREATER
+#if DOTNET_50_AND_ABOVE
                 string error = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 #else
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
             }
 
-#if NET5_0_OR_GREATER
+#if DOTNET_50_AND_ABOVE
             string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 #else
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
