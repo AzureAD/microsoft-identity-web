@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
@@ -32,6 +33,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -39,7 +41,8 @@ namespace Microsoft.Identity.Web
             string relativePath,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -52,9 +55,10 @@ namespace Microsoft.Identity.Web
                 authenticationScheme,
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
                 user,
-                null).ConfigureAwait(false);
+                null,
+                cancellationToken).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutput<TOutput>(response, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -77,6 +81,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -85,7 +90,8 @@ namespace Microsoft.Identity.Web
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -100,9 +106,10 @@ namespace Microsoft.Identity.Web
                authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Post),
                user,
-               input).ConfigureAwait(false);
+               input,
+               cancellationToken).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutput<TOutput>(response, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -123,6 +130,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -131,7 +139,8 @@ namespace Microsoft.Identity.Web
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
         {
             if (downstreamWebApi is null)
             {
@@ -145,7 +154,8 @@ namespace Microsoft.Identity.Web
               authenticationScheme,
               PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
               user,
-              input).ConfigureAwait(false);
+              input,
+              cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -168,6 +178,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>A strongly typed response from the web API.</returns>
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -176,7 +187,8 @@ namespace Microsoft.Identity.Web
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -191,9 +203,10 @@ namespace Microsoft.Identity.Web
                authenticationScheme,
                PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Put),
                user,
-               input).ConfigureAwait(false);
+               input,
+               cancellationToken).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutput<TOutput>(response, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -213,13 +226,15 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
             where TOutput : class
         {
             if (downstreamWebApi is null)
@@ -232,9 +247,10 @@ namespace Microsoft.Identity.Web
               authenticationScheme,
               downstreamWebApiOptionsOverride,
               user,
-              null).ConfigureAwait(false);
+              null,
+              cancellationToken).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutput<TOutput>(response, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -254,6 +270,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>The value returned by the downstream web API.</returns>
         public static async Task GetForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -261,7 +278,8 @@ namespace Microsoft.Identity.Web
             TInput inputData,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
+            string? authenticationScheme = null,
+            CancellationToken cancellationToken = default)
         {
             if (downstreamWebApi is null)
             {
@@ -275,7 +293,8 @@ namespace Microsoft.Identity.Web
              authenticationScheme,
              downstreamWebApiOptionsOverride,
              user,
-             input).ConfigureAwait(false);
+             input,
+             cancellationToken).ConfigureAwait(false);
         }
 
         private static StringContent ConvertFromInput<TInput>(TInput input)
@@ -283,7 +302,7 @@ namespace Microsoft.Identity.Web
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
         }
 
-        private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response)
+        private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response, CancellationToken cancellationToken = default)
             where TOutput : class
         {
             try
@@ -292,12 +311,20 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
+#if DOTNET_50_AND_ABOVE
+                string error = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+#endif
 
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
             }
 
+#if DOTNET_50_AND_ABOVE
+            string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+#endif
 
             if (string.IsNullOrWhiteSpace(content))
             {

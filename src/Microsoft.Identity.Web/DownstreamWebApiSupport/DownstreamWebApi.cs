@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -48,7 +49,8 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            CancellationToken cancellationToken = default)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamWebApiOptionsOverride);
 
@@ -74,6 +76,16 @@ namespace Microsoft.Identity.Web
                 userflow = effectiveOptions.UserFlow;
             }
 
+            if (cancellationToken != default)
+            {
+                if (effectiveOptions.TokenAcquisitionOptions == null)
+                {
+                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
+                }
+
+                effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
+            }
+
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 effectiveOptions.GetScopes(),
                 authenticationScheme,
@@ -96,7 +108,7 @@ namespace Microsoft.Identity.Web
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                return await _httpClient.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -106,7 +118,8 @@ namespace Microsoft.Identity.Web
             TInput input,
             string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default)
             where TOutput : class
         {
             HttpResponseMessage response = await CallWebApiForUserAsync(
@@ -114,7 +127,8 @@ namespace Microsoft.Identity.Web
                 authenticationScheme,
                 downstreamWebApiOptionsOverride,
                 user,
-                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
+                cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -122,12 +136,19 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
+#if NET5_0_OR_GREATER
+                string error = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
+#endif
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
             }
 
+#if NET5_0_OR_GREATER
+            string content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+#endif
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -142,7 +163,8 @@ namespace Microsoft.Identity.Web
             string serviceName,
             string? authenticationScheme = null,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            StringContent? content = null)
+            StringContent? content = null,
+            CancellationToken cancellationToken = default)
         {
             DownstreamWebApiOptions effectiveOptions = MergeOptions(serviceName, downstreamWebApiOptionsOverride);
 
@@ -154,6 +176,16 @@ namespace Microsoft.Identity.Web
             string apiUrl = effectiveOptions.GetApiUrl();
 
             CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
+
+            if (cancellationToken != default)
+            {
+                if (effectiveOptions.TokenAcquisitionOptions == null)
+                {
+                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
+                }
+
+                effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
+            }
 
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
@@ -176,7 +208,7 @@ namespace Microsoft.Identity.Web
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                response = await _httpClient.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
             }
 
             return response;
