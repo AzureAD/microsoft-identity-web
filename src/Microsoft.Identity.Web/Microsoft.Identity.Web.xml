@@ -567,7 +567,7 @@
             Extensions for the downstream web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Get a strongly typed response from the web API.
             </summary>
@@ -585,9 +585,10 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>A strongly typed response from the web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PostForUserAsync``2(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PostForUserAsync``2(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Calls the web API with an HttpPost, providing strongly typed input and getting
             strongly typed output.
@@ -608,9 +609,10 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>A strongly typed response from the web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PutForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PutForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Calls the web API endpoint with an HttpPut, providing strongly typed input data.
             </summary>
@@ -629,9 +631,10 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>The value returned by the downstream web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PutForUserAsync``2(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.PutForUserAsync``2(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.String,``1,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Calls the web API endpoint with an HttpPut, provinding strongly typed input data
             and getting back strongly typed data.
@@ -652,9 +655,10 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>A strongly typed response from the web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.CallWebApiForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.CallWebApiForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Call a web API endpoint with an HttpGet,
             and return strongly typed data.
@@ -672,9 +676,10 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>The value returned by the downstream web API.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.GetForUserAsync``1(Microsoft.Identity.Web.IDownstreamWebApi,System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.String,System.Threading.CancellationToken)">
             <summary>
             Call a web API with a strongly typed input, with an HttpGet.
             </summary>
@@ -692,6 +697,7 @@
             will find the user from the HttpContext.</param>
             <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
             if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>The value returned by the downstream web API.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApiOptions">
@@ -761,7 +767,7 @@
             will find the user from the HttpContext.</param>
             <param name="content">HTTP context in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
-            <param name="cancellationToken"></param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent,System.Threading.CancellationToken)">
@@ -782,7 +788,7 @@
             will find the user from the HttpContext.</param>
             <param name="content">HTTP context in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
-            <param name="cancellationToken"></param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForUserAsync``2(System.String,``0,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Threading.CancellationToken)">
@@ -801,7 +807,7 @@
              <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
              or Azure Signal R, where the HttpContext is not available. In other platforms, the library
              will find the user from the HttpContext.</param>
-             <param name="cancellationToken"></param>
+             <param name="cancellationToken">The cancellation token to cancel the operation.</param>
              <returns>The value returned by the downstream web API.</returns>
              <example>
              A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
@@ -852,7 +858,7 @@
              <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
              or Azure Signal R, where the HttpContext is not available. In other platforms, the library
              will find the user from the HttpContext.</param>
-             <param name="cancellationToken"></param>
+             <param name="cancellationToken">The cancellation token to cancel the operation.</param>
              <returns>The value returned by the downstream web API.</returns>
              <example>
              A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
@@ -897,7 +903,7 @@
             by <paramref name="serviceName"/>.</param>
             <param name="content">HTTP content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
-            <param name="cancellationToken"></param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.IDownstreamWebApi.CallWebApiForAppAsync(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.StringContent,System.Threading.CancellationToken)">
@@ -914,7 +920,7 @@
             by <paramref name="serviceName"/>.</param>
             <param name="content">HTTP content in the case where <see cref="P:Microsoft.Identity.Web.DownstreamWebApiOptions.HttpMethod"/> is
             <see cref="P:System.Net.Http.HttpMethod.Patch"/>, <see cref="P:System.Net.Http.HttpMethod.Post"/>, <see cref="P:System.Net.Http.HttpMethod.Put"/>.</param>
-            <param name="cancellationToken"></param>
+            <param name="cancellationToken">The cancellation token to cancel the operation.</param>
             <returns>An <see cref="T:System.Net.Http.HttpResponseMessage"/> that the application will process.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory">
