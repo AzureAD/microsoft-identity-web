@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     public class DownstreamWebApi : IDownstreamWebApi
     {
         private readonly ITokenAcquisition _tokenAcquisition;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamWebApiOptions> _namedDownstreamWebApiOptions;
         private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
 
@@ -28,17 +28,17 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="tokenAcquisition">Token acquisition service.</param>
         /// <param name="namedDownstreamWebApiOptions">Named options provider.</param>
-        /// <param name="httpClient">HTTP client.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         public DownstreamWebApi(
             ITokenAcquisition tokenAcquisition,
             IOptionsMonitor<DownstreamWebApiOptions> namedDownstreamWebApiOptions,
-            HttpClient httpClient,
+            IHttpClientFactory httpClientFactory,
             IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor)
         {
             _tokenAcquisition = tokenAcquisition;
             _namedDownstreamWebApiOptions = namedDownstreamWebApiOptions;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
         }
 
@@ -96,7 +96,11 @@ namespace Microsoft.Identity.Web
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-                return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+
+                using (HttpClient httpClient = _httpClientFactory.CreateClient(serviceName))
+                {
+                    return await httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                }
             }
         }
 
@@ -176,7 +180,11 @@ namespace Microsoft.Identity.Web
                     Constants.Authorization,
                     authResult.CreateAuthorizationHeader());
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+
+                using (HttpClient httpClient = _httpClientFactory.CreateClient(serviceName))
+                {
+                    response = await httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                }
             }
 
             return response;

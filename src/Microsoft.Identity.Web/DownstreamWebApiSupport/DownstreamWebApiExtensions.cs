@@ -19,11 +19,13 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the configuration for the service.
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
+        /// <param name="configureHttpClient">Configure the HttpClient for the Downstream Web Api.</param>
         /// <returns>The builder for chaining.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            Action<IHttpClientBuilder>? configureHttpClient = null)
         {
             if (builder is null)
             {
@@ -31,7 +33,10 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configuration);
-            builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
+
+            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>(serviceName);
+            configureHttpClient?.Invoke(httpClientBuilder);
+
             return builder;
         }
 
@@ -42,11 +47,13 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the configuration for the service.
         /// This is the name which will be used when calling the service from controller/pages.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
+        /// <param name="configureHttpClient">Configure the HttpClient for the Downstream Web Api.</param>
         /// <returns>The builder for chaining.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
-            Action<DownstreamWebApiOptions> configureOptions)
+            Action<DownstreamWebApiOptions> configureOptions,
+            Action<IHttpClientBuilder>? configureHttpClient = null)
         {
             if (builder is null)
             {
@@ -56,7 +63,9 @@ namespace Microsoft.Identity.Web
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configureOptions);
 
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
+            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>(serviceName);
+            configureHttpClient?.Invoke(httpClientBuilder);
+
             builder.Services.Configure(serviceName, configureOptions);
             return builder;
         }
