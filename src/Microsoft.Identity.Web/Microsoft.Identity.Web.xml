@@ -216,6 +216,23 @@
             <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
             <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential">
+            <summary>
+            Azure SDK token credential for App tokens based on the ITokenAcquisition service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.#ctor(Microsoft.Identity.Web.ITokenAcquisition)">
+            <summary>
+            Constructor from an ITokenAcquisition service.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionTokenCredential">
             <summary>
             Azure SDK token credential based on the ITokenAcquisition service.
@@ -495,13 +512,13 @@
             Implementation for the downstream web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.HttpClient,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApi.#ctor(Microsoft.Identity.Web.ITokenAcquisition,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.MicrosoftIdentityOptions})">
             <summary>
             Constructor.
             </summary>
             <param name="tokenAcquisition">Token acquisition service.</param>
             <param name="namedDownstreamWebApiOptions">Named options provider.</param>
-            <param name="httpClient">HTTP client.</param>
+            <param name="httpClientFactory">HTTP client factory.</param>
             <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.DownstreamWebApi.CallWebApiForUserAsync(System.String,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Security.Claims.ClaimsPrincipal,System.Net.Http.StringContent)">
@@ -525,7 +542,7 @@
             Extension methods to support downstream web API services.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration,System.Action{Microsoft.Extensions.DependencyInjection.IHttpClientBuilder})">
             <summary>
             Adds a named downstream web API service related to a specific configuration section.
             </summary>
@@ -533,9 +550,10 @@
             <param name="serviceName">Name of the configuration for the service.
             This is the name used when calling the service from controller/pages.</param>
             <param name="configuration">Configuration.</param>
+            <param name="configureHttpClient">Configure the HttpClient for the Downstream Web Api.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions})">
+        <member name="M:Microsoft.Identity.Web.DownstreamWebApiExtensions.AddDownstreamWebApi(Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder,System.String,System.Action{Microsoft.Identity.Web.DownstreamWebApiOptions},System.Action{Microsoft.Extensions.DependencyInjection.IHttpClientBuilder})">
             <summary>
             Adds a named downstream web API service initialized with delegates.
             </summary>
@@ -543,6 +561,7 @@
             <param name="serviceName">Name of the configuration for the service.
             This is the name which will be used when calling the service from controller/pages.</param>
             <param name="configureOptions">Action to configure the options.</param>
+            <param name="configureHttpClient">Configure the HttpClient for the Downstream Web Api.</param>
             <returns>The builder for chaining.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions">
