@@ -34,7 +34,9 @@ namespace Microsoft.Identity.Web
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configuration);
 
-            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>(serviceName);
+            builder.Services.AddTransient<IDownstreamWebApi, DownstreamWebApi>();
+
+            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient(serviceName);
             configureHttpClient?.Invoke(httpClientBuilder);
 
             return builder;
@@ -62,8 +64,10 @@ namespace Microsoft.Identity.Web
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configureOptions);
 
+            builder.Services.AddTransient<IDownstreamWebApi, DownstreamWebApi>();
+
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>(serviceName);
+            IHttpClientBuilder httpClientBuilder = builder.Services.AddHttpClient(serviceName);
             configureHttpClient?.Invoke(httpClientBuilder);
 
             builder.Services.Configure(serviceName, configureOptions);
