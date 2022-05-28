@@ -163,6 +163,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
             builder.Services.AddRequiredScopeAuthorization();
+            builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)

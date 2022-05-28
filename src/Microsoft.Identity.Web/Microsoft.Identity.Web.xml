@@ -216,6 +216,23 @@
             <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
             <returns>A task indicating success or failure. In case of failure <see cref="T:Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential">
+            <summary>
+            Azure SDK token credential for App tokens based on the ITokenAcquisition service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.#ctor(Microsoft.Identity.Web.ITokenAcquisition)">
+            <summary>
+            Constructor from an ITokenAcquisition service.
+            </summary>
+            <param name="tokenAcquisition">Token acquisition.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenAcquisitionTokenCredential">
             <summary>
             Azure SDK token credential based on the ITokenAcquisition service.
@@ -1731,6 +1748,36 @@
             by spaces).
             </summary>
         </member>
+        <member name="T:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata">
+            <summary>
+            This is the metadata that describes required auth scopes or app permissions for a given endpoint
+            in a web API. It's the underlying data structure the requirement <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/> will look for
+            in order to validate scopes in the scope claims.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.AcceptedAppPermission">
+            <summary>
+            App permissions accepted by this web API.
+            App permissions appear in the roles claim of the token.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.RequiredAppPermissionsConfigurationKey">
+            <summary>
+            Fully qualified name of the configuration key containing the required scopes 
+            or app permissions (separated by spaces).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.AcceptedScope">
+            <summary>
+            Scopes accepted by this web API.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.RequiredScopesConfigurationKey">
+            <summary>
+            Fully qualified name of the configuration key containing the required scopes (separated
+            by spaces).
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.PolicyBuilderExtensions">
             <summary>
             Extensions for building the RequiredScope policy during application startup.
@@ -1828,6 +1875,96 @@
             <summary>
             Unused: Compatibility of interface with the Authorization Filter.
             </summary>
+        </member>
+        <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute">
+            <summary>
+            This attribute is used on a controller, pages, or controller actions
+            to declare (and validate) the scopes or app permissions required by a web API. 
+            These scopes or app permissions can be declared in two ways:
+            hardcoding them, or declaring them in the configuration. Depending on your
+            choice, use either one or the other of the constructors.
+            For details, see https://aka.ms/ms-id-web/required-scope-or-app-permissions-attribute.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.AcceptedScope">
+            <summary>
+            Scopes accepted by this web API.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.RequiredScopesConfigurationKey">
+            <summary>
+            Fully qualified name of the configuration key containing the required scopes (separated
+            by spaces).
+            </summary>
+            <example>
+            If the appsettings.json file contains a section named "AzureAd", in which
+            a property named "Scopes" contains the required scopes, the attribute on the
+            controller/page/action to protect should be set to the following:
+            <code>
+            [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
+            </code>
+            </example>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.IsReusable">
+            <summary>
+            Unused: Compatibility of interface with the Authorization Filter.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.AcceptedAppPermission">
+            <summary>
+            App permissions accepted by this web API.
+            App permissions appear in the roles claim of the token.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.RequiredAppPermissionsConfigurationKey">
+            <summary>
+            Fully qualified name of the configuration key containing the required app permissions (separated
+            by spaces).
+            </summary>
+            <example>
+            If the appsettings.json file contains a section named "AzureAd", in which
+            a property named "AppPermissions" contains the required app permissions, the attribute on the
+            controller/page/action to protect should be set to the following:
+            <code>
+            [RequiredScopeOrAppPermission(RequiredAppPermissionsConfigurationKey="AzureAd:AppPermissions")]
+            </code>
+            </example>
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.#ctor(System.String[],System.String[])">
+             <summary>
+             Verifies that the web API is called with the right app permissions.
+             If the token obtained for this API is on behalf of the authenticated user does not have
+             any of these <paramref name="acceptedScopes"/> in its scope claim, 
+             nor <paramref name="acceptedAppPermissions"/> in its roles claim, the
+             method updates the HTTP response providing a status code 403 (Forbidden)
+             and writes to the response body a message telling which scopes are expected in the token.
+             </summary>
+             <param name="acceptedScopes">Scopes accepted by this web API.</param>
+             <param name="acceptedAppPermissions">App permissions accepted by this web API.</param>
+             <remarks>When neither the scopes nor app permissions match, the response is a 403 (Forbidden),
+             because the user is authenticated (hence not 401), but not authorized.</remarks>
+             <example>
+             Add the following attribute on the controller/page/action to protect:
+            
+             <code>
+             [RequiredScopeOrAppPermissionAttribute(new string[] { "access_as_user" }, new string[] { "access_as_app" })]
+             </code>
+             </example>
+             <seealso cref="M:RequiredScopeOrAppPermissionAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.RequiredAppPermissionsConfigurationKey"/>
+             if you want to express the required scopes or app permissions from the configuration.
+        </member>
+        <member name="M:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.#ctor">
+            <summary>
+            Default constructor.
+            </summary>
+            <example>
+            <code>
+            [RequiredScopeOrAppPermission(RequiredScopesConfigurationKey="AzureAD:Scope", RequiredAppPermissionsConfigurationKey="AzureAD:AppPermission")]
+            class Controller : BaseController
+            {
+            }
+            </code>
+            </example>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics">
             <summary>
@@ -2079,6 +2216,31 @@
             <param name="scope">Scope.</param>
             <returns>Builder.</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions">
+            <summary>
+            Extensions for building the required scope or app permission attribute during application startup.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions.AddRequiredScopeOrAppPermissionAuthorization(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method adds support for the required scope or app permission attribute. It adds a default policy that
+            adds a scope requirement or app permission requirement.
+            This requirement looks for IAuthRequiredScopeOrAppPermissionMetadata on the current endpoint.
+            </summary>
+            <param name="services">The services being configured.</param>
+            <returns>Services.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions.RequireScope``1(``0,System.String[],System.String[])">
+            <summary>
+            This method adds metadata to route endpoint to describe required scopes or app permissions. It's the imperative version of
+            the [RequiredScopeOrAppPermission] attribute.
+            </summary>
+            <typeparam name="TBuilder">Class implementing <see cref="T:Microsoft.AspNetCore.Builder.IEndpointConventionBuilder"/>.</typeparam>
+            <param name="endpointConventionBuilder">To customize the endpoints.</param>
+            <param name="scope">Scope.</param>
+            <param name="appPermission">App permission.</param>
+            <returns>Builder.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.RequireScopeOptions">
             <summary>
             RequireScopeOptions.
@@ -2090,6 +2252,19 @@
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.RequireScopeOptions.PostConfigure(System.String,Microsoft.AspNetCore.Authorization.AuthorizationOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions">
+            <summary>
+            RequireScopeOrAppPermissionOptions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions.#ctor">
+            <summary>
+            Sets the default policy.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions.PostConfigure(System.String,Microsoft.AspNetCore.Authorization.AuthorizationOptions)">
             <inheritdoc/>
         </member>
         <member name="T:Microsoft.Identity.Web.ScopeAuthorizationHandler">
@@ -2136,6 +2311,63 @@
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ScopeAuthorizationRequirement.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationHandler">
+            <summary>
+             Scope or app permission authorization handler that needs to be called for a specific requirement type.
+             In this case, <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationHandler.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Constructor for the scope authorization handler, which takes a configuration.
+            </summary>
+            <param name="configuration">Configuration.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationHandler.HandleRequirementAsync(Microsoft.AspNetCore.Authorization.AuthorizationHandlerContext,Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement)">
+            <summary>
+             Makes a decision if authorization is allowed based on a specific requirement.
+            </summary>
+            <param name="context">AuthorizationHandlerContext.</param>
+            <param name="requirement">Scope authorization requirement.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement">
+            <summary>
+            Implements an <see cref="T:Microsoft.AspNetCore.Authorization.IAuthorizationRequirement"/>
+            which requires at least one instance of the specified claim type, and, if allowed values are specified,
+            the claim value must be any of the allowed values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.#ctor(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a new instance of <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/>.
+            </summary>
+            <param name="scopeAllowedValues">The optional list of scope values.</param>
+            <param name="appPermissionAllowedValues"></param>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.ScopeAllowedValues">
+            <summary>
+            Gets the optional list of scope values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.AppPermissionAllowedValues">
+            <summary>
+            Gets the optional list of app permission values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.RequiredScopesConfigurationKey">
+            <summary>
+            Gets the optional list of scope values from configuration.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.RequiredAppPermissionsConfigurationKey">
+            <summary>
+            Gets the optional list of app permission values from configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement.ToString">
             <inheritdoc />
         </member>
         <member name="T:Microsoft.Identity.Web.AadIssuerValidatorOptions">
