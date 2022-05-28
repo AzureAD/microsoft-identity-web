@@ -167,7 +167,7 @@ namespace Microsoft.Identity.Web
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
-                builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
+                builder.Services.AddTransient<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             }
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
