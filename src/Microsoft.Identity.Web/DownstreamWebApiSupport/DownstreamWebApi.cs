@@ -59,6 +59,13 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            if (effectiveOptions.TokenAcquisitionOptions == null)
+            {
+                effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
+            }
+
+            effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
+
             MicrosoftIdentityOptions microsoftIdentityOptions = _microsoftIdentityOptionsMonitor
                 .Get(_tokenAcquisition.GetEffectiveAuthenticationScheme(authenticationScheme));
 
@@ -74,16 +81,6 @@ namespace Microsoft.Identity.Web
             else
             {
                 userflow = effectiveOptions.UserFlow;
-            }
-
-            if (cancellationToken != default)
-            {
-                if (effectiveOptions.TokenAcquisitionOptions == null)
-                {
-                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
-                }
-
-                effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
             }
 
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
@@ -173,19 +170,17 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ScopesNotConfiguredInConfigurationOrViaDelegate);
             }
 
+            if (effectiveOptions.TokenAcquisitionOptions == null)
+            {
+                effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
+            }
+
+            effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
+
             string apiUrl = effectiveOptions.GetApiUrl();
 
             CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
 
-            if (cancellationToken != default)
-            {
-                if (effectiveOptions.TokenAcquisitionOptions == null)
-                {
-                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
-                }
-
-                effectiveOptions.TokenAcquisitionOptions.CancellationToken = cancellationToken;
-            }
 
             AuthenticationResult authResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 effectiveOptions.Scopes,
@@ -243,11 +238,6 @@ namespace Microsoft.Identity.Web
         {
             if (effectiveOptions.IsProofOfPossessionRequest && effectiveOptions.TokenAcquisitionOptions?.PoPConfiguration != null)
             {
-                if (effectiveOptions.TokenAcquisitionOptions == null)
-                {
-                    effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
-                }
-
                 effectiveOptions.TokenAcquisitionOptions.PoPConfiguration = new PoPAuthenticationConfiguration(new Uri(apiUrl))
                 {
                     HttpMethod = effectiveOptions.HttpMethod,
