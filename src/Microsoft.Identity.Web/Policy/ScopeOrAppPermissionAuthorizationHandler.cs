@@ -98,16 +98,20 @@ namespace Microsoft.Identity.Web
               .Union(context.User.FindAll(ClaimConstants.Scope))
               .ToList();
 
-            bool appPermissionMatch = appPermissions.Any(p => context.User.IsInRole(p));
+           var appPermissionClaims = context.User.FindAll(ClaimConstants.Role)
+              .Union(context.User.FindAll(ClaimConstants.Roles))
+              .ToList();
 
-            if (!scopeClaims.Any() && !appPermissionMatch)
+            if (!scopeClaims.Any() && !appPermissionClaims.Any())
             {
                 return Task.CompletedTask;
             }
+            
+            var hasScope = scopes != null && scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
 
-            var hasScope = scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
+            var hasAppPermission = appPermissions != null && appPermissionClaims.SelectMany(s => s.Value.Split(' ')).Intersect(appPermissions).Any();
 
-            if (hasScope || appPermissionMatch)
+            if (hasScope || hasAppPermission)
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

@@ -1809,6 +1809,26 @@
             <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
             <returns>A reference to this instance after the operation has completed.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScopeOrAppPermission(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.String[],System.String[])">
+            <summary>
+            Adds a <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance which requires
+            that the current user has the specified claim and that the claim value must be one of the allowed values.
+            </summary>
+            <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
+            <param name="allowedScopeValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <param name="allowedAppPermissionValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <returns>A reference to this instance after the operation has completed.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScopeOrAppPermission(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance which requires
+            that the current user has the specified claim and that the claim value must be one of the allowed values.
+            </summary>
+            <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
+            <param name="allowedScopeValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <param name="allowedAppPermissionValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <returns>A reference to this instance after the operation has completed.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute">
             <summary>
             This attribute is used on a controller, pages, or controller actions

@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                value = $"TokenValidationParameters.RoleClaimType is one of th following values:  ({string.Join("|", AppPermissionAllowedValues)})";
+                value = $" and `{ClaimConstants.Roles}` or `{ClaimConstants.Roles}` is one of the following values: ({string.Join("|", AppPermissionAllowedValues!)})";
             }
 
             return $"{nameof(ScopeOrAppPermissionAuthorizationRequirement)}:Scope/AppPermission={value}";
