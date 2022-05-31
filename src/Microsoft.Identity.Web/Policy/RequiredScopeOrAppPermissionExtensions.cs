@@ -55,8 +55,8 @@ namespace Microsoft.Identity.Web
                 AcceptedAppPermission = appPermission;
             }
 
-            public IEnumerable<string>? AcceptedScope { get; }
-            public IEnumerable<string>? AcceptedAppPermission { get; }
+            public string[]? AcceptedScope { get; }
+            public string[]? AcceptedAppPermission { get; }
 
             public string? RequiredScopesConfigurationKey { get; }
             public string? RequiredAppPermissionsConfigurationKey { get; }

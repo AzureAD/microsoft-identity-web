@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         /// App permissions accepted by this web API.
         /// App permissions appear in the roles claim of the token.
         /// </summary>
-        IEnumerable<string>? AcceptedAppPermission { get; }
+        string[]? AcceptedAppPermission { get; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes 
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        IEnumerable<string>? AcceptedScope { get; }
+        string[]? AcceptedScope { get; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated

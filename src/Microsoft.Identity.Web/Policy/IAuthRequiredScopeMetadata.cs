@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        IEnumerable<string>? AcceptedScope { get; }
+        string[]? AcceptedScope { get; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated
