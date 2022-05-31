@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -894,14 +895,90 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        Task<AuthenticationResult> ITokenAcquirer.GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, TokenAcquisitionOptions? tokenAcquisitionOptions, ClaimsPrincipal? user)
+        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, TokenAcquirerOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
         {
-            return GetAuthenticationResultForUserAsync(scopes, tokenAcquisitionOptions?.AuthenticationScheme, tokenAcquisitionOptions?.Tenant, tokenAcquisitionOptions?.UserFlow, user, tokenAcquisitionOptions);
+            var result = await GetAuthenticationResultForUserAsync(
+                scopes,
+                tokenAcquisitionOptions?.AuthenticationScheme,
+                tokenAcquisitionOptions?.Tenant,
+                tokenAcquisitionOptions?.UserFlow,
+                user,
+                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
+                {
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
+                    CancellationToken = cancellationToken,
+                    Claims = tokenAcquisitionOptions!.Claims,
+                    CorrelationId = tokenAcquisitionOptions!.CorrelationId,
+                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
+                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
+                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
+                    Tenant = tokenAcquisitionOptions.Tenant,
+                    UserFlow = tokenAcquisitionOptions.UserFlow,
+                    // TODO: PopKeyId?
+                }).ConfigureAwait(false);
+
+            return new TokenAcquirerResult(
+                result.AccessToken,
+                result.ExpiresOn,
+                result.TenantId,
+                result.IdToken,
+                result.Scopes,
+                result.CorrelationId);
         }
 
-        Task<AuthenticationResult> ITokenAcquirer.GetAuthenticationResultForAppAsync(string scope, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, TokenAcquirerOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
-            return GetAuthenticationResultForAppAsync(scope, tokenAcquisitionOptions?.AuthenticationScheme, tokenAcquisitionOptions?.Tenant, tokenAcquisitionOptions);
+            var result = await GetAuthenticationResultForAppAsync(
+                scope, 
+                tokenAcquisitionOptions?.AuthenticationScheme, 
+                tokenAcquisitionOptions?.Tenant,
+                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
+                {
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
+                    CancellationToken = cancellationToken,
+                    Claims = tokenAcquisitionOptions!.Claims,
+                    CorrelationId = tokenAcquisitionOptions.CorrelationId,
+                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
+                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
+                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
+                    Tenant = tokenAcquisitionOptions.Tenant,
+                    UserFlow = tokenAcquisitionOptions.UserFlow,
+                    // TODO: PopKeyId?
+                }).ConfigureAwait(false);
+
+            return new TokenAcquirerResult(
+                result.AccessToken,
+                result.ExpiresOn,
+                result.TenantId,
+                result.IdToken,
+                result.Scopes,
+                result.CorrelationId);
+        }
+
+
+        internal class TokenAcquirerResult : ITokenAcquirerResult
+        {
+            public TokenAcquirerResult(string accessToken, DateTimeOffset expiresOn, string tenantId, string idToken, IEnumerable<string> scopes, Guid correlationId)
+            {
+                AccessToken = accessToken;
+                ExpiresOn = expiresOn;
+                TenantId = tenantId;
+                IdToken = idToken;
+                Scopes = scopes;
+                CorrelationId = correlationId;
+            }
+
+            public string AccessToken { get; internal set; }
+
+            public DateTimeOffset ExpiresOn { get; internal set; }
+
+            public string TenantId { get; internal set; }
+
+            public string IdToken { get; internal set; }
+
+            public IEnumerable<string> Scopes { get; internal set; }
+
+            public Guid CorrelationId { get; internal set; }
         }
     }
 }

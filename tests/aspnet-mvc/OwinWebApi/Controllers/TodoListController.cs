@@ -24,7 +24,7 @@ namespace OwinWebApi.Controllers
 
             // Example getting a token to call a downstream web API
             ITokenAcquirer tokenAcquirer = HttpContext.Current.GetTokenAcquirer();
-            var result = await tokenAcquirer.GetAuthenticationResultForUserAsync(new[] { "user.read" });
+            var result = await tokenAcquirer.GetTokenAcquirerResultForUserAsync(new[] { "user.read" });
 
             // return the item
             string owner = (HttpContext.Current.User as ClaimsPrincipal)?.GetDisplayName();

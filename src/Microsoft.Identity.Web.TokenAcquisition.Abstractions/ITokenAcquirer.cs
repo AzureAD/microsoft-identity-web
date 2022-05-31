@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
@@ -22,11 +23,13 @@ namespace Microsoft.Identity.Web
         /// <param name="user">Optional claims principal representing the user. If not provided, will use the signed-in
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+        Task<ITokenAcquirerResult> GetTokenAcquirerResultForUserAsync(
             IEnumerable<string> scopes,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null,
-            ClaimsPrincipal? user = null);
+            TokenAcquirerOptions? tokenAcquisitionOptions = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
@@ -38,9 +41,11 @@ namespace Microsoft.Identity.Web
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
         /// several calls to get tokens for other resources).</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
-        Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+        Task<ITokenAcquirerResult> GetTokenAcquirerResultForAppAsync(
             string scope,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null);
+            TokenAcquirerOptions? tokenAcquisitionOptions = null,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

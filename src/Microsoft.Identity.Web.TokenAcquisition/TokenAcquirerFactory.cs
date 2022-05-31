@@ -51,6 +51,23 @@ namespace Microsoft.Identity.Web
             return (defaultInstance as T)!;
         }
 
+
+        /// <summary>
+        /// Get the default instance
+        /// </summary>
+        /// <returns></returns>
+        static public TokenAcquirerFactory GetDefaultInstance() 
+        {
+            TokenAcquirerFactory instance;
+            if (defaultInstance == null)
+            {
+                instance = new TokenAcquirerFactory();
+                instance.ReadConfiguration();
+                defaultInstance = instance;
+            }
+            return defaultInstance!;
+        }
+
         /// <summary>
         /// Get the default instance.
         /// </summary>

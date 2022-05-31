@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-//#define UseMicrosoftGraphSdk
+#define UseMicrosoftGraphSdk
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +28,6 @@ namespace daemon_console
 
             // Add a cache
             services.AddDistributedTokenCaches();
-            services.AddDistributedMemoryCache(); /* or SQL, Redis, ... */
 
             var serviceProvider = tokenAcquirerFactory.Build();
 

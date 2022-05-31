@@ -3,15 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
-    public class TokenAcquisitionOptions
+    public class TokenAcquirerOptions
     {
         /// <summary>
         /// Enables to override the tenant/account for the same identity. This is useful in multi-tenant apps 
@@ -63,12 +61,7 @@ namespace Microsoft.Identity.Web
         /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
         /// which MSAL can manage. See https://aka.ms/msal-net-pop.
         /// </summary>
-        public PoPAuthenticationConfiguration? PoPConfiguration { get; set; }
-
-        /// <summary>
-        /// Cancellation token to be used when calling the token acquisition methods.
-        /// </summary>
-        public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
+        public string? PopKeyId { get; set; }
 
         /// <summary>
         /// Key used for long running web APIs that need to call downstream web
@@ -90,9 +83,9 @@ namespace Microsoft.Identity.Web
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
-        public TokenAcquisitionOptions Clone()
+        public TokenAcquirerOptions Clone()
         {
-            return new TokenAcquisitionOptions
+            return new TokenAcquirerOptions
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
@@ -101,8 +94,7 @@ namespace Microsoft.Identity.Web
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
-                PoPConfiguration = PoPConfiguration,
-                CancellationToken = CancellationToken,
+                PopKeyId = PopKeyId,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };
         }
