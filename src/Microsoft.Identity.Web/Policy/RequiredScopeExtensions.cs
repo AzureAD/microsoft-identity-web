@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
                 AcceptedScope = scope;
             }
 
-            public IEnumerable<string>? AcceptedScope { get; }
+            public string[]? AcceptedScope { get; }
 
             public string? RequiredScopesConfigurationKey { get; }
         }
