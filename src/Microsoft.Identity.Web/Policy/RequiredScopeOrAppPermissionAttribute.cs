@@ -31,15 +31,10 @@ namespace Microsoft.Identity.Web.Resource
         /// a property named "Scopes" contains the required scopes, the attribute on the
         /// controller/page/action to protect should be set to the following:
         /// <code>
-        /// [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
+        /// [RequiredScopeOrAppPermission(RequiredScopesConfigurationKey="AzureAd:Scopes")]
         /// </code>
         /// </example>
         public string? RequiredScopesConfigurationKey { get; set; }
-
-        /// <summary>
-        /// Unused: Compatibility of interface with the Authorization Filter.
-        /// </summary>
-        public bool IsReusable { get; set; }
 
         /// <summary>
         /// App permissions accepted by this web API.
@@ -77,7 +72,7 @@ namespace Microsoft.Identity.Web.Resource
         /// Add the following attribute on the controller/page/action to protect:
         ///
         /// <code>
-        /// [RequiredScopeOrAppPermissionAttribute(new string[] { "access_as_user" }, new string[] { "access_as_app" })]
+        /// [RequiredScopeOrAppPermission(new [] { "access_as_user" }, new [] { "access_as_app" })]
         /// </code>
         /// </example>
         /// <seealso cref="M:RequiredScopeOrAppPermissionAttribute()"/> and <see cref="RequiredAppPermissionsConfigurationKey"/>

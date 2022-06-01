@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
         /// <param name="scope">Scope.</param>
         /// <param name="appPermission">App permission.</param>
         /// <returns>Builder.</returns>
-        public static TBuilder RequireScope<TBuilder>(this TBuilder endpointConventionBuilder, string[] scope, string[] appPermission)
+        public static TBuilder RequireScopeOrAppPermission<TBuilder>(this TBuilder endpointConventionBuilder, string[] scope, string[] appPermission)
             where TBuilder : IEndpointConventionBuilder
         {
             return endpointConventionBuilder.WithMetadata(new RequiredScopeOrAppPermissionMetadata(scope, appPermission));

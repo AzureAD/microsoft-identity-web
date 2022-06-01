@@ -7,8 +7,8 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// This is the metadata that describes required auth scopes or app permissions for a given endpoint
-    /// in a web API. It's the underlying data structure the requirement <see cref="ScopeAuthorizationRequirement"/> will look for
-    /// in order to validate scopes in the scope claims.
+    /// in a web API. It's the underlying data structure the requirement <see cref="ScopeOrAppPermissionAuthorizationRequirement"/> will look for
+    /// in order to validate scopes in the scope claims or app permissions in the roles claim.
     /// </summary>
     public interface IAuthRequiredScopeOrAppPermissionMetadata
     {
@@ -19,8 +19,8 @@ namespace Microsoft.Identity.Web
         string[]? AcceptedAppPermission { get; }
 
         /// <summary>
-        /// Fully qualified name of the configuration key containing the required scopes 
-        /// or app permissions (separated by spaces).
+        /// Fully qualified name of the configuration key containing the required
+        /// app permissions (separated by spaces).
         /// </summary>
         string? RequiredAppPermissionsConfigurationKey { get; }
 
