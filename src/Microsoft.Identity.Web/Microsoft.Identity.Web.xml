@@ -1751,8 +1751,8 @@
         <member name="T:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata">
             <summary>
             This is the metadata that describes required auth scopes or app permissions for a given endpoint
-            in a web API. It's the underlying data structure the requirement <see cref="T:Microsoft.Identity.Web.ScopeAuthorizationRequirement"/> will look for
-            in order to validate scopes in the scope claims.
+            in a web API. It's the underlying data structure the requirement <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/> will look for
+            in order to validate scopes in the scope claims or app permissions in the roles claim.
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.AcceptedAppPermission">
@@ -1763,8 +1763,8 @@
         </member>
         <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.RequiredAppPermissionsConfigurationKey">
             <summary>
-            Fully qualified name of the configuration key containing the required scopes 
-            or app permissions (separated by spaces).
+            Fully qualified name of the configuration key containing the required
+            app permissions (separated by spaces).
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata.AcceptedScope">
@@ -1809,24 +1809,14 @@
             <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
             <returns>A reference to this instance after the operation has completed.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScopeOrAppPermission(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.String[],System.String[])">
-            <summary>
-            Adds a <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance which requires
-            that the current user has the specified claim and that the claim value must be one of the allowed values.
-            </summary>
-            <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
-            <param name="allowedScopeValues">Values the claim must process one or more of for evaluation to succeed.</param>
-            <param name="allowedAppPermissionValues">Values the claim must process one or more of for evaluation to succeed.</param>
-            <returns>A reference to this instance after the operation has completed.</returns>
-        </member>
         <member name="M:Microsoft.Identity.Web.PolicyBuilderExtensions.RequireScopeOrAppPermission(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder,System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             Adds a <see cref="T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance which requires
             that the current user has the specified claim and that the claim value must be one of the allowed values.
             </summary>
             <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
-            <param name="allowedScopeValues">Values the claim must process one or more of for evaluation to succeed.</param>
-            <param name="allowedAppPermissionValues">Values the claim must process one or more of for evaluation to succeed.</param>
+            <param name="allowedScopeValues">scopes (the value of scope or scp) accepted by this app.</param>
+            <param name="allowedAppPermissionValues">App permission (in role claim) that this app accepts.</param>
             <returns>A reference to this instance after the operation has completed.</returns>
         </member>
         <member name="T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute">
@@ -1921,14 +1911,9 @@
             a property named "Scopes" contains the required scopes, the attribute on the
             controller/page/action to protect should be set to the following:
             <code>
-            [RequiredScope(RequiredScopesConfigurationKey="AzureAd:Scopes")]
+            [RequiredScopeOrAppPermission(RequiredScopesConfigurationKey="AzureAd:Scopes")]
             </code>
             </example>
-        </member>
-        <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.IsReusable">
-            <summary>
-            Unused: Compatibility of interface with the Authorization Filter.
-            </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.AcceptedAppPermission">
             <summary>
@@ -1967,7 +1952,7 @@
              Add the following attribute on the controller/page/action to protect:
             
              <code>
-             [RequiredScopeOrAppPermissionAttribute(new string[] { "access_as_user" }, new string[] { "access_as_app" })]
+             [RequiredScopeOrAppPermission(new [] { "access_as_user" }, new [] { "access_as_app" })]
              </code>
              </example>
              <seealso cref="M:RequiredScopeOrAppPermissionAttribute()"/> and <see cref="P:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute.RequiredAppPermissionsConfigurationKey"/>
@@ -2250,7 +2235,7 @@
             <param name="services">The services being configured.</param>
             <returns>Services.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions.RequireScope``1(``0,System.String[],System.String[])">
+        <member name="M:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions.RequireScopeOrAppPermission``1(``0,System.String[],System.String[])">
             <summary>
             This method adds metadata to route endpoint to describe required scopes or app permissions. It's the imperative version of
             the [RequiredScopeOrAppPermission] attribute.
