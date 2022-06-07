@@ -294,7 +294,11 @@ namespace Microsoft.Identity.Web
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+#if DOTNET_50_AND_ABOVE
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
             }
 
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
