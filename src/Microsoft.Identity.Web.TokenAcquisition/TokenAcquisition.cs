@@ -654,11 +654,25 @@ namespace Microsoft.Identity.Web
                 if (builder != null)
                 {
                     builder.WithSendX5C(mergedOptions.SendX5C);
+
+                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
+                    var userTenant = string.Empty;
+                    if (user != null)
+                    {
+                        userTenant = user.GetTenantId();
+                        builder.WithCcsRoutingHint(user.GetObjectId(), userTenant);
+                    }
                     if (!string.IsNullOrEmpty(tenantId))
                     {
                         builder.WithTenantId(tenantId);
                     }
-
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(userTenant))
+                        {
+                            builder.WithTenantId(userTenant);
+                        }
+                    }
                     if (tokenAcquisitionOptions != null)
                     {
                         builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
@@ -669,13 +683,7 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
-                    }
-
-                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
-                    if (user != null)
-                    {
-                        builder.WithCcsRoutingHint(user.GetObjectId(), user.GetTenantId());
-                    }
+                    }                    
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
                                         .ConfigureAwait(false);
