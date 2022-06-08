@@ -82,7 +82,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
+   <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />
     <PackageReference Include="Microsoft.Graph" Version="4.11.0" />
@@ -115,6 +115,7 @@
     <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory">
       <Version>4.2.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1.0" />
   </ItemGroup>
 
   <ItemGroup>
