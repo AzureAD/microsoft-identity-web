@@ -25,9 +25,9 @@ namespace Microsoft.Identity.Web
         public string? UserFlow { get; set; }
 
         /// <summary>
-        /// Requires a particular authentication scheme / settings
+        /// Requires a particular authentication scheme (ASP.NET Core) / settings
         /// </summary>
-        public string? AuthenticationScheme{ get; set; }
+        public string? ApplicationConfigurationMoniker{ get; set; }
 
         /// <summary>
         /// Sets the correlation id to be used in the authentication request
@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web
         /// Value that can be used for <see cref="LongRunningWebApiSessionKey"/> so that
         /// MSAL.NET allocates the long running web api session key for the developer.
         /// </summary>
-        public static string LongRunningWebApiSessionKeyAuto = "AllocateForMe";
+        public static string LongRunningWebApiSessionKeyAuto { get; set; } = "AllocateForMe";
 
         /// <summary>
         /// Clone the options (to be able to override them).
