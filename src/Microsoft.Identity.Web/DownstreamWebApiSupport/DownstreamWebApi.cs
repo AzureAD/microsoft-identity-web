@@ -135,10 +135,13 @@ namespace Microsoft.Identity.Web
             {
 #if DOTNET_50_AND_ABOVE
                 string error = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
 #else
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-#endif
+
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
             }
 
 #if DOTNET_50_AND_ABOVE

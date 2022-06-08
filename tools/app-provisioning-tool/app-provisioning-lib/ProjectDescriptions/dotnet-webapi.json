@@ -15,7 +15,16 @@
   ],
   "ConfigurationProperties": [
     {
-      "FileRelativePath": "Startup.cs",
+        "FileRelativePath": "Startup.cs",
+        "Properties": [
+            {
+                "MatchAny": [ ".AddAzureAdBearer", ".AddMicrosoftIdentityWebApi", ".AddMicrosoftIdentityWebApiAuthentication" ],
+                "Sets": "HasAuthentication"
+            }
+        ]
+    },
+    {
+      "FileRelativePath": "Program.cs",
       "Properties": [
         {
           "MatchAny": [ ".AddAzureAdBearer", ".AddMicrosoftIdentityWebApi", ".AddMicrosoftIdentityWebApiAuthentication" ],

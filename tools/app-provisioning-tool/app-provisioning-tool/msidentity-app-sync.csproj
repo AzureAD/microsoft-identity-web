@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <Version>1.0.1</Version>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <RootNamespace>Microsoft.Identity.App</RootNamespace>
