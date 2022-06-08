@@ -87,7 +87,30 @@
         ]
     },
     {
-      "FileRelativePath": "Startup.cs",
+        "FileRelativePath": "Startup.cs",
+        "Properties": [
+            {
+                "MatchAny": [ ".AddMicrosoftGraph", ".AddMicrosoftGraphBeta" ],
+                "Sets": "CallsMicrosoftGraph"
+            },
+            {
+                "MatchAny": [ ".EnableTokenAcquisitionToCallDownstreamApi", ".AddDownstreamWebApi" ],
+                "Sets": "CallsDownstreamApi"
+            },
+            {
+                "Property": "\"AzureAdB2C\"",
+                "Represents": "Application.ConfigurationSection",
+                "Sets": "IsB2C"
+            },
+            {
+                "Property": "\"AzureAd\"",
+                "Represents": "Application.ConfigurationSection",
+                "Sets": "IsAAD"
+            }
+        ]
+    },
+    {
+      "FileRelativePath": "Program.cs",
         "Properties": [
             {
                 "MatchAny": [ ".AddMicrosoftGraph", ".AddMicrosoftGraphBeta" ],

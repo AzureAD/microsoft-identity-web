@@ -163,11 +163,12 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
             builder.Services.AddRequiredScopeAuthorization();
+            builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
-                builder.Services.AddSingleton<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
+                builder.Services.AddTransient<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
             }
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).

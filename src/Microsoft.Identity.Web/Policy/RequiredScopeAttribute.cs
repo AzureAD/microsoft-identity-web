@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        public IEnumerable<string>? AcceptedScope { get; set; }
+        public string[]? AcceptedScope { get; set; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated
