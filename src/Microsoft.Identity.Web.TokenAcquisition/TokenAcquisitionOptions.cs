@@ -26,7 +26,18 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
-  
+        /// <summary>
+        /// ASP.NET Core authentication scheme.
+        /// </summary>
+        public string? AuthenticationScheme
+        {
+            get
+            {
+                return ApplicationConfigurationMoniker;
+            }
+            set { ApplicationConfigurationMoniker = value; }
+        }
+
         /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
@@ -43,7 +54,7 @@ namespace Microsoft.Identity.Web
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
                 PoPConfiguration = PoPConfiguration,
-                PopKeyId = PopKeyId,
+                PopPublicKey = PopPublicKey,
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };

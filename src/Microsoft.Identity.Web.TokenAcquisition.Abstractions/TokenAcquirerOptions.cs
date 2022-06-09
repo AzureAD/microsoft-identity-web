@@ -25,9 +25,9 @@ namespace Microsoft.Identity.Web
         public string? UserFlow { get; set; }
 
         /// <summary>
-        /// Requires a particular authentication scheme / settings
+        /// Requires a particular authentication scheme (ASP.NET Core) / settings
         /// </summary>
-        public string? AuthenticationScheme{ get; set; }
+        public string? ApplicationConfigurationMoniker{ get; set; }
 
         /// <summary>
         /// Sets the correlation id to be used in the authentication request
@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
         /// which MSAL can manage. See https://aka.ms/msal-net-pop.
         /// </summary>
-        public string? PopKeyId { get; set; }
+        public string? PopPublicKey { get; set; }
 
         /// <summary>
         /// Key used for long running web APIs that need to call downstream web
@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web
         /// Value that can be used for <see cref="LongRunningWebApiSessionKey"/> so that
         /// MSAL.NET allocates the long running web api session key for the developer.
         /// </summary>
-        public static string LongRunningWebApiSessionKeyAuto = "AllocateForMe";
+        public static string LongRunningWebApiSessionKeyAuto { get; set; } = "AllocateForMe";
 
         /// <summary>
         /// Clone the options (to be able to override them).
@@ -89,12 +89,12 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
-                AuthenticationScheme = AuthenticationScheme,
+                ApplicationConfigurationMoniker = ApplicationConfigurationMoniker,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
-                PopKeyId = PopKeyId,
+                PopPublicKey = PopPublicKey,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };
         }
