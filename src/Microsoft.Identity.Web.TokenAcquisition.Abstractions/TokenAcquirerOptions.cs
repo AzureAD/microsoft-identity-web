@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
         /// PoP tokens are similar to Bearer tokens, but are bound to the HTTP request and to a cryptographic key,
         /// which MSAL can manage. See https://aka.ms/msal-net-pop.
         /// </summary>
-        public string? PopKeyId { get; set; }
+        public string? PopPublicKey { get; set; }
 
         /// <summary>
         /// Key used for long running web APIs that need to call downstream web
@@ -89,12 +89,12 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
-                AuthenticationScheme = AuthenticationScheme,
+                ApplicationConfigurationMoniker = ApplicationConfigurationMoniker,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
-                PopKeyId = PopKeyId,
+                PopPublicKey = PopPublicKey,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };
         }
