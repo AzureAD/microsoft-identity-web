@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web
 {
+    // TODO: split between TokenAcquirerOptions and AadTokenAcquirerOptions?
+
     /// <summary>
     /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
@@ -28,6 +30,12 @@ namespace Microsoft.Identity.Web
         /// Requires a particular authentication scheme (ASP.NET Core) / settings
         /// </summary>
         public string? ApplicationConfigurationMoniker{ get; set; }
+
+        /// <summary>
+        /// Name of the policy being used (can be null, in which case the configuration described
+        /// by <see cref="ApplicationConfigurationMoniker"/> is used.
+        /// </summary>
+        public string? OutboundPolicyName { get; set; }
 
         /// <summary>
         /// Sets the correlation id to be used in the authentication request

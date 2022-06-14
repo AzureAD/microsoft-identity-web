@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Web
         /// <param name="certificate"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, X509Certificate2 certificate)
+        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, CredentialDescription certificate)
         {
             throw new NotImplementedException();
         }
@@ -149,6 +149,17 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get a token acquirer from the application identity options
+        /// </summary>
+        /// <param name="applicationIdentityOptions"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ITokenAcquirer GetTokenAcquirer(ApplicationIdentityOptions applicationIdentityOptions)
         {
             throw new NotImplementedException();
         }
