@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
-using Microsoft.IdentityModel.Extensions.AspNetCore;
+using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Logging;
 
 namespace Microsoft.Identity.Web
@@ -43,12 +43,12 @@ namespace Microsoft.Identity.Web
                     return;
 
                 // check if an ILogger was already created by user
-                ILogger logger = serviceProvider.GetService<ILogger<IdentityModelLoggerAdapter>>();
+                ILogger logger = serviceProvider.GetService<ILogger<IdentityLoggerAdapter>>();
                 if (logger == null)
                 {
                     var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
                     if (loggerFactory != null)
-                        logger = loggerFactory.CreateLogger<IdentityModelLoggerAdapter>();
+                        logger = loggerFactory.CreateLogger<IdentityLoggerAdapter>();
                 }
 
                 // return if user hasn't configured any logging
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
                     return;
 
                 // initialize Wilson logger
-                IIdentityLogger identityLogger = new IdentityModelLoggerAdapter(logger);
+                IIdentityLogger identityLogger = new IdentityLoggerAdapter(logger);
                 LogHelper.Logger = identityLogger;
             }
         }
