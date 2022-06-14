@@ -115,7 +115,9 @@
     <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory">
       <Version>4.2.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1.0" />
+    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect">
+      <Version>4.2.1</Version>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
