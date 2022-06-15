@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
-    public class TokenAcquisitionOptions : TokenAcquirerOptions
+    public class TokenAcquisitionOptions : AcquireTokenOptions
     {
         /// <summary>
         /// Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),

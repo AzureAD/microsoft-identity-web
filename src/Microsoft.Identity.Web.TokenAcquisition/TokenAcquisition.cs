@@ -903,7 +903,7 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, TokenAcquirerOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
+        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
@@ -934,7 +934,7 @@ namespace Microsoft.Identity.Web
                 result.CorrelationId);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, TokenAcquirerOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
+        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForAppAsync(
                 scope, 

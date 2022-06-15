@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
-    public class TokenAcquirerOptions
+    public class AcquireTokenOptions
     {
         /// <summary>
         /// Enables to override the tenant/account for the same identity. This is useful in multi-tenant apps 
@@ -91,9 +91,9 @@ namespace Microsoft.Identity.Web
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
-        public TokenAcquirerOptions Clone()
+        public AcquireTokenOptions Clone()
         {
-            return new TokenAcquirerOptions
+            return new AcquireTokenOptions
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,

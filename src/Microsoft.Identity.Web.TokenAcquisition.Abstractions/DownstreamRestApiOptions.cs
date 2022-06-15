@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Options related to the token acquisition
         /// </summary>
-        TokenAcquirerOptions? TokenAcquirerOptions { get; set; }
+        AcquireTokenOptions? TokenAcquirerOptions { get; set; }
 
         /// <summary>
         /// Clone the options (to be able to override them).

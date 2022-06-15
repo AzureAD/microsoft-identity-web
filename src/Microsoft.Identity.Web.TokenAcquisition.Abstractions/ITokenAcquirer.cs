@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
         Task<ITokenAcquirerResult> GetTokenAcquirerResultForUserAsync(
             IEnumerable<string> scopes,
-            TokenAcquirerOptions? tokenAcquisitionOptions = null,
+            AcquireTokenOptions? tokenAcquisitionOptions = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default(CancellationToken));
 
@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
         Task<ITokenAcquirerResult> GetTokenAcquirerResultForAppAsync(
             string scope,
-            TokenAcquirerOptions? tokenAcquisitionOptions = null,
+            AcquireTokenOptions? tokenAcquisitionOptions = null,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }
