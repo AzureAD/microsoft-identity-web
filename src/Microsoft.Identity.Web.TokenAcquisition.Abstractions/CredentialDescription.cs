@@ -14,19 +14,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Type of the source of the certificate.
         /// </summary>
-        public CertificateSource SourceType { get; set; }
+        public CredentialSource SourceType { get; set; }
 
         /// <summary>
         /// Container in which to find the certificate.
         /// <list type="bullet">
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.KeyVault"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.KeyVault"/>, then
         /// the container is the Key Vault base URL.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Base64Encoded"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Base64Encoded"/>, then
         /// this value is not used.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Path"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Path"/>, then
         /// this value is the path on disk where to find the certificate.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithDistinguishedName"/>,
-        /// or <see cref="CertificateSource.StoreWithThumbprint"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithDistinguishedName"/>,
+        /// or <see cref="CredentialSource.StoreWithThumbprint"/>, then
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
         /// </list>
         /// </summary>
@@ -36,16 +36,16 @@ namespace Microsoft.Identity.Web
             {
                 switch (SourceType)
                 {
-                    case CertificateSource.Certificate:
+                    case CredentialSource.Certificate:
                         return null;
-                    case CertificateSource.KeyVault:
+                    case CredentialSource.KeyVault:
                         return KeyVaultUrl;
-                    case CertificateSource.Base64Encoded:
+                    case CredentialSource.Base64Encoded:
                         return null;
-                    case CertificateSource.Path:
+                    case CredentialSource.Path:
                         return CertificateDiskPath;
-                    case CertificateSource.StoreWithThumbprint:
-                    case CertificateSource.StoreWithDistinguishedName:
+                    case CredentialSource.StoreWithThumbprint:
+                    case CredentialSource.StoreWithDistinguishedName:
                         return CertificateStorePath;
                     default:
                         return null;
@@ -55,18 +55,18 @@ namespace Microsoft.Identity.Web
             {
                 switch (SourceType)
                 {
-                    case CertificateSource.Certificate:
+                    case CredentialSource.Certificate:
                         break;
-                    case CertificateSource.KeyVault:
+                    case CredentialSource.KeyVault:
                         KeyVaultUrl = value;
                         break;
-                    case CertificateSource.Base64Encoded:
+                    case CredentialSource.Base64Encoded:
                         break;
-                    case CertificateSource.Path:
+                    case CredentialSource.Path:
                         CertificateDiskPath = value;
                         break;
-                    case CertificateSource.StoreWithDistinguishedName:
-                    case CertificateSource.StoreWithThumbprint:
+                    case CredentialSource.StoreWithDistinguishedName:
+                    case CredentialSource.StoreWithThumbprint:
                         CertificateStorePath = value;
                         break;
                     default:
@@ -117,18 +117,33 @@ namespace Microsoft.Identity.Web
         public string? Base64EncodedValue { get; set; }
 
         /// <summary>
+        /// Client Secret.
+        /// </summary>
+        public string? ClientSecret { get; set; }
+
+        /// <summary>
+        /// ClientId of the Azure managed identity.
+        /// </summary>
+        public string? ManagedIdentityClientId { get; set; }
+
+        /// <summary>
+        /// Path on disk to the signed assertion (for Kubernetes).
+        /// </summary>
+        public string? SignedAssertionFileDiskPath { get; set; }
+
+        /// <summary>
         /// Reference to the certificate or value.
         /// </summary>
         /// <list type="bullet">
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.KeyVault"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.KeyVault"/>, then
         /// the reference is the name of the certificate in Key Vault (maybe the version?).</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Base64Encoded"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Base64Encoded"/>, then
         /// this value is the base 64 encoded certificate itself.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Path"/>, then
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Path"/>, then
         /// this value is the password to access the certificate (if needed).</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithDistinguishedName"/>,
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithDistinguishedName"/>,
         /// this value is the distinguished name.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithThumbprint"/>,
+        /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithThumbprint"/>,
         /// this value is the thumbprint.</item>
         /// </list>
         internal string? ReferenceOrValue
@@ -137,17 +152,23 @@ namespace Microsoft.Identity.Web
             {
                 switch (SourceType)
                 {
-                    case CertificateSource.KeyVault:
+                    case CredentialSource.KeyVault:
                         return KeyVaultCertificateName;
-                    case CertificateSource.Path:
+                    case CredentialSource.Path:
                         return CertificatePassword;
-                    case CertificateSource.StoreWithThumbprint:
+                    case CredentialSource.StoreWithThumbprint:
                         return CertificateThumbprint;
-                    case CertificateSource.StoreWithDistinguishedName:
+                    case CredentialSource.StoreWithDistinguishedName:
                         return CertificateDistinguishedName;
-                    case CertificateSource.Certificate:
-                    case CertificateSource.Base64Encoded:
+                    case CredentialSource.Certificate:
+                    case CredentialSource.Base64Encoded:
                         return Base64EncodedValue;
+                    case CredentialSource.ClientSecret:
+                        return ClientSecret;
+                    case CredentialSource.CertificatelessWithManagedIdentity:
+                        return ManagedIdentityClientId;
+                    case CredentialSource.SignedAssertionFilePath:
+                        return SignedAssertionFileDiskPath;
                     default:
                         return null;
                 }
@@ -156,22 +177,31 @@ namespace Microsoft.Identity.Web
             {
                 switch (SourceType)
                 {
-                    case CertificateSource.Certificate:
+                    case CredentialSource.Certificate:
                         break;
-                    case CertificateSource.KeyVault:
+                    case CredentialSource.KeyVault:
                         KeyVaultCertificateName = value;
                         break;
-                    case CertificateSource.Base64Encoded:
+                    case CredentialSource.Base64Encoded:
                         Base64EncodedValue = value;
                         break;
-                    case CertificateSource.Path:
+                    case CredentialSource.Path:
                         CertificateDiskPath = value;
                         break;
-                    case CertificateSource.StoreWithThumbprint:
+                    case CredentialSource.StoreWithThumbprint:
                         CertificateThumbprint = value;
                         break;
-                    case CertificateSource.StoreWithDistinguishedName:
+                    case CredentialSource.StoreWithDistinguishedName:
                         CertificateDistinguishedName = value;
+                        break;
+                    case CredentialSource.ClientSecret:
+                        ClientSecret = value;
+                        break;
+                    case CredentialSource.CertificatelessWithManagedIdentity:
+                        ManagedIdentityClientId = value;
+                        break;
+                    case CredentialSource.SignedAssertionFilePath:
+                        SignedAssertionFileDiskPath = value;
                         break;
                     default:
                         break;

@@ -29,8 +29,8 @@ namespace Microsoft.Identity.Web
         /// Note that it's rather recommended to use the override of <see cref="GetTokenAcquirer(string)"/>
         /// 
         /// </summary>
-        /// <param name="applicationIdentityOptions">Application configuration.</param>
+        /// <param name="aadApplicationIdentityOptions">Application configuration.</param>
         /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
-        ITokenAcquirer GetTokenAcquirer(ApplicationIdentityOptions applicationIdentityOptions);
+        ITokenAcquirer GetTokenAcquirer(AadApplicationIdentityOptions aadApplicationIdentityOptions);
     }
 }

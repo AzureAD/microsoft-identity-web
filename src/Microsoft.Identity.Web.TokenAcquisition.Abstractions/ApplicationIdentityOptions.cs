@@ -7,19 +7,14 @@ using System.Linq;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
+    /// Options for configuring authentication (generic).
     /// </summary>
     public class ApplicationIdentityOptions
     {
         /// <summary>
-        /// Gets or sets the Authority to use when making OpenIdConnect calls.
+        /// Gets or sets the Authority to use when calling the STS.
         /// </summary>
-        public string? Authority
-        {
-            get { return _authority ?? $"{Instance}{TenantId}/v2.0"; }
-            set { _authority = value; }
-        }
-        private string? _authority;
+        public virtual string? Authority { get; set; }
 
         /// <summary>
         /// Gets or sets the 'client_id' (application ID) as appears in the 
@@ -31,53 +26,9 @@ namespace Microsoft.Identity.Web
             set;
         }
 
-        /// <summary>
-        /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com".
-        /// </summary>
-        public string Instance { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets the tenant ID.
-        /// </summary>
-        public string? TenantId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the domain of the Azure Active Directory tenant, e.g. contoso.onmicrosoft.com.
-        /// </summary>
-        public string? Domain { get; set; }
-
-        #region AADB2C
-        /// <summary>
-        /// Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
-        /// </summary>
-        public string? EditProfilePolicyId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sign up or sign in user flow name for B2C, e.g. b2c_1_susi.
-        /// </summary>
-        public string? SignUpSignInPolicyId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reset password user flow name for B2C, e.g. B2C_1_password_reset.
-        /// </summary>
-        public string? ResetPasswordPolicyId { get; set; }
-
-        /// <summary>
-        /// Gets the default user flow (which is signUpsignIn).
-        /// </summary>
-        public string? DefaultUserFlow => SignUpSignInPolicyId;
-
-        /// <summary>
-        /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
-        /// </summary>
-        internal bool IsB2C
-        {
-            get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
-        }
-
-        #endregion
-
         #region Token Acquisition
+        // TODO? Do we want to incorporate the ClientSecret in the ClientCredentials? 
+
         /// <summary>
         /// Client secret used to authenticate a confidential client app to AAD
         /// (alternatively use client certificates)
@@ -90,7 +41,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal bool HasClientCredentials
         {
-            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCertificates != null && ClientCertificates.Any());
+            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCredentials != null && ClientCredentials.Any());
         }
 
         /// <summary>
@@ -98,7 +49,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <example> An example in the appsetting.json:
         /// <code>
-        /// "ClientCertificates": [
+        /// "ClientCredentials": [
         ///   {
         ///     "SourceType": "StoreWithDistinguishedName",
         ///      "CertificateStorePath": "CurrentUser/My",
@@ -108,14 +59,14 @@ namespace Microsoft.Identity.Web
         ///   </code>
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
-        public IEnumerable<CredentialDescription>? ClientCertificates { get; set; }
+        public IEnumerable<CredentialDescription>? ClientCredentials { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a web API.
         /// </summary>
         /// <example> An example in the appsetting.json:
         /// <code>
-        /// "TokenDecryptionCertificates": [
+        /// "TokenDecryptionCredentials": [
         ///   {
         ///     "SourceType": "StoreWithDistinguishedName",
         ///      "CertificateStorePath": "CurrentUser/My",
@@ -125,7 +76,7 @@ namespace Microsoft.Identity.Web
         ///   </code>
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
-        public IEnumerable<CredentialDescription>? TokenDecryptionCertificates { get; set; }
+        public IEnumerable<CredentialDescription>? TokenDecryptionCredentials { get; set; }
 
         /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.

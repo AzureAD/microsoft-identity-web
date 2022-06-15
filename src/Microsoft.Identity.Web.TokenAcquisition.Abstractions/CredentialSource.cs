@@ -6,7 +6,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Source for a certificate.
     /// </summary>
-    public enum CertificateSource
+    public enum CredentialSource
     {
         /// <summary>
         /// Certificate itself.
@@ -37,5 +37,20 @@ namespace Microsoft.Identity.Web
         /// From the certificate store, described by its distinguished name.
         /// </summary>
         StoreWithDistinguishedName = 5,
+
+        /// <summary>
+        /// Client secret.
+        /// </summary>
+        ClientSecret=6,
+
+        /// <summary>
+        /// Certificateless with managed identity.
+        /// </summary>
+        CertificatelessWithManagedIdentity=7,
+
+        /// <summary>
+        /// Path to the file containing the signed assertion (for Kubernetes).
+        /// </summary>
+        SignedAssertionFilePath = 8,
     }
 }
