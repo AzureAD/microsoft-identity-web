@@ -12,8 +12,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.IdentityModel.Abstractions;
+using Microsoft.IdentityModel.LoggingExtensions;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
@@ -180,6 +184,7 @@ namespace Microsoft.Identity.Web
                 msIdOptionsMonitor,
                 msIdOptions) =>
                 {
+                    MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
                     MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
