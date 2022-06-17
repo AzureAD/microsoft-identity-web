@@ -903,7 +903,7 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
+        async Task<IAcquireTokenResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
@@ -934,7 +934,7 @@ namespace Microsoft.Identity.Web
                 result.CorrelationId);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
+        async Task<IAcquireTokenResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForAppAsync(
                 scope, 
@@ -964,7 +964,7 @@ namespace Microsoft.Identity.Web
         }
 
 
-        internal class TokenAcquirerResult : ITokenAcquirerResult
+        internal class TokenAcquirerResult : IAcquireTokenResult
         {
             public TokenAcquirerResult(string accessToken, DateTimeOffset expiresOn, string tenantId, string idToken, IEnumerable<string> scopes, Guid correlationId)
             {

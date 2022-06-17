@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -24,8 +23,8 @@ namespace Microsoft.Identity.Web
         /// user (in a web app), or the user for which the token was received (in a web API)
         /// cases where a given account is a guest in other tenants, and you want to acquire tokens for a specific tenant, like where the user is a guest in.</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>An <see cref="AuthenticationResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
-        Task<ITokenAcquirerResult> GetTokenAcquirerResultForUserAsync(
+        /// <returns>An <see cref="IAcquireTokenResult"/> to call on behalf of the user, the downstream API characterized by its scopes.</returns>
+        Task<IAcquireTokenResult> GetTokenAcquirerResultForUserAsync(
             IEnumerable<string> scopes,
             AcquireTokenOptions? tokenAcquisitionOptions = null,
             ClaimsPrincipal? user = null,
@@ -43,7 +42,7 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
-        Task<ITokenAcquirerResult> GetTokenAcquirerResultForAppAsync(
+        Task<IAcquireTokenResult> GetTokenAcquirerResultForAppAsync(
             string scope,
             AcquireTokenOptions? tokenAcquisitionOptions = null,
             CancellationToken cancellationToken = default(CancellationToken));

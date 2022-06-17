@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Result of a token acquisition
     /// </summary>
-    public interface ITokenAcquirerResult
+    public interface IAcquireTokenResult
     {
         /// <summary>
         /// Access Token that can be used as a bearer token to access protected web APIs
