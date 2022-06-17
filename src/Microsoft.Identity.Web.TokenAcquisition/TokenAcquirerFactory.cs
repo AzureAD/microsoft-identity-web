@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -142,24 +141,7 @@ namespace Microsoft.Identity.Web
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Get a token described by a specific authentication scheme/configuration
-        /// </summary>
-        /// <param name="authenticationScheme"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get a token acquirer from the application identity options
-        /// </summary>
-        /// <param name="applicationIdentityOptions"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(ApplicationIdentityOptions applicationIdentityOptions)
+        public ITokenAcquirer GetTokenAcquirer(AadApplicationIdentityOptions aadApplicationIdentityOptions)
         {
             throw new NotImplementedException();
         }

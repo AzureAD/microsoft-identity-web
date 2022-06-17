@@ -49,6 +49,11 @@ namespace Microsoft.Identity.Web
         public Dictionary<string, string>? ExtraQueryParameters { get; set; }
 
         /// <summary>
+        /// Sets Extra Header Parameters for the query string in the HTTP authentication request.
+        /// </summary>
+        public Dictionary<string, string>? ExtraHeadersParameters { get; set; }
+
+        /// <summary>
         /// A string with one or multiple claims to request.
         /// Normally used with Conditional Access.
         /// </summary>
