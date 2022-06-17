@@ -33,9 +33,9 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return ApplicationConfigurationMoniker;
+                return base.AuthenticationScheme;
             }
-            set { ApplicationConfigurationMoniker = value; }
+            set { base.AuthenticationScheme = value; }
         }
 
         /// <summary>

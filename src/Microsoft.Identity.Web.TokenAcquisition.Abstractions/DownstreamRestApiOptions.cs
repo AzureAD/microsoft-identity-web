@@ -35,9 +35,15 @@ namespace Microsoft.Identity.Web
         public Action<HttpRequestMessage>? CustomizeHttpRequestMessage { get; set; }
 
         /// <summary>
-        /// Options related to the token acquisition
+        /// Options related to the token acquisition.
         /// </summary>
-        AcquireTokenOptions? TokenAcquirerOptions { get; set; }
+        AcquireTokenOptions TokenAcquirerOptions { get; set; } = new AcquireTokenOptions();
+
+        /// <summary>
+        /// Name of the protocol scheme used to create the authorization header.
+        /// By default "Bearer"
+        /// </summary>
+        public string ProtocolScheme { set; get; } = "Bearer";
 
         /// <summary>
         /// Clone the options (to be able to override them).

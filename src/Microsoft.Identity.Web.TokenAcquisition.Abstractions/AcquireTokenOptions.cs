@@ -27,15 +27,9 @@ namespace Microsoft.Identity.Web
         public string? UserFlow { get; set; }
 
         /// <summary>
-        /// Requires a particular authentication scheme (ASP.NET Core) / settings
+        /// Requires a particular (ASP.NET Core) authentication scheme / settings
         /// </summary>
-        public string? ApplicationConfigurationMoniker{ get; set; }
-
-        /// <summary>
-        /// Name of the policy being used (can be null, in which case the configuration described
-        /// by <see cref="ApplicationConfigurationMoniker"/> is used.
-        /// </summary>
-        public string? OutboundPolicyName { get; set; }
+        public string? AuthenticationScheme { get; set; }
 
         /// <summary>
         /// Sets the correlation id to be used in the authentication request
@@ -102,7 +96,7 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
-                ApplicationConfigurationMoniker = ApplicationConfigurationMoniker,
+                AuthenticationScheme = AuthenticationScheme,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,

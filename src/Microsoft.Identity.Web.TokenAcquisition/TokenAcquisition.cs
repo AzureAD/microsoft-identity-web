@@ -907,13 +907,13 @@ namespace Microsoft.Identity.Web
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
-                tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                tokenAcquisitionOptions?.AuthenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 tokenAcquisitionOptions?.UserFlow,
                 user,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    ApplicationConfigurationMoniker = tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions!.CorrelationId,
@@ -938,11 +938,11 @@ namespace Microsoft.Identity.Web
         {
             var result = await GetAuthenticationResultForAppAsync(
                 scope, 
-                tokenAcquisitionOptions?.ApplicationConfigurationMoniker, 
+                tokenAcquisitionOptions?.AuthenticationScheme, 
                 tokenAcquisitionOptions?.Tenant,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    ApplicationConfigurationMoniker = tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions.CorrelationId,
