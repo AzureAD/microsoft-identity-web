@@ -1,0 +1,101 @@
+name: Bug report
+description: Broken or unintended behavior with one of the Microsoft.Identity.Web.* libraries.
+labels: [bug-unconfirmed, question]
+body:
+- type: markdown
+  attributes:
+    value: |
+      ## Issue details
+
+- type: dropdown
+  attributes:
+    label: Microsoft.Identity.Web Library
+    options: 
+      - "Microsoft.Identity.Web"
+      - "Microsoft.Identity.Web.TokenCache"
+      - "Microsoft.Identity.Web.Certificate"
+      - "Microsoft.Identity.Web.CertificateLess"
+      - "Microsoft.Identity.Web.UI"
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: Microsoft.Identity.Web version
+    description: "Please enter the latest version this issue can be reproduced in. "
+    placeholder: "1.25.0"
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Web app
+    options:
+      - "Sign-in users"
+      - "Sign-in users and call web APIs"
+      - "Not Applicable"
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Web API
+    options:
+      - "Protected web APIs (validating tokens)"
+      - "Protected web APIs (validating scopes/roles)"
+      - "Protected web APIs call downstream web APIs"
+      - "Not Applicable"
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Token cache serialization
+    options:
+      - "In-memory caches"
+      - "Distributed caches"
+      - "Not Applicable"
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Description
+    description: "Please briefly describe your issue. "
+  validations: 
+    required: true
+
+- type: textarea
+  attributes:
+    label: Reproduction steps
+    description: "Please provide clear steps to reproduce or a link to a sample which demonstrates this behavior."
+    placeholder: |
+      1.
+      2.
+      3.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Error message
+    description: "Please provide any error messages you are receiving and a stack trace. Do not include PII. "
+
+- type: textarea
+  attributes:
+    label: Id Web logs
+    description: "Please provide verbose level log messages. See https://aka.ms/ms-id-web/logging. "
+
+- type: textarea
+  attributes:
+    label: Relevant code snippets
+    description: "Please provide relevant code snippets that can be used to reproduce this issue."
+    render: csharp
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: Regression
+    description: "If this behavior worked before, please enter the last working version(s)."
+    placeholder: "Id Web 1.25.0"
