@@ -20,14 +20,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2.3.4
       
-    # Install workload
-    - name: Setup wasm-tools
-      run: dotnet workload install wasm-tools
-      
     - name: Setup .NET ${{ matrix.dotNetInstallVersion }}
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: ${{ matrix.dotNetInstallVersion }}
+              
+    # Install workload
+    - name: Setup wasm-tools
+      run: dotnet workload install wasm-tools
 
     - name: Build with .NET ${{ matrix.dotNetRunVersion }}
       run: dotnet test -f ${{ matrix.dotNetRunVersion }} -p:FROM_GITHUB_ACTION=true --configuration Release ${{ matrix.solution }}
