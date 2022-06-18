@@ -6,24 +6,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     continue-on-error: true
-    strategy:
-      matrix:
-        dotNetInstallVersion: [3.1.302]
-        dotNetRunVersion: [netcoreapp3.1]
-        solution: [Microsoft.Identity.Web.sln]
-        include:
-          - DotNetInstallVersion: 5.0.100
-            DotNetRunVersion: net5.0
-            Solution: Microsoft.Identity.Web.sln
-
+    name: IdWeb GitHub Action Test
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2.3.4
-
-    - name: Setup .NET ${{ matrix.dotNetInstallVersion }}
+    - name: Setup .NET 3.1.301
       uses: actions/setup-dotnet@v1.7.2
       with:
-        dotnet-version: ${{ matrix.dotNetInstallVersion }}
-
-    - name: Build with .NET ${{ matrix.dotNetRunVersion }}
-      run: dotnet test -f ${{ matrix.dotNetRunVersion }} -p:FROM_GITHUB_ACTION=true --configuration Release ${{ matrix.solution }}
+        dotnet-version: 3.1.301        
+    - name: Setup .NET 6.0.301
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: 6.0.301
+  
+    # Install workload
+    - name: Setup wasm-tools
+      run: dotnet workload install wasm-tools
+        
+    - name: Build with .NET 3.1.301
+      run: dotnet test -f 3.1.301 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
+      
+    - name: Build with .NET 6.0.301
+      run: dotnet test -f 6.0.301 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
