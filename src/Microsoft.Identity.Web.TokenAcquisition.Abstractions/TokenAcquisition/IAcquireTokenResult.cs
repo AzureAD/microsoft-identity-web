@@ -10,8 +10,11 @@ namespace Microsoft.Identity.Web
     public interface IAcquireTokenResult
     {
         /// <summary>
-        /// Access Token that can be used as a bearer token to access protected web APIs
+        /// Access Token that can be used to build an authorization header 
+        /// to access protected web APIs. 
         /// </summary>
+        /// <seealso cref="IAuthorizationHeaderProvider"/> which creates the authorization
+        /// header directly, whatever the protocol.
         public string AccessToken { get; }
 
         /// <summary>
@@ -22,8 +25,9 @@ namespace Microsoft.Identity.Web
         public DateTimeOffset ExpiresOn { get; }
 
         /// <summary>
-        ///  Gets an identifier for the Azure AD tenant from which the token was acquired.
-        ///  This property will be null if tenant information is not returned by the service.
+        ///  In the case of Azure AD, gets an identifier for the tenant from which the token was acquired.
+        ///  This property will be null if tenant information is not returned by the service or the service
+        ///  is not Azure AD.
         /// </summary>
         public string TenantId { get; }
 

@@ -14,20 +14,21 @@ namespace Microsoft.Identity.Web
     public interface IDownstreamRestApi
     {
         /// <summary>
-        /// Calls the downstream web API for the user, based on a description of the
-        /// downstream web API in the configuration.
+        /// Calls the downstream REST API on behalf of the user, based on a description of the
+        /// downstream web API in the configuration (service name)
         /// </summary>
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="calledDownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
-        /// <param name="calledDownstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// <param name="calledDownstreamRestApiOptionsOverride">(Optional) Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
-        /// <param name="user">[Optional] Claims representing a user. This is useful on platforms like Blazor
+        /// <param name="user">(Optional) Claims representing a user. This is useful on platforms like Blazor
         /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
-        /// will find the user from the HttpContext.</param>
-        /// <param name="content">HTTP context in the case where <see cref="DownstreamRestApiOptions.HttpMethod"/> is
-        /// <code>HttpMethod.Patch</code>, <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
+        /// will find the user from the HTTP request context.</param>
+        /// <param name="content">Content to send to the REST API in the case where
+        /// <see cref="DownstreamRestApiOptions.HttpMethod"/> is <code>HttpMethod.Patch</code>, 
+        /// <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
         /// <returns>An <see cref="HttpResponseMessage"/> that the application will process.</returns>
         Task<HttpResponseMessage> CallRestApiForUserAsync(
             string serviceName,
@@ -36,16 +37,17 @@ namespace Microsoft.Identity.Web
             StringContent? content = null);
 
         /// <summary>
-        /// Calls the downstream web API for the app, with the required scopes.
+        /// Calls the downstream web API on behalf of the app itself, with the required scopes.
         /// </summary>
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
         /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
-        /// <param name="DownstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// <param name="DownstreamRestApiOptionsOverride">(Optional) Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
-        /// <param name="content">HTTP content in the case where <see cref="DownstreamRestApiOptions.HttpMethod"/> is
-        /// /// <code>HttpMethod.Patch</code>, <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
+        /// <param name="content">Content to send to the REST API in the case where
+        /// <see cref="DownstreamRestApiOptions.HttpMethod"/> is <code>HttpMethod.Patch</code>, 
+        /// <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
         /// <returns>An <see cref="HttpResponseMessage"/> that the application will process.</returns>
         Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,

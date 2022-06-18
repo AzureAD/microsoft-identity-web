@@ -1,2 +1,7 @@
-﻿IAuthorizationHeaderProvider
-IDownstreamRestApi
+﻿Separate AAD or not?
+
+Separate BaseDownstreamApiOption? 
+More delegates for the DownstreamRestApiOptions (for serialization/deserialization)
+
+X Sub folders.
+

@@ -6,50 +6,48 @@ using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web
 {
-    // TODO: split between TokenAcquirerOptions and AadTokenAcquirerOptions?
-
     /// <summary>
-    /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
+    /// Options directing the token acquisition.
     /// </summary>
     public class AcquireTokenOptions
     {
         /// <summary>
-        /// Enables to override the tenant/account for the same identity. This is useful in multi-tenant apps 
-        /// in the cases where a given account is a guest in other tenants, and you want to acquire tokens 
-        /// for a specific tenant.
+        /// Enables to override the tenant/account for which to get a token. 
+        /// This is useful in multi-tenant apps in the cases where a given user account is a guest 
+        /// in other tenants, and you want to acquire tokens for a specific tenant.
         /// </summary>
         /// <remarks>Can be the tenant ID or domain name.</remarks>
         public string? Tenant { get; set; }
 
         /// <summary>
-        /// Uses a particular user flow (in the case of AzureAD B2C)
+        /// In the case of AzureAD B2C, uses a particular user flow.
         /// </summary>
         public string? UserFlow { get; set; }
 
         /// <summary>
-        /// Requires a particular (ASP.NET Core) authentication scheme / settings
+        /// Gets the parameters describing the confidential client application (ClientId,
+        /// Region, Authority, client credentials) from a particular 
+        /// (ASP.NET Core) authentication scheme / settings.
         /// </summary>
         public string? AuthenticationScheme { get; set; }
 
         /// <summary>
-        /// Sets the correlation id to be used in the authentication request
-        /// to the /token endpoint.
+        /// Sets the correlation id to be used in the request to the STS "/token" endpoint.
         /// </summary>
         public Guid CorrelationId { get; set; }
 
         /// <summary>
-        /// Sets Extra Query Parameters for the query string in the HTTP authentication request.
+        /// Sets query parameters for the query string in the HTTP request to the 
+        /// "/token" endpoint.
         /// </summary>
         public Dictionary<string, string>? ExtraQueryParameters { get; set; }
 
-        /// <summary>
-        /// Sets Extra Header Parameters for the query string in the HTTP authentication request.
-        /// </summary>
+        /// Sets extra headers in the HTTP request to the STS "/token" endpoint.
         public Dictionary<string, string>? ExtraHeadersParameters { get; set; }
 
         /// <summary>
-        /// A string with one or multiple claims to request.
-        /// Normally used with Conditional Access.
+        /// A string with one or multiple claims to request. It's a json blob (encoded or not)
+        /// Normally used with Conditional Access. It receives the Claims member of the UiRequiredException.
         /// </summary>
         public string? Claims { get; set; }
 
@@ -58,7 +56,7 @@ namespace Microsoft.Identity.Web
         /// and will attempt to acquire a new access token.
         /// If <c>true</c>, the request will ignore the token cache. The default is <c>false</c>.
         /// Use this option with care and only when needed, for instance, if you know that conditional access policies have changed,
-        /// for it induces performance degradation, as the token cache is not utilized.
+        /// for it induces performance degradation, as the token cache is not utilized, and the STS might throttle the app.
         /// </summary>
         public bool ForceRefresh { get; set; }
 
@@ -99,6 +97,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationScheme = AuthenticationScheme,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
+                ExtraHeadersParameters = ExtraHeadersParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
                 PopPublicKey = PopPublicKey,

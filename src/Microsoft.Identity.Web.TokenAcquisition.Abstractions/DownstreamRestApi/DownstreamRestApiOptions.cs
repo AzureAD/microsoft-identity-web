@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
-        /// Provides an opportunity to customize the HttpRequestMessage. For example,
+        /// Provides an opportunity for the caller app to customize the HttpRequestMessage. For example,
         /// to customize the headers. This is called after the message was formed, including
         /// the Authorization header, and just before the message is sent.
         /// </summary>
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
             {
                 BaseUrl = BaseUrl,
                 RelativePath = RelativePath,
-                TokenAcquirerOptions = TokenAcquirerOptions?.Clone()
+                TokenAcquirerOptions = TokenAcquirerOptions.Clone()
             };
         }
 
