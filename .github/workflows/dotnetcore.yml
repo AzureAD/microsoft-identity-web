@@ -12,7 +12,7 @@ jobs:
         dotNetRunVersion: [netcoreapp3.1]
         solution: [Microsoft.Identity.Web.sln]
         include:
-          - DotNetInstallVersion: 6.x
+          - DotNetInstallVersion: 6.0.301
             DotNetRunVersion: net6.0
             Solution: Microsoft.Identity.Web.sln
 
