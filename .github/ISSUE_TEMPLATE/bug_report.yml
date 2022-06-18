@@ -16,6 +16,8 @@ body:
       - "Microsoft.Identity.Web.Certificate"
       - "Microsoft.Identity.Web.CertificateLess"
       - "Microsoft.Identity.Web.UI"
+      - "Microsoft.Identity.Web.Graph"
+      - "Microsoft.Identity.Web.GraphBeta"
   validations:
     required: true
 
@@ -84,7 +86,7 @@ body:
 - type: textarea
   attributes:
     label: Id Web logs
-    description: "Please provide verbose level log messages. See https://aka.ms/ms-id-web/logging. "
+    description: "Please provide verbose level log messages. See https://aka.ms/ms-id-web/logging for details on setting up the logs. "
 
 - type: textarea
   attributes:
@@ -99,3 +101,10 @@ body:
     label: Regression
     description: "If this behavior worked before, please enter the last working version(s)."
     placeholder: "Id Web 1.25.0"
+
+- type: textarea
+  attributes:
+    label: Expected behavior
+    description: "Please describe what you expect the behavior to be. "
+  validations:
+    required: true
