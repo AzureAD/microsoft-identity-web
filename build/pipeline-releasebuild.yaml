@@ -6,7 +6,7 @@
 trigger: none
 pr: none
 
-name: $(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
  
 # Create a daily midnight build for release builds on master to ensure our release builds function
 schedules:
