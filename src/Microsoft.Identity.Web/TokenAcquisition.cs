@@ -226,7 +226,7 @@ namespace Microsoft.Identity.Web
                 var result = await builder.ExecuteAsync()
                                           .ConfigureAwait(false);
 
-                context.HandleCodeRedemption(null, result.IdToken);
+                context.HandleCodeRedemption(result.AccessToken, result.IdToken);
                 if (!string.IsNullOrEmpty(result.SpaAuthCode))
                 {
                     CurrentHttpContext?.Session.SetString(Constants.SpaAuthCode, result.SpaAuthCode);
@@ -881,7 +881,7 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
-                    }                    
+                    }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
                                         .ConfigureAwait(false);
