@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -22,13 +23,21 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <param name="configurationSection">Configuration section.</param>
+        /// <param name="authenticationScheme">Authentication scheme.</param>
         /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
-            IConfigurationSection configurationSection)
+            IConfigurationSection configurationSection, string? authenticationScheme = null)
         {
             return builder.AddMicrosoftGraph(
-                options => configurationSection.Bind(options));
+                options =>
+                {
+                    configurationSection.Bind(options);
+                    if (!string.IsNullOrEmpty(authenticationScheme))
+                    {
+                        options.AuthenticationScheme = authenticationScheme;
+                    }
+                });
         }
 
         /// <summary>
@@ -37,17 +46,20 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="graphBaseUrl">Named instance of option.</param>
         /// <param name="defaultScopes">Configuration section.</param>
+        /// <param name="authenticationScheme">Authentication scheme.</param>
         /// <returns>The builder to chain.</returns>
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string graphBaseUrl = Constants.GraphBaseUrlV1,
-            string defaultScopes = Constants.UserReadScope)
+            string defaultScopes = Constants.UserReadScope,
+            string? authenticationScheme = null)
         {
             return builder.AddMicrosoftGraph(
                 options =>
                 {
                     options.BaseUrl = graphBaseUrl;
                     options.Scopes = defaultScopes;
+                    options.AuthenticationScheme = authenticationScheme;
                 });
         }
 
@@ -86,18 +98,26 @@ namespace Microsoft.Identity.Web
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
                             new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
                                 tokenAquisitionService,
-                                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
+                                new TokenAcquisitionAuthenticationProviderOption()
+                                {
+                                    AuthenticationScheme = microsoftGraphOptions.AuthenticationScheme,
+                                    Scopes = initialScopes.ToArray()
+                                })) :
                             new GraphServiceClient(graphBaseUrl,
                                 new TokenAcquisitionAuthenticationProvider(
                                     tokenAquisitionService,
-                                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                                    new TokenAcquisitionAuthenticationProviderOption()
+                                    {
+                                        AuthenticationScheme = microsoftGraphOptions.AuthenticationScheme,
+                                        Scopes = initialScopes.ToArray()
+                                    }));
                 return client;
             });
             return builder;
         }
 
         /// <summary>
-        /// Add support to call Microsoft Graph.  
+        /// Add support to call Microsoft Graph.
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient.</param>
@@ -114,18 +134,23 @@ namespace Microsoft.Identity.Web
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
+                var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
                 return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
                     tokenAquisitionService,
-                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                    new TokenAcquisitionAuthenticationProviderOption()
+                    {
+                        AuthenticationScheme = options.Value.AuthenticationScheme,
+                        Scopes = initialScopes.ToArray()
+                    }));
             });
             return builder;
         }
 
 
         /// <summary>
-        /// Add support to call Microsoft Graph.  
+        /// Add support to call Microsoft Graph.
         /// </summary>
         /// <param name="builder">Builder.</param>
         /// <param name="graphServiceClientFactory">Function to create a GraphServiceClient.</param>
@@ -141,11 +166,16 @@ namespace Microsoft.Identity.Web
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
+                var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
                 ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
 
                 return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
                     tokenAquisitionService,
-                    new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
+                    new TokenAcquisitionAuthenticationProviderOption()
+                    {
+                        AuthenticationScheme = options.Value.AuthenticationScheme,
+                        AppOnly = true
+                    }));
             });
             return builder;
         }

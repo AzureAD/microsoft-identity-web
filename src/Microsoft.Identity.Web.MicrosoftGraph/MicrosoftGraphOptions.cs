@@ -9,6 +9,10 @@ namespace Microsoft.Identity.Web
     public class MicrosoftGraphOptions
     {
         /// <summary>
+        /// Alternative authentication scheme to be used
+        /// </summary>
+        public string? AuthenticationScheme { get; set; }
+        /// <summary>
         /// Base URL for the Microsoft Graph API. By default: <c>"https://graph.microsoft.com/v1.0/"</c>
         /// but it can be changed to use the Microsoft Graph Beta endpoint or national cloud versions
         /// of MicrosoftGraph.
