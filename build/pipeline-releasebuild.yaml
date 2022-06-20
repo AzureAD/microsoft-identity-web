@@ -5,8 +5,6 @@
  
 trigger: none
 pr: none
-
-name: $(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
  
 # Create a daily midnight build for release builds on master to ensure our release builds function
 schedules:
@@ -17,10 +15,11 @@ schedules:
     - master
  
 pool:
-  vmImage: 'windows-latest'
+  name: MwWilson1EsHostedPool
   demands:
   - msbuild
   - visualstudio
+  timeoutInMinutes: 360
  
 variables:
   BuildPlatform: 'any cpu'
