@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
-// Just to build this assembly. If we like it this class should really be
-// in Microsoft.IdentityModel.Tokens?
-using SecurityToken = System.String;
+// TODO
+// This class should really be in Microsoft.IdentityModel.Tokens
 
 namespace Microsoft.Identity.Web
 {
