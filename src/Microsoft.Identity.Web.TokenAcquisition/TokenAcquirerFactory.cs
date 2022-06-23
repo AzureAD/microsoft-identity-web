@@ -141,7 +141,13 @@ namespace Microsoft.Identity.Web
             throw new NotImplementedException();
         }
 
-        public ITokenAcquirer GetTokenAcquirer(AadApplicationIdentityOptions aadApplicationIdentityOptions)
+        /// <summary>
+        /// Get a token acquirer from the application authentication options.
+        /// </summary>
+        /// <param name="applicationAuthenticationOptions">The authentication options describing the service.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
         {
             throw new NotImplementedException();
         }

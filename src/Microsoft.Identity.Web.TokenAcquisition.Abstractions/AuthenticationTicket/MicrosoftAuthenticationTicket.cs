@@ -10,29 +10,29 @@ using SecurityToken = System.String;
 
 namespace Microsoft.Identity.Web
 {
-    class MicrosoftIdentityAuthenticationTicket : ClaimsPrincipal 
+    class MicrosoftAuthenticationTicket : ClaimsPrincipal 
     {
         // TODO: decide the contructors to have.
 
         /// <summary>
         /// Subject identity
         /// </summary>
-        public MicrosoftIdentityClaimsIdentity? SubjectIdentity
+        public MicrosoftClaimsIdentity? SubjectIdentity
         {
             get
             {
                 return Identities.
-                    OfType<MicrosoftIdentityClaimsIdentity>()
+                    OfType<MicrosoftClaimsIdentity>()
                     .FirstOrDefault(i => i.Label == "SubjectIdentity");
             }
         }
 
-        public MicrosoftIdentityClaimsIdentity? ApplicationIdentity
+        public MicrosoftClaimsIdentity? ApplicationIdentity
         {
             get
             {
                 return Identities.
-                    OfType<MicrosoftIdentityClaimsIdentity>()
+                    OfType<MicrosoftClaimsIdentity>()
                     .FirstOrDefault(i => i.Label == "ApplicationIdentity") ;
             }
         }

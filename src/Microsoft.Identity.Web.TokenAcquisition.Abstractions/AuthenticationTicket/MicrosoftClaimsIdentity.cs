@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension of ClaimsIdentity to represent the data like the Token, the raw token
     /// </summary>
-    class MicrosoftIdentityClaimsIdentity : ClaimsIdentity
+    class MicrosoftClaimsIdentity : ClaimsIdentity
     {
         // TODO: decide the contructors to have.
 

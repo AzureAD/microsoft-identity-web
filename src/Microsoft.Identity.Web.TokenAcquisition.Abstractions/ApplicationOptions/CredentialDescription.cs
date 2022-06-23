@@ -165,7 +165,7 @@ namespace Microsoft.Identity.Web
                         return Base64EncodedValue;
                     case CredentialSource.ClientSecret:
                         return ClientSecret;
-                    case CredentialSource.CertificatelessWithManagedIdentity:
+                    case CredentialSource.SignedAssertionFromManagedIdentity:
                         return ManagedIdentityClientId;
                     case CredentialSource.SignedAssertionFilePath:
                         return SignedAssertionFileDiskPath;
@@ -197,7 +197,7 @@ namespace Microsoft.Identity.Web
                     case CredentialSource.ClientSecret:
                         ClientSecret = value;
                         break;
-                    case CredentialSource.CertificatelessWithManagedIdentity:
+                    case CredentialSource.SignedAssertionFromManagedIdentity:
                         ManagedIdentityClientId = value;
                         break;
                     case CredentialSource.SignedAssertionFilePath:

@@ -7,18 +7,25 @@ using System.Linq;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Options for configuring authentication (generic).
+    /// Options for configuring authentication in a web app, web API or daemon app.
+    /// <para>
+    /// This class contains generic parameters applying to any OAuth 2.0 identity provider.
+    /// For Azure AD specific options see the derived class: <see cref="MicrosoftAuthenticationOptions"/>.
+    /// </para>
     /// </summary>
-    public class ApplicationIdentityOptions
+    /// <example></example>
+    public class AuthenticationOptions
     {
         /// <summary>
-        /// Gets or sets the Authority to use when calling the STS.
+        /// Gets or sets the authority to use when calling the STS. 
+        /// If using AzureAD, rather use <see cref="MicrosoftAuthenticationOptions.Instance"/>
+        /// and <see cref="MicrosoftAuthenticationOptions.TenantId"/>
         /// </summary>
         public virtual string? Authority { get; set; }
 
         /// <summary>
-        /// Gets or sets the 'client_id' (application ID) as appears in the 
-        /// application registration.
+        /// Gets or sets the 'client_id' (application ID) as it appears in the 
+        /// application registration. This is the string representation of a GUID.
         /// </summary>
         public string? ClientId
         {
@@ -27,21 +34,12 @@ namespace Microsoft.Identity.Web
         }
 
         #region Token Acquisition
-        // TODO? Do we want to incorporate the ClientSecret in the ClientCredentials? 
-
         /// <summary>
-        /// Client secret used to authenticate a confidential client app to AAD
-        /// (alternatively use client certificates)
+        /// Does the app provide client credentials.
         /// </summary>
-        public string? ClientSecret { get; set; }
-
-        /// <summary>
-        /// Is considered to have client credentials if the attribute ClientCertificates
-        /// or ClientSecret is defined.
-        /// </summary>
-        internal bool HasClientCredentials
+        public bool HasClientCredentials
         {
-            get => !string.IsNullOrWhiteSpace(ClientSecret) || (ClientCredentials != null && ClientCredentials.Any());
+            get => (ClientCredentials != null && ClientCredentials.Any());
         }
 
         /// <summary>
@@ -60,6 +58,18 @@ namespace Microsoft.Identity.Web
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CredentialDescription>? ClientCredentials { get; set; }
+
+        /// <summary>
+        /// In a web API, audience of the tokens that will be accepted by the web API.
+        /// <para>If your web API accepts several audiences, see <see cref="Audiences"/></para>
+        /// </summary>
+        public string? Audience { get; set; }
+
+        /// <summary>
+        /// In a web API, accepted audiences for the tokens received by the web API.
+        /// <para>See also <see cref="Audience"/></para>
+        /// </summary>
+        public IEnumerable<string>? Audiences { get; set; }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a web API.
@@ -84,13 +94,17 @@ namespace Microsoft.Identity.Web
         /// this method will send the public certificate to Azure AD along with the token request,
         /// so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
         /// This saves the application admin from the need to explicitly manage the certificate rollover
-        /// (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
+        /// (either via the app registration portal or using PowerShell/CLI). 
+        /// For details see https://aka.ms/msal-net-sni.
         /// </summary>
-        /// The default is <c>false.</c>
+        /// The default is <c>false</c>.
         public bool SendX5C { get; set; }
 
         /// <summary>
-        /// Requests an auth code for the frontend (SPA using MSAL.js for instance). 
+        /// If set to <c>true</c>, when the user signs-in in a web app, the application Requests an auth code 
+        /// for the frontend (single page application using MSAL.js for instance). This will allow the front end
+        /// JavaScript code to bypass going to the authoriize endpoint (which requires reloading the page), by 
+        /// directly redeeming the auth code to get access tokens to call APIs.
         /// See https://aka.ms/msal-net/spa-auth-code for details.
         /// </summary>
         /// The default is <c>false.</c>
@@ -98,35 +112,13 @@ namespace Microsoft.Identity.Web
         #endregion
 
         /// <summary>
-        /// Daemon applications can validate a token based on roles, or using the ACL-based authorization
-        /// pattern to control tokens without a roles claim. If using ACL-based authorization,
-        /// Microsoft Identity Web will not throw if roles or scopes are not in the Claims.
+        /// Web APIs called by daemon applications can validate a token based on roles (representing app permissions), 
+        /// or using the ACL-based authorization pattern for the client (daemon) to the web API. If using ACL-based authorization,
+        /// the implementation will not throw if roles or scopes are not in the Claims.
         /// For details see https://aka.ms/ms-identity-web/daemon-ACL.
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
-
-        /// <summary>
-        /// Used, when deployed to Azure, to specify explicitly a user assigned managed identity.
-        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
-        /// </summary>
-        public string? UserAssignedManagedIdentityClientId { get; set; }
-
-
-        // TODO: reconcile with the CredentialDescription.
-/*
-        /// <summary>
-        /// Options for configuring certificateless
-        /// </summary>
-        public CertificatelessOptions? ClientCredentialsUsingManagedIdentity { get; set; }
-*/
-
-        /// <summary>
-        /// Sets the ResetPassword route path.
-        /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
-        /// which is the value used by Microsoft.Identity.Web.UI.
-        /// </summary>
-        public string ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
 
         /// <summary>
         /// Sets the Error route path.

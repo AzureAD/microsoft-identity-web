@@ -24,6 +24,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="aadApplicationIdentityOptions">Application configuration.</param>
         /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
-        ITokenAcquirer GetTokenAcquirer(AadApplicationIdentityOptions aadApplicationIdentityOptions);
+        ITokenAcquirer GetTokenAcquirer(AuthenticationOptions aadApplicationIdentityOptions);
     }
 }

@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Certificateless with managed identity.
         /// </summary>
-        CertificatelessWithManagedIdentity=7,
+        SignedAssertionFromManagedIdentity=7,
 
         /// <summary>
         /// Path to the file containing the signed assertion (for Kubernetes).

@@ -903,7 +903,7 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        async Task<IAcquireTokenResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
+        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
@@ -925,7 +925,7 @@ namespace Microsoft.Identity.Web
                     // TODO: PopKeyId?
                 }).ConfigureAwait(false);
 
-            return new TokenAcquirerResult(
+            return new AcquireTokenResult(
                 result.AccessToken,
                 result.ExpiresOn,
                 result.TenantId,
@@ -934,7 +934,7 @@ namespace Microsoft.Identity.Web
                 result.CorrelationId);
         }
 
-        async Task<IAcquireTokenResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
+        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForAppAsync(
                 scope, 
@@ -954,39 +954,13 @@ namespace Microsoft.Identity.Web
                     // TODO: PopKeyId?
                 }).ConfigureAwait(false);
 
-            return new TokenAcquirerResult(
+            return new AcquireTokenResult(
                 result.AccessToken,
                 result.ExpiresOn,
                 result.TenantId,
                 result.IdToken,
                 result.Scopes,
                 result.CorrelationId);
-        }
-
-
-        internal class TokenAcquirerResult : IAcquireTokenResult
-        {
-            public TokenAcquirerResult(string accessToken, DateTimeOffset expiresOn, string tenantId, string idToken, IEnumerable<string> scopes, Guid correlationId)
-            {
-                AccessToken = accessToken;
-                ExpiresOn = expiresOn;
-                TenantId = tenantId;
-                IdToken = idToken;
-                Scopes = scopes;
-                CorrelationId = correlationId;
-            }
-
-            public string AccessToken { get; internal set; }
-
-            public DateTimeOffset ExpiresOn { get; internal set; }
-
-            public string TenantId { get; internal set; }
-
-            public string IdToken { get; internal set; }
-
-            public IEnumerable<string> Scopes { get; internal set; }
-
-            public Guid CorrelationId { get; internal set; }
         }
     }
 }

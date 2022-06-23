@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// </summary>
-    public class AadApplicationIdentityOptions : ApplicationIdentityOptions
+    public class MicrosoftAuthenticationOptions : AuthenticationOptions
     {
         /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com/".
@@ -17,6 +19,19 @@ namespace Microsoft.Identity.Web
         /// Gets or sets the tenant ID.
         /// </summary>
         public string? TenantId { get; set; }
+
+        /// <summary>
+        /// Specifies the Azure region. See https://aka.ms/azure-region. By default
+        /// the app attempts to detect the Azure region automatically (the default
+        /// value is "TryAutoDetect")
+        /// </summary>
+        public string? AzureRegion { get; set; } = "TryAutoDetect";
+
+        /// <summary>
+        /// Specifies the capabilities of the client (for instance {"cp1", "cp2"}). This is
+        /// useful to express that the Client is capable of handling claims challenge.
+        /// </summary>
+        public IEnumerable<string>? ClientCapabilities { get; set; }
 
         /// <summary>
         /// Gets or sets the Authority to use when making OpenIdConnect calls.
@@ -61,6 +76,15 @@ namespace Microsoft.Identity.Web
         {
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
         }
+
+        /// <summary>
+        /// Sets the ResetPassword route path (from the root of the web site).
+        /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
+        /// which is the value used by Microsoft.Identity.Web.UI.
+        /// If you override it, you need to provide your own controller/actions.
+        /// </summary>
+        public string ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
+
         #endregion
     }
 }

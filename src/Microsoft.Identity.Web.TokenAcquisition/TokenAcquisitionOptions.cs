@@ -27,18 +27,6 @@ namespace Microsoft.Identity.Web
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
         /// <summary>
-        /// ASP.NET Core authentication scheme.
-        /// </summary>
-        public string? AuthenticationScheme
-        {
-            get
-            {
-                return base.AuthenticationScheme;
-            }
-            set { base.AuthenticationScheme = value; }
-        }
-
-        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
