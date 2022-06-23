@@ -42,6 +42,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache'
     AssemblyName: 'Microsoft.Identity.Web.TokenCache*'
 
+# Pack and sign Microsoft.Identity.Web.TokenCache.Abstractions
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition.Abstractions'
+    AssemblyName: 'Microsoft.Identity.Web.TokenAcquisition.Abstractions*'
+
 # Pack and sign Microsoft.Identity.Web.Certificate
 - template: template-pack-and-sign-nuget.yaml
   parameters:

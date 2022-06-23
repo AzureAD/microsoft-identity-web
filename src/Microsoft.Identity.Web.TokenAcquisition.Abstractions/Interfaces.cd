@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Microsoft.Identity.Web.AcquireTokenOptions">
+    <Position X="7.25" Y="4.75" Width="4.25" />
+    <Members>
+      <Method Name="Clone" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAIACBAABAAgABAAAAAkBAAAAAAAAAAAAEABA=</HashCode>
+      <FileName>TokenAcquisition\AcquireTokenOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.DownstreamRestApiOptions">
+    <Position X="1.25" Y="3.25" Width="4.75" />
+    <Members>
+      <Method Name="Clone" Hidden="true" />
+      <Method Name="GetApiUrl" Hidden="true" />
+    </Members>
+    <AssociationLine Name="TokenAcquirerOptions" Type="Microsoft.Identity.Web.AcquireTokenOptions" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6" Y="4.244" />
+        <Point X="8.125" Y="4.244" />
+        <Point X="8.125" Y="4.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAgAAQBAAAAgAAAAAAEACBA=</HashCode>
+      <FileName>DownstreamRestApi\DownstreamRestApiOptions.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="TokenAcquirerOptions" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Microsoft.Identity.Web.AcquireTokenResult">
+    <Position X="1.25" Y="5.5" Width="3" />
+    <Members>
+      <Method Name="AcquireTokenResult" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAACAACAAAAAAAAIAEAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>TokenAcquisition\AcquireTokenResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Microsoft.Identity.Web.ITokenAcquirer">
+    <Position X="1.25" Y="8.25" Width="12.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>TokenAcquisition\ITokenAcquirer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Microsoft.Identity.Web.IDownstreamRestApi">
+    <Position X="1.25" Y="0.5" Width="10.75" />
+    <TypeIdentifier>
+      <HashCode>EAAAAgAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAQAE=</HashCode>
+      <FileName>DownstreamRestApi\IDownstreamRestApi.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Microsoft.Identity.Web.IAuthorizationHeaderProvider">
+    <Position X="1.25" Y="10" Width="12.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DownstreamRestApi\IAuthorizationHeaderProvider.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

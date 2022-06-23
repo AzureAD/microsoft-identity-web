@@ -1,0 +1,32 @@
+﻿Separate AAD or not?
+
+Separate BaseDownstreamApiOption? 
+More delegates for the DownstreamRestApiOptions (for serialization/deserialization)
+
+
+Brent's advice to address
+1.	Standardize names between ClaimsPrincipal, ClaimsIdentity
+    a.	class MicrosoftIdentityAuthenticationTicket : ClaimsPrincipal -> MicrosoftIdentityClaimsPrincipal
+2.	Instead of TokenRawData on ClaimsIdentity add to M.IM.Tokens.SecurityToken
+3.	Add API for constant time lookup on claims on
+    a.	SecurityToken
+    b.	MicrosoftIdentityClaimsIdentity
+    c.	Use virtual Methods on ClaimsIdentity to provide constant time lookup.
+6.	AcquireTokenOptions
+    a.	Remove AuthenticationScheme
+8.	DownstreamRestApiOptions -> DownstreamAuthenticaionOptions
+
+Done:
+4.	ITokenAcquirer
+    a.	GetTokenAcquirerResultForUserAsync -> GetTokenForUser
+    b.	GetTokenAcquirerResultForAppAsync -> GetTokenForApp
+5.	ITokenAcquirerFactory
+    a.	GetTokenAcquirer(AadApplicationIdentityOptions) -> GetTokenAcquirer(ApplicationItentityOptions)
+6.	AcquireTokenOptions
+    a.	Remove AuthenticationScheme
+    b.	ExtraHeadersParameters -> AdditionalHeaders
+    c.	ExtraQueryParameters -> AdditionalQueryParameters
+7.	ApplicationIdentityOptions -> ApplicationAuthenticationOptions
+
+
+
