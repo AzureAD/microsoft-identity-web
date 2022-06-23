@@ -7,12 +7,9 @@ parameters:
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
 
 steps:
-- task: DotNetCoreCLI@2
+- script: |
+    dotnet workload restore Microsoft.Identity.Web.sln
   displayName: 'Install wasm-tools'
-  inputs: 
-    command: 'custom'
-    projects: 'Microsoft.Identity.Web.sln'
-    custom: 'workload restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
