@@ -1,4 +1,4 @@
-1.25.0
+1.25.1
 ==========
 ### New Features:
 **Microsoft.Identity.Web now surfaces the Microsoft.IdentityModel.* logs via the `IIdentityLogger`**. Developers will see an increase in logging, with insight into the request validation logs, especially for web APIs. See issue [#1730](https://github.com/AzureAD/microsoft-identity-web/issues/1730) for details.
