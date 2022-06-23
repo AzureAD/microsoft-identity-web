@@ -8,6 +8,13 @@ parameters:
 
 steps:
 - task: DotNetCoreCLI@2
+  displayName: 'Install wasm-tools'
+  inputs: 
+    command: 'workload'
+    projects: 'Microsoft.Identity.Web.sln'
+    arguments: 'restores'
+
+- task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
   inputs:
     command: test
