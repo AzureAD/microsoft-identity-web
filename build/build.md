@@ -29,6 +29,7 @@
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\ProjectTemplates')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache')`
+  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache.Abstractions')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.IdentityFederation')`
   - 'Copy Files from `$(Build.SourcesDirectory)` to: `$(Build.ArtifactStagingDirectory)\packages'`
