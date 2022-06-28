@@ -72,94 +72,29 @@
             <param name="certificateStoreName">Store name where to find the certificate.</param>
             <returns>A certificate description.</returns>
         </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.SourceType">
-            <summary>
-            Type of the source of the certificate.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.Container">
-            <summary>
-            Container in which to find the certificate.
-            <list type="bullet">
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.KeyVault"/>, then
-            the container is the Key Vault base URL.</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Base64Encoded"/>, then
-            this value is not used.</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Path"/>, then
-            this value is the path on disk where to find the certificate.</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName"/>,
-            or <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint"/>, then
-            this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
-            </list>
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.KeyVaultUrl">
-            <summary>
-            URL of the Key Vault, for instance https://msidentitywebsamples.vault.azure.net.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateStorePath">
-            <summary>
-            Certificate store path, for instance "CurrentUser/My".
-            </summary>
-            <remarks>This property should only be used in conjunction with DistinguishedName or Thumbprint.</remarks>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateDistinguishedName">
-            <summary>
-            Certificate distinguished name.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.KeyVaultCertificateName">
-            <summary>
-            Name of the certificate in Key Vault.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateThumbprint">
-            <summary>
-            Certificate thumbprint.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificateDiskPath">
-            <summary>
-            Path on disk to the certificate.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.CertificatePassword">
-            <summary>
-            Path on disk to the certificate password.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.CertificateDescription.Base64EncodedValue">
-            <summary>
-            Base64 encoded certificate value.
-            </summary>
-        </member>
         <member name="P:Microsoft.Identity.Web.CertificateDescription.X509KeyStorageFlags">
             <summary>
              Defines where and how to import the private key of an X.509 certificate.
             </summary>
         </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.Container">
+            <summary>
+            <inheritdoc/>.
+            </summary>
+        </member>
         <member name="P:Microsoft.Identity.Web.CertificateDescription.ReferenceOrValue">
             <summary>
-            Reference to the certificate or value.
+            <inheritdoc/>.
             </summary>
-            <list type="bullet">
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.KeyVault"/>, then
-            the reference is the name of the certificate in Key Vault (maybe the version?).</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Base64Encoded"/>, then
-            this value is the base 64 encoded certificate itself.</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.Path"/>, then
-            this value is the password to access the certificate (if needed).</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName"/>,
-            this value is the distinguished name.</item>
-            <item>If <see cref="P:Microsoft.Identity.Web.CertificateDescription.SourceType"/> equals <see cref="F:Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint"/>,
-            this value is the thumbprint.</item>
-            </list>
         </member>
         <member name="P:Microsoft.Identity.Web.CertificateDescription.Certificate">
             <summary>
-            The certificate, either provided directly in code
-            or loaded from the description.
+            <inheritdoc/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.CertificateDescription.SourceType">
+            <summary>
+            <inheritdoc/>.
             </summary>
         </member>
         <member name="T:Microsoft.Identity.Web.CertificateErrorMessage">

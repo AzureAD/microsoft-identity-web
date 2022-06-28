@@ -95,6 +95,10 @@
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition.Abstractions\Microsoft.Identity.Web.TokenAcquisition.Abstractions.csproj" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
