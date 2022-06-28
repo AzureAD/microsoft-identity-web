@@ -32,4 +32,6 @@ steps:
   displayName: 'Component Detection'
   inputs:
     failOnAlert: true
-  
+    scanType: 'Register'
+    verbosity: 'Verbose'
+    alertWarningLevel: 'High'
