@@ -53,6 +53,13 @@ namespace Microsoft.Identity.Web
             return SetParameter(baseRequest, options => options.AuthenticationScheme = authenticationScheme);
         }
 
+        public static T WithAuthenticationOptions<T>(this T baseRequest, 
+            Action<DownstreamRestApiOptions> overrideAuthenticationOptions) where T : IBaseRequest
+        {
+            // TODO: implement
+            throw new NotImplementedException();
+        }
+
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
         {
             string authHandlerOptionKey = typeof(AuthenticationHandlerOption).FullName!;
