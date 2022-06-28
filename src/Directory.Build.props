@@ -64,10 +64,6 @@
     <AdditionalFiles Include="..\..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>Microsoft.Identity.Web.xml</DocumentationFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
   </PropertyGroup>
