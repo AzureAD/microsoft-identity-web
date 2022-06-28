@@ -40,10 +40,10 @@ namespace Microsoft.Identity.Web
         /// Sets query parameters for the query string in the HTTP request to the 
         /// "/token" endpoint.
         /// </summary>
-        public Dictionary<string, string>? ExtraQueryParameters { get; set; }
+        public IDictionary<string, string>? ExtraQueryParameters { get; set; }
 
         /// Sets extra headers in the HTTP request to the STS "/token" endpoint.
-        public Dictionary<string, string>? ExtraHeadersParameters { get; set; }
+        public IDictionary<string, string>? ExtraHeadersParameters { get; set; }
 
         /// <summary>
         /// A string with one or multiple claims to request. It's a json blob (encoded or not)

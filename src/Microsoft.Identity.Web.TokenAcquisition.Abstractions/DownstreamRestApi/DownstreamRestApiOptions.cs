@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace Microsoft.Identity.Web
@@ -46,6 +47,12 @@ namespace Microsoft.Identity.Web
         public string ProtocolScheme { set; get; } = "Bearer";
 
         /// <summary>
+        /// Scopes required to call the downstream web API.
+        /// For instance "user.read mail.read".
+        /// </summary>
+        public IEnumerable<string>? Scopes { get; set; }
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -55,7 +62,8 @@ namespace Microsoft.Identity.Web
             {
                 BaseUrl = BaseUrl,
                 RelativePath = RelativePath,
-                TokenAcquirerOptions = TokenAcquirerOptions.Clone()
+                TokenAcquirerOptions = TokenAcquirerOptions.Clone(),
+                Scopes = Scopes
             };
         }
 

@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -338,7 +339,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                {
+                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                }
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -675,7 +683,14 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
-                        builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                        if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                        {
+                            builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                        }
+                        if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                        {
+                            builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                        }
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -802,7 +817,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                {
+                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                }
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);

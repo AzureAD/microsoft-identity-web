@@ -53,6 +53,14 @@ namespace Microsoft.Identity.Web
             return SetParameter(baseRequest, options => options.AuthenticationScheme = authenticationScheme);
         }
 
+        /// <summary>
+        /// Overrides authentication options for a given request.
+        /// </summary>
+        /// <typeparam name="T">Request</typeparam>
+        /// <param name="baseRequest">Request.</param>
+        /// <param name="overrideAuthenticationOptions">Delegate to override
+        /// the authentication options</param>
+        /// <returns>Base request</returns>
         public static T WithAuthenticationOptions<T>(this T baseRequest, 
             Action<DownstreamRestApiOptions> overrideAuthenticationOptions) where T : IBaseRequest
         {
