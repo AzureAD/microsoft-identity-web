@@ -6,7 +6,7 @@
     <members>
         <member name="T:Microsoft.Identity.Web.AppBuilderExtension">
             <summary>
-            Extension methods on an ASP.NET application to add a web API
+            Extension methods on an ASP.NET application to add a web app or web API
             </summary>
         </member>
         <member name="P:Microsoft.Identity.Web.AppBuilderExtension.Configuration">
@@ -23,10 +23,21 @@
             <summary>
             Adds a protected web API
             </summary>
-            <param name="app">Application buidler</param>
+            <param name="app">Application builder</param>
             <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
             <param name="configureMicrosoftIdentityOptions">Configure Microsoft identity options.</param>
-            <param name="updateOptions">Update the OWIN options if you want to finess token validation.</param>
+            <param name="updateOptions">Update the OWIN options if you want to finesse token validation.</param>
+            <param name="configurationSection">Configuration section in which to read the options.</param>
+            <returns>the app builder to chain</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
+            <summary>
+            Adds a protected web app
+            </summary>
+            <param name="app">Application builder</param>
+            <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
+            <param name="configureMicrosoftIdentityOptions">Configure Microsoft identity options.</param>
+            <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>the app builder to chain</returns>
         </member>
