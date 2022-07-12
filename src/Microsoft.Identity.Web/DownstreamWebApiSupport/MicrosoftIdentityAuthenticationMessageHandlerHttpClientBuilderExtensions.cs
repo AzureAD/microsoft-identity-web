@@ -121,7 +121,7 @@ namespace Microsoft.Identity.Web
             this IHttpClientBuilder builder,
             Func<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DelegatingHandler> configureHandler)
         {
-            builder.Services.TryAddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.TryAddScoped<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 var factory = services.GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();

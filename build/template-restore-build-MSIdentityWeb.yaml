@@ -7,6 +7,10 @@ parameters:
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
 
 steps:
+- script: |
+    dotnet workload restore tests\blazorwasm-b2c\blazorwasm2-b2c.csproj
+  displayName: 'Install wasm-tools'
+  
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
   inputs:
@@ -20,7 +24,6 @@ steps:
   displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
   inputs:
     solution: Microsoft.Identity.Web.sln
-    vsVersion: '16.0'
     msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
     platform: ${{ parameters.BuildPlatform }}
     configuration: ${{ parameters.BuildConfiguration }}
@@ -29,4 +32,6 @@ steps:
   displayName: 'Component Detection'
   inputs:
     failOnAlert: true
-  
+    scanType: 'Register'
+    verbosity: 'Verbose'
+    alertWarningLevel: 'High'

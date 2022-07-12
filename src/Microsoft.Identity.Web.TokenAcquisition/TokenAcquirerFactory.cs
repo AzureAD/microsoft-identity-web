@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -140,18 +139,18 @@ namespace Microsoft.Identity.Web
         /// <param name="certificate"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, X509Certificate2 certificate)
+        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, CredentialDescription certificate)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Get a token described by a specific authentication scheme/configuration
+        /// Get a token acquirer from the application authentication options.
         /// </summary>
-        /// <param name="authenticationScheme"></param>
+        /// <param name="applicationAuthenticationOptions">The authentication options describing the service.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
+        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
         {
             throw new NotImplementedException();
         }

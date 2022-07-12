@@ -36,6 +36,7 @@ namespace daemon_console
             var users = await graphServiceClient.Users
                 .Request()
                 .WithAppOnly()
+           //     .WithAuthenticationOptions(options => options.ProtocolScheme = "Pop")
                 .GetAsync();
             Console.WriteLine($"{users.Count} users");
 #else

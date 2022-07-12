@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -338,7 +339,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                {
+                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                }
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -675,7 +683,14 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
-                        builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                        if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                        {
+                            builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                        }
+                        if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                        {
+                            builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                        }
                         builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -802,7 +817,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                builder.WithExtraQueryParameters(tokenAcquisitionOptions.ExtraQueryParameters);
+                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                {
+                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                }
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
                 builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -903,17 +925,17 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForUserAsync(IEnumerable<string> scopes, TokenAcquirerOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
+        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
-                tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                tokenAcquisitionOptions?.AuthenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 tokenAcquisitionOptions?.UserFlow,
                 user,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    ApplicationConfigurationMoniker = tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions!.CorrelationId,
@@ -925,7 +947,7 @@ namespace Microsoft.Identity.Web
                     // TODO: PopKeyId?
                 }).ConfigureAwait(false);
 
-            return new TokenAcquirerResult(
+            return new AcquireTokenResult(
                 result.AccessToken,
                 result.ExpiresOn,
                 result.TenantId,
@@ -934,15 +956,15 @@ namespace Microsoft.Identity.Web
                 result.CorrelationId);
         }
 
-        async Task<ITokenAcquirerResult> ITokenAcquirer.GetTokenAcquirerResultForAppAsync(string scope, TokenAcquirerOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
+        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForAppAsync(
                 scope, 
-                tokenAcquisitionOptions?.ApplicationConfigurationMoniker, 
+                tokenAcquisitionOptions?.AuthenticationScheme, 
                 tokenAcquisitionOptions?.Tenant,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    ApplicationConfigurationMoniker = tokenAcquisitionOptions?.ApplicationConfigurationMoniker,
+                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions.CorrelationId,
@@ -954,39 +976,13 @@ namespace Microsoft.Identity.Web
                     // TODO: PopKeyId?
                 }).ConfigureAwait(false);
 
-            return new TokenAcquirerResult(
+            return new AcquireTokenResult(
                 result.AccessToken,
                 result.ExpiresOn,
                 result.TenantId,
                 result.IdToken,
                 result.Scopes,
                 result.CorrelationId);
-        }
-
-
-        internal class TokenAcquirerResult : ITokenAcquirerResult
-        {
-            public TokenAcquirerResult(string accessToken, DateTimeOffset expiresOn, string tenantId, string idToken, IEnumerable<string> scopes, Guid correlationId)
-            {
-                AccessToken = accessToken;
-                ExpiresOn = expiresOn;
-                TenantId = tenantId;
-                IdToken = idToken;
-                Scopes = scopes;
-                CorrelationId = correlationId;
-            }
-
-            public string AccessToken { get; internal set; }
-
-            public DateTimeOffset ExpiresOn { get; internal set; }
-
-            public string TenantId { get; internal set; }
-
-            public string IdToken { get; internal set; }
-
-            public IEnumerable<string> Scopes { get; internal set; }
-
-            public Guid CorrelationId { get; internal set; }
         }
     }
 }

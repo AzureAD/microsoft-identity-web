@@ -1,3 +1,28 @@
+1.25.1
+==========
+### New Features:
+**Microsoft.Identity.Web now surfaces the Microsoft.IdentityModel.* logs via the `IIdentityLogger`**. Developers will see an increase in logging, with insight into the request validation logs, especially for web APIs. See issue [#1730](https://github.com/AzureAD/microsoft-identity-web/issues/1730) for details.
+
+### Bug Fixes:
+**Regression fix where `AddMicrosoftIdentityUserAuthenticationHandler` needs a scoped service, not a singleton**. See issue [#1757](https://github.com/AzureAD/microsoft-identity-web/issues/1757) for details.
+
+1.25.0
+==========
+### New Features:
+**Microsoft.Identity.Web now supports checking for scopes or app permissions,** via the `RequestedScopeOrAppPermissionAttribute`. See issue [#1641](https://github.com/AzureAD/microsoft-identity-web/issues/1641) for details.
+
+**Extend TokenAcquisitionTokenCredential concept to support tokens as app**. See issue [#1723](https://github.com/AzureAD/microsoft-identity-web/issues/1723) for details.
+
+### Bug Fixes:
+**IJwtBearerMiddlewareDiagnostics is now transient and not a singleton**. See issue [#1710](https://github.com/AzureAD/microsoft-identity-web/issues/1710) for details.
+
+**In web API scenario, use the `tid` claim of the incoming assertion, unless overridden**. See issue [#1738](https://github.com/AzureAD/microsoft-identity-web/issues/1738) for details.
+
+1.24.1
+==========
+### Bug Fixes:
+**Microsoft.Identity.Web now returns `TokenValidatedContext.Fail` instead of throwing `UnauthorizedAccessException` in case of missing roles or scopes**, which enables a better developer experience. See issue [#1716](https://github.com/AzureAD/microsoft-identity-web/issues/1716) for details.
+
 1.25.0
 ==========
 ### New Features:

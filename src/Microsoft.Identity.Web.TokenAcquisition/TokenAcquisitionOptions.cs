@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Options passed-in to create the token acquisition object which calls into MSAL .NET.
     /// </summary>
-    public class TokenAcquisitionOptions : TokenAcquirerOptions
+    public class TokenAcquisitionOptions : AcquireTokenOptions
     {
         /// <summary>
         /// Modifies the token acquisition request so that the acquired token is a Proof of Possession token (PoP),
@@ -25,18 +25,6 @@ namespace Microsoft.Identity.Web
         /// Cancellation token to be used when calling the token acquisition methods.
         /// </summary>
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
-
-        /// <summary>
-        /// ASP.NET Core authentication scheme.
-        /// </summary>
-        public string? AuthenticationScheme
-        {
-            get
-            {
-                return ApplicationConfigurationMoniker;
-            }
-            set { ApplicationConfigurationMoniker = value; }
-        }
 
         /// <summary>
         /// Clone the options (to be able to override them).

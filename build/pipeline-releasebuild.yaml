@@ -15,10 +15,11 @@ schedules:
     - master
  
 pool:
-  vmImage: 'windows-latest'
+  name: MwWilson1EsHostedPool
   demands:
   - msbuild
   - visualstudio
+  timeoutInMinutes: 360
  
 variables:
   BuildPlatform: 'any cpu'

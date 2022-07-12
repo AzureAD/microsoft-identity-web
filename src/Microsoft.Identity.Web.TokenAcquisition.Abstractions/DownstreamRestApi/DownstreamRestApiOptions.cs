@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace Microsoft.Identity.Web
@@ -28,16 +29,28 @@ namespace Microsoft.Identity.Web
         public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
         /// <summary>
-        /// Provides an opportunity to customize the HttpRequestMessage. For example,
+        /// Provides an opportunity for the caller app to customize the HttpRequestMessage. For example,
         /// to customize the headers. This is called after the message was formed, including
         /// the Authorization header, and just before the message is sent.
         /// </summary>
         public Action<HttpRequestMessage>? CustomizeHttpRequestMessage { get; set; }
 
         /// <summary>
-        /// Options related to the token acquisition
+        /// Options related to the token acquisition.
         /// </summary>
-        TokenAcquirerOptions? TokenAcquirerOptions { get; set; }
+        AcquireTokenOptions TokenAcquirerOptions { get; set; } = new AcquireTokenOptions();
+
+        /// <summary>
+        /// Name of the protocol scheme used to create the authorization header.
+        /// By default "Bearer"
+        /// </summary>
+        public string ProtocolScheme { set; get; } = "Bearer";
+
+        /// <summary>
+        /// Scopes required to call the downstream web API.
+        /// For instance "user.read mail.read".
+        /// </summary>
+        public IEnumerable<string>? Scopes { get; set; }
 
         /// <summary>
         /// Clone the options (to be able to override them).
@@ -49,7 +62,8 @@ namespace Microsoft.Identity.Web
             {
                 BaseUrl = BaseUrl,
                 RelativePath = RelativePath,
-                TokenAcquirerOptions = TokenAcquirerOptions?.Clone()
+                TokenAcquirerOptions = TokenAcquirerOptions.Clone(),
+                Scopes = Scopes
             };
         }
 
