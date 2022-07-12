@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
         /// </list>
         /// </summary>
-        internal string? Container
+        protected string? Container
         {
             get
             {
@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithThumbprint"/>,
         /// this value is the thumbprint.</item>
         /// </list>
-        internal string? ReferenceOrValue
+        protected string? ReferenceOrValue
         {
             get
             {
