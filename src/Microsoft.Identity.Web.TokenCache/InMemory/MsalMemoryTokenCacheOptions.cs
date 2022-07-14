@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 {
     /// <summary>
     /// MSAL's in-memory token cache options.
     /// </summary>
-    public class MsalMemoryTokenCacheOptions
+    public class MsalMemoryTokenCacheOptions : MemoryCacheEntryOptions
     {
         /// <summary>Initializes a new instance of the <see cref="MsalMemoryTokenCacheOptions"/> class.
         /// By default, the sliding expiration is set for 14 days.</summary>
@@ -25,10 +26,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// <value>
         /// The AbsoluteExpirationRelativeToNow value.
         /// </value>
-        public TimeSpan AbsoluteExpirationRelativeToNow
+        public new TimeSpan? AbsoluteExpirationRelativeToNow
         {
-            get;
-            set;
+            get { return base.AbsoluteExpirationRelativeToNow; }
+            set { base.AbsoluteExpirationRelativeToNow = value; }
         }
     }
 }

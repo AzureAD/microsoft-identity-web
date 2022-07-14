@@ -101,6 +101,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
                 AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
+                SlidingExpiration = _cacheOptions.SlidingExpiration,
+                AbsoluteExpiration = _cacheOptions.AbsoluteExpiration,
                 Size = bytes?.Length,
             };
 
