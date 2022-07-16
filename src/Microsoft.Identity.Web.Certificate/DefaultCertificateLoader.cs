@@ -275,7 +275,7 @@ namespace Microsoft.Identity.Web
             string certificateFileName,
             string? password = null)
         {
-#if DOTNET_462 || DOTNET_STANDARD_20
+#if NET462 || NETSTANDARD2_0
             return new X509Certificate2(
                 certificateFileName,
                 password,
