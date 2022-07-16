@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
                 jwtBearerMergedOptions.Authority = jwtBearerOptions.Authority;
             }
 
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             jwtBearerMergedOptions.AutomaticRefreshInterval = jwtBearerOptions.AutomaticRefreshInterval;
 #endif
 
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
 
             jwtBearerMergedOptions.IncludeErrorDetails = jwtBearerOptions.IncludeErrorDetails;
 
-#if DOTNET_50_AND_ABOVE
+#if NET5_0
             jwtBearerMergedOptions.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
 #endif
 
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
                 jwtBearerMergedOptions.MetadataAddress = jwtBearerOptions.MetadataAddress;
             }
 
-#if DOTNET_50_AND_ABOVE
+#if NET5_0
             jwtBearerMergedOptions.RefreshInterval = jwtBearerOptions.RefreshInterval;
 #endif
 

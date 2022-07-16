@@ -238,7 +238,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public string? Base64EncodedValue { get; set; }
 
-#if DOTNET_462 || DOTNET_STANDARD_20
+#if NET462 || NETSTANDARD2_0
         /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
         /// </summary>
