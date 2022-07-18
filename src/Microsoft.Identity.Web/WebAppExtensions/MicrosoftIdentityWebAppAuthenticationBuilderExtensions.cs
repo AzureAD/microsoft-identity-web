@@ -462,7 +462,7 @@ namespace Microsoft.Identity.Web
             options.DisableTelemetry = mergedOptions.DisableTelemetry;
             options.NonceCookie = mergedOptions.NonceCookie;
             options.UsePkce = mergedOptions.UsePkce;
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             options.AutomaticRefreshInterval = mergedOptions.AutomaticRefreshInterval;
             options.RefreshInterval = mergedOptions.RefreshInterval;
             options.MapInboundClaims = mergedOptions.MapInboundClaims;
