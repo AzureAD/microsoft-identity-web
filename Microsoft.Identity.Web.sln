@@ -138,7 +138,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Daemon", "Daemon", "{5D9709
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daemon-app", "tests\daemon-app\Daemon-app\Daemon-app.csproj", "{8C557C25-25C9-45B6-B2D3-77093893EBC5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net461", "net461", "{A4BF732A-BED6-408E-805A-118CE2A692B6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net462", "net462", "{A4BF732A-BED6-408E-805A-118CE2A692B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Asp.NET MVC", "Asp.NET MVC", "{7C04159B-BC84-4B8E-B2D8-692AEBA86433}"
 EndProject
@@ -150,7 +150,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Cert
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.OWIN", "src\Microsoft.Identity.Web.OWIN\Microsoft.Identity.Web.OWIN.csproj", "{2467D9A0-045B-4B45-8CCB-1AA229093F9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition", "src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj", "{08A3972D-C8BC-4B49-8625-B24C4C1BB47C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition", "src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj", "{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApp", "tests\aspnet-mvc\OwinWebApp\OwinWebApp.csproj", "{B288DE73-6B29-4B4D-AF02-6683D4C8D163}"
 EndProject
@@ -317,10 +317,10 @@ Global
 		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08A3972D-C8BC-4B49-8625-B24C4C1BB47C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08A3972D-C8BC-4B49-8625-B24C4C1BB47C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08A3972D-C8BC-4B49-8625-B24C4C1BB47C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08A3972D-C8BC-4B49-8625-B24C4C1BB47C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Release|Any CPU.ActiveCfg = Release|Any CPU
