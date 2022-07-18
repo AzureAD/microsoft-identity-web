@@ -23,7 +23,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.Identity.Web
 {
-    partial class TokenAcquisition
+    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisition, ITokenAcquisitionInternal
     {
 
         /// <summary>
@@ -36,17 +36,14 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
-        public TokenAcquisition(
+        public TokenAcquisitionAspNetCore(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
             ITokenAcquisitionHost tokenAcquisitionHost,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider) :
+            base(tokenCacheProvider, tokenAcquisitionHost, httpClientFactory, logger, serviceProvider)
         {
-            _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
-            _logger = logger;
-            _tokenAcquisitionHost = tokenAcquisitionHost;
         }
 
 

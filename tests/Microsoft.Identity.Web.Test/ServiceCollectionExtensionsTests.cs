@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web.Test
                {
                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                    Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
-                   Assert.Equal(typeof(TokenAcquisition), actual.ImplementationType);
+                   Assert.Equal(typeof(TokenAcquisitionAspNetCore), actual.ImplementationType);
                    Assert.Null(actual.ImplementationInstance);
                    Assert.Null(actual.ImplementationFactory);
                },
