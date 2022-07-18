@@ -23,9 +23,17 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class MicrosoftIdentityAppCallsWebApiAuthenticationBuilderExtension
     {
-        /// <returns>the service collection.</returns>
-        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddSessionTokenCaches(this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder)
+        /// <summary>
+        /// Add a token cache based on session cookies
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns>The service collection</returns>
+        public static IServiceCollection AddSessionTokenCaches(this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder)
         {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
             // Add session if you are planning to use session based token cache
             var sessionStoreService = builder.Services.FirstOrDefault(x => x.ServiceType.Name == Constants.ISessionStore);
 
@@ -59,7 +67,7 @@ namespace Microsoft.Identity.Web
                 return httpContext.Session;
             });
 
-            return builder;
+            return builder.Services;
         }
     }
 }
