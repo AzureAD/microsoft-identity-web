@@ -62,26 +62,31 @@ namespace Microsoft.Identity.Web
             // Token acquisition service
             if (isTokenAcquisitionSingleton)
             {
-                services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
-                services.AddSingleton(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
 #if !NET472 && !NET462
                 services.AddHttpContextAccessor();
+                services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
+                services.AddSingleton(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
+
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
                 services.AddSingleton<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+                services.AddSingleton<ITokenAcquirer, TokenAcquisition>();
 #endif
             }
             else
             {
-                services.AddScoped<ITokenAcquisition, TokenAcquisition>();
-                services.AddScoped(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
 #if !NET472 && !NET462
                 services.AddHttpContextAccessor();
+
+                services.AddScoped<ITokenAcquisition, TokenAcquisitionAspNetCore>();
+                services.AddScoped(s => (ITokenAcquirer)s.GetRequiredService<ITokenAcquisition>());
+
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
                 services.AddScoped<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+                services.AddSingleton<ITokenAcquirer, TokenAcquisition>();
 #endif
             }
 

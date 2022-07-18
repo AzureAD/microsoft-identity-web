@@ -24,7 +24,6 @@
     <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
     <PackageTags>Microsoft Identity Web;Microsoft identity platform;Microsoft.Identity.Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization</PackageTags>
     <ProjectGuid>{2467D9A0-045B-4B45-8CCB-1AA229093F9F}</ProjectGuid>
-    <IdentityModelVersion>6.17.0</IdentityModelVersion>
   </PropertyGroup>
   <PropertyGroup Label="Source Link">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

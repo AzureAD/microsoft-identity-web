@@ -25,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
+    <!--<PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" Version="$(IdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />-->
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />

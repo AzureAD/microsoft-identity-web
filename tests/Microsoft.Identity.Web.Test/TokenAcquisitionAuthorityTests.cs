@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);
-            _tokenAcquisition = new TokenAcquisition(
+            _tokenAcquisition = new TokenAcquisitionAspNetCore(
                 new MsalTestTokenCacheProvider(
                 _provider.GetService<IMemoryCache>(),
                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),

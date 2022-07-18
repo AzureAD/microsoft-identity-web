@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirer
+    internal partial class TokenAcquisition : ITokenAcquirer
     {
 #if NET472 || NET462
         class OAuthConstants
@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         }
 #endif
 
-        private readonly IMsalTokenCacheProvider _tokenCacheProvider;
+        protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
 
@@ -46,10 +46,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
         private bool _retryClientCertificate;
-        private readonly IMsalHttpClientFactory _httpClientFactory;
-        private readonly ILogger _logger;
+        protected readonly IMsalHttpClientFactory _httpClientFactory;
+        protected readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ITokenAcquisitionHost _tokenAcquisitionHost;
+        protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -856,7 +856,7 @@ namespace Microsoft.Identity.Web
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
-        private static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
+        protected static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
         {
             // Normally app developers should not make decisions based on the internal AAD code
             // however until the STS sends sub-error codes for this error, this is the only
