@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool WithSpaAuthCode { get; set; }
-        #endregion
+        #endregion Token Acquisition
 
         #region Web API
         /// <summary>
@@ -121,6 +121,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
-        #endregion
+        #endregion Web API
     }
 }

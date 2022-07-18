@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
                 services.AddScoped<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
-                services.AddSingleton<ITokenAcquirer, TokenAcquisition>();
+                services.AddScoped<ITokenAcquirer, TokenAcquisition>();
 #endif
             }
 

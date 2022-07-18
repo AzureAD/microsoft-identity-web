@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// useful to express that the Client is capable of handling claims challenge.
         /// </summary>
         public IEnumerable<string>? ClientCapabilities { get; set; }
-        #endregion
+        #endregion Token acquisition
 
         #region AADB2C
         /// <summary>
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web
         {
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
         }
-        #endregion
+        #endregion AADB2C
 
         #region Web app
         /// <summary>
@@ -95,6 +95,6 @@ namespace Microsoft.Identity.Web
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public string ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
-        #endregion
+        #endregion Web app
     }
 }
