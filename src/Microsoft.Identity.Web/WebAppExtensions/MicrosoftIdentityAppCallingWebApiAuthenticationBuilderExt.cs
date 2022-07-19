@@ -3,23 +3,18 @@
 
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web.TokenCacheProviders;
-using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Identity.Web.TokenCacheProviders.Session;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Authentication builder returned by the EnableTokenAcquisitionToCallDownstreamApi methods
-    /// enabling you to decide token cache implementations.
+    /// enabling you to use the session cache implementation.
     /// </summary>
     public static class MicrosoftIdentityAppCallsWebApiAuthenticationBuilderExtension
     {

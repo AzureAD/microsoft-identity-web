@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -9,7 +12,6 @@ namespace Microsoft.Identity.Web.Hosts
 {
     internal class PlainDotNetTokenAcquisitionHost : ITokenAcquisitionHost
     {
-
         IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;

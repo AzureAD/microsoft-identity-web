@@ -1,4 +1,7 @@
-﻿using System.Web;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Web;
 using Microsoft.Graph;
 
 namespace Microsoft.Identity.Web
