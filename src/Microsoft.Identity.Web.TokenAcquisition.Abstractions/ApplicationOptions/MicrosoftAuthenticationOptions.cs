@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
         }
         #endregion AADB2C
 
-        #region Web app
+        #region web app
         /// <summary>
         /// Sets the ResetPassword route path (from the root of the web site).
         /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
@@ -95,6 +95,6 @@ namespace Microsoft.Identity.Web
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public string ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
-        #endregion Web app
+        #endregion web app
     }
 }

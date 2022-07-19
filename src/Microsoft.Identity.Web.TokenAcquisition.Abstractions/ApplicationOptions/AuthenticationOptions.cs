@@ -59,7 +59,6 @@ namespace Microsoft.Identity.Web
         ///   </example>
         public IEnumerable<CredentialDescription>? ClientCredentials { get; set; }
 
-
         /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
         /// Sending the x5c enables application developers to achieve easy certificate rollover in Azure AD:
@@ -83,7 +82,7 @@ namespace Microsoft.Identity.Web
         public bool WithSpaAuthCode { get; set; }
         #endregion Token Acquisition
 
-        #region Web API
+        #region web API
         /// <summary>
         /// In a web API, audience of the tokens that will be accepted by the web API.
         /// <para>If your web API accepts several audiences, see <see cref="Audiences"/></para>
@@ -121,6 +120,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
-        #endregion Web API
+        #endregion web API
     }
 }
