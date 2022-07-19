@@ -78,11 +78,14 @@ namespace Microsoft.Identity.Web.Resource
                 if (scopeClaim == null || !scopeClaim.Value.Split(' ').Intersect(acceptedScopes).Any())
                 {
                     string message = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MissingScopes, string.Join(",", acceptedScopes));
-
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    context.Response.WriteAsync(message);
-                    context.Response.CompleteAsync();
-
+                    
+                    lock (context)
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        context.Response.WriteAsync(message);
+                        context.Response.CompleteAsync();
+                    }
+                    
                     throw new UnauthorizedAccessException(message);
                 }
             }
