@@ -1,17 +1,13 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
 using global::Microsoft.AspNetCore.Http;
 using global::Microsoft.Identity.Web;
-using Bludata.Blu.Web.Security.Entities;
-using Bludata.Blu.Web.Security.Interface;
+using System.Globalization;
+using System.Net;
+using System.Security.Claims;
 
-namespace Bludata.Blu.Web.Security.Utils;
+namespace Microsoft.Identity.Web.Resource;
 
 /// <summary>
 /// Extension class providing the extension methods for <see cref="HttpContent"/> that
