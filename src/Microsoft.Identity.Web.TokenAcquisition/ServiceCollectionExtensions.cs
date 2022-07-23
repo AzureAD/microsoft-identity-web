@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
-                services.AddSingleton<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+                services.AddSingleton<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
                 services.AddSingleton<ITokenAcquirer, TokenAcquisition>();
 #endif
             }
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
-                services.AddScoped<ITokenAcquisitionHost, PlainDotNetTokenAcquisitionHost>();
+                services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
                 services.AddScoped<ITokenAcquirer, TokenAcquisition>();
 #endif
             }

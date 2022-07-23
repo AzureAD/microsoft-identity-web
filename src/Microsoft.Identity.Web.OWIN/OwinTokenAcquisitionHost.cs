@@ -14,16 +14,16 @@ namespace Microsoft.Identity.Web.Hosts
 {
     internal class OwinTokenAcquisitionHost : ITokenAcquisitionHost
     {
-        IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
-        IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
+        readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
 
         public OwinTokenAcquisitionHost(
-            IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor, 
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor)
         {
-            _microsoftIdentityOptionsMonitor = optionsMonitor;
+            _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         public string? GetCurrentRedirectUri(MergedOptions mergedOptions)
         {
-            return null;
+            return mergedOptions.RedirectUri;
         }
 
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)

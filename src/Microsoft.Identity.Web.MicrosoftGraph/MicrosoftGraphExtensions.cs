@@ -71,8 +71,6 @@ namespace Microsoft.Identity.Web
             return builder;
         }
 
-
-
         /// <summary>
         /// Add support to call Microsoft Graph.  
         /// </summary>
@@ -99,7 +97,6 @@ namespace Microsoft.Identity.Web
             });
             return builder;
         }
-
 
         /// <summary>
         /// Add support to call Microsoft Graph.  

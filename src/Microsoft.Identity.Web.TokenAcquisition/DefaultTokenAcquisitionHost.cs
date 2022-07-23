@@ -10,13 +10,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Hosts
 {
-    internal class PlainDotNetTokenAcquisitionHost : ITokenAcquisitionHost
+    internal class DefaultTokenAcquisitionHost : ITokenAcquisitionHost
     {
         IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
 
-        public PlainDotNetTokenAcquisitionHost(
+        public DefaultTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor)
