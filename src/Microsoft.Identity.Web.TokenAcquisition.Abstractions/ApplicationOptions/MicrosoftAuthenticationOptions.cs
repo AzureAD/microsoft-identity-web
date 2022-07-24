@@ -21,6 +21,17 @@ namespace Microsoft.Identity.Web
         public string? TenantId { get; set; }
 
         /// <summary>
+        /// Gets or sets the Authority to use when making OpenIdConnect calls.
+        /// </summary>
+        public override string? Authority
+        {
+            get { return _authority ?? $"{Instance}{TenantId}/v2.0"; }
+            set { _authority = value; }
+        }
+        private string? _authority;
+
+        #region Token acquisition
+        /// <summary>
         /// Specifies the Azure region. See https://aka.ms/azure-region. By default
         /// the app attempts to detect the Azure region automatically (the default
         /// value is "TryAutoDetect")
@@ -32,23 +43,14 @@ namespace Microsoft.Identity.Web
         /// useful to express that the Client is capable of handling claims challenge.
         /// </summary>
         public IEnumerable<string>? ClientCapabilities { get; set; }
+        #endregion Token acquisition
 
-        /// <summary>
-        /// Gets or sets the Authority to use when making OpenIdConnect calls.
-        /// </summary>
-        public override string? Authority
-        {
-            get { return _authority ?? $"{Instance}{TenantId}/v2.0"; }
-            set { _authority = value; }
-        }
-        private string? _authority;
-
+        #region AADB2C
         /// <summary>
         /// Gets or sets the domain of the Azure Active Directory tenant, e.g. contoso.onmicrosoft.com.
         /// </summary>
         public string? Domain { get; set; }
 
-        #region AADB2C
         /// <summary>
         /// Gets or sets the edit profile user flow name for B2C, e.g. b2c_1_edit_profile.
         /// </summary>
@@ -76,7 +78,9 @@ namespace Microsoft.Identity.Web
         {
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
         }
+        #endregion AADB2C
 
+        #region web app
         /// <summary>
         /// Sets the ResetPassword route path (from the root of the web site).
         /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
@@ -85,6 +89,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public string ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
 
-        #endregion
+        /// <summary>
+        /// Sets the Error route path.
+        /// Defaults to the value /MicrosoftIdentity/Account/Error,
+        /// which is the value used by Microsoft.Identity.Web.UI.
+        /// </summary>
+        public string ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
+        #endregion web app
     }
 }

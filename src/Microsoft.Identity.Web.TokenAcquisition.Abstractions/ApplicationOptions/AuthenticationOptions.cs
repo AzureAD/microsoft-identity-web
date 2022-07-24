@@ -60,6 +60,30 @@ namespace Microsoft.Identity.Web
         public IEnumerable<CredentialDescription>? ClientCredentials { get; set; }
 
         /// <summary>
+        /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
+        /// Sending the x5c enables application developers to achieve easy certificate rollover in Azure AD:
+        /// this method will send the public certificate to Azure AD along with the token request,
+        /// so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via the app registration portal or using PowerShell/CLI). 
+        /// For details see https://aka.ms/msal-net-sni.
+        /// </summary>
+        /// The default is <c>false</c>.
+        public bool SendX5C { get; set; }
+
+        /// <summary>
+        /// If set to <c>true</c>, when the user signs-in in a web app, the application Requests an auth code 
+        /// for the frontend (single page application using MSAL.js for instance). This will allow the front end
+        /// JavaScript code to bypass going to the authoriize endpoint (which requires reloading the page), by 
+        /// directly redeeming the auth code to get access tokens to call APIs.
+        /// See https://aka.ms/msal-net/spa-auth-code for details.
+        /// </summary>
+        /// The default is <c>false.</c>
+        public bool WithSpaAuthCode { get; set; }
+        #endregion Token Acquisition
+
+        #region web API
+        /// <summary>
         /// In a web API, audience of the tokens that will be accepted by the web API.
         /// <para>If your web API accepts several audiences, see <see cref="Audiences"/></para>
         /// </summary>
@@ -89,29 +113,6 @@ namespace Microsoft.Identity.Web
         public IEnumerable<CredentialDescription>? TokenDecryptionCredentials { get; set; }
 
         /// <summary>
-        /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
-        /// Sending the x5c enables application developers to achieve easy certificate rollover in Azure AD:
-        /// this method will send the public certificate to Azure AD along with the token request,
-        /// so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
-        /// This saves the application admin from the need to explicitly manage the certificate rollover
-        /// (either via the app registration portal or using PowerShell/CLI). 
-        /// For details see https://aka.ms/msal-net-sni.
-        /// </summary>
-        /// The default is <c>false</c>.
-        public bool SendX5C { get; set; }
-
-        /// <summary>
-        /// If set to <c>true</c>, when the user signs-in in a web app, the application Requests an auth code 
-        /// for the frontend (single page application using MSAL.js for instance). This will allow the front end
-        /// JavaScript code to bypass going to the authoriize endpoint (which requires reloading the page), by 
-        /// directly redeeming the auth code to get access tokens to call APIs.
-        /// See https://aka.ms/msal-net/spa-auth-code for details.
-        /// </summary>
-        /// The default is <c>false.</c>
-        public bool WithSpaAuthCode { get; set; }
-        #endregion
-
-        /// <summary>
         /// Web APIs called by daemon applications can validate a token based on roles (representing app permissions), 
         /// or using the ACL-based authorization pattern for the client (daemon) to the web API. If using ACL-based authorization,
         /// the implementation will not throw if roles or scopes are not in the Claims.
@@ -119,12 +120,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// The default is <c>false.</c>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
-
-        /// <summary>
-        /// Sets the Error route path.
-        /// Defaults to the value /MicrosoftIdentity/Account/Error,
-        /// which is the value used by Microsoft.Identity.Web.UI.
-        /// </summary>
-        public string ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
+        #endregion web API
     }
 }

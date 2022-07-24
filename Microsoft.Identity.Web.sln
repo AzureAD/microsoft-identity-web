@@ -134,9 +134,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificate", "src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj", "{1E0B96CD-FDBF-482C-996A-775F691D984E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificateless", "src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj", "{01AA87C9-75BB-42DE-A71E-2932229224B2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Daemon", "Daemon", "{5D970909-98CF-415C-A598-D60B4B4AD8A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daemon-app", "tests\daemon-app\Daemon-app\Daemon-app.csproj", "{8C557C25-25C9-45B6-B2D3-77093893EBC5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net462", "net462", "{A4BF732A-BED6-408E-805A-118CE2A692B6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Asp.NET MVC", "Asp.NET MVC", "{7C04159B-BC84-4B8E-B2D8-692AEBA86433}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApi", "tests\aspnet-mvc\OwinWebApi\OwinWebApi.csproj", "{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition.Abstractions", "src\Microsoft.Identity.Web.TokenAcquisition.Abstractions\Microsoft.Identity.Web.TokenAcquisition.Abstractions.csproj", "{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Certificateless", "src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj", "{01AA87C9-75BB-42DE-A71E-2932229224B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.OWIN", "src\Microsoft.Identity.Web.OWIN\Microsoft.Identity.Web.OWIN.csproj", "{2467D9A0-045B-4B45-8CCB-1AA229093F9F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition", "src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj", "{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApp", "tests\aspnet-mvc\OwinWebApp\OwinWebApp.csproj", "{B288DE73-6B29-4B4D-AF02-6683D4C8D163}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -283,14 +299,31 @@ Global
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E0B96CD-FDBF-482C-996A-775F691D984E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AA87C9-75BB-42DE-A71E-2932229224B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2467D9A0-045B-4B45-8CCB-1AA229093F9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -345,6 +378,12 @@ Global
 		{D3A42D78-8A23-44EB-9A1F-63CF58B56AAC} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
 		{15B7F1B3-A438-4A42-BFFA-E3382543C037} = {D3A42D78-8A23-44EB-9A1F-63CF58B56AAC}
 		{5B9AD363-6A27-4AF2-939E-B20E7C941ADF} = {20CDB9B2-D237-413A-8E76-A973597748B0}
+		{5D970909-98CF-415C-A598-D60B4B4AD8A9} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
+		{8C557C25-25C9-45B6-B2D3-77093893EBC5} = {A4BF732A-BED6-408E-805A-118CE2A692B6}
+		{A4BF732A-BED6-408E-805A-118CE2A692B6} = {5D970909-98CF-415C-A598-D60B4B4AD8A9}
+		{7C04159B-BC84-4B8E-B2D8-692AEBA86433} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
+		{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
+		{B288DE73-6B29-4B4D-AF02-6683D4C8D163} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

@@ -253,15 +253,18 @@ namespace Microsoft.Identity.Web.Test.Integration
                  _provider.GetService<IMemoryCache>(),
                  _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
 
-            _tokenAcquisition = new TokenAcquisition(
+            var tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                _provider.GetService<IOptionsMonitor<MergedOptions>>(),
+                _provider.GetService<ILogger<TokenAcquisition>>(),
+                _provider);
+            _tokenAcquisition = new TokenAcquisitionAspNetCore(
                  _msalTestTokenCacheProvider,
-                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
                  _provider.GetService<IHttpClientFactory>(),
                  _provider.GetService<ILogger<TokenAcquisition>>(),
+                 tokenAcquisitionAspnetCoreHost,
                  _provider);
-            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out string effectiveAuthenticationScheme);
-            Assert.Equal(OpenIdConnectDefaults.AuthenticationScheme, effectiveAuthenticationScheme);
+            tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _);
         }
 
         private void BuildTheRequiredServices()
@@ -283,6 +286,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme);
             services.AddTransient(
                 provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(
@@ -293,7 +297,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             services.AddHttpClient();
             _provider = services.BuildServiceProvider();
         }
-
     }
 #endif //FROM_GITHUB_ACTION
 }

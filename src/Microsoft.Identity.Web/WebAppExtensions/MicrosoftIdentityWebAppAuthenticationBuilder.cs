@@ -172,7 +172,7 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context, openIdConnectScheme).ConfigureAwait(false);
+                           await tokenAcquisition.RemoveAccountAsync(context!.HttpContext.User, openIdConnectScheme).ConfigureAwait(false);
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

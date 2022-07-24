@@ -2,6 +2,7 @@
 
 namespace Microsoft.Identity.Web
 {
+    // TODO: Reconcile with RestDownstreamApiOptions
     internal class TokenAcquisitionAuthenticationProviderOption : IAuthenticationProviderOption
     {
         public string[]? Scopes { get; set; }

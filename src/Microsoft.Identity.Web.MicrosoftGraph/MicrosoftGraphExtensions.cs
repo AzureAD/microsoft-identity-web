@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 
 namespace Microsoft.Identity.Web
 {
+#if !NET472 && !NET462
     /// <summary>
     /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
@@ -66,33 +66,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            builder.Services.AddOptions<MicrosoftGraphOptions>().Configure(configureMicrosoftGraphOptions);
-
-            builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
-            {
-                var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
-                var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
-
-                var microsoftGraphOptions = options.Value;
-                if (microsoftGraphOptions.Scopes == null)
-                {
-                    throw new ArgumentException(IDWebErrorMessage.CalledApiScopesAreNull);
-                }
-
-                string graphBaseUrl = microsoftGraphOptions.BaseUrl;
-                string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
-
-                GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
-                                tokenAquisitionService,
-                                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
-                            new GraphServiceClient(graphBaseUrl,
-                                new TokenAcquisitionAuthenticationProvider(
-                                    tokenAquisitionService,
-                                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
-                return client;
-            });
+            builder.Services.AddMicrosoftGraph(configureMicrosoftGraphOptions);
             return builder;
         }
 
@@ -123,7 +97,6 @@ namespace Microsoft.Identity.Web
             return builder;
         }
 
-
         /// <summary>
         /// Add support to call Microsoft Graph.  
         /// </summary>
@@ -150,4 +123,5 @@ namespace Microsoft.Identity.Web
             return builder;
         }
     }
+#endif
 }

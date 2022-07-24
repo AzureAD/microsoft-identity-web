@@ -16,4 +16,3 @@ steps:
   displayName: 'Use .Net Core SDK 3.1.404'
   inputs:
     version: 3.1.404
-    
