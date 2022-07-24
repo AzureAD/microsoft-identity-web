@@ -33,6 +33,14 @@ namespace Microsoft.Identity.Web
             set;
         }
 
+        /// <summary>
+        /// Flag to enable/disable logging of Personally Identifiable Information (PII).
+        /// PII logs are never written to default outputs like Console, Logcat or NSLog
+        /// Default is set to <c>false</c>, which ensures that your application is compliant with GDPR. You can set
+        /// it to <c>true</c> for advanced debugging requiring PII. See https://aka.ms/msal-net-logging
+        /// </summary>
+        public bool EnablePiiLogging { get; set; }
+
         #region Token Acquisition
         /// <summary>
         /// Does the app provide client credentials.
