@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetSignUpSignInChallange(
+            return GetLoginChallange(
                 scheme,
                 redirectUri,
                 _options.SignInPolicyId);
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetSignUpSignInChallange(
+            return GetLoginChallange(
                 scheme,
                 redirectUri,
                 _options.SignUpPolicyId);
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetSignUpSignInChallange(
+            return GetLoginChallange(
                scheme,
                redirectUri,
                _options.SignUpSignInPolicyId);
@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
         // Get either the SignUp, SignIn, or SignUpSignIn Challange
         // This is decided by the passed policyId
-        private IActionResult GetSignUpSignInChallange(
+        private IActionResult GetLoginChallange(
             string scheme,
             string redirectUri,
             string? policyId)
