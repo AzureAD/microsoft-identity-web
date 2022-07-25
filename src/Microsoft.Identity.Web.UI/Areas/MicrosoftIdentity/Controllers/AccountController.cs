@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetLoginChallange(
+            return GetLoginChallenge(
                 scheme,
                 redirectUri,
                 _options.SignInPolicyId);
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetLoginChallange(
+            return GetLoginChallenge(
                 scheme,
                 redirectUri,
                 _options.SignUpPolicyId);
@@ -83,15 +83,15 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            return GetLoginChallange(
+            return GetLoginChallenge(
                scheme,
                redirectUri,
                _options.SignUpSignInPolicyId);
         }
 
-        // Get either the SignUp, SignIn, or SignUpSignIn Challange
+        // Get either the SignUp, SignIn, or SignUpSignIn Challenge
         // This is decided by the passed policyId
-        private IActionResult GetLoginChallange(
+        private IActionResult GetLoginChallenge(
             string scheme,
             string redirectUri,
             string? policyId)
@@ -141,9 +141,11 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 { Constants.DomainHint, domainHint },
             };
 
-            OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters);
-            oAuthChallengeProperties.Scope = scope?.Split(" ");
-            oAuthChallengeProperties.RedirectUri = redirectUri;
+            OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters)
+            {
+                Scope = scope?.Split(" "),
+                RedirectUri = redirectUri
+            };
 
             return Challenge(
                 oAuthChallengeProperties,
@@ -202,7 +204,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         public async Task<IActionResult> EditProfile([FromRoute] string scheme)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            var authenticated = await HttpContext.AuthenticateAsync(scheme).ConfigureAwait(false);
+            AuthenticateResult? authenticated = await HttpContext.AuthenticateAsync(scheme).ConfigureAwait(false);
             if (!authenticated.Succeeded)
             {
                 return Challenge(scheme);
