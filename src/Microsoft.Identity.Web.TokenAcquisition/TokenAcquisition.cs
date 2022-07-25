@@ -28,7 +28,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
+#if NET472 || NET462
+    internal partial class TokenAcquisition : ITokenAcquirer, ITokenAcquisition
+#else
     internal partial class TokenAcquisition : ITokenAcquirer
+#endif
     {
 #if NET472 || NET462
         class OAuthConstants
