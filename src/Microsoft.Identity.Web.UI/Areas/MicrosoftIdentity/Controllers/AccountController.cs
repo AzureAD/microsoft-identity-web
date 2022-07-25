@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -23,15 +23,19 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
     public class AccountController : Controller
     {
         private readonly IOptionsMonitor<MicrosoftIdentityOptions> _optionsMonitor;
+        private readonly MicrosoftIdentityOptions _options;
 
         /// <summary>
         /// Constructor of <see cref="AccountController"/> from <see cref="MicrosoftIdentityOptions"/>
         /// This constructor is used by dependency injection.
         /// </summary>
         /// <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
-        public AccountController(IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor)
+        public AccountController(
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
+            IOptions<MicrosoftIdentityOptions> options)
         {
             _optionsMonitor = microsoftIdentityOptionsMonitor;
+            _options = options.Value;
         }
 
         /// <summary>
@@ -45,20 +49,63 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             [FromRoute] string scheme,
             [FromQuery] string redirectUri)
         {
-            scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            string redirect;
-            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri))
-            {
-                redirect = redirectUri;
-            }
-            else
-            {
-                redirect = Url.Content("~/")!;
-            }
+            return GetSignUpSignInChallange(
+                scheme,
+                redirectUri,
+                _options.SignInPolicyId);
+        }
 
-            return Challenge(
-                new AuthenticationProperties { RedirectUri = redirect },
-                scheme);
+        /// <summary>
+        /// Handles user sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <param name="redirectUri">Redirect URI.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign up the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUp(
+            [FromRoute] string scheme,
+            [FromQuery] string redirectUri)
+        {
+            return GetSignUpSignInChallange(
+                scheme,
+                redirectUri,
+                _options.SignUpPolicyId);
+        }
+
+        /// <summary>
+        /// Handles user sign in with an option to sign up.
+        /// </summary>
+        /// <param name="scheme">Authentication scheme.</param>
+        /// <param name="redirectUri">Redirect URI.</param>
+        /// <returns>Challenge generating a redirect to Azure AD to sign in or sign up the user.</returns>
+        [HttpGet("{scheme?}")]
+        public IActionResult SignUpSignIn(
+            [FromRoute] string scheme,
+            [FromQuery] string redirectUri)
+        {
+            return GetSignUpSignInChallange(
+               scheme,
+               redirectUri,
+               _options.SignUpSignInPolicyId);
+        }
+
+        // Get either the SignUp, SignIn, or SignUpSignIn Challange
+        // This is decided by the passed policyId
+        private IActionResult GetSignUpSignInChallange(
+            string scheme,
+            string redirectUri,
+            string? policyId)
+        {
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = !string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri)
+                    ? redirectUri
+                    : Url.Content("~/")
+            };
+            properties.Items[Constants.Policy] = policyId;
+            return base.Challenge(
+                properties,
+                scheme ?? OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         /// <summary>
