@@ -141,11 +141,9 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 { Constants.DomainHint, domainHint },
             };
 
-            OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters)
-            {
-                Scope = scope?.Split(" "),
-                RedirectUri = redirectUri
-            };
+            OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters);
+            oAuthChallengeProperties.Scope = scope?.Split(" ");
+            oAuthChallengeProperties.RedirectUri = redirectUri;
 
             return Challenge(
                 oAuthChallengeProperties,
@@ -204,7 +202,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         public async Task<IActionResult> EditProfile([FromRoute] string scheme)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-            AuthenticateResult? authenticated = await HttpContext.AuthenticateAsync(scheme).ConfigureAwait(false);
+            var authenticated = await HttpContext.AuthenticateAsync(scheme).ConfigureAwait(false);
             if (!authenticated.Succeeded)
             {
                 return Challenge(scheme);
