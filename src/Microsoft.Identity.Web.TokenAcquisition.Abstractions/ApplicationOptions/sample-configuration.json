@@ -3,6 +3,7 @@
   "Instance": "https://login.microsoftonline.com",
   "TenantId": "common",
   "ClientId": "GUID",
+  "EnablePiiLogging": false, // false by default
 
   // Computed. but overridable (and also to support other IdPs than AAD)
   "Authority": "https://login.microsoftonline.com/common/v2.0",
