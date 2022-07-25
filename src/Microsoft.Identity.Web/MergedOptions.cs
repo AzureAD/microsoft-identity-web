@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -222,6 +222,16 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
             {
                 mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.SignUpPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpPolicyId))
+            {
+                mergedOptions.SignUpPolicyId = microsoftIdentityOptions.SignUpPolicyId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.SignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInPolicyId))
+            {
+                mergedOptions.SignInPolicyId = microsoftIdentityOptions.SignInPolicyId;
             }
 
             mergedOptions.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
