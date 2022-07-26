@@ -66,6 +66,15 @@ namespace Microsoft.Identity.Web
                 _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
             }
 
+            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftAuthenticationOptions>>()?.Get(effectiveAuthenticationScheme);
+                if (microsoftAuthenticationOptions != null)
+                {
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                }
+            }
+
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
             if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
             {

@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
         /// </list>
         /// </summary>
-        protected string? Container
+        public string? Container
         {
             get
             {
@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithThumbprint"/>,
         /// this value is the thumbprint.</item>
         /// </list>
-        protected string? ReferenceOrValue
+        public string? ReferenceOrValue
         {
             get
             {
@@ -214,5 +214,31 @@ namespace Microsoft.Identity.Web
         /// or loaded from the description.
         /// </summary>
         public X509Certificate2? Certificate { get; protected internal set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CredentialType CredentialType { get { return CredentialType.Certificate; } }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CredentialType
+    {   
+        /// <summary>
+        /// 
+        /// </summary>
+        Certificate,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Secret, 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        SignedAssertion
     }
 }

@@ -23,7 +23,7 @@ namespace daemon_console
             IConfiguration configuration = tokenAcquirerFactory.Configuration;
             IServiceCollection services = tokenAcquirerFactory.Services;
 
-            services.Configure<MicrosoftIdentityOptions>(option => configuration.Bind(option));
+            services.Configure<MicrosoftAuthenticationOptions>(option => configuration.Bind(option));
             services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
 
             // Add a cache

@@ -12,6 +12,30 @@ namespace Microsoft.Identity.Web
     public class CertificateDescription : CredentialDescription
     {
         /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public CertificateDescription()
+        {
+        }
+
+        /// <summary>
+        /// Creates a certificate description from a credential description.
+        /// </summary>
+        /// <param name="credentialDescription"></param>
+        public CertificateDescription(CredentialDescription credentialDescription)
+        {
+            if (credentialDescription is null)
+            {
+                throw new ArgumentNullException(nameof(credentialDescription));
+            }
+            // TODO: Check credentialDescription is really a cert
+            SourceType = (CertificateSource)credentialDescription.SourceType;
+            Container = credentialDescription.Container;
+            Certificate = credentialDescription.Certificate;
+            ReferenceOrValue = credentialDescription.ReferenceOrValue;
+        }
+
+        /// <summary>
         /// Creates a certificate description from a certificate (by code).
         /// </summary>
         /// <param name="x509certificate2">Certificate.</param>
