@@ -12,6 +12,9 @@ namespace GenerateMergeOptionsMethods
     {
         static void Main(string[] args)
         {
+            GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftAuthenticationOptions));
+            return;
+
             GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftIdentityOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(ConfidentialClientApplicationOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(JwtBearerOptions));

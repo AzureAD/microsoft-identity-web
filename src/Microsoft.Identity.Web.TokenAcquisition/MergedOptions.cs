@@ -392,5 +392,64 @@ namespace Microsoft.Identity.Web
                 Instance = Instance.TrimEnd('/') + "/";
             }
         }
+
+        public static void UpdateMergedOptionsFromMicrosoftAuthenticationOptions(MicrosoftAuthenticationOptions microsoftAuthenticationOptions, MergedOptions mergedOptions)
+        {
+            mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftAuthenticationOptions.AllowWebApiToBeAuthorizedByACL;
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Authority))
+            {
+                mergedOptions.Authority = microsoftAuthenticationOptions.Authority;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.AzureRegion) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.AzureRegion))
+            {
+                mergedOptions.AzureRegion = microsoftAuthenticationOptions.AzureRegion;
+            }
+
+            mergedOptions.ClientCapabilities ??= microsoftAuthenticationOptions.ClientCapabilities;
+            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.ClientId))
+            {
+                mergedOptions.ClientId = microsoftAuthenticationOptions.ClientId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Domain))
+            {
+                mergedOptions.Domain = microsoftAuthenticationOptions.Domain;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.EditProfilePolicyId))
+            {
+                mergedOptions.EditProfilePolicyId = microsoftAuthenticationOptions.EditProfilePolicyId;
+            }
+
+            mergedOptions.EnablePiiLogging = microsoftAuthenticationOptions.EnablePiiLogging;
+            mergedOptions.ErrorPath = microsoftAuthenticationOptions.ErrorPath;
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Instance))
+            {
+                mergedOptions.Instance = microsoftAuthenticationOptions.Instance;
+            }
+
+            mergedOptions.ResetPasswordPath = microsoftAuthenticationOptions.ResetPasswordPath;
+            if (string.IsNullOrEmpty(mergedOptions.ResetPasswordPolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.ResetPasswordPolicyId))
+            {
+                mergedOptions.ResetPasswordPolicyId = microsoftAuthenticationOptions.ResetPasswordPolicyId;
+            }
+
+            mergedOptions.SendX5C = microsoftAuthenticationOptions.SendX5C;
+            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.SignUpSignInPolicyId))
+            {
+                mergedOptions.SignUpSignInPolicyId = microsoftAuthenticationOptions.SignUpSignInPolicyId;
+            }
+
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.TenantId))
+            {
+                mergedOptions.TenantId = microsoftAuthenticationOptions.TenantId;
+            }
+
+            mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
+
+            // TODO: update when credentials use more than certs (secrets and signed assertions)
+            mergedOptions.ClientCertificates = microsoftAuthenticationOptions.ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).Select(c => new CertificateDescription(c));
+        }
     }
 }

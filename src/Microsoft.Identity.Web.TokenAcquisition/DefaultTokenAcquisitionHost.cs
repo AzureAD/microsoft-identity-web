@@ -12,18 +12,21 @@ namespace Microsoft.Identity.Web.Hosts
 {
     internal class DefaultTokenAcquisitionHost : ITokenAcquisitionHost
     {
-        IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
-        IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
+        readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
+        readonly IOptionsMonitor<MicrosoftAuthenticationOptions> _microsoftAuthenticationOptionsMonitor;
 
         public DefaultTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
-            IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor)
+            IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
+            IOptionsMonitor<MicrosoftAuthenticationOptions> microsoftAuthenticationOptionsMonitor)
         {
             _microsoftIdentityOptionsMonitor = optionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
+            _microsoftAuthenticationOptionsMonitor = microsoftAuthenticationOptionsMonitor;
         }
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -52,6 +55,15 @@ namespace Microsoft.Identity.Web.Hosts
             }
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme), mergedOptions);
+
+            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
+            {
+                MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
+                if (microsoftAuthenticationOptions != null)
+                {
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                }
+            }
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
