@@ -117,6 +117,31 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public new string? ClientSecret
+        {
+            get
+            {
+                return ClientCredentials.FirstOrDefault(c => c.SourceType == CredentialSource.ClientSecret)?.ClientSecret;
+            }
+            set
+            {
+                base.ClientSecret = value;
+                var secretCredential = ClientCredentials.FirstOrDefault(c => c.SourceType == CredentialSource.ClientSecret);
+                if (secretCredential != null)
+                {
+                    secretCredential.ClientSecret = value;
+                }
+                else
+                {
+                    ClientCredentials.Add(new CredentialDescription() { SourceType = CredentialSource.ClientSecret, ClientSecret = value });
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Description of the certificates used to prove the identity of the web app or web API.
         /// </summary>
         /// <example> An example in the appsetting.json:
@@ -131,7 +156,25 @@ namespace Microsoft.Identity.Web
         ///   </code>
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
-        public IEnumerable<CertificateDescription>? ClientCertificates { get; set; }
+        public IEnumerable<CertificateDescription>? ClientCertificates
+        { 
+            get
+            {
+                return ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).Select(c => new CertificateDescription(c));
+            }         
+            set
+            {
+                var previousClientCertificates = ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).ToList();
+                previousClientCertificates.ForEach(c => ClientCredentials.Remove(c));
+                if (value != null)
+                {
+                    foreach (var certDescription in value)
+                    {
+                        ClientCredentials.Insert(0, certDescription);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Description of the certificates used to decrypt an encrypted token in a web API.
@@ -149,6 +192,11 @@ namespace Microsoft.Identity.Web
         ///   See also https://aka.ms/ms-id-web-certificates.
         ///   </example>
         public IEnumerable<CertificateDescription>? TokenDecryptionCertificates { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal IList<CredentialDescription> ClientCredentials { get; set; } = new List<CredentialDescription>();
 
         /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.

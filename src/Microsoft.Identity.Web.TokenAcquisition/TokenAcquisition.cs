@@ -571,7 +571,7 @@ namespace Microsoft.Identity.Web
                     builder.WithClientAssertion(new ManagedIdentityClientAssertion(mergedOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId).GetSignedAssertion);
                 }
 
-                if (mergedOptions.ClientCertificates != null)
+                if (mergedOptions.ClientCertificates != null && mergedOptions.ClientCertificates.Any())
                 {
                     X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(mergedOptions.ClientCertificates);
                     if (certificate == null)
