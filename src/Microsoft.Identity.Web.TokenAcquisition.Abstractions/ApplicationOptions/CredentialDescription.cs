@@ -218,7 +218,34 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// 
         /// </summary>
-        public CredentialType CredentialType { get { return CredentialType.Certificate; } }
+        public virtual object? CachedValue { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CredentialType CredentialType
+        {
+            get
+            {
+                switch (SourceType)
+                {
+                    case CredentialSource.KeyVault:
+                    case CredentialSource.Path:
+                    case CredentialSource.StoreWithThumbprint:
+                    case CredentialSource.StoreWithDistinguishedName:
+                    case CredentialSource.Certificate:
+                    case CredentialSource.Base64Encoded:
+                        return CredentialType.Certificate;
+                    case CredentialSource.ClientSecret:
+                        return CredentialType.Secret;
+                    case CredentialSource.SignedAssertionFromManagedIdentity:
+                    case CredentialSource.SignedAssertionFilePath:
+                        return CredentialType.SignedAssertion;
+                    default:
+                        return default;
+                }
+            }
+        }
     }
 
     /// <summary>

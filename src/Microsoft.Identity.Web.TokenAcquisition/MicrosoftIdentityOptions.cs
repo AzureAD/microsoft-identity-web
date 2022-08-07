@@ -151,6 +151,84 @@ namespace Microsoft.Identity.Web
         public IEnumerable<CertificateDescription>? TokenDecryptionCertificates { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        internal IEnumerable<CredentialDescription>? ClientCredentials
+        {
+            get
+            {
+                if (ClientCredentialsUsingManagedIdentity != null && ClientCredentialsUsingManagedIdentity.IsEnabled)
+                {
+                    yield return new CredentialDescription() { ManagedIdentityClientId = ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
+                }
+                if (ClientCertificates != null && ClientCertificates.Any())
+                {
+                    foreach (var cert in ClientCertificates)
+                    {
+                        yield return cert;
+                    }
+                }
+                if (!string.IsNullOrEmpty(ClientSecret))
+                {
+                    yield return new CredentialDescription() { ClientSecret = ClientSecret, SourceType = CredentialSource.ClientSecret };
+                }
+            }
+
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+                var mi = value.FirstOrDefault(c => c.SourceType == CredentialSource.SignedAssertionFromManagedIdentity);
+                if (mi != null)
+                {
+                    ClientCredentialsUsingManagedIdentity = new CertificatelessOptions() { IsEnabled = true, ManagedIdentityObjectId = mi.ManagedIdentityClientId };
+                }
+                var certs = value.Where(c => c.CredentialType == CredentialType.Certificate);
+                if (certs != null && certs.Any())
+                {
+                    ClientCertificates = certs.Select(c => new CertificateDescription(c));
+                }
+                var secret = value.FirstOrDefault(c => c.SourceType == CredentialSource.ClientSecret);
+                if (secret != null)
+                {
+                    ClientSecret = secret.ClientSecret;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal IEnumerable<CredentialDescription>? TokenDecryptionCredentials
+        {
+            get
+            {
+                if (TokenDecryptionCertificates != null && TokenDecryptionCertificates.Any())
+                {
+                    foreach (var cert in TokenDecryptionCertificates)
+                    {
+                        yield return cert;
+                    }
+                }
+            }
+
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+                var certs = value.Where(c => c.CredentialType == CredentialType.Certificate);
+                if (certs != null && certs.Any())
+                {
+                    TokenDecryptionCertificates = certs.Select(c => new CertificateDescription(c));
+                }
+            }
+        }
+
+        /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.
         /// Sending the x5c enables application developers to achieve easy certificate rollover in Azure AD:
         /// this method will send the public certificate to Azure AD along with the token request,

@@ -43,7 +43,7 @@ namespace daemon_console
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
             string scope = configuration.GetValue<string>("Scopes");
-            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default");
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif
