@@ -563,7 +563,7 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
-                    builder.WithClientCredentials(mergedOptions.ClientCredentials);
+                    builder.WithClientCredentials(mergedOptions.ClientCredentials!);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
