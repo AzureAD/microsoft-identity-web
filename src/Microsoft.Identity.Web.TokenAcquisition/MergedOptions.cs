@@ -219,6 +219,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions.Authority = microsoftIdentityOptions.Authority;
             }
 
+            mergedOptions.ClientCredentials ??= microsoftIdentityOptions.ClientCredentials;
             mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
             {
@@ -447,9 +448,8 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
-
-            // TODO: update when credentials use more than certs (secrets and signed assertions)
-            mergedOptions.ClientCertificates = microsoftAuthenticationOptions.ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).Select(c => new CertificateDescription(c));
+            //mergedOptions.ClientCertificates = microsoftAuthenticationOptions.ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).Select(c => new CertificateDescription(c));
+            mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
         }
     }
 }

@@ -154,6 +154,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApp", "tests\aspnet-mvc\OwinWebApp\OwinWebApp.csproj", "{B288DE73-6B29-4B4D-AF02-6683D4C8D163}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenAcquirerTests", "TokenAcquirerTests\TokenAcquirerTests.csproj", "{DA56C549-A69B-49F7-82E5-1C97D3E5745A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -324,6 +326,10 @@ Global
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA56C549-A69B-49F7-82E5-1C97D3E5745A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA56C549-A69B-49F7-82E5-1C97D3E5745A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA56C549-A69B-49F7-82E5-1C97D3E5745A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA56C549-A69B-49F7-82E5-1C97D3E5745A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -384,6 +390,7 @@ Global
 		{7C04159B-BC84-4B8E-B2D8-692AEBA86433} = {9A51E6E0-A2B0-4D4D-9209-E73B8AD2B9C6}
 		{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
+		{DA56C549-A69B-49F7-82E5-1C97D3E5745A} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

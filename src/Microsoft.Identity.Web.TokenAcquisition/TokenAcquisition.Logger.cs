@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal partial class TokenAcquisition
     {
-        private static class Logger
+        internal static class Logger
         {
             private static readonly Action<ILogger, string, Exception?> s_tokenAcquisitionError =
                 LoggerMessage.Define<string>(

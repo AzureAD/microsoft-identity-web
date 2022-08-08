@@ -561,31 +561,17 @@ namespace Microsoft.Identity.Web
                     builder.WithAuthority(authority);
                 }
 
-                // Case where no client certificates and not client secret was provided, but the user assigned
-                // managed identity was set. In that case we leverage the MsiSignedAssertion to be cert-less.
-                if (string.IsNullOrWhiteSpace(mergedOptions.ClientSecret)
-                    && (mergedOptions.ClientCertificates == null || !mergedOptions.ClientCertificates.Any())
-                    && mergedOptions.ClientCredentialsUsingManagedIdentity != null
-                    && mergedOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
+                try
                 {
-                    builder.WithClientAssertion(new ManagedIdentityClientAssertion(mergedOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId).GetSignedAssertion);
+                    builder.WithClientCredentials(mergedOptions.ClientCredentials);
                 }
-
-                if (mergedOptions.ClientCertificates != null)
+                catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
-                    X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(mergedOptions.ClientCertificates);
-                    if (certificate == null)
-                    {
-                        Logger.TokenAcquisitionError(
-                            _logger,
-                            IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                            null);
-                        throw new ArgumentException(
-                            IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                            nameof(mergedOptions.ClientCertificates));
-                    }
-
-                    builder.WithCertificate(certificate);
+                    Logger.TokenAcquisitionError(
+                                _logger,
+                                IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
+                                null);
+                    throw;
                 }
 
                 IConfidentialClientApplication app = builder.Build();
@@ -608,8 +594,6 @@ namespace Microsoft.Identity.Web
                 throw;
             }
         }
-
-
 
         private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
@@ -702,7 +686,7 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
-                    }                    
+                    }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
                                         .ConfigureAwait(false);
@@ -963,8 +947,8 @@ namespace Microsoft.Identity.Web
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForAppAsync(
-                scope, 
-                tokenAcquisitionOptions?.AuthenticationScheme, 
+                scope,
+                tokenAcquisitionOptions?.AuthenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
