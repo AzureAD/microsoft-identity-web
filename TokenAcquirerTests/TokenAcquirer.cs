@@ -9,6 +9,7 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace TokenAcquirerTests
 {
+#if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
         [Theory]
@@ -67,4 +68,5 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
     }
+#endif //FROM_GITHUB_ACTION
 }
