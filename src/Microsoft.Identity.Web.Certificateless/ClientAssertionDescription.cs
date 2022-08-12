@@ -11,22 +11,12 @@ namespace Microsoft.Identity.Web
     /// Description of a client assertion in the application configuration.
     /// See https://aka.ms/ms-id-web/client-assertions.
     /// </summary>
-    internal class ClientAssertionDescription
+    public class ClientAssertionDescription
     {
         /// <summary>
-        /// Constructor of a ClientAssertionDescription.
+        /// delegate to get the client assertion from a provider.
         /// </summary>
-        /// <param name="clientAssertionProvider">delegate providing the client assertion
-        /// when it is necessary.</param>
-        public ClientAssertionDescription(Func<CancellationToken, Task<ClientAssertion>> clientAssertionProvider)
-        {
-            ClientAssertionProvider = clientAssertionProvider;
-        }
-
-        /// <summary>
-        /// delegate to get the client assertion.
-        /// </summary>
-        protected Func<CancellationToken, Task<ClientAssertion>> ClientAssertionProvider { get; set; }
+        internal Func<CancellationToken, Task<ClientAssertion>>? ClientAssertionProvider { get; set; }
 
         /// <summary>
         /// Client assertion.
@@ -40,6 +30,12 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         public async Task<string> GetSignedAssertion(CancellationToken cancellationToken)
         {
+            if (ClientAssertionProvider == null)
+            {
+                // This error is not meant to users of ClientAssertionDescription
+                // only to extenders of ClientAssertionDescription (probably Id.Web developers)
+                throw new ArgumentNullException("ClientAssertionProvider must be initialized in the constructor of the derived classes");
+            }
             if (_clientAssertion == null || (Expiry != null && DateTimeOffset.Now > Expiry))
             {
                 _clientAssertion = await ClientAssertionProvider(cancellationToken).ConfigureAwait(false);
