@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task TestClientAssertion()
         {
             int n = 0;
-            ClientAssertionDescription clientAssertionDescription = new ClientAssertionDescription()
+            ClientAssertionProviderBase clientAssertionDescription = new ClientAssertionProviderBase()
             {
                 ClientAssertionProvider = (cancellationToken =>
                 {

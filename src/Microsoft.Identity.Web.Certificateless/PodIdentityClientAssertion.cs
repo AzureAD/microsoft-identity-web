@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// Gets a signed assertion from PodIdentity when an app is running in a container
     /// in Azure Kubernetes Services. See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    internal class PodIdentityClientAssertion : ClientAssertionDescription
+    internal class PodIdentityClientAssertion : ClientAssertionProviderBase
     {
         /// <summary>
         /// Gets a signed assertion from PodIdentity. The file path is provided

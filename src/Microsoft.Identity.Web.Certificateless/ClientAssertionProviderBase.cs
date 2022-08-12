@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     /// Description of a client assertion in the application configuration.
     /// See https://aka.ms/ms-id-web/client-assertions.
     /// </summary>
-    public class ClientAssertionDescription
+    public class ClientAssertionProviderBase
     {
         /// <summary>
         /// delegate to get the client assertion from a provider.
@@ -32,8 +32,8 @@ namespace Microsoft.Identity.Web
         {
             if (ClientAssertionProvider == null)
             {
-                // This error is not meant to users of ClientAssertionDescription
-                // only to extenders of ClientAssertionDescription (probably Id.Web developers)
+                // This error is not meant to users of ClientAssertionProviderBase
+                // only to extenders of ClientAssertionProviderBase (probably Id.Web developers)
                 throw new ArgumentNullException("ClientAssertionProvider must be initialized in the constructor of the derived classes");
             }
             if (_clientAssertion == null || (Expiry != null && DateTimeOffset.Now > Expiry))

@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionDescription
+    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
     {
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
