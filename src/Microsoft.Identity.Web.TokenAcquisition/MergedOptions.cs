@@ -448,7 +448,6 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
-            //mergedOptions.ClientCertificates = microsoftAuthenticationOptions.ClientCredentials.Where(c => c.CredentialType == CredentialType.Certificate).Select(c => new CertificateDescription(c));
             mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
         }
     }
