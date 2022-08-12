@@ -15,14 +15,16 @@ namespace Microsoft.Identity.Web.Test
         public async Task TestClientAssertion()
         {
             int n = 0;
-            ClientAssertionDescription clientAssertionDescription = new ClientAssertionDescription(
-                cancellationToken =>
+            ClientAssertionProviderBase clientAssertionDescription = new ClientAssertionProviderBase()
+            {
+                ClientAssertionProvider = (cancellationToken =>
                 {
                     n++;
                     return Task.FromResult(new ClientAssertion(
                         n.ToString(CultureInfo.InvariantCulture),
                         DateTimeOffset.Now + TimeSpan.FromSeconds(1)));
-                });
+                })
+            };
 
             string assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
 
