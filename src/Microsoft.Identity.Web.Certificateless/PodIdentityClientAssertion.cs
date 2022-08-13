@@ -13,18 +13,15 @@ namespace Microsoft.Identity.Web
     /// Gets a signed assertion from PodIdentity when an app is running in a container
     /// in Azure Kubernetes Services. See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    internal class PodIdentityClientAssertion : ClientAssertionProviderBase
+    public class PodIdentityClientAssertion : ClientAssertionProviderBase
     {
         /// <summary>
         /// Gets a signed assertion from PodIdentity. The file path is provided
         /// by an environment variable ("AZURE_FEDERATED_TOKEN_FILE")
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        public PodIdentityClientAssertion()
+        public PodIdentityClientAssertion() : this(null)
         {
-            // See https://blog.identitydigest.com/azuread-federate-k8s/
-            _filePath = Environment.GetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE");
-            ClientAssertionProvider = GetSignedAssertionFromFile;
         }
 
         /// <summary>
@@ -32,9 +29,10 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="filePath"></param>
-        public PodIdentityClientAssertion(string filePath)
+        public PodIdentityClientAssertion(string? filePath)
         {
-            _filePath = filePath;
+            // See https://blog.identitydigest.com/azuread-federate-k8s/
+            _filePath = filePath ?? Environment.GetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE");
             ClientAssertionProvider = GetSignedAssertionFromFile;
         }
 

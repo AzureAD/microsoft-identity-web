@@ -24,6 +24,14 @@ namespace Microsoft.Identity.Web
                     }
                     return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
                 }
+                if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
+                {
+                    if (credential.CachedValue == null)
+                    {
+                        credential.CachedValue = new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
+                    }
+                    return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
+                }
 
                 if (credential.CredentialType == CredentialType.Certificate)
                 {
