@@ -88,10 +88,10 @@ namespace Microsoft.Identity.Web
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
-                ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
+                ITokenAcquirer? tokenAcquirerService = serviceProvider.GetRequiredService<ITokenAcquirer>();
 
                 return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
-                    tokenAquisitionService,
+                    tokenAcquirerService,
                     new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
             });
             return builder;
@@ -114,10 +114,10 @@ namespace Microsoft.Identity.Web
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
-                ITokenAcquisition? tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
+                ITokenAcquirer? tokenAcquirerService = serviceProvider.GetRequiredService<ITokenAcquirer>();
 
                 return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
-                    tokenAquisitionService,
+                    tokenAcquirerService,
                     new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
             });
             return builder;

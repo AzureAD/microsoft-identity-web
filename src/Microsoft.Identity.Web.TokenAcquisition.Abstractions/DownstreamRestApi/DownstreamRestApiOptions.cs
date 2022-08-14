@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Options related to the token acquisition.
         /// </summary>
-        AcquireTokenOptions TokenAcquirerOptions { get; set; } = new AcquireTokenOptions();
+        public AcquireTokenOptions TokenAcquirerOptions { get; set; } = new AcquireTokenOptions();
 
         /// <summary>
         /// Name of the protocol scheme used to create the authorization header.
