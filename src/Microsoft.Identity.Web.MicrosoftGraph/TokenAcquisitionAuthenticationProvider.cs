@@ -15,13 +15,13 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
-        public TokenAcquisitionAuthenticationProvider(ITokenAcquisition tokenAcquisition, TokenAcquisitionAuthenticationProviderOption options)
+        public TokenAcquisitionAuthenticationProvider(ITokenAcquirer tokenAcquirer, TokenAcquisitionAuthenticationProviderOption options)
         {
-            _tokenAcquisition = tokenAcquisition;
+            _tokenAcquirer = tokenAcquirer;
             _initialOptions = options;
         }
 
-        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly ITokenAcquirer _tokenAcquirer;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
 
         /// <summary>
@@ -50,20 +50,27 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            AuthenticationResult authenticationResult;
+            DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
+            downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationScheme = scheme;
+            downstreamRestApiOptions.TokenAcquirerOptions.Tenant = tenant;
+
+            if (msalAuthProviderOption?.DownstreamRestApiOptions != null)
+            {
+                msalAuthProviderOption.DownstreamRestApiOptions(downstreamRestApiOptions);
+            }
+
+            AcquireTokenResult acquireTokenResult;
             if (appOnly)
             {
-                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                acquireTokenResult = await _tokenAcquirer.GetTokenForAppAsync(
                     Constants.DefaultGraphScope,
-                    authenticationScheme: scheme,
-                    tenant: tenant).ConfigureAwait(false);
+                    downstreamRestApiOptions?.TokenAcquirerOptions).ConfigureAwait(false);
             }
             else
             {
-                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                acquireTokenResult = await _tokenAcquirer.GetTokenForUserAsync(
                     scopes!,
-                    tenantId: tenant,
-                    authenticationScheme: scheme).ConfigureAwait(false);
+                    downstreamRestApiOptions?.TokenAcquirerOptions).ConfigureAwait(false);
             }
 
             // add or replace authorization header
@@ -73,8 +80,7 @@ namespace Microsoft.Identity.Web
             }
 
             request.Headers.Add(
-                Constants.Authorization,
-                authenticationResult.CreateAuthorizationHeader());
+                Constants.Authorization, $"{downstreamRestApiOptions?.ProtocolScheme ?? "Bearer"} {acquireTokenResult.AccessToken}");
         }
 
         /// <summary>
