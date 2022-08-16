@@ -361,7 +361,7 @@ namespace Microsoft.Identity.Web
                 }
                 if (tokenAcquisitionOptions.PopPublicKey != null)
                 {
-                    builder.WithProofOfPossessionKeyId(tokenAcquisitionOptions.PopPublicKey);
+                    builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey);
                     builder.OnBeforeTokenRequest((data) =>
                     {
                         data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
@@ -697,16 +697,6 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
-                        if (tokenAcquisitionOptions.PopPublicKey != null)
-                        {
-                            builder.WithProofOfPossessionKeyId(tokenAcquisitionOptions.PopPublicKey);
-                            builder.OnBeforeTokenRequest((data) =>
-                            {
-                                data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
-                                data.BodyParameters.Add("token_type", "pop");
-                                return Task.CompletedTask;
-                            });
-                        }
                     }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
@@ -840,16 +830,6 @@ namespace Microsoft.Identity.Web
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
-                }
-                if (tokenAcquisitionOptions.PopPublicKey != null)
-                {
-                    builder.WithProofOfPossessionKeyId(tokenAcquisitionOptions.PopPublicKey);
-                    builder.OnBeforeTokenRequest((data) =>
-                    {
-                        data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
-                        data.BodyParameters.Add("token_type", "pop");
-                        return Task.CompletedTask;
-                    });
                 }
             }
 
