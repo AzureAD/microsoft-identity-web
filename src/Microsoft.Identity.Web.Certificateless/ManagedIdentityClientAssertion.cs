@@ -17,19 +17,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        public ManagedIdentityClientAssertion()
-        {
-            ClientAssertionProvider = GetSignedAssertionFromFederatedTokenProvider;
-        }
-
-        /// <summary>
-        /// See https://aka.ms/ms-id-web/certificateless.
-        /// </summary>
         /// <param name="managedIdentityClientId"></param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
             _managedIdentityClientId = managedIdentityClientId;
-            ClientAssertionProvider = GetSignedAssertionFromFederatedTokenProvider;
         }
 
         private readonly string? _managedIdentityClientId;
@@ -39,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        private async Task<ClientAssertion> GetSignedAssertionFromFederatedTokenProvider(CancellationToken cancellationToken)
+        internal override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _managedIdentityClientId });
 
