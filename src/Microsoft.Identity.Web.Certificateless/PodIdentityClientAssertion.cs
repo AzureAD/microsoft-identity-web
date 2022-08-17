@@ -33,7 +33,6 @@ namespace Microsoft.Identity.Web
         {
             // See https://blog.identitydigest.com/azuread-federate-k8s/
             _filePath = filePath ?? Environment.GetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE");
-            ClientAssertionProvider = GetSignedAssertionFromFile;
         }
 
         private readonly string _filePath;
@@ -42,7 +41,7 @@ namespace Microsoft.Identity.Web
         /// Get the signed assertion from a file.
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        private Task<ClientAssertion> GetSignedAssertionFromFile(CancellationToken cancellationToken)
+        internal override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             string signedAssertion = File.ReadAllText(_filePath);
             // Compute the expiry
