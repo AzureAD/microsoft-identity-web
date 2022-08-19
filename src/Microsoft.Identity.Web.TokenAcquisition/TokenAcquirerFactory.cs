@@ -49,6 +49,8 @@ namespace Microsoft.Identity.Web
                 instance = new T();
                 instance.ReadConfiguration();
                 defaultInstance = instance;
+                instance.Services.AddTokenAcquisition();
+                instance.Services.AddHttpClient();
             }
             return (defaultInstance as T)!;
         }
@@ -66,6 +68,8 @@ namespace Microsoft.Identity.Web
                 instance = new TokenAcquirerFactory();
                 instance.ReadConfiguration();
                 defaultInstance = instance;
+                instance.Services.AddTokenAcquisition();
+                instance.Services.AddHttpClient();
             }
             return defaultInstance!;
         }
@@ -73,18 +77,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the default instance.
         /// </summary>
-        static internal TokenAcquirerFactory FromConfigurationAndServices(IConfiguration configuration, ServiceCollection services)
-        {
-            TokenAcquirerFactory factory = new TokenAcquirerFactory();
-            factory.Services = services;
-            factory.Configuration = configuration;
+        //static internal TokenAcquirerFactory FromConfigurationAndServices(IConfiguration configuration, ServiceCollection services)
+        //{
+        //    TokenAcquirerFactory factory = new TokenAcquirerFactory();
+        //    factory.Services = services;
+        //    factory.Configuration = configuration;
+        //    factory.Services.AddTokenAcquisition();
 
-            if (defaultInstance == null)
-            {
-                defaultInstance = factory;
-            }
-            return defaultInstance;
-        }
+        //    if (defaultInstance == null)
+        //    {
+        //        defaultInstance = factory;
+        //    }
+        //    return defaultInstance;
+        //}
 
         /// <summary>
         /// Build the Token acquirer

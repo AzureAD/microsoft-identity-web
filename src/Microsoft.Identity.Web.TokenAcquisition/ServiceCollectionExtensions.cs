@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
 #endif
             }
-
+            
             return services;
         }
     }

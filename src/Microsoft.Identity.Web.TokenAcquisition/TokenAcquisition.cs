@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -357,6 +358,16 @@ namespace Microsoft.Identity.Web
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+                if (tokenAcquisitionOptions.PopPublicKey != null)
+                {
+                    builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey);
+                    builder.OnBeforeTokenRequest((data) =>
+                    {
+                        data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
+                        data.BodyParameters.Add("token_type", "pop");
+                        return Task.CompletedTask;
+                    });
                 }
             }
 
@@ -908,7 +919,11 @@ namespace Microsoft.Identity.Web
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
 
-        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(IEnumerable<string> scopes, AcquireTokenOptions? tokenAcquisitionOptions, ClaimsPrincipal? user, CancellationToken cancellationToken)
+        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(
+            IEnumerable<string> scopes,
+            AcquireTokenOptions? tokenAcquisitionOptions,
+            ClaimsPrincipal? user,
+            CancellationToken cancellationToken)
         {
             var result = await GetAuthenticationResultForUserAsync(
                 scopes,
@@ -927,7 +942,7 @@ namespace Microsoft.Identity.Web
                     LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
                     Tenant = tokenAcquisitionOptions.Tenant,
                     UserFlow = tokenAcquisitionOptions.UserFlow,
-                    // TODO: PopKeyId?
+                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
                 }).ConfigureAwait(false);
 
             return new AcquireTokenResult(
@@ -956,7 +971,7 @@ namespace Microsoft.Identity.Web
                     LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
                     Tenant = tokenAcquisitionOptions.Tenant,
                     UserFlow = tokenAcquisitionOptions.UserFlow,
-                    // TODO: PopKeyId?
+                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
                 }).ConfigureAwait(false);
 
             return new AcquireTokenResult(

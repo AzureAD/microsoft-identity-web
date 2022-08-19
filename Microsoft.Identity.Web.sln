@@ -154,7 +154,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinWebApp", "tests\aspnet-mvc\OwinWebApp\OwinWebApp.csproj", "{B288DE73-6B29-4B4D-AF02-6683D4C8D163}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenAcquirerTests", "TokenAcquirerTests\TokenAcquirerTests.csproj", "{DA56C549-A69B-49F7-82E5-1C97D3E5745A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenAcquirerTests", "TokenAcquirerTests\TokenAcquirerTests.csproj", "{DA56C549-A69B-49F7-82E5-1C97D3E5745A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
