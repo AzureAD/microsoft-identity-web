@@ -301,7 +301,7 @@ namespace Microsoft.Identity.Web
 
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
+                    //MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
                     MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);

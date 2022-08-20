@@ -153,50 +153,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// 
         /// </summary>
-        internal IEnumerable<CredentialDescription>? ClientCredentials
-        {
-            get
-            {
-                if (ClientCredentialsUsingManagedIdentity != null && ClientCredentialsUsingManagedIdentity.IsEnabled)
-                {
-                    yield return new CredentialDescription() { ManagedIdentityClientId = ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
-                }
-                if (ClientCertificates != null && ClientCertificates.Any())
-                {
-                    foreach (var cert in ClientCertificates)
-                    {
-                        yield return cert;
-                    }
-                }
-                if (!string.IsNullOrEmpty(ClientSecret))
-                {
-                    yield return new CredentialDescription() { ClientSecret = ClientSecret, SourceType = CredentialSource.ClientSecret };
-                }
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    return;
-                }
-                var mi = value.FirstOrDefault(c => c.SourceType == CredentialSource.SignedAssertionFromManagedIdentity);
-                if (mi != null)
-                {
-                    ClientCredentialsUsingManagedIdentity = new CertificatelessOptions() { IsEnabled = true, ManagedIdentityObjectId = mi.ManagedIdentityClientId };
-                }
-                var certs = value.Where(c => c.CredentialType == CredentialType.Certificate);
-                if (certs != null && certs.Any())
-                {
-                    ClientCertificates = certs.Select(c => new CertificateDescription(c));
-                }
-                var secret = value.FirstOrDefault(c => c.SourceType == CredentialSource.ClientSecret);
-                if (secret != null)
-                {
-                    ClientSecret = secret.ClientSecret;
-                }
-            }
-        }
+        public IEnumerable<CredentialDescription>? ClientCredentials { get; set; }
 
         /// <summary>
         /// 

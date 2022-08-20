@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Hosts
         readonly IOptionsMonitor<MicrosoftAuthenticationOptions> _microsoftAuthenticationOptionsMonitor;
 
         public OwinTokenAcquisitionHost(
-            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor, 
+            IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
             IOptionsMonitor<MicrosoftAuthenticationOptions> microsoftAuthenticationOptionsMonitor)
@@ -50,22 +50,13 @@ namespace Microsoft.Identity.Web.Hosts
         {
             effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             var mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
-
             if (!mergedOptions.MergedWithCca)
             {
                 _ccaOptionsMonitor.Get(effectiveAuthenticationScheme);
             }
 
-            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme), mergedOptions);
-
-            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
-            {
-                MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
-                if (microsoftAuthenticationOptions != null)
-                {
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
-                }
-            }
+            _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
+            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;

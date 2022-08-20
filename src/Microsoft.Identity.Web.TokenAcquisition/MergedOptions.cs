@@ -191,7 +191,6 @@ namespace Microsoft.Identity.Web
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce = microsoftIdentityOptions.UsePkce;
 
-            mergedOptions.ClientCredentialsUsingManagedIdentity ??= microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity;
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
 
             mergedOptions.Scope.Clear();
@@ -211,24 +210,26 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.Instance = microsoftIdentityOptions.Instance;
             }
+
             mergedOptions.ResetPasswordPath = microsoftIdentityOptions.ResetPasswordPath;
             mergedOptions.ErrorPath = microsoftIdentityOptions.ErrorPath;
             mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftIdentityOptions.AllowWebApiToBeAuthorizedByACL;
+
             if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftIdentityOptions.Authority))
             {
                 mergedOptions.Authority = microsoftIdentityOptions.Authority;
             }
 
             mergedOptions.ClientCredentials ??= microsoftIdentityOptions.ClientCredentials;
-            mergedOptions.ClientCertificates ??= microsoftIdentityOptions.ClientCertificates;
+
+            if (mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any())
+            {
+                mergedOptions.ClientCredentials = ComputeFromLegacyCredentials(microsoftIdentityOptions);
+            }
+
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
             {
                 mergedOptions.ClientId = microsoftIdentityOptions.ClientId;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
-            {
-                mergedOptions.ClientSecret = microsoftIdentityOptions.ClientSecret;
             }
 
             if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftIdentityOptions.Domain))
@@ -254,11 +255,6 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
-
-            if (string.IsNullOrEmpty(mergedOptions.UserAssignedManagedIdentityClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.UserAssignedManagedIdentityClientId))
-            {
-                mergedOptions.UserAssignedManagedIdentityClientId = microsoftIdentityOptions.UserAssignedManagedIdentityClientId;
-            }
 
             mergedOptions._confidentialClientApplicationOptions = null;
         }
@@ -448,7 +444,27 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
-            mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
+            mergedOptions.ClientCredentials ??= microsoftAuthenticationOptions.ClientCredentials;
+        }
+
+        private static IEnumerable<CredentialDescription> ComputeFromLegacyCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            // Compatibility with v1 API
+            if (microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity != null && microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
+            {
+                yield return new CredentialDescription() { ManagedIdentityClientId = microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
+            }
+            if (microsoftIdentityOptions.ClientCertificates != null && microsoftIdentityOptions.ClientCertificates.Any())
+            {
+                foreach (var cert in microsoftIdentityOptions.ClientCertificates)
+                {
+                    yield return cert;
+                }
+            }
+            if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
+            {
+                yield return new CredentialDescription() { ClientSecret = microsoftIdentityOptions.ClientSecret, SourceType = CredentialSource.ClientSecret };
+            }
         }
     }
 }

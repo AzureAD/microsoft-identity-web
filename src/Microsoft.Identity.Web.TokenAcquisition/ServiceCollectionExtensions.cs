@@ -3,7 +3,12 @@
 
 using System;
 using System.Linq;
+#if !NET472 && !NET462
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+#endif
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Hosts;
 
 namespace Microsoft.Identity.Web
@@ -41,6 +46,16 @@ namespace Microsoft.Identity.Web
             }
 
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            if (tokenAcquisitionService == null)
+            {
+                services.AddSingleton<IPostConfigureOptions<MicrosoftAuthenticationOptions>, MicrosoftAuthenticationOptionsMerger>();
+                services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+                services.AddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
+#if !NET472 && !NET462
+                services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsMerger>();
+#endif 
+            }
+
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null)
