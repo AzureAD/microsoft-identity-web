@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\src\Microsoft.Identity.Web.Certificateless\ClientAssertion.cs" Link="ClientAssertion.cs" />
-    <Compile Include="..\..\src\Microsoft.Identity.Web.Certificateless\ClientAssertionDescription.cs" Link="ClientAssertionDescription.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
   </ItemGroup>
 

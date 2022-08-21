@@ -18,42 +18,94 @@ namespace TokenAcquirerTests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task AcquireToken_ClientCredentialsAsync(bool withMSIdentityOptions)
+        public async Task AcquireToken_WithMicrosoftIdentityOptions_ClientCredentialsAsync(bool withClientCredentials)
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
-            if (withMSIdentityOptions)
+
+            services.Configure<MicrosoftIdentityOptions>(option =>
             {
-                services.Configure<MicrosoftIdentityOptions>(option =>
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
+                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                if (withClientCredentials)
                 {
-                    option.Instance = "https://login.microsoftonline.com/";
-                    option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                    option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
                     option.ClientCertificates = new[] { new CertificateDescription
                 {
                     SourceType = CertificateSource.KeyVault,
                     KeyVaultUrl = "https://webappsapistests.vault.azure.net",
                     KeyVaultCertificateName = "Self-Signed-5-5-22"
                 } };
-                });
-            }
-            else
-            {
-                services.Configure<MicrosoftAuthenticationOptions>(option =>
+                }
+                else
                 {
-                    option.Instance = "https://login.microsoftonline.com/";
-                    option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                    option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
                     option.ClientCredentials = new[] { new CertificateDescription
                 {
                     SourceType = CertificateSource.KeyVault,
                     KeyVaultUrl = "https://webappsapistests.vault.azure.net",
                     KeyVaultCertificateName = "Self-Signed-5-5-22"
                 } };
-                });
-            }
+                }
+            });
 
+            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+        }
+
+        [Fact]
+        public async Task AcquireToken_WithMicrosoftAuthenticationOptions_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftAuthenticationOptions>(option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
+                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.ClientCredentials = new[] { new CertificateDescription
+                {
+                    SourceType = CertificateSource.KeyVault,
+                    KeyVaultUrl = "https://webappsapistests.vault.azure.net",
+                    KeyVaultCertificateName = "Self-Signed-5-5-22"
+                } };
+            });
+
+            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+        }
+
+        [Fact]
+        public async Task AcquireTokenWithPop_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftAuthenticationOptions>(option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
+                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.ClientCredentials = new[] { new CertificateDescription
+                {
+                    SourceType = CertificateSource.KeyVault,
+                    KeyVaultUrl = "https://webappsapistests.vault.azure.net",
+                    KeyVaultCertificateName = "Self-Signed-5-5-22"
+                } };
+            });
+
+            services.AddInMemoryTokenCaches();
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var options = serviceProvider.GetRequiredService<IOptions<MicrosoftAuthenticationOptions>>().Value;
+            var cert = options.ClientCredentials.First().Certificate;
+
+            // Get the token acquisition service
+            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
+            Assert.NotNull(result.AccessToken);
+        }
+
+        private static async Task CreateGraphClientAndAssert(TokenAcquirerFactory tokenAcquirerFactory, IServiceCollection services)
+        {
             services.AddInMemoryTokenCaches();
             services.AddMicrosoftGraph();
             var serviceProvider = tokenAcquirerFactory.Build();
@@ -68,36 +120,6 @@ namespace TokenAcquirerTests
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
-            Assert.NotNull(result.AccessToken);
-        }
-
-        [Fact]
-        public async Task AcquireTokenWithPop_ClientCredentialsAsync()
-        {
-            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
-
-                services.Configure<MicrosoftAuthenticationOptions>(option =>
-                {
-                    option.Instance = "https://login.microsoftonline.com/";
-                    option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                    option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
-                    option.ClientCredentials = new[] { new CertificateDescription
-                {
-                    SourceType = CertificateSource.KeyVault,
-                    KeyVaultUrl = "https://webappsapistests.vault.azure.net",
-                    KeyVaultCertificateName = "Self-Signed-5-5-22"
-                } };
-                });
-
-            services.AddInMemoryTokenCaches();
-            var serviceProvider = tokenAcquirerFactory.Build();
-            var options = serviceProvider.GetRequiredService<IOptions<MicrosoftAuthenticationOptions>>().Value;
-            var cert = options.ClientCredentials.First().Certificate;
-            
-            // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
-            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
             Assert.NotNull(result.AccessToken);
         }
     }

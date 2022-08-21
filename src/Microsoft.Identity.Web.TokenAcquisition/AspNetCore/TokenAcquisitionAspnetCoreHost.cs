@@ -120,7 +120,7 @@ namespace Microsoft.Identity.Web
                 // This will happen in ASP.NET Core daemons
                 else
                 {
-                    return String.Empty;
+                    return string.Empty;
                 }
             }
         }

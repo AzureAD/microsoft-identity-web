@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 #endif
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Hosts;
@@ -45,17 +46,20 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(services));
             }
 
-            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
-            if (tokenAcquisitionService == null)
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {
-                services.AddSingleton<IPostConfigureOptions<MicrosoftAuthenticationOptions>, MicrosoftAuthenticationOptionsMerger>();
-                services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
-                services.AddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
-#if !NET472 && !NET462
-                services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsMerger>();
-#endif 
+                services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+            }
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftAuthenticationOptionsMerger)) == null)
+            {
+                services.TryAddSingleton<IPostConfigureOptions<MicrosoftAuthenticationOptions>, MicrosoftAuthenticationOptionsMerger>();
+            }
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(ConfidentialClientApplicationOptionsMerger)) == null)
+            {
+                services.TryAddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
             }
 
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));             
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null)
@@ -112,7 +116,7 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
 #endif
             }
-            
+
             return services;
         }
     }
