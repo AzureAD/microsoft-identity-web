@@ -224,7 +224,7 @@ namespace Microsoft.Identity.Web
 
             if (mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any())
             {
-                mergedOptions.ClientCredentials = ComputeFromLegacyCredentials(microsoftIdentityOptions);
+                mergedOptions.ClientCredentials = ComputeFromLegacyCredentials(microsoftIdentityOptions).ToList();
             }
 
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
