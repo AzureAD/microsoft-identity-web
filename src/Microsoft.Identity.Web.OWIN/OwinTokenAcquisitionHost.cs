@@ -55,8 +55,8 @@ namespace Microsoft.Identity.Web.Hosts
                 _ccaOptionsMonitor.Get(effectiveAuthenticationScheme);
             }
 
-            _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
-            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
+            _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
+            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
