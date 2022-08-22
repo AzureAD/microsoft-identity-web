@@ -15,9 +15,10 @@ namespace TokenAcquirerTests
 #if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [IgnoreOnAzureDevopsFact]
+        //[Theory]
+        //[InlineData(false)]
+        //[InlineData(true)]
         public async Task AcquireToken_WithMicrosoftIdentityOptions_ClientCredentialsAsync(bool withClientCredentials)
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
@@ -52,7 +53,8 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
         }
 
-        [Fact]
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
         public async Task AcquireToken_WithMicrosoftAuthenticationOptions_ClientCredentialsAsync()
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
@@ -74,7 +76,8 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
         }
 
-        [Fact]
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
         public async Task AcquireTokenWithPop_ClientCredentialsAsync()
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
