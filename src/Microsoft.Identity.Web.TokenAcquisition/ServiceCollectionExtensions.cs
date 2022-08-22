@@ -3,7 +3,13 @@
 
 using System;
 using System.Linq;
+#if !NET472 && !NET462
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+#endif
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Hosts;
 
 namespace Microsoft.Identity.Web
@@ -40,7 +46,20 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(services));
             }
 
-            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            {
+                services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+            }
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftAuthenticationOptionsMerger)) == null)
+            {
+                services.TryAddSingleton<IPostConfigureOptions<MicrosoftAuthenticationOptions>, MicrosoftAuthenticationOptionsMerger>();
+            }
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(ConfidentialClientApplicationOptionsMerger)) == null)
+            {
+                services.TryAddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
+            }
+
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));             
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null)
@@ -97,7 +116,7 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
 #endif
             }
-            
+
             return services;
         }
     }

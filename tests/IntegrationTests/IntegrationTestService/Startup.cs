@@ -44,12 +44,17 @@ namespace IntegrationTestService
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
-            services.Configure<MicrosoftIdentityOptions>(options =>
+            services.Configure<MicrosoftIdentityOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.ClientSecret = ccaSecret;
             });
 
-          //  services.AddAuthorization();
+            services.Configure<MicrosoftIdentityOptions>(TestConstants.CustomJwtScheme2, options =>
+            {
+                options.ClientSecret = ccaSecret;
+            });
+
+            //  services.AddAuthorization();
 
             services.AddRazorPages();
             //services.AddRazorPages(options =>

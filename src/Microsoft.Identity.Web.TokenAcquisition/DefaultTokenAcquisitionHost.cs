@@ -54,16 +54,8 @@ namespace Microsoft.Identity.Web.Hosts
                 _ccaOptionsMonitor.Get(effectiveAuthenticationScheme);
             }
 
-            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme), mergedOptions);
-
-            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
-            {
-                MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
-                if (microsoftAuthenticationOptions != null)
-                {
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
-                }
-            }
+            _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
+            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;

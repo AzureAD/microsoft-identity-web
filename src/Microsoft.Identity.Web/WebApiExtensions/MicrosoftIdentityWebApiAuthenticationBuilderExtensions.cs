@@ -169,7 +169,14 @@ namespace Microsoft.Identity.Web
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
-
+            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            {
+                builder.Services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+            }
+            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(JwtBearerOptionsMerger)) == null)
+            {
+                builder.Services.TryAddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsMerger>();
+            }
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
                 builder.Services.AddTransient<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
@@ -185,10 +192,8 @@ namespace Microsoft.Identity.Web
                 msIdOptions) =>
                 {
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
+                    msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
-                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
 

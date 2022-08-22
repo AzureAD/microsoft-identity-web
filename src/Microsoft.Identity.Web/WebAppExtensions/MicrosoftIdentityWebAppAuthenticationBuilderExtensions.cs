@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Abstractions;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Linq;
 
 namespace Microsoft.Identity.Web
 {
@@ -242,6 +243,11 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
             }
 
+            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            {
+                builder.Services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+            }
+            
             builder.Services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddHttpClient();
 
@@ -299,10 +305,8 @@ namespace Microsoft.Identity.Web
                 {
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
 
+                    msIdOptionsMonitor.Get(openIdConnectScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
-
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);

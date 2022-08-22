@@ -65,39 +65,21 @@ namespace Microsoft.Identity.Web
             {
                 _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
             }
-
-            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
-            {
-                MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftAuthenticationOptions>>()?.Get(effectiveAuthenticationScheme);
-                if (microsoftAuthenticationOptions != null)
-                {
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
-                }
-            }
+            
+            _serviceProvider.GetService<IOptionsMonitor<MicrosoftAuthenticationOptions>>()?.Get(effectiveAuthenticationScheme);
+            _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>()?.Get(effectiveAuthenticationScheme);
 
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options
             if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
             {
                 JwtBearerOptions? jwtBearerOptions = _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>()?.Get(effectiveAuthenticationScheme); // supports event handlers
-                if (jwtBearerOptions != null)
-                {
-                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(jwtBearerOptions, mergedOptions);
-                }
+                _serviceProvider.GetService<IOptionsMonitor<JwtBearerOptions>>()?.Get(effectiveAuthenticationScheme);
             }
 
             // Case of an anonymous controller called from a web app
             if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
             {
                 _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>()?.Get(effectiveAuthenticationScheme);
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.Instance) || string.IsNullOrEmpty(mergedOptions.ClientId))
-            {
-                MicrosoftIdentityOptions? microsoftIdentityOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>()?.Get(effectiveAuthenticationScheme);
-                if (microsoftIdentityOptions != null)
-                {
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptions, mergedOptions);
-                }
             }
 
             if (string.IsNullOrEmpty(mergedOptions.Instance))
@@ -138,7 +120,7 @@ namespace Microsoft.Identity.Web
                 // This will happen in ASP.NET Core daemons
                 else
                 {
-                    return String.Empty;
+                    return string.Empty;
                 }
             }
         }

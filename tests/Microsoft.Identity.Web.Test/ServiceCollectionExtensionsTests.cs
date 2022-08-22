@@ -3,8 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -19,12 +22,36 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             Assert.Collection(
-                services.OrderBy(s => s.ServiceType.Name),
+                services.OrderBy(s => s.ServiceType.FullName),
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IHttpContextAccessor), actual.ServiceType);
                     Assert.Equal(typeof(HttpContextAccessor), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IPostConfigureOptions<ConfidentialClientApplicationOptions>), actual.ServiceType);
+                    Assert.Equal(typeof(ConfidentialClientApplicationOptionsMerger), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IPostConfigureOptions<MicrosoftAuthenticationOptions>), actual.ServiceType);
+                    Assert.Equal(typeof(MicrosoftAuthenticationOptionsMerger), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IPostConfigureOptions<MicrosoftIdentityOptions>), actual.ServiceType);
+                    Assert.Equal(typeof(MicrosoftIdentityOptionsMerger), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
                 },
