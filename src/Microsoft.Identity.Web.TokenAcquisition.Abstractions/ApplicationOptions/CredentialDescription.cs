@@ -216,12 +216,18 @@ namespace Microsoft.Identity.Web
         public X509Certificate2? Certificate { get; protected internal set; }
 
         /// <summary>
-        /// 
+        /// Cached value for the credential
         /// </summary>
         public virtual object? CachedValue { get; set; }
 
         /// <summary>
-        /// 
+        /// Skip this credential. This is useful when, you specify a list of
+        /// credentials, some of which don't apply in a particular deployment.
+        /// </summary>
+        public bool Skip { get; set; }
+
+        /// <summary>
+        /// Describes the type of credentials
         /// </summary>
         public CredentialType CredentialType
         {
@@ -246,26 +252,5 @@ namespace Microsoft.Identity.Web
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum CredentialType
-    {   
-        /// <summary>
-        /// 
-        /// </summary>
-        Certificate,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Secret, 
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        SignedAssertion
     }
 }
