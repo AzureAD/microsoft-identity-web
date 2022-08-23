@@ -19,8 +19,9 @@ namespace TokenAcquirerTests
         //[Theory]
         //[InlineData(false)]
         //[InlineData(true)]
-        public async Task AcquireToken_WithMicrosoftIdentityOptions_ClientCredentialsAsync(bool withClientCredentials)
+        public async Task AcquireToken_WithMicrosoftIdentityOptions_ClientCredentialsAsync()
         {
+            bool withClientCredentials = false; //add as param above
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
