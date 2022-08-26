@@ -1093,6 +1093,9 @@ namespace Microsoft.Identity.Web
         {
             switch (level)
             {
+                case Client.LogLevel.Always:
+                    _logger.LogCritical(message);
+                    break;
                 case Client.LogLevel.Error:
                     _logger.LogError(message);
                     break;
