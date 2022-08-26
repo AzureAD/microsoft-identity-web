@@ -864,56 +864,6 @@ namespace Microsoft.Identity.Web
                 );
         }
 
-        private void Log(
-          Client.LogLevel level,
-          string message,
-          bool containsPii)
-        {
-            switch (level)
-            {
-                case Client.LogLevel.Error:
-                    _logger.LogError(message);
-                    break;
-                case Client.LogLevel.Warning:
-                    _logger.LogWarning(message);
-                    break;
-                case Client.LogLevel.Info:
-                    _logger.LogInformation(message);
-                    break;
-                case Client.LogLevel.Verbose:
-                    _logger.LogDebug(message);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
-        {
-            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
-                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
-            {
-                return Client.LogLevel.Verbose;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                return Client.LogLevel.Info;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
-            {
-                return Client.LogLevel.Warning;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
-                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
-            {
-                return Client.LogLevel.Error;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
@@ -981,6 +931,59 @@ namespace Microsoft.Identity.Web
                 result.IdToken,
                 result.Scopes,
                 result.CorrelationId);
+        }
+
+        private void Log(
+          Client.LogLevel level,
+          string message,
+          bool containsPii)
+        {
+            switch (level)
+            {
+                case Client.LogLevel.Always:
+                    _logger.LogCritical(message);
+                    break;
+                case Client.LogLevel.Error:
+                    _logger.LogError(message);
+                    break;
+                case Client.LogLevel.Warning:
+                    _logger.LogWarning(message);
+                    break;
+                case Client.LogLevel.Info:
+                    _logger.LogInformation(message);
+                    break;
+                case Client.LogLevel.Verbose:
+                    _logger.LogDebug(message);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
+        {
+            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
+            {
+                return Client.LogLevel.Verbose;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
+            {
+                return Client.LogLevel.Info;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
+            {
+                return Client.LogLevel.Warning;
+            }
+            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
+                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
+            {
+                return Client.LogLevel.Error;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
