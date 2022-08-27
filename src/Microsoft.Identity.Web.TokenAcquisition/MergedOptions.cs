@@ -231,7 +231,7 @@ namespace Microsoft.Identity.Web
 
             if (mergedOptions.TokenDecryptionCredentials == null || !mergedOptions.TokenDecryptionCredentials.Any())
             {
-                mergedOptions.TokenDecryptionCredentials = ComputeFromLegacyTokenDecryptCredentials(microsoftIdentityOptions).ToList();
+                mergedOptions.TokenDecryptionCredentials = ComputeFromLegacyTokenDecryptCredentials(microsoftIdentityOptions);
             }
 
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
