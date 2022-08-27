@@ -158,32 +158,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// 
         /// </summary>
-        internal IEnumerable<CredentialDescription>? TokenDecryptionCredentials
-        {
-            get
-            {
-                if (TokenDecryptionCertificates != null && TokenDecryptionCertificates.Any())
-                {
-                    foreach (var cert in TokenDecryptionCertificates)
-                    {
-                        yield return cert;
-                    }
-                }
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    return;
-                }
-                var certs = value.Where(c => c.CredentialType == CredentialType.Certificate);
-                if (certs != null && certs.Any())
-                {
-                    TokenDecryptionCertificates = certs.Select(c => new CertificateDescription(c));
-                }
-            }
-        }
+        public IEnumerable<CredentialDescription>? TokenDecryptionCredentials { get; set; }
 
         /// <summary>
         /// Specifies if the x5c claim (public key of the certificate) should be sent to the STS.

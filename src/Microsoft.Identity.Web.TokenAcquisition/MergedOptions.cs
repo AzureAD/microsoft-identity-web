@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
 #endif
 
 #if !NET472 && !NET462
-// ASP.NET Core specific
+            // ASP.NET Core specific
             mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
             mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
             mergedOptions.Backchannel ??= microsoftIdentityOptions.Backchannel;
@@ -224,7 +224,14 @@ namespace Microsoft.Identity.Web
 
             if (mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any())
             {
-                mergedOptions.ClientCredentials = ComputeFromLegacyCredentials(microsoftIdentityOptions).ToList();
+                mergedOptions.ClientCredentials = ComputeFromLegacyClientCredentials(microsoftIdentityOptions).ToList();
+            }
+
+            mergedOptions.TokenDecryptionCredentials ??= microsoftIdentityOptions.TokenDecryptionCredentials;
+
+            if (mergedOptions.TokenDecryptionCredentials == null || !mergedOptions.TokenDecryptionCredentials.Any())
+            {
+                mergedOptions.TokenDecryptionCredentials = ComputeFromLegacyTokenDecryptCredentials(microsoftIdentityOptions);
             }
 
             if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClientId))
@@ -447,7 +454,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.ClientCredentials ??= microsoftAuthenticationOptions.ClientCredentials;
         }
 
-        private static IEnumerable<CredentialDescription> ComputeFromLegacyCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)
+        private static IEnumerable<CredentialDescription> ComputeFromLegacyClientCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)
         {
             // Compatibility with v1 API
             if (microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity != null && microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
@@ -465,6 +472,16 @@ namespace Microsoft.Identity.Web
             {
                 yield return new CredentialDescription() { ClientSecret = microsoftIdentityOptions.ClientSecret, SourceType = CredentialSource.ClientSecret };
             }
+        }
+
+        private static IEnumerable<CredentialDescription>? ComputeFromLegacyTokenDecryptCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)
+        {
+            // Compatibility with v1 API
+            if (microsoftIdentityOptions.TokenDecryptionCertificates != null && microsoftIdentityOptions.TokenDecryptionCertificates.Any())
+            {
+                return microsoftIdentityOptions.TokenDecryptionCertificates;
+            }
+            return null;
         }
     }
 }
