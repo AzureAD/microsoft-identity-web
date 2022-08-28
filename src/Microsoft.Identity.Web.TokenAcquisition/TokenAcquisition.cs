@@ -569,7 +569,7 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
-                    builder.WithClientCredentials(mergedOptions.ClientCredentials!);
+                    builder.WithClientCredentials(mergedOptions.ClientCredentials!, _logger);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
@@ -864,6 +864,11 @@ namespace Microsoft.Identity.Web
                 );
         }
 
+        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
+        {
+            return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
+        }
+        
         private void Log(
           Client.LogLevel level,
           string message,
@@ -871,6 +876,9 @@ namespace Microsoft.Identity.Web
         {
             switch (level)
             {
+                case Client.LogLevel.Always:
+                    _logger.LogCritical(message);
+                    break;
                 case Client.LogLevel.Error:
                     _logger.LogError(message);
                     break;
@@ -912,11 +920,6 @@ namespace Microsoft.Identity.Web
             {
                 return null;
             }
-        }
-
-        public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
-        {
-            return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
     }
 }
