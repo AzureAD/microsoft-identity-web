@@ -99,7 +99,7 @@ namespace TokenAcquirerTests
             var cert = options.ClientCredentials.First().Certificate;
 
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(string.Empty);
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
             Assert.NotNull(result.AccessToken);
         }
@@ -118,7 +118,7 @@ namespace TokenAcquirerTests
             Assert.Equal(50, users.Count);
 
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(string.Empty);
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.NotNull(result.AccessToken);
         }
