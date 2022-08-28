@@ -37,29 +37,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionAppTokenCache(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            services.AddHttpContextAccessor();
-            services.AddSession(option =>
-            {
-                option.Cookie.IsEssential = true;
-            });
-            services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
-            services.TryAddScoped(provider =>
-            {
-                var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
-                if (httpContext == null)
-                {
-                    throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
-                }
-
-                return httpContext.Session;
-            });
-
-            return services;
+            return CreateSessionAppTokenCache(services);
         }
 
         /// <summary>
@@ -85,6 +63,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionPerUserTokenCache(this IServiceCollection services)
+        {
+            return CreateSessionAppTokenCache(services);
+        }
+
+        private static IServiceCollection CreateSessionAppTokenCache(IServiceCollection services)
         {
             if (services == null)
             {
