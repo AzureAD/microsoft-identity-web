@@ -11,10 +11,12 @@
 
   <ItemGroup>
     <Compile Remove="Program-net60.cs" />
+    <Compile Remove="Program.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Program-net60.cs" />
+    <None Include="Program.cs" />
   </ItemGroup>
 
   <ItemGroup>

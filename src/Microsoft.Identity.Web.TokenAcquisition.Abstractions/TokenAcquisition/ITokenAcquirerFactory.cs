@@ -25,5 +25,13 @@ namespace Microsoft.Identity.Web
         /// <param name="aadApplicationIdentityOptions">Application configuration.</param>
         /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
         ITokenAcquirer GetTokenAcquirer(AuthenticationOptions aadApplicationIdentityOptions);
+
+        /// <summary>
+        /// Get a token acquirer for a specifc ASP.NET Core authentication scheme (configuration).
+        /// 
+        /// </summary>
+        /// <param name="authenticationScheme">Application configuration as defined by the configuration.</param>
+        /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
+        ITokenAcquirer GetTokenAcquirer(string authenticationScheme);
     }
 }

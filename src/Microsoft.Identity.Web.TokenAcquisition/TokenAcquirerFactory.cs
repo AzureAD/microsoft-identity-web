@@ -1,5 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+﻿// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         public IServiceProvider? ServiceProvider { get; protected set; }
 
         /// <summary>
-        /// Services
+        /// Services. Used in the initialization phase.
         /// </summary>
         public ServiceCollection Services { get; protected set; } = new ServiceCollection();
 
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
         /// Get the default instance
         /// </summary>
         /// <returns></returns>
-        static public TokenAcquirerFactory GetDefaultInstance() 
+        static public TokenAcquirerFactory GetDefaultInstance()
         {
             TokenAcquirerFactory instance;
             if (defaultInstance == null)
@@ -70,6 +70,7 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
+                instance.Services.AddOptions<MicrosoftAuthenticationOptions>(string.Empty);
             }
             return defaultInstance!;
         }
@@ -133,7 +134,7 @@ namespace Microsoft.Identity.Web
             return Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
         }
 
-        IDictionary<string, ITokenAcquirer> tokenAcquirers = new Dictionary<string, ITokenAcquirer>();
+        IDictionary<string, ITokenAcquirer> authSchemes = new Dictionary<string, ITokenAcquirer>();
 
         /// <summary>
         /// Get a token acquirer for  a given authority, region, clientId, certificate?
@@ -146,7 +147,28 @@ namespace Microsoft.Identity.Web
         /// <exception cref="NotImplementedException"></exception>
         public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, CredentialDescription certificate)
         {
-            throw new NotImplementedException();
+            // Compute the key
+            string key = GetKey(authority, clientId);
+            if (!authSchemes.TryGetValue(key, out ITokenAcquirer tokenAcquirer))
+            {
+                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
+                {
+                    ClientId = clientId,
+                    Authority = authority,
+                    ClientCredentials = new CredentialDescription[] { certificate },
+                    SendX5C = true
+                };
+                if (region != null)
+                {
+                    microsoftAuthenticationOptions.AzureRegion = region;
+                }
+
+                var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var mergedOptions = optionsMonitor.Get(key);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                tokenAcquirer = GetTokenAcquirer(key);
+            }
+            return tokenAcquirer;
         }
 
         /// <summary>
@@ -157,7 +179,56 @@ namespace Microsoft.Identity.Web
         /// <exception cref="NotImplementedException"></exception>
         public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
         {
-            throw new NotImplementedException();
+            if (applicationAuthenticationOptions is null)
+            {
+                throw new ArgumentNullException(nameof(applicationAuthenticationOptions));
+            }
+
+            // Compute the Azure region if the option is a MicrosoftAuthenticationOptions.
+            MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = applicationAuthenticationOptions as MicrosoftAuthenticationOptions;
+            if (microsoftAuthenticationOptions == null)
+            {
+                microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
+                {
+                    AllowWebApiToBeAuthorizedByACL = applicationAuthenticationOptions.AllowWebApiToBeAuthorizedByACL,
+                    Audience = applicationAuthenticationOptions.Audience,
+                    Audiences = applicationAuthenticationOptions.Audiences,
+                    Authority = applicationAuthenticationOptions.Authority,
+                    ClientCredentials = applicationAuthenticationOptions.ClientCredentials,
+                    ClientId = applicationAuthenticationOptions.ClientId,
+                    SendX5C = applicationAuthenticationOptions.SendX5C,
+                    TokenDecryptionCredentials = applicationAuthenticationOptions.TokenDecryptionCredentials,
+                    EnablePiiLogging = applicationAuthenticationOptions.EnablePiiLogging,
+                };
+            }
+
+            // Compute the key
+            string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
+            if (!authSchemes.TryGetValue(key, out ITokenAcquirer tokenAcquirer))
+            {
+                var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var mergedOptions = optionsMonitor.Get(key);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                tokenAcquirer = GetTokenAcquirer(key);
+            }
+            return tokenAcquirer;
+        }
+
+        /// <inheritdoc>
+        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
+        {
+            if (!authSchemes.TryGetValue(authenticationScheme, out ITokenAcquirer acquirer))
+            {
+                var tokenAcquisition = ServiceProvider.GetRequiredService<ITokenAcquisition>();
+                acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);
+                authSchemes.Add(authenticationScheme, acquirer);
+            }
+            return acquirer;
+        }
+
+        private static string GetKey(string? authority, string? clientId)
+        {
+            return $"{authority}{clientId}";
         }
     }
 }

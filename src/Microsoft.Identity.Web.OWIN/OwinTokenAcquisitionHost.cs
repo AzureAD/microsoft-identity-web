@@ -50,6 +50,9 @@ namespace Microsoft.Identity.Web.Hosts
         {
             effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(authenticationScheme);
             var mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
+
+            // TODO can we factorize somewhere else?
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
             if (!mergedOptions.MergedWithCca)
             {
                 _ccaOptionsMonitor.Get(effectiveAuthenticationScheme);
