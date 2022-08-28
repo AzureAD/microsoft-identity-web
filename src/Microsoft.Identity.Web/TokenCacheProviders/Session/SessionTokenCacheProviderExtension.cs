@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionAppTokenCache(this IServiceCollection services)
         {
-            return CreateSessionAppTokenCache(services);
+            return CreateSessionTokenCache(services);
         }
 
         /// <summary>
@@ -64,10 +64,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionPerUserTokenCache(this IServiceCollection services)
         {
-            return CreateSessionAppTokenCache(services);
+            return CreateSessionTokenCache(services);
         }
 
-        private static IServiceCollection CreateSessionAppTokenCache(IServiceCollection services)
+        private static IServiceCollection CreateSessionTokenCache(IServiceCollection services)
         {
             if (services == null)
             {
