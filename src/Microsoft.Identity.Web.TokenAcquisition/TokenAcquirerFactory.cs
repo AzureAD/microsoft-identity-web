@@ -76,23 +76,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Get the default instance.
-        /// </summary>
-        //static internal TokenAcquirerFactory FromConfigurationAndServices(IConfiguration configuration, ServiceCollection services)
-        //{
-        //    TokenAcquirerFactory factory = new TokenAcquirerFactory();
-        //    factory.Services = services;
-        //    factory.Configuration = configuration;
-        //    factory.Services.AddTokenAcquisition();
-
-        //    if (defaultInstance == null)
-        //    {
-        //        defaultInstance = factory;
-        //    }
-        //    return defaultInstance;
-        //}
-
-        /// <summary>
         /// Build the Token acquirer
         /// </summary>
         /// <returns></returns>
@@ -136,16 +119,8 @@ namespace Microsoft.Identity.Web
 
         IDictionary<string, ITokenAcquirer> authSchemes = new Dictionary<string, ITokenAcquirer>();
 
-        /// <summary>
-        /// Get a token acquirer for  a given authority, region, clientId, certificate?
-        /// </summary>
-        /// <param name="authority"></param>
-        /// <param name="region"></param>
-        /// <param name="clientId"></param>
-        /// <param name="certificate"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, CredentialDescription certificate)
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect")
         {
             // Compute the key
             string key = GetKey(authority, clientId);
@@ -155,7 +130,7 @@ namespace Microsoft.Identity.Web
                 {
                     ClientId = clientId,
                     Authority = authority,
-                    ClientCredentials = new CredentialDescription[] { certificate },
+                    ClientCredentials = clientCredentials,
                     SendX5C = true
                 };
                 if (region != null)
@@ -171,12 +146,7 @@ namespace Microsoft.Identity.Web
             return tokenAcquirer;
         }
 
-        /// <summary>
-        /// Get a token acquirer from the application authentication options.
-        /// </summary>
-        /// <param name="applicationAuthenticationOptions">The authentication options describing the service.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
         {
             if (applicationAuthenticationOptions is null)
@@ -214,7 +184,7 @@ namespace Microsoft.Identity.Web
             return tokenAcquirer;
         }
 
-        /// <inheritdoc>
+        /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
         {
             if (!authSchemes.TryGetValue(authenticationScheme, out ITokenAcquirer acquirer))
