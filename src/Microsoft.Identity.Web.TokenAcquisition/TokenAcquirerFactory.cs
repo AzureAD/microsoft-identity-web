@@ -122,9 +122,10 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect")
         {
+            ITokenAcquirer? tokenAcquirer;
             // Compute the key
             string key = GetKey(authority, clientId);
-            if (!authSchemes.TryGetValue(key, out ITokenAcquirer tokenAcquirer))
+            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
             {
                 MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
                 {
@@ -173,8 +174,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Compute the key
+            ITokenAcquirer? tokenAcquirer;
             string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
-            if (!authSchemes.TryGetValue(key, out ITokenAcquirer tokenAcquirer))
+            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
             {
                 var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
                 var mergedOptions = optionsMonitor.Get(key);
@@ -187,7 +189,8 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
         {
-            if (!authSchemes.TryGetValue(authenticationScheme, out ITokenAcquirer acquirer))
+            ITokenAcquirer? acquirer;
+            if (!authSchemes.TryGetValue(authenticationScheme, out acquirer))
             {
                 var tokenAcquisition = ServiceProvider.GetRequiredService<ITokenAcquisition>();
                 acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);

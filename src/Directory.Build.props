@@ -69,7 +69,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <IdentityModelVersion>6.21.0</IdentityModelVersion>
+    <IdentityModelVersion>6.22.1</IdentityModelVersion>
     <MicrosoftIdentityClientVersion>4.46.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
@@ -88,6 +88,8 @@
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>5.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>5.0.8</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
     <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>5.0.1</SystemTextEncodingsWebVersion>
   </PropertyGroup>
