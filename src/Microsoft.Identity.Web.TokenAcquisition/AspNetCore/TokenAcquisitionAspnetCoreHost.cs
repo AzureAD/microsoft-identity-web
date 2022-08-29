@@ -61,11 +61,14 @@ namespace Microsoft.Identity.Web
 
             var mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
 
+            // TODO can we factorize somewhere else?
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
             if (!mergedOptions.MergedWithCca)
             {
                 _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
             }
-            
+
             _serviceProvider.GetService<IOptionsMonitor<MicrosoftAuthenticationOptions>>()?.Get(effectiveAuthenticationScheme);
             _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>()?.Get(effectiveAuthenticationScheme);
 

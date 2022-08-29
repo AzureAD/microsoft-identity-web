@@ -15,13 +15,13 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
-        public TokenAcquisitionAuthenticationProvider(ITokenAcquirer tokenAcquirer, TokenAcquisitionAuthenticationProviderOption options)
+        public TokenAcquisitionAuthenticationProvider(ITokenAcquisition tokenAcquisition, TokenAcquisitionAuthenticationProviderOption options)
         {
-            _tokenAcquirer = tokenAcquirer;
+            _tokenAcquisition = tokenAcquisition;
             _initialOptions = options;
         }
 
-        private readonly ITokenAcquirer _tokenAcquirer;
+        private readonly ITokenAcquisition _tokenAcquisition;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
 
         /// <summary>
@@ -60,15 +60,16 @@ namespace Microsoft.Identity.Web
             }
 
             AcquireTokenResult acquireTokenResult;
+            ITokenAcquirer tokenAcquirer = new TokenAcquirer(_tokenAcquisition, downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationScheme);
             if (appOnly)
             {
-                acquireTokenResult = await _tokenAcquirer.GetTokenForAppAsync(
+                acquireTokenResult = await tokenAcquirer.GetTokenForAppAsync(
                     Constants.DefaultGraphScope,
                     downstreamRestApiOptions?.TokenAcquirerOptions).ConfigureAwait(false);
             }
             else
             {
-                acquireTokenResult = await _tokenAcquirer.GetTokenForUserAsync(
+                acquireTokenResult = await tokenAcquirer.GetTokenForUserAsync(
                     scopes!,
                     downstreamRestApiOptions?.TokenAcquirerOptions).ConfigureAwait(false);
             }

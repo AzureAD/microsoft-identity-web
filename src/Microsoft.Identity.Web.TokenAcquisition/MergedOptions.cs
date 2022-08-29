@@ -351,6 +351,9 @@ namespace Microsoft.Identity.Web
             }
 
             confidentialClientApplicationOptions.EnablePiiLogging = mergedOptions.EnablePiiLogging;
+
+            ParseAuthorityIfNecessary(mergedOptions);
+
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Instance))
             {
                 confidentialClientApplicationOptions.Instance = mergedOptions.Instance;
@@ -368,6 +371,20 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId) && !string.IsNullOrEmpty(mergedOptions.TenantId))
             {
                 confidentialClientApplicationOptions.TenantId = mergedOptions.TenantId;
+            }
+        }
+
+        internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions)
+        {
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
+            {
+                string authority = mergedOptions.Authority!.TrimEnd('/');
+                int indexTenant = authority.LastIndexOf('/');
+                if (indexTenant >= 0)
+                {
+                    mergedOptions.Instance = authority.Substring(0, indexTenant);
+                    mergedOptions.TenantId = authority.Substring(indexTenant + 1);
+                }
             }
         }
 

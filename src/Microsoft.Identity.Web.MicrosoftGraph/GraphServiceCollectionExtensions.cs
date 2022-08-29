@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
 
             services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
-                var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquirer>();
+                var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
                 var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
 
                 var microsoftGraphOptions = options.Value;

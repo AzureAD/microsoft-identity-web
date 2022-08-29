@@ -56,14 +56,6 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Null(actual.ImplementationFactory);
                 },
                 actual =>
-                {
-                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
-                    Assert.Equal(typeof(ITokenAcquirer), actual.ServiceType);
-                    Assert.Null(actual.ImplementationType);
-                    Assert.Null(actual.ImplementationInstance);
-                    Assert.NotNull(actual.ImplementationFactory);
-                },
-                actual =>
                {
                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                    Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);

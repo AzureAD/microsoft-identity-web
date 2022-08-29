@@ -30,9 +30,9 @@ namespace Microsoft.Identity.Web
     /// Token acquisition service.
     /// </summary>
 #if NET472 || NET462
-    internal partial class TokenAcquisition : ITokenAcquirer, ITokenAcquisition
+    internal partial class TokenAcquisition : ITokenAcquisition
 #else
-    internal partial class TokenAcquisition : ITokenAcquirer
+    internal partial class TokenAcquisition
 #endif
     {
 #if NET472 || NET462
@@ -868,71 +868,7 @@ namespace Microsoft.Identity.Web
         {
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
-
-        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(
-            IEnumerable<string> scopes,
-            AcquireTokenOptions? tokenAcquisitionOptions,
-            ClaimsPrincipal? user,
-            CancellationToken cancellationToken)
-        {
-            var result = await GetAuthenticationResultForUserAsync(
-                scopes,
-                tokenAcquisitionOptions?.AuthenticationScheme,
-                tokenAcquisitionOptions?.Tenant,
-                tokenAcquisitionOptions?.UserFlow,
-                user,
-                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
-                {
-                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
-                    CancellationToken = cancellationToken,
-                    Claims = tokenAcquisitionOptions!.Claims,
-                    CorrelationId = tokenAcquisitionOptions!.CorrelationId,
-                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
-                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
-                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
-                    Tenant = tokenAcquisitionOptions.Tenant,
-                    UserFlow = tokenAcquisitionOptions.UserFlow,
-                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
-                }).ConfigureAwait(false);
-
-            return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId);
-        }
-
-        async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
-        {
-            var result = await GetAuthenticationResultForAppAsync(
-                scope,
-                tokenAcquisitionOptions?.AuthenticationScheme,
-                tokenAcquisitionOptions?.Tenant,
-                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
-                {
-                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme,
-                    CancellationToken = cancellationToken,
-                    Claims = tokenAcquisitionOptions!.Claims,
-                    CorrelationId = tokenAcquisitionOptions.CorrelationId,
-                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
-                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
-                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
-                    Tenant = tokenAcquisitionOptions.Tenant,
-                    UserFlow = tokenAcquisitionOptions.UserFlow,
-                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
-                }).ConfigureAwait(false);
-
-            return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId);
-        }
-
+        
         private void Log(
           Client.LogLevel level,
           string message,

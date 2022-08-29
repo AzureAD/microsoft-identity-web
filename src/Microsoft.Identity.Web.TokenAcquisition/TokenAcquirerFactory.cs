@@ -1,5 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+﻿// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         public IServiceProvider? ServiceProvider { get; protected set; }
 
         /// <summary>
-        /// Services
+        /// Services. Used in the initialization phase.
         /// </summary>
         public ServiceCollection Services { get; protected set; } = new ServiceCollection();
 
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
         /// Get the default instance
         /// </summary>
         /// <returns></returns>
-        static public TokenAcquirerFactory GetDefaultInstance() 
+        static public TokenAcquirerFactory GetDefaultInstance()
         {
             TokenAcquirerFactory instance;
             if (defaultInstance == null)
@@ -70,26 +70,10 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
+                instance.Services.AddOptions<MicrosoftAuthenticationOptions>(string.Empty);
             }
             return defaultInstance!;
         }
-
-        /// <summary>
-        /// Get the default instance.
-        /// </summary>
-        //static internal TokenAcquirerFactory FromConfigurationAndServices(IConfiguration configuration, ServiceCollection services)
-        //{
-        //    TokenAcquirerFactory factory = new TokenAcquirerFactory();
-        //    factory.Services = services;
-        //    factory.Configuration = configuration;
-        //    factory.Services.AddTokenAcquisition();
-
-        //    if (defaultInstance == null)
-        //    {
-        //        defaultInstance = factory;
-        //    }
-        //    return defaultInstance;
-        //}
 
         /// <summary>
         /// Build the Token acquirer
@@ -133,31 +117,91 @@ namespace Microsoft.Identity.Web
             return Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
         }
 
-        IDictionary<string, ITokenAcquirer> tokenAcquirers = new Dictionary<string, ITokenAcquirer>();
+        IDictionary<string, ITokenAcquirer> authSchemes = new Dictionary<string, ITokenAcquirer>();
 
-        /// <summary>
-        /// Get a token acquirer for  a given authority, region, clientId, certificate?
-        /// </summary>
-        /// <param name="authority"></param>
-        /// <param name="region"></param>
-        /// <param name="clientId"></param>
-        /// <param name="certificate"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string region, string clientId, CredentialDescription certificate)
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect")
         {
-            throw new NotImplementedException();
+            ITokenAcquirer? tokenAcquirer;
+            // Compute the key
+            string key = GetKey(authority, clientId);
+            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
+            {
+                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
+                {
+                    ClientId = clientId,
+                    Authority = authority,
+                    ClientCredentials = clientCredentials,
+                    SendX5C = true
+                };
+                if (region != null)
+                {
+                    microsoftAuthenticationOptions.AzureRegion = region;
+                }
+
+                var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var mergedOptions = optionsMonitor.Get(key);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                tokenAcquirer = GetTokenAcquirer(key);
+            }
+            return tokenAcquirer;
         }
 
-        /// <summary>
-        /// Get a token acquirer from the application authentication options.
-        /// </summary>
-        /// <param name="applicationAuthenticationOptions">The authentication options describing the service.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
         {
-            throw new NotImplementedException();
+            if (applicationAuthenticationOptions is null)
+            {
+                throw new ArgumentNullException(nameof(applicationAuthenticationOptions));
+            }
+
+            // Compute the Azure region if the option is a MicrosoftAuthenticationOptions.
+            MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = applicationAuthenticationOptions as MicrosoftAuthenticationOptions;
+            if (microsoftAuthenticationOptions == null)
+            {
+                microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
+                {
+                    AllowWebApiToBeAuthorizedByACL = applicationAuthenticationOptions.AllowWebApiToBeAuthorizedByACL,
+                    Audience = applicationAuthenticationOptions.Audience,
+                    Audiences = applicationAuthenticationOptions.Audiences,
+                    Authority = applicationAuthenticationOptions.Authority,
+                    ClientCredentials = applicationAuthenticationOptions.ClientCredentials,
+                    ClientId = applicationAuthenticationOptions.ClientId,
+                    SendX5C = applicationAuthenticationOptions.SendX5C,
+                    TokenDecryptionCredentials = applicationAuthenticationOptions.TokenDecryptionCredentials,
+                    EnablePiiLogging = applicationAuthenticationOptions.EnablePiiLogging,
+                };
+            }
+
+            // Compute the key
+            ITokenAcquirer? tokenAcquirer;
+            string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
+            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
+            {
+                var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var mergedOptions = optionsMonitor.Get(key);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                tokenAcquirer = GetTokenAcquirer(key);
+            }
+            return tokenAcquirer;
+        }
+
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
+        {
+            ITokenAcquirer? acquirer;
+            if (!authSchemes.TryGetValue(authenticationScheme, out acquirer))
+            {
+                var tokenAcquisition = ServiceProvider.GetRequiredService<ITokenAcquisition>();
+                acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);
+                authSchemes.Add(authenticationScheme, acquirer);
+            }
+            return acquirer;
+        }
+
+        private static string GetKey(string? authority, string? clientId)
+        {
+            return $"{authority}{clientId}";
         }
     }
 }
