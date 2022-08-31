@@ -60,7 +60,9 @@ namespace Microsoft.Identity.Web
             }
 
             AcquireTokenResult acquireTokenResult;
-            ITokenAcquirer tokenAcquirer = new TokenAcquirer(_tokenAcquisition, downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationScheme);
+            ITokenAcquirer tokenAcquirer = new TokenAcquirer(
+                _tokenAcquisition, 
+                downstreamRestApiOptions?.TokenAcquirerOptions?.AuthenticationScheme);
             if (appOnly)
             {
                 acquireTokenResult = await tokenAcquirer.GetTokenForAppAsync(

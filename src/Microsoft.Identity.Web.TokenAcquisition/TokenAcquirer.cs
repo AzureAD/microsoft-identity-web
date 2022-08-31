@@ -13,9 +13,9 @@ namespace Microsoft.Identity.Web
     internal class TokenAcquirer : ITokenAcquirer
     {
         private readonly ITokenAcquisition _tokenAcquisition;
-        private readonly string _authenticationScheme;
+        private readonly string? _authenticationScheme;
 
-        public TokenAcquirer(ITokenAcquisition tokenAcquisition, string authenticationScheme)
+        public TokenAcquirer(ITokenAcquisition tokenAcquisition, string? authenticationScheme)
         {
             _tokenAcquisition = tokenAcquisition;
             _authenticationScheme = authenticationScheme;

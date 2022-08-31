@@ -324,9 +324,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                     authResult = await msalPublicClient.AcquireTokenByUsernamePassword(
                                                         scopes,
                                                         upn,
-                                                        new NetworkCredential(
-                                                            upn,
-                                                            _options.UserPassword).SecurePassword)
+                                                        _options.UserPassword)
                                                         .ExecuteAsync(CancellationToken.None)
                                                         .ConfigureAwait(false);
 

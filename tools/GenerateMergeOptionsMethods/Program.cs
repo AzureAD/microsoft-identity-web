@@ -13,8 +13,7 @@ namespace GenerateMergeOptionsMethods
         static void Main(string[] args)
         {
             GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftAuthenticationOptions));
-            return;
-
+/*
             GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftIdentityOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(ConfidentialClientApplicationOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(JwtBearerOptions));
@@ -25,6 +24,7 @@ namespace GenerateMergeOptionsMethods
             GenerateMergeMethod(typeof(JwtBearerMergedOptions), typeof(JwtBearerOptions));
             GenerateMergeMethod(typeof(JwtBearerMergedOptions), typeof(ConfidentialClientApplicationOptions));
             GenerateMergeMethod(typeof(ConfidentialClientApplicationOptions), typeof(JwtBearerMergedOptions));
+*/
         }
 
         private static void GenerateCommonProperties(Type type1, Type type2)
