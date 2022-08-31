@@ -127,7 +127,7 @@ namespace TokenAcquirerTests
             services.AddInMemoryTokenCaches();
             var serviceProvider = tokenAcquirerFactory.Build();
             var options = serviceProvider.GetRequiredService<IOptions<MicrosoftAuthenticationOptions>>().Value;
-            var cert = options.ClientCredentials.First()!.Certificate;
+            var cert = options.ClientCredentials!.First().Certificate;
 
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(string.Empty);

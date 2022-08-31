@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -210,7 +211,7 @@ namespace Microsoft.Identity.Web.Test
                 s_tokenDecryptionCertificatesDescription,
                 new JsonSerializerOptions
                 {
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     PropertyNameCaseInsensitive = true,
                 }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
             var configAsDictionary = new Dictionary<string, string>()

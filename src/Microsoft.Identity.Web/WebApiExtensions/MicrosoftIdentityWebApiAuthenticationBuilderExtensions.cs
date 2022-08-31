@@ -229,7 +229,7 @@ namespace Microsoft.Identity.Web
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     // TODO use the credential loader
-                    if (mergedOptions.TokenDecryptionCertificates != null)
+                    if (mergedOptions.TokenDecryptionCredentials != null)
                     {
                         DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
                         IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCredentials.OfType<CertificateDescription>());
