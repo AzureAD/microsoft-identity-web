@@ -1,16 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using System.Web.Mvc;
+using Microsoft.Graph;
+using Microsoft.Identity.Web;
 
 namespace OwinWebApp.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            GraphServiceClient graphServiceClient = HttpContext.GetGraphServiceClient();
+            var me = await graphServiceClient.Me.Request().GetAsync();
+
+
+            // Example getting a token to call a downstream web API
+            ITokenAcquirer tokenAcquirer = TokenAcquirerFactory.GetDefaultInstance().GetTokenAcquirer();
+            var result = await tokenAcquirer.GetTokenForUserAsync(new[] { "user.read" });
+
+            // return the item
+            string owner = (HttpContext.User as ClaimsPrincipal).GetDisplayName();
+            ViewBag.Title = owner;
             return View();
         }
 

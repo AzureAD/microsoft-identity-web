@@ -2,12 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IdentityModel;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Http.Results;
+using Azure.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Hosts;
 using Microsoft.Identity.Web.OWIN;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 using Microsoft.Owin.Security.Jwt;
@@ -54,12 +61,12 @@ namespace Microsoft.Identity.Web
 
             // Configure the Microsoft identity options
             services.Configure(
-                string.Empty, 
+                string.Empty,
                 configureMicrosoftIdentityOptions ?? (option =>
             {
                 Configuration?.GetSection(configurationSection).Bind(option);
             }));
-            
+
             if (configureServices != null)
             {
                 configureServices(services);
@@ -74,7 +81,7 @@ namespace Microsoft.Identity.Web
                 if (tokenAcquisitionhost.Lifetime == ServiceLifetime.Singleton)
                 {
                     // The service was already added, but not with the right lifetime
-                    services.AddSingleton<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();     
+                    services.AddSingleton<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();
                 }
                 else
                 {
@@ -97,7 +104,7 @@ namespace Microsoft.Identity.Web
             };
             OAuthBearerAuthenticationOptions options = new OAuthBearerAuthenticationOptions
             {
-                AccessTokenFormat = new JwtFormat(tokenValidationParameters, new OpenIdConnectCachingSecurityTokenProvider(authority+ "/.well-known/openid-configuration"))
+                AccessTokenFormat = new JwtFormat(tokenValidationParameters, new OpenIdConnectCachingSecurityTokenProvider(authority + "/.well-known/openid-configuration"))
             };
 
             if (updateOptions != null)
@@ -135,10 +142,7 @@ namespace Microsoft.Identity.Web
                     Configuration?.GetSection(configurationSection).Bind(option);
                 }));
 
-            if (configureServices != null)
-            {
-                configureServices(services);
-            }
+            configureServices?.Invoke(services);
 
             // Replace the genenric host by an OWIN host
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
@@ -170,22 +174,81 @@ namespace Microsoft.Identity.Web
                 ClientId = clientId,
                 Authority = authority,
                 PostLogoutRedirectUri = postLogoutRedirectUri,
+                Scope = "openid profile offline_access user.read",
+                ResponseType = "code",
 
                 Notifications = new OpenIdConnectAuthenticationNotifications()
                 {
+                    RedirectToIdentityProvider = (context) =>
+                    {
+                        var loginHint = context.ProtocolMessage.GetParameter(OpenIdConnectParameterNames.LoginHint);
+                        if (!string.IsNullOrWhiteSpace(loginHint))
+                        {
+                            context.ProtocolMessage.LoginHint = loginHint;
+
+                            context.ProtocolMessage.SetParameter(Constants.XAnchorMailbox, $"{Constants.Upn}:{loginHint}");
+                            // delete the login_hint from the Properties when we are done otherwise
+                            // it will take up extra space in the cookie.
+                            context.ProtocolMessage.Parameters.Remove(OpenIdConnectParameterNames.LoginHint);
+                        }
+
+                        var domainHint = context.ProtocolMessage.GetParameter(OpenIdConnectParameterNames.DomainHint);
+                        if (!string.IsNullOrWhiteSpace(domainHint))
+                        {
+                            context.ProtocolMessage.DomainHint = domainHint;
+
+                            // delete the domain_hint from the Properties when we are done otherwise
+                            // it will take up extra space in the cookie.
+                            context.ProtocolMessage.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
+                        }
+                        context.ProtocolMessage.SetParameter(ClaimConstants.ClientInfo, Constants.One);
+                        context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
+                        return Task.CompletedTask;
+                    },
+
                     SecurityTokenValidated = (context) =>
                     {
+                        HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
+
+                        string? clientInfo = httpContext.Session[ClaimConstants.ClientInfo] as string;
+
+                        if (!string.IsNullOrEmpty(clientInfo))
+                        {
+                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
+
+                            if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                            {
+                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                            }
+                            httpContext.Session.Remove(ClaimConstants.ClientInfo);
+                        }
+
                         string name = context.AuthenticationTicket.Identity.FindFirst("preferred_username").Value;
                         context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, name, string.Empty));
-                        return System.Threading.Tasks.Task.FromResult(0);
-                    }
+                        return Task.CompletedTask;
+                    },
                 }
             };
 
-            if (updateOptions != null)
+            options.Notifications.AuthorizationCodeReceived = async context =>
             {
-                updateOptions(options);
-            }
+                context.TokenEndpointRequest.Parameters.TryGetValue("code_verifier", out string codeVerifier);
+                var tokenAcquisition = TokenAcquirerFactory?.ServiceProvider?.GetRequiredService<ITokenAcquisitionInternal>();
+                var msIdentityOptions = TokenAcquirerFactory?.ServiceProvider?.GetRequiredService<IOptions<MicrosoftIdentityOptions>>();
+                var idToken = await (tokenAcquisition?.AddAccountToCacheFromAuthorizationCodeAsync(
+                    new string[] { options.Scope },
+                    context.Code,
+                    null,
+                    context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo),
+                    codeVerifier,
+                    msIdentityOptions?.Value.DefaultUserFlow)).ConfigureAwait(false);
+                HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
+                httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
+                context.HandleCodeRedemption(null, idToken);
+            };
+
+            updateOptions?.Invoke(options);
 
             return app.UseOpenIdConnectAuthentication(options);
         }

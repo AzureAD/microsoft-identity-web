@@ -41,6 +41,25 @@
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>the app builder to chain</returns>
         </member>
+        <member name="T:Microsoft.Identity.Web.HttpContextBaseExtensions">
+            <summary>
+            Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.HttpContextBaseExtensions.GetGraphServiceClient(System.Web.HttpContextBase)">
+            <summary>
+            Get the graph service client.
+            </summary>
+            <param name="httpContextBase"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.HttpContextBaseExtensions.GetTokenAcquirer(System.Web.HttpContextBase)">
+            <summary>
+            Get the token acquirer.
+            </summary>
+            <param name="httpContextBase"></param>
+            <returns></returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.HttpContextExtensions">
             <summary>
             Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext

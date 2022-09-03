@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
     /// Token acquisition service.
     /// </summary>
 #if NET472 || NET462
-    internal partial class TokenAcquisition : ITokenAcquisition
+    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
 #else
     internal partial class TokenAcquisition
 #endif

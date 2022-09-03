@@ -87,13 +87,13 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
 
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
-                services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
                 // .NET FW.
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
-
                 services.AddSingleton<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
 #endif
+                services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+
             }
             else
             {
@@ -104,13 +104,12 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<ITokenAcquisition, TokenAcquisitionAspNetCore>();
 
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
-                services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
 #else
                 // .NET FW.
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
-
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
 #endif
+                services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
             }
 
             return services;
