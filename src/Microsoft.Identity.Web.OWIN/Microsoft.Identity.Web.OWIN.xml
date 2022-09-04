@@ -4,6 +4,25 @@
         <name>Microsoft.Identity.Web.OWIN</name>
     </assembly>
     <members>
+        <member name="T:Microsoft.Identity.Web.ApiControllerExtensions">
+            <summary>
+            Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetGraphServiceClient(System.Web.Http.ApiController)">
+            <summary>
+            Get the graph service client.
+            </summary>
+            <param name="apiController"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetTokenAcquirer(System.Web.Http.ApiController)">
+            <summary>
+            Get the token acquirer.
+            </summary>
+            <param name="apiController"></param>
+            <returns></returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.AppBuilderExtension">
             <summary>
             Extension methods on an ASP.NET application to add a web app or web API
@@ -19,64 +38,45 @@
             Service Provider
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Web.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
             <summary>
             Adds a protected web API
             </summary>
             <param name="app">Application builder</param>
             <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-            <param name="configureMicrosoftIdentityOptions">Configure Microsoft identity options.</param>
+            <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
             <param name="updateOptions">Update the OWIN options if you want to finesse token validation.</param>
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>the app builder to chain</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Web.MicrosoftIdentityOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Web.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
             <summary>
             Adds a protected web app
             </summary>
             <param name="app">Application builder</param>
             <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-            <param name="configureMicrosoftIdentityOptions">Configure Microsoft identity options.</param>
+            <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
             <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>the app builder to chain</returns>
         </member>
-        <member name="T:Microsoft.Identity.Web.HttpContextBaseExtensions">
+        <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
             Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.HttpContextBaseExtensions.GetGraphServiceClient(System.Web.HttpContextBase)">
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetGraphServiceClient(System.Web.Mvc.ControllerBase)">
             <summary>
             Get the graph service client.
             </summary>
-            <param name="httpContextBase"></param>
+            <param name="controllerBase"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.HttpContextBaseExtensions.GetTokenAcquirer(System.Web.HttpContextBase)">
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetTokenAcquirer(System.Web.Mvc.ControllerBase)">
             <summary>
             Get the token acquirer.
             </summary>
-            <param name="httpContextBase"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Microsoft.Identity.Web.HttpContextExtensions">
-            <summary>
-            Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
-            </summary>
-        </member>
-        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.GetGraphServiceClient(System.Web.HttpContext)">
-            <summary>
-            Get the graph service client.
-            </summary>
-            <param name="httpContext"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.HttpContextExtensions.GetTokenAcquirer(System.Web.HttpContext)">
-            <summary>
-            Get the token acquirer.
-            </summary>
-            <param name="httpContext"></param>
+            <param name="controllerBase"></param>
             <returns></returns>
         </member>
         <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer">

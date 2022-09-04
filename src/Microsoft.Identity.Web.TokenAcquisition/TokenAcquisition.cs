@@ -777,6 +777,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions,
                 userFlow,
                 tokenAcquisitionOptions).ConfigureAwait(false);
+
         }
 
         /// <summary>
@@ -868,7 +869,7 @@ namespace Microsoft.Identity.Web
         {
             return _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(authenticationScheme);
         }
-        
+
         private void Log(
           Client.LogLevel level,
           string message,
