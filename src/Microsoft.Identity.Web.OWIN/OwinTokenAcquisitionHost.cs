@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
-            return Task.FromResult<ClaimsPrincipal?>(null);
+            return Task.FromResult<ClaimsPrincipal?>(HttpContext.Current.User as ClaimsPrincipal);
         }
 
         public string? GetCurrentRedirectUri(MergedOptions mergedOptions)
@@ -69,8 +69,12 @@ namespace Microsoft.Identity.Web.Hosts
         {
             object? o = (HttpContext.Current.User.Identity as ClaimsIdentity)?.BootstrapContext;
 
-            // TODO: do better as this won't do for JWE and wastes time. The token was already decrypted.
-            return new JsonWebToken(o as string);
+            if (o != null)
+            {
+                // TODO: do better as this won't do for JWE and wastes time. The token was already decrypted.
+                return new JsonWebToken(o as string);
+            }
+            return null;
         }
 
         public ClaimsPrincipal? GetUserFromRequest()

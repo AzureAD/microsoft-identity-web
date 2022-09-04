@@ -199,7 +199,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme)
+        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme = "")
         {
             CheckServiceProviderNotNull();
 

@@ -4,7 +4,8 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-#if !NET472 && !NET462 
+using Microsoft.Identity.Client;
+#if !NET472 && !NET462
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 

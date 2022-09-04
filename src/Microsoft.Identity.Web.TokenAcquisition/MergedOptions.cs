@@ -468,7 +468,11 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
-            mergedOptions.ClientCredentials ??= microsoftAuthenticationOptions.ClientCredentials;
+
+            if (mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any())
+            {
+                mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
+            }
         }
 
         private static IEnumerable<CredentialDescription> ComputeFromLegacyClientCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Web;
+using System.Web.Http;
 using Microsoft.Graph;
 
 namespace Microsoft.Identity.Web
@@ -9,14 +10,14 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
     /// </summary>
-    public static class HttpContextExtensions
+    public static class ApiControllerExtensions
     {
         /// <summary>
         /// Get the graph service client.
         /// </summary>
-        /// <param name="httpContext"></param>
+        /// <param name="apiController"></param>
         /// <returns></returns>
-        public static GraphServiceClient? GetGraphServiceClient(this HttpContext httpContext)
+        public static GraphServiceClient? GetGraphServiceClient(this ApiController apiController)
         {
             return AppBuilderExtension.ServiceProvider?.GetService(typeof(GraphServiceClient)) as GraphServiceClient; 
         }
@@ -24,9 +25,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the token acquirer.
         /// </summary>
-        /// <param name="httpContext"></param>
+        /// <param name="apiController"></param>
         /// <returns></returns>
-        public static ITokenAcquirer? GetTokenAcquirer(this HttpContext httpContext)
+        public static ITokenAcquirer? GetTokenAcquirer(this ApiController apiController)
         {
             return AppBuilderExtension.ServiceProvider?.GetService(typeof(ITokenAcquirer)) as ITokenAcquirer;
         }

@@ -3,6 +3,8 @@ using Microsoft.Owin.Security.Cookies;
 using Owin;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
 
 namespace OwinWebApp
 {
@@ -16,6 +18,7 @@ namespace OwinWebApp
 
             app.AddMicrosoftIdentityWebApp(configureServices: services =>
             {
+                services.Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; });
                 services.AddMicrosoftGraph();
                 services.AddInMemoryTokenCaches();
             });
