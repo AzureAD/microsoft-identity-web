@@ -28,14 +28,30 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// 
         /// </summary>
-        public IDictionary<CredentialSource, ICredentialLoader> _credentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>() 
-        { 
+        public IDictionary<CredentialSource, ICredentialLoader> _credentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>()
+        {
             { CredentialSource.KeyVault, new KeyVaultCertificateLoader() },
             { CredentialSource.Path, new FromPathCertificateLoader() },
             { CredentialSource.StoreWithThumbprint, new StoreWithThumbprintCertificateLoader() },
             { CredentialSource.StoreWithDistinguishedName, new StoreWithDistinguishedNameCertificateLoader() },
             { CredentialSource.Base64Encoded, new Base64EncodedCertificateLoader() },
         };
+
+        /// <summary>
+        /// User assigned managed identity client ID (as opposed to system assigned managed identity)
+        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        /// </summary>
+        public static string? UserAssignedManagedIdentityClientId
+        {
+            get
+            {
+                return KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId;
+            }
+            set
+            {
+                KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId = value;
+            }
+        }
 
         /// <summary>
         /// Load the credentials from the description, if needed.
@@ -50,7 +66,10 @@ namespace Microsoft.Identity.Web
 
             if (credentialDescription.Certificate == null)
             {
-                _credentialLoaders[credentialDescription.SourceType].LoadIfNeeded(credentialDescription);
+                if (_credentialLoaders.ContainsKey(credentialDescription.SourceType))
+                {
+                    _credentialLoaders[credentialDescription.SourceType].LoadIfNeeded(credentialDescription);
+                }
             }
         }
 

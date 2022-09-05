@@ -14,25 +14,23 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.KeyVault;
 
-        /// <summary>
-        /// User assigned managed identity client ID (as opposed to system assigned managed identity)
-        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
-        /// </summary>
-        public static string? UserAssignedManagedIdentityClientId { get; set; }
-
         public void LoadIfNeeded(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromKeyVault(
                             credentialDescription.KeyVaultUrl!,
                             credentialDescription.KeyVaultCertificateName!,
+                            credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId,
                             CertificateLoaderHelper.DetermineX509KeyStorageFlag(credentialDescription));
         }
+
+        public static string? UserAssignedManagedIdentityClientId { get; set; }
 
         /// <summary>
         /// Load a certificate from Key Vault, including the private key.
         /// </summary>
         /// <param name="keyVaultUrl">URL of Key Vault.</param>
         /// <param name="certificateName">Name of the certificate.</param>
+        /// <param name="managedIdentityClientId"></param>
         /// <param name="x509KeyStorageFlags">Defines where and how to import the private key of an X.509 certificate.</param>
         /// <returns>An <see cref="X509Certificate2"/> certificate.</returns>
         /// <remarks>This code is inspired by Heath Stewart's code in:
@@ -41,12 +39,13 @@ namespace Microsoft.Identity.Web
         internal static X509Certificate2? LoadFromKeyVault(
             string keyVaultUrl,
             string certificateName,
+            string? managedIdentityClientId,
             X509KeyStorageFlags x509KeyStorageFlags)
         {
-            Uri keyVaultUri = new(keyVaultUrl);
+            Uri keyVaultUri = new Uri(keyVaultUrl);
             DefaultAzureCredentialOptions options = new()
             {
-                ManagedIdentityClientId = UserAssignedManagedIdentityClientId,
+                ManagedIdentityClientId = managedIdentityClientId,
             };
             DefaultAzureCredential credential = new(options);
             CertificateClient certificateClient = new(keyVaultUri, credential);
