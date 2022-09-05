@@ -469,7 +469,7 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
 
-            if (mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any())
+            if ((mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any()) && microsoftAuthenticationOptions.ClientCredentials != null)
             {
                 mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
             }
