@@ -114,10 +114,11 @@ namespace Microsoft.Identity.Web
         /// <returns>Returns the base path for configuration files</returns>
         protected virtual string DefineConfiguration(IConfigurationBuilder builder)
         {
-            return Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+            Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            return Path.GetDirectoryName(assembly!.Location)!;
         }
 
-        IDictionary<string, ITokenAcquirer> authSchemes = new Dictionary<string, ITokenAcquirer>();
+        readonly IDictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect")
@@ -127,7 +128,7 @@ namespace Microsoft.Identity.Web
             ITokenAcquirer? tokenAcquirer;
             // Compute the key
             string key = GetKey(authority, clientId);
-            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
+            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
                 MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
                 {
@@ -188,7 +189,7 @@ namespace Microsoft.Identity.Web
             // Compute the key
             ITokenAcquirer? tokenAcquirer;
             string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
-            if (!authSchemes.TryGetValue(key, out tokenAcquirer))
+            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
                 var optionsMonitor = ServiceProvider!.GetRequiredService<IOptionsMonitor<MergedOptions>>();
                 var mergedOptions = optionsMonitor.Get(key);
@@ -204,11 +205,11 @@ namespace Microsoft.Identity.Web
             CheckServiceProviderNotNull();
 
             ITokenAcquirer? acquirer;
-            if (!authSchemes.TryGetValue(authenticationScheme, out acquirer))
+            if (!_authSchemes.TryGetValue(authenticationScheme, out acquirer))
             {
                 var tokenAcquisition = ServiceProvider!.GetRequiredService<ITokenAcquisition>();
                 acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);
-                authSchemes.Add(authenticationScheme, acquirer);
+                _authSchemes.Add(authenticationScheme, acquirer);
             }
             return acquirer;
         }
