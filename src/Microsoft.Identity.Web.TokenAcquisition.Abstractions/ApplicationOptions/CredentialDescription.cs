@@ -213,7 +213,7 @@ namespace Microsoft.Identity.Web
         /// The certificate, either provided directly in code
         /// or loaded from the description.
         /// </summary>
-        public X509Certificate2? Certificate { get; protected internal set; }
+        public X509Certificate2? Certificate { get; set; }
 
         /// <summary>
         /// Cached value for the credential
