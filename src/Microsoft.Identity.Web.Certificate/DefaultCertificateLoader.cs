@@ -26,7 +26,8 @@ namespace Microsoft.Identity.Web
     public class DefaultCertificateLoader : ICertificateLoader
     {
         /// <summary>
-        /// 
+        /// Dictionary of credential loaders per credential source. The application can add more to 
+        /// process additional credential sources(like dSMS).
         /// </summary>
         public IDictionary<CredentialSource, ICredentialLoader> _credentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>()
         {
@@ -38,8 +39,7 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
-        /// User assigned managed identity client ID (as opposed to system assigned managed identity)
-        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        ///  This default is overridable at the level of the credential description (for the certificate from KeyVault).
         /// </summary>
         public static string? UserAssignedManagedIdentityClientId
         {
