@@ -1,6 +1,6 @@
 echo "Ensure ClientSemVer"
 if "%ClientSemVer%" == "" (
-set ClientSemVer=1.25.0
+set ClientSemVer=2.0.0-preview
 )
 
 REM: This is to test Microsoft.Identity.Web templates
