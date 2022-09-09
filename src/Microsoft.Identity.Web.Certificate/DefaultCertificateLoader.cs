@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// Dictionary of credential loaders per credential source. The application can add more to 
         /// process additional credential sources(like dSMS).
         /// </summary>
-        public IDictionary<CredentialSource, ICredentialLoader> _credentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>()
+        public IDictionary<CredentialSource, ICredentialLoader> CredentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>()
         {
             { CredentialSource.KeyVault, new KeyVaultCertificateLoader() },
             { CredentialSource.Path, new FromPathCertificateLoader() },
@@ -66,9 +66,9 @@ namespace Microsoft.Identity.Web
 
             if (credentialDescription.Certificate == null)
             {
-                if (_credentialLoaders.ContainsKey(credentialDescription.SourceType))
+                if (CredentialLoaders.ContainsKey(credentialDescription.SourceType))
                 {
-                    _credentialLoaders[credentialDescription.SourceType].LoadIfNeeded(credentialDescription);
+                    CredentialLoaders[credentialDescription.SourceType].LoadIfNeeded(credentialDescription);
                 }
             }
         }
