@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         /// <see cref="HttpMethod.Post"/>, <see cref="HttpMethod.Put"/>.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>An <see cref="HttpResponseMessage"/> that the application will process.</returns>
-        Task<HttpResponseMessage> CallWebApiForAppAsync(
+        Task<HttpResponseMessage> CallRestApiForAppAsync(
             string serviceName,
             Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null,
             HttpContent? content = null,
@@ -80,6 +80,60 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default)
             where TOutput : class;
+
+        /// <summary>
+        /// Calls a downstream web API consuming JSON with some data and returns data.
+        /// </summary>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <typeparam name="TOutput">Output type.</typeparam>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamRestApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="input">Input parameter to the downstream web API.</param>
+        /// <param name="downstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The value returned by the downstream web API.</returns>
+        /// <example>
+        /// A list method that returns an IEnumerable&lt;MyItem&gt;&gt;.
+        /// <code>
+        /// public Task&lt;IEnumerable&lt;MyItem&gt;&gt; GetAsync()
+        /// {
+        ///  return _downstreamWebApi.CallWebApiForUserAsync&lt;object, IEnumerable&lt;MyItem&gt;&gt;(
+        ///         ServiceName,
+        ///         null,
+        ///         options =>
+        ///         {
+        ///           options.RelativePath = $"api/todolist";
+        ///         });
+        /// }
+        /// </code>
+        ///
+        /// Example of editing.
+        /// <code>
+        /// public Task&lt;MyItem&gt; EditAsync(MyItem myItem)
+        /// {
+        ///   return _downstreamWebApi.CallWebApiForUserAsync&lt;MyItem, MyItem&gt;(
+        ///         ServiceName,
+        ///         nyItem,
+        ///         options =>
+        ///         {
+        ///            options.HttpMethod = HttpMethod.Patch;
+        ///            options.RelativePath = $"api/todolist/{myItem.Id}";
+        ///         });
+        /// }
+        /// </code>
+        /// </example>
+        Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
+            string serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class;
 
         /// <summary>
         /// Calls the web API with an HttpPost, providing strongly typed input and getting
@@ -178,7 +232,7 @@ namespace Microsoft.Identity.Web
         /// will find the user from the HttpContext.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        Task<TOutput?> CallWebApiForUserAsync<TOutput>(
+        Task<TOutput?> CallRestApiForUserAsync<TOutput>(
             string serviceName,
             Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,

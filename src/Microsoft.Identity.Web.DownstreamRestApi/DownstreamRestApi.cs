@@ -2,16 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
@@ -66,64 +64,227 @@ namespace Microsoft.Identity.Web
                 user,
                 cancellationToken).ConfigureAwait(false);
 
-            using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
-                apiUrl))
+                apiUrl);
+            if (content != null)
             {
-                if (content != null)
-                {
-                    httpRequestMessage.Content = content;
-                }
-
-                httpRequestMessage.Headers.Add(
-                    Authorization,
-                    CreateAuthorizationHeader(result));
-                effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-                using var client = _httpClientFactory.CreateClient(serviceName);
-                return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+                httpRequestMessage.Content = content;
             }
+
+            httpRequestMessage.Headers.Add(
+                Authorization,
+                CreateAuthorizationHeader(result));
+            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+            using var client = _httpClientFactory.CreateClient(serviceName);
+            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<HttpResponseMessage> CallWebApiForAppAsync(string serviceName, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, HttpContent? content = null, CancellationToken cancellationToken = default)
+        public async Task<HttpResponseMessage> CallRestApiForAppAsync(
+            string serviceName,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            HttpContent? content = null,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+
+            if (effectiveOptions.Scopes == null)
+            {
+                throw new ArgumentException(ScopesNotConfiguredInConfigurationOrViaDelegate);
+            }
+
+            string apiUrl = effectiveOptions.GetApiUrl();
+
+            CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
+            ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(effectiveOptions.TokenAcquirerOptions.AuthenticationScheme ?? string.Empty);
+            AcquireTokenResult result = await tokenAcquirer.GetTokenForAppAsync(
+                effectiveOptions.Scopes.FirstOrDefault(),
+                effectiveOptions.TokenAcquirerOptions,
+                cancellationToken).ConfigureAwait(false);
+
+            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                effectiveOptions.HttpMethod,
+                apiUrl);
+            if (content != null)
+            {
+                httpRequestMessage.Content = content;
+            }
+
+            httpRequestMessage.Headers.Add(
+                Authorization,
+                CreateAuthorizationHeader(result));
+            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+            using var client = _httpClientFactory.CreateClient(serviceName);
+            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<TOutput?> CallWebApiForUserAsync<TOutput>(string serviceName, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
+            string serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            throw new NotImplementedException();
+            HttpContent? effectiveInput;
+            if (input is HttpContent)
+            {
+                effectiveInput = input as HttpContent;
+            }
+            else
+            {
+                effectiveInput = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
+            }
+
+            HttpResponseMessage response = await CallRestApiForUserAsync(
+                serviceName,
+                downstreamRestApiOptionsOverride,
+                user,
+                effectiveInput,
+                cancellationToken).ConfigureAwait(false);
+
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
+            }
+
+            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
         /// <inheritdoc/>
-        public Task<TOutput?> GetForUserAsync<TOutput>(string serviceName, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task<TOutput?> CallRestApiForUserAsync<TOutput>(
+            string serviceName,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await CallRestApiForUserAsync(
+              serviceName,
+              downstreamRestApiOptionsOverride,
+              user,
+              null,
+              cancellationToken).ConfigureAwait(false);
+
+            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task GetForUserAsync<TInput>(string serviceName, TInput inputData, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default)
+        public async Task<TOutput?> GetForUserAsync<TOutput>(
+            string serviceName,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await CallRestApiForUserAsync(
+                serviceName,
+                PrepareOptions(downstreamRestApiOptionsOverride, HttpMethod.Get),
+                user,
+                null,
+                cancellationToken).ConfigureAwait(false);
+
+            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<TOutput?> PostForUserAsync<TOutput, TInput>(string serviceName, string relativePath, TInput inputData, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task GetForUserAsync<TInput>(
+            string serviceName,
+            TInput inputData,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            using StringContent? input = ConvertFromInput(inputData);
+
+            await CallRestApiForUserAsync(
+             serviceName,
+             downstreamRestApiOptionsOverride,
+             user,
+             input,
+             cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task PutForUserAsync<TInput>(string serviceName, string relativePath, TInput inputData, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default)
+        public async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
+            string serviceName,
+            string relativePath,
+            TInput inputData,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            throw new NotImplementedException();
+            using StringContent? input = ConvertFromInput(inputData);
+
+            HttpResponseMessage response = await CallRestApiForUserAsync(
+               serviceName,
+               PrepareOptions(downstreamRestApiOptionsOverride, HttpMethod.Post),
+               user,
+               input,
+               cancellationToken).ConfigureAwait(false);
+
+            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<TOutput?> PutForUserAsync<TOutput, TInput>(string serviceName, string relativePath, TInput inputData, Action<DownstreamRestApiOptions>? DownstreamRestApiOptionsOverride = null, ClaimsPrincipal? user = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task PutForUserAsync<TInput>(
+            string serviceName,
+            string relativePath,
+            TInput inputData,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            using StringContent? input = ConvertFromInput(inputData);
+
+            await CallRestApiForUserAsync(
+              serviceName,
+              PrepareOptions(downstreamRestApiOptionsOverride, HttpMethod.Put),
+              user,
+              input,
+              cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
+            string serviceName,
+            string relativePath,
+            TInput inputData,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default) where TOutput : class
+        {
+            using StringContent? input = ConvertFromInput(inputData);
+
+            HttpResponseMessage response = await CallRestApiForUserAsync(
+               serviceName,
+               PrepareOptions(downstreamRestApiOptionsOverride, HttpMethod.Put),
+               user,
+               input,
+               cancellationToken).ConfigureAwait(false);
+
+            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -165,6 +326,64 @@ namespace Microsoft.Identity.Web
             //        HttpMethod = effectiveOptions.HttpMethod,
             //    };
             //}
+        }
+
+        private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response)
+           where TOutput : class
+        {
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
+            }
+
+            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        private static Action<DownstreamRestApiOptions> PrepareOptions(
+          Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride,
+          HttpMethod httpMethod)
+        {
+            Action<DownstreamRestApiOptions> downstreamRestApiOptions;
+
+            if (downstreamRestApiOptionsOverride == null)
+            {
+                downstreamRestApiOptions = options =>
+                {
+                    options.HttpMethod = httpMethod;
+                };
+            }
+            else
+            {
+                downstreamRestApiOptions = options =>
+                {
+                    downstreamRestApiOptionsOverride(options);
+                    options.HttpMethod = httpMethod;
+                };
+            }
+
+            return downstreamRestApiOptions;
+        }
+
+        private static StringContent ConvertFromInput<TInput>(TInput input)
+        {
+            return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
         }
 
         // TODO: Update
