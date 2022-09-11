@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-#define UseMicrosoftGraphSdk
+//#define UseMicrosoftGraphSdk
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,11 +41,14 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = serviceProvider.GetRequiredService<ITokenAcquirer>();
-            string scope = configuration.GetValue<string>("Scopes");
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
+            // Get the authorization request creator service
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+            Console.WriteLine(authorizationHeader.Substring(0, authorizationHeader.IndexOf(" ")+4)+"...");
 #endif
         }
     }
