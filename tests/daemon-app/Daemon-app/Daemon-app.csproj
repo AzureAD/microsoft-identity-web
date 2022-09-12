@@ -10,13 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Program - SDK.cs" />
     <Compile Remove="Program-net60.cs" />
-    <Compile Remove="Program.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Program - SDK.cs" />
     <None Include="Program-net60.cs" />
-    <None Include="Program.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
