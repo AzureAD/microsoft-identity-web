@@ -14,9 +14,9 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    public class DownstreamRestApi : IDownstreamRestApi
+    internal class DownstreamRestApi : IDownstreamRestApi
     {
-        private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
+        private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamRestApiOptions> _namedDownstreamRestApiOptions;
         private const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
@@ -25,15 +25,15 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="tokenAcquirerFactory">Token acquirer factory.</param>
+        /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
         /// <param name="namedDownstreamRestApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client.</param>
         public DownstreamRestApi(
-            ITokenAcquirerFactory tokenAcquirerFactory,
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamRestApiOptions> namedDownstreamRestApiOptions,
             IHttpClientFactory httpClientFactory)
         {
-            _tokenAcquirerFactory = tokenAcquirerFactory;
+            _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamRestApiOptions = namedDownstreamRestApiOptions;
             _httpClientFactory = httpClientFactory;
         }
@@ -55,15 +55,6 @@ namespace Microsoft.Identity.Web
 
             string apiUrl = effectiveOptions.GetApiUrl();
 
-            CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
-
-            ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(effectiveOptions.TokenAcquirerOptions.AuthenticationScheme ?? string.Empty);
-            AcquireTokenResult result = await tokenAcquirer.GetTokenForUserAsync(
-                effectiveOptions.Scopes,
-                effectiveOptions.TokenAcquirerOptions,
-                user,
-                cancellationToken).ConfigureAwait(false);
-
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
                 apiUrl);
@@ -72,9 +63,14 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
-            httpRequestMessage.Headers.Add(
-                Authorization,
-                CreateAuthorizationHeader(result));
+            string authorizationHeader = await
+                _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    effectiveOptions.Scopes,
+                    effectiveOptions,
+                    user,
+                    cancellationToken).ConfigureAwait(false);
+
+            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
             using var client = _httpClientFactory.CreateClient(serviceName);
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -96,13 +92,6 @@ namespace Microsoft.Identity.Web
 
             string apiUrl = effectiveOptions.GetApiUrl();
 
-            CreateProofOfPossessionConfiguration(effectiveOptions, apiUrl);
-            ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(effectiveOptions.TokenAcquirerOptions.AuthenticationScheme ?? string.Empty);
-            AcquireTokenResult result = await tokenAcquirer.GetTokenForAppAsync(
-                effectiveOptions.Scopes.FirstOrDefault(),
-                effectiveOptions.TokenAcquirerOptions,
-                cancellationToken).ConfigureAwait(false);
-
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 effectiveOptions.HttpMethod,
                 apiUrl);
@@ -111,9 +100,13 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
-            httpRequestMessage.Headers.Add(
-                Authorization,
-                CreateAuthorizationHeader(result));
+            string authorizationHeader = await
+                _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                    effectiveOptions.Scopes.FirstOrDefault(),
+                    effectiveOptions,
+                    cancellationToken).ConfigureAwait(false);
+
+            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
             using var client = _httpClientFactory.CreateClient(serviceName);
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -312,22 +305,6 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-        private static void CreateProofOfPossessionConfiguration(DownstreamRestApiOptions effectiveOptions, string apiUrl)
-        {
-            //if (effectiveOptions.IsProofOfPossessionRequest && effectiveOptions.TokenAcquisitionOptions?.PoPConfiguration != null)
-            //{
-            //    if (effectiveOptions.TokenAcquisitionOptions == null)
-            //    {
-            //        effectiveOptions.TokenAcquisitionOptions = new TokenAcquisitionOptions();
-            //    }
-
-            //    effectiveOptions.TokenAcquisitionOptions.PoPConfiguration = new PoPAuthenticationConfiguration(new Uri(apiUrl))
-            //    {
-            //        HttpMethod = effectiveOptions.HttpMethod,
-            //    };
-            //}
-        }
-
         private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response)
            where TOutput : class
         {
@@ -384,12 +361,6 @@ namespace Microsoft.Identity.Web
         private static StringContent ConvertFromInput<TInput>(TInput input)
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
-        }
-
-        // TODO: Update
-        private static string CreateAuthorizationHeader(AcquireTokenResult result)
-        {
-            return $"Bearer {result.AccessToken}";
         }
     }
 }

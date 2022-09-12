@@ -25,6 +25,7 @@ namespace daemon_console
 
             services.Configure<MicrosoftIdentityOptions>(option => configuration.Bind(option));
             services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
+            services.AddDownstreamRestApi("GraphBeta", configuration.GetSection("GraphBeta"));
 
             // Add a cache
             services.AddDistributedTokenCaches();
@@ -40,6 +41,14 @@ namespace daemon_console
                 .GetAsync();
             Console.WriteLine($"{users.Count} users");
 #else
+            // Call downstream web API
+            var downstreamRestApi = serviceProvider.GetRequiredService<IDownstreamRestApi>();
+            var httpResponseMessage = await downstreamRestApi.CallRestApiForAppAsync("GraphBeta", options => 
+            {
+                options.BaseUrl = "https://graph.microsoft.com/beta";
+                options.Scopes = new string[] { "https://graph.microsoft.com/.default" };
+            }).ConfigureAwait(false);
+
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
