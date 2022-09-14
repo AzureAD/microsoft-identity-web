@@ -35,13 +35,13 @@ namespace Microsoft.Identity.Web
                             // signed assertion, and if it fails, move to the next credentials
                             managedIdentityClientAssertion!.GetSignedAssertion(CancellationToken.None).GetAwaiter().GetResult();
                         }
-                        catch (CredentialUnavailableException)
+                        catch (AuthenticationFailedException ex)
                         {
                             credential.Skip = true;
-                            logger.LogInformation("Not using Managed identity for client credentials");
+                            logger.LogInformation($"Not using Managed identity for client credentials + {ex.Message}. ");
                             continue;
                         }
-                        logger.LogInformation("Using Managed identity as client credentials");
+                        logger.LogInformation("Using Managed identity as client credentials. ");
                         return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
                     }
                     if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
                         {
                             credential.CachedValue = new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
                         }
-                        logger.LogInformation($"Using Pod identity file {credential.SignedAssertionFileDiskPath} as client credentials");
+                        logger.LogInformation($"Using Pod identity file {credential.SignedAssertionFileDiskPath} as client credentials. ");
                         return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
                     }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
                                     IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
                                     nameof(clientCredentials));
                             }
-                            logger.LogInformation($"Using certificate Thumbprint={certificate.Thumbprint} as client credentials");
+                            logger.LogInformation($"Using certificate Thumbprint={certificate.Thumbprint} as client credentials. ");
                             return builder.WithCertificate(certificate);
                         }
                     }
