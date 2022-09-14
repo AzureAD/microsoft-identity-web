@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
 
             services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
-                var tokenAquisitionService = serviceProvider.GetRequiredService<ITokenAcquisition>();
+                var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
                 var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
 
                 var microsoftGraphOptions = options.Value;
@@ -54,11 +54,11 @@ namespace Microsoft.Identity.Web
 
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
                             new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
-                                tokenAquisitionService,
+                                authorizationHeaderProvider,
                                 new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
                             new GraphServiceClient(graphBaseUrl,
                                 new TokenAcquisitionAuthenticationProvider(
-                                    tokenAquisitionService,
+                                    authorizationHeaderProvider,
                                     new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
                 return client;
             });
