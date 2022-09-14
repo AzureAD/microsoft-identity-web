@@ -81,6 +81,8 @@ namespace Microsoft.Identity.Web
 
             request.Headers.Add(
                 Constants.Authorization, authorizationHeader);
+
+            downstreamRestApiOptions?.CustomizeHttpRequestMessage?.Invoke(request);
         }
 
         /// <summary>
