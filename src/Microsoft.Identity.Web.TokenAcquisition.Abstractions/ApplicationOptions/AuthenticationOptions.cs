@@ -35,9 +35,9 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Flag to enable/disable logging of Personally Identifiable Information (PII).
-        /// PII logs are never written to default outputs like Console, Logcat or NSLog
+        /// PII logs are never written to default outputs like Console, Logcat or NSLog.
         /// Default is set to <c>false</c>, which ensures that your application is compliant with GDPR. You can set
-        /// it to <c>true</c> for advanced debugging requiring PII. See https://aka.ms/msal-net-logging
+        /// it to <c>true</c> for advanced debugging requiring PII. See https://aka.ms/msal-net-logging.
         /// </summary>
         public bool EnablePiiLogging { get; set; }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
         public bool SendX5C { get; set; }
 
         /// <summary>
-        /// If set to <c>true</c>, when the user signs-in in a web app, the application Requests an auth code 
+        /// If set to <c>true</c>, when the user signs-in in a web app, the application requests an auth code 
         /// for the frontend (single page application using MSAL.js for instance). This will allow the front end
         /// JavaScript code to bypass going to the authoriize endpoint (which requires reloading the page), by 
         /// directly redeeming the auth code to get access tokens to call APIs.
@@ -93,13 +93,13 @@ namespace Microsoft.Identity.Web
         #region web API
         /// <summary>
         /// In a web API, audience of the tokens that will be accepted by the web API.
-        /// <para>If your web API accepts several audiences, see <see cref="Audiences"/></para>
+        /// <para>If your web API accepts several audiences, see <see cref="Audiences"/>.</para>
         /// </summary>
         public string? Audience { get; set; }
 
         /// <summary>
         /// In a web API, accepted audiences for the tokens received by the web API.
-        /// <para>See also <see cref="Audience"/></para>
+        /// <para>See also <see cref="Audience"/>.</para>
         /// </summary>
         public IEnumerable<string>? Audiences { get; set; }
 

@@ -1,55 +1,47 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Description of a certificate.
+    /// Description of a credential.
     /// </summary>
     public class CredentialDescription
     {
         /// <summary>
-        /// Type of the source of the certificate.
+        /// Type of the source of the credential.
         /// </summary>
         public CredentialSource SourceType { get; set; }
 
         /// <summary>
-        /// Container in which to find the certificate.
+        /// Container in which to find the credential.
         /// <list type="bullet">
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.KeyVault"/>, then
         /// the container is the Key Vault base URL.</item>
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Base64Encoded"/>, then
         /// this value is not used.</item>
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.Path"/>, then
-        /// this value is the path on disk where to find the certificate.</item>
+        /// this value is the path on disk where to find the credential.</item>
         /// <item>If <see cref="SourceType"/> equals <see cref="CredentialSource.StoreWithDistinguishedName"/>,
         /// or <see cref="CredentialSource.StoreWithThumbprint"/>, then
-        /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
+        /// this value is the path to the credential in the cert store, for instance <c>CurrentUser/My</c>.</item>
         /// </list>
         /// </summary>
         public string? Container
         {
             get
             {
-                switch (SourceType)
+                return SourceType switch
                 {
-                    case CredentialSource.Certificate:
-                        return null;
-                    case CredentialSource.KeyVault:
-                        return KeyVaultUrl;
-                    case CredentialSource.Base64Encoded:
-                        return null;
-                    case CredentialSource.Path:
-                        return CertificateDiskPath;
-                    case CredentialSource.StoreWithThumbprint:
-                    case CredentialSource.StoreWithDistinguishedName:
-                        return CertificateStorePath;
-                    default:
-                        return null;
-                }
+                    CredentialSource.Certificate => null,
+                    CredentialSource.KeyVault => KeyVaultUrl,
+                    CredentialSource.Base64Encoded => null,
+                    CredentialSource.Path => CertificateDiskPath,
+                    CredentialSource.StoreWithThumbprint or CredentialSource.StoreWithDistinguishedName => CertificateStorePath,
+                    _ => null,
+                };
             }
             set
             {
@@ -150,28 +142,18 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                switch (SourceType)
+                return SourceType switch
                 {
-                    case CredentialSource.KeyVault:
-                        return KeyVaultCertificateName;
-                    case CredentialSource.Path:
-                        return CertificatePassword;
-                    case CredentialSource.StoreWithThumbprint:
-                        return CertificateThumbprint;
-                    case CredentialSource.StoreWithDistinguishedName:
-                        return CertificateDistinguishedName;
-                    case CredentialSource.Certificate:
-                    case CredentialSource.Base64Encoded:
-                        return Base64EncodedValue;
-                    case CredentialSource.ClientSecret:
-                        return ClientSecret;
-                    case CredentialSource.SignedAssertionFromManagedIdentity:
-                        return ManagedIdentityClientId;
-                    case CredentialSource.SignedAssertionFilePath:
-                        return SignedAssertionFileDiskPath;
-                    default:
-                        return null;
-                }
+                    CredentialSource.KeyVault => KeyVaultCertificateName,
+                    CredentialSource.Path => CertificatePassword,
+                    CredentialSource.StoreWithThumbprint => CertificateThumbprint,
+                    CredentialSource.StoreWithDistinguishedName => CertificateDistinguishedName,
+                    CredentialSource.Certificate or CredentialSource.Base64Encoded => Base64EncodedValue,
+                    CredentialSource.ClientSecret => ClientSecret,
+                    CredentialSource.SignedAssertionFromManagedIdentity => ManagedIdentityClientId,
+                    CredentialSource.SignedAssertionFilePath => SignedAssertionFileDiskPath,
+                    _ => null,
+                };
             }
             set
             {
@@ -233,23 +215,13 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                switch (SourceType)
+                return SourceType switch
                 {
-                    case CredentialSource.KeyVault:
-                    case CredentialSource.Path:
-                    case CredentialSource.StoreWithThumbprint:
-                    case CredentialSource.StoreWithDistinguishedName:
-                    case CredentialSource.Certificate:
-                    case CredentialSource.Base64Encoded:
-                        return CredentialType.Certificate;
-                    case CredentialSource.ClientSecret:
-                        return CredentialType.Secret;
-                    case CredentialSource.SignedAssertionFromManagedIdentity:
-                    case CredentialSource.SignedAssertionFilePath:
-                        return CredentialType.SignedAssertion;
-                    default:
-                        return default;
-                }
+                    CredentialSource.KeyVault or CredentialSource.Path or CredentialSource.StoreWithThumbprint or CredentialSource.StoreWithDistinguishedName or CredentialSource.Certificate or CredentialSource.Base64Encoded => CredentialType.Certificate,
+                    CredentialSource.ClientSecret => CredentialType.Secret,
+                    CredentialSource.SignedAssertionFromManagedIdentity or CredentialSource.SignedAssertionFilePath => CredentialType.SignedAssertion,
+                    _ => default,
+                };
             }
         }
     }

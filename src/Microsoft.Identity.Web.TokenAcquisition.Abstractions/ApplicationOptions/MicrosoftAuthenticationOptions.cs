@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     public class MicrosoftAuthenticationOptions : AuthenticationOptions
     {
         /// <summary>
-        /// Gets or sets the Azure Active Directory instance, e.g. "https://login.microsoftonline.com/".
+        /// Gets or sets the Azure Active Directory instance, e.g. <c>"https://login.microsoftonline.com/"</c>.
         /// </summary>
         public string Instance { get; set; } = null!;
 
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Specifies the Azure region. See https://aka.ms/azure-region. By default
         /// the app attempts to detect the Azure region automatically (the default
-        /// value is "TryAutoDetect")
+        /// value is "TryAutoDetect").
         /// </summary>
         public string? AzureRegion { get; set; } = "TryAutoDetect";
 

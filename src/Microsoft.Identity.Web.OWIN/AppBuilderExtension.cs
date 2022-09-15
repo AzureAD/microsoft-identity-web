@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IdentityModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http.Results;
-using Azure.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -26,30 +23,30 @@ using Owin;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods on an ASP.NET application to add a web app or web API
+    /// Extension methods on an ASP.NET application to add a web app or web API.
     /// </summary>
     public static class AppBuilderExtension
     {
         static internal TokenAcquirerFactory? TokenAcquirerFactory { get; set; }
         /// <summary>
-        /// Configuration
+        /// Configuration.
         /// </summary>
         static internal IConfiguration? Configuration { get { return TokenAcquirerFactory?.Configuration; } }
 
         /// <summary>
-        /// Service Provider
+        /// Service provider.
         /// </summary>
         static internal IServiceProvider? ServiceProvider { get { return TokenAcquirerFactory?.ServiceProvider; } }
 
         /// <summary>
-        /// Adds a protected web API
+        /// Adds a protected web API.
         /// </summary>
-        /// <param name="app">Application builder</param>
+        /// <param name="app">Application builder.</param>
         /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
         /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
-        /// <param name="updateOptions">Update the OWIN options if you want to finesse token validation.</param>
+        /// <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
-        /// <returns>the app builder to chain</returns>
+        /// <returns>The app builder to chain.</returns>
         public static IAppBuilder AddMicrosoftIdentityWebApi(
             this IAppBuilder app,
             Action<IServiceCollection>? configureServices = null,
@@ -120,14 +117,14 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Adds a protected web app
+        /// Adds a protected web app.
         /// </summary>
-        /// <param name="app">Application builder</param>
+        /// <param name="app">Application builder.</param>
         /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
         /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
-        /// <returns>the app builder to chain</returns>
+        /// <returns>The app builder to chain.</returns>
         public static IAppBuilder AddMicrosoftIdentityWebApp(
             this IAppBuilder app,
             Action<IServiceCollection>? configureServices = null,

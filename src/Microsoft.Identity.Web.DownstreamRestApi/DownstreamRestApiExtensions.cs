@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Adds a named downstream web API service initialized with delegates.
+        /// Adds a named downstream rest API service initialized with delegates.
         /// </summary>
         /// <param name="services">services.</param>
         /// <param name="serviceName">Name of the configuration for the service.

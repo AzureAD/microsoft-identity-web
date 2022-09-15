@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
-        /// for a downstream API on behalf of the user account for which the claims are provided in the current user
+        /// for a downstream API on behalf of the user account for which the claims are provided in the current user.
         /// </summary>
         /// <param name="scopes">Scopes to request for the downstream API to call.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
