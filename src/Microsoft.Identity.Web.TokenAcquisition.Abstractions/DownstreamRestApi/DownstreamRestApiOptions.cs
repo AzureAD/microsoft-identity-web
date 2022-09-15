@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
     public class DownstreamRestApiOptions
     {
         /// <summary>
-        /// Base URL for the called downstream web API. For instance <c>"https://graph.microsoft.com/beta/".</c>.
+        /// Base URL for the called downstream web API. For instance <c>"https://graph.microsoft.com/beta/"</c>.
         /// </summary>
         public string? BaseUrl { get; set; }
 

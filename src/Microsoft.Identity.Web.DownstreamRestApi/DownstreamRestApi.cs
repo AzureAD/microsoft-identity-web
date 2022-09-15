@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
         /// <param name="namedDownstreamRestApiOptions">Named options provider.</param>
-        /// <param name="httpClientFactory">HTTP client.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
         public DownstreamRestApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamRestApiOptions> namedDownstreamRestApiOptions,
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
 
             httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-            using var client = _httpClientFactory.CreateClient(serviceName);
+            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
 
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web
 
             httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-            using var client = _httpClientFactory.CreateClient(serviceName);
+            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
 

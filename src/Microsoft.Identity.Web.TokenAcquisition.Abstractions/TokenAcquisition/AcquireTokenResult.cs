@@ -1,16 +1,18 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Result of a token acquisition
+    /// Result of a token acquisition.
     /// </summary>
     public class AcquireTokenResult
     {
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="accessToken">Access token.</param>
         /// <param name="expiresOn">Expiration date/time.</param>

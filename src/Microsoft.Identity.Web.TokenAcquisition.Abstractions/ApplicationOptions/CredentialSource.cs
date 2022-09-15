@@ -4,12 +4,12 @@
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Source for a certificate.
+    /// Source for a credential.
     /// </summary>
     public enum CredentialSource
     {
         /// <summary>
-        /// Certificate itself.
+        /// Certificate.
         /// </summary>
         Certificate = 0,
 

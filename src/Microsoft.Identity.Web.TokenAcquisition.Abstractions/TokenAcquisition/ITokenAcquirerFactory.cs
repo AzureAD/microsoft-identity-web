@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web
 {
@@ -8,14 +11,14 @@ namespace Microsoft.Identity.Web
     public interface ITokenAcquirerFactory
     {
         /// <summary>
-        /// Get a token acquirer given an authority, client ID, client credentials and an optional Azure region
+        /// Get a token acquirer given an authority, client ID, client credentials and an optional Azure region.
         /// </summary>
         /// <param name="authority">Authority from which to acquire the security tokens.</param>
         /// <param name="clientId">Client ID of the application registered to get the tokens.</param>
         /// <param name="clientCredentials">Client Credentials (client certificate, ...) used to
         /// prove the identity of the application registered to get the tokens.</param>
         /// <param name="region">Optional Azure Region.</param>
-        /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
+        /// <returns>An instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
         ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect");
 
         /// <summary>
@@ -23,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="applicationIdentityOptions">Application configuration. Can be an
         /// <see cref="MicrosoftAuthenticationOptions"/>.</param>
-        /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
+        /// <returns>An instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
         ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions);
 
         /// <summary>
@@ -32,7 +35,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionName">Name of the Application configuration as defined by the configuration.
         /// For instance in ASP.NET Core it would be the authentication scheme.</param>
-        /// <returns>A instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
+        /// <returns>An instance of <see cref="ITokenAcquirer"/> that will enable token acquisition.</returns>
         ITokenAcquirer GetTokenAcquirer(string optionName = "");
     }
 }

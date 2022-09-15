@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods to support downstream rest API services.
+    /// Extension methods to support downstream REST API services.
     /// </summary>
     public static class DownstreamRestApiExtensions
     {
         /// <summary>
-        /// Adds a named downstream rest API service related to a specific configuration section.
+        /// Adds a named downstream REST API service related to a specific configuration section.
         /// </summary>
         /// <param name="services">services.</param>
         /// <param name="serviceName">Name of the configuration for the service.
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Adds a named downstream web API service initialized with delegates.
+        /// Adds a named downstream REST API service initialized with delegates.
         /// </summary>
         /// <param name="services">services.</param>
         /// <param name="serviceName">Name of the configuration for the service.

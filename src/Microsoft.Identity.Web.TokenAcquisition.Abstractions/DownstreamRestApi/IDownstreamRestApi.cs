@@ -16,11 +16,11 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Calls the downstream REST API on behalf of the user, based on a description of the
-        /// downstream web API in the configuration (service name)
+        /// downstream REST API in the configuration (service name).
         /// </summary>
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="calledDownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="calledDownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="calledDownstreamRestApiOptionsOverride">(Optional) Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
@@ -40,11 +40,11 @@ namespace Microsoft.Identity.Web
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Calls the downstream web API on behalf of the app itself, with the required scopes.
+        /// Calls the downstream REST API on behalf of the app itself, with the required scopes.
         /// </summary>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="DownstreamRestApiOptionsOverride">(Optional) Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
@@ -63,9 +63,9 @@ namespace Microsoft.Identity.Web
         /// Get a strongly typed response from the web API.
         /// </summary>
         /// <typeparam name="TOutput">Output type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="DownstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
@@ -82,13 +82,13 @@ namespace Microsoft.Identity.Web
             where TOutput : class;
 
         /// <summary>
-        /// Calls a downstream web API consuming JSON with some data and returns data.
+        /// Calls a downstream REST API consuming JSON with some data and returns data.
         /// </summary>
         /// <typeparam name="TInput">Input type.</typeparam>
         /// <typeparam name="TOutput">Output type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="downstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="input">Input parameter to the downstream web API.</param>
         /// <param name="downstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
@@ -141,9 +141,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <typeparam name="TOutput">Output type.</typeparam>
         /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
         /// <param name="inputData">Input data sent to the API.</param>
@@ -169,7 +169,7 @@ namespace Microsoft.Identity.Web
         /// <typeparam name="TInput">Input type.</typeparam>
         /// <param name="serviceName">Name of the service describing the downstream web API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
         /// <param name="inputData">Input data sent to the API.</param>
@@ -194,9 +194,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <typeparam name="TOutput">Output type.</typeparam>
         /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="relativePath">Path to the API endpoint relative to the base URL specified in the configuration.</param>
         /// <param name="inputData">Input data sent to the API.</param>
@@ -217,13 +217,12 @@ namespace Microsoft.Identity.Web
             where TOutput : class;
 
         /// <summary>
-        /// Call a web API endpoint with an HttpGet,
-        /// and return strongly typed data.
+        /// Call a web API endpoint with an HttpGet, and return strongly typed data.
         /// </summary>
         /// <typeparam name="TOutput">Output type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="DownstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described
         /// by <paramref name="serviceName"/>.</param>
@@ -243,9 +242,9 @@ namespace Microsoft.Identity.Web
         /// Call a web API with a strongly typed input, with an HttpGet.
         /// </summary>
         /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// <param name="serviceName">Name of the service describing the downstream REST API. There can
         /// be several configuration named sections mapped to a <see cref="DownstreamRestApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
+        /// each for one downstream REST API. You can pass-in null, but in that case <paramref name="DownstreamRestApiOptionsOverride"/>
         /// needs to be set.</param>
         /// <param name="inputData">Input data.</param>
         /// <param name="DownstreamRestApiOptionsOverride">Overrides the options proposed in the configuration described

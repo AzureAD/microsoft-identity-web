@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Creates the value of an authorization header that the caller can use to call a protected web API
+    /// Creates the value of an authorization header that the caller can use to call a protected web API.
     /// </summary>
     public interface IAuthorizationHeaderProvider
     {
         /// <summary>
         /// Creates the authorization header used to call a protected web API on behalf
-        /// of a user
+        /// of a user.
         /// </summary>
         /// <param name="scopes">Scopes for which to request the authorization header.</param>
         /// <param name="downstreamApiOptions">Information about the API that will be called (for some
@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         /// <param name="claimsPrincipal">Inbound authentication elements.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A string containing the authorization request, that is protocol and tokens
-        /// (for instance: "Bearer token", "PoP token", etc ...)
+        /// (for instance: "Bearer token", "PoP token", etc ...).
         /// </returns>
         Task<string> CreateAuthorizationHeaderForUserAsync(
             IEnumerable<string> scopes, 
@@ -33,14 +33,14 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Creates the authorization header used to call a protected web API on behalf
-        /// of the application itself
+        /// of the application itself.
         /// </summary>
         /// <param name="scopes">Scopes for which to request the authorization header.</param>
         /// <param name="downstreamApiOptions">Information about the API that will be called (for some
         /// protocols like Pop), and token acquisition options.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A string containing the authorization request, that is protocol and tokens
-        /// (for instance: "Bearer token", "PoP token", etc ...)
+        /// (for instance: "Bearer token", "PoP token", etc ...).
         /// </returns>
         Task<string> CreateAuthorizationHeaderForAppAsync(
             string scopes,
