@@ -1,3 +1,7 @@
+1.25.3
+==========
+- Update to latest IdentityModel 6.23.1, which has 20% perf improvements.
+
 1.25.2
 ==========
 - Fix Component Governance issues due to dependent packages. CVE-2022-34716 - in DataProtection 5.0.8
