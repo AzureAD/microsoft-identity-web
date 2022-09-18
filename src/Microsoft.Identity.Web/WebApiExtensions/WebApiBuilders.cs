@@ -32,6 +32,8 @@ namespace Microsoft.Identity.Web.Internal
             IConfigurationSection? configuration)
         {
             services.Configure<ConfidentialClientApplication>(authenticationScheme, configuration);
+            services.Configure<MicrosoftAuthenticationOptions>(authenticationScheme, options
+                => { configuration.Bind(options); });
             services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
                 => { configuration.Bind(options); });
             services.AddTokenAcquisition();
