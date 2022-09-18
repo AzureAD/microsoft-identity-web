@@ -31,16 +31,9 @@ namespace Microsoft.Identity.Web.Internal
             IServiceCollection services,
             IConfigurationSection? configuration)
         {
-            services.AddOptions<ConfidentialClientApplicationOptions>(authenticationScheme)
-                            .Configure<IOptionsMonitor<MergedOptions>>((
-                               ccaOptions, mergedOptionsMonitor) =>
-                            {
-                                configureConfidentialClientApplicationOptions(ccaOptions);
-                                MergedOptions mergedOptions = mergedOptionsMonitor.Get(authenticationScheme);
-                                configuration?.Bind(mergedOptions);
-                                MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions, mergedOptions);
-                            });
-
+            services.Configure<ConfidentialClientApplication>(authenticationScheme, configuration);
+            services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
+                => { configuration.Bind(options); });
             services.AddTokenAcquisition();
 
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
