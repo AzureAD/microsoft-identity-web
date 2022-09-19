@@ -878,7 +878,7 @@ namespace Microsoft.Identity.Web
             switch (level)
             {
                 case Client.LogLevel.Always:
-                    _logger.LogCritical(message);
+                    _logger.LogInformation(message);
                     break;
                 case Client.LogLevel.Error:
                     _logger.LogError(message);
