@@ -30,7 +30,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.*" />
   </ItemGroup>
 
 </Project>
