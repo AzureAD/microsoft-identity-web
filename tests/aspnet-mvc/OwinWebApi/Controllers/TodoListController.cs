@@ -19,11 +19,11 @@ namespace OwinWebApi.Controllers
         public async Task<IEnumerable<Todo>> Get()
         {
             // Example calling Graph
-            GraphServiceClient? graphServiceClient = HttpContext.Current.GetGraphServiceClient();
+            GraphServiceClient? graphServiceClient = this.GetGraphServiceClient();
             var me = await graphServiceClient?.Me?.Request()?.GetAsync();
 
             // Example getting a token to call a downstream web API
-            ITokenAcquirer tokenAcquirer = HttpContext.Current.GetTokenAcquirer();
+            ITokenAcquirer tokenAcquirer = this.GetTokenAcquirer();
             var result = await tokenAcquirer.GetTokenForUserAsync(new[] { "user.read" });
 
             // return the item
