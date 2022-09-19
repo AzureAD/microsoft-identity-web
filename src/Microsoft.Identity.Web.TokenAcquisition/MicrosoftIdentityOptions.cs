@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 #else
@@ -12,13 +12,13 @@ using Microsoft.AspNetCore.Http;
 //using Microsoft.IdentityModel.Tokens;
 #endif
 
-#if NET472 || NET462
+#if NETSTANDARD2_0 || NET462 || NET472
 using PathString = System.String;
 #endif
 
 namespace Microsoft.Identity.Web
 {
-#if NET472 || NET462
+#if NETSTANDARD2_0 || NET462 || NET472
     /// <summary>
     /// OpenIdConnect options
     /// </summary>

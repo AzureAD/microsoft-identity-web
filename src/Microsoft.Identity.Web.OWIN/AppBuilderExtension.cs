@@ -243,10 +243,10 @@ namespace Microsoft.Identity.Web
                 context.TokenEndpointRequest.Parameters.TryGetValue("code_verifier", out string codeVerifier);
                 var tokenAcquisition = TokenAcquirerFactory?.ServiceProvider?.GetRequiredService<ITokenAcquisitionInternal>();
                 var msIdentityOptions = TokenAcquirerFactory?.ServiceProvider?.GetRequiredService<IOptions<MicrosoftIdentityOptions>>();
-                var idToken = await (tokenAcquisition?.AddAccountToCacheFromAuthorizationCodeAsync(
+                var idToken = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAsync(
                     new string[] { options.Scope },
                     context.Code,
-                    null,
+                    string.Empty,
                     context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo),
                     codeVerifier,
                     msIdentityOptions?.Value.DefaultUserFlow)).ConfigureAwait(false);

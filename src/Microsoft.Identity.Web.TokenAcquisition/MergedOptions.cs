@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 #endif
 using Microsoft.Identity.Client;
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
 #endif
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
             // ASP.NET Core specific
             mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
             mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
@@ -388,7 +388,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         internal static void UpdateMergedOptionsFromJwtBearerOptions(JwtBearerOptions jwtBearerOptions, MergedOptions mergedOptions)
         {
             if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(jwtBearerOptions.Authority))
@@ -402,7 +402,7 @@ namespace Microsoft.Identity.Web
         {
             if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 Instance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
 #else
                 Instance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";

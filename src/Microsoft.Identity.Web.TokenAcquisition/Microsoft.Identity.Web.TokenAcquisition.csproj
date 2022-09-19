@@ -5,7 +5,6 @@
     <Product>Microsoft Identity Web Acquisition</Product>
     <Description>Implementation for higher level API for confidential client applications (ASP.NET Core and SDK/.NET).</Description>
     <ProjectGuid>{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}</ProjectGuid>
-    <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -34,7 +33,7 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsConfigurationBinderVersion)" />
     <Compile Remove="AspNetCore\*.cs" />

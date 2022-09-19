@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 #endif
 using Microsoft.Extensions.DependencyInjection;
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web
             // Token acquisition service
             if (isTokenAcquisitionSingleton)
             {
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
 
