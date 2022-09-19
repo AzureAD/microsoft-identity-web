@@ -127,7 +127,9 @@ namespace Microsoft.Identity.Web
             }
             else
             {
+#pragma warning disable CA2000 // Dispose objects before losing scope
                 effectiveInput = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
+#pragma warning restore CA2000 // Dispose objects before losing scope
             }
 
             HttpResponseMessage response = await CallRestApiForUserAsync(

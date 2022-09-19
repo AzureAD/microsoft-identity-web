@@ -29,13 +29,13 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
-#if NET472 || NET462
+#if NETSTANDARD2_0 || NET462 || NET472
     internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
 #else
     internal partial class TokenAcquisition
 #endif
     {
-#if NET472 || NET462
+#if NETSTANDARD2_0 || NET462 || NET472
         class OAuthConstants
         {
             public static readonly string CodeVerifierKey = "code_verifier";
@@ -501,7 +501,7 @@ namespace Microsoft.Identity.Web
         {
             return !_retryClientCertificate &&
                 string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
 #else
                 exMsal.Message.Contains(Constants.InvalidKeyError);
@@ -835,7 +835,7 @@ namespace Microsoft.Identity.Web
                 string b2cAuthority = application.Authority.Replace(
                     new Uri(application.Authority).PathAndQuery,
                     $"/{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}"
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                     , StringComparison.OrdinalIgnoreCase
 #endif
                     );
@@ -859,7 +859,7 @@ namespace Microsoft.Identity.Web
             // This is subject to change in the future
             return msalServiceException.Message.Contains(
                 ErrorCodes.B2CPasswordResetErrorCode
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 , StringComparison.InvariantCulture
 #endif
                 );

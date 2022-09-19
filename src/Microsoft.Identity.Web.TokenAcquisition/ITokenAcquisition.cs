@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-#if !NET472 && !NET462 
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Http;
 #endif
 using Microsoft.Identity.Client;
@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public interface ITokenAcquisition
     {
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the <see cref="HttpContext.User"/>
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Typically used from an ASP.NET Core web app or web API controller. This method gets an access token
         /// for a downstream API on behalf of the user account for which the claims are provided in the current user
@@ -126,7 +126,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -174,7 +174,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -222,7 +222,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null);
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
@@ -269,7 +269,7 @@ namespace Microsoft.Identity.Web
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</returns>
         string GetEffectiveAuthenticationScheme(string? authenticationScheme);
 
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Used in web APIs (which therefore cannot have an interaction with the user).
         /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that

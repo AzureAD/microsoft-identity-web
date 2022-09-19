@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 
@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal interface ITokenAcquisitionInternal : ITokenAcquisition
     {
-#if !NET472 && !NET462
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received (after the user
         /// signed-in and consented)
