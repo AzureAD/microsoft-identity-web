@@ -20,7 +20,7 @@ public static class TokenValidator
     {
         IdentityModelEventSource.ShowPII = true;
 
-        ConfigurationManager<OpenIdConnectConfiguration> configManager = 
+        ConfigurationManager<OpenIdConnectConfiguration> configManager =
             new ConfigurationManager<OpenIdConnectConfiguration>($"{instance}/{tenant}/v2.0/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever());
         OpenIdConnectConfiguration config = configManager.GetConfigurationAsync().GetAwaiter().GetResult();
         TokenValidationParameters validationParameters = new TokenValidationParameters()
@@ -30,7 +30,7 @@ public static class TokenValidator
             IssuerValidator = AadIssuerValidator.GetAadIssuerValidator($"{instance}/{tenant}").Validate,
         };
 
-    JsonWebTokenHandler jsonWebTokenHandler = new();
+        JsonWebTokenHandler jsonWebTokenHandler = new();
         var result = jsonWebTokenHandler.ValidateToken(token, validationParameters);
         if (result.Exception != null && result.Exception is SecurityTokenSignatureKeyNotFoundException)
         {
@@ -53,6 +53,5 @@ public static class TokenValidator
         {
             return result.Issuer;
         }
-
     }
 }
