@@ -1,0 +1,1 @@
+﻿dotnet publish /p:NativeLib=Static /p:SelfContained=true -r win-x64 -c release
