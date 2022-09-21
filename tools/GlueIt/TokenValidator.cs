@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+﻿using System.Runtime.InteropServices;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -53,5 +54,17 @@ public static class TokenValidator
         {
             return result.Issuer;
         }
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "ValidateToken")]
+    public static IntPtr ValidateTokenNative(IntPtr instancePtr, IntPtr tenantPtr, IntPtr audiencePtr, IntPtr tokenPtr)
+    {
+        var instance = Marshal.PtrToStringAnsi(instancePtr);
+        var tenant = Marshal.PtrToStringAnsi(tenantPtr);
+        var audience = Marshal.PtrToStringAnsi(audiencePtr);
+        var token = Marshal.PtrToStringAnsi(tokenPtr);
+
+        var result = ValidateToken(instance, tenant, audience, token);
+        return Marshal.StringToHGlobalAnsi(result);
     }
 }

@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <Description>Native library for token validation</Description>
+    <PackageTags>MSAL;Microsoft Identity Web;Native</PackageTags>
+    <Version>1.0.0</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
