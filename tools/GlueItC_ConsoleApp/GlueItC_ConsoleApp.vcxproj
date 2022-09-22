@@ -77,6 +77,9 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -84,14 +87,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsC</CompileAs>
-      <AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>
+      <!--<AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>-->
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>crypt32.lib;user32.lib;gdi32.lib;kernel32.lib;ole32.lib;advapi32.lib;winmm.lib;bcrypt.lib;iphlpapi.lib;ws2_32.lib;version.lib;secur32.lib;oleaut32.lib;bootstrapperdll.lib;bootstrapper.lib;Runtime.ServerGC.lib;PortableRuntime.lib;mswsock.lib;ncrypt.lib;normaliz.lib;GlueIt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!--<AdditionalDependencies>GlueIt.dll;%(AdditionalDependencies)</AdditionalDependencies>-->
+      <!--<AdditionalDependencies>crypt32.lib;user32.lib;gdi32.lib;kernel32.lib;ole32.lib;advapi32.lib;winmm.lib;bcrypt.lib;iphlpapi.lib;ws2_32.lib;version.lib;secur32.lib;oleaut32.lib;bootstrapperdll.lib;bootstrapper.lib;Runtime.ServerGC.lib;PortableRuntime.lib;mswsock.lib;ncrypt.lib;normaliz.lib;GlueIt.lib;%(AdditionalDependencies)</AdditionalDependencies>-->
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalIncludeDirectories>$(SolutionDir)tools\GlueIt\bin\Release\net7.0\win-x64\publish;C:\gh\microsoft-identity-web\tools\GlueIt\bin\Release\net7.0\win-x64\publish</AdditionalIncludeDirectories>
     </Link>
     <Bscmake>
@@ -105,7 +108,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <CompileAs>CompileAsC</CompileAs>
-      <AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>
+      <!--<AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>-->
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
@@ -128,9 +131,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GlueIt.lib;crypt32.lib;user32.lib;gdi32.lib;kernel32.lib;ntdll.lib;ole32.lib;advapi32.lib;winmm.lib;bcrypt.lib;iphlpapi.lib;ws2_32.lib;version.lib;secur32.lib;oleaut32.lib;bootstrapperdll.lib;bootstrapper.lib;Runtime.ServerGC.lib;mswsock.lib;ncrypt.lib;normaliz.lib;System.IO.Compression.Native.Aot.lib;System.Globalization.Native.Aot.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!--<AdditionalDependencies>GlueIt.dll;%(AdditionalDependencies)</AdditionalDependencies>-->
-      <AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>
+      <!--<AdditionalDependencies>GlueIt.lib;crypt32.lib;user32.lib;gdi32.lib;kernel32.lib;ntdll.lib;ole32.lib;advapi32.lib;winmm.lib;bcrypt.lib;iphlpapi.lib;ws2_32.lib;version.lib;secur32.lib;oleaut32.lib;bootstrapperdll.lib;bootstrapper.lib;Runtime.ServerGC.lib;mswsock.lib;ncrypt.lib;normaliz.lib;System.IO.Compression.Native.Aot.lib;System.Globalization.Native.Aot.lib;%(AdditionalDependencies)</AdditionalDependencies>-->
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <!--<AdditionalOptions>/INCLUDE:CoreRT_StaticInitialization %(AdditionalOptions)</AdditionalOptions>-->
       <AdditionalIncludeDirectories>$(SolutionDir)tools\GlueIt\bin\Release\net7.0\win-x64\publish;C:\gh\microsoft-identity-web\tools\GlueIt\bin\Release\net7.0\win-x64\publish</AdditionalIncludeDirectories>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\Release\net7.0\win-x64\publish;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

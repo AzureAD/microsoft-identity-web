@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols;
@@ -23,10 +24,18 @@ public static class TokenValidator
 
         ConfigurationManager<OpenIdConnectConfiguration> configManager =
             new ConfigurationManager<OpenIdConnectConfiguration>($"{instance}/{tenant}/v2.0/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever());
-        OpenIdConnectConfiguration config = configManager.GetConfigurationAsync().GetAwaiter().GetResult();
+        OpenIdConnectConfiguration config;
+        try
+        {
+            config = configManager.GetConfigurationAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex) 
+        {
+            return BuildErrorMessage(ex);
+        }
         TokenValidationParameters validationParameters = new TokenValidationParameters()
         {
-            IssuerSigningKeys = config.SigningKeys,
+            IssuerSigningKeys = config.SigningKeys, 
             ValidAudience = audience,
             IssuerValidator = AadIssuerValidator.GetAadIssuerValidator($"{instance}/{tenant}").Validate,
         };
@@ -48,7 +57,7 @@ public static class TokenValidator
         }
         if (result.Exception != null)
         {
-            return result.Exception.Message;
+            return BuildErrorMessage(result.Exception);
         }
         else
         {
@@ -56,15 +65,34 @@ public static class TokenValidator
         }
     }
 
+    private static string BuildErrorMessage(Exception ex)
+    {
+        StringBuilder sb = new StringBuilder();
+        BuildErrorMessage(sb, string.Empty, ex);
+        return sb.ToString();
+    }
+
+
+
+    private static void BuildErrorMessage(StringBuilder sb, string tab, Exception ex)
+    {
+        sb.Append(tab);
+        sb.Append(ex.ToString());
+        if (ex.InnerException != null)
+        {
+            BuildErrorMessage(sb, tab+"   ", ex.InnerException);
+        }
+    }
+
     [UnmanagedCallersOnly(EntryPoint = "ValidateToken")]
     public static IntPtr ValidateTokenNative(IntPtr instancePtr, IntPtr tenantPtr, IntPtr audiencePtr, IntPtr tokenPtr)
     {
-        var instance = Marshal.PtrToStringAnsi(instancePtr);
-        var tenant = Marshal.PtrToStringAnsi(tenantPtr);
-        var audience = Marshal.PtrToStringAnsi(audiencePtr);
-        var token = Marshal.PtrToStringAnsi(tokenPtr);
+        string? instance = Marshal.PtrToStringAnsi(instancePtr);
+        string? tenant = Marshal.PtrToStringAnsi(tenantPtr);
+        string? audience = Marshal.PtrToStringAnsi(audiencePtr);
+        string? token = Marshal.PtrToStringAnsi(tokenPtr);
 
-        var result = ValidateToken(instance, tenant, audience, token);
-        return Marshal.StringToHGlobalAnsi(result);
+        string result = ValidateToken(instance!, tenant!, audience!, token!);
+        return Marshal.StringToCoTaskMemUTF8(result);
     }
 }

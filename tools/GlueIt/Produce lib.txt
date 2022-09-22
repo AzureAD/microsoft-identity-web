@@ -1,1 +1,6 @@
 ﻿dotnet publish /p:NativeLib=Static /p:SelfContained=true -r win-x64 -c release
+
+For optimization, see https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md
+
+See also:
+https://medium.com/@chyyran/calling-c-natively-from-rust-1f92c506289d
