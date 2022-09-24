@@ -8,5 +8,9 @@
     <Assembly Name="System.Data.Common" Dynamic="Required All" />
     <Assembly Name="System.Runtime" Dynamic="Required All" />
     <Assembly Name="System.Private.Xml" Dynamic="Required All" />-->
+    <Assembly Name="System.Private.CoreLib">
+      <Type Name="System.Collections.Generic.Dictionary`2[[System.String,System.Private.CoreLib],[System.Object,System.Private.CoreLib]]">
+      </Type>
+    </Assembly>
   </Application>
 </Directives>

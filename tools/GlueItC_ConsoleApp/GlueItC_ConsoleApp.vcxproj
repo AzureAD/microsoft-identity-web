@@ -163,6 +163,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GlueItC_ConsoleApp.cpp" />
+    <ClCompile Include="MiseNative_ConsoleApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
