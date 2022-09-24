@@ -1,8 +1,8 @@
 ﻿<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Application>
+    <Assembly Name="Microsoft.IdentityModel.Protocols.OpenIdConnect" Dynamic="Required All" />
     <!--<Assembly Name="Microsoft.IdentityModel.JsonWebTokens" Dynamic="Required All" />
     <Assembly Name="Microsoft.IdentityModel.Tokens" Dynamic="Required All" />
-    <Assembly Name="Microsoft.IdentityModel.Protocols.OpenIdConnect" Dynamic="Required All" />
     <Assembly Name="Microsoft.IdentityModel.Protocols" Dynamic="Required All" />
     <Assembly Name="Microsoft.IdentityModel.Logging" Dynamic="Required All" />
     <Assembly Name="System.Data.Common" Dynamic="Required All" />

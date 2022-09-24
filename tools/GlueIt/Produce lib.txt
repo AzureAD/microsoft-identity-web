@@ -1,4 +1,9 @@
-﻿dotnet publish /p:NativeLib=Static /p:SelfContained=true -r win-x64 -c release
+﻿// For a static library
+dotnet publish /p:NativeLib=Static /p:SelfContained=true -r win-x64 -c release
+
+// For a DLL
+dotnet publish /p:SelfContained=true -r win-x64 -c release
+
 
 For optimization, see https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md
 
