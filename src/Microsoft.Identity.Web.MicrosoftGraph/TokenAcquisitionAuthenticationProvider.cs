@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web
             }
 
             DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
-            downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationScheme = scheme;
+            downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationOptionsName = scheme;
             downstreamRestApiOptions.TokenAcquirerOptions.Tenant = tenant;
 
             if (msalAuthProviderOption?.DownstreamRestApiOptions != null)

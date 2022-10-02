@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
-                downstreamApiOptions?.TokenAcquirerOptions.AuthenticationScheme,
+                downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
                 downstreamApiOptions?.TokenAcquirerOptions.Tenant,
                 downstreamApiOptions?.TokenAcquirerOptions.UserFlow,
                 claimsPrincipal,
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
         {
             return new TokenAcquisitionOptions()
             {
-                AuthenticationScheme = downstreamApiOptions?.TokenAcquirerOptions.AuthenticationScheme,
+                AuthenticationOptionsName = downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
                 CancellationToken = cancellationToken,
                 Claims = downstreamApiOptions?.TokenAcquirerOptions.Claims,
                 CorrelationId = downstreamApiOptions?.TokenAcquirerOptions.CorrelationId ?? default(Guid),
