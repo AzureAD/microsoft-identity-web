@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// Region, Authority, client credentials) from a particular 
         /// (ASP.NET Core) authentication scheme / settings.
         /// </summary>
-        public string? AuthenticationScheme { get; set; }
+        public string? AuthenticationOptionsName { get; set; }
 
         /// <summary>
         /// Sets the correlation id to be used in the request to the STS "/token" endpoint.
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
-                AuthenticationScheme = AuthenticationScheme,
+                AuthenticationOptionsName = AuthenticationOptionsName,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ExtraHeadersParameters = ExtraHeadersParameters,

@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
             {
                 Tenant = Tenant,
                 UserFlow = UserFlow,
-                AuthenticationScheme = AuthenticationScheme,
+                AuthenticationOptionsName = AuthenticationOptionsName,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,

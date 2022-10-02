@@ -29,13 +29,13 @@ namespace Microsoft.Identity.Web
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
-                tokenAcquisitionOptions?.AuthenticationScheme ?? _authenticationScheme,
+                tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 tokenAcquisitionOptions?.UserFlow,
                 user,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme ?? _authenticationScheme,
+                    AuthenticationOptionsName = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions!.CorrelationId,
@@ -60,11 +60,11 @@ namespace Microsoft.Identity.Web
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scope,
-                tokenAcquisitionOptions?.AuthenticationScheme ?? _authenticationScheme,
+                tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
                 {
-                    AuthenticationScheme = tokenAcquisitionOptions?.AuthenticationScheme ?? _authenticationScheme,
+                    AuthenticationOptionsName = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
                     CancellationToken = cancellationToken,
                     Claims = tokenAcquisitionOptions!.Claims,
                     CorrelationId = tokenAcquisitionOptions.CorrelationId,
