@@ -3,7 +3,11 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -100,6 +104,41 @@ namespace Microsoft.Identity.Web.Test
             {
                 MergedOptionsValidation.Validate(mergedOptions);
             }
+        }
+
+        [Fact]
+        public void TestMergedOptions_ContainsClaimsActions()
+        {
+
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                ClaimActions =
+                {
+                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "sex"),
+                },
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            // Verify that the mergedOptions.ClaimActions has claims
+            // It should contain some default ones along with our added one
+            Assert.NotEmpty(mergedOptions.ClaimActions.AsEnumerable());
+
+            // See if we can find the ClaimAction that we added
+            Assert.Contains(mergedOptions.ClaimActions, action => action.ClaimType == ClaimTypes.Gender);
+
+            // Select the single ClaimAction from the collection
+            var genderClaim = mergedOptions.ClaimActions.Single(x => x.ClaimType == ClaimTypes.Gender);
+
+            // Assert its a type of UniqueJsonKeyClaimAction
+            Assert.IsType<UniqueJsonKeyClaimAction>(genderClaim);
+
+            // Ensure gender has the value of sex
+            var jsonKeyClaim = genderClaim as UniqueJsonKeyClaimAction;
+            Assert.Equal(jsonKeyClaim.JsonKey, "sex");
         }
 
         private void BuildTheRequiredServices()
