@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
     /// Creates the value of an authorization header that the caller can use to call a protected web API.

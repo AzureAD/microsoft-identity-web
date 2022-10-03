@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
     /// Interface for the token acquisition service (encapsulating MSAL.NET).

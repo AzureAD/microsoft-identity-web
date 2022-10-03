@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.

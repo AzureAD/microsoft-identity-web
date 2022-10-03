@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
     /// Interface used to call a downstream REST API, for instance from controllers.

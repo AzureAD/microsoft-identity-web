@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {

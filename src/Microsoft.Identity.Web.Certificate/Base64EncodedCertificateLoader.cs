@@ -3,6 +3,7 @@
 
 using System.Security.Cryptography.X509Certificates;
 using System;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {

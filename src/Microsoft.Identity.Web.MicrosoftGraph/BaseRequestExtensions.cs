@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
