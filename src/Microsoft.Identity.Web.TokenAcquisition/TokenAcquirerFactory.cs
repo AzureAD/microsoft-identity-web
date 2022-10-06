@@ -181,7 +181,6 @@ namespace Microsoft.Identity.Web
                     Authority = applicationAuthenticationOptions.Authority,
                     ClientCredentials = applicationAuthenticationOptions.ClientCredentials,
                     ClientId = applicationAuthenticationOptions.ClientId,
-                    SendX5C = applicationAuthenticationOptions.SendX5C,
                     TokenDecryptionCredentials = applicationAuthenticationOptions.TokenDecryptionCredentials,
                     EnablePiiLogging = applicationAuthenticationOptions.EnablePiiLogging,
                 };

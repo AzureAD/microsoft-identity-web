@@ -87,10 +87,6 @@
       <Project>{2467d9a0-045b-4b45-8ccb-1aa229093f9f}</Project>
       <Name>Microsoft.Identity.Web.OWIN</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition.Abstractions\Microsoft.Identity.Web.TokenAcquisition.Abstractions.csproj">
-      <Project>{98f57cc8-01a0-49f3-b859-ddc4f8f5cd2f}</Project>
-      <Name>Microsoft.Identity.Web.TokenAcquisition.Abstractions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj">
       <Project>{08a3972d-c8bc-4b49-8625-b24c4c1bb47c}</Project>
       <Name>Microsoft.Identity.Web.TokenAcquisition</Name>
