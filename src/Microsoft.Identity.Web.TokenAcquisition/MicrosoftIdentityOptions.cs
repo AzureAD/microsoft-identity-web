@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Identity.Abstractions;
 #if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-#else
-//using Microsoft.IdentityModel.Protocols;
-//using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-//using Microsoft.IdentityModel.Tokens;
 #endif
 
 #if NETSTANDARD2_0 || NET462 || NET472

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Threading;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web

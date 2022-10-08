@@ -7,6 +7,7 @@ using Azure.Security.KeyVault.Secrets;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using System;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
