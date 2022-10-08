@@ -361,7 +361,7 @@ namespace Microsoft.Identity.Web
                 }
                 if (tokenAcquisitionOptions.PopPublicKey != null)
                 {
-                    builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey);
+                    builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
                     builder.OnBeforeTokenRequest((data) =>
                     {
                         data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
