@@ -142,7 +142,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            base.OnException(context);
+            base.OnException(context!);
         }
 
         /// <summary>

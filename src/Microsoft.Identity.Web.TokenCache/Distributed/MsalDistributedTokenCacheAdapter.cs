@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="cacheKey">Key of the cache item to retrieve.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             const string read = "Read";
             byte[]? result = null;

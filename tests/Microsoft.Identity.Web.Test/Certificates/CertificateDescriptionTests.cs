@@ -78,11 +78,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [Fact]
         public void TestFromCertificate()
         {
-            using (X509Certificate2 certificate2 = new X509Certificate2())
-            {
-                CertificateDescription certificateDescription =
-                    CertificateDescription.FromCertificate(certificate2);
-            }
+            using X509Certificate2 certificate2 = new X509Certificate2(new byte[0]);
+            CertificateDescription certificateDescription =
+                CertificateDescription.FromCertificate(certificate2);
         }
     }
 }
