@@ -1,3 +1,11 @@
+2.0.2-preview
+==========
+### New Features:
+- Support for Proof-of-possession (PoP) as introduced by MSAL.NET 4.47.2.
+- Support for .NET 6.
+
+Leverages new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) repo.
+
 2.0.0-preview
 ==========
 Detailed released notes [here](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0).
