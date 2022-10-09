@@ -16,6 +16,7 @@ namespace Microsoft.Identity.Web
             credentialDescription.Certificate = LoadFromBase64Encoded(
                             credentialDescription.Base64EncodedValue!,
                             CertificateLoaderHelper.DetermineX509KeyStorageFlag(credentialDescription));
+            credentialDescription.CachedValue = credentialDescription.Certificate;
         }
 
         internal static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, X509KeyStorageFlags x509KeyStorageFlags)

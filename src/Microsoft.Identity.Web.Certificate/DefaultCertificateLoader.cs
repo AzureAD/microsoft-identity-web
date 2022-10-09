@@ -58,14 +58,14 @@ namespace Microsoft.Identity.Web
         /// Load the credentials from the description, if needed.
         /// </summary>
         /// <param name="credentialDescription">Description of the credential.</param>
-        private void LoadCredentialsIfNeeded(CredentialDescription credentialDescription)
+        public void LoadCredentialsIfNeeded(CredentialDescription credentialDescription)
         {
             if (credentialDescription == null)
             {
                 throw new ArgumentNullException(nameof(credentialDescription));
             }
 
-            if (credentialDescription.Certificate == null)
+            if (credentialDescription.CachedValue == null)
             {
                 if (CredentialLoaders.ContainsKey(credentialDescription.SourceType))
                 {

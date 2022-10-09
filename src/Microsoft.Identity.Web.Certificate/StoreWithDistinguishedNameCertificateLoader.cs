@@ -15,6 +15,7 @@ namespace Microsoft.Identity.Web
             credentialDescription.Certificate = LoadFromStoreWithDistinguishedName(
                             credentialDescription.CertificateDistinguishedName!,
                             credentialDescription.CertificateStorePath!);
+            credentialDescription.CachedValue = credentialDescription.Certificate;
         }
 
         private static X509Certificate2? LoadFromStoreWithDistinguishedName(

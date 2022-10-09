@@ -22,6 +22,7 @@ namespace Microsoft.Identity.Web
                             credentialDescription.KeyVaultCertificateName!,
                             credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId,
                             CertificateLoaderHelper.DetermineX509KeyStorageFlag(credentialDescription));
+            credentialDescription.CachedValue = credentialDescription.Certificate;
         }
 
         public static string? UserAssignedManagedIdentityClientId { get; set; }

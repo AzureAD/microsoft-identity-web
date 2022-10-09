@@ -18,6 +18,7 @@ namespace Microsoft.Identity.Web
             credentialDescription.Certificate = LoadFromStoreWithThumbprint(
                             credentialDescription.CertificateThumbprint!,
                             credentialDescription.CertificateStorePath!);
+            credentialDescription.CachedValue = credentialDescription.Certificate;
         }
 
         private static X509Certificate2? LoadFromStoreWithThumbprint(
