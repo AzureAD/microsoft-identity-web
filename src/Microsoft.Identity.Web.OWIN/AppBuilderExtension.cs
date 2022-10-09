@@ -220,7 +220,7 @@ namespace Microsoft.Identity.Web
 
                         string? clientInfo = httpContext.Session[ClaimConstants.ClientInfo] as string;
 
-                        if (!string.IsNullOrEmpty(clientInfo))
+                        if (clientInfo!=null && !string.IsNullOrEmpty(clientInfo))
                         {
                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 

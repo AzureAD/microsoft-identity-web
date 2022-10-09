@@ -59,9 +59,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <returns>Read Bytes.</returns>
-        protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
             return Task.FromResult(tokenCacheBytes);
         }
 

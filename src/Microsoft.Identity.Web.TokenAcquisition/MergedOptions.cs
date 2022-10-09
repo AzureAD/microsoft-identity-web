@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
 
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
 #endif
 
@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.ProtocolValidator ??= microsoftIdentityOptions.ProtocolValidator;
 
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             mergedOptions.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
 #endif
             mergedOptions.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
@@ -202,7 +202,7 @@ namespace Microsoft.Identity.Web
                     mergedOptions.Scope.Add(scope);
                 }
             }
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             mergedOptions.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
 #endif
 #endif
