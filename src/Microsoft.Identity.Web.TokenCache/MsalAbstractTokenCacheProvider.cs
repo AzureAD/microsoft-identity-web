@@ -110,7 +110,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         {
             if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
             {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
+                byte[]? tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
+                if (tokenCacheBytes == null)
+                {
+                    return;
+                }
 
                 try
                 {
@@ -137,7 +141,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
-        private byte[] UnprotectBytes(byte[] msalBytes)
+        private byte[] UnprotectBytes(byte[]? msalBytes)
         {
             if (msalBytes != null && _protector != null)
             {
@@ -204,7 +208,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <returns>Read bytes.</returns>
-        protected abstract Task<byte[]> ReadCacheBytesAsync(string cacheKey);
+        protected abstract Task<byte[]?> ReadCacheBytesAsync(string cacheKey);
 
         /// <summary>
         /// Method to be overridden by concrete cache serializers to Read the cache bytes.
@@ -212,7 +216,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read bytes.</returns>
-        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected virtual Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
         }

@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <param name="cacheKey">Key representing the token cache
         /// (account or app).</param>
         /// <returns>Read blob.</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
         }
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// (account or app).</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob.</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
 #pragma warning disable CA1062 // Validate arguments of public methods
             await _session.LoadAsync(cacheSerializerHints.CancellationToken).ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterReadLock();
             try
             {
-                if (_session.TryGetValue(cacheKey, out byte[] blob))
+                if (_session.TryGetValue(cacheKey, out byte[]? blob))
                 {
                     Logger.SessionCache(_logger, "Read", _session.Id, cacheKey, null);
                 }
