@@ -219,7 +219,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                                 if (!response.IsSuccessStatusCode)
                                 {
                                     var sb = new StringBuilder();
-                                    sb.AppendLine($"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
+                                    sb.AppendLine((string)$"Response was not successful. Status code: {response.StatusCode}. {response.ReasonPhrase}");
                                     sb.AppendLine(await response.Content.ReadAsStringAsync());
                                     Console.WriteLine(sb);
                                 }
@@ -229,10 +229,10 @@ namespace Microsoft.Identity.Web.Perf.Client
                     catch (Exception ex)
                     {
                         localMetrics.TotalExceptions++;
-                        Console.WriteLine($"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        Console.WriteLine((string)$"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
 
-                        exceptionsDuringRun.AppendLine($"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
-                        exceptionsDuringRun.AppendLine($"{ex}");
+                        exceptionsDuringRun.AppendLine((string)$"Exception in TestRunner at {userIndex} of {userEndIndex} - {userStartIndex}: {ex.Message}");
+                        exceptionsDuringRun.AppendLine((string)$"{ex}");
                     }
                 }
                 localMetrics.TotalRequestTimeInMilliseconds += stopwatch.Elapsed.TotalMilliseconds;
@@ -263,17 +263,17 @@ namespace Microsoft.Identity.Web.Perf.Client
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("------------------------------------------------------------------------");
-            stringBuilder.AppendLine($"Run time: {_processingStartTime} - {DateTime.Now} = {DateTime.Now - _processingStartTime}.");
-            stringBuilder.AppendLine($"Total number of users: {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
+            stringBuilder.AppendLine((string)$"Run time: {_processingStartTime} - {DateTime.Now} = {DateTime.Now - _processingStartTime}.");
+            stringBuilder.AppendLine((string)$"Total number of users: {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
 
             lock (s_metricsLock)
             {
-                stringBuilder.AppendLine($"Loop: {_globalMetrics.TotalRequests / _options.NumberOfUsersToTest}");
-                stringBuilder.AppendLine($"Total requests: {_globalMetrics.TotalRequests}.");
-                stringBuilder.AppendLine($"Average request time: {_globalMetrics.AverageRequestTimeInMilliseconds:0.0000} ms.");
-                stringBuilder.AppendLine($"Cache requests: {_globalMetrics.TotalTokensReturnedFromCache}.");
-                stringBuilder.AppendLine($"Average cache time: {_globalMetrics.AverageMsalLookupTimeInMilliseconds:0.0000} ms.");
-                stringBuilder.AppendLine($"AuthRequest failures: {_globalMetrics.TotalAcquireTokenFailures}. Generic failures: {_globalMetrics.TotalExceptions}.");
+                stringBuilder.AppendLine((string)$"Loop: {_globalMetrics.TotalRequests / _options.NumberOfUsersToTest}");
+                stringBuilder.AppendLine((string)$"Total requests: {_globalMetrics.TotalRequests}.");
+                stringBuilder.AppendLine((string)$"Average request time: {_globalMetrics.AverageRequestTimeInMilliseconds:0.0000} ms.");
+                stringBuilder.AppendLine((string)$"Cache requests: {_globalMetrics.TotalTokensReturnedFromCache}.");
+                stringBuilder.AppendLine((string)$"Average cache time: {_globalMetrics.AverageMsalLookupTimeInMilliseconds:0.0000} ms.");
+                stringBuilder.AppendLine((string)$"AuthRequest failures: {_globalMetrics.TotalAcquireTokenFailures}. Generic failures: {_globalMetrics.TotalExceptions}.");
             }
 
             Console.WriteLine(stringBuilder);

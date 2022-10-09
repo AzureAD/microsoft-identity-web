@@ -3,9 +3,6 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <DefineConstants>$(DefineConstants);DOTNET_CORE_31</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <DefineConstants>$(DefineConstants);DOTNET_50</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
     <DefineConstants>$(DefineConstants);DOTNET_472</DefineConstants>
     <LangVersion>8.0</LangVersion>
@@ -16,14 +13,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-     <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0</TargetFrameworks>
+     <TargetFrameworks>netcoreapp3.1; net462; net472; net6.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>  
   
   <ItemGroup>
-    <ProjectReference Condition="'$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'netcoreapp3.1'" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'netcoreapp3.1'" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
   </ItemGroup>

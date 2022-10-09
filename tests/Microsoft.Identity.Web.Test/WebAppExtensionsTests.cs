@@ -822,7 +822,7 @@ namespace Microsoft.Identity.Web.Test
 #if DOTNET_CORE_31
             expectedNumberOfProperties = 54;
             // System.IO.File.WriteAllLines(@"c:\temp\core31.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
-#elif DOTNET_50
+#elif NET5_0_OR_GREATER
             expectedNumberOfProperties = 57;
             // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
 #endif
