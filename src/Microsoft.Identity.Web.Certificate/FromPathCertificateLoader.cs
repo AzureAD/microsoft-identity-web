@@ -15,6 +15,7 @@ namespace Microsoft.Identity.Web
             credentialDescription.Certificate = LoadFromPath(
                            credentialDescription.CertificateStorePath!,
                            credentialDescription.CertificatePassword!);
+            credentialDescription.CachedValue = credentialDescription.Certificate;
         }
 
         private static X509Certificate2 LoadFromPath(
