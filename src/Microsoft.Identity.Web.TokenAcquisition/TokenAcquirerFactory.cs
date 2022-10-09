@@ -122,7 +122,7 @@ namespace Microsoft.Identity.Web
         readonly IDictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = "TryAutoDetect")
+        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = null)
         {
             CheckServiceProviderNotNull();
 
