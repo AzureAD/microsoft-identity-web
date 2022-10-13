@@ -102,6 +102,33 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Null(certDescriptions.ElementAt(2).Certificate);
         }
 
+        [InlineData(CertificateSource.Base64Encoded, TestConstants.CertificateX5cWithPrivateKey, TestConstants.CertificateX5cWithPrivateKeyPassword)]
+        [InlineData(CertificateSource.Path, "Certificates\\SelfSignedTestCert.pfx", TestConstants.CertificateX5cWithPrivateKeyPassword)]
+        [Theory]
+        public void TestLoadCertificateWithPrivateKey(
+            CertificateSource certificateSource,
+            string container,
+            string password)
+        {
+            CertificateDescription certificateDescription;
+
+            if (certificateSource == CertificateSource.Base64Encoded)
+            {
+                certificateDescription = CertificateDescription.FromBase64Encoded(container, password);
+            }
+            else
+            {
+                certificateDescription = CertificateDescription.FromPath(container, password);
+            }
+
+            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            defaultCertificateLoader.LoadIfNeeded(certificateDescription);
+
+            Assert.NotNull(certificateDescription.Certificate);
+            Assert.True(certificateDescription.Certificate.HasPrivateKey);
+        }
+
+
         private IEnumerable<CertificateDescription> CreateCertificateDescriptions(
             CertificateSource certificateSource,
             string container,

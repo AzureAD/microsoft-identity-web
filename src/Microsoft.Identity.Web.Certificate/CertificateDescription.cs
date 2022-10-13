@@ -58,6 +58,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Creates a certificate description from a Base64 encoded value.
+        /// </summary>
+        /// <param name="base64EncodedValue">Base64 encoded certificate value.</param>
+        /// <param name="password">The password to use when decoding the certificate.</param>
+        /// <returns>A certificate description.</returns>
+        public static CertificateDescription FromBase64Encoded(string base64EncodedValue, string password)
+        {
+            return new CertificateDescription
+            {
+                SourceType = CertificateSource.Base64Encoded,
+                Base64EncodedValue = base64EncodedValue,
+                CertificatePassword = password
+            };
+        }
+
+        /// <summary>
         /// Creates a certificate description from path on disk.
         /// </summary>
         /// <param name="path">Path where to find the certificate file.</param>

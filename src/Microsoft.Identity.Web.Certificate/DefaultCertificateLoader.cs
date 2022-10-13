@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Azure.Security.KeyVault.Secrets;
@@ -58,14 +59,24 @@ namespace Microsoft.Identity.Web
                             certificateDescription.X509KeyStorageFlags!);
                         break;
                     case CertificateSource.Base64Encoded:
-                        certificateDescription.Certificate = LoadFromBase64Encoded(
+                        if (string.IsNullOrEmpty(certificateDescription.CertificatePassword))
+                        {
+                            certificateDescription.Certificate = LoadFromBase64Encoded(
                             certificateDescription.ReferenceOrValue!,
                             certificateDescription.X509KeyStorageFlags!);
+                        }
+                        else
+                        {
+                            certificateDescription.Certificate = LoadFromBase64Encoded(
+                            certificateDescription.ReferenceOrValue!,
+                            certificateDescription.CertificatePassword,
+                            certificateDescription.X509KeyStorageFlags!);
+                        }
                         break;
                     case CertificateSource.Path:
                         certificateDescription.Certificate = LoadFromPath(
                             certificateDescription.Container!,
-                            certificateDescription.ReferenceOrValue!);
+                            certificateDescription.CertificatePassword!);
                         break;
                     case CertificateSource.StoreWithThumbprint:
                         certificateDescription.Certificate = LoadFromStoreWithThumbprint(
@@ -143,6 +154,15 @@ namespace Microsoft.Identity.Web
             return new X509Certificate2(
                 decoded,
                 (string?)null,
+                x509KeyStorageFlags);
+        }
+
+        private static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, string password, X509KeyStorageFlags x509KeyStorageFlags)
+        {
+            byte[] decoded = Convert.FromBase64String(certificateBase64);
+            return new X509Certificate2(
+                decoded,
+                password,
                 x509KeyStorageFlags);
         }
 
