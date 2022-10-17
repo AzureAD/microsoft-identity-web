@@ -29,14 +29,33 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Services. Used in the initialization phase.
         /// </summary>
-        public ServiceCollection Services { get; protected set; } = new ServiceCollection();
+        /// <exception cref="InvalidOperationException"/> will be thrown if you try to access
+        /// Services after you called <see cref="Build"/>.
+        public ServiceCollection Services
+        {
+            get
+            {
+                if (ServiceProvider != null)
+                {
+                    throw new InvalidOperationException("Cannot change services once you called Build()");
+                }
+                return _services;
+            }
+
+            private set 
+            {
+                _services = value;
+            }
+        }
+        private ServiceCollection _services = new ServiceCollection();
 
         /// <summary>
         /// Constructor
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected TokenAcquirerFactory()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            Configuration = null!;
         }
 
         /// <summary>
@@ -82,6 +101,11 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         public IServiceProvider Build()
         {
+            // Prevent from building twice.
+            if (ServiceProvider != null)
+            {
+                throw new InvalidOperationException("You shouldn't call Build() twice");
+            }
             ServiceProvider = Services.BuildServiceProvider();
             return ServiceProvider;
         }
@@ -90,6 +114,12 @@ namespace Microsoft.Identity.Web
         /// Default instance
         /// </summary>
         private static TokenAcquirerFactory? defaultInstance { get; set; }
+
+        /// <summary>
+        /// Resets the default instance. Useful for tests as token acquirer factory is a singleton
+        /// in most configurations (except ASP.NET Core)
+        /// </summary>
+        internal /* for unit tests */ static void ResetDefaultInstance() { defaultInstance = null; }
 
         // Move to a derived class?
 
@@ -131,7 +161,7 @@ namespace Microsoft.Identity.Web
             return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
         }
 
-         /// <inheritdoc/>
+        /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
         {
             if (implementation == null)

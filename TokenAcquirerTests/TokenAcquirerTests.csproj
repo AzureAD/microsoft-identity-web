@@ -4,8 +4,9 @@
     <TargetFrameworks>netcoreapp3.1; net6.0;net472</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
-
     <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

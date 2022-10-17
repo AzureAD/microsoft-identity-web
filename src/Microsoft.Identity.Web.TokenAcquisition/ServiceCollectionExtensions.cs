@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null && authenticationHeaderCreator != null )
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null && authenticationHeaderCreator != null && tokenAcquirerFactory != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
                 {

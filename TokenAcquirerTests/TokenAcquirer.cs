@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
@@ -25,6 +23,11 @@ namespace TokenAcquirerTests
                 "https://webappsapistests.vault.azure.net",
                 "Self-Signed-5-5-22")
         };
+
+        public TokenAcquirer()
+        {
+            TokenAcquirerFactory.ResetDefaultInstance(); // Test only
+        }
 
         [IgnoreOnAzureDevopsFact]
         //[Theory]
@@ -88,7 +91,7 @@ namespace TokenAcquirerTests
                 Authority = "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
                 ClientCredentials = s_clientCredentials
             });
-           
+
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
         }
@@ -127,12 +130,13 @@ namespace TokenAcquirerTests
 
             services.AddInMemoryTokenCaches();
             var serviceProvider = tokenAcquirerFactory.Build();
-            var options = serviceProvider.GetRequiredService<IOptions<MicrosoftAuthenticationOptions>>().Value;
+            var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftAuthenticationOptions>>().Get(s_optionName);
             var cert = options.ClientCredentials!.First().Certificate;
 
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(string.Empty);
-            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default",
+                   new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
             Assert.NotNull(result.AccessToken);
         }
 
@@ -145,6 +149,7 @@ namespace TokenAcquirerTests
             var users = await graphServiceClient.Users
                 .Request()
                 .WithAppOnly()
+                .WithAuthenticationScheme(s_optionName)
                 //     .WithAuthenticationOptions(options => options.ProtocolScheme = "Pop")
                 .GetAsync();
             Assert.Equal(51, users.Count);

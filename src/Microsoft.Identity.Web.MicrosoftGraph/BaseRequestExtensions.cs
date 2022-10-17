@@ -75,11 +75,12 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                authHandlerOptionKey = typeof(AuthenticationHandlerOption).Name!;
                 authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
             }
             catch (Exception)
             {
-                authHandlerOptionKey = typeof(AuthenticationHandlerOption).Name!;
+                // This flow only exists with very old versions of the Microsoft Graph SDK
                 authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
             }
 
