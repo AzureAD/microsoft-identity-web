@@ -72,7 +72,20 @@
     <MicrosoftIdentityAbstractions>2.0.2-preview</MicrosoftIdentityAbstractions>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.*</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>6.*</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>6.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
+    <MicrosoftExtensionsLoggingVersion>6.*</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>6.*</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>6.*</MicrosoftExtensionsConfigurationBinderVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net5.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
