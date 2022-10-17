@@ -3,10 +3,12 @@
 
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 
 namespace WebAppCallsMicrosoftGraph.Pages
@@ -47,6 +49,32 @@ namespace WebAppCallsMicrosoftGraph.Pages
             {
                 ViewData["photo"] = null;
             }
+
+            // Or - Call a downstream directly with the IDownstreamRestApi helper (uses the authorization header provider, encapsulates MSAL.NET)
+            // See https://aka.ms/ms-id-web/downstream-web-api
+            IDownstreamRestApi downstreamRestApi = HttpContext.RequestServices.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
+            var result = await downstreamRestApi.CallRestApiForUserAsync(string.Empty,
+                options =>
+                {
+                    options.BaseUrl = "https://graph.microsoft.com/v1.0/me";
+                    options.Scopes = new[] { "user.read" };
+                });
+
+            // Or - Get an authorization header (uses the token acquirer)
+            IAuthorizationHeaderProvider authorizationHeaderProvider = HttpContext.RequestServices.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
+            string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "user.read" },
+                new DownstreamRestApiOptions { BaseUrl = "https://graph.microsoft.com/v1.0/me", Scopes = new[] { "user.read" } });
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", authorizationHeader);
+            HttpResponseMessage response = await client.GetAsync("https://graph.microsoft.com/v1.0/users");
+
+            // Or - Get a token if an SDK needs it (uses MSAL.NET)
+            ITokenAcquirerFactory tokenAcquirerFactory = HttpContext.RequestServices.GetService(typeof(ITokenAcquirerFactory)) as ITokenAcquirerFactory;
+            ITokenAcquirer acquirer = tokenAcquirerFactory.GetTokenAcquirer();
+            AcquireTokenResult tokenResult = await acquirer.GetTokenForUserAsync(new[] { "user.read" });
+            string accessToken = tokenResult.AccessToken;
+
         }
     }
 }
