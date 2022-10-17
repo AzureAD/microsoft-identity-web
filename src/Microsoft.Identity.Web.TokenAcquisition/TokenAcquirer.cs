@@ -28,25 +28,16 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user,
             CancellationToken cancellationToken)
         {
+            string? authenticationScheme = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme;
+
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
-                tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
+                authenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 tokenAcquisitionOptions?.UserFlow,
                 user,
-                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
-                {
-                    AuthenticationOptionsName = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
-                    CancellationToken = cancellationToken,
-                    Claims = tokenAcquisitionOptions!.Claims,
-                    CorrelationId = tokenAcquisitionOptions!.CorrelationId,
-                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
-                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
-                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
-                    Tenant = tokenAcquisitionOptions.Tenant,
-                    UserFlow = tokenAcquisitionOptions.UserFlow,
-                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
-                }).ConfigureAwait(false);
+                GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken)
+                ).ConfigureAwait(false);
 
             return new AcquireTokenResult(
                 result.AccessToken,
@@ -59,23 +50,14 @@ namespace Microsoft.Identity.Web
 
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
+            string? authenticationScheme = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme;
+
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scope,
-                tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
+                authenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
-                (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
-                {
-                    AuthenticationOptionsName = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme,
-                    CancellationToken = cancellationToken,
-                    Claims = tokenAcquisitionOptions!.Claims,
-                    CorrelationId = tokenAcquisitionOptions.CorrelationId,
-                    ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
-                    ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
-                    LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
-                    Tenant = tokenAcquisitionOptions.Tenant,
-                    UserFlow = tokenAcquisitionOptions.UserFlow,
-                    PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
-                }).ConfigureAwait(false);
+                GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken)
+                ).ConfigureAwait(false);
 
             return new AcquireTokenResult(
                 result.AccessToken,
@@ -84,6 +66,23 @@ namespace Microsoft.Identity.Web
                 result.IdToken,
                 result.Scopes,
                 result.CorrelationId);
+        }
+
+        private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
+        {
+            return (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
+            {
+                AuthenticationOptionsName = authenticationScheme,
+                CancellationToken = cancellationToken,
+                Claims = tokenAcquisitionOptions!.Claims,
+                CorrelationId = tokenAcquisitionOptions!.CorrelationId,
+                ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
+                ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
+                LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
+                Tenant = tokenAcquisitionOptions.Tenant,
+                UserFlow = tokenAcquisitionOptions.UserFlow,
+                PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
+            };
         }
     }
 }
