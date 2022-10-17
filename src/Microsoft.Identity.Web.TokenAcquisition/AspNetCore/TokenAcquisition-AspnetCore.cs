@@ -7,18 +7,24 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.AspNetCore.Server.HttpSys;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
+using AuthenticationOptions = Microsoft.Identity.Abstractions.AuthenticationOptions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisition, ITokenAcquisitionInternal
+    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirerFactory
     {
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -156,6 +162,39 @@ namespace Microsoft.Identity.Web
 
             string idToken = await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
             context.HandleCodeRedemption(null, idToken);
+        }
+
+        TokenAcquirerFactory_GetTokenAcquirers implementation;
+
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region)
+        {
+            if (implementation == null)
+            {
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
+            }
+            return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
+        }
+
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
+        {
+            if (implementation == null)
+            {
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
+            }
+            return implementation.GetTokenAcquirer(applicationIdentityOptions);
+        }
+
+        /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(string optionName = "")
+        {
+            if (implementation == null)
+            {
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
+            }
+            string effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(optionName);
+            return implementation.GetTokenAcquirer(effectiveAuthenticationScheme);
         }
     }
 }

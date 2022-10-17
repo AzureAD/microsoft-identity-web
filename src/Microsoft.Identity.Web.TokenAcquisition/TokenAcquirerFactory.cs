@@ -119,104 +119,36 @@ namespace Microsoft.Identity.Web
             return Path.GetDirectoryName(assembly!.Location)!;
         }
 
-        readonly IDictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
+        TokenAcquirerFactory_GetTokenAcquirers implementation;
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = null)
         {
-            CheckServiceProviderNotNull();
-
-            ITokenAcquirer? tokenAcquirer;
-            // Compute the key
-            string key = GetKey(authority, clientId);
-            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
+            if (implementation == null)
             {
-                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
-                {
-                    ClientId = clientId,
-                    Authority = authority,
-                    ClientCredentials = clientCredentials,
-                    SendX5C = true
-                };
-                if (region != null)
-                {
-                    microsoftAuthenticationOptions.AzureRegion = region;
-                }
-
-                var optionsMonitor = ServiceProvider!.GetRequiredService<IOptionsMonitor<MergedOptions>>();
-                var mergedOptions = optionsMonitor.Get(key);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
-                tokenAcquirer = GetTokenAcquirer(key);
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             }
-            return tokenAcquirer;
+            return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
         }
 
-        private void CheckServiceProviderNotNull()
+         /// <inheritdoc/>
+        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
         {
-            if (ServiceProvider == null)
+            if (implementation == null)
             {
-                throw new ArgumentOutOfRangeException("You need to call ITokenAcquirerFactory.Build() before using GetTokenAcquirer.");
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             }
+            return implementation.GetTokenAcquirer(applicationIdentityOptions);
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationAuthenticationOptions)
+        public ITokenAcquirer GetTokenAcquirer(string optionName = "")
         {
-            if (applicationAuthenticationOptions is null)
+            if (implementation == null)
             {
-                throw new ArgumentNullException(nameof(applicationAuthenticationOptions));
+                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             }
-
-            CheckServiceProviderNotNull();
-
-            // Compute the Azure region if the option is a MicrosoftAuthenticationOptions.
-            MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = applicationAuthenticationOptions as MicrosoftAuthenticationOptions;
-            if (microsoftAuthenticationOptions == null)
-            {
-                microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
-                {
-                    AllowWebApiToBeAuthorizedByACL = applicationAuthenticationOptions.AllowWebApiToBeAuthorizedByACL,
-                    Audience = applicationAuthenticationOptions.Audience,
-                    Audiences = applicationAuthenticationOptions.Audiences,
-                    Authority = applicationAuthenticationOptions.Authority,
-                    ClientCredentials = applicationAuthenticationOptions.ClientCredentials,
-                    ClientId = applicationAuthenticationOptions.ClientId,
-                    TokenDecryptionCredentials = applicationAuthenticationOptions.TokenDecryptionCredentials,
-                    EnablePiiLogging = applicationAuthenticationOptions.EnablePiiLogging,
-                };
-            }
-
-            // Compute the key
-            ITokenAcquirer? tokenAcquirer;
-            string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
-            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
-            {
-                var optionsMonitor = ServiceProvider!.GetRequiredService<IOptionsMonitor<MergedOptions>>();
-                var mergedOptions = optionsMonitor.Get(key);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
-                tokenAcquirer = GetTokenAcquirer(key);
-            }
-            return tokenAcquirer;
-        }
-
-        /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string authenticationScheme = "")
-        {
-            CheckServiceProviderNotNull();
-
-            ITokenAcquirer? acquirer;
-            if (!_authSchemes.TryGetValue(authenticationScheme, out acquirer))
-            {
-                var tokenAcquisition = ServiceProvider!.GetRequiredService<ITokenAcquisition>();
-                acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);
-                _authSchemes.Add(authenticationScheme, acquirer);
-            }
-            return acquirer;
-        }
-
-        private static string GetKey(string? authority, string? clientId)
-        {
-            return $"{authority}{clientId}";
+            return implementation.GetTokenAcquirer(optionName);
         }
     }
 }

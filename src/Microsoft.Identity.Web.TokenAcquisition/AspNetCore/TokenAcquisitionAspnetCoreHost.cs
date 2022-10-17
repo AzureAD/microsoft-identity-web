@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
-            if (authenticationScheme != null)
+            if (!string.IsNullOrEmpty(authenticationScheme))
             {
                 return authenticationScheme;
             }

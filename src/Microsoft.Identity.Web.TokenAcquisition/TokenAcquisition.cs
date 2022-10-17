@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
-        private readonly IServiceProvider _serviceProvider;
+        protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
 
         /// <summary>
