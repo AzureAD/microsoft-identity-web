@@ -19,6 +19,7 @@ namespace Microsoft.Identity.Web.OWIN
                 ["AzureAd:ClientId"] = ConfigurationManager.AppSettings["ida:ClientId"],
                 ["AzureAd:TenantId"] = ConfigurationManager.AppSettings["ida:Tenant"] ?? ConfigurationManager.AppSettings["ida:TenantId"],
                 ["AzureAd:Audience"] = ConfigurationManager.AppSettings["ida:Audience"],
+                ["AzureAd:ClientSecret"] = ConfigurationManager.AppSettings["ida:ClientSecret"],
                 ["AzureAd:SignedOutCallbackPath"] = ConfigurationManager.AppSettings["ida:PostLogoutRedirectUri"],
                 ["AzureAd:RedirectUri"] = ConfigurationManager.AppSettings["ida:RedirectUri"],
             });
