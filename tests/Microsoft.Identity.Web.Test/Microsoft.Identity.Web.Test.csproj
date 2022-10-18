@@ -59,4 +59,10 @@
     <Compile Include="CacheEncryptionTests.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Certificates\SelfSignedTestCert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

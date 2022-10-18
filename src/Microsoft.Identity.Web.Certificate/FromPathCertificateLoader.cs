@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
         public void LoadIfNeeded(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromPath(
-                           credentialDescription.CertificateStorePath!,
+                           credentialDescription.CertificateDiskPath!,
                            credentialDescription.CertificatePassword!);
             credentialDescription.CachedValue = credentialDescription.Certificate;
         }
