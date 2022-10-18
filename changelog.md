@@ -1,3 +1,13 @@
+2.0.3-preview
+==========
+### New Features:
+- Leverage new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) library, version 1.0.0-preview.
+
+### Bug fixes:
+- Bug fixes in the credential loader to use the cached value and make `LoadCredentialsIfNeeded` public.
+- Integrate `TokenAcquirerFactory` with ASP NET core.
+- Add `ClientSecret` to Owin config #1911. 
+
 2.0.2-preview
 ==========
 ### New Features:
