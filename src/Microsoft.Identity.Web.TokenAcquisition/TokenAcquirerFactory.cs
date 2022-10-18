@@ -182,7 +182,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
+        public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationIdentityOptions)
         {
             implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             return implementation.GetTokenAcquirer(applicationIdentityOptions);

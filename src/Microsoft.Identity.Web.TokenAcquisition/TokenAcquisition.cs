@@ -352,7 +352,10 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
-                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                if (tokenAcquisitionOptions.CorrelationId != null)
+                {
+                    builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
@@ -685,7 +688,10 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                         }
-                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                        if (tokenAcquisitionOptions.CorrelationId != null)
+                        {
+                            builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                        }
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
                         if (tokenAcquisitionOptions.PoPConfiguration != null)
@@ -820,7 +826,10 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
-                builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId);
+                if (tokenAcquisitionOptions.CorrelationId != null)
+                {
+                    builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
                 if (tokenAcquisitionOptions.PoPConfiguration != null)

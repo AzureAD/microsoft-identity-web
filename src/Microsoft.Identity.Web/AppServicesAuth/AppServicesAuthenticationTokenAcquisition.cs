@@ -212,7 +212,7 @@ namespace Microsoft.Identity.Web
                 account,
                 idToken,
                 scopes,
-                tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CorrelationId : Guid.Empty);
+                tokenAcquisitionOptions != null && tokenAcquisitionOptions.CorrelationId != null ? tokenAcquisitionOptions.CorrelationId.Value : Guid.Empty);
             return authenticationResult;
         }
 

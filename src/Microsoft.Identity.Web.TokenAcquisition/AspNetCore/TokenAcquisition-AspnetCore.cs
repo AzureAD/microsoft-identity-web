@@ -20,7 +20,6 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
-using AuthenticationOptions = Microsoft.Identity.Abstractions.AuthenticationOptions;
 
 namespace Microsoft.Identity.Web
 {
@@ -177,7 +176,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
+        public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationIdentityOptions)
         {
             if (implementation == null)
             {
