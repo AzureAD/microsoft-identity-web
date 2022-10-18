@@ -74,24 +74,6 @@ namespace Microsoft.Identity.Web
 
             configureServices?.Invoke(services);
 
-            // Replace the genenric host by an OWIN host
-            ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
-            if (tokenAcquisitionhost != null)
-            {
-                services.Remove(tokenAcquisitionhost);
-
-                if (tokenAcquisitionhost.Lifetime == ServiceLifetime.Singleton)
-                {
-                    // The service was already added, but not with the right lifetime
-                    services.AddSingleton<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();
-                }
-                else
-                {
-                    // The service is already added with the right lifetime
-                    services.AddScoped<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();
-                }
-            }
-
             TokenAcquirerFactory.Build();
             string instance = Configuration.GetValue<string>($"{configurationSection}:Instance");
             string tenantId = Configuration.GetValue<string>($"{configurationSection}:TenantId");
@@ -151,24 +133,6 @@ namespace Microsoft.Identity.Web
                 }));
 
             configureServices?.Invoke(services);
-
-            // Replace the genenric host by an OWIN host
-            ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
-            if (tokenAcquisitionhost != null)
-            {
-                services.Remove(tokenAcquisitionhost);
-
-                if (tokenAcquisitionhost.Lifetime == ServiceLifetime.Singleton)
-                {
-                    // The service was already added, but not with the right lifetime
-                    services.AddSingleton<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();
-                }
-                else
-                {
-                    // The service is already added with the right lifetime
-                    services.AddScoped<ITokenAcquisitionHost, OwinTokenAcquisitionHost>();
-                }
-            }
 
             TokenAcquirerFactory.Build();
             string instance = Configuration.GetValue<string>($"{configurationSection}:Instance");

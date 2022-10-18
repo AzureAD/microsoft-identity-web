@@ -8,7 +8,8 @@ using Microsoft.Identity.Abstractions;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext.
+    /// Extension methods to retrieve a Graph service client and interfaces used
+    /// to call a downstream web API.
     /// </summary>
     public static class ControllerBaseExtensions
     {
@@ -19,17 +20,27 @@ namespace Microsoft.Identity.Web
         /// <returns></returns>
         public static GraphServiceClient? GetGraphServiceClient(this ControllerBase controllerBase)
         {
-            return AppBuilderExtension.ServiceProvider?.GetService(typeof(GraphServiceClient)) as GraphServiceClient;
+            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(GraphServiceClient)) as GraphServiceClient;
         }
 
         /// <summary>
-        /// Get the token acquirer.
+        /// Get the authorization header provider.
         /// </summary>
         /// <param name="controllerBase"></param>
         /// <returns></returns>
-        public static ITokenAcquirer? GetTokenAcquirer(this ControllerBase controllerBase)
+        public static IAuthorizationHeaderProvider? GettAuthorizationHeaderProvider(this ControllerBase controllerBase)
         {
-            return AppBuilderExtension.ServiceProvider?.GetService(typeof(ITokenAcquirer)) as ITokenAcquirer;
+            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
+        }
+
+        /// <summary>
+        /// Get the authorization header provider.
+        /// </summary>
+        /// <param name="controllerBase"></param>
+        /// <returns></returns>
+        public static IDownstreamRestApi? GetDownstreamRestApi(this ControllerBase controllerBase)
+        {
+            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
         }
     }
 }
