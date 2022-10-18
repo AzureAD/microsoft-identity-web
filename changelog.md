@@ -6,7 +6,8 @@
 ### Bug fixes:
 - Bug fixes in the credential loader to use the cached value and make `LoadCredentialsIfNeeded` public.
 - Integrate `TokenAcquirerFactory` with ASP NET core.
-- Add `ClientSecret` to Owin config #1911. 
+- Add `ClientSecret` to Owin config #1911.
+- Finish the E2E for Owin.
 
 2.0.2-preview
 ==========
