@@ -3,11 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace Microsoft.Identity.Web
 {
@@ -71,6 +74,8 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
+                instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
+                instance.Services.AddSingleton<IConfiguration>(defaultInstance.Configuration);
             }
             return (defaultInstance as T)!;
         }
@@ -91,6 +96,8 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.AddOptions<MicrosoftAuthenticationOptions>(string.Empty);
+                instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
+                instance.Services.AddSingleton<IConfiguration>(defaultInstance.Configuration);
             }
             return defaultInstance!;
         }
@@ -106,8 +113,24 @@ namespace Microsoft.Identity.Web
             {
                 throw new InvalidOperationException("You shouldn't call Build() twice");
             }
+
+            // Additional processing before creating the service provider
+            PreBuild();
             ServiceProvider = Services.BuildServiceProvider();
             return ServiceProvider;
+        }
+
+        /// <summary>
+        /// Additional processing before the Build (adds an in-memory token cache if no cache was added)
+        /// </summary>
+        protected virtual void PreBuild()
+        {
+            ServiceDescriptor? tokenAcquisitionServiceDescription = Services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            ServiceDescriptor? msalTokenCacheProviderServiceDescription = Services.FirstOrDefault(s => s.ServiceType == typeof(IMsalTokenCacheProvider));
+            if (tokenAcquisitionServiceDescription!=null && msalTokenCacheProviderServiceDescription==null)
+            {
+                Services.AddInMemoryTokenCaches();
+            }
         }
 
         /// <summary>
@@ -154,30 +177,21 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = null)
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
-            }
+            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(AuthenticationOptions applicationIdentityOptions)
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
-            }
+            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             return implementation.GetTokenAcquirer(applicationIdentityOptions);
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string optionName = "")
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
-            }
+            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             return implementation.GetTokenAcquirer(optionName);
         }
     }

@@ -6,19 +6,27 @@
     <members>
         <member name="T:Microsoft.Identity.Web.ApiControllerExtensions">
             <summary>
-            Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext
+            Extension methods to retrieve a Graph service client, or interfaces used to call
+            downstream web APIs.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetGraphServiceClient(System.Web.Http.ApiController)">
             <summary>
-            Get the graph service client.
+            Get the Graph service client.
             </summary>
             <param name="apiController"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetTokenAcquirer(System.Web.Http.ApiController)">
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GettAuthorizationHeaderProvider(System.Web.Http.ApiController)">
             <summary>
-            Get the token acquirer.
+            Get the authorization header provider.
+            </summary>
+            <param name="apiController"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamRestApi(System.Web.Http.ApiController)">
+            <summary>
+            Get the downstream REST API service.
             </summary>
             <param name="apiController"></param>
             <returns></returns>
@@ -62,7 +70,8 @@
         </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
-            Extension methods to retrieve a Graph service or a token acquirer client from the HttpContext.
+            Extension methods to retrieve a Graph service client and interfaces used
+            to call a downstream web API.
             </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetGraphServiceClient(System.Web.Mvc.ControllerBase)">
@@ -72,9 +81,16 @@
             <param name="controllerBase"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetTokenAcquirer(System.Web.Mvc.ControllerBase)">
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GettAuthorizationHeaderProvider(System.Web.Mvc.ControllerBase)">
             <summary>
-            Get the token acquirer.
+            Get the authorization header provider.
+            </summary>
+            <param name="controllerBase"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamRestApi(System.Web.Mvc.ControllerBase)">
+            <summary>
+            Get the authorization header provider.
             </summary>
             <param name="controllerBase"></param>
             <returns></returns>
@@ -94,6 +110,23 @@
             <value>
             All known security keys.
             </value>
+        </member>
+        <member name="T:Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory">
+            <summary>
+            Token acquirer factory for OWIN web apps and web APIs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.DefineConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder)">
+            <summary>
+            Defines the configuration for a given host.
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.PreBuild">
+            <summary>
+            Pre-build action. Ensures that the host is an OWIN host.
+            </summary>
         </member>
     </members>
 </doc>
