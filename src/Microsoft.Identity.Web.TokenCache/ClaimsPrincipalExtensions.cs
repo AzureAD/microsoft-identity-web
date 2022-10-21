@@ -84,8 +84,8 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(claimsPrincipal));
             }
 
-            string? uniqueObjectIdentifier = claimsPrincipal?.GetHomeObjectId();
-            string? uniqueTenantIdentifier = claimsPrincipal?.GetHomeTenantId();
+            string? uniqueObjectIdentifier = claimsPrincipal.GetHomeObjectId();
+            string? uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
 
             if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {

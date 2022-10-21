@@ -4,14 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
     {
         private readonly ITokenAcquisition _tokenAcquisition;
 
@@ -21,7 +20,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, DownstreamRestApiOptions? downstreamApiOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        public async Task<string> CreateAuthorizationHeaderForUserAsync(
+            IEnumerable<string> scopes,
+            DownstreamRestApiOptions? downstreamApiOptions = null,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
@@ -51,7 +54,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationOptionsName = downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
                 CancellationToken = cancellationToken,
                 Claims = downstreamApiOptions?.TokenAcquirerOptions.Claims,
-                CorrelationId = downstreamApiOptions?.TokenAcquirerOptions.CorrelationId ?? default(Guid),
+                CorrelationId = downstreamApiOptions?.TokenAcquirerOptions.CorrelationId ?? Guid.Empty,
                 ExtraQueryParameters = downstreamApiOptions?.TokenAcquirerOptions.ExtraQueryParameters,
                 ForceRefresh = downstreamApiOptions?.TokenAcquirerOptions.ForceRefresh ?? false,
                 LongRunningWebApiSessionKey = downstreamApiOptions?.TokenAcquirerOptions.LongRunningWebApiSessionKey,

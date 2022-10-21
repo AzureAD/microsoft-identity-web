@@ -6,7 +6,7 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    internal class ConfidentialClientApplicationOptionsMerger : IPostConfigureOptions<ConfidentialClientApplicationOptions>
+    internal sealed class ConfidentialClientApplicationOptionsMerger : IPostConfigureOptions<ConfidentialClientApplicationOptions>
     {
         public ConfidentialClientApplicationOptionsMerger(IOptionsMonitor<MergedOptions> mergedOptions)
         {

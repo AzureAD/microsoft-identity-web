@@ -6,7 +6,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MicrosoftAuthenticationOptionsMerger : IPostConfigureOptions<MicrosoftAuthenticationOptions>
+    internal sealed class MicrosoftAuthenticationOptionsMerger : IPostConfigureOptions<MicrosoftAuthenticationOptions>
     {
         public MicrosoftAuthenticationOptionsMerger(IOptionsMonitor<MergedOptions> mergedOptions)
         {

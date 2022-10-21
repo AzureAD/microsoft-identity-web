@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// Merges the MicrosoftIdentityWebOptions and the ConfidentialClientApplicationOptions.
     /// </summary>
-    internal class MergedOptions : MicrosoftIdentityOptions
+    internal sealed class MergedOptions : MicrosoftIdentityOptions
     {
         private ConfidentialClientApplicationOptions? _confidentialClientApplicationOptions;
 
@@ -481,7 +481,7 @@ namespace Microsoft.Identity.Web
             // Compatibility with v1 API
             if (microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity != null && microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
             {
-                yield return new CredentialDescription() { ManagedIdentityClientId = microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
+                yield return new CredentialDescription { ManagedIdentityClientId = microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
             }
             if (microsoftIdentityOptions.ClientCertificates != null && microsoftIdentityOptions.ClientCertificates.Any())
             {
@@ -492,7 +492,7 @@ namespace Microsoft.Identity.Web
             }
             if (!string.IsNullOrEmpty(microsoftIdentityOptions.ClientSecret))
             {
-                yield return new CredentialDescription() { ClientSecret = microsoftIdentityOptions.ClientSecret, SourceType = CredentialSource.ClientSecret };
+                yield return new CredentialDescription { ClientSecret = microsoftIdentityOptions.ClientSecret, SourceType = CredentialSource.ClientSecret };
             }
         }
 

@@ -11,12 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
-using Microsoft.IdentityModel.Abstractions;
-using Microsoft.IdentityModel.LoggingExtensions;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Linq;
 
@@ -25,7 +21,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for the <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
-    public static partial class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
+    public static class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add authentication to a web app with Microsoft identity platform.

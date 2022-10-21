@@ -15,7 +15,10 @@ namespace Microsoft.Identity.Web
 {
     internal static class ConfidentialClientApplicationBuilderExtension
     {
-        public static ConfidentialClientApplicationBuilder WithClientCredentials(this ConfidentialClientApplicationBuilder builder, IEnumerable<CredentialDescription> clientCredentials, ILogger logger)
+        public static ConfidentialClientApplicationBuilder WithClientCredentials(
+            this ConfidentialClientApplicationBuilder builder,
+            IEnumerable<CredentialDescription> clientCredentials,
+            ILogger logger)
         {
             foreach (var credential in clientCredentials)
             {
@@ -47,10 +50,7 @@ namespace Microsoft.Identity.Web
                     }
                     if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                     {
-                        if (credential.CachedValue == null)
-                        {
-                            credential.CachedValue = new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
-                        }
+                        credential.CachedValue ??= new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
                         logger.LogInformation($"Using Pod identity file {credential.SignedAssertionFileDiskPath} as client credentials. ");
                         return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
                     }

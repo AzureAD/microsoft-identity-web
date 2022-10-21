@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(account));
             }
 
-            ClaimsIdentity identity = new ClaimsIdentity(new Claim[]
+            ClaimsIdentity identity = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Upn, account.Username),
                 });

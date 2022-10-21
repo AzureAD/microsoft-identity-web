@@ -7,7 +7,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class Base64EncodedCertificateLoader : ICredentialLoader
+    internal sealed class Base64EncodedCertificateLoader : ICredentialLoader
     {
         public CredentialSource CredentialSource => CredentialSource.Base64Encoded;
 

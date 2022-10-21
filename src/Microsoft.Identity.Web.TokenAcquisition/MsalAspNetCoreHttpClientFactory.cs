@@ -6,7 +6,7 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
+    internal sealed class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
     {
         private readonly IHttpClientFactory _httpClientFactory;
 

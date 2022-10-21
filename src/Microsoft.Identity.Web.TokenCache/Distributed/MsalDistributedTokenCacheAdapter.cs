@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (!_distributedCacheOptions.DisableL1Cache)
             {
-                _memoryCache = new MemoryCache(_distributedCacheOptions.L1CacheOptions ?? new MemoryCacheOptions { SizeLimit = 500 * 1024 * 1024 });
+                _memoryCache = new MemoryCache(_distributedCacheOptions.L1CacheOptions ?? new MemoryCacheOptions { SizeLimit = MsalDistributedTokenCacheAdapterOptions.FiveHundredMb });
             }
 
             _logger = logger;
@@ -182,7 +182,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     // back propagate to memory cache
                     if (result != null)
                     {
-                        MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+                        MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow = _expirationTime,
                             Size = result?.Length,
@@ -237,7 +237,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (_memoryCache != null)
             {
-                MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+                MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
                 {
                     AbsoluteExpiration = cacheExpiry ?? _distributedCacheOptions.AbsoluteExpiration,
                     AbsoluteExpirationRelativeToNow = _expirationTime,
@@ -256,7 +256,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 cacheExpiry = _distributedCacheOptions.AbsoluteExpiration;
             }
 
-            DistributedCacheEntryOptions distributedCacheEntryOptions = new DistributedCacheEntryOptions()
+            DistributedCacheEntryOptions distributedCacheEntryOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpiration = cacheExpiry,
                 AbsoluteExpirationRelativeToNow = _distributedCacheOptions.AbsoluteExpirationRelativeToNow,

@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Hosts
 {
-    internal class DefaultTokenAcquisitionHost : ITokenAcquisitionHost
+    internal sealed class DefaultTokenAcquisitionHost : ITokenAcquisitionHost
     {
         readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;

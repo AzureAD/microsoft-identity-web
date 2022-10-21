@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
                 {
                     if (_application == null)
                     {
-                        var options = new ConfidentialClientApplicationOptions()
+                        var options = new ConfidentialClientApplicationOptions
                         {
                             ClientId = AppServicesAuthenticationInformation.ClientId,
                             ClientSecret = AppServicesAuthenticationInformation.ClientSecret,
@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web
             }
 
             var app = GetOrCreateApplication();
-            AuthenticationResult result = await app.AcquireTokenForClient(new string[] { scope })
+            AuthenticationResult result = await app.AcquireTokenForClient(new[] { scope })
                 .ExecuteAsync()
                 .ConfigureAwait(false);
 
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public Task<string> GetAccessTokenForUserAsync(
             IEnumerable<string> scopes,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
@@ -181,7 +181,13 @@ namespace Microsoft.Identity.Web
         {
             string? idToken = AppServicesAuthenticationInformation.GetIdToken(CurrentHttpContext?.Request?.Headers!);
             ClaimsPrincipal? userClaims = AppServicesAuthenticationInformation.GetUser(CurrentHttpContext?.Request?.Headers!);
-            string accessToken = await GetAccessTokenForUserAsync(scopes, tenantId: tenantId, userFlow: userFlow, user: user, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+            string accessToken = await GetAccessTokenForUserAsync(
+                scopes,
+                authenticationScheme: authenticationScheme,
+                tenantId: tenantId,
+                userFlow: userFlow,
+                user: user,
+                tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
             string expiration = userClaims.FindFirstValue("exp");
             DateTimeOffset dateTimeOffset = (expiration != null)
                 ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
@@ -222,35 +228,35 @@ namespace Microsoft.Identity.Web
             MsalUiRequiredException msalServiceException,
             HttpResponse? httpResponse = null)
         {
-            // Not implemented for the moment
-            throw new NotImplementedException();
+            // Not supported for the moment
+            throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         public void ReplyForbiddenWithWwwAuthenticateHeader(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             HttpResponse? httpResponse = null)
         {
-            // Not implemented for the moment
-            throw new NotImplementedException();
+            // Not supported for the moment
+            throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

@@ -9,12 +9,13 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class CertificateLoaderHelper
+    internal sealed class CertificateLoaderHelper
     {
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag(CredentialDescription credentialDescription)
         {
             X509KeyStorageFlags x509KeyStorageFlags;
-            if (credentialDescription is CertificateDescription)
+            var credDescription = credentialDescription as CertificateDescription;
+            if (credDescription != null)
             {
                 x509KeyStorageFlags = ((CertificateDescription)credentialDescription).X509KeyStorageFlags;
             }

@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
             string serviceName,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             StringContent? content = null)
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
             where TOutput : class
@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             StringContent? content = null)
         {

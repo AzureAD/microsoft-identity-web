@@ -3,9 +3,6 @@
 
 using System;
 using System.Linq;
-#if !NETSTANDARD2_0 && !NET462 && !NET472
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;

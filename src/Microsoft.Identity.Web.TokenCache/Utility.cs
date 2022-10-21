@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     /// </summary>
     internal static class Utility
     {
-        internal static readonly Stopwatch Watch = Stopwatch.StartNew();
+        internal static readonly Stopwatch s_watch = Stopwatch.StartNew();
 
         internal static async Task<MeasureDurationResult> Measure(this Task task)
         {
@@ -21,10 +21,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 throw new ArgumentNullException(nameof(task));
             }
 
-            var startTicks = Watch.Elapsed.Ticks;
+            var startTicks = s_watch.Elapsed.Ticks;
             await task.ConfigureAwait(false);
 
-            return new MeasureDurationResult(Watch.Elapsed.Ticks - startTicks);
+            return new MeasureDurationResult(s_watch.Elapsed.Ticks - startTicks);
         }
 
         internal static async Task<MeasureDurationResult<TResult>> Measure<TResult>(this Task<TResult> task)
@@ -34,10 +34,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 throw new ArgumentNullException(nameof(task));
             }
 
-            var startTicks = Watch.Elapsed.Ticks;
+            var startTicks = s_watch.Elapsed.Ticks;
             var taskResult = await task.ConfigureAwait(false);
 
-            return new MeasureDurationResult<TResult>(taskResult, Watch.Elapsed.Ticks - startTicks);
+            return new MeasureDurationResult<TResult>(taskResult, s_watch.Elapsed.Ticks - startTicks);
         }
     }
 }

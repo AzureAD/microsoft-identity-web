@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             CacheSerializerHints cacheSerializerHints)
         {
             TimeSpan? cacheExpiry = null;
-            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
+            if (cacheSerializerHints != null && cacheSerializerHints.SuggestedCacheExpiry != null)
             {
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
                 if (cacheExpiry < TimeSpan.Zero)
@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
                 }
             }
 
-            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
                 Size = bytes?.Length,
