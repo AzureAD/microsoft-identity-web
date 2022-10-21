@@ -6,8 +6,12 @@ on:
       - "master"
       - "rel/v2"
   pull-request:
+    branches:
       - "master"
       - "rel/v2"
+    paths:
+      - ".github/workflows/dotnetcore.yml"
+
 jobs:
   build:
     runs-on: ubuntu-latest
