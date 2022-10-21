@@ -31,7 +31,6 @@ namespace Microsoft.Identity.Web
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
         private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
-        private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
 
 
@@ -42,17 +41,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="httpContextAccessor">Access to the HttpContext of the request.</param>
         /// <param name="mergedOptionsMonitor">Configuration options.</param>
-        /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
         public TokenAcquisitionAspnetCoreHost(
             IHttpContextAccessor httpContextAccessor,
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
-            ILogger<TokenAcquisition> logger,
             IServiceProvider serviceProvider)
         {
             _httpContextAccessor = httpContextAccessor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
-            _logger = logger;
             _serviceProvider = serviceProvider;
         }
 

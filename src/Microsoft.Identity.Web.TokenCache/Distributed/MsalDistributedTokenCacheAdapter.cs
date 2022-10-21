@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             {
                 // check memory cache first
                 result = (byte[])_memoryCache.Get(cacheKey);
-                Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0, null);
+                Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0);
             }
 
             if (result == null)
@@ -175,7 +175,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 }, cacheSerializerHints.CancellationToken).Measure().ConfigureAwait(false);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
-                Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
+                Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds);
 
                 if (_memoryCache != null)
                 {
@@ -188,9 +188,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                             Size = result?.Length,
                         };
 
-                        Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0, null);
+                        Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0);
                         _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
-                        Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count, null);
+                        Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count);
                     }
                 }
             }
@@ -246,8 +246,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                 // write in both
                 _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-                Logger.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0, null);
-                Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count, null);
+                Logger.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0);
+                Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count);
             }
 
             if ((cacheExpiry != null && _distributedCacheOptions.AbsoluteExpiration != null && _distributedCacheOptions.AbsoluteExpiration < cacheExpiry)
@@ -305,8 +305,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     cacheKey,
                     bytes?.Length ?? 0,
                     inRetry,
-                    measure.MilliSeconds,
-                    null);
+                    measure.MilliSeconds);
             }
             catch (Exception ex)
             {
@@ -347,8 +346,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     operation,
                     cacheKey,
                     result?.Length ?? 0,
-                    inRetry,
-                    null);
+                    inRetry);
             }
             catch (Exception ex)
             {
