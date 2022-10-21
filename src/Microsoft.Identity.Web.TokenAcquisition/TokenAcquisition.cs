@@ -32,6 +32,12 @@ namespace Microsoft.Identity.Web
     internal partial class TokenAcquisition
 #endif
     {
+#if NETSTANDARD2_0 || NET462 || NET472
+        class OAuthConstants
+        {
+            public static readonly string CodeVerifierKey = "code_verifier";
+        }
+#endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -204,7 +210,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
             IEnumerable<string> scopes,
-            string? authenticationScheme,
+            string? authenticationScheme = null,
             string? tenantId = null,
             string? userFlow = null,
             ClaimsPrincipal? user = null,
@@ -310,7 +316,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
-            string? authenticationScheme,
+            string? authenticationScheme = null,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
@@ -416,7 +422,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token for the app itself, based on its scopes.</returns>
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
-            string? authenticationScheme,
+            string? authenticationScheme = null,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
@@ -454,7 +460,7 @@ namespace Microsoft.Identity.Web
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
         IEnumerable<string> scopes,
-        string? authenticationScheme,
+        string? authenticationScheme = null,
         string? tenantId = null,
         string? userFlow = null,
         ClaimsPrincipal? user = null,
@@ -641,7 +647,7 @@ namespace Microsoft.Identity.Web
                     else
                     {
                         string? sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey;
-                        if (sessionKey == TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto)
+                        if (sessionKey == Abstractions.AcquireTokenOptions.LongRunningWebApiSessionKeyAuto)
                         {
                             sessionKey = null;
                         }
