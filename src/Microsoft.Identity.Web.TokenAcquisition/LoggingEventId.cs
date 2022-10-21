@@ -18,6 +18,12 @@ namespace Microsoft.Identity.Web
         // TokenAcquisition EventIds 300+
         public static readonly EventId TokenAcquisitionError = new EventId(300, "TokenAcquisitionError");
         public static readonly EventId TokenAcquisitionMsalAuthenticationResultTime = new EventId(301, "TokenAcquisitionMsalAuthenticationResultTime");
+
+        // ConfidentialClientApplicationBuilderExtension EventIds 400+
+        public static readonly EventId NotUsingManagedIdentity = new EventId(400, "NotUsingManagedIdentity");
+        public static readonly EventId UsingManagedIdentity = new EventId(401, "UsingManagedIdentity");
+        public static readonly EventId UsingPodIdentityFile = new EventId(402, "UsingPodIdentityFile");
+        public static readonly EventId UsingCertThumbprint = new EventId(403, "UsingCertThumbprint");
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
