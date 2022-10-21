@@ -1,7 +1,13 @@
 name: .NET Core
 
-on: [push]
-
+on:
+  push:
+    branches:
+      - "master"
+      - "rel/v2"
+  pull-request:
+      - "master"
+      - "rel/v2"
 jobs:
   build:
     runs-on: ubuntu-latest
