@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web.Resource
                 userClaims = user.Claims;
             }
 
+            // TODO: check this logic.
             if (user == null || userClaims == null || !userClaims.Any())
             {
                 lock (context)
@@ -71,8 +72,8 @@ namespace Microsoft.Identity.Web.Resource
                     lock (context)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        context.Response.WriteAsync(message);
-                        context.Response.CompleteAsync();
+                        _ = context.Response.WriteAsync(message);
+                        _ = context.Response.CompleteAsync();
                     }
 
                     throw new UnauthorizedAccessException(message);

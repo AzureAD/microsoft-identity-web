@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Base class for Microsoft Identity authentication message handlers.
     /// </summary>
-    public abstract class MicrosoftIdentityAuthenticationBaseMessageHandler : DelegatingHandler
+    public class MicrosoftIdentityAuthenticationBaseMessageHandler : DelegatingHandler
     {
         private readonly IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions> _namedMessageHandlerOptions;
         private readonly string? _serviceName;

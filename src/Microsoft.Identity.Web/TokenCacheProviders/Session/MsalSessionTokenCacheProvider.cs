@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// </code>
     /// </remarks>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
-    public partial class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider
+    public partial class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IDisposable
     {
         private readonly ILogger _logger;
         private readonly ISession _session;
@@ -134,6 +135,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 _sessionLock.ExitWriteLock();
             }
+        }
+
+        public void Dispose()
+        {
+            _sessionLock.Dispose();
         }
 
         private readonly ReaderWriterLockSlim _sessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);

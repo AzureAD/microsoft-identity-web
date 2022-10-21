@@ -38,10 +38,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // validate arguments
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+            CheckParameters(request);
 
             // authenticate
             var options = GetOptionsForRequest(request);
@@ -71,6 +68,14 @@ namespace Microsoft.Identity.Web
                 authResult.CreateAuthorizationHeader());
 
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+
+        private void CheckParameters(HttpRequestMessage request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
         }
     }
 }

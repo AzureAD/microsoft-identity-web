@@ -14,12 +14,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
     /// </summary>
     public class MsalDistributedTokenCacheAdapterOptions : DistributedCacheEntryOptions
     {
+        internal const int FiveHundredMb = 500 * 1024 * 1024;
+
         /// <summary>
         /// Options of the In Memory (L1) cache.
         /// </summary>
-        public MemoryCacheOptions L1CacheOptions { get; set; } = new MemoryCacheOptions()
+        public MemoryCacheOptions L1CacheOptions { get; set; } = new MemoryCacheOptions
         {
-            SizeLimit = 500 * 1024 * 1024,   // 500 Mb
+            SizeLimit = FiveHundredMb,   // 500 Mb
         };
 
         /// <summary>

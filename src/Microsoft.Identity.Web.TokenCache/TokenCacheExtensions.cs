@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web
             _ = initializeCaches ?? throw new ArgumentNullException(nameof(initializeCaches));
 
             // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
-            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, (m) =>
+            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, _ =>
             {
                 lock (s_serviceProviderFromAction)
                 {

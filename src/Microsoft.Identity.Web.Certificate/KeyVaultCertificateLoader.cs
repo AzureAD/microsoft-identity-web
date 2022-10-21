@@ -11,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class KeyVaultCertificateLoader : ICredentialLoader
+    internal sealed class KeyVaultCertificateLoader : ICredentialLoader
     {
         public CredentialSource CredentialSource => CredentialSource.KeyVault;
 

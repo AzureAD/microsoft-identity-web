@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class TokenAcquirer : ITokenAcquirer
+    internal sealed class TokenAcquirer : ITokenAcquirer
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly string? _authenticationScheme;
@@ -70,7 +68,7 @@ namespace Microsoft.Identity.Web
 
         private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
         {
-            return (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions()
+            return (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions
             {
                 AuthenticationOptionsName = authenticationScheme,
                 CancellationToken = cancellationToken,

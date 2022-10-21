@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
                                     nameof(ScopeKeySection)));
                         }
 
-                        incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
+                        incrementalConsentScopes = new[] { configuration.GetValue<string>(ScopeKeySection) };
 
                         if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
                         {

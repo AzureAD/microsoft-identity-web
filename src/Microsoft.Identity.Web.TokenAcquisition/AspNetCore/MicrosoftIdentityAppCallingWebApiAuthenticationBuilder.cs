@@ -2,13 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;

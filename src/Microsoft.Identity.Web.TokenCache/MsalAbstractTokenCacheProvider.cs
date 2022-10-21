@@ -104,7 +104,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return msalBytes!;
         }
 
-        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
+        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints 
+        { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
