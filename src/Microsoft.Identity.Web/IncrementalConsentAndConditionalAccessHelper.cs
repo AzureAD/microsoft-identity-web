@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -25,10 +26,7 @@ namespace Microsoft.Identity.Web
         /// the user, and <c>false</c>, otherwise.</returns>
         public static bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)
         {
-            if (ex == null)
-            {
-                throw new ArgumentNullException(nameof(ex));
-            }
+            _ = Throws.IfNull(ex);
 
             // ex.ErrorCode != MsalUiRequiredException.UserNullError indicates a cache problem.
             // When calling an [Authenticate]-decorated controller we expect an authenticated
@@ -52,10 +50,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal user,
             string? userflow = null)
         {
-            if (ex == null)
-            {
-                throw new ArgumentNullException(nameof(ex));
-            }
+            _ = Throws.IfNull(ex);
 
             scopes ??= new string[0];
             var properties = new AuthenticationProperties();

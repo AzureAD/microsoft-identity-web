@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -55,7 +56,7 @@ namespace Microsoft.Identity.Web.Resource
         /// if you want to express the required scopes from the configuration.
         public RequiredScopeAttribute(params string[] acceptedScopes)
         {
-            AcceptedScope = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
+            AcceptedScope = Throws.IfNull(acceptedScopes);
         }
 
         /// <summary>

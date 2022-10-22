@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
             IHttpContextAccessor httpContextAccessor,
             IHttpClientFactory httpClientFactory)
         {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _httpContextAccessor = Throws.IfNull(httpContextAccessor);
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _tokenCacheProvider = tokenCacheProvider;
         }
@@ -107,10 +107,7 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             // We could use MSI
-            if (scope is null)
-            {
-                throw new ArgumentNullException(nameof(scope));
-            }
+            _ = Throws.IfNull(scope);
 
             var app = GetOrCreateApplication();
             AuthenticationResult result = await app.AcquireTokenForClient(new[] { scope })

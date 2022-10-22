@@ -84,15 +84,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configurationSection == null)
-            {
-                throw new ArgumentException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configurationSection);
 
             return builder.AddMicrosoftIdentityWebAppWithConfiguration(
                 options => configurationSection.Bind(options),
@@ -124,10 +117,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             return builder.AddMicrosoftWebAppWithoutConfiguration(
                 configureMicrosoftIdentityOptions,
@@ -229,15 +219,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
             string? displayName)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {

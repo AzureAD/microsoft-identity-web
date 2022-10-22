@@ -181,15 +181,8 @@ namespace Microsoft.Identity.Web
             AuthorizationCodeReceivedContext context,
             IEnumerable<string> scopes)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            _ = Throws.IfNull(context);
+            _ = Throws.IfNull(scopes);
         }
     }
 }

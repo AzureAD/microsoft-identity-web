@@ -25,10 +25,8 @@ namespace Microsoft.Identity.Web
         /// <param name="credentialDescription"></param>
         public CertificateDescription(CredentialDescription credentialDescription)
         {
-            if (credentialDescription is null)
-            {
-                throw new ArgumentNullException(nameof(credentialDescription));
-            }
+            _ = Throws.IfNull(credentialDescription);
+
             // TODO: Check credentialDescription is really a cert
             SourceType = (CertificateSource)credentialDescription.SourceType;
             Container = credentialDescription.Container;

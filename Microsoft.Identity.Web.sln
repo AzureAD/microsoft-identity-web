@@ -156,6 +156,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenAcquirerTests", "Token
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.DownstreamRestApi", "src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj", "{A123BD94-812D-40EC-9576-1A7AB5C59913}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Diagnostics", "src\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj", "{982F70B7-4D85-42B7-ABDD-7EDD2081360A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -330,6 +332,10 @@ Global
 		{A123BD94-812D-40EC-9576-1A7AB5C59913}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A123BD94-812D-40EC-9576-1A7AB5C59913}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A123BD94-812D-40EC-9576-1A7AB5C59913}.Release|Any CPU.Build.0 = Release|Any CPU
+		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

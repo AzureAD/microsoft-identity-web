@@ -25,10 +25,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The service collection</returns>
         public static IServiceCollection AddSessionTokenCaches(this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
             // Add session if you are planning to use session based token cache
             var sessionStoreService = builder.Services.FirstOrDefault(x => x.ServiceType.Name == Constants.ISessionStore);
 

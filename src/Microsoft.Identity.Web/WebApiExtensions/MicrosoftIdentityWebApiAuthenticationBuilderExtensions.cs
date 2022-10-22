@@ -41,15 +41,8 @@ namespace Microsoft.Identity.Web
         string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
         bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            if (configSectionName == null)
-            {
-                throw new ArgumentNullException(nameof(configSectionName));
-            }
+            _ = Throws.IfNull(configuration);
+            _ = Throws.IfNull(configSectionName);
 
             IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
 
@@ -76,15 +69,8 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
-
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(configurationSection);
+            _ = Throws.IfNull(builder);
 
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
@@ -118,20 +104,9 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configureJwtBearerOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureJwtBearerOptions));
-            }
-
-            if (configureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureJwtBearerOptions);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             AddMicrosoftIdentityWebApiImplementation(
                 builder,

@@ -21,10 +21,7 @@ namespace Microsoft.Identity.Web
             IConfigurationSection? configurationSection)
             : base(services, jwtBearerAuthenticationScheme, configureJwtBearerOptions, configureMicrosoftIdentityOptions, configurationSection)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(configurationSection);
         }
 
         /// <summary>

@@ -36,18 +36,8 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             JwtBearerAuthenticationScheme = jwtBearerAuthenticationScheme;
-            ConfigureJwtBearerOptions = configureJwtBearerOptions;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
-
-            if (ConfigureJwtBearerOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            ConfigureJwtBearerOptions = Throws.IfNull(configureJwtBearerOptions);
+            ConfigureMicrosoftIdentityOptions = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             Services.Configure(jwtBearerAuthenticationScheme, configureMicrosoftIdentityOptions);
         }
@@ -66,10 +56,7 @@ namespace Microsoft.Identity.Web
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
+            _ = Throws.IfNull(configureConfidentialClientApplicationOptions);
 
             CallsWebApiImplementation(
                 Services,

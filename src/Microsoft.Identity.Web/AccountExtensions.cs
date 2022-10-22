@@ -20,10 +20,7 @@ namespace Microsoft.Identity.Web
         /// <returns>A <see cref="ClaimsPrincipal"/> built from <see cref="IAccount"/>.</returns>
         public static ClaimsPrincipal ToClaimsPrincipal(this IAccount account)
         {
-            if (account == null)
-            {
-                throw new ArgumentNullException(nameof(account));
-            }
+            _ = Throws.IfNull(account);
 
             ClaimsIdentity identity = new ClaimsIdentity(new[]
                 {

@@ -62,10 +62,7 @@ namespace Microsoft.Identity.Web
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Action<MicrosoftGraphOptions> configureMicrosoftGraphOptions)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.AddMicrosoftGraph(configureMicrosoftGraphOptions);
             return builder;
@@ -82,10 +79,7 @@ namespace Microsoft.Identity.Web
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory, IEnumerable<string> initialScopes)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
@@ -108,10 +102,7 @@ namespace Microsoft.Identity.Web
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             Func<IAuthenticationProvider, GraphServiceClient> graphServiceClientFactory)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {

@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -28,15 +29,9 @@ namespace Microsoft.Identity.Web.Resource
         /// because the app does not have the expected roles.</remarks>
         public static void ValidateAppRole(this HttpContext context, params string[] acceptedRoles)
         {
-            if (acceptedRoles == null)
-            {
-                throw new ArgumentNullException(nameof(acceptedRoles));
-            }
+            _ = Throws.IfNull(acceptedRoles);
 
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            _ = Throws.IfNull(context);
 
             IEnumerable<Claim> userClaims;
             ClaimsPrincipal user;

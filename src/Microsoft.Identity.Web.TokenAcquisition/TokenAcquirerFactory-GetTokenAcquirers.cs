@@ -56,10 +56,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationAuthenticationOptions)
         {
-            if (applicationAuthenticationOptions is null)
-            {
-                throw new ArgumentNullException(nameof(applicationAuthenticationOptions));
-            }
+            _ = Throws.IfNull(applicationAuthenticationOptions);
 
             CheckServiceProviderNotNull();
 

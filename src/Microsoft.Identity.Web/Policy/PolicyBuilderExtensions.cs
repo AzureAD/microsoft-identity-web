@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web
@@ -31,10 +32,7 @@ namespace Microsoft.Identity.Web
             this AuthorizationPolicyBuilder authorizationPolicyBuilder,
             params string[] allowedValues)
         {
-            if (authorizationPolicyBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(authorizationPolicyBuilder));
-            }
+            _ = Throws.IfNull(authorizationPolicyBuilder);
 
             return RequireScope(authorizationPolicyBuilder, (IEnumerable<string>)allowedValues);
         }
@@ -50,10 +48,7 @@ namespace Microsoft.Identity.Web
             this AuthorizationPolicyBuilder authorizationPolicyBuilder,
             IEnumerable<string> allowedValues)
         {
-            if (authorizationPolicyBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(authorizationPolicyBuilder));
-            }
+            _ = Throws.IfNull(authorizationPolicyBuilder);
 
             authorizationPolicyBuilder.Requirements.Add(new ScopeAuthorizationRequirement(allowedValues));
             return authorizationPolicyBuilder;
@@ -72,10 +67,7 @@ namespace Microsoft.Identity.Web
             IEnumerable<string> allowedScopeValues,
             IEnumerable<string> allowedAppPermissionValues)
         {
-            if (authorizationPolicyBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(authorizationPolicyBuilder));
-            }
+            _ = Throws.IfNull(authorizationPolicyBuilder);
 
             authorizationPolicyBuilder.Requirements.Add(new ScopeOrAppPermissionAuthorizationRequirement(
                 allowedScopeValues,

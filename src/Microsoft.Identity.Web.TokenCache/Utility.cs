@@ -16,10 +16,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
         internal static async Task<MeasureDurationResult> Measure(this Task task)
         {
-            if (task == null)
-            {
-                throw new ArgumentNullException(nameof(task));
-            }
+            _ = Throws.IfNull(task);
 
             var startTicks = s_watch.Elapsed.Ticks;
             await task.ConfigureAwait(false);
@@ -29,10 +26,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
         internal static async Task<MeasureDurationResult<TResult>> Measure<TResult>(this Task<TResult> task)
         {
-            if (task == null)
-            {
-                throw new ArgumentNullException(nameof(task));
-            }
+            _ = Throws.IfNull(task);
 
             var startTicks = s_watch.Elapsed.Ticks;
             var taskResult = await task.ConfigureAwait(false);
