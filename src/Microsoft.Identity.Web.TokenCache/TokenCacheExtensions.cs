@@ -69,8 +69,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeCaches)
         {
-            confidentialClientApp = Throws.IfNull(confidentialClientApp);
-            initializeCaches = Throws.IfNull(initializeCaches);
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeCaches);
 
             // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
             var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, _ =>
@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web
         public static IConfidentialClientApplication AddInMemoryTokenCache(
             this IConfidentialClientApplication confidentialClientApp)
         {
-            confidentialClientApp = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(confidentialClientApp);
 
             confidentialClientApp.AddTokenCaches(services =>
             {
@@ -151,8 +151,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeMemoryCache)
         {
-            confidentialClientApp = Throws.IfNull(confidentialClientApp);
-            initializeMemoryCache = Throws.IfNull(initializeMemoryCache);
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeMemoryCache);
 
             confidentialClientApp.AddTokenCaches(services =>
             {
@@ -193,8 +193,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeDistributedCache)
         {
-            confidentialClientApp = Throws.IfNull(confidentialClientApp);
-            initializeDistributedCache = Throws.IfNull(initializeDistributedCache);
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeDistributedCache);
 
             confidentialClientApp.AddTokenCaches(services =>
             {
