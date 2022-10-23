@@ -29,10 +29,7 @@ namespace Microsoft.Identity.Web
             string name,
             AuthorizationOptions options)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            _ = Throws.IfNull(options);
 
             options.DefaultPolicy = options.DefaultPolicy is null
                                      ? _defaultPolicy

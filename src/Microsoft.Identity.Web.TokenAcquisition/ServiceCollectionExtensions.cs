@@ -39,10 +39,7 @@ namespace Microsoft.Identity.Web
             this IServiceCollection services,
             bool isTokenAcquisitionSingleton = false)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {

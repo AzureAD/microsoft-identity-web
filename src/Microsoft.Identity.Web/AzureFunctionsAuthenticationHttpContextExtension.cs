@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -24,10 +25,7 @@ namespace Microsoft.Identity.Web
         public static async Task<(bool, IActionResult?)> AuthenticateAzureFunctionAsync(
             this HttpContext httpContext)
         {
-            if (httpContext == null)
-            {
-                throw new ArgumentNullException(nameof(httpContext));
-            }
+            _ = Throws.IfNull(httpContext);
 
             AuthenticateResult result =
                 await httpContext.AuthenticateAsync(Constants.Bearer).ConfigureAwait(false);

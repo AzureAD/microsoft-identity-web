@@ -33,10 +33,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
         {
-            if (cacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(cacheOptions));
-            }
+            _ = Throws.IfNull(cacheOptions);
 
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;

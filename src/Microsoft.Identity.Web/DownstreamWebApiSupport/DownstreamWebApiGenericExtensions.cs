@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -42,10 +43,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                 serviceName,
@@ -82,10 +80,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             string? authenticationScheme = null)
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -128,10 +123,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -173,10 +165,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             string? authenticationScheme = null)
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -219,10 +208,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -262,10 +248,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,

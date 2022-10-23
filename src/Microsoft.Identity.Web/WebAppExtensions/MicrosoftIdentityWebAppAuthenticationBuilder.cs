@@ -35,12 +35,7 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             OpenIdConnectScheme = openIdConnectScheme;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            ConfigureMicrosoftIdentityOptions = Throws.IfNull(configureMicrosoftIdentityOptions);
         }
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }

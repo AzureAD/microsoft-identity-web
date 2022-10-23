@@ -60,10 +60,7 @@ namespace Microsoft.Identity.Web
         /// <param name="credentialDescription">Description of the credential.</param>
         public void LoadCredentialsIfNeeded(CredentialDescription credentialDescription)
         {
-            if (credentialDescription == null)
-            {
-                throw new ArgumentNullException(nameof(credentialDescription));
-            }
+            _ = Throws.IfNull(credentialDescription);
 
             if (credentialDescription.CachedValue == null)
             {

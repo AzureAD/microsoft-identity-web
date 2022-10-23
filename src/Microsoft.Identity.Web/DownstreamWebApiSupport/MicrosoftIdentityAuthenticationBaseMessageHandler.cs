@@ -45,10 +45,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The configured options.</returns>
         protected MicrosoftIdentityAuthenticationMessageHandlerOptions GetOptionsForRequest(HttpRequestMessage request)
         {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+            _ = Throws.IfNull(request);
 
             var options = _serviceName == null
                 ? _namedMessageHandlerOptions.CurrentValue

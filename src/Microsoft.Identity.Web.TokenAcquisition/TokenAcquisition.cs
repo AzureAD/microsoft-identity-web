@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web
             string? codeVerifier,
             string? userFlow)
         {
-            ParametersCheck(scopes);
+            _ = Throws.IfNull(scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out string effectiveAuthenticationScheme);
 
             try
@@ -171,14 +171,6 @@ namespace Microsoft.Identity.Web
             return authenticationScheme;
         }
 
-        private void ParametersCheck(IEnumerable<string> scopes)
-        {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
-        }
-
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             return mergedOptions.Instance! + mergedOptions.ClientId;
@@ -216,7 +208,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            ParametersCheck(scopes);
+            _ = Throws.IfNull(scopes);
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
@@ -320,10 +312,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (string.IsNullOrEmpty(scope))
-            {
-                throw new ArgumentNullException(nameof(scope));
-            }
+            _ = Throws.IfNull(scope);
 
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
             {
@@ -331,7 +320,6 @@ namespace Microsoft.Identity.Web
             }
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
-
 
             if (string.IsNullOrEmpty(tenant))
             {
@@ -820,10 +808,7 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            _ = Throws.IfNull(scopes);
 
             var builder = application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)

@@ -69,8 +69,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeCaches)
         {
-            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
-            _ = initializeCaches ?? throw new ArgumentNullException(nameof(initializeCaches));
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeCaches);
 
             // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
             var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, _ =>
@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web
         public static IConfidentialClientApplication AddInMemoryTokenCache(
             this IConfidentialClientApplication confidentialClientApp)
         {
-            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
+            _ = Throws.IfNull(confidentialClientApp);
 
             confidentialClientApp.AddTokenCaches(services =>
             {
@@ -151,8 +151,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeMemoryCache)
         {
-            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
-            _ = initializeMemoryCache ?? throw new ArgumentNullException(nameof(initializeMemoryCache));
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeMemoryCache);
 
             confidentialClientApp.AddTokenCaches(services =>
             {
@@ -193,8 +193,8 @@ namespace Microsoft.Identity.Web
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeDistributedCache)
         {
-            _ = confidentialClientApp ?? throw new ArgumentNullException(nameof(confidentialClientApp));
-            _ = initializeDistributedCache ?? throw new ArgumentNullException(nameof(initializeDistributedCache));
+            _ = Throws.IfNull(confidentialClientApp);
+            _ = Throws.IfNull(initializeDistributedCache);
 
             confidentialClientApp.AddTokenCaches(services =>
             {

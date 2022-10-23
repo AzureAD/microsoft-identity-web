@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -45,10 +46,7 @@ namespace Microsoft.Identity.Web
         /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
         public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            _ = Throws.IfNull(options);
 
             options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
             options.OnAppendCookie = cookieContext =>

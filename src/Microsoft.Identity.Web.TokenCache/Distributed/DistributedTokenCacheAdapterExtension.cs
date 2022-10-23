@@ -18,10 +18,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         public static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.AddDistributedMemoryCache();
             services.AddSingleton<IMsalTokenCacheProvider, MsalDistributedTokenCacheAdapter>();

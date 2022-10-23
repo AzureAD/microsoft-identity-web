@@ -50,10 +50,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IServiceProvider? serviceProvider = null)
             : base(GetDataProtector(distributedCacheOptions, serviceProvider), logger)
         {
-            if (distributedCacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(distributedCacheOptions));
-            }
+            _ = Throws.IfNull(distributedCacheOptions);
 
             _distributedCache = distributedCache;
             _distributedCacheOptions = distributedCacheOptions.Value;
@@ -80,10 +77,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
             IServiceProvider? serviceProvider)
         {
-            if (distributedCacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(distributedCacheOptions));
-            }
+            _ = Throws.IfNull(distributedCacheOptions);
 
             if (serviceProvider != null && distributedCacheOptions.Value.Encrypt)
             {

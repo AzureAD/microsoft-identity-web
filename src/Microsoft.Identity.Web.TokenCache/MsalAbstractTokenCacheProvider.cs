@@ -47,10 +47,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
         public void Initialize(ITokenCache tokenCache)
         {
-            if (tokenCache == null)
-            {
-                throw new ArgumentNullException(nameof(tokenCache));
-            }
+            _ = Throws.IfNull(tokenCache);
 
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
