@@ -65,6 +65,17 @@ namespace Microsoft.Identity.Web
             mergedOptions.BackchannelHttpHandler ??= microsoftIdentityOptions.BackchannelHttpHandler;
             mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             mergedOptions.CallbackPath = microsoftIdentityOptions.CallbackPath;
+
+            mergedOptions.ClaimActions.Clear();
+
+            foreach (var claimAction in microsoftIdentityOptions.ClaimActions)
+            {
+                if (!mergedOptions.ClaimActions.Contains(claimAction))
+                {
+                    mergedOptions.ClaimActions.Add(claimAction);
+                }
+            }
+            
             if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClaimsIssuer))
             {
                 mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
