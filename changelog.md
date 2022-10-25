@@ -1,3 +1,10 @@
+1.25.4
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
+
 1.25.3
 ==========
 - Update to latest IdentityModel 6.23.1, which has 20% perf improvements.
