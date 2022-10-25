@@ -95,9 +95,9 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>3.1.18</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>3.1.18</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>3.0.0</MicrosoftAspNetCoreDataProtectionVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>3.0.0</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsLoggingVersion>3.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>3.1.30</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>3.1.30</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsLoggingVersion>3.1.30</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
