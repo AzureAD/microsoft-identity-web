@@ -38,8 +38,8 @@ namespace Microsoft.Identity.Web
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scopes,
+                downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
                 downstreamApiOptions?.TokenAcquirerOptions.Tenant,
-                downstreamApiOptions?.TokenAcquirerOptions.UserFlow,
                 CreateTokenAcquisitionOptionsFromRestApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
         }

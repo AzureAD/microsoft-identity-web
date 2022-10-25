@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 //#define UseMicrosoftGraphSdk
 
+using System.Text;
+using Daemon_app;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
@@ -31,6 +33,9 @@ namespace daemon_console
             // Add a cache
             services.AddDistributedTokenCaches();
 
+            // Documentation
+            Mermaid.DisplayMermaidOfDiGraph(services);
+
             var serviceProvider = tokenAcquirerFactory.Build();
 
 #if UseMicrosoftGraphSdk
@@ -44,7 +49,7 @@ namespace daemon_console
 #else
             // Call downstream web API
             var downstreamRestApi = serviceProvider.GetRequiredService<IDownstreamRestApi>();
-            var httpResponseMessage = await downstreamRestApi.CallRestApiForAppAsync("GraphBeta", options => 
+            var httpResponseMessage = await downstreamRestApi.CallRestApiForAppAsync("GraphBeta", options =>
             {
                 options.BaseUrl = "https://graph.microsoft.com/beta";
                 options.Scopes = new string[] { "https://graph.microsoft.com/.default" };
@@ -58,7 +63,7 @@ namespace daemon_console
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
-            Console.WriteLine(authorizationHeader.Substring(0, authorizationHeader.IndexOf(" ")+4)+"...");
+            Console.WriteLine(authorizationHeader.Substring(0, authorizationHeader.IndexOf(" ") + 4) + "...");
 #endif
         }
     }
