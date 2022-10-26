@@ -36,7 +36,7 @@ Detailed released notes [here](https://github.com/AzureAD/microsoft-identity-web
 
 1.25.4
 ==========
-- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf, CVE-2022-34716 for netcoreapp3.1, CVE-2021-24112 in System.Drawing.Common.
 
 ### Bug Fix:
 - [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
