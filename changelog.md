@@ -1,3 +1,16 @@
+2.0.4-preview
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1
+
+### New Features:
+- Add support for [private keys in certificates](https://github.com/AzureAD/microsoft-identity-web/pull/1923).
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
+
+### Perf improvements:
+- [Use Throws.cs from R9](https://github.com/AzureAD/microsoft-identity-web/pull/1928), [use high-perf logging for new log messages](https://github.com/AzureAD/microsoft-identity-web/pull/1927), [take suggestions from R9 analyzers](https://github.com/AzureAD/microsoft-identity-web/pull/1924).
+
 2.0.3-preview
 ==========
 ### New Features:
