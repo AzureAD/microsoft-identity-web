@@ -1,6 +1,6 @@
 2.0.4-preview
 ==========
-- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1, cve-2022-29117 for OWIN.
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1, cve-2022-29117 for OWIN and cve-2021-24112 for data protection.
 
 ### New Features:
 - Add support for [private keys in certificates](https://github.com/AzureAD/microsoft-identity-web/pull/1923).
