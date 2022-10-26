@@ -28,9 +28,9 @@
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage" Version="5.2.7" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.5.0" />
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.1" />
-    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.1" />
-    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.1" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
