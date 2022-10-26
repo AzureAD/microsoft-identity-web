@@ -78,6 +78,8 @@
     <AzureSecurityKeyVaultCertificatesVersion>4.1.0</AzureSecurityKeyVaultCertificatesVersion>
     <MicrosoftGraphVersion>4.34.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.50.0-preview</MicrosoftGraphBetaVersion>
+    <!--CVE-2021-24112-->
+    <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net5.0'">
