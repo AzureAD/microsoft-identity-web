@@ -77,6 +77,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamRestApi'
     AssemblyName: 'Microsoft.Identity.Web.DownstreamRestApi*'
 
+# Pack and sign Microsoft.Identity.Web.Diagnostics
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Diagnostics'
+    AssemblyName: 'Microsoft.Identity.Web.Diagnostics*'
+
 # Pack and sign Microsoft.Identity.Web.ProjectTemplates
 - template: template-pack-and-sign-nuget.yaml
   parameters:
