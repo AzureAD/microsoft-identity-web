@@ -1,15 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Globalization;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web 
 {
-    internal class StoreWithThumbprintCertificateLoader : ICredentialLoader
+    internal sealed class StoreWithThumbprintCertificateLoader : ICredentialLoader
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithThumbprint;
 

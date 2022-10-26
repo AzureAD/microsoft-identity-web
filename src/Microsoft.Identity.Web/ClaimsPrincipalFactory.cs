@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web
         public static ClaimsPrincipal FromTenantIdAndObjectId(string tenantId, string objectId)
         {
             return new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimConstants.UniqueTenantIdentifier, tenantId),
                     new Claim(ClaimConstants.UniqueObjectIdentifier, objectId),

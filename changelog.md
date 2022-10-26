@@ -1,3 +1,14 @@
+2.0.3-preview
+==========
+### New Features:
+- Leverage new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) library, version 1.0.0-preview.
+
+### Bug fixes:
+- Bug fixes in the credential loader to use the cached value and make `LoadCredentialsIfNeeded` public.
+- Integrate `TokenAcquirerFactory` with ASP NET core.
+- Add `ClientSecret` to Owin config #1911.
+- Finish the E2E for Owin.
+
 2.0.2-preview
 ==========
 ### New Features:
@@ -9,6 +20,13 @@ Leverages new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/micro
 2.0.0-preview
 ==========
 Detailed released notes [here](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0).
+
+1.25.4
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
 
 1.25.3
 ==========

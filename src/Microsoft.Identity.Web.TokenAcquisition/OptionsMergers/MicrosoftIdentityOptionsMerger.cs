@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MicrosoftIdentityOptionsMerger : IPostConfigureOptions<MicrosoftIdentityOptions>
+    internal sealed class MicrosoftIdentityOptionsMerger : IPostConfigureOptions<MicrosoftIdentityOptions>
     {
         public MicrosoftIdentityOptionsMerger(IOptionsMonitor<MergedOptions> mergedOptions)
         {

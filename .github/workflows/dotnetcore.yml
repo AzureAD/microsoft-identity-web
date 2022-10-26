@@ -1,6 +1,16 @@
 name: .NET Core
 
-on: [push]
+on:
+  push:
+    branches:
+      - "master"
+      - "rel/v2"
+  pull_request:
+    branches:
+      - "master"
+      - "rel/v2"
+    paths:
+      - ".github/workflows/dotnetcore.yml"
 
 jobs:
   build:

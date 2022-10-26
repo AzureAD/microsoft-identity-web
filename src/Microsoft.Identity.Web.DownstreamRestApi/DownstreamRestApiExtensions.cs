@@ -26,10 +26,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.Configure<DownstreamRestApiOptions>(serviceName, configuration);
             services.AddScoped<IDownstreamRestApi, DownstreamRestApi>();
@@ -49,10 +46,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<DownstreamRestApiOptions> configureOptions)
         {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.Configure<DownstreamRestApiOptions>(serviceName, configureOptions);
 

@@ -3,9 +3,6 @@
 
 using System;
 using System.Linq;
-#if !NETSTANDARD2_0 && !NET462 && !NET472
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -42,10 +39,7 @@ namespace Microsoft.Identity.Web
             this IServiceCollection services,
             bool isTokenAcquisitionSingleton = false)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {

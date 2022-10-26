@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.JsonWebTokens;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -138,10 +139,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The ID Token.</returns>
         internal static string? GetIdToken(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdTokenHeader, out var idToken);
 
@@ -161,10 +159,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The IDP.</returns>
         internal static string? GetIdp(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdpTokenHeader, out var idp);
 #if DEBUG

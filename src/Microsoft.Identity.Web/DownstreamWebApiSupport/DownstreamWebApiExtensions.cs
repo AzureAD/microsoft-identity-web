@@ -25,10 +25,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configuration);
             builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
@@ -48,10 +45,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<DownstreamWebApiOptions> configureOptions)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configureOptions);
 

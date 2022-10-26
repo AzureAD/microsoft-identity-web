@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
                 {
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);
                     AuthenticateResult success = AuthenticateResult.Success(ticket);
-                    return Task<AuthenticateResult>.FromResult<AuthenticateResult>(success);
+                    return Task.FromResult(success);
                 }
             }
 

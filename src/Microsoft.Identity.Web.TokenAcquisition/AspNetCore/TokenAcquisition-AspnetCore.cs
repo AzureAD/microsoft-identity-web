@@ -12,9 +12,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using Microsoft.AspNetCore.Server.HttpSys;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Abstractions;
@@ -23,7 +20,7 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 
 namespace Microsoft.Identity.Web
 {
-    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirerFactory
+    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirerFactory
     {
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -79,8 +76,9 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
             HttpResponse? httpResponse = null)
         {
-            // A user interaction is required, but we are in a web API, and therefore, we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
-            string proposedAction = Constants.Consent;
+            // A user interaction is required, but we are in a web API, and therefore,
+            // we need to report back to the client through a 'WWW-Authenticate' header https://tools.ietf.org/html/rfc6750#section-3.1
+            const string proposedAction = Constants.Consent;
             if (msalServiceException.ErrorCode == MsalError.InvalidGrantError && AcceptedTokenVersionMismatch(msalServiceException))
             {
                 throw msalServiceException;
@@ -142,17 +140,9 @@ namespace Microsoft.Identity.Web
         public async Task AddAccountToCacheFromAuthorizationCodeAsync(
             AuthorizationCodeReceivedContext context,
             IEnumerable<string> scopes,
-            string authenticationScheme /*= OpenIdConnectDefaults.AuthenticationScheme*/)
+            string authenticationScheme = OpenIdConnectDefaults.AuthenticationScheme /*= OpenIdConnectDefaults.AuthenticationScheme*/)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            CheckParameters(context, scopes);
 
             string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
             context.TokenEndpointRequest.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
@@ -163,37 +153,36 @@ namespace Microsoft.Identity.Web
             context.HandleCodeRedemption(null, idToken);
         }
 
-        TokenAcquirerFactory_GetTokenAcquirers implementation;
+        TokenAcquirerFactory_GetTokenAcquirers _implementation;
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region)
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            }
-            return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
+            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
+            return _implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationIdentityOptions)
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            }
-            return implementation.GetTokenAcquirer(applicationIdentityOptions);
+            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
+            return _implementation.GetTokenAcquirer(applicationIdentityOptions);
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string optionName = "")
         {
-            if (implementation == null)
-            {
-                implementation = new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            }
+            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
             string effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(optionName);
-            return implementation.GetTokenAcquirer(effectiveAuthenticationScheme);
+            return _implementation.GetTokenAcquirer(effectiveAuthenticationScheme);
+        }
+
+        private void CheckParameters(
+            AuthorizationCodeReceivedContext context,
+            IEnumerable<string> scopes)
+        {
+            _ = Throws.IfNull(context);
+            _ = Throws.IfNull(scopes);
         }
     }
 }

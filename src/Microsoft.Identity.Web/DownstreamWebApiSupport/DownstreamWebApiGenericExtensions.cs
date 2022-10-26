@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -42,19 +43,53 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                 serviceName,
                 authenticationScheme,
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
-                user,
-                null).ConfigureAwait(false);
+                user).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Call a web API with a strongly typed input, with an HttpGet.
+        /// </summary>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="downstreamWebApi">The downstream web API.</param>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="inputData">Input data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
+        public static async Task GetForUserAsync<TInput>(
+            this IDownstreamWebApi downstreamWebApi,
+            string serviceName,
+            TInput inputData,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
+        {
+            _ = Throws.IfNull(downstreamWebApi);
+
+            using StringContent? input = ConvertFromInput(inputData);
+
+            await downstreamWebApi.CallWebApiForUserAsync(
+             serviceName,
+             authenticationScheme,
+             downstreamWebApiOptionsOverride,
+             user,
+             input).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -88,10 +123,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -133,10 +165,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             string? authenticationScheme = null)
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -179,10 +208,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -222,60 +248,15 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
               authenticationScheme,
               downstreamWebApiOptionsOverride,
-              user,
-              null).ConfigureAwait(false);
+              user).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Call a web API with a strongly typed input, with an HttpGet.
-        /// </summary>
-        /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="downstreamWebApi">The downstream web API.</param>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
-        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-        /// needs to be set.</param>
-        /// <param name="inputData">Input data.</param>
-        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
-        /// by <paramref name="serviceName"/>.</param>
-        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
-        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
-        /// will find the user from the HttpContext.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public static async Task GetForUserAsync<TInput>(
-            this IDownstreamWebApi downstreamWebApi,
-            string serviceName,
-            TInput inputData,
-            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
-        {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
-
-            using StringContent? input = ConvertFromInput(inputData);
-
-            await downstreamWebApi.CallWebApiForUserAsync(
-             serviceName,
-             authenticationScheme,
-             downstreamWebApiOptionsOverride,
-             user,
-             input).ConfigureAwait(false);
         }
 
         private static StringContent ConvertFromInput<TInput>(TInput input)

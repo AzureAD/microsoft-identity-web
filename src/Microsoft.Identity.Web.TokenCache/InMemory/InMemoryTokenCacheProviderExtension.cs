@@ -17,10 +17,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         public static IServiceCollection AddInMemoryTokenCaches(
             this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.AddMemoryCache();
             services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();

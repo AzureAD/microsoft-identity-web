@@ -25,10 +25,8 @@ namespace Microsoft.Identity.Web
         /// <param name="credentialDescription"></param>
         public CertificateDescription(CredentialDescription credentialDescription)
         {
-            if (credentialDescription is null)
-            {
-                throw new ArgumentNullException(nameof(credentialDescription));
-            }
+            _ = Throws.IfNull(credentialDescription);
+
             // TODO: Check credentialDescription is really a cert
             SourceType = (CertificateSource)credentialDescription.SourceType;
             Container = credentialDescription.Container;
@@ -79,6 +77,22 @@ namespace Microsoft.Identity.Web
             {
                 SourceType = CertificateSource.Base64Encoded,
                 Base64EncodedValue = base64EncodedValue,
+            };
+        }
+
+        /// <summary>
+        /// Creates a certificate description from a Base64 encoded value.
+        /// </summary>
+        /// <param name="base64EncodedValue">Base64 encoded certificate value.</param>
+        /// <param name="password">The password to use when decoding the certificate.</param>
+        /// <returns>A certificate description.</returns>
+        public static CertificateDescription FromBase64Encoded(string base64EncodedValue, string password)
+        {
+            return new CertificateDescription
+            {
+                SourceType = CertificateSource.Base64Encoded,
+                Base64EncodedValue = base64EncodedValue,
+                CertificatePassword = password
             };
         }
 

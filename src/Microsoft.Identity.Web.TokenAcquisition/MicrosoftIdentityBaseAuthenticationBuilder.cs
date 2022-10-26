@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     /// Base class for web app and web API Microsoft Identity authentication
     /// builders.
     /// </summary>
-    public abstract class MicrosoftIdentityBaseAuthenticationBuilder
+    public class MicrosoftIdentityBaseAuthenticationBuilder
     {
         /// <summary>
         /// Constructor.

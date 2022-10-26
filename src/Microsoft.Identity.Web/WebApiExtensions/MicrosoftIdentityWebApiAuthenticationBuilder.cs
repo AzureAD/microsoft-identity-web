@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Internal;
 
@@ -36,27 +35,13 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             JwtBearerAuthenticationScheme = jwtBearerAuthenticationScheme;
-            ConfigureJwtBearerOptions = configureJwtBearerOptions;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
-
-            if (ConfigureJwtBearerOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(configureJwtBearerOptions);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             Services.Configure(jwtBearerAuthenticationScheme, configureMicrosoftIdentityOptions);
         }
 
-        private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
-
         private string JwtBearerAuthenticationScheme { get; set; }
-
-        private Action<JwtBearerOptions> ConfigureJwtBearerOptions { get; set; }
 
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -66,10 +51,7 @@ namespace Microsoft.Identity.Web
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
+            _ = Throws.IfNull(configureConfidentialClientApplicationOptions);
 
             CallsWebApiImplementation(
                 Services,

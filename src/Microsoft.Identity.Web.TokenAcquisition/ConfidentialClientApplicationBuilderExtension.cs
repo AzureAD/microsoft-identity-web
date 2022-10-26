@@ -13,9 +13,12 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
-    internal static class ConfidentialClientApplicationBuilderExtension
+    internal static partial class ConfidentialClientApplicationBuilderExtension
     {
-        public static ConfidentialClientApplicationBuilder WithClientCredentials(this ConfidentialClientApplicationBuilder builder, IEnumerable<CredentialDescription> clientCredentials, ILogger logger)
+        public static ConfidentialClientApplicationBuilder WithClientCredentials(
+            this ConfidentialClientApplicationBuilder builder,
+            IEnumerable<CredentialDescription> clientCredentials,
+            ILogger logger)
         {
             foreach (var credential in clientCredentials)
             {
@@ -39,19 +42,16 @@ namespace Microsoft.Identity.Web
                         catch (AuthenticationFailedException ex)
                         {
                             credential.Skip = true;
-                            logger.LogInformation($"Not using Managed identity for client credentials + {ex.Message}. ");
+                            Logger.NotUsingManagedIdentity(logger, ex.Message);
                             continue;
                         }
-                        logger.LogInformation("Using Managed identity as client credentials. ");
+                        Logger.UsingManagedIdentity(logger);
                         return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
                     }
                     if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                     {
-                        if (credential.CachedValue == null)
-                        {
-                            credential.CachedValue = new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
-                        }
-                        logger.LogInformation($"Using Pod identity file {credential.SignedAssertionFileDiskPath} as client credentials. ");
+                        credential.CachedValue ??= new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
+                        Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
                         return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
                     }
 
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
                                     IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
                                     nameof(clientCredentials));
                             }
-                            logger.LogInformation($"Using certificate Thumbprint={certificate.Thumbprint} as client credentials. ");
+                            Logger.UsingCertThumbprint(logger, certificate.Thumbprint);
                             return builder.WithCertificate(certificate);
                         }
                     }

@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -69,10 +70,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 
         private static IServiceCollection CreateSessionTokenCache(IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.AddHttpContextAccessor();
             services.AddSession(option =>

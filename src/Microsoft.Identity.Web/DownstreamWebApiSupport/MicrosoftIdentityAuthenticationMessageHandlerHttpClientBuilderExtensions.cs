@@ -26,10 +26,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateUserHandler(serviceName));
@@ -49,10 +46,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure(serviceName, configureOptions);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateUserHandler(serviceName));
@@ -72,10 +66,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateAppHandler(serviceName));
@@ -95,10 +86,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure(serviceName, configureOptions);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateAppHandler(serviceName));

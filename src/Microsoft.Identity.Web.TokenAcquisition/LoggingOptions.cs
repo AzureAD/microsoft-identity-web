@@ -6,7 +6,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// LoggingOptions class for passing in Identity specific logging options.
     /// </summary>
-    internal class LoggingOptions
+    internal sealed class LoggingOptions
     {
         /// <summary>
         /// Enable Pii Logging from configuration.

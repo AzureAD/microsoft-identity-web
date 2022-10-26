@@ -10,12 +10,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
@@ -30,7 +27,7 @@ namespace Microsoft.Identity.Web
     /// Token acquisition service.
     /// </summary>
 #if NETSTANDARD2_0 || NET462 || NET472
-    internal partial class TokenAcquisition : ITokenAcquisition, ITokenAcquisitionInternal
+    internal partial class TokenAcquisition : ITokenAcquisitionInternal
 #else
     internal partial class TokenAcquisition
 #endif
@@ -41,7 +38,6 @@ namespace Microsoft.Identity.Web
             public static readonly string CodeVerifierKey = "code_verifier";
         }
 #endif
-
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -59,8 +55,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
         /// </summary>
-        private readonly string[] _scopesRequestedByMsal = new string[]
-        {
+        private readonly string[] _scopesRequestedByMsal = new[] {
             OidcConstants.ScopeOpenId,
             OidcConstants.ScopeProfile,
             OidcConstants.ScopeOfflineAccess,
@@ -69,7 +64,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Meta-tenant identifiers which are not allowed in client credentials.
         /// </summary>
-        private readonly ISet<string> _metaTenantIdentifiers = new HashSet<string>(
+        private readonly HashSet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
                 Constants.Common,
@@ -101,12 +96,15 @@ namespace Microsoft.Identity.Web
             _tokenAcquisitionHost = tokenAcquisitionHost;
         }
 
-        public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(IEnumerable<string> scopes, string authCode, string authenticationScheme, string? clientInfo, string? codeVerifier, string? userFlow)
+        public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(
+            IEnumerable<string> scopes,
+            string authCode,
+            string authenticationScheme,
+            string? clientInfo,
+            string? codeVerifier,
+            string? userFlow)
         {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            _ = Throws.IfNull(scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out string effectiveAuthenticationScheme);
 
             try
@@ -210,10 +208,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            _ = Throws.IfNull(scopes);
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
@@ -258,7 +253,13 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                return await GetAuthenticationResultForUserAsync(scopes, tenantId: tenantId, userFlow: userFlow, user: user, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+                return await GetAuthenticationResultForUserAsync(
+                    scopes,
+                    authenticationScheme: authenticationScheme,
+                    tenantId: tenantId,
+                    userFlow: userFlow,
+                    user: user,
+                    tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -311,10 +312,7 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (string.IsNullOrEmpty(scope))
-            {
-                throw new ArgumentNullException(nameof(scope));
-            }
+            _ = Throws.IfNull(scope);
 
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
             {
@@ -322,7 +320,6 @@ namespace Microsoft.Identity.Web
             }
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
-
 
             if (string.IsNullOrEmpty(tenant))
             {
@@ -338,7 +335,7 @@ namespace Microsoft.Identity.Web
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
             var builder = application
-                   .AcquireTokenForClient(new string[] { scope }.Except(_scopesRequestedByMsal))
+                   .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C)
                    .WithTenantId(tenant);
 
@@ -385,7 +382,11 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                return GetAuthenticationResultForAppAsync(scope, tenant: tenant, tokenAcquisitionOptions: tokenAcquisitionOptions);
+                return GetAuthenticationResultForAppAsync(
+                    scope,
+                    authenticationScheme: authenticationScheme,
+                    tenant: tenant,
+                    tokenAcquisitionOptions: tokenAcquisitionOptions);
             }
             finally
             {
@@ -473,7 +474,7 @@ namespace Microsoft.Identity.Web
         /// <returns>A <see cref="Task"/> that represents a completed account removal operation.</returns>
         public async Task RemoveAccountAsync(
             ClaimsPrincipal user,
-            string? authenticationScheme)
+            string? authenticationScheme = null)
         {
             string? userId = user.GetMsalAccountId();
             if (!string.IsNullOrEmpty(userId))
@@ -634,7 +635,7 @@ namespace Microsoft.Identity.Web
                     else
                     {
                         string? sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey;
-                        if (sessionKey == TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto)
+                        if (sessionKey == Abstractions.AcquireTokenOptions.LongRunningWebApiSessionKeyAuto)
                         {
                             sessionKey = null;
                         }
@@ -807,10 +808,7 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            if (scopes == null)
-            {
-                throw new ArgumentNullException(nameof(scopes));
-            }
+            _ = Throws.IfNull(scopes);
 
             var builder = application
                     .AcquireTokenSilent(scopes.Except(_scopesRequestedByMsal), account)
@@ -900,8 +898,6 @@ namespace Microsoft.Identity.Web
                     break;
                 case Client.LogLevel.Verbose:
                     _logger.LogDebug(message);
-                    break;
-                default:
                     break;
             }
         }

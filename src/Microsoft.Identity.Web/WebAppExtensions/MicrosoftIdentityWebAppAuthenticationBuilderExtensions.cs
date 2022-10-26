@@ -11,12 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
-using Microsoft.IdentityModel.Abstractions;
-using Microsoft.IdentityModel.LoggingExtensions;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Linq;
 
@@ -25,7 +21,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for the <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
-    public static partial class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
+    public static class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add authentication to a web app with Microsoft identity platform.
@@ -88,15 +84,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configurationSection == null)
-            {
-                throw new ArgumentException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configurationSection);
 
             return builder.AddMicrosoftIdentityWebAppWithConfiguration(
                 options => configurationSection.Bind(options),
@@ -128,10 +117,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             return builder.AddMicrosoftWebAppWithoutConfiguration(
                 configureMicrosoftIdentityOptions,
@@ -233,15 +219,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
             string? displayName)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {

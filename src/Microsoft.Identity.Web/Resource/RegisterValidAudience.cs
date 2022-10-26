@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Resource
@@ -21,10 +22,7 @@ namespace Microsoft.Identity.Web.Resource
             TokenValidationParameters validationParameters,
             MicrosoftIdentityOptions microsoftIdentityOptions)
         {
-            if (validationParameters == null)
-            {
-                throw new ArgumentNullException(nameof(validationParameters));
-            }
+            _ = Throws.IfNull(validationParameters);
 
             ClientId = microsoftIdentityOptions.ClientId;
             IsB2C = microsoftIdentityOptions.IsB2C;

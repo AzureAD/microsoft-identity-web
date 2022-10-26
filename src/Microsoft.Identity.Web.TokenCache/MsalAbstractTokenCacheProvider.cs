@@ -47,10 +47,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
         public void Initialize(ITokenCache tokenCache)
         {
-            if (tokenCache == null)
-            {
-                throw new ArgumentNullException(nameof(tokenCache));
-            }
+            _ = Throws.IfNull(tokenCache);
 
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
@@ -104,7 +101,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return msalBytes!;
         }
 
-        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
+        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints 
+        { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {

@@ -256,7 +256,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             var tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
-                _provider.GetService<ILogger<TokenAcquisition>>(),
                 _provider);
             _tokenAcquisition = new TokenAcquisitionAspNetCore(
                  _msalTestTokenCacheProvider,

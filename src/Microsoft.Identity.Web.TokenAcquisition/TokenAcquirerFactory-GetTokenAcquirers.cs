@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal class TokenAcquirerFactory_GetTokenAcquirers
+    internal sealed class TokenAcquirerFactory_GetTokenAcquirers
     {
         public TokenAcquirerFactory_GetTokenAcquirers(IServiceProvider serviceProvider)
         {
@@ -18,10 +17,14 @@ namespace Microsoft.Identity.Web
         }
         private IServiceProvider ServiceProvider { get; set; }
 
-        readonly IDictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
+        readonly Dictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = null)
+        public ITokenAcquirer GetTokenAcquirer(
+            string authority,
+            string clientId,
+            IEnumerable<CredentialDescription> clientCredentials,
+            string? region = null)
         {
             CheckServiceProviderNotNull();
 
@@ -30,7 +33,7 @@ namespace Microsoft.Identity.Web
             string key = GetKey(authority, clientId);
             if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
-                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions()
+                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
                 {
                     ClientId = clientId,
                     Authority = authority,
@@ -50,21 +53,10 @@ namespace Microsoft.Identity.Web
             return tokenAcquirer;
         }
 
-        private void CheckServiceProviderNotNull()
-        {
-            if (ServiceProvider == null)
-            {
-                throw new ArgumentOutOfRangeException("You need to call ITokenAcquirerFactory.Build() before using GetTokenAcquirer.");
-            }
-        }
-
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationAuthenticationOptions)
         {
-            if (applicationAuthenticationOptions is null)
-            {
-                throw new ArgumentNullException(nameof(applicationAuthenticationOptions));
-            }
+            _ = Throws.IfNull(applicationAuthenticationOptions);
 
             CheckServiceProviderNotNull();
 
@@ -112,6 +104,14 @@ namespace Microsoft.Identity.Web
             }
             return acquirer;
         }
+        private void CheckServiceProviderNotNull()
+        {
+            if (ServiceProvider == null)
+            {
+                throw new ArgumentOutOfRangeException("You need to call ITokenAcquirerFactory.Build() before using GetTokenAcquirer.");
+            }
+        }
+
 
         private static string GetKey(string? authority, string? clientId)
         {
