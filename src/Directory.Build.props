@@ -72,7 +72,6 @@
     <IdentityModelVersion>6.23.1</IdentityModelVersion>
     <MicrosoftIdentityClientVersion>4.46.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
-    <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.1.0</AzureSecurityKeyVaultSecretsVersion>
     <AzureIdentityVersion>1.3.0</AzureIdentityVersion>
     <AzureSecurityKeyVaultCertificatesVersion>4.1.0</AzureSecurityKeyVaultCertificatesVersion>
@@ -82,7 +81,7 @@
     <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net5.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
@@ -94,12 +93,25 @@
     <SystemTextEncodingsWebVersion>5.0.1</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462'">
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>5.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>5.0.8</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
+    <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>3.1.18</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>3.1.18</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>3.1.30</MicrosoftAspNetCoreDataProtectionVersion>
     <MicrosoftExtensionsCachingMemoryVersion>3.1.30</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsLoggingVersion>3.1.30</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>4.5.1</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

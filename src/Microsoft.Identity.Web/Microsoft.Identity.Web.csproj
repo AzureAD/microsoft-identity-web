@@ -30,7 +30,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
     <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommon)" />
   </ItemGroup>
 
