@@ -1,3 +1,7 @@
+1.25.5
+==========
+- Update to latest IdentityModel 6.25.0
+
 1.25.4
 ==========
 - Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf, CVE-2022-34716 for netcoreapp3.1, CVE-2021-24112 in System.Drawing.Common.
