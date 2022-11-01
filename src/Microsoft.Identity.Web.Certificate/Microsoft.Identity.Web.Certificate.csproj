@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

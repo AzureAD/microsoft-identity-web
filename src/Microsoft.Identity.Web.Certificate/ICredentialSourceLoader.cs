@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Identity.Abstractions;
-
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
-    /// Interface to implement loading of credentials.
+    /// Interface to implement to load credentials, for instance certificates.
     /// </summary>
-    public interface ICredentialLoader
+    public interface ICredentialSourceLoader
     {
         /// <summary>
         /// Load the credential from the description, if needed.

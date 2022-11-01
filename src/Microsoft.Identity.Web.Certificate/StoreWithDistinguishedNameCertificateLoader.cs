@@ -6,7 +6,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class StoreWithDistinguishedNameCertificateLoader : ICredentialLoader
+    internal sealed class StoreWithDistinguishedNameCertificateLoader : ICredentialSourceLoader
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithDistinguishedName;
 

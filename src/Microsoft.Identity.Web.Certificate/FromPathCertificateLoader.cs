@@ -6,7 +6,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class FromPathCertificateLoader : ICredentialLoader
+    internal sealed class FromPathCertificateLoader : ICredentialSourceLoader
     {
         public CredentialSource CredentialSource => CredentialSource.Path;
 

@@ -6,7 +6,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web 
 {
-    internal sealed class StoreWithThumbprintCertificateLoader : ICredentialLoader
+    internal sealed class StoreWithThumbprintCertificateLoader : ICredentialSourceLoader
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithThumbprint;
 
