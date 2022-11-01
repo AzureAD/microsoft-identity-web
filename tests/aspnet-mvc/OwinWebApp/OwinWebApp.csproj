@@ -166,13 +166,13 @@
       <Version>3.2.11</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb">
-      <Version>4.2.1</Version>
+      <Version>4.2.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Security.Cookies">
-      <Version>4.2.1</Version>
+      <Version>4.2.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect">
-      <Version>4.2.1</Version>
+      <Version>4.2.2</Version>
     </PackageReference>
     <PackageReference Include="Modernizr">
       <Version>2.8.3</Version>
