@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Certificate;
 
@@ -16,7 +17,7 @@ namespace Microsoft.Identity.Web
         /// Dictionary of credential loaders per credential source. The application can add more to 
         /// process additional credential sources(like dSMS).
         /// </summary>
-        public IDictionary<CredentialSource, ICredentialSourceLoader> CredentialSourceLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialSourceLoader>
+        public IDictionary<CredentialSource, ICredentialSourceLoader> CredentialSourceLoaders { get; } = new Dictionary<CredentialSource, ICredentialSourceLoader>
         {
             { CredentialSource.KeyVault, new KeyVaultCertificateLoader() },
             { CredentialSource.Path, new FromPathCertificateLoader() },
@@ -29,7 +30,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         /// Load the credentials from the description, if needed.
-        public void LoadCredentialsIfNeeded(CredentialDescription credentialDescription)
+        public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription, bool throwException = false)
         {
             _ = Throws.IfNull(credentialDescription);
 
@@ -37,17 +38,17 @@ namespace Microsoft.Identity.Web
             {
                 if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
                 {
-                    loader.LoadIfNeeded(credentialDescription);
+                    await loader.LoadIfNeededAsync(credentialDescription);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public CredentialDescription? LoadFirstValidCredentials(IEnumerable<CredentialDescription> credentialDescriptions)
+        public async Task<CredentialDescription?> LoadFirstValidCredentialsAsync(IEnumerable<CredentialDescription> credentialDescriptions)
         {
             foreach (var credentialDescription in credentialDescriptions)
             {
-                LoadCredentialsIfNeeded(credentialDescription);
+                await LoadCredentialsIfNeededAsync(credentialDescription);
                 if (!credentialDescription.Skip)
                 {
                     return credentialDescription;

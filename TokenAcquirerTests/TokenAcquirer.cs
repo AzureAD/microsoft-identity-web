@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace TokenAcquirerTests
@@ -131,14 +133,33 @@ namespace TokenAcquirerTests
             services.AddInMemoryTokenCaches();
             var serviceProvider = tokenAcquirerFactory.Build();
             var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftAuthenticationOptions>>().Get(s_optionName);
+            var credentialsLoader= serviceProvider.GetRequiredService<ICredentialsLoader>();
+            await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
             var cert = options.ClientCredentials!.First().Certificate;
 
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default",
-                   new TokenAcquisitionOptions() { PopPublicKey = cert?.GetPublicKeyString() });
+                   new TokenAcquisitionOptions() { PopPublicKey = ComputePublicKeyString(cert) });
             Assert.NotNull(result.AccessToken);
         }
+
+        private string? ComputePublicKeyString(X509Certificate2? certificate)
+        {
+            if (certificate == null)
+            {
+                return null;
+            }
+            // We Create the Pop public key
+            var key = new X509SecurityKey(certificate);
+            string base64EncodedJwk = Base64UrlEncoder.Encode(key.ComputeJwkThumbprint());
+            var reqCnf = $@"{{""kid"":""{base64EncodedJwk}""}}";
+            // 1.4. Base64 encode it again
+            var keyId = Base64UrlEncoder.Encode(reqCnf);
+            return keyId;
+        }
+
+
 
         private static async Task CreateGraphClientAndAssert(TokenAcquirerFactory tokenAcquirerFactory, IServiceCollection services)
         {

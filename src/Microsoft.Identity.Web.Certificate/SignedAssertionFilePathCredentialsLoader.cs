@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using Azure.Identity;
+using System.Threading;
 using Microsoft.Identity.Abstractions;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.Certificate
 {
@@ -10,11 +13,26 @@ namespace Microsoft.Identity.Web.Certificate
     {
         public CredentialSource CredentialSource => CredentialSource.SignedAssertionFilePath;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
         {
             if (credentialDescription.SourceType == CredentialSource.SignedAssertionFilePath)
             {
-                credentialDescription.CachedValue ??= new PodIdentityClientAssertion(credentialDescription.SignedAssertionFileDiskPath);
+                PodIdentityClientAssertion? signedAssertion = credentialDescription.CachedValue as PodIdentityClientAssertion;
+                if (credentialDescription.CachedValue == null)
+                {
+                    signedAssertion = new PodIdentityClientAssertion(credentialDescription.ManagedIdentityClientId);
+                }
+                try
+                {
+                    // Given that managed identity can be not available locally, we need to try to get a
+                    // signed assertion, and if it fails, move to the next credentials
+                    _ = await signedAssertion!.GetSignedAssertion(CancellationToken.None);
+                }
+                catch (Exception)
+                {
+                    credentialDescription.CachedValue = signedAssertion;
+                    credentialDescription.Skip = true;
+                }
             }
         }
     }

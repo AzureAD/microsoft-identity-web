@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
             DefaultCertificateLoader defaultCertificateLoader = new();
             CertificateDescription? certDescription = certificateDescriptions.FirstOrDefault(c =>
             {
-                defaultCertificateLoader.LoadCredentialsIfNeeded(c);
+                defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).GetAwaiter().GetResult();
                 return c.Certificate != null;
             });
 
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web
             {
                 foreach (var certDescription in certificateDescriptions)
                 {
-                    defaultCertificateLoader.LoadCredentialsIfNeeded(certDescription);
+                    defaultCertificateLoader.LoadCredentialsIfNeededAsync(certDescription).GetAwaiter().GetResult();
                     if (certDescription.Certificate != null)
                     {
                         yield return certDescription.Certificate;
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web
         /// <param name="certificateDescription">Description of the certificate.</param>
         public void LoadIfNeeded(CertificateDescription certificateDescription)
         {
-            LoadCredentialsIfNeeded(certificateDescription);
+            LoadCredentialsIfNeededAsync(certificateDescription).GetAwaiter().GetResult();
         }
     }
 }

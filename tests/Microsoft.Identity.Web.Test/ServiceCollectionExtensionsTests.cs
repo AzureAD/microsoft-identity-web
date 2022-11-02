@@ -65,6 +65,13 @@ namespace Microsoft.Identity.Web.Test
                 },
                 actual =>
                 {
+                    Assert.Equal(typeof(ICredentialsLoader), actual.ServiceType);
+                    Assert.Equal(typeof(DefaultCertificateLoader), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                     Assert.Equal(typeof(ITokenAcquirerFactory), actual.ServiceType);
                     Assert.Null(actual.ImplementationType);

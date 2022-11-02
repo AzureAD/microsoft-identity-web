@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using System;
 using Microsoft.Identity.Abstractions;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
 {
@@ -15,9 +16,9 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.KeyVault;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
         {
-            credentialDescription.Certificate = LoadFromKeyVault(
+            credentialDescription.Certificate = await LoadFromKeyVault(
                             credentialDescription.KeyVaultUrl!,
                             credentialDescription.KeyVaultCertificateName!,
                             credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId,
@@ -38,7 +39,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        internal static X509Certificate2? LoadFromKeyVault(
+        internal async static Task<X509Certificate2?> LoadFromKeyVault(
             string keyVaultUrl,
             string certificateName,
             string? managedIdentityClientId,
@@ -53,7 +54,7 @@ namespace Microsoft.Identity.Web
             CertificateClient certificateClient = new(keyVaultUri, credential);
             SecretClient secretClient = new(keyVaultUri, credential);
 
-            KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
+            KeyVaultCertificateWithPolicy certificate = await certificateClient.GetCertificateAsync(certificateName);
 
             if (certificate.Properties.NotBefore == null || certificate.Properties.ExpiresOn == null)
             {

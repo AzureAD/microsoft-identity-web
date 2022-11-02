@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -10,12 +11,13 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithDistinguishedName;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool thowException=false)
         {
             credentialDescription.Certificate = LoadFromStoreWithDistinguishedName(
                             credentialDescription.CertificateDistinguishedName!,
                             credentialDescription.CertificateStorePath!);
             credentialDescription.CachedValue = credentialDescription.Certificate;
+            return Task.CompletedTask;
         }
 
         private static X509Certificate2? LoadFromStoreWithDistinguishedName(

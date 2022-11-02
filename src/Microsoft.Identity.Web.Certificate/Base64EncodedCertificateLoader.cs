@@ -4,6 +4,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System;
 using Microsoft.Identity.Abstractions;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
 {
@@ -11,12 +12,12 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.Base64Encoded;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
         {
             _ = credentialDescription ?? throw new ArgumentNullException(nameof(credentialDescription));
 
             if (credentialDescription.Certificate != null)
-                return;
+                return Task.CompletedTask;
 
             if (string.IsNullOrEmpty(credentialDescription.CertificatePassword))
             {
@@ -33,7 +34,7 @@ namespace Microsoft.Identity.Web
             }
 
             credentialDescription.CachedValue = credentialDescription.Certificate;
-
+            return Task.CompletedTask;
         }
 
         internal static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, X509KeyStorageFlags x509KeyStorageFlags)
