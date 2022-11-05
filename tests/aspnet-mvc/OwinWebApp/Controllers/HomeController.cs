@@ -1,10 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Owin.Security.OpenIdConnect;
 
@@ -17,14 +17,35 @@ namespace OwinWebApp.Controllers
         {
             try
             {
+                // EITHER - Example calling Graph
                 GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
-                var me = await graphServiceClient.Me.Request().GetAsync();
+                var me = await graphServiceClient.Me?.Request().GetAsync();
 
+                // OR - Example calling a downstream directly with the IDownstreamRestApi helper (uses the
+                // authorization header provider, encapsulates MSAL.NET)
+                IDownstreamRestApi downstreamRestApi = this.GetDownstreamRestApi();
+                var result = await downstreamRestApi.CallRestApiForUserAsync("DownstreamAPI");
 
-                // Example getting a token to call a downstream web API
-                ITokenAcquirer tokenAcquirer = TokenAcquirerFactory.GetDefaultInstance().GetTokenAcquirer();
-                var result = await tokenAcquirer.GetTokenForUserAsync(new[] { "user.read" });
+                // OR - Get an authorization header (uses the token acquirer)
+                IAuthorizationHeaderProvider authorizationHeaderProvider =
+                                                          this.GettAuthorizationHeaderProvider();
+                string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                        new[] { "user.read" },
+                        new DownstreamRestApiOptions
+                        {
+                            BaseUrl = "https://graph.microsoft.com/v1.0/me"
+                        });
 
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", authorizationHeader);
+                HttpResponseMessage response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
+
+                // OR - Get a token if an SDK needs it (uses MSAL.NET)
+                ITokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+                ITokenAcquirer acquirer = tokenAcquirerFactory.GetTokenAcquirer();
+                AcquireTokenResult tokenResult = await acquirer.GetTokenForUserAsync(
+                   new[] { "user.read" });
+                string accessToken = tokenResult.AccessToken;
                 // return the item
                 string owner = (HttpContext.User as ClaimsPrincipal).GetDisplayName();
                 ViewBag.Title = owner;

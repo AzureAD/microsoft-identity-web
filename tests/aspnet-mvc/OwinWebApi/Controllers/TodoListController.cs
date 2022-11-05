@@ -20,7 +20,7 @@ namespace OwinWebApi.Controllers
         // GET api/values
         public async Task<IEnumerable<Todo>> Get()
         {
-            // OR - Example calling Graph
+            // EITHER - Example calling Graph
             GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
             var me = await graphServiceClient.Me?.Request().GetAsync();
 
