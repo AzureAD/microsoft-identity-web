@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Certificate;
 
 namespace Microsoft.Identity.Web
 {

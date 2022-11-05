@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Certificate;
 
 namespace Microsoft.Identity.Web
 {

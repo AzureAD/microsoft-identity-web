@@ -10,7 +10,7 @@ using System.Threading;
 using Microsoft.Identity.Abstractions;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Web.Certificate
+namespace Microsoft.Identity.Web
 {
     internal class SignedAssertionFilePathCredentialsLoader : ICredentialSourceLoader
     {
