@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithThumbprint;
 
-        public Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromStoreWithThumbprint(
                             credentialDescription.CertificateThumbprint!,

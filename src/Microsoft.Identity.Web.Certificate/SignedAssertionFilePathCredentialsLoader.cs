@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -13,7 +16,7 @@ namespace Microsoft.Identity.Web.Certificate
     {
         public CredentialSource CredentialSource => CredentialSource.SignedAssertionFilePath;
 
-        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             if (credentialDescription.SourceType == CredentialSource.SignedAssertionFilePath)
             {

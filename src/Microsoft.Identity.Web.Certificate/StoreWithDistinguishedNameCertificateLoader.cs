@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithDistinguishedName;
 
-        public Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool thowException=false)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromStoreWithDistinguishedName(
                             credentialDescription.CertificateDistinguishedName!,

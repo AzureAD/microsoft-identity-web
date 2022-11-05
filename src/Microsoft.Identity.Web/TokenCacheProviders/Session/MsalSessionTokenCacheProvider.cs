@@ -137,6 +137,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             _sessionLock.Dispose();

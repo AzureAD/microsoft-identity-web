@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.Base64Encoded;
 
-        public Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             _ = credentialDescription ?? throw new ArgumentNullException(nameof(credentialDescription));
 

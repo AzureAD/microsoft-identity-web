@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -13,7 +16,7 @@ namespace Microsoft.Identity.Web.Certificate
     {
         public CredentialSource CredentialSource => CredentialSource.SignedAssertionFromManagedIdentity;
 
-        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             if (credentialDescription.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
             {
@@ -26,16 +29,13 @@ namespace Microsoft.Identity.Web.Certificate
                 {
                     // Given that managed identity can be not available locally, we need to try to get a
                     // signed assertion, and if it fails, move to the next credentials
-                    _= await managedIdentityClientAssertion!.GetSignedAssertion(CancellationToken.None);
+                    _ = await managedIdentityClientAssertion!.GetSignedAssertion(CancellationToken.None);
                 }
                 catch (AuthenticationFailedException)
                 {
                     credentialDescription.CachedValue = managedIdentityClientAssertion;
                     credentialDescription.Skip = true;
-                    if (throwExceptions)
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         /// Load the credentials from the description, if needed.
-        public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription, bool throwException = false)
+        public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription)
         {
             _ = Throws.IfNull(credentialDescription);
 

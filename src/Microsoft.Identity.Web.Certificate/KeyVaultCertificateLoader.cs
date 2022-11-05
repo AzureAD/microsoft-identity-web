@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.KeyVault;
 
-        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, bool throwExceptions = false)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = await LoadFromKeyVault(
                             credentialDescription.KeyVaultUrl!,
