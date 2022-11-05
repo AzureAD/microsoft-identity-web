@@ -10,6 +10,9 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class MicrosoftIdentityAuthenticationBaseOptions
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         protected MicrosoftIdentityAuthenticationBaseOptions()
         { }
 

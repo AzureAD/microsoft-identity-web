@@ -12,7 +12,9 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
@@ -51,6 +53,7 @@ namespace Microsoft.Identity.Web
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
+        protected readonly ICredentialsLoader _credentialsLoader;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -82,18 +85,22 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
+        /// <param name="credentialsLoader">Credential loader used to provide the credentials.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             ITokenAcquisitionHost tokenAcquisitionHost,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
+
+            _credentialsLoader = credentialsLoader;
         }
 
         public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(
@@ -573,7 +580,7 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
-                    builder.WithClientCredentials(mergedOptions.ClientCredentials!, _logger);
+                    builder.WithClientCredentials(mergedOptions.ClientCredentials!, _logger, _credentialsLoader);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {

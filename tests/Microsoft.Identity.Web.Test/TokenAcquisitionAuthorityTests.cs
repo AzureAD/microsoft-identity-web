@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -26,9 +27,11 @@ namespace Microsoft.Identity.Web.Test
         private ServiceProvider _provider;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private ICredentialsLoader _credentialsLoader;
 
         private void InitializeTokenAcquisitionObjects()
         {
+            _credentialsLoader = new DefaultCredentialsLoader();
             _tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
                 _provider.GetService<IOptionsMonitor<MergedOptions>>(),
@@ -40,7 +43,8 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<IHttpClientFactory>(),
                 _provider.GetService<ILogger<TokenAcquisition>>(),
                 _tokenAcquisitionAspnetCoreHost,
-                _provider);
+                _provider,
+                _credentialsLoader);
         }
 
         private void BuildTheRequiredServices()

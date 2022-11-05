@@ -2,20 +2,22 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class FromPathCertificateLoader : ICredentialLoader
+    internal sealed class FromPathCertificateLoader : ICredentialSourceLoader
     {
         public CredentialSource CredentialSource => CredentialSource.Path;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromPath(
                            credentialDescription.CertificateDiskPath!,
                            credentialDescription.CertificatePassword!);
             credentialDescription.CachedValue = credentialDescription.Certificate;
+            return Task.CompletedTask;
         }
 
         private static X509Certificate2 LoadFromPath(

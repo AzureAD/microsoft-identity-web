@@ -41,6 +41,11 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(ICredentialsLoader)) == null)
+            {
+                services.AddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
+            }
+
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
@@ -114,7 +119,6 @@ namespace Microsoft.Identity.Web
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }
-
             return services;
         }
     }

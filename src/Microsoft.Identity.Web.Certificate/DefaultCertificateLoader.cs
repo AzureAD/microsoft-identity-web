@@ -24,20 +24,8 @@ namespace Microsoft.Identity.Web
     ///           .Build();
     /// </code></example>
     /// </summary>
-    public class DefaultCertificateLoader : ICertificateLoader
+    public class DefaultCertificateLoader : DefaultCredentialsLoader, ICertificateLoader
     {
-        /// <summary>
-        /// Dictionary of credential loaders per credential source. The application can add more to 
-        /// process additional credential sources(like dSMS).
-        /// </summary>
-        public IDictionary<CredentialSource, ICredentialLoader> CredentialLoaders { get; private set; } = new Dictionary<CredentialSource, ICredentialLoader>
-        {
-            { CredentialSource.KeyVault, new KeyVaultCertificateLoader() },
-            { CredentialSource.Path, new FromPathCertificateLoader() },
-            { CredentialSource.StoreWithThumbprint, new StoreWithThumbprintCertificateLoader() },
-            { CredentialSource.StoreWithDistinguishedName, new StoreWithDistinguishedNameCertificateLoader() },
-            { CredentialSource.Base64Encoded, new Base64EncodedCertificateLoader() },
-        };
 
         /// <summary>
         ///  This default is overridable at the level of the credential description (for the certificate from KeyVault).
@@ -54,22 +42,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        /// <summary>
-        /// Load the credentials from the description, if needed.
-        /// </summary>
-        /// <param name="credentialDescription">Description of the credential.</param>
-        public void LoadCredentialsIfNeeded(CredentialDescription credentialDescription)
-        {
-            _ = Throws.IfNull(credentialDescription);
-
-            if (credentialDescription.CachedValue == null)
-            {
-                if (CredentialLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialLoader? value))
-                {
-                    value.LoadIfNeeded(credentialDescription);
-                }
-            }
-        }
 
         /// <summary>
         /// Load the first certificate from the certificate description list.
@@ -81,7 +53,7 @@ namespace Microsoft.Identity.Web
             DefaultCertificateLoader defaultCertificateLoader = new();
             CertificateDescription? certDescription = certificateDescriptions.FirstOrDefault(c =>
             {
-                defaultCertificateLoader.LoadCredentialsIfNeeded(c);
+                defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).GetAwaiter().GetResult();
                 return c.Certificate != null;
             });
 
@@ -100,7 +72,7 @@ namespace Microsoft.Identity.Web
             {
                 foreach (var certDescription in certificateDescriptions)
                 {
-                    defaultCertificateLoader.LoadCredentialsIfNeeded(certDescription);
+                    defaultCertificateLoader.LoadCredentialsIfNeededAsync(certDescription).GetAwaiter().GetResult();
                     if (certDescription.Certificate != null)
                     {
                         yield return certDescription.Certificate;
@@ -131,7 +103,7 @@ namespace Microsoft.Identity.Web
         /// <param name="certificateDescription">Description of the certificate.</param>
         public void LoadIfNeeded(CertificateDescription certificateDescription)
         {
-            LoadCredentialsIfNeeded(certificateDescription);
+            LoadCredentialsIfNeededAsync(certificateDescription).GetAwaiter().GetResult();
         }
     }
 }
