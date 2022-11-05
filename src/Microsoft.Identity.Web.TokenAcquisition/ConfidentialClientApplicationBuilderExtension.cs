@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -18,59 +19,51 @@ namespace Microsoft.Identity.Web
         public static ConfidentialClientApplicationBuilder WithClientCredentials(
             this ConfidentialClientApplicationBuilder builder,
             IEnumerable<CredentialDescription> clientCredentials,
-            ILogger logger)
+            ILogger logger,
+            ICredentialsLoader credentialsLoader)
         {
             foreach (var credential in clientCredentials)
             {
                 if (!credential.Skip)
                 {
-                    // TODO, use the credential loader
+                    string errorMessage = string.Empty;
+                    try
+                    {
+                        credentialsLoader.LoadCredentialsIfNeededAsync(credential).GetAwaiter().GetResult();
+                    }
+                    catch(Exception ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+
+
                     if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
                     {
-                        ManagedIdentityClientAssertion? managedIdentityClientAssertion = credential.CachedValue as ManagedIdentityClientAssertion;
-                        if (credential.CachedValue == null)
+                        if (credential.Skip)
                         {
-                            managedIdentityClientAssertion = new ManagedIdentityClientAssertion(credential.ManagedIdentityClientId);
-                            credential.CachedValue = managedIdentityClientAssertion;
+                            Logger.NotUsingManagedIdentity(logger, errorMessage);
                         }
-                        try
+                        else
                         {
-                            // Given that managed identity can be not available locally, we need to try to get a
-                            // signed assertion, and if it fails, move to the next credentials
-                            managedIdentityClientAssertion!.GetSignedAssertion(CancellationToken.None).GetAwaiter().GetResult();
+                            Logger.UsingManagedIdentity(logger);
+                            return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
                         }
-                        catch (AuthenticationFailedException ex)
-                        {
-                            credential.Skip = true;
-                            Logger.NotUsingManagedIdentity(logger, ex.Message);
-                            continue;
-                        }
-                        Logger.UsingManagedIdentity(logger);
-                        return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
                     }
                     if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                     {
-                        credential.CachedValue ??= new PodIdentityClientAssertion(credential.SignedAssertionFileDiskPath);
-                        Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
-                        return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
+                        if (!credential.Skip)
+                        {
+                            Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
+                            return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
+                        }
                     }
 
                     if (credential.CredentialType == CredentialType.Certificate)
                     {
-                        var certs = clientCredentials.Where(c => c.CredentialType == CredentialType.Certificate);
-                        if (certs != null && certs.Any())
+                        if (credential.Certificate !=null)
                         {
-                            var clientCertificates = certs.Select(c => new CertificateDescription(c));
-                            credential.CachedValue = DefaultCertificateLoader.LoadFirstCertificate(clientCertificates);
-                            X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(clientCertificates);
-                            if (certificate == null)
-                            {
-                                throw new ArgumentException(
-                                    IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                    nameof(clientCredentials));
-                            }
-                            Logger.UsingCertThumbprint(logger, certificate.Thumbprint);
-                            return builder.WithCertificate(certificate);
+                            Logger.UsingCertThumbprint(logger, credential.Certificate.Thumbprint);
+                            return builder.WithCertificate(credential.Certificate);
                         }
                     }
 
@@ -79,6 +72,13 @@ namespace Microsoft.Identity.Web
                         return builder.WithClientSecret(credential.ClientSecret);
                     }
                 }
+            }
+
+            if (clientCredentials.Any(c => c.CredentialType == CredentialType.Certificate))
+            {
+                throw new ArgumentException(
+                    IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
+                    nameof(clientCredentials));
             }
 
             return builder;

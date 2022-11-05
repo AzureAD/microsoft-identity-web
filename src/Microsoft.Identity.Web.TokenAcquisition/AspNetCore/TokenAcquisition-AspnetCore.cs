@@ -32,13 +32,15 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
+        /// <param name="credentialsLoader">Credential loader service.</param>
         public TokenAcquisitionAspNetCore(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
             ITokenAcquisitionHost tokenAcquisitionHost,
-            IServiceProvider serviceProvider) :
-            base(tokenCacheProvider, tokenAcquisitionHost, httpClientFactory, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ICredentialsLoader credentialsLoader) :
+            base(tokenCacheProvider, tokenAcquisitionHost, httpClientFactory, logger, serviceProvider, credentialsLoader)
         {
         }
 

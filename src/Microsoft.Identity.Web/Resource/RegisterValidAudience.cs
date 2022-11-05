@@ -23,6 +23,7 @@ namespace Microsoft.Identity.Web.Resource
             MicrosoftIdentityOptions microsoftIdentityOptions)
         {
             _ = Throws.IfNull(validationParameters);
+            _ = Throws.IfNull(microsoftIdentityOptions);
 
             ClientId = microsoftIdentityOptions.ClientId;
             IsB2C = microsoftIdentityOptions.IsB2C;

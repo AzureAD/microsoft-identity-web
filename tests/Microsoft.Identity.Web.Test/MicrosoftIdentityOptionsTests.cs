@@ -109,12 +109,11 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void TestMergedOptions_ContainsClaimsActions()
         {
-
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
                 ClaimActions =
                 {
-                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "sex"),
+                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "theGender"),
                 },
             });
 
@@ -138,7 +137,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Ensure gender has the value of sex
             var jsonKeyClaim = genderClaim as UniqueJsonKeyClaimAction;
-            Assert.Equal(jsonKeyClaim.JsonKey, "sex");
+            Assert.Equal("theGender", jsonKeyClaim.JsonKey);
         }
 
         private void BuildTheRequiredServices()

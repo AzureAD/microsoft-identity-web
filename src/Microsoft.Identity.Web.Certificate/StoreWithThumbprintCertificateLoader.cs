@@ -2,20 +2,22 @@
 // Licensed under the MIT License.
 
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web 
 {
-    internal sealed class StoreWithThumbprintCertificateLoader : ICredentialLoader
+    internal sealed class StoreWithThumbprintCertificateLoader : ICredentialSourceLoader
     {
         public CredentialSource CredentialSource => CredentialSource.StoreWithThumbprint;
 
-        public void LoadIfNeeded(CredentialDescription credentialDescription)
+        public Task LoadIfNeededAsync(CredentialDescription credentialDescription)
         {
             credentialDescription.Certificate = LoadFromStoreWithThumbprint(
                             credentialDescription.CertificateThumbprint!,
                             credentialDescription.CertificateStorePath!);
             credentialDescription.CachedValue = credentialDescription.Certificate;
+            return Task.CompletedTask;
         }
 
         private static X509Certificate2? LoadFromStoreWithThumbprint(
