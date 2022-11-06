@@ -36,16 +36,6 @@
             Extension methods on an ASP.NET application to add a web app or web API.
             </summary>
         </member>
-        <member name="P:Microsoft.Identity.Web.AppBuilderExtension.Configuration">
-            <summary>
-            Configuration.
-            </summary>
-        </member>
-        <member name="P:Microsoft.Identity.Web.AppBuilderExtension.ServiceProvider">
-            <summary>
-            Service provider.
-            </summary>
-        </member>
         <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Abstractions.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
             <summary>
             Adds a protected web API.
