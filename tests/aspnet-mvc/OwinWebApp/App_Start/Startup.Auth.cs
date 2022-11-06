@@ -5,6 +5,9 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.OWIN;
+using System.Web.Services.Description;
 
 namespace OwinWebApp
 {
@@ -16,13 +19,28 @@ namespace OwinWebApp
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions());
 
+            /*
+             // What about this exeprience?
+                        OwinTokenAcquirerFactory factory = OwinTokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+
+                        app.AddMicrosoftIdentityWebApp(factory);
+                        factory.Services
+                            .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
+                            .AddMicrosoftGraph()
+                            .AddInMemoryTokenCaches();
+                        factory.Build();
+            */
+
             app.AddMicrosoftIdentityWebApp(configureServices: services =>
             {
-                services.Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; });
-                services.AddMicrosoftGraph();
-                services.AddInMemoryTokenCaches();
+                services
+                .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
+                .AddMicrosoftGraph()
+               // WE cannot do that today: Configuration is not available.
+               // .AddDownstreamRestApi("CalledApi", null)
+                .AddInMemoryTokenCaches();
             });
-                 
+
         }
     }
 }

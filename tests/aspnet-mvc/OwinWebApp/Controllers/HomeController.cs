@@ -24,7 +24,9 @@ namespace OwinWebApp.Controllers
                 // OR - Example calling a downstream directly with the IDownstreamRestApi helper (uses the
                 // authorization header provider, encapsulates MSAL.NET)
                 IDownstreamRestApi downstreamRestApi = this.GetDownstreamRestApi();
-                var result = await downstreamRestApi.CallRestApiForUserAsync("DownstreamAPI");
+
+                // Not initialized yet
+                // var result = await downstreamRestApi.CallRestApiForUserAsync("CalledApi");
 
                 // OR - Get an authorization header (uses the token acquirer)
                 IAuthorizationHeaderProvider authorizationHeaderProvider =

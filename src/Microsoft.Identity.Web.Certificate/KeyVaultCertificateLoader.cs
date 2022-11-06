@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        internal async static Task<X509Certificate2?> LoadFromKeyVault(
+        internal static Task<X509Certificate2?> LoadFromKeyVault(
             string keyVaultUrl,
             string certificateName,
             string? managedIdentityClientId,
@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
             CertificateClient certificateClient = new(keyVaultUri, credential);
             SecretClient secretClient = new(keyVaultUri, credential);
 
-            KeyVaultCertificateWithPolicy certificate = await certificateClient.GetCertificateAsync(certificateName);
+            KeyVaultCertificateWithPolicy certificate = certificateClient.GetCertificate(certificateName);
 
             if (certificate.Properties.NotBefore == null || certificate.Properties.ExpiresOn == null)
             {
@@ -69,10 +69,10 @@ namespace Microsoft.Identity.Web
             // Return a certificate with only the public key if the private key is not exportable.
             if (certificate.Policy?.Exportable != true)
             {
-                return new X509Certificate2(
+                return Task.FromResult<X509Certificate2?>(new X509Certificate2(
                     certificate.Cer,
                     (string?)null,
-                    x509KeyStorageFlags);
+                    x509KeyStorageFlags));
             }
 
             // Parse the secret ID and version to retrieve the private key.
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web
             // .NET 5.0 preview introduces the System.Security.Cryptography.PemEncoding class to make this easier.
             if (CertificateConstants.MediaTypePksc12.Equals(secret.Properties.ContentType, StringComparison.OrdinalIgnoreCase))
             {
-                return Base64EncodedCertificateLoader.LoadFromBase64Encoded(secret.Value, x509KeyStorageFlags);
+                return Task.FromResult<X509Certificate2?>(Base64EncodedCertificateLoader.LoadFromBase64Encoded(secret.Value, x509KeyStorageFlags));
             }
 
             throw new NotSupportedException(
