@@ -19,18 +19,17 @@ namespace OwinWebApp
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions());
 
+            OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+
+            app.AddMicrosoftIdentityWebApp(factory);
+            factory.Services
+                .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
+                .AddMicrosoftGraph()
+                .AddDownstreamRestApi("DownstreamAPI1", factory.Configuration.GetSection("DownstreamAPI"))
+                .AddInMemoryTokenCaches();
+            factory.Build();
+
             /*
-             // What about this exeprience?
-                        OwinTokenAcquirerFactory factory = OwinTokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
-
-                        app.AddMicrosoftIdentityWebApp(factory);
-                        factory.Services
-                            .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
-                            .AddMicrosoftGraph()
-                            .AddInMemoryTokenCaches();
-                        factory.Build();
-            */
-
             app.AddMicrosoftIdentityWebApp(configureServices: services =>
             {
                 services
@@ -40,6 +39,7 @@ namespace OwinWebApp
                // .AddDownstreamRestApi("CalledApi", null)
                 .AddInMemoryTokenCaches();
             });
+            */
 
         }
     }
