@@ -1,10 +1,6 @@
-﻿using Owin;
-using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using System.Diagnostics.Tracing;
-using System.IO;
-using System;
+﻿using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.OWIN;
+using Owin;
 
 namespace OwinWebApi
 {
@@ -13,18 +9,19 @@ namespace OwinWebApi
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
-/*
-            IdentityModelEventSource.Logger.LogLevel = EventLevel.Verbose;
-            IdentityModelEventSource.ShowPII = true;
-            var listener = new TextWriterEventListener(@"c:\temp\diag.txt");
-            listener.EnableEvents(IdentityModelEventSource.Logger, EventLevel.LogAlways);
-*/
-            app.AddMicrosoftIdentityWebApi(configureServices: services =>
-            {
-                services.AddMicrosoftGraph();
-                services.AddInMemoryTokenCaches();
-            });
-           
+            /*
+                        IdentityModelEventSource.Logger.LogLevel = EventLevel.Verbose;
+                        IdentityModelEventSource.ShowPII = true;
+                        var listener = new TextWriterEventListener(@"c:\temp\diag.txt");
+                        listener.EnableEvents(IdentityModelEventSource.Logger, EventLevel.LogAlways);
+            */
+
+            OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+            app.AddMicrosoftIdentityWebApi(factory);
+            factory.Services
+                .AddMicrosoftGraph()
+                .AddDownstreamRestApi("DownstreamAPI", factory.Configuration.GetSection("DownstreamAPI"));
+            factory.Build();
         }
     }
 }

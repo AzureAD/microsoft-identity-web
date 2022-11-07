@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <UserSecretsId>ce2cc20c-397d-48f2-9023-daf7c8550c53</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />

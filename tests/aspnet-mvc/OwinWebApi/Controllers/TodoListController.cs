@@ -21,17 +21,21 @@ namespace OwinWebApi.Controllers
         public async Task<IEnumerable<Todo>> Get()
         {
             // EITHER - Example calling Graph
+            // graphServiceClient won't be null if you added
+            // services.AddMicrosoftGraph() in the Startup.auth.cs
             GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
-            var me = await graphServiceClient.Me?.Request().GetAsync();
+            var me = await graphServiceClient.Me.Request().GetAsync();
 
             // OR - Example calling a downstream directly with the IDownstreamRestApi helper (uses the
             // authorization header provider, encapsulates MSAL.NET)
+            // downstreamRestApi won't be null if you added services.AddMicrosoftGraph()
+            // in the Startup.auth.cs
             IDownstreamRestApi downstreamRestApi = this.GetDownstreamRestApi();
             var result = await downstreamRestApi.CallRestApiForUserAsync("DownstreamAPI");
 
             // OR - Get an authorization header (uses the token acquirer)
             IAuthorizationHeaderProvider authorizationHeaderProvider =
-                                                      this.GettAuthorizationHeaderProvider();
+                    this.GetAuthorizationHeaderProvider();
             string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     new[] { "user.read" },
                     new DownstreamRestApiOptions
@@ -45,13 +49,13 @@ namespace OwinWebApi.Controllers
 
             // OR - Get a token if an SDK needs it (uses MSAL.NET)
             ITokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            ITokenAcquirer acquirer = tokenAcquirerFactory.GetTokenAcquirer();
+            ITokenAcquirer acquirer = tokenAcquirerFactory.GetTokenAcquirer()!;
             AcquireTokenResult tokenResult = await acquirer.GetTokenForUserAsync(
                new[] { "user.read" });
-            string accessToken = tokenResult.AccessToken;
+            string accessToken = tokenResult.AccessToken!;
 
             // return the item
-            string owner = (HttpContext.Current.User as ClaimsPrincipal)?.GetDisplayName();
+            string? owner = (HttpContext.Current.User as ClaimsPrincipal)?.GetDisplayName();
             return todoStore.Values.Where(x => x.Owner == owner);
 
         }

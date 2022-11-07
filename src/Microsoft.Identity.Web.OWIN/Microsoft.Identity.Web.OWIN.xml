@@ -14,21 +14,18 @@
             <summary>
             Get the Graph service client.
             </summary>
-            <param name="apiController"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GettAuthorizationHeaderProvider(System.Web.Http.ApiController)">
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetAuthorizationHeaderProvider(System.Web.Http.ApiController)">
             <summary>
             Get the authorization header provider.
             </summary>
-            <param name="apiController"></param>
             <returns></returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamRestApi(System.Web.Http.ApiController)">
             <summary>
-            Get the downstream REST API service.
+            Get the downstream REST API service from an ApiController.
             </summary>
-            <param name="apiController"></param>
             <returns></returns>
         </member>
         <member name="T:Microsoft.Identity.Web.AppBuilderExtension">
@@ -36,14 +33,25 @@
             Extension methods on an ASP.NET application to add a web app or web API.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Abstractions.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory,System.Action{Microsoft.Identity.Abstractions.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
             <summary>
             Adds a protected web API.
             </summary>
             <param name="app">Application builder.</param>
-            <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
+            <param name="tokenAcquirerFactory">Token acquirer factory.</param>
             <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
             <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
+            <param name="configurationSection">Configuration section in which to read the options.</param>
+            <returns>The app builder to chain.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory,System.Action{Microsoft.Identity.Abstractions.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
+            <summary>
+            Adds a protected web app.
+            </summary>
+            <param name="app">Application builder.</param>
+            <param name="tokenAcquirerFactory">Token acquirer factory.</param>
+            <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+            <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
         </member>
@@ -58,6 +66,17 @@
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Abstractions.MicrosoftAuthenticationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
+            <summary>
+            Adds a protected web API.
+            </summary>
+            <param name="app">Application builder.</param>
+            <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
+            <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+            <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
+            <param name="configurationSection">Configuration section in which to read the options.</param>
+            <returns>The app builder to chain.</returns>
+        </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
             Extension methods to retrieve a Graph service client and interfaces used
@@ -68,21 +87,18 @@
             <summary>
             Get the Graph service client.
             </summary>
-            <param name="controllerBase"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GettAuthorizationHeaderProvider(System.Web.Mvc.ControllerBase)">
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider(System.Web.Mvc.ControllerBase)">
             <summary>
             Get the authorization header provider.
             </summary>
-            <param name="controllerBase"></param>
             <returns></returns>
         </member>
         <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamRestApi(System.Web.Mvc.ControllerBase)">
             <summary>
-            Get the authorization header provider.
+            Get the downstream REST API service from an ApiController.
             </summary>
-            <param name="controllerBase"></param>
             <returns></returns>
         </member>
         <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer">

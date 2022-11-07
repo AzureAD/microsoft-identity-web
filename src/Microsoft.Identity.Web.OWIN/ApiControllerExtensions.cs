@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Configuration;
 using System.Web.Http;
-using System.Web.Mvc;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 
@@ -17,31 +17,47 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the Graph service client.
         /// </summary>
-        /// <param name="apiController"></param>
         /// <returns></returns>
-        public static GraphServiceClient? GetGraphServiceClient(this ApiController apiController)
+        public static GraphServiceClient GetGraphServiceClient(this ApiController _)
         {
-            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(GraphServiceClient)) as GraphServiceClient;
+            GraphServiceClient? graphServiceClient = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(GraphServiceClient)) as GraphServiceClient;
+            if (graphServiceClient == null)
+            {
+                throw new ConfigurationErrorsException("Cannot get GraphServiceClient. Did you add services.AddMicrosoftGraph() in Startup_Auth.cs?. See https://aka.ms/ms-id-web/owin");
+            }    
+            return graphServiceClient;
         }
 
         /// <summary>
         /// Get the authorization header provider.
         /// </summary>
-        /// <param name="apiController"></param>
         /// <returns></returns>
-        public static IAuthorizationHeaderProvider? GettAuthorizationHeaderProvider(this ApiController apiController)
+        public static IAuthorizationHeaderProvider GetAuthorizationHeaderProvider(this ApiController _)
         {
-            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
+            IAuthorizationHeaderProvider? headerProvider = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
+            if (headerProvider == null)
+            {
+                throw new ConfigurationErrorsException("Cannot get GraphServiceClient. Did you create an OwinTokenAcquirerFactory in Startup_Auth.cs?. See https://aka.ms/ms-id-web/owin");
+            }
+            return headerProvider;
         }
 
         /// <summary>
-        /// Get the downstream REST API service.
+        /// Get the downstream REST API service from an ApiController.
         /// </summary>
-        /// <param name="apiController"></param>
         /// <returns></returns>
-        public static IDownstreamRestApi? GetDownstreamRestApi(this ApiController apiController)
+        public static IDownstreamRestApi GetDownstreamRestApi(this ApiController _)
         {
-            return TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
+            IDownstreamRestApi? downstreamRestApi = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
+            if (downstreamRestApi == null)
+            {
+                throw new ConfigurationErrorsException("Cannot get IDownstreamRestApi. Did you add services.AddMicrosoftGraph() in Startup_Auth.cs? See https://aka.ms/ms-id-web/owin");
+            }
+            return downstreamRestApi;
         }
+
+        // An extension method to get the TokenAcquirerFactory is, on purpose, not provided because to avoid encouraging
+        // developers to get just a token. Get the authorization header is better because all the protocols are supported, whereas
+        // getting a token implies Bearer.
     }
 }
