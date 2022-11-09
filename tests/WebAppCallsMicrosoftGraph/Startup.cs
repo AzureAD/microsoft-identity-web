@@ -107,6 +107,7 @@ namespace WebAppCallsMicrosoftGraph
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseTokenAcquirerFactory();
 
             app.UseEndpoints(endpoints =>
             {

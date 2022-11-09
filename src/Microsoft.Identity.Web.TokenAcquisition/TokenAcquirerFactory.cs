@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Service Provider
         /// </summary>
-        public IServiceProvider? ServiceProvider { get; protected set; }
+        public IServiceProvider? ServiceProvider { get; protected internal set; }
 
         /// <summary>
         /// Services. Used in the initialization phase.
