@@ -66,16 +66,17 @@ namespace Microsoft.Identity.Web
             mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             mergedOptions.CallbackPath = microsoftIdentityOptions.CallbackPath;
 
-            mergedOptions.ClaimActions.Clear();
-
-            foreach (var claimAction in microsoftIdentityOptions.ClaimActions)
+            if (mergedOptions.ClaimActions != microsoftIdentityOptions.ClaimActions)
             {
-                if (!mergedOptions.ClaimActions.Contains(claimAction))
+                foreach (var claimAction in microsoftIdentityOptions.ClaimActions.ToArray())
                 {
-                    mergedOptions.ClaimActions.Add(claimAction);
+                    if (!mergedOptions.ClaimActions.Any(c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType))
+                    {
+                        mergedOptions.ClaimActions.Add(claimAction);
+                    }
                 }
             }
-            
+
             if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClaimsIssuer))
             {
                 mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
@@ -257,11 +258,14 @@ namespace Microsoft.Identity.Web
 
             mergedOptions.Scope.Clear();
 
-            foreach (var scope in microsoftIdentityOptions.Scope)
+            if (mergedOptions.Scope != microsoftIdentityOptions.Scope)
             {
-                if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                foreach (var scope in microsoftIdentityOptions.Scope.ToArray())
                 {
-                    mergedOptions.Scope.Add(scope);
+                    if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        mergedOptions.Scope.Add(scope);
+                    }
                 }
             }
         }
