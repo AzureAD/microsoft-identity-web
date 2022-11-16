@@ -20,41 +20,53 @@ namespace Microsoft.Identity.Web
             this ConfidentialClientApplicationBuilder builder,
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
-            ICredentialsLoader credentialsLoader)
+            ICredentialsLoader credentialsLoader,
+            CredentialSourceLoaderParameters credentialSourceLoaderParameters)
         {
             foreach (var credential in clientCredentials)
             {
                 if (!credential.Skip)
                 {
+                    // Load the credentials
                     string errorMessage = string.Empty;
                     try
                     {
-                        credentialsLoader.LoadCredentialsIfNeededAsync(credential).GetAwaiter().GetResult();
+                        credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters).GetAwaiter().GetResult();
                     }
                     catch(Exception ex)
                     {
                         errorMessage = ex.Message;
                     }
 
-
-                    if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
+                    if (credential.CredentialType == CredentialType.SignedAssertion)
                     {
-                        if (credential.Skip)
+                        if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
                         {
-                            Logger.NotUsingManagedIdentity(logger, errorMessage);
+                            if (credential.Skip)
+                            {
+                                Logger.NotUsingManagedIdentity(logger, errorMessage);
+                            }
+                            else
+                            {
+                                Logger.UsingManagedIdentity(logger);
+                                return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
+                            }
                         }
-                        else
+                        if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                         {
-                            Logger.UsingManagedIdentity(logger);
-                            return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
+                            if (!credential.Skip)
+                            {
+                                Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
+                                return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
+                            }
                         }
-                    }
-                    if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
-                    {
-                        if (!credential.Skip)
+                        if (credential.SourceType == CredentialSource.SignedAssertionFromVault)
                         {
-                            Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
-                            return builder.WithClientAssertion((credential.CachedValue as PodIdentityClientAssertion)!.GetSignedAssertion);
+                            if (!credential.Skip)
+                            {
+                                Logger.UsingSignedAssertionFromVault(logger, credential.KeyVaultUrl ?? "undefined");
+                                return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertion);
+                            }
                         }
                     }
 

@@ -28,6 +28,12 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.UsingPodIdentityFile,
                     "[MsIdWeb] Using Pod identity file {signedAssertionFileDiskPath} as client credentials. ");
 
+            private static readonly Action<ILogger, string, Exception?> s_usingSignedAssertionFromVault =
+                LoggerMessage.Define<string>(
+                    LogLevel.Information,
+                    LoggingEventId.UsingSignedAssertionFromVault,
+                    "[MsIdWeb] Using signed assertion from {signedAssertionUri} as client credentials. ");
+
             private static readonly Action<ILogger, string, Exception?> s_usingCertThumbprint =
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
@@ -58,6 +64,16 @@ namespace Microsoft.Identity.Web
             public static void UsingPodIdentityFile(
                 ILogger logger,
                 string signedAssertionFileDiskPath) => s_usingPodIdentityFile(logger, signedAssertionFileDiskPath, default!);
+
+            /// <summary>
+            /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="signedAssertionUri"></param>
+            public static void UsingSignedAssertionFromVault(
+                ILogger logger,
+                string signedAssertionUri) => s_usingSignedAssertionFromVault(logger, signedAssertionUri, default!);
+
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.

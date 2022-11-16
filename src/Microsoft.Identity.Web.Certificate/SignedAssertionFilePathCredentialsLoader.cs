@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
     {
         public CredentialSource CredentialSource => CredentialSource.SignedAssertionFilePath;
 
-        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription)
+        public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
         {
             if (credentialDescription.SourceType == CredentialSource.SignedAssertionFilePath)
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
                 {
                     // Given that managed identity can be not available locally, we need to try to get a
                     // signed assertion, and if it fails, move to the next credentials
-                    _ = await signedAssertion!.GetSignedAssertion(CancellationToken.None);
+                    _= await signedAssertion!.GetSignedAssertion(CancellationToken.None);
                 }
                 catch (Exception)
                 {
