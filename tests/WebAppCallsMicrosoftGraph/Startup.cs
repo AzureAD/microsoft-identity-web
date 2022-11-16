@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.dMSI;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 
@@ -41,6 +42,8 @@ namespace WebAppCallsMicrosoftGraph
                            .AddInMemoryTokenCaches();
 
             services.AddDownstreamRestApi("GraphBeta", Configuration.GetSection("GraphBeta"));
+
+            services.AddDmsiCredentialsLoader();
 
             //services.Configure<ConfidentialClientApplicationOptions>(OpenIdConnectDefaults.AuthenticationScheme,
             //    options => { options.AzureRegion = ConfidentialClientApplication.AttemptRegionDiscovery; });

@@ -9,6 +9,7 @@
     <AdditionalFiles Include="..\..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.dMSI\Microsoft.Identity.dMSI.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj" />
