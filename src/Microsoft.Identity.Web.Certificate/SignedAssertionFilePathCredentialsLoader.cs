@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
                 PodIdentityClientAssertion? signedAssertion = credentialDescription.CachedValue as PodIdentityClientAssertion;
                 if (credentialDescription.CachedValue == null)
                 {
-                    signedAssertion = new PodIdentityClientAssertion(credentialDescription.ManagedIdentityClientId);
+                    signedAssertion = new PodIdentityClientAssertion(credentialDescription.SignedAssertionFileDiskPath);
                 }
                 try
                 {
