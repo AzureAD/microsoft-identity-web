@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
                         {
                             if (!credential.Skip)
                             {
-                                Logger.UsingSignedAssertionFromVault(logger, credential.KeyVaultUrl??"undefined");
+                                Logger.UsingSignedAssertionFromVault(logger, credential.KeyVaultUrl ?? "undefined");
                                 return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertion);
                             }
                         }
