@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         /// Load the credentials from the description, if needed.
-        public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription)
+        public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
         {
             _ = Throws.IfNull(credentialDescription);
 
@@ -37,17 +37,17 @@ namespace Microsoft.Identity.Web
             {
                 if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
                 {
-                    await loader.LoadIfNeededAsync(credentialDescription);
+                    await loader.LoadIfNeededAsync(credentialDescription, parameters);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public async Task<CredentialDescription?> LoadFirstValidCredentialsAsync(IEnumerable<CredentialDescription> credentialDescriptions)
+        public async Task<CredentialDescription?> LoadFirstValidCredentialsAsync(IEnumerable<CredentialDescription> credentialDescriptions, CredentialSourceLoaderParameters? parameters = null)
         {
             foreach (var credentialDescription in credentialDescriptions)
             {
-                await LoadCredentialsIfNeededAsync(credentialDescription);
+                await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
                 if (!credentialDescription.Skip)
                 {
                     return credentialDescription;

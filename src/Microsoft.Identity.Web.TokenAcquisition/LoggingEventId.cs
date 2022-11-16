@@ -24,6 +24,7 @@ namespace Microsoft.Identity.Web
         public static readonly EventId UsingManagedIdentity = new EventId(401, "UsingManagedIdentity");
         public static readonly EventId UsingPodIdentityFile = new EventId(402, "UsingPodIdentityFile");
         public static readonly EventId UsingCertThumbprint = new EventId(403, "UsingCertThumbprint");
+        public static readonly EventId UsingSignedAssertionFromVault = new EventId(404, "UsingSignedAssertionFromVault");
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
