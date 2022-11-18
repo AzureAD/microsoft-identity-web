@@ -432,9 +432,10 @@ namespace Microsoft.Identity.Web
 
             if (options.ClaimActions != mergedOptions.ClaimActions)
             {
-                foreach (ClaimAction claimAction in mergedOptions.ClaimActions.ToArray())
+                var claimActionArray = options.ClaimActions.ToArray();
+                foreach (ClaimAction claimAction in mergedOptions.ClaimActions)
                 {
-                    if (!options.ClaimActions.Any((c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType)))
+                    if (!claimActionArray.Any((c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType)))
                     {
                         options.ClaimActions.Add(claimAction);
                     }
@@ -456,9 +457,10 @@ namespace Microsoft.Identity.Web
 
             if (options.Scope != mergedOptions.Scope)
             {
-                foreach (string scope in mergedOptions.Scope.ToArray())
+                var scopeArray = options.Scope.ToArray();
+                foreach (string scope in mergedOptions.Scope)
                 {
-                    if (!string.IsNullOrWhiteSpace(scope) && !options.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                    if (!string.IsNullOrWhiteSpace(scope) && !scopeArray.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
                     {
                         options.Scope.Add(scope);
                     }
