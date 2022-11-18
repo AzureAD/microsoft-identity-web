@@ -1,3 +1,8 @@
+1.25.7
+==========
+### Bug Fix:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
 1.25.6
 ==========
 ### Bug Fix:
