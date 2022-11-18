@@ -24,4 +24,4 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build with .NET 7.0.x
-      run: dotnet test -p:FROM_GITHUB_ACTION=true Microsoft.Identity.Web.sln --configuration Release
+      run: dotnet test -p:FROM_GITHUB_ACTION=true Microsoft.Identity.Web.sln --configuration Release ----filter (FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration) & (FullyQualifiedName!~WebAppUiTests)
