@@ -14,10 +14,10 @@ jobs:
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 3.1.301        
-    - name: Setup .NET 6.0.301
+    - name: Setup .NET 7.0.x
       uses: actions/setup-dotnet@v1.7.2
       with:
-        dotnet-version: 6.0.301
+        dotnet-version: 7.0.x
   
     # Install workload
     - name: Setup wasm-tools
@@ -26,5 +26,5 @@ jobs:
     - name: Build with .NET 3.1.301
       run: dotnet test -f 3.1.301 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
       
-    - name: Build with .NET 6.0.301
-      run: dotnet test -f 6.0.301 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
+    - name: Build with .NET 7.0.x
+      run: dotnet test -f 7.0 -p:FROM_GITHUB_ACTION=true --configuration Release Microsoft.Identity.Web.sln
