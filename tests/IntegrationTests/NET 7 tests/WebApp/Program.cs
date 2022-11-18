@@ -2,6 +2,7 @@ using Microsoft.Identity.Web;
 
 namespace WebApp;
 
+// provided by https://github.com/f1nzer/ms-identity-web-1957-bug-repro
 public class Program
 {
     public static void Main(string[] args)

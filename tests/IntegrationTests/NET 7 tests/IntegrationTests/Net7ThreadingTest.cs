@@ -4,6 +4,7 @@ using WebApp;
 
 namespace IntegrationTests;
 
+// provided by https://github.com/f1nzer/ms-identity-web-1957-bug-repro
 public class Net7ThreadingTest : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
