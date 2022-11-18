@@ -35,4 +35,4 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build with .NET 7.0.x
-      run: dotnet test Microsoft.Identity.Web.sln --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)"
