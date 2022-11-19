@@ -65,16 +65,18 @@ namespace Microsoft.Identity.Web
             mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
             mergedOptions.CallbackPath = microsoftIdentityOptions.CallbackPath;
 
-            mergedOptions.ClaimActions.Clear();
-
-            foreach (var claimAction in microsoftIdentityOptions.ClaimActions)
+            if (mergedOptions.ClaimActions != microsoftIdentityOptions.ClaimActions)
             {
-                if (!mergedOptions.ClaimActions.Contains(claimAction))
+                var claimActionsArray = mergedOptions.ClaimActions.ToArray();
+                foreach (var claimAction in microsoftIdentityOptions.ClaimActions)
                 {
-                    mergedOptions.ClaimActions.Add(claimAction);
+                    if (!claimActionsArray.Any(c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType))
+                    {
+                        mergedOptions.ClaimActions.Add(claimAction);
+                    }
                 }
             }
-            
+
             if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClaimsIssuer))
             {
                 mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
@@ -206,11 +208,15 @@ namespace Microsoft.Identity.Web
             mergedOptions.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
 
             mergedOptions.Scope.Clear();
-            foreach (var scope in microsoftIdentityOptions.Scope)
+            if (mergedOptions.Scope != microsoftIdentityOptions.Scope)
             {
-                if (!string.IsNullOrWhiteSpace(scope) && !mergedOptions.Scope.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                var temp = mergedOptions.Scope.ToArray();
+                foreach (var scope in microsoftIdentityOptions.Scope)
                 {
-                    mergedOptions.Scope.Add(scope);
+                    if (!string.IsNullOrWhiteSpace(scope) && !temp.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        mergedOptions.Scope.Add(scope);
+                    }
                 }
             }
 #if NET5_0_OR_GREATER

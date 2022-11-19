@@ -159,6 +159,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Down
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Diagnostics", "src\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj", "{982F70B7-4D85-42B7-ABDD-7EDD2081360A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\IntegrationTests\NET 7 tests\IntegrationTests\IntegrationTests.csproj", "{80F8524A-F412-45E1-ADE9-66D0C5C4F96E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "tests\IntegrationTests\NET 7 tests\WebApp\WebApp.csproj", "{9F04C458-2677-4049-BD32-39A110C190DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -337,6 +341,14 @@ Global
 		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{982F70B7-4D85-42B7-ABDD-7EDD2081360A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80F8524A-F412-45E1-ADE9-66D0C5C4F96E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F8524A-F412-45E1-ADE9-66D0C5C4F96E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F8524A-F412-45E1-ADE9-66D0C5C4F96E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F8524A-F412-45E1-ADE9-66D0C5C4F96E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F04C458-2677-4049-BD32-39A110C190DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F04C458-2677-4049-BD32-39A110C190DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F04C458-2677-4049-BD32-39A110C190DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F04C458-2677-4049-BD32-39A110C190DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -398,6 +410,8 @@ Global
 		{E3611BED-B43A-40BD-A0A3-98AD65B5DAA4} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
 		{B288DE73-6B29-4B4D-AF02-6683D4C8D163} = {7C04159B-BC84-4B8E-B2D8-692AEBA86433}
 		{DA56C549-A69B-49F7-82E5-1C97D3E5745A} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
+		{80F8524A-F412-45E1-ADE9-66D0C5C4F96E} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
+		{9F04C458-2677-4049-BD32-39A110C190DC} = {3EF671C3-7BD5-4125-8A98-EC34549BCDDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4FA8C4C-3251-41CC-939B-7892F5798549}

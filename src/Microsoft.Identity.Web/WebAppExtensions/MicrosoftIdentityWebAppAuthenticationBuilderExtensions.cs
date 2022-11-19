@@ -411,9 +411,17 @@ namespace Microsoft.Identity.Web
             options.Configuration = mergedOptions.Configuration;
             options.ConfigurationManager = mergedOptions.ConfigurationManager;
             options.GetClaimsFromUserInfoEndpoint = mergedOptions.GetClaimsFromUserInfoEndpoint;
-            foreach (ClaimAction c in mergedOptions.ClaimActions)
+
+            if (options.ClaimActions != mergedOptions.ClaimActions)
             {
-                options.ClaimActions.Add(c);
+                var claimActionArray = options.ClaimActions.ToArray();
+                foreach (ClaimAction claimAction in mergedOptions.ClaimActions)
+                {
+                    if (!claimActionArray.Any((c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType)))
+                    {
+                        options.ClaimActions.Add(claimAction);
+                    }
+                }
             }
 
             options.RequireHttpsMetadata = mergedOptions.RequireHttpsMetadata;
@@ -429,9 +437,16 @@ namespace Microsoft.Identity.Web
             options.ResponseType = mergedOptions.ResponseType;
             options.Prompt = mergedOptions.Prompt;
 
-            foreach (string scope in mergedOptions.Scope)
+            if (options.Scope != mergedOptions.Scope)
             {
-                options.Scope.Add(scope);
+                var scopeArray = options.Scope.ToArray();
+                foreach (string scope in mergedOptions.Scope)
+                {
+                    if (!string.IsNullOrWhiteSpace(scope) && !scopeArray.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        options.Scope.Add(scope);
+                    }
+                }
             }
 
             options.RemoteSignOutPath = mergedOptions.RemoteSignOutPath;

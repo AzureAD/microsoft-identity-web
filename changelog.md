@@ -1,3 +1,17 @@
+1.25.7
+==========
+### Bug Fix:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+1.25.6
+==========
+### Bug Fix:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+1.25.5
+==========
+- Update to latest IdentityModel 6.25.0
+
 2.0.4-preview
 ==========
 - Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1, cve-2022-29117 for OWIN and cve-2021-24112 for data protection.

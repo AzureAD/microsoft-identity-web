@@ -50,6 +50,8 @@ namespace Microsoft.Identity.Web
                 HttpMethod = HttpMethod,
                 AuthenticationScheme = AuthenticationScheme,
                 TokenAcquisitionOptions = TokenAcquisitionOptions.Clone(),
+                IsProofOfPossessionRequest = IsProofOfPossessionRequest,
+                CustomizeHttpRequestMessage = CustomizeHttpRequestMessage,
             };
         }
 
