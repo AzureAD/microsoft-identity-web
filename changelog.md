@@ -1,3 +1,13 @@
+2.0.6-preview
+==========
+### New Feature:
+- Enable using the TokenAcquireFactory default instance from anywhere in an ASP.NET Core application [#1958](https://github.com/AzureAD/microsoft-identity-web/pull/1958)
+
+### Bug Fixes:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+- Fix from @rvplauborg to DownstreamWebApiOptions.Clone, which was missing two properties. [#1970](https://github.com/AzureAD/microsoft-identity-web/issues/1970)
+- Updates to OWIN and 1P extensibility
+
 1.25.8
 ==========
 ### Bug Fix:
