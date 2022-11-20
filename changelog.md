@@ -1,3 +1,8 @@
+1.25.8
+==========
+### Bug Fix:
+- Fix from @rvplauborg to DownstreamWebApiOptions.Clone, which was missing two properties. [#1970](https://github.com/AzureAD/microsoft-identity-web/issues/1970)
+
 1.25.7
 ==========
 ### Bug Fix:
