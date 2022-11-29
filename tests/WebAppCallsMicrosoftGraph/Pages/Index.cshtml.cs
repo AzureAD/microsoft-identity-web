@@ -64,7 +64,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
             IAuthorizationHeaderProvider authorizationHeaderProvider = HttpContext.RequestServices.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
             string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                 new[] { "user.read" },
-                new DownstreamRestApiOptions { BaseUrl = "https://graph.microsoft.com/v1.0/me", Scopes = new[] { "user.read" } });
+                new DownstreamRestApiOptions { BaseUrl = "https://graph.microsoft.com/v1.0/me"} );
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", authorizationHeader);
             HttpResponseMessage response = await client.GetAsync("https://graph.microsoft.com/v1.0/users");

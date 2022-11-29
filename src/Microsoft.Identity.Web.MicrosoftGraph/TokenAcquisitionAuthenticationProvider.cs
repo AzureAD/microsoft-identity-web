@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
+            DownstreamRestApiOptionsWithScopes? downstreamRestApiOptions = new DownstreamRestApiOptionsWithScopes() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
             downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationOptionsName = scheme;
             downstreamRestApiOptions.TokenAcquirerOptions.Tenant = tenant;
 

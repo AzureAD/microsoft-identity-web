@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure<DownstreamRestApiOptions>(serviceName, configuration);
+            services.Configure<DownstreamRestApiOptionsWithScopes>(serviceName, configuration);
             services.AddScoped<IDownstreamRestApi, DownstreamRestApi>();
             return services;
         }
@@ -44,11 +44,11 @@ namespace Microsoft.Identity.Web
         public static IServiceCollection AddDownstreamRestApi(
             this IServiceCollection services,
             string serviceName,
-            Action<DownstreamRestApiOptions> configureOptions)
+            Action<DownstreamRestApiOptionsWithScopes> configureOptions)
         {
             _ = Throws.IfNull(services);
 
-            services.Configure<DownstreamRestApiOptions>(serviceName, configureOptions);
+            services.Configure<DownstreamRestApiOptionsWithScopes>(serviceName, configureOptions);
 
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             services.AddScoped<IDownstreamRestApi, DownstreamRestApi>();
