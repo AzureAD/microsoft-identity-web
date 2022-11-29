@@ -1,3 +1,7 @@
+1.25.9
+==========
+Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
 2.0.6-preview
 ==========
 ### New Feature:
