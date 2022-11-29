@@ -31,14 +31,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="app">Application builder.</param>
         /// <param name="tokenAcquirerFactory">Token acquirer factory.</param>
-        /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
         public static IAppBuilder AddMicrosoftIdentityWebApi(
             this IAppBuilder app,
             OwinTokenAcquirerFactory tokenAcquirerFactory,
-            Action<MicrosoftAuthenticationOptions>? configureMicrosoftAuthenticationOptions = null,
+            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
             Action<OAuthBearerAuthenticationOptions>? updateOptions = null,
             string configurationSection = "AzureAd")
         {
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web
             // Configure the Microsoft authentication options
             services.Configure(
                 string.Empty,
-                configureMicrosoftAuthenticationOptions ?? (option =>
+                configureMicrosoftIdentityApplicationOptions ?? (option =>
                 {
                     configuration?.GetSection(configurationSection).Bind(option);
                 }));
@@ -88,14 +88,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="app">Application builder.</param>
         /// <param name="tokenAcquirerFactory">Token acquirer factory.</param>
-        /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
         public static IAppBuilder AddMicrosoftIdentityWebApp(
             this IAppBuilder app,
             OwinTokenAcquirerFactory tokenAcquirerFactory,
-            Action<MicrosoftAuthenticationOptions>? configureMicrosoftAuthenticationOptions = null,
+            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
             Action<OpenIdConnectAuthenticationOptions>? updateOptions = null,
             string configurationSection = "AzureAd")
         {
@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web
             // Configure the Microsoft authentication options
             services.Configure(
                 string.Empty,
-                configureMicrosoftAuthenticationOptions ?? (option =>
+                configureMicrosoftIdentityApplicationOptions ?? (option =>
                 {
                     configuration?.GetSection(configurationSection).Bind(option);
                 }));
@@ -212,7 +212,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="app">Application builder.</param>
         /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-        /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
@@ -220,14 +220,14 @@ namespace Microsoft.Identity.Web
         public static IAppBuilder AddMicrosoftIdentityWebApp(
             this IAppBuilder app,
             Action<IServiceCollection>? configureServices = null,
-            Action<MicrosoftAuthenticationOptions>? configureMicrosoftAuthenticationOptions = null,
+            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
             Action<OpenIdConnectAuthenticationOptions>? updateOptions = null,
             string configurationSection = "AzureAd")
         {
             OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
             var services = factory.Services;
             configureServices?.Invoke(services);
-            AddMicrosoftIdentityWebApp(app, factory, configureMicrosoftAuthenticationOptions, updateOptions, configurationSection);
+            AddMicrosoftIdentityWebApp(app, factory, configureMicrosoftIdentityApplicationOptions, updateOptions, configurationSection);
             factory.Build();
             return app;
         }
@@ -237,7 +237,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="app">Application builder.</param>
         /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-        /// <param name="configureMicrosoftAuthenticationOptions">Configure Microsoft authentication options.</param>
+        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
@@ -245,14 +245,14 @@ namespace Microsoft.Identity.Web
         public static IAppBuilder AddMicrosoftIdentityWebApi(
             this IAppBuilder app,
             Action<IServiceCollection>? configureServices = null,
-            Action<MicrosoftAuthenticationOptions>? configureMicrosoftAuthenticationOptions = null,
+            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
             Action<OAuthBearerAuthenticationOptions>? updateOptions = null,
             string configurationSection = "AzureAd")
         {
             OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
             var services = factory.Services;
             configureServices?.Invoke(services);
-            AddMicrosoftIdentityWebApi(app, factory, configureMicrosoftAuthenticationOptions, updateOptions, configurationSection);
+            AddMicrosoftIdentityWebApi(app, factory, configureMicrosoftIdentityApplicationOptions, updateOptions, configurationSection);
             factory.Build();
             return app;
         }

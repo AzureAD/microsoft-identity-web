@@ -16,18 +16,18 @@ namespace Microsoft.Identity.Web.Hosts
         readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
-        readonly IOptionsMonitor<MicrosoftAuthenticationOptions> _microsoftAuthenticationOptionsMonitor;
+        readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _MicrosoftIdentityApplicationOptionsMonitor;
 
         public DefaultTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
-            IOptionsMonitor<MicrosoftAuthenticationOptions> microsoftAuthenticationOptionsMonitor)
+            IOptionsMonitor<MicrosoftIdentityApplicationOptions> MicrosoftIdentityApplicationOptionsMonitor)
         {
             _microsoftIdentityOptionsMonitor = optionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
-            _microsoftAuthenticationOptionsMonitor = microsoftAuthenticationOptionsMonitor;
+            _MicrosoftIdentityApplicationOptionsMonitor = MicrosoftIdentityApplicationOptionsMonitor;
         }
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web.Hosts
             }
 
             _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
-            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme);
+            _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme);
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;

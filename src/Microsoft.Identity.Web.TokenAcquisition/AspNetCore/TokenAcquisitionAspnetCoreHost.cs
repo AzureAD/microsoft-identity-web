@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
                 _serviceProvider.GetService<IOptionsMonitor<ConfidentialClientApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
             }
 
-            _serviceProvider.GetService<IOptionsMonitor<MicrosoftAuthenticationOptions>>()?.Get(effectiveAuthenticationScheme);
+            _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
             _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityOptions>>()?.Get(effectiveAuthenticationScheme);
 
             // Case of an anonymous controller, no [Authorize] attribute will trigger the merge options

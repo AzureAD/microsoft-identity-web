@@ -62,12 +62,12 @@ namespace TokenAcquirerTests
 
         [IgnoreOnAzureDevopsFact]
         //[Fact]
-        public async Task AcquireToken_WithMicrosoftAuthenticationOptions_ClientCredentialsAsync()
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
-            services.Configure<MicrosoftAuthenticationOptions>(s_optionName, option =>
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
                 option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
@@ -80,14 +80,14 @@ namespace TokenAcquirerTests
 
         [IgnoreOnAzureDevopsFact]
         // [Fact]
-        public async Task AcquireToken_WithFactoryAndMicrosoftAuthenticationOptions_ClientCredentialsAsync()
+        public async Task AcquireToken_WithFactoryAndMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.AddInMemoryTokenCaches();
             tokenAcquirerFactory.Build();
 
             // Get the token acquirer from the options.
-            var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftAuthenticationOptions
+            var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
             {
                 ClientId = "6af093f3-b445-4b7a-beae-046864468ad6",
                 Authority = "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
@@ -122,7 +122,7 @@ namespace TokenAcquirerTests
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
-            services.Configure<MicrosoftAuthenticationOptions>(s_optionName, option =>
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
                 option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
@@ -132,7 +132,7 @@ namespace TokenAcquirerTests
 
             services.AddInMemoryTokenCaches();
             var serviceProvider = tokenAcquirerFactory.Build();
-            var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftAuthenticationOptions>>().Get(s_optionName);
+            var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(s_optionName);
             var credentialsLoader= serviceProvider.GetRequiredService<ICredentialsLoader>();
             await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
             var cert = options.ClientCredentials!.First().Certificate;

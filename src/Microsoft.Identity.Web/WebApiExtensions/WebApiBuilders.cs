@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Internal
             if (configuration != null)
             {
                 services.Configure<ConfidentialClientApplication>(authenticationScheme, configuration);
-                services.Configure<MicrosoftAuthenticationOptions>(authenticationScheme, options
+                services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
                     =>
                 { configuration.Bind(options); });
                 services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options

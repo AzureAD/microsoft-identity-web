@@ -18,18 +18,18 @@ namespace Microsoft.Identity.Web.Hosts
         readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
         readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
-        readonly IOptionsMonitor<MicrosoftAuthenticationOptions> _microsoftAuthenticationOptionsMonitor;
+        readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _MicrosoftIdentityApplicationOptionsMonitor;
 
         public OwinTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
             IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
-            IOptionsMonitor<MicrosoftAuthenticationOptions> microsoftAuthenticationOptionsMonitor)
+            IOptionsMonitor<MicrosoftIdentityApplicationOptions> MicrosoftIdentityApplicationOptionsMonitor)
         {
             _microsoftIdentityOptionsMonitor = microsoftIdentityOptionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
-            _microsoftAuthenticationOptionsMonitor = microsoftAuthenticationOptionsMonitor;
+            _MicrosoftIdentityApplicationOptionsMonitor = MicrosoftIdentityApplicationOptionsMonitor;
         }
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web.Hosts
             }
 
             _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
-            _microsoftAuthenticationOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
+            _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;

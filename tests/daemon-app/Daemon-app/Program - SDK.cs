@@ -25,7 +25,7 @@ namespace daemon_console
             tokenAcquirerFactory.Build();
 
             /*
-            var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftAuthenticationOptions
+            var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
             {
                 ClientId = "6af093f3-b445-4b7a-beae-046864468ad6",
                 Authority = "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",

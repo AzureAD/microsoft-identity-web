@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
-                instance.Services.AddOptions<MicrosoftAuthenticationOptions>(string.Empty);
+                instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>(string.Empty);
                 instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
                 instance.Services.AddSingleton<IConfiguration>(defaultInstance.Configuration);
             }
@@ -181,7 +181,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationIdentityOptions)
+        public ITokenAcquirer GetTokenAcquirer(IdentityApplicationOptions applicationIdentityOptions)
         {
             implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
             return implementation.GetTokenAcquirer(applicationIdentityOptions);

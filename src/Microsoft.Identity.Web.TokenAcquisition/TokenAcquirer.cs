@@ -43,7 +43,8 @@ namespace Microsoft.Identity.Web
                 result.TenantId,
                 result.IdToken,
                 result.Scopes,
-                result.CorrelationId);
+                result.CorrelationId,
+                result.TokenType);
         }
 
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
@@ -63,7 +64,8 @@ namespace Microsoft.Identity.Web
                 result.TenantId,
                 result.IdToken,
                 result.Scopes,
-                result.CorrelationId);
+                result.CorrelationId,
+                result.TokenType);
         }
 
         private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)

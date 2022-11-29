@@ -50,9 +50,9 @@ namespace Microsoft.Identity.Web
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftAuthenticationOptionsMerger)) == null)
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityApplicationOptionsMerger)) == null)
             {
-                services.TryAddSingleton<IPostConfigureOptions<MicrosoftAuthenticationOptions>, MicrosoftAuthenticationOptionsMerger>();
+                services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityApplicationOptions>, MicrosoftIdentityApplicationOptionsMerger>();
             }
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(ConfidentialClientApplicationOptionsMerger)) == null)
             {
