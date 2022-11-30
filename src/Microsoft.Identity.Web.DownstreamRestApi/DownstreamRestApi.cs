@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -40,7 +42,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<HttpResponseMessage> CallRestApiForUserAsync(
+        public Task<HttpResponseMessage> CallRestApiForUserAsync(
             string serviceName,
             Action<DownstreamRestApiOptions>? calledDownstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
@@ -48,70 +50,41 @@ namespace Microsoft.Identity.Web
             CancellationToken cancellationToken = default)
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamRestApiOptionsOverride);
-
-            if (effectiveOptions.Scopes == null)
-            {
-                throw new ArgumentException(ScopesNotConfiguredInConfigurationOrViaDelegate);
-            }
-
-            string apiUrl = effectiveOptions.GetApiUrl();
-
-            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                effectiveOptions.HttpMethod,
-                apiUrl);
-            if (content != null)
-            {
-                httpRequestMessage.Content = content;
-            }
-
-            string authorizationHeader = await
-                _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                    effectiveOptions.Scopes,
-                    effectiveOptions,
-                    user,
-                    cancellationToken).ConfigureAwait(false);
-
-            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
-            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+            return CallRestApiInternalAsync(serviceName,
+                effectiveOptions,
+                   async (scopes, options) =>
+                   {
+                       return await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                        scopes,
+                        options,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                   },
+                content,
+                cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<HttpResponseMessage> CallRestApiForAppAsync(
-            string serviceName,
-            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
-            HttpContent? content = null,
-            CancellationToken cancellationToken = default)
+        public Task<HttpResponseMessage> CallRestApiForAppAsync(
+           string serviceName,
+           Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+           HttpContent? content = null,
+           CancellationToken cancellationToken = default)
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-
-            if (effectiveOptions.Scopes == null)
-            {
-                throw new ArgumentException(ScopesNotConfiguredInConfigurationOrViaDelegate);
-            }
-
-            string apiUrl = effectiveOptions.GetApiUrl();
-
-            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                effectiveOptions.HttpMethod,
-                apiUrl);
-            if (content != null)
-            {
-                httpRequestMessage.Content = content;
-            }
-
-            string authorizationHeader = await
-                _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                    effectiveOptions.Scopes.FirstOrDefault(),
-                    effectiveOptions,
-                    cancellationToken).ConfigureAwait(false);
-
-            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
-            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+            return CallRestApiInternalAsync(serviceName, effectiveOptions,
+                async (scopes, options) =>
+                {
+                    return await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                     scopes.FirstOrDefault(),
+                     options,
+                     cancellationToken).ConfigureAwait(false);
+                },
+                content, cancellationToken);
         }
+
+
+        private delegate StringContent Serializer<T>(T objectToSerialize);
 
         /// <inheritdoc/>
         public async Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
@@ -121,10 +94,16 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+
             HttpContent? effectiveInput;
             if (input is HttpContent)
             {
                 effectiveInput = input as HttpContent;
+            }
+            else if (effectiveOptions.Serializer != null)
+            {
+                effectiveInput = effectiveOptions.Serializer(input);
             }
             else
             {
@@ -167,7 +146,14 @@ namespace Microsoft.Identity.Web
                 return default;
             }
 
-            return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (effectiveOptions.Deserializer != null)
+            {
+                return effectiveOptions.Deserializer(content) as TOutput;
+            }
+            else
+            {
+                return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
         }
 
         /// <inheritdoc/>
@@ -364,6 +350,45 @@ namespace Microsoft.Identity.Web
         private static StringContent ConvertFromInput<TInput>(TInput input)
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
+        }
+
+        private delegate Task<string> AuthorizationHeaderCreator(IEnumerable<string> scopes, DownstreamRestApiOptions options);
+
+        private async Task<HttpResponseMessage> CallRestApiInternalAsync(
+            string serviceName,
+            DownstreamRestApiOptions effectiveOptions,
+            AuthorizationHeaderCreator authorizationHeaderCreator,
+            HttpContent? content = null,
+
+            CancellationToken cancellationToken = default)
+        {
+            if (effectiveOptions.Scopes == null)
+            {
+                throw new ArgumentException(ScopesNotConfiguredInConfigurationOrViaDelegate);
+            }
+
+            // Downstream API URI
+            string apiUrl = effectiveOptions.GetApiUrl();
+
+            // Creation of the Http Request message with the right HTTP Method
+            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                effectiveOptions.HttpMethod,
+                apiUrl);
+            if (content != null)
+            {
+                httpRequestMessage.Content = content;
+            }
+
+            // Obtention of the authorization header
+            string authorizationHeader = await authorizationHeaderCreator(effectiveOptions.Scopes, effectiveOptions);
+            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+
+            // Opportunity to change the request message
+            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+
+            // Send the HTTP message
+            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
+            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
 }
