@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IOptionsMonitor<DownstreamRestApiOptionsWithScopes> _namedDownstreamRestApiOptions;
+        private readonly IOptionsMonitor<DownstreamRestApiOptions> _namedDownstreamRestApiOptions;
         private const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         private const string Authorization = "Authorization";
 
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         public DownstreamRestApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
-            IOptionsMonitor<DownstreamRestApiOptionsWithScopes> namedDownstreamRestApiOptions,
+            IOptionsMonitor<DownstreamRestApiOptions> namedDownstreamRestApiOptions,
             IHttpClientFactory httpClientFactory)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
@@ -42,12 +42,12 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallRestApiForUserAsync(
             string serviceName,
-            Action<DownstreamRestApiOptionsWithScopes>? calledDownstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? calledDownstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
             CancellationToken cancellationToken = default)
         {
-            DownstreamRestApiOptionsWithScopes effectiveOptions = MergeOptions(serviceName, calledDownstreamRestApiOptionsOverride);
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, calledDownstreamRestApiOptionsOverride);
 
             if (effectiveOptions.Scopes == null)
             {
@@ -80,11 +80,11 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallRestApiForAppAsync(
             string serviceName,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             HttpContent? content = null,
             CancellationToken cancellationToken = default)
         {
-            DownstreamRestApiOptionsWithScopes effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
 
             if (effectiveOptions.Scopes == null)
             {
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web
         public async Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<TOutput?> CallRestApiForUserAsync<TOutput>(
             string serviceName,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
@@ -190,7 +190,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<TOutput?> GetForUserAsync<TOutput>(
             string serviceName,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
@@ -208,7 +208,7 @@ namespace Microsoft.Identity.Web
         public async Task GetForUserAsync<TInput>(
             string serviceName,
             TInput inputData,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default)
         {
@@ -227,7 +227,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             string relativePath,
             TInput inputData,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
@@ -248,7 +248,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             string relativePath,
             TInput inputData,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default)
         {
@@ -267,7 +267,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             string relativePath,
             TInput inputData,
-            Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
@@ -288,12 +288,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ DownstreamRestApiOptionsWithScopes MergeOptions(
+        internal /* for tests */ DownstreamRestApiOptions MergeOptions(
             string optionsInstanceName,
-            Action<DownstreamRestApiOptionsWithScopes>? calledApiOptionsOverride)
+            Action<DownstreamRestApiOptions>? calledApiOptionsOverride)
         {
             // Gets the options from configuration (or default value)
-            DownstreamRestApiOptionsWithScopes options;
+            DownstreamRestApiOptions options;
             if (optionsInstanceName != null)
             {
                 options = _namedDownstreamRestApiOptions.Get(optionsInstanceName);
@@ -303,7 +303,7 @@ namespace Microsoft.Identity.Web
                 options = _namedDownstreamRestApiOptions.CurrentValue;
             }
 
-            DownstreamRestApiOptionsWithScopes clonedOptions = new DownstreamRestApiOptionsWithScopes(options);
+            DownstreamRestApiOptions clonedOptions = new DownstreamRestApiOptions(options);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -336,11 +336,11 @@ namespace Microsoft.Identity.Web
             return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
-        private static Action<DownstreamRestApiOptionsWithScopes> PrepareOptions(
-          Action<DownstreamRestApiOptionsWithScopes>? downstreamRestApiOptionsOverride,
+        private static Action<DownstreamRestApiOptions> PrepareOptions(
+          Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride,
           HttpMethod httpMethod)
         {
-            Action<DownstreamRestApiOptionsWithScopes> downstreamRestApiOptions;
+            Action<DownstreamRestApiOptions> downstreamRestApiOptions;
 
             if (downstreamRestApiOptionsOverride == null)
             {

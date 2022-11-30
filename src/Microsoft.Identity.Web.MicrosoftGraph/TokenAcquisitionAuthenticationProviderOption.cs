@@ -13,6 +13,6 @@ namespace Microsoft.Identity.Web
         public bool? AppOnly { get; set; }
         public string? Tenant { get; set; }
         public string? AuthenticationScheme { get; set; }
-        public Action<DownstreamRestApiOptions>? DownstreamRestApiOptions { get; set; }
+        public Action<AuthorizationHeaderProviderOptions>? AuthorizationHeaderProviderOptions { get; set; }
     }
 }

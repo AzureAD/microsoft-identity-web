@@ -31,7 +31,7 @@ namespace OwinWebApp.Controllers
                                                           this.GetAuthorizationHeaderProvider();
                 string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                         new[] { "user.read" },
-                        new DownstreamRestApiOptions
+                        new AuthorizationHeaderProviderOptions
                         {
                             BaseUrl = "https://graph.microsoft.com/v1.0/me"
                         });

@@ -51,13 +51,13 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            DownstreamRestApiOptionsWithScopes? downstreamRestApiOptions = new DownstreamRestApiOptionsWithScopes() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
+            DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
             downstreamRestApiOptions.TokenAcquirerOptions.AuthenticationOptionsName = scheme;
             downstreamRestApiOptions.TokenAcquirerOptions.Tenant = tenant;
 
-            if (msalAuthProviderOption?.DownstreamRestApiOptions != null)
+            if (msalAuthProviderOption?.AuthorizationHeaderProviderOptions != null)
             {
-                msalAuthProviderOption.DownstreamRestApiOptions(downstreamRestApiOptions);
+                msalAuthProviderOption.AuthorizationHeaderProviderOptions(downstreamRestApiOptions);
             }
 
             string authorizationHeader;

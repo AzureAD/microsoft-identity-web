@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<string> CreateAuthorizationHeaderForUserAsync(
             IEnumerable<string> scopes,
-            DownstreamRestApiOptions? downstreamApiOptions = null,
+            AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
         {
@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, DownstreamRestApiOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+        public async Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scopes,
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
             return result.CreateAuthorizationHeader();
         }
 
-        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromRestApiOptions(DownstreamRestApiOptions? downstreamApiOptions, CancellationToken cancellationToken)
+        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromRestApiOptions(AuthorizationHeaderProviderOptions? downstreamApiOptions, CancellationToken cancellationToken)
         {
             return new TokenAcquisitionOptions()
             {

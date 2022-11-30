@@ -63,9 +63,9 @@ namespace Microsoft.Identity.Web
         /// the authentication options</param>
         /// <returns>Base request</returns>
         public static T WithAuthenticationOptions<T>(this T baseRequest, 
-            Action<DownstreamRestApiOptions> overrideAuthenticationOptions) where T : IBaseRequest
+            Action<AuthorizationHeaderProviderOptions> overrideAuthenticationOptions) where T : IBaseRequest
         {
-            return SetParameter(baseRequest, options => options.DownstreamRestApiOptions = overrideAuthenticationOptions);
+            return SetParameter(baseRequest, options => options.AuthorizationHeaderProviderOptions = overrideAuthenticationOptions);
         }
 
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
