@@ -169,6 +169,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
+            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
@@ -177,7 +178,7 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,

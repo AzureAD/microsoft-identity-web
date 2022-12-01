@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.Internal
             IConfigurationSection? configuration)
         {
             services.AddOptions<ConfidentialClientApplicationOptions>(authenticationScheme)
-                            .Configure<IOptionsMonitor<MergedOptions>>((
+                            .Configure<IMergedOptionsStore>((
                                ccaOptions, mergedOptionsMonitor) =>
                             {
                                 configureConfidentialClientApplicationOptions(ccaOptions);

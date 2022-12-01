@@ -29,6 +29,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Null(actual.ImplementationFactory);
                 },
                 actual =>
+                 {
+                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                     Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);
+                     Assert.Equal(typeof(MergedOptionsStore), actual.ImplementationType);
+                     Assert.Null(actual.ImplementationInstance);
+                     Assert.Null(actual.ImplementationFactory);
+                 },
+                actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                     Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);

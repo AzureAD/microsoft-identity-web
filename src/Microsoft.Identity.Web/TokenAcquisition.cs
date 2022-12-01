@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal partial class TokenAcquisition : ITokenAcquisitionInternal
     {
-        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        private readonly IMergedOptionsStore _mergedOptionsMonitor;
         private readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new object();
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
+            IMergedOptionsStore mergedOptionsMonitor,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
             IServiceProvider serviceProvider)
