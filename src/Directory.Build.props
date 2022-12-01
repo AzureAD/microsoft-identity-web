@@ -69,7 +69,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <IdentityModelVersion>6.25.0</IdentityModelVersion>
+    <IdentityModelVersion>6.25.1</IdentityModelVersion>
     <MicrosoftIdentityClientVersion>4.46.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.1.0</AzureSecurityKeyVaultSecretsVersion>
