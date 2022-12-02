@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
                 services.AddTokenAcquisition();
 
                 services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                   .Configure<IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                   .Configure<IMergedOptionsStore, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
                        options,
                        mergedOptionsMonitor,
                        ccaOptionsMonitor,

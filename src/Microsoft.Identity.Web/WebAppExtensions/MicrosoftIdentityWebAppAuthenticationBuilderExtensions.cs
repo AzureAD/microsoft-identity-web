@@ -228,6 +228,7 @@ namespace Microsoft.Identity.Web
             }
             
             builder.Services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
+            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             builder.Services.AddHttpClient();
 
             if (!string.IsNullOrEmpty(cookieScheme))
@@ -275,7 +276,7 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,

@@ -8,12 +8,12 @@ namespace Microsoft.Identity.Web
 {
     internal sealed class MicrosoftAuthenticationOptionsMerger : IPostConfigureOptions<MicrosoftAuthenticationOptions>
     {
-        public MicrosoftAuthenticationOptionsMerger(IOptionsMonitor<MergedOptions> mergedOptions)
+        public MicrosoftAuthenticationOptionsMerger(IMergedOptionsStore mergedOptions)
         {
             _mergedOptionsMonitor = mergedOptions;
         }
 
-        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
         public void PostConfigure(string name, MicrosoftAuthenticationOptions options)
         {

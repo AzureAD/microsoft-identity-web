@@ -8,12 +8,12 @@ namespace Microsoft.Identity.Web
 {
     internal class JwtBearerOptionsMerger : IPostConfigureOptions<JwtBearerOptions>
     {
-        public JwtBearerOptionsMerger(IOptionsMonitor<MergedOptions> mergedOptions)
+        public JwtBearerOptionsMerger(IMergedOptionsStore mergedOptions)
         {
             _mergedOptionsMonitor = mergedOptions;
         }
 
-        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
         public void PostConfigure(string name, JwtBearerOptions options)
         {

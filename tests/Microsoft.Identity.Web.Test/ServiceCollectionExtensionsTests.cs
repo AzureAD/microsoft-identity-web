@@ -21,9 +21,10 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
+            ServiceDescriptor[] orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToArray();
 
             Assert.Collection(
-                services.OrderBy(s => s.ServiceType.FullName),
+                orderedServices,
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
@@ -77,6 +78,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Null(actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);
+                    Assert.Equal(typeof(MergedOptionsStore), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
                 },
                 actual =>
                {
