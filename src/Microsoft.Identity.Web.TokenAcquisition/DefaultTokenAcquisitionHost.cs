@@ -14,13 +14,13 @@ namespace Microsoft.Identity.Web.Hosts
     internal sealed class DefaultTokenAcquisitionHost : ITokenAcquisitionHost
     {
         readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        readonly IMergedOptionsStore _mergedOptionsMonitor;
         readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
         readonly IOptionsMonitor<MicrosoftAuthenticationOptions> _microsoftAuthenticationOptionsMonitor;
 
         public DefaultTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
-            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
+            IMergedOptionsStore mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
             IOptionsMonitor<MicrosoftAuthenticationOptions> microsoftAuthenticationOptionsMonitor)
         {

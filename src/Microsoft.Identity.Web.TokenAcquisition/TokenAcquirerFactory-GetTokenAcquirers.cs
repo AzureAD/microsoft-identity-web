@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
                     microsoftAuthenticationOptions.AzureRegion = region;
                 }
 
-                var optionsMonitor = ServiceProvider.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
                 var mergedOptions = optionsMonitor.Get(key);
                 MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
                 tokenAcquirer = GetTokenAcquirer(key);
@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Web
             string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
             if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
-                var optionsMonitor = ServiceProvider!.GetRequiredService<IOptionsMonitor<MergedOptions>>();
+                var optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
                 var mergedOptions = optionsMonitor.Get(key);
                 MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
                 tokenAcquirer = GetTokenAcquirer(key);

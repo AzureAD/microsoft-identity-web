@@ -1,3 +1,8 @@
+1.25.10
+==========
+- Merge the PR for #1957.
+- Update to Wilson 6.25.1
+
 1.25.9
 ==========
 Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
