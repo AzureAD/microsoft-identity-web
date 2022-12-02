@@ -1,3 +1,7 @@
+2.0.7-preview
+==========
+- Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
 1.25.10
 ==========
 - Merge the PR for #1957.
