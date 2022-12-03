@@ -163,8 +163,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\I
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "tests\IntegrationTests\NET 7 tests\WebApp\WebApp.csproj", "{9F04C458-2677-4049-BD32-39A110C190DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Abstractions", "..\microsoft-identity-abstractions-for-dotnet\src\Microsoft.Identity.Abstractions\Microsoft.Identity.Abstractions.csproj", "{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -351,10 +349,6 @@ Global
 		{9F04C458-2677-4049-BD32-39A110C190DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F04C458-2677-4049-BD32-39A110C190DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F04C458-2677-4049-BD32-39A110C190DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98F57CC8-01A0-49F3-B859-DDC4F8F5CD2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
