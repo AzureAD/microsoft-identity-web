@@ -8,10 +8,36 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="DownstreamRestApi - Copy.HttpMethods.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DownstreamRestApi.HttpMethods.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DownstreamRestApi.HttpMethods.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="DownstreamRestApi.HttpMethods.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DownstreamRestApi.HttpMethods.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="DownstreamRestApi.HttpMethods.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DownstreamRestApi.HttpMethods.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
