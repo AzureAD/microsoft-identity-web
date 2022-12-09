@@ -293,7 +293,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             services.AddHttpClient();
             _provider = services.BuildServiceProvider();
         }
-
     }
 #endif //FROM_GITHUB_ACTION
 }
