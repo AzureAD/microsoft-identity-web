@@ -43,11 +43,11 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
-            string serviceName,
+            string? serviceName,
 <# if (hasInput){ #>
             TInput input,
 <# } #>
-            Action<DownstreamRestApiOptionsNoHttpMethod>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
 <# if (!hasApp){ #>
             ClaimsPrincipal? user = null,
 <# } #>

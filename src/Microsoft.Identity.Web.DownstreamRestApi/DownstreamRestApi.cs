@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<HttpResponseMessage> CallRestApiAsync(
-            string serviceName,
+            string? serviceName,
             Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
@@ -54,10 +54,20 @@ namespace Microsoft.Identity.Web
                                             user, cancellationToken);
         }
 
+        public Task<HttpResponseMessage> CallRestApiAsync(
+            DownstreamRestApiOptions downstreamRestApiOptions,
+            ClaimsPrincipal? user = null,
+            HttpContent? content = null,
+            CancellationToken cancellationToken = default)
+        {
+            return CallRestApiInternalAsync(null, downstreamRestApiOptions, downstreamRestApiOptions.RequestAppToken, content,
+                                user, cancellationToken);
+        }
+
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<HttpResponseMessage> CallRestApiForUserAsync(
-            string serviceName,
+            string? serviceName,
             Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
@@ -70,7 +80,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<HttpResponseMessage> CallRestApiForAppAsync(
-           string serviceName,
+           string? serviceName,
            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
            HttpContent? content = null,
            CancellationToken cancellationToken = default)
@@ -81,7 +91,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
-            string serviceName,
+            string? serviceName,
             TInput input,
             Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
@@ -104,7 +114,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<TOutput?> CallRestApiForUserAsync<TOutput>(
-            string serviceName,
+            string? serviceName,
             Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
@@ -121,7 +131,7 @@ namespace Microsoft.Identity.Web
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         internal /* for tests */ DownstreamRestApiOptions MergeOptions(
-            string optionsInstanceName,
+            string? optionsInstanceName,
             Action<DownstreamRestApiOptions>? calledApiOptionsOverride)
         {
             // Gets the options from configuration (or default value)
@@ -147,8 +157,8 @@ namespace Microsoft.Identity.Web
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         /// <param name="httpMethod">Http method overriding the configuration options.</param>
         internal /* for tests */ DownstreamRestApiOptions MergeOptions(
-            string optionsInstanceName,
-            Action<DownstreamRestApiOptionsNoHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
+            string? optionsInstanceName,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
         {
             // Gets the options from configuration (or default value)
             DownstreamRestApiOptions options;
@@ -161,7 +171,7 @@ namespace Microsoft.Identity.Web
                 options = _namedDownstreamRestApiOptions.CurrentValue;
             }
 
-            DownstreamRestApiOptionsNoHttpMethod clonedOptions = new DownstreamRestApiOptionsNoHttpMethod(options, httpMethod);
+            DownstreamRestApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamRestApiOptionsReadOnlyHttpMethod(options, httpMethod);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -206,9 +216,9 @@ namespace Microsoft.Identity.Web
 #endif
             }
 
-            string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            HttpContent content = response.Content;
 
-            if (string.IsNullOrWhiteSpace(content))
+            if (content == null)
             {
                 return default;
             }
@@ -219,12 +229,13 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                return JsonSerializer.Deserialize<TOutput>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                string stringContent = await content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
         }
 
         private async Task<HttpResponseMessage> CallRestApiInternalAsync(
-            string serviceName,
+            string? serviceName,
             DownstreamRestApiOptions effectiveOptions,
             bool appToken,
             HttpContent? content = null,
@@ -265,7 +276,7 @@ namespace Microsoft.Identity.Web
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
 
             // Send the HTTP message
-            using HttpClient client = _httpClientFactory.CreateClient(serviceName);
+            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
