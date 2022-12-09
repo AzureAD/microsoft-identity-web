@@ -134,9 +134,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 .AcquireTokenByUsernamePassword(
                 TestConstants.OBOApiScope,
                 TestConstants.OBOUser,
-                new NetworkCredential(
-                    TestConstants.OBOUser,
-                    labResponse.User.GetOrFetchPassword()).SecurePassword)
+                labResponse.User.GetOrFetchPassword())
                 .ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
 
