@@ -119,6 +119,8 @@ namespace Microsoft.Identity.Web
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }
+
+            services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             return services;
         }
     }

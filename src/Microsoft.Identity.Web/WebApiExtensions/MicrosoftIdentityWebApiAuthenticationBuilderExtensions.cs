@@ -132,6 +132,7 @@ namespace Microsoft.Identity.Web
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
+            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
@@ -154,7 +155,7 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,

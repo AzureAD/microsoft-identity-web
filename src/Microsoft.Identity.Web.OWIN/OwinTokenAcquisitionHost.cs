@@ -16,13 +16,13 @@ namespace Microsoft.Identity.Web.Hosts
     internal class OwinTokenAcquisitionHost : ITokenAcquisitionHost
     {
         readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        readonly IMergedOptionsStore _mergedOptionsMonitor;
         readonly IOptionsMonitor<ConfidentialClientApplicationOptions> _ccaOptionsMonitor;
         readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _MicrosoftIdentityApplicationOptionsMonitor;
 
         public OwinTokenAcquisitionHost(
             IOptionsMonitor<MicrosoftIdentityOptions> microsoftIdentityOptionsMonitor,
-            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
+            IMergedOptionsStore mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
             IOptionsMonitor<MicrosoftIdentityApplicationOptions> MicrosoftIdentityApplicationOptionsMonitor)
         {

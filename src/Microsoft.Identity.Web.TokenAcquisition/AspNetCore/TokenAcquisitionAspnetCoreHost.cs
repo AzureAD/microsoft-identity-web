@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private HttpContext? CurrentHttpContext => _httpContextAccessor.HttpContext;
-        private readonly IOptionsMonitor<MergedOptions> _mergedOptionsMonitor;
+        private readonly IMergedOptionsStore _mergedOptionsMonitor;
         private readonly IServiceProvider _serviceProvider;
 
 
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceProvider">Service provider.</param>
         public TokenAcquisitionAspnetCoreHost(
             IHttpContextAccessor httpContextAccessor,
-            IOptionsMonitor<MergedOptions> mergedOptionsMonitor,
+            IMergedOptionsStore mergedOptionsMonitor,
             IServiceProvider serviceProvider)
         {
             _httpContextAccessor = httpContextAccessor;
