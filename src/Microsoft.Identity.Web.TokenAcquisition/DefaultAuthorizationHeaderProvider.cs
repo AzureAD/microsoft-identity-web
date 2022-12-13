@@ -22,45 +22,45 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<string> CreateAuthorizationHeaderForUserAsync(
             IEnumerable<string> scopes,
-            DownstreamRestApiOptions? downstreamApiOptions = null,
+            AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
-                downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
-                downstreamApiOptions?.TokenAcquirerOptions.Tenant,
-                downstreamApiOptions?.TokenAcquirerOptions.UserFlow,
+                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                downstreamApiOptions?.AcquireTokenOptions.UserFlow,
                 claimsPrincipal,
                 CreateTokenAcquisitionOptionsFromRestApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, DownstreamRestApiOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+        public async Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
         {
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scopes,
-                downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
-                downstreamApiOptions?.TokenAcquirerOptions.Tenant,
+                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                downstreamApiOptions?.AcquireTokenOptions.Tenant,
                 CreateTokenAcquisitionOptionsFromRestApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
         }
 
-        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromRestApiOptions(DownstreamRestApiOptions? downstreamApiOptions, CancellationToken cancellationToken)
+        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromRestApiOptions(AuthorizationHeaderProviderOptions? downstreamApiOptions, CancellationToken cancellationToken)
         {
             return new TokenAcquisitionOptions()
             {
-                AuthenticationOptionsName = downstreamApiOptions?.TokenAcquirerOptions.AuthenticationOptionsName,
+                AuthenticationOptionsName = downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                 CancellationToken = cancellationToken,
-                Claims = downstreamApiOptions?.TokenAcquirerOptions.Claims,
-                CorrelationId = downstreamApiOptions?.TokenAcquirerOptions.CorrelationId ?? Guid.Empty,
-                ExtraQueryParameters = downstreamApiOptions?.TokenAcquirerOptions.ExtraQueryParameters,
-                ForceRefresh = downstreamApiOptions?.TokenAcquirerOptions.ForceRefresh ?? false,
-                LongRunningWebApiSessionKey = downstreamApiOptions?.TokenAcquirerOptions.LongRunningWebApiSessionKey,
-                Tenant = downstreamApiOptions?.TokenAcquirerOptions.Tenant,
-                UserFlow = downstreamApiOptions?.TokenAcquirerOptions.UserFlow,
-                PopPublicKey = downstreamApiOptions?.TokenAcquirerOptions.PopPublicKey,
+                Claims = downstreamApiOptions?.AcquireTokenOptions.Claims,
+                CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
+                ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,
+                ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
+                LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
+                Tenant = downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                UserFlow = downstreamApiOptions?.AcquireTokenOptions.UserFlow,
+                PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
             };
         }
     }

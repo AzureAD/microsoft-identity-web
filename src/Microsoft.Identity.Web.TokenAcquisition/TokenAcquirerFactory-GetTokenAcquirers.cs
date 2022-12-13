@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web
             string key = GetKey(authority, clientId);
             if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
-                MicrosoftAuthenticationOptions microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
+                MicrosoftIdentityApplicationOptions MicrosoftIdentityApplicationOptions = new MicrosoftIdentityApplicationOptions
                 {
                     ClientId = clientId,
                     Authority = authority,
@@ -42,49 +42,49 @@ namespace Microsoft.Identity.Web
                 };
                 if (region != null)
                 {
-                    microsoftAuthenticationOptions.AzureRegion = region;
+                    MicrosoftIdentityApplicationOptions.AzureRegion = region;
                 }
 
                 var optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
                 var mergedOptions = optionsMonitor.Get(key);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
                 tokenAcquirer = GetTokenAcquirer(key);
             }
             return tokenAcquirer;
         }
 
         /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(ApplicationAuthenticationOptions applicationAuthenticationOptions)
+        public ITokenAcquirer GetTokenAcquirer(IdentityApplicationOptions IdentityApplicationOptions)
         {
-            _ = Throws.IfNull(applicationAuthenticationOptions);
+            _ = Throws.IfNull(IdentityApplicationOptions);
 
             CheckServiceProviderNotNull();
 
-            // Compute the Azure region if the option is a MicrosoftAuthenticationOptions.
-            MicrosoftAuthenticationOptions? microsoftAuthenticationOptions = applicationAuthenticationOptions as MicrosoftAuthenticationOptions;
-            if (microsoftAuthenticationOptions == null)
+            // Compute the Azure region if the option is a MicrosoftIdentityApplicationOptions.
+            MicrosoftIdentityApplicationOptions? MicrosoftIdentityApplicationOptions = IdentityApplicationOptions as MicrosoftIdentityApplicationOptions;
+            if (MicrosoftIdentityApplicationOptions == null)
             {
-                microsoftAuthenticationOptions = new MicrosoftAuthenticationOptions
+                MicrosoftIdentityApplicationOptions = new MicrosoftIdentityApplicationOptions
                 {
-                    AllowWebApiToBeAuthorizedByACL = applicationAuthenticationOptions.AllowWebApiToBeAuthorizedByACL,
-                    Audience = applicationAuthenticationOptions.Audience,
-                    Audiences = applicationAuthenticationOptions.Audiences,
-                    Authority = applicationAuthenticationOptions.Authority,
-                    ClientCredentials = applicationAuthenticationOptions.ClientCredentials,
-                    ClientId = applicationAuthenticationOptions.ClientId,
-                    TokenDecryptionCredentials = applicationAuthenticationOptions.TokenDecryptionCredentials,
-                    EnablePiiLogging = applicationAuthenticationOptions.EnablePiiLogging,
+                    AllowWebApiToBeAuthorizedByACL = IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL,
+                    Audience = IdentityApplicationOptions.Audience,
+                    Audiences = IdentityApplicationOptions.Audiences,
+                    Authority = IdentityApplicationOptions.Authority,
+                    ClientCredentials = IdentityApplicationOptions.ClientCredentials,
+                    ClientId = IdentityApplicationOptions.ClientId,
+                    TokenDecryptionCredentials = IdentityApplicationOptions.TokenDecryptionCredentials,
+                    EnablePiiLogging = IdentityApplicationOptions.EnablePiiLogging,
                 };
             }
 
             // Compute the key
             ITokenAcquirer? tokenAcquirer;
-            string key = GetKey(applicationAuthenticationOptions.Authority, applicationAuthenticationOptions.ClientId);
+            string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId);
             if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
             {
                 var optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
                 var mergedOptions = optionsMonitor.Get(key);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(microsoftAuthenticationOptions, mergedOptions);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
                 tokenAcquirer = GetTokenAcquirer(key);
             }
             return tokenAcquirer;

@@ -6,18 +6,18 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class MicrosoftAuthenticationOptionsMerger : IPostConfigureOptions<MicrosoftAuthenticationOptions>
+    internal sealed class MicrosoftIdentityApplicationOptionsMerger : IPostConfigureOptions<MicrosoftIdentityApplicationOptions>
     {
-        public MicrosoftAuthenticationOptionsMerger(IMergedOptionsStore mergedOptions)
+        public MicrosoftIdentityApplicationOptionsMerger(IMergedOptionsStore mergedOptions)
         {
             _mergedOptionsMonitor = mergedOptions;
         }
 
         private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
-        public void PostConfigure(string name, MicrosoftAuthenticationOptions options)
+        public void PostConfigure(string name, MicrosoftIdentityApplicationOptions options)
         {
-            MergedOptions.UpdateMergedOptionsFromMicrosoftAuthenticationOptions(options, _mergedOptionsMonitor.Get(name));
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(options, _mergedOptionsMonitor.Get(name));
         }
     }
 }

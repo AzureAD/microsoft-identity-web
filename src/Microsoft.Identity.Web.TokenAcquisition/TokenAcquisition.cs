@@ -584,7 +584,7 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger, 
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId, authority));
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {

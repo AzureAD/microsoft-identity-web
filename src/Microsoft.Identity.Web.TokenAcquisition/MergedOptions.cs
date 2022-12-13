@@ -432,64 +432,64 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        public static void UpdateMergedOptionsFromMicrosoftAuthenticationOptions(MicrosoftAuthenticationOptions microsoftAuthenticationOptions, MergedOptions mergedOptions)
+        public static void UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions MicrosoftIdentityApplicationOptions, MergedOptions mergedOptions)
         {
-            mergedOptions.AllowWebApiToBeAuthorizedByACL = microsoftAuthenticationOptions.AllowWebApiToBeAuthorizedByACL;
-            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Authority))
+            mergedOptions.AllowWebApiToBeAuthorizedByACL = MicrosoftIdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL;
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.Authority))
             {
-                mergedOptions.Authority = microsoftAuthenticationOptions.Authority;
+                mergedOptions.Authority = MicrosoftIdentityApplicationOptions.Authority;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.AzureRegion) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.AzureRegion))
+            if (string.IsNullOrEmpty(mergedOptions.AzureRegion) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.AzureRegion))
             {
-                mergedOptions.AzureRegion = microsoftAuthenticationOptions.AzureRegion;
+                mergedOptions.AzureRegion = MicrosoftIdentityApplicationOptions.AzureRegion;
             }
 
-            mergedOptions.ClientCapabilities ??= microsoftAuthenticationOptions.ClientCapabilities;
-            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.ClientId))
+            mergedOptions.ClientCapabilities ??= MicrosoftIdentityApplicationOptions.ClientCapabilities;
+            if (string.IsNullOrEmpty(mergedOptions.ClientId) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.ClientId))
             {
-                mergedOptions.ClientId = microsoftAuthenticationOptions.ClientId;
+                mergedOptions.ClientId = MicrosoftIdentityApplicationOptions.ClientId;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Domain))
+            if (string.IsNullOrEmpty(mergedOptions.Domain) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.Domain))
             {
-                mergedOptions.Domain = microsoftAuthenticationOptions.Domain;
+                mergedOptions.Domain = MicrosoftIdentityApplicationOptions.Domain;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.EditProfilePolicyId))
+            if (string.IsNullOrEmpty(mergedOptions.EditProfilePolicyId) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.EditProfilePolicyId))
             {
-                mergedOptions.EditProfilePolicyId = microsoftAuthenticationOptions.EditProfilePolicyId;
+                mergedOptions.EditProfilePolicyId = MicrosoftIdentityApplicationOptions.EditProfilePolicyId;
             }
 
-            mergedOptions.EnablePiiLogging = microsoftAuthenticationOptions.EnablePiiLogging;
-            mergedOptions.ErrorPath = microsoftAuthenticationOptions.ErrorPath;
-            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.Instance))
+            mergedOptions.EnablePiiLogging = MicrosoftIdentityApplicationOptions.EnablePiiLogging;
+            mergedOptions.ErrorPath = MicrosoftIdentityApplicationOptions.ErrorPath;
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.Instance))
             {
-                mergedOptions.Instance = microsoftAuthenticationOptions.Instance;
+                mergedOptions.Instance = MicrosoftIdentityApplicationOptions.Instance;
             }
 
-            mergedOptions.ResetPasswordPath = microsoftAuthenticationOptions.ResetPasswordPath;
-            if (string.IsNullOrEmpty(mergedOptions.ResetPasswordPolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.ResetPasswordPolicyId))
+            mergedOptions.ResetPasswordPath = MicrosoftIdentityApplicationOptions.ResetPasswordPath;
+            if (string.IsNullOrEmpty(mergedOptions.ResetPasswordPolicyId) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.ResetPasswordPolicyId))
             {
-                mergedOptions.ResetPasswordPolicyId = microsoftAuthenticationOptions.ResetPasswordPolicyId;
+                mergedOptions.ResetPasswordPolicyId = MicrosoftIdentityApplicationOptions.ResetPasswordPolicyId;
             }
 
-            mergedOptions.SendX5C = microsoftAuthenticationOptions.SendX5C;
-            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.SignUpSignInPolicyId))
+            mergedOptions.SendX5C = MicrosoftIdentityApplicationOptions.SendX5C;
+            if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.SignUpSignInPolicyId))
             {
-                mergedOptions.SignUpSignInPolicyId = microsoftAuthenticationOptions.SignUpSignInPolicyId;
+                mergedOptions.SignUpSignInPolicyId = MicrosoftIdentityApplicationOptions.SignUpSignInPolicyId;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftAuthenticationOptions.TenantId))
+            if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.TenantId))
             {
-                mergedOptions.TenantId = microsoftAuthenticationOptions.TenantId;
+                mergedOptions.TenantId = MicrosoftIdentityApplicationOptions.TenantId;
             }
 
-            mergedOptions.WithSpaAuthCode = microsoftAuthenticationOptions.WithSpaAuthCode;
+            mergedOptions.WithSpaAuthCode = MicrosoftIdentityApplicationOptions.WithSpaAuthCode;
 
-            if ((mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any()) && microsoftAuthenticationOptions.ClientCredentials != null)
+            if ((mergedOptions.ClientCredentials == null || !mergedOptions.ClientCredentials.Any()) && MicrosoftIdentityApplicationOptions.ClientCredentials != null)
             {
-                mergedOptions.ClientCredentials = microsoftAuthenticationOptions.ClientCredentials;
+                mergedOptions.ClientCredentials = MicrosoftIdentityApplicationOptions.ClientCredentials;
             }
         }
 

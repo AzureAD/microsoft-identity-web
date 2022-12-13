@@ -58,12 +58,12 @@ namespace Microsoft.Identity.Web
 
             if (certificate.Properties.NotBefore == null || certificate.Properties.ExpiresOn == null)
             {
-                return null;
+                return Task.FromResult<X509Certificate2?>(null);
             }
 
             if (DateTimeOffset.UtcNow < certificate.Properties.NotBefore || DateTimeOffset.UtcNow > certificate.Properties.ExpiresOn)
             {
-                return null;
+                return Task.FromResult<X509Certificate2?>(null);
             }
 
             // Return a certificate with only the public key if the private key is not exportable.
