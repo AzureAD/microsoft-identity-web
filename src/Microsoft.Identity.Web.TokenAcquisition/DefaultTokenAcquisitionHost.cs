@@ -22,12 +22,12 @@ namespace Microsoft.Identity.Web.Hosts
             IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
             IMergedOptionsStore mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
-            IOptionsMonitor<MicrosoftIdentityApplicationOptions> MicrosoftIdentityApplicationOptionsMonitor)
+            IOptionsMonitor<MicrosoftIdentityApplicationOptions> microsoftIdentityApplicationOptionsMonitor)
         {
             _microsoftIdentityOptionsMonitor = optionsMonitor;
             _mergedOptionsMonitor = mergedOptionsMonitor;
             _ccaOptionsMonitor = ccaOptionsMonitor;
-            _MicrosoftIdentityApplicationOptionsMonitor = MicrosoftIdentityApplicationOptionsMonitor;
+            _MicrosoftIdentityApplicationOptionsMonitor = microsoftIdentityApplicationOptionsMonitor;
         }
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)

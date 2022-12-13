@@ -13,7 +13,6 @@ namespace Microsoft.Identity.Web
     /// <inheritdoc/>
     internal partial class DownstreamRestApi : IDownstreamRestApi
     {
-
         /// <inheritdoc/>
         public async Task<TOutput?> GetForUserAsync<TOutput>(
             string? serviceName,
@@ -23,9 +22,7 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Get);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          null, user, cancellationToken).ConfigureAwait(false);
-
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
 
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
@@ -41,15 +38,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -61,9 +56,7 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Get);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          null, null, cancellationToken).ConfigureAwait(false);
-
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
 
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
@@ -78,15 +71,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -100,15 +91,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -122,15 +111,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -143,15 +130,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -164,15 +149,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -186,15 +169,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -208,15 +189,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -229,15 +208,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -250,15 +227,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -272,15 +247,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -294,15 +267,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
-                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
@@ -315,15 +286,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
         }
 
         /// <inheritdoc/>
@@ -336,15 +305,13 @@ namespace Microsoft.Identity.Web
         {
             DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
-                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
             if (input is not HttpContent)
             {
                 effectiveInput?.Dispose();
             }
-
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
     }

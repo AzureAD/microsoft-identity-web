@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Resource
     /// </summary>
     internal class RegisterValidAudience
     {
-        private string? ClientId { get; set; } = null!;
+        private string? ClientId { get; set; } = null;
         private bool IsB2C { get; set; }
 
         public void RegisterAudienceValidation(

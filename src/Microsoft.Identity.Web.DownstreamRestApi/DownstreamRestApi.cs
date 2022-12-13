@@ -54,6 +54,8 @@ namespace Microsoft.Identity.Web
                                             user, cancellationToken);
         }
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<HttpResponseMessage> CallRestApiAsync(
             DownstreamRestApiOptions downstreamRestApiOptions,
             ClaimsPrincipal? user = null,
@@ -175,7 +177,6 @@ namespace Microsoft.Identity.Web
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
-
 
         private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamRestApiOptions effectiveOptions)
         {
