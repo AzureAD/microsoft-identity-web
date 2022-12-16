@@ -1,3 +1,7 @@
+2.0.8-preview
+==========
+- Update [Microsoft.Identity.Abstractions 1.0.5-preview](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/1.0.5-preview), which has breaking changes.
+
 2.0.7-preview
 ==========
 - Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
