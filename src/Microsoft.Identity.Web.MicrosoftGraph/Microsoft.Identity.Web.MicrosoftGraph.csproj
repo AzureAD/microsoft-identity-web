@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net6.0; net462; net472</TargetFrameworks>
-  </PropertyGroup>
-
 </Project>

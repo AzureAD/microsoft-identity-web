@@ -4,6 +4,7 @@
         <TargetFrameworks>net7.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <AssemblyOriginatorKeyFile>../../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>

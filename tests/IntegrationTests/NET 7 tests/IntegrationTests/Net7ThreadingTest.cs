@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
 using WebApp;
+using Xunit;
 
 namespace IntegrationTests;
 
