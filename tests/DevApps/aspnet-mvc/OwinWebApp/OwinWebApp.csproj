@@ -14,7 +14,7 @@
     <RootNamespace>OwinWebApp</RootNamespace>
     <AssemblyName>OwinWebApp</AssemblyName>
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
-    <TargetFrameworks></TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>

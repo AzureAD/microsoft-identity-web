@@ -13,7 +13,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OwinWebApi</RootNamespace>
     <AssemblyName>OwinWebApi</AssemblyName>
-    <TargetFrameworks></TargetFrameworks>
+    <RuntimeIdentifiers>win</RuntimeIdentifiers>
+    <TargetFrameworks>net472</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
