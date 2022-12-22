@@ -14,7 +14,13 @@ namespace Microsoft.Identity.Web
 
         private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
-        public void PostConfigure(string name, MicrosoftIdentityOptions options)
+        public void PostConfigure(
+#if NET7_0_OR_GREATER
+            string? name,
+#else
+            string name,
+#endif
+            MicrosoftIdentityOptions options)
         {
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(options, _mergedOptionsMonitor.Get(name));
         }

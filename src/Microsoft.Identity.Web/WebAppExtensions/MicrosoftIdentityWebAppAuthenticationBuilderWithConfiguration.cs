@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
             return EnableTokenAcquisitionToCallDownstreamApi(
                 options =>
                 {
-                    ConfigurationSection.Bind(options);
+                    ConfigurationSection?.Bind(options);
                     if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
                     {
                         options.ClientId = AppServicesAuthenticationInformation.ClientId;
