@@ -7,8 +7,8 @@
   - 'Post Analysis'
 - [template-bootstrap-build.yaml](template-bootstrap-build.yaml)
   - [template-install-dotnet-core.yaml](template-install-dotnet-core.yaml)
-    - 'Use .Net Core SDK 5.0.100'
-    - 'Use .Net Core SDK 3.1.404'
+    - 'Use .Net Core SDK 6'
+    - 'Use .Net Core SDK 7'
   - [template-install-nuget.yaml](template-install-nuget.yaml)
 - [template-install-keyvault-secrets.yaml](template-install-keyvault-secrets.yaml)
   - 'Azure Key Vault: buildautomation'
