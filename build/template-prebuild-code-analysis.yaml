@@ -8,7 +8,7 @@ steps:
     targetArgument: $(Build.SourcesDirectory)
     targetType: F
     optionsFTPATH: 'build/policheck_filetypes.xml'
-    optionsUEPATH: 'build/policheck_exclusions.xml'
+    optionsUEPATH: '$(Build.SourcesDirectory)/build/policheck_exclusions.xml'
   continueOnError: true
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
