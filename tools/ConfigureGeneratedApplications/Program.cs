@@ -49,7 +49,7 @@ namespace ConfigureGeneratedApplications
             builder.AppendLine("2. Test the following projects: ");
             foreach (Project p in configuration.Projects)
             {
-                builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"   - [ ] {p.ProjectRelativeFolder}");
             }
 
             System.IO.File.WriteAllText(Path.Combine(folder, "issue.md"), builder.ToString());
