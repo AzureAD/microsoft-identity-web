@@ -564,6 +564,15 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
+        [Fact]
+        public void AddJwtBearerMergedOptionsTest()
+        {
+            //Action<JwtBearerMergedOptions> configureJwtBearerMergedOptions = (options) =>
+            //{
+
+            //};
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -610,6 +619,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(TestConstants.GraphBaseUrlBeta, downstreamWebApiOptions.Get(ConfigSectionName).BaseUrl);
                 Assert.Equal(TestConstants.Scopes, downstreamWebApiOptions.Get(ConfigSectionName).Scopes);
                 Assert.Equal(TestConstants.TenantIdAsGuid, downstreamWebApiOptions.Get(ConfigSectionName).Tenant);
+                Assert.Equal(TestConstants.GraphBaseUrlBeta + ('/'), downstreamWebApiOptions.Get(ConfigSectionName).GetApiUrl());
             }
             else
             {
