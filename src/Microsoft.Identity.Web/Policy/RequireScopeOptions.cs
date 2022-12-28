@@ -26,7 +26,11 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public void PostConfigure(
+#if NET7_0_OR_GREATER
+            string? name,
+#else
             string name,
+#endif
             AuthorizationOptions options)
         {
             _ = Throws.IfNull(options);

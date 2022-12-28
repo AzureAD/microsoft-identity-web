@@ -15,7 +15,13 @@ namespace Microsoft.Identity.Web
 
         private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
-        public void PostConfigure(string name, JwtBearerOptions options)
+        public void PostConfigure(
+#if NET7_0_OR_GREATER
+            string? name,
+#else
+            string name,
+#endif            
+            JwtBearerOptions options)
         {
             MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, _mergedOptionsMonitor.Get(name));
         }

@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
         {
-            return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection.Bind(options));
+            return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection?.Bind(options));
         }
     }
 }

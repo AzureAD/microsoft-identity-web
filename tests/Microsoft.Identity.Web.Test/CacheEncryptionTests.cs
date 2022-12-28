@@ -46,10 +46,21 @@ namespace Microsoft.Identity.Web.Test
 
         private byte[] GetFirstCacheValue()
         {
+#if NET7_0_OR_GREATER
+            dynamic content1 = _testCacheAdapter._memoryCache
+                .GetType()
+                .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(_testCacheAdapter._memoryCache);
+            dynamic? content = content1?
+                .GetType()
+                .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(content1);
+#else
             dynamic content = _testCacheAdapter._memoryCache
                 .GetType()
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(_testCacheAdapter._memoryCache);
+#endif
             System.Collections.IDictionary dictionary = content as System.Collections.IDictionary;
             var firstEntry = dictionary.Values.OfType<object>().First();
             var firstEntryValue = firstEntry.GetType()

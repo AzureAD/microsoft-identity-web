@@ -9,11 +9,7 @@
       that call Microsoft Graph Beta.
     </Description>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net6.0</TargetFrameworks>
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\BaseRequestExtensions.cs" Link="BaseRequestExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\GraphServiceCollectionExtensions.cs" Link="GraphServiceCollectionExtensions.cs" />

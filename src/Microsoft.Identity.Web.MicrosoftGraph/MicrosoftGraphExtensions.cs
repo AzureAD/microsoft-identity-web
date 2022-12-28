@@ -11,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-#if !NET472 && !NET462
+#if !NET472 && !NET462 && !NETSTANDARD2_0
     /// <summary>
     /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
