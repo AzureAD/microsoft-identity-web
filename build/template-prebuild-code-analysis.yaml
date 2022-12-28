@@ -5,8 +5,10 @@ steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@2
   displayName: 'Run PoliCheck'
   inputs:
+    targetArgument: $(Build.SourcesDirectory)
     targetType: F
     optionsFTPATH: 'build/policheck_filetypes.xml'
+    optionsUEPATH: '$(Build.SourcesDirectory)/build/policheck_exclusions.xml'
   continueOnError: true
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
