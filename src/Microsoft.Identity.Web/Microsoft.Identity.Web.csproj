@@ -32,7 +32,6 @@
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="AzureSdkSupport\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
-    <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
     <Compile Remove="Policy\**" />
     <Compile Remove="WebApiExtensions\**" />
