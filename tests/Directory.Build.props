@@ -21,8 +21,8 @@
     <NSubstituteVersion>4.2.2</NSubstituteVersion>
     <NSubstituteAnalyzersCSharpVersion>1.0.13</NSubstituteAnalyzersCSharpVersion>
 		<CoverletCollectorVersion>3.1.2</CoverletCollectorVersion>
-    <SeleniumWebDriverVersion>4.3.0</SeleniumWebDriverVersion>
-    <SeleniumWebDriverChromeDriverVersion>87.0.4280.2000</SeleniumWebDriverChromeDriverVersion>
+    <SeleniumWebDriverVersion>4.7.0</SeleniumWebDriverVersion>
+    <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
     <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
     <MicrosoftApplicationInsightsAspNetCoreVersion>2.20.0</MicrosoftApplicationInsightsAspNetCoreVersion>
     <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.20.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
