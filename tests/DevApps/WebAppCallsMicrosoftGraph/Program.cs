@@ -17,6 +17,7 @@ namespace WebAppCallsMicrosoftGraph
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseUrls("https://localhost:5001");
                     webBuilder.UseStartup<Startup>();
                 });
     }
