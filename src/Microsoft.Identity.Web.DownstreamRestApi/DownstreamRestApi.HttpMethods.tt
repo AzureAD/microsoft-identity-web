@@ -21,8 +21,16 @@ namespace Microsoft.Identity.Web
     {
 <#
   bool firstMethod = true;
-  foreach(string httpMethod in new string[]{  "Get", "Post", "Put", "Delete"} )
+  foreach(string httpMethod in new string[]{  "Get", "Post", "Put", "Patch", "Delete"} )
   {
+   if (httpMethod == "Patch")
+   {
+#>
+
+#if !NETFRAMEWORK && !NETSTANDARD2_0
+<#
+   }
+
    foreach(string token in new string[] {"User", "App"})
    {
     foreach(string template in new string[] {"<TInput>", "<TOutput>", "<TInput, TOutput>"} )
@@ -33,7 +41,7 @@ namespace Microsoft.Identity.Web
      if (httpMethod == "Get" && !hasOutput)
       continue;
 
-     if ((httpMethod == "Post" || httpMethod == "Put" || httpMethod == "Delete") && !hasInput)
+     if ((httpMethod == "Post" || httpMethod == "Put" || httpMethod == "Delete" || httpMethod == "Patch") && !hasInput)
       continue;
 
      bool hasApp = (token == "App");
@@ -82,7 +90,15 @@ namespace Microsoft.Identity.Web
 <#
     }
    }
-  }
 #>
+<#
+     if (httpMethod == "Patch")
+     {
+#>
+
+#endif // !NETFRAMEWORK && !NETSTANDARD2_0
+<#
     }
+  }
+#>    }
 }

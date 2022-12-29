@@ -24,8 +24,8 @@
     <SeleniumWebDriverVersion>4.7.0</SeleniumWebDriverVersion>
     <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
     <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
-    <MicrosoftApplicationInsightsAspNetCoreVersion>2.20.0</MicrosoftApplicationInsightsAspNetCoreVersion>
-    <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.20.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
+    <MicrosoftApplicationInsightsAspNetCoreVersion>2.21.0</MicrosoftApplicationInsightsAspNetCoreVersion>
+    <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.21.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
     <MicrosoftExtensionsCachingStackExchangeRedisVersion>5.0.1</MicrosoftExtensionsCachingStackExchangeRedisVersion>
     <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
     <!--CVE-2021-24112-->

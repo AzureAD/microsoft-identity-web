@@ -237,6 +237,88 @@ namespace Microsoft.Identity.Web
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
+#if !NETFRAMEWORK && !NETSTANDARD2_0
+
+        /// <inheritdoc/>
+        public async Task PatchForUserAsync<TInput>(
+            string? serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default)
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Patch);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> PatchForUserAsync<TInput, TOutput>(
+            string? serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Patch);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task PatchForAppAsync<TInput>(
+            string? serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
+            CancellationToken cancellationToken = default)
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Patch);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> PatchForAppAsync<TInput, TOutput>(
+            string? serviceName,
+            TInput input,
+            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.Patch);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+        }
+
+#endif // !NETFRAMEWORK && !NETSTANDARD2_0
+
         /// <inheritdoc/>
         public async Task DeleteForUserAsync<TInput>(
             string? serviceName,
