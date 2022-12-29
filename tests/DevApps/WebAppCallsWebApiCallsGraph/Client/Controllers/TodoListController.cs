@@ -43,7 +43,7 @@ namespace TodoListClient.Controllers
             return View(value);
         }
 
-        // Create an present to the user (no service call)
+        // Create and present to the user (no service call)
         public ActionResult Create()
         {
             Todo todo = new Todo() { Owner = HttpContext.User.Identity.Name };
