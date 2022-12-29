@@ -32,5 +32,12 @@ namespace Microsoft.Identity.Web.Test
         {
             Assert.False(str.ContainsAny(stringCollection));
         }
+
+        [Fact]
+        public void Extensions_Test()
+        {
+            string[] test = new[] { "test", "hello" };
+            Assert.True(Extensions.ContainsAny("test", test));
+        }
     }
 }

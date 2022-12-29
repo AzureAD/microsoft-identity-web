@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
@@ -627,6 +629,40 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Null(downstreamWebApiOptions.Get(ConfigSectionName).Scopes);
                 Assert.Null(downstreamWebApiOptions.Get(ConfigSectionName).Tenant);
             }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ConsentHandlerExtensionsTests(bool withBlazor)
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            services.AddSingleton(configMock);
+
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(
+                configMock,
+                ConfigSectionName);
+            if (withBlazor)
+            {
+                services.AddServerSideBlazor()
+                          .AddMicrosoftIdentityConsentHandler();
+            }
+            else
+            {
+                services.AddMicrosoftIdentityConsentHandler();
+            }
+            services.AddHttpContextAccessor();
+
+            var provider = services.BuildServiceProvider();
+            Assert.Contains(services, s => s.ServiceType == typeof(CircuitHandler));
+            Assert.Contains(services, s => s.ServiceType == typeof(MicrosoftIdentityConsentAndConditionalAccessHandler));
+
+            MicrosoftIdentityConsentAndConditionalAccessHandler accessHandler = new(provider);
+            Assert.False(accessHandler.IsBlazorServer);
         }
 
         private void AddMicrosoftIdentityWebApp_TestCommon(IServiceCollection services, ServiceProvider provider)

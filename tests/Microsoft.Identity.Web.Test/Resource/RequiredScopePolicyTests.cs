@@ -163,7 +163,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                         }
                         else
                         {
-                            policyBuilder.RequireScope(scopes.Split(' '));
+                            policyBuilder.RequireScope(scopes?.Split(' '));
                         }
                     });
                 });
