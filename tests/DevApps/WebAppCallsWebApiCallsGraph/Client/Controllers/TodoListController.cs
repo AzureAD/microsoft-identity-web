@@ -91,7 +91,7 @@ namespace TodoListClient.Controllers
             return RedirectToAction("Index");
         }
 
-        // Get the content of the TODO of ID id to present it to the user for deletion
+        // Get the content of the TODO of ID to present it to the user for deletion
         public async Task<ActionResult> Delete(int id)
         {
             Todo todo = await _downstreamWebApi.GetForUserAsync<Todo>(
