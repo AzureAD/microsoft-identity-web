@@ -2,10 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using Azure.Identity;
 using System.Threading;
 using Microsoft.Identity.Abstractions;
 using System.Threading.Tasks;
