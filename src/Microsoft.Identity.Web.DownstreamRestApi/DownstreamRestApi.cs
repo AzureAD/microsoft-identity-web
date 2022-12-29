@@ -1,5 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+﻿// Licensed under the MIT License.
 
 using System;
 using System.Linq;
@@ -110,6 +109,35 @@ namespace Microsoft.Identity.Web
             {
                 effectiveInput?.Dispose();
             }
+
+            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<TOutput?> CallRestApiForAppAsync<TInput, TOutput>(string? serviceName, TInput input, Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null, CancellationToken cancellationToken = default) where TOutput : class
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
+                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+
+            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<TOutput?> CallRestApiForAppAsync<TOutput>(string serviceName, Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null, CancellationToken cancellationToken = default) where TOutput : class
+        {
+            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
+                                                                          null, null, cancellationToken).ConfigureAwait(false);
 
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
@@ -243,11 +271,6 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default)
         {
-            if (effectiveOptions.Scopes == null)
-            {
-                throw new ArgumentException(ScopesNotConfiguredInConfigurationOrViaDelegate);
-            }
-
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
 
@@ -260,19 +283,22 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
-            // Obtention of the authorization header
-            string authorizationHeader = appToken ?
-                await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                                        effectiveOptions.Scopes.FirstOrDefault(),
-                                        effectiveOptions,
-                                        cancellationToken).ConfigureAwait(false) :
-                await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                        effectiveOptions.Scopes,
-                                        effectiveOptions,
-                                        user,
-                                        cancellationToken).ConfigureAwait(false);
-            httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-
+            // Obtention of the authorization header (except when calling an anonymous endpoint
+            // which is done by not specifying any scopes
+            if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
+            {
+                string authorizationHeader = appToken ?
+                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                                            effectiveOptions.Scopes.FirstOrDefault()!,
+                                            effectiveOptions,
+                                            cancellationToken).ConfigureAwait(false) :
+                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                                            effectiveOptions.Scopes,
+                                            effectiveOptions,
+                                            user,
+                                            cancellationToken).ConfigureAwait(false);
+                httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+            }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
 
