@@ -498,7 +498,7 @@ namespace Microsoft.Identity.Web
             // Compatibility with v1 API
             if (microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity != null && microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.IsEnabled)
             {
-                yield return new CredentialDescription { ManagedIdentityClientId = microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityObjectId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
+                yield return new CredentialDescription { ManagedIdentityClientId = microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity.ManagedIdentityClientId, SourceType = CredentialSource.SignedAssertionFromManagedIdentity };
             }
             if (microsoftIdentityOptions.ClientCertificates != null && microsoftIdentityOptions.ClientCertificates.Any())
             {

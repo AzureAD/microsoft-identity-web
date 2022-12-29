@@ -10,13 +10,14 @@ using Microsoft.IdentityModel.JsonWebTokens;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Gets a signed assertion from PodIdentity when an app is running in a container
-    /// in Azure Kubernetes Services. See https://aka.ms/ms-id-web/certificateless.
+    /// Gets a signed assertion from Azure workload identity for kubernetes when an app is running in a container
+    /// in Azure Kubernetes Services. See https://aka.ms/ms-id-web/certificateless and
+    /// https://learn.microsoft.com/azure/aks/workload-identity-overview
     /// </summary>
     public class PodIdentityClientAssertion : ClientAssertionProviderBase
     {
         /// <summary>
-        /// Gets a signed assertion from PodIdentity. The file path is provided
+        /// Gets a signed assertion from Azure workload identity for kubernetes. The file path is provided
         /// by an environment variable ("AZURE_FEDERATED_TOKEN_FILE")
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
