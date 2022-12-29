@@ -14,14 +14,14 @@ namespace Microsoft.Identity.Web
     /// in Azure Kubernetes Services. See https://aka.ms/ms-id-web/certificateless and
     /// https://learn.microsoft.com/azure/aks/workload-identity-overview
     /// </summary>
-    public class PodIdentityClientAssertion : ClientAssertionProviderBase
+    public class AzureIdentityForKubernetesClientAssertion : ClientAssertionProviderBase
     {
         /// <summary>
         /// Gets a signed assertion from Azure workload identity for kubernetes. The file path is provided
         /// by an environment variable ("AZURE_FEDERATED_TOKEN_FILE")
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        public PodIdentityClientAssertion() : this(null)
+        public AzureIdentityForKubernetesClientAssertion() : this(null)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="filePath"></param>
-        public PodIdentityClientAssertion(string? filePath)
+        public AzureIdentityForKubernetesClientAssertion(string? filePath)
         {
             // See https://blog.identitydigest.com/azuread-federate-k8s/
             _filePath = filePath ?? Environment.GetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE");

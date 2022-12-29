@@ -16,10 +16,10 @@ namespace Microsoft.Identity.Web
         {
             if (credentialDescription.SourceType == CredentialSource.SignedAssertionFilePath)
             {
-                PodIdentityClientAssertion? signedAssertion = credentialDescription.CachedValue as PodIdentityClientAssertion;
+                AzureIdentityForKubernetesClientAssertion? signedAssertion = credentialDescription.CachedValue as AzureIdentityForKubernetesClientAssertion;
                 if (credentialDescription.CachedValue == null)
                 {
-                    signedAssertion = new PodIdentityClientAssertion(credentialDescription.SignedAssertionFileDiskPath);
+                    signedAssertion = new AzureIdentityForKubernetesClientAssertion(credentialDescription.SignedAssertionFileDiskPath);
                 }
                 try
                 {

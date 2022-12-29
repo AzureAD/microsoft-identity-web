@@ -23,6 +23,6 @@ namespace Microsoft.Identity.Web
         /// Can be null if you are using the machine assigned managed identity.
         /// Needs to be assigned if you are using a user assigned managed identity.
         /// </summary>
-        public string? ManagedIdentityObjectId { get; set; }
+        public string? ManagedIdentityClientId { get; set; }
     }
 }
