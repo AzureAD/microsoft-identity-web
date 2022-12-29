@@ -5,12 +5,10 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using NSubstitute.Extensions;
@@ -22,8 +20,8 @@ namespace Microsoft.Identity.Web.Test
     {
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
-        private ServiceProvider _provider;
-        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private ServiceProvider? _provider;
+        private IOptionsMonitor<MicrosoftIdentityOptions>? _microsoftIdentityOptionsMonitor;
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
