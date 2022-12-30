@@ -55,28 +55,6 @@
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
-            <summary>
-            Adds a protected web app.
-            </summary>
-            <param name="app">Application builder.</param>
-            <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-            <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
-            <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
-            <param name="configurationSection">Configuration section in which to read the options.</param>
-            <returns>The app builder to chain.</returns>
-        </member>
-        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(Owin.IAppBuilder,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Action{Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions},System.Action{Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions},System.String)">
-            <summary>
-            Adds a protected web API.
-            </summary>
-            <param name="app">Application builder.</param>
-            <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-            <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
-            <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
-            <param name="configurationSection">Configuration section in which to read the options.</param>
-            <returns>The app builder to chain.</returns>
-        </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
             Extension methods to retrieve a Graph service client and interfaces used
