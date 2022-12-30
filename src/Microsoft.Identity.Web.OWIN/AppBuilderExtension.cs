@@ -64,13 +64,13 @@ namespace Microsoft.Identity.Web
             string clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
             string audience = configuration.GetValue<string>($"{configurationSection}:Audience");
             string authority = instance + tenantId + "/v2.0";
-            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
+            TokenValidationParameters tokenValidationParameters = new()
             {
                 ValidAudience = audience ?? clientId,
                 IssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority).Validate,
                 SaveSigninToken = true,
             };
-            OAuthBearerAuthenticationOptions options = new OAuthBearerAuthenticationOptions
+            OAuthBearerAuthenticationOptions options = new()
             {
                 AccessTokenFormat = new JwtFormat(tokenValidationParameters, new OpenIdConnectCachingSecurityTokenProvider(authority + "/.well-known/openid-configuration"))
             };
@@ -116,14 +116,13 @@ namespace Microsoft.Identity.Web
                     configuration?.GetSection(configurationSection).Bind(option);
                 }));
 
-
             string instance = configuration.GetValue<string>($"{configurationSection}:Instance");
             string tenantId = configuration.GetValue<string>($"{configurationSection}:TenantId");
             string clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
             string postLogoutRedirectUri = configuration.GetValue<string>($"{configurationSection}:SignedOutCallbackPath");
             string authority = instance + tenantId + "/v2.0";
 
-            OpenIdConnectAuthenticationOptions options = new OpenIdConnectAuthenticationOptions
+            OpenIdConnectAuthenticationOptions options = new()
             {
                 ClientId = clientId,
                 Authority = authority,
@@ -164,9 +163,7 @@ namespace Microsoft.Identity.Web
                     {
                         HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
 
-                        string? clientInfo = httpContext.Session[ClaimConstants.ClientInfo] as string;
-
-                        if (clientInfo != null && !string.IsNullOrEmpty(clientInfo))
+                        if (httpContext.Session[ClaimConstants.ClientInfo] is string clientInfo && !string.IsNullOrEmpty(clientInfo))
                         {
                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
@@ -184,6 +181,8 @@ namespace Microsoft.Identity.Web
                     },
                 }
             };
+
+            options.TokenValidationParameters.IssuerValidator = AadIssuerValidator.GetAadIssuerValidator(options.Authority).Validate;
 
             options.Notifications.AuthorizationCodeReceived = async context =>
             {
@@ -205,56 +204,6 @@ namespace Microsoft.Identity.Web
             updateOptions?.Invoke(options);
 
             return app.UseOpenIdConnectAuthentication(options);
-        }
-
-        /// <summary>
-        /// Adds a protected web app.
-        /// </summary>
-        /// <param name="app">Application builder.</param>
-        /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
-        /// <param name="updateOptions">Update the OWIN options if you want to finesse the OpenIdConnect options.</param>
-        /// <param name="configurationSection">Configuration section in which to read the options.</param>
-        /// <returns>The app builder to chain.</returns>
-        [Obsolete("Rather create use the method taking the OwinTokenAcquirerFactory. This method will be removed in Id.Web 2.0.x GA.")]
-        public static IAppBuilder AddMicrosoftIdentityWebApp(
-            this IAppBuilder app,
-            Action<IServiceCollection>? configureServices = null,
-            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
-            Action<OpenIdConnectAuthenticationOptions>? updateOptions = null,
-            string configurationSection = "AzureAd")
-        {
-            OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
-            var services = factory.Services;
-            configureServices?.Invoke(services);
-            AddMicrosoftIdentityWebApp(app, factory, configureMicrosoftIdentityApplicationOptions, updateOptions, configurationSection);
-            factory.Build();
-            return app;
-        }
-
-        /// <summary>
-        /// Adds a protected web API.
-        /// </summary>
-        /// <param name="app">Application builder.</param>
-        /// <param name="configureServices">Configure the services (if you want to call downstream web APIs).</param>
-        /// <param name="configureMicrosoftIdentityApplicationOptions">Configure Microsoft authentication options.</param>
-        /// <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
-        /// <param name="configurationSection">Configuration section in which to read the options.</param>
-        /// <returns>The app builder to chain.</returns>
-        [Obsolete("Rather create use the method taking the OwinTokenAcquirerFactory. This method will be removed in Id.Web 2.0.x GA.")]
-        public static IAppBuilder AddMicrosoftIdentityWebApi(
-            this IAppBuilder app,
-            Action<IServiceCollection>? configureServices = null,
-            Action<MicrosoftIdentityApplicationOptions>? configureMicrosoftIdentityApplicationOptions = null,
-            Action<OAuthBearerAuthenticationOptions>? updateOptions = null,
-            string configurationSection = "AzureAd")
-        {
-            OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
-            var services = factory.Services;
-            configureServices?.Invoke(services);
-            AddMicrosoftIdentityWebApi(app, factory, configureMicrosoftIdentityApplicationOptions, updateOptions, configurationSection);
-            factory.Build();
-            return app;
         }
     }
 }
