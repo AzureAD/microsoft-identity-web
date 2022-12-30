@@ -4,10 +4,4 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <!--<PackageReference Include="System.Memory" Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />-->
-  </ItemGroup>
-
 </Project>
