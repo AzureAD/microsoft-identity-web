@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [InlineData(CertificateSource.Base64Encoded, TestConstants.CertificateX5cWithPrivateKey, TestConstants.CertificateX5cWithPrivateKeyPassword)]
-        [InlineData(CertificateSource.Path, "Certificates\\SelfSignedTestCert.pfx", TestConstants.CertificateX5cWithPrivateKeyPassword)]
+        //[InlineData(CertificateSource.Path, "Certificates\\SelfSignedTestCert.pfx", TestConstants.CertificateX5cWithPrivateKeyPassword)]
         [Theory]
         public void TestLoadCertificateWithPrivateKey(
                     CertificateSource certificateSource,

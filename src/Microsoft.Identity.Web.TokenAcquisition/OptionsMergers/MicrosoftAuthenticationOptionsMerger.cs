@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
 #endif            
             MicrosoftIdentityApplicationOptions options)
         {
-            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(options, _mergedOptionsMonitor.Get(name));
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(options, _mergedOptionsMonitor.Get(name ?? string.Empty));
         }
     }
 }
