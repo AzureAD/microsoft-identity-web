@@ -465,7 +465,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.ErrorPath = MicrosoftIdentityApplicationOptions.ErrorPath;
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(MicrosoftIdentityApplicationOptions.Instance))
             {
-                mergedOptions.Instance = MicrosoftIdentityApplicationOptions.Instance;
+                mergedOptions.Instance = MicrosoftIdentityApplicationOptions.Instance!;
             }
 
             mergedOptions.ResetPasswordPath = MicrosoftIdentityApplicationOptions.ResetPasswordPath;

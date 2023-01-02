@@ -106,13 +106,17 @@
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>5.0.0</MicrosoftExtensionsHostingVersion>
+    <!-- Microsoft.Extensions.Hosting 5.* are obsoleted -->    
+    <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>5.0.8</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
     <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>5.0.1</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>5.0.0</MicrosoftExtensionsConfigurationBinderVersion>    
+    <SystemTextEncodingsWebVersion>6.0.0</SystemTextEncodingsWebVersion>
+    
+    <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
+    <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>    
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
