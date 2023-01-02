@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E5695A0E-8F0A-4E89-A792-D5F062DEA93F}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		build\Microsoft.Identity.Web-Source-Assemblies.dgml = build\Microsoft.Identity.Web-Source-Assemblies.dgml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Diagnostics", "src\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj", "{10B6EA4C-C6BE-43B9-BB78-1B3F2EED15CC}"
