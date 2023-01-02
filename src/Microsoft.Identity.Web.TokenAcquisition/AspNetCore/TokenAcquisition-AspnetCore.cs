@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
 
             // TODO: change the mechanism to Challenge.
-            _tokenAcquisitionHost.SetHttpResponse(HttpStatusCode.Forbidden, new StringValues($"{Constants.Bearer} {parameterString}"));
+            _tokenAcquisitionHost.SetHttpResponse(HttpStatusCode.Forbidden, new StringValues($"{Constants.Bearer} {parameterString}")!);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Web
             CheckParameters(context, scopes);
 
             string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
-            context.TokenEndpointRequest.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
+            context.TokenEndpointRequest!.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
             string authCode = context!.ProtocolMessage!.Code;
             string? userFlow = context.Principal?.GetUserFlowId();
 
@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Web
             context.HandleCodeRedemption(null, idToken);
         }
 
-        TokenAcquirerFactory_GetTokenAcquirers _implementation;
+        TokenAcquirerFactory_GetTokenAcquirers? _implementation;
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region)

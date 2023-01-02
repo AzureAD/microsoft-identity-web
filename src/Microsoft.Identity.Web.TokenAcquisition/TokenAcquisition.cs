@@ -99,7 +99,6 @@ namespace Microsoft.Identity.Web
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
-
             _credentialsLoader = credentialsLoader;
         }
 

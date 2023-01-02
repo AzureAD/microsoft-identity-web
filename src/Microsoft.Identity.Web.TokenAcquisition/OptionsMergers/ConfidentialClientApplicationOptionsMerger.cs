@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
 #endif
             ConfidentialClientApplicationOptions options)
         {
-            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(options, _mergedOptionsMonitor.Get(name));
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(options, _mergedOptionsMonitor.Get(name ?? string.Empty));
         }
     }
 }

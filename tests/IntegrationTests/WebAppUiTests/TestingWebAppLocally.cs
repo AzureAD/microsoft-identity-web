@@ -13,6 +13,7 @@ using System.Linq;
 
 namespace WebAppUiTests;
 
+#if !FROM_GITHUB_ACTION
 public class TestingWebAppLocally 
 {
     [Fact]
@@ -77,4 +78,5 @@ public class TestingWebAppLocally
             }
         }
     }
+#endif //FROM_GITHUB_ACTION
 }

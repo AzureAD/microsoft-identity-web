@@ -200,13 +200,13 @@ namespace Microsoft.Identity.Web
         /// Defaults to /MicrosoftIdentity/Account/ResetPassword,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
-        public PathString ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
+        public PathString? ResetPasswordPath { get; set; } = "/MicrosoftIdentity/Account/ResetPassword";
 
         /// <summary>
         /// Sets the Error route path.
         /// Defaults to the value /MicrosoftIdentity/Account/Error,
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
-        public PathString ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
+        public PathString? ErrorPath { get; set; } = "/MicrosoftIdentity/Account/Error";
     }
 }
