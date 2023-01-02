@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
 #endif            
             JwtBearerOptions options)
         {
-            MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, _mergedOptionsMonitor.Get(name));
+            MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, _mergedOptionsMonitor.Get(name ?? string.Empty));
         }
     }
 }

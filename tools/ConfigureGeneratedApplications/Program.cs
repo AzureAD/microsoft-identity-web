@@ -77,7 +77,7 @@ namespace ConfigureGeneratedApplications
         {
             Console.WriteLine($"{filePath}");
 
-            if (filePath.EndsWith(".json"))
+            if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 if (System.IO.File.Exists(filePath))
                 {
@@ -148,7 +148,7 @@ namespace ConfigureGeneratedApplications
                 {
                     if (r.ReplaceFrom != "")
                     {
-                        fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy);
+                        fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy, StringComparison.OrdinalIgnoreCase);
                     }
                 }
 

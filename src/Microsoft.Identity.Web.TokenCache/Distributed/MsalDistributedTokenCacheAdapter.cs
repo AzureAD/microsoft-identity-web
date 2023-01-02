@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             if (_memoryCache != null)
             {
                 // check memory cache first
-                result = (byte[])_memoryCache.Get(cacheKey);
+                result = (byte[]?)_memoryCache.Get(cacheKey);
                 Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0);
             }
 
@@ -326,7 +326,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         private async Task<byte[]?> L2OperationWithRetryOnFailureAsync(
             string operation,
-            Func<string, Task<byte[]>> cacheOperation,
+            Func<string, Task<byte[]?>> cacheOperation,
             string cacheKey,
             bool inRetry = false)
         {

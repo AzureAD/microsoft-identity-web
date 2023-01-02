@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
             public string Username => _claimsPrincipal.GetDisplayName();
 #pragma warning restore CS8603 // Possible null reference return.
 
-            public string Environment => _claimsPrincipal.FindFirstValue("iss");
+            public string? Environment => _claimsPrincipal.FindFirstValue("iss");
 
             public AccountId HomeAccountId => new AccountId(
                     $"{_claimsPrincipal.GetObjectId()}.{_claimsPrincipal.GetTenantId()}",
@@ -185,7 +185,7 @@ namespace Microsoft.Identity.Web
                 userFlow: userFlow,
                 user: user,
                 tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
-            string expiration = userClaims.FindFirstValue("exp");
+            string? expiration = userClaims?.FindFirstValue("exp");
             DateTimeOffset dateTimeOffset = (expiration != null)
                 ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiration, CultureInfo.InvariantCulture))
                 : DateTimeOffset.Now;
