@@ -84,6 +84,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Diagnostics'
     AssemblyName: 'Microsoft.Identity.Web.Diagnostics*'
 
+# Pack and sign Microsoft.Identity.Web.Diagnostics
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Azure'
+    AssemblyName: 'Microsoft.Identity.Web.Azure*'
+
 # Copy all packages out to staging
 - task: CopyFiles@2
   displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'
