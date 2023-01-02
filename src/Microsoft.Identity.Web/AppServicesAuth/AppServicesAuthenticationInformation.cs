@@ -175,8 +175,9 @@ namespace Microsoft.Identity.Web
         /// Get the user claims from the headers and environment variables.
         /// </summary>
         /// <param name="headers">Headers.</param>
+        /// <param name="roleClaimType">RoleClaimType. The default is <see cref="ClaimsIdentity.DefaultRoleClaimType"/>.</param>
         /// <returns>User claims.</returns>
-        internal static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers)
+        internal static ClaimsPrincipal? GetUser(IDictionary<string, StringValues> headers, string? roleClaimType = null)
         {
             ClaimsPrincipal? claimsPrincipal;
             string? idToken = GetIdToken(headers);
@@ -190,7 +191,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimsIdentity.DefaultRoleClaimType));
+                    roleClaimType ?? ClaimsIdentity.DefaultRoleClaimType));
             }
             else
             {

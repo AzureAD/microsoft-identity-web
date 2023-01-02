@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
         {
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
-                ClaimsPrincipal? claimsPrincipal = AppServicesAuthenticationInformation.GetUser(Context.Request.Headers);
+                ClaimsPrincipal? claimsPrincipal = AppServicesAuthenticationInformation.GetUser(Context.Request.Headers, Options.RoleClaimType);
                 if (claimsPrincipal != null)
                 {
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);
