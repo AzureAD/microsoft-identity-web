@@ -6,8 +6,6 @@ parameters:
   ArtifactPublishPath: '$(Build.ArtifactStagingDirectory)\packages'
   SymbolPublishWildcard: '**/bin/**/microsoft.identity.web.*'
   DropArtifactName: 'packages'
-  parameters:
-  PublishArtifacts: 'false'
 
 steps:
 - task: NuGetCommand@2
@@ -27,7 +25,6 @@ steps:
   inputs:
     PathtoPublish: '${{ parameters.ArtifactPublishPath }}'
     ArtifactName: '${{ parameters.DropArtifactName }}'
-  condition: eq(${{ parameters.PublishArtifacts }}, 'true')
 
 - task: NuGetCommand@2
   displayName: 'Publish packages to VSTS feed'
