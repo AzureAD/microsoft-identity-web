@@ -6,6 +6,8 @@ parameters:
   ArtifactPublishPath: '$(Build.ArtifactStagingDirectory)\packages'
   SymbolPublishWildcard: '**/bin/**/microsoft.identity.web.*'
   DropArtifactName: 'packages'
+  parameters:
+  PublishArtifacts: 'false'
 
 steps:
 - task: NuGetCommand@2
@@ -25,6 +27,7 @@ steps:
   inputs:
     PathtoPublish: '${{ parameters.ArtifactPublishPath }}'
     ArtifactName: '${{ parameters.DropArtifactName }}'
+  condition: eq(${{ parameters.PublishArtifacts }}, 'true')
 
 - task: NuGetCommand@2
   displayName: 'Publish packages to VSTS feed'
@@ -34,6 +37,7 @@ steps:
     publishVstsFeed: '46419298-b96c-437f-bd4c-12c8df7f868d'
     allowPackageConflicts: true
   continueOnError: true
+  condition: eq(variables['PublishToVSTSFeed'], 'true')
 
 - task: PublishSymbols@2
   displayName: 'Publish symbols'
@@ -41,3 +45,4 @@ steps:
     SearchPattern: '${{ parameters.SymbolPublishWildcard }}'
     IndexSources: false
     SymbolServerType: TeamServices
+  condition: eq(variables['PublishSymbols'], 'true')
