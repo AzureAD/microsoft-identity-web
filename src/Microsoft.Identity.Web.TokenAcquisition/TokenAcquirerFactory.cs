@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
-                instance.Services.AddSingleton<IConfiguration>(defaultInstance.Configuration);
+                instance.Services.AddSingleton(defaultInstance.Configuration);
             }
             return (defaultInstance as T)!;
         }
@@ -95,8 +95,9 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>(string.Empty);
+                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.Bind(option));
                 instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
-                instance.Services.AddSingleton<IConfiguration>(defaultInstance.Configuration);
+                instance.Services.AddSingleton(defaultInstance.Configuration);
             }
             return defaultInstance!;
         }
