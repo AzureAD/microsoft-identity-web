@@ -11,6 +11,8 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Interface used to call a downstream web API, for instance from controllers.
     /// </summary>
+    [Obsolete("Use IDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
     public interface IDownstreamWebApi
     {
         /// <summary>

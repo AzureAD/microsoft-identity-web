@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -34,6 +33,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -72,6 +73,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task GetForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -113,6 +116,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.PostForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -156,6 +161,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -198,6 +205,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -240,6 +249,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamRestApi.CallWebApiForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
