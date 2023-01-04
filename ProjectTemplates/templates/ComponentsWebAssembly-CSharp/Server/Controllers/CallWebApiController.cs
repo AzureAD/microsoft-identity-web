@@ -14,11 +14,11 @@ namespace AspNetCoreMicrosoftIdentityWebProjectTemplates.templates.ComponentsWeb
     [RequiredScope("access_as_user")] // The web API will only accept tokens 1) for users, and 2) having the "access_as_user" scope for this API
     public class CallWebApiController : Controller
     {
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
         private readonly ILogger<CallWebApiController> _logger;
 
         public CallWebApiController(ILogger<CallWebApiController> logger,
-                              IDownstreamWebApi downstreamWebApi)
+                              IDownstreamRestApi downstreamWebApi)
         {
             _logger = logger;
             _downstreamWebApi = downstreamWebApi;

@@ -1,10 +1,11 @@
 @page "/showprofile"
 
 
+@using Microsoft.Identity.Abstractions;
 @using blazor
 @using Microsoft.Identity.Web
 @inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
-@inject IDownstreamWebApi downstreamAPI
+@inject IDownstreamRestApi downstreamAPI
 
 <h1>Call an API</h1>
 
@@ -28,13 +29,13 @@ else
     {
         try
         {
-            response = await downstreamAPI.CallWebApiForUserAsync(
+            response = await downstreamAPI.CallRestApiForUserAsync(
                     "CalledApi",
-                    calledDownstreamWebApiOptionsOverride: options =>
- {
-     options.RelativePath = "api/todolist";
-     options.UserFlow = "b2c_1_edit_profile";
- });
+                    options =>
+                 {
+                     options.RelativePath = "api/todolist";
+                     options.AcquireTokenOptions.UserFlow = "b2c_1_edit_profile";
+                 });
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

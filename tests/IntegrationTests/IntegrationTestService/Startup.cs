@@ -31,7 +31,7 @@ namespace IntegrationTestService
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                        .AddDownstreamWebApi(
+                                        .AddDownstreamRestApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
@@ -39,7 +39,7 @@ namespace IntegrationTestService
             services.AddAuthentication()
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: TestConstants.CustomJwtScheme2, configSectionName: "AzureAd2", subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                         .AddDownstreamWebApi(
+                                         .AddDownstreamRestApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));

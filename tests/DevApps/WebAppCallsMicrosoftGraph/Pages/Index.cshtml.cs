@@ -18,9 +18,9 @@ namespace WebAppCallsMicrosoftGraph.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly GraphServiceClient _graphServiceClient;
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
-        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient, IDownstreamWebApi downstreamWebApi)
+        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient, IDownstreamRestApi downstreamWebApi)
         {
             _logger = logger;
             _graphServiceClient = graphServiceClient;
@@ -40,7 +40,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
                 }
                 ViewData["name"] = user.DisplayName;
 
-                var graphData = await _downstreamWebApi.CallWebApiForUserAsync(
+                var graphData = await _downstreamWebApi.CallRestApiForUserAsync(
                     "GraphBeta"
                     );
                 ViewData["json"] = await graphData.Content.ReadAsStringAsync();

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
@@ -16,12 +17,12 @@ namespace IntegrationTestService.Controllers
     [RequiredScope("user_impersonation")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
 
         public WeatherForecastController(
-            IDownstreamWebApi downstreamWebApi,
+            IDownstreamRestApi downstreamWebApi,
             ITokenAcquisition tokenAcquisition,
             GraphServiceClient graphServiceClient)
         {
@@ -40,21 +41,20 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApi)]
         public async Task<HttpResponseMessage> CallDownstreamWebApiAsync()
         {
-            return await _downstreamWebApi.CallWebApiForUserAsync(
+            return await _downstreamWebApi.CallRestApiForUserAsync(
             TestConstants.SectionNameCalledApi);
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
-        public async Task<string> CallDownstreamWebApiGenericAsync()
+        public async Task<string?> CallDownstreamWebApiGenericAsync()
         {
-            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
+            var user = await _downstreamWebApi.GetForUserAsync<UserInfo>(
                 TestConstants.SectionNameCalledApi,
-                null,
-                downstreamWebApiOptionsOverride: options =>
- {
-     options.RelativePath = "me";
- });
-            return user.DisplayName;
+                options =>
+                 {
+                     options.RelativePath = "me";
+                 });
+            return user?.DisplayName;
         }
 
         [HttpGet(TestConstants.SecurePageCallMicrosoftGraph)]
@@ -65,20 +65,19 @@ namespace IntegrationTestService.Controllers
         }
 
         [HttpGet(TestConstants.SecurePageCallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
-        public async Task<string> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
+        public async Task<string?> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
         {
-            var user = await _downstreamWebApi.CallWebApiForUserAsync<string, UserInfo>(
+            var user = await _downstreamWebApi.GetForUserAsync<UserInfo>(
                 TestConstants.SectionNameCalledApi,
-                null,
-                downstreamWebApiOptionsOverride: options =>
- {
-     options.RelativePath = "me";
-     options.TokenAcquisitionOptions.CorrelationId = TestConstants.s_correlationId;
+                options =>
+                 {
+                     options.RelativePath = "me";
+                     options.AcquireTokenOptions.CorrelationId = TestConstants.s_correlationId;
                     /*options.TokenAcquisitionOptions.ExtraQueryParameters = new Dictionary<string, string>()
                     { { "slice", "testslice" } };*/ // doesn't work w/build automation
-                    options.TokenAcquisitionOptions.ForceRefresh = true;
- });
-            return user.DisplayName;
+                    options.AcquireTokenOptions.ForceRefresh = true;
+                 });
+            return user?.DisplayName;
         }
     }
 }

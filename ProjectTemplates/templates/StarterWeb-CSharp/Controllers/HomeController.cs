@@ -29,10 +29,10 @@ namespace Company.WebApplication1.Controllers
         private readonly ILogger<HomeController> _logger;
 
 #if (GenerateApi)
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
         public HomeController(ILogger<HomeController> logger,
-                              IDownstreamWebApi downstreamWebApi)
+                              IDownstreamRestApi downstreamWebApi)
         {
              _logger = logger;
             _downstreamWebApi = downstreamWebApi;
