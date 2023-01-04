@@ -81,5 +81,5 @@ public class TestingWebAppLocally
             }
         }
     }
-#endif //FROM_GITHUB_ACTION
 }
+#endif //FROM_GITHUB_ACTION
