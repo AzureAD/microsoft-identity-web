@@ -33,6 +33,10 @@
     <MicrosoftAzureKeyVaultVersion>3.0.5</MicrosoftAzureKeyVaultVersion>
 	</PropertyGroup>
 
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <DefineConstants>$(DefineConstants);AZURE_DEVOPS_BUILD</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
   <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
