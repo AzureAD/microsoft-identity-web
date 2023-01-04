@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using Xunit;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
@@ -13,7 +16,7 @@ using System.Linq;
 
 namespace WebAppUiTests;
 
-#if !FROM_GITHUB_ACTION
+#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 public class TestingWebAppLocally 
 {
     [Fact]
