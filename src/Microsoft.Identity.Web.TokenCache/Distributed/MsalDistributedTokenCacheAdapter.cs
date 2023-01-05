@@ -223,7 +223,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         protected override async Task WriteCacheBytesAsync(
             string cacheKey,
             byte[] bytes,
-            CacheSerializerHints cacheSerializerHints)
+            CacheSerializerHints? cacheSerializerHints)
         {
             const string write = "Write";
 
@@ -263,7 +263,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     write,
                     (cacheKey) => _distributedCache.SetAsync(
                         cacheKey,
-                        bytes,
+                        bytes!, // We know that in the Write case, the bytes won't be null 
+                                // the parent class 
                         distributedCacheEntryOptions,
                         cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                     cacheKey).Measure().ConfigureAwait(false);
@@ -275,7 +276,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                  write,
                  (cacheKey) => _distributedCache.SetAsync(
                      cacheKey,
-                     bytes,
+                     bytes!,
                      distributedCacheEntryOptions,
                      cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                  cacheKey).Measure().ConfigureAwait(false));

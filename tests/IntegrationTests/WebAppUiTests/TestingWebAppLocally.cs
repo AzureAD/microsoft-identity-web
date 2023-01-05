@@ -27,7 +27,7 @@ public class TestingWebAppLocally
 
         string uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
         // e.g. C:\gh\microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0\WebAppUiTests.dll
-        string testedAppLocation = Path.Combine(Path.GetDirectoryName(uiTestAssemblyLocation));
+        string testedAppLocation = Path.Combine(Path.GetDirectoryName(uiTestAssemblyLocation)!);
         // e.g. C:\gh\microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
         string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
         int numberSegments = segments.Length;

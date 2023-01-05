@@ -40,10 +40,12 @@ namespace Microsoft.Identity.Web.Test
             _cookiePolicyOptions.HandleSameSiteCookieCompatibility();
 
             Assert.Equal(SameSiteMode.Unspecified, _cookiePolicyOptions.MinimumSameSitePolicy);
-
+            Assert.NotNull(_cookiePolicyOptions);
+            Assert.NotNull(_cookiePolicyOptions.OnAppendCookie);
             _cookiePolicyOptions.OnAppendCookie(appendCookieContext);
             Assert.Equal(expectedSameSiteMode, appendCookieOptions.SameSite);
 
+            Assert.NotNull(_cookiePolicyOptions.OnDeleteCookie);
             _cookiePolicyOptions.OnDeleteCookie(deleteCookieContext);
             Assert.Equal(expectedSameSiteMode, deleteCookieOptions.SameSite);
         }
@@ -70,6 +72,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(SameSiteMode.Unspecified, _cookiePolicyOptions.MinimumSameSitePolicy);
 
+            Assert.NotNull(_cookiePolicyOptions.OnAppendCookie);
             _cookiePolicyOptions.OnAppendCookie(appendCookieContext);
             Assert.Equal(expectedSameSiteMode, appendCookieOptions.SameSite);
             Assert.Equal(expectedEventCalled, appendEventCalled);
@@ -80,6 +83,7 @@ namespace Microsoft.Identity.Web.Test
                 return CookiePolicyOptionsExtensions.DisallowsSameSiteNone(userAgent);
             });
 
+            Assert.NotNull(_cookiePolicyOptions.OnDeleteCookie);
             _cookiePolicyOptions.OnDeleteCookie(deleteCookieContext);
             Assert.Equal(expectedSameSiteMode, deleteCookieOptions.SameSite);
             Assert.Equal(expectedEventCalled, deleteEventCalled);

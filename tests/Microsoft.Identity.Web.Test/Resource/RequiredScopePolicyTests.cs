@@ -135,7 +135,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         string? scopes,
         bool withConfig = false)
         {
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { ConfigSectionName, null },
                 { $"{ConfigSectionName}:Instance", TestConstants.AadInstance },
@@ -163,7 +163,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                         }
                         else
                         {
-                            policyBuilder.RequireScope(scopes?.Split(' '));
+                            policyBuilder.RequireScope(scopes?.Split(' ')!);
                         }
                     });
                 });

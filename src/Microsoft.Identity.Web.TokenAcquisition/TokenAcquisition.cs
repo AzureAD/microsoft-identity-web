@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Web
             _credentialsLoader = credentialsLoader;
         }
 
-        public async Task<string> AddAccountToCacheFromAuthorizationCodeAsync(
+        public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             IEnumerable<string> scopes,
             string authCode,
             string authenticationScheme,
@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Web
                 string? backUpAuthRoutingHint = string.Empty;
                 if (!string.IsNullOrEmpty(clientInfo))
                 {
-                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo!);
+                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo);
                     if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
                     {
                         backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
@@ -153,7 +153,14 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
-                return result.IdToken;
+                return new AcquireTokenResult(
+                result.AccessToken,
+                result.ExpiresOn,
+                result.TenantId,
+                result.IdToken,
+                result.Scopes,
+                result.CorrelationId,
+                result.TokenType);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
             {
@@ -162,7 +169,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
+                return await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -173,8 +180,6 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
-
-            return authenticationScheme;
         }
 
         private static string GetApplicationKey(MergedOptions mergedOptions)

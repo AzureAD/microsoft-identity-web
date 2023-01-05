@@ -575,6 +575,7 @@ namespace Microsoft.Identity.Web.Test
             //};
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -630,6 +631,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Null(downstreamWebApiOptions.Get(ConfigSectionName).Tenant);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         [Theory]
         [InlineData(true)]
@@ -805,7 +807,7 @@ namespace Microsoft.Identity.Web.Test
                 ProtocolMessage = new OpenIdConnectMessage(
                     new Dictionary<string, string[]>()
                     {
-                        { ClaimConstants.ClientInfo, new string[] { Base64UrlHelpers.Encode($"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}") } },
+                        { ClaimConstants.ClientInfo, new string[] { Base64UrlHelpers.Encode($"{{\"uid\":\"{TestConstants.Uid}\",\"utid\":\"{TestConstants.Utid}\"}}")! } },
                     }),
             };
 
@@ -845,7 +847,7 @@ namespace Microsoft.Identity.Web.Test
 
         private IConfigurationSection GetConfigSection(string configSectionName, bool includeB2cConfig = false)
         {
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { configSectionName, null },
                 { $"{configSectionName}:Instance", TestConstants.AadInstance },

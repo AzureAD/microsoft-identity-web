@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _httpClientFactory = new HttpClientFactoryTest();
             _issuerValidatorFactory = new MicrosoftIdentityIssuerValidatorFactory(
-                null,
+                null!,
                 _httpClientFactory);
         }
 
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(string.Empty));
 
-            Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(null));
+            Assert.Throws<ArgumentNullException>(TestConstants.AadAuthority, () => _issuerValidatorFactory.GetAadIssuerValidator(null!));
         }
 
         [Fact]

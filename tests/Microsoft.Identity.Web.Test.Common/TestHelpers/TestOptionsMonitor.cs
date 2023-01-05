@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 
         public T CurrentValue { get; private set; }
 
-        public T Get(string name)
+        public T Get(string? name)
         {
             return CurrentValue;
         }
@@ -27,7 +27,9 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
         public void Set(T value)
         {
             CurrentValue = value;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             _listener?.Invoke(value, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         public IDisposable OnChange(Action<T, string> listener)

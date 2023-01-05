@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web.Util
         /// </summary>
         /// <param name="arg">string to encode.</param>
         /// <returns>Base64Url encoding of the UTF8 bytes.</returns>
-        public static string? Encode(string arg)
+        public static string? Encode(string? arg)
         {
             if (arg == null)
             {
@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Web.Util
         /// <returns>The string representation in base 64 url encoding of length elements of inArray, starting at position offset.</returns>
         /// <exception cref="ArgumentNullException">'inArray' is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or length is negative OR offset plus length is greater than the length of inArray.</exception>
-        public static string? Encode(byte[] inArray)
+        public static string? Encode(byte[]? inArray)
         {
             if (inArray == null)
             {
@@ -153,7 +153,7 @@ namespace Microsoft.Identity.Web.Util
             return Encode(inArray, 0, inArray.Length);
         }
 
-        internal static string? EncodeString(string str)
+        internal static string? EncodeString(string? str)
         {
             if (str == null)
             {
@@ -167,7 +167,7 @@ namespace Microsoft.Identity.Web.Util
         ///  Converts the specified string, which encodes binary data as base-64-url digits, to an equivalent 8-bit unsigned integer array.</summary>
         /// <param name="str">base64Url encoded string.</param>
         /// <returns>UTF8 bytes.</returns>
-        public static byte[]? DecodeBytes(string str)
+        public static byte[]? DecodeBytes(string? str)
         {
             if (str == null)
             {

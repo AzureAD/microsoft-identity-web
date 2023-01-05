@@ -19,12 +19,14 @@ namespace Microsoft.Identity.Web.Test.Resource
         private const string V1 = "1.0";
         private const string V2 = "2.0";
         private const string V3 = "3.0";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private JwtSecurityToken _token;
         private RegisterValidAudience _registerValidAudience;
         private TokenValidationParameters _validationParams;
         private IEnumerable<string> _validAudiences;
         private MicrosoftIdentityOptions _options;
         private string _expectedAudience;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Theory]
         [InlineData(false, V1)]
@@ -131,6 +133,8 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         private void AssertAudienceProvidedInValidAudiences()
         {
+            Assert.NotNull(_options);
+            Assert.NotNull(_options.ClientId);
             _validationParams.ValidAudiences = new List<string>
                     {
                          $"api://{_options.ClientId}",

@@ -218,7 +218,7 @@ namespace Microsoft.Identity.Web.Test
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     PropertyNameCaseInsensitive = true,
                 }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { configSectionName, null },
                 { $"{configSectionName}:Instance", TestConstants.AadInstance },

@@ -37,10 +37,8 @@ namespace WebAppCallsMicrosoftGraph
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
                         .EnableTokenAcquisitionToCallDownstreamApi()
                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                           .AddDownstreamWebApi("GraphBeta", Configuration.GetSection("GraphBeta"))
+                           .AddDownstreamRestApi("GraphBeta", Configuration.GetSection("GraphBeta"))
                            .AddInMemoryTokenCaches();
-
-            services.AddDownstreamRestApi("GraphBeta", Configuration.GetSection("GraphBeta"));
 
             //services.Configure<ConfidentialClientApplicationOptions>(OpenIdConnectDefaults.AuthenticationScheme,
             //    options => { options.AzureRegion = ConfidentialClientApplication.AttemptRegionDiscovery; });

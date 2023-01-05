@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         [JsonPropertyName(ClaimConstants.UniqueTenantIdentifier)]
         public string? UniqueTenantIdentifier { get; set; } = null;
 
-        public static ClientInfo? CreateFromJson(string clientInfo)
+        public static ClientInfo? CreateFromJson(string? clientInfo)
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
             return bytes != null ? DeserializeFromJson(bytes) : null;
         }
 
-        internal static ClientInfo? DeserializeFromJson(byte[] jsonByteArray)
+        internal static ClientInfo? DeserializeFromJson(byte[]? jsonByteArray)
         {
             if (jsonByteArray == null || jsonByteArray.Length == 0)
             {

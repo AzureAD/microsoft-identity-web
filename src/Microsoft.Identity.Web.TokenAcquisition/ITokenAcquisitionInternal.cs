@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 
+using Microsoft.Identity.Abstractions;
+
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -63,8 +65,8 @@ namespace Microsoft.Identity.Web
         /// <param name="clientInfo">Client Info obtained with the code</param>
         /// <param name="codeVerifier">PKCE code verifier</param>
         /// <param name="userFlow">User flow in the case of B2C</param>
-        /// <returns>The ID Token.</returns>
-        Task<string> AddAccountToCacheFromAuthorizationCodeAsync(
+        /// <returns>The token acquirer result.</returns>
+        Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             IEnumerable<string> scopes, 
             string authCode, 
             string authenticationScheme, 

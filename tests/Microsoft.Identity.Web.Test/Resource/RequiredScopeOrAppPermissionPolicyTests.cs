@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Test.Resource
     [RequiredScopeOrAppPermission(new string[] { "access_as_user" }, new string[] { "access_as_app" })]
     public class RequiredScopeOrAppPermissionPolicyTests
     {
-        private IServiceProvider _provider;
+        private IServiceProvider? _provider;
         private const string ConfigSectionName = "AzureAd";
         private const string MultipleAppPermissions = "access_as_app_read_only access_as_app";
         private const string AppPermission = "access_as_app";
@@ -153,11 +153,11 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         private IAuthorizationService BuildAuthorizationService(
         string policy,
-        string appPermission,
-        string scope,
+        string? appPermission,
+        string? scope,
         bool withConfig = false)
         {
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { ConfigSectionName, null },
                 { $"{ConfigSectionName}:Instance", TestConstants.AadInstance },
@@ -186,7 +186,9 @@ namespace Microsoft.Identity.Web.Test.Resource
                         }
                         else
                         {
-                            policyBuilder.RequireScopeOrAppPermission(scope?.Split(' '), appPermission?.Split(' '));
+                            // Considering that the scopes and app permissions are not null (!), in order to test
+                            // for the null argument exceptions
+                            policyBuilder.RequireScopeOrAppPermission(scope?.Split(' ')!, appPermission?.Split(' ')!);
                         }
                     });
                 });

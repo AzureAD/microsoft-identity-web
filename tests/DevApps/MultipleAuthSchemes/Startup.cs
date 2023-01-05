@@ -41,7 +41,7 @@ namespace mvcwebapp_graph
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C"), "B2C", "cookiesB2C")
                     .EnableTokenAcquisitionToCallDownstreamApi(Configuration.GetValue<string>("DownstreamB2CApi:Scopes")?.Split(' '))
-                    .AddDownstreamWebApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
+                    .AddDownstreamRestApi("DownstreamB2CApi", Configuration.GetSection("DownstreamB2CApi"))
                     .AddInMemoryTokenCaches();
 
             //services.Configure<MicrosoftIdentityOptions>(OpenIdConnectDefaults.AuthenticationScheme,

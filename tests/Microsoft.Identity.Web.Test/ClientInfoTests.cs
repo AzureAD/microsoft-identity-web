@@ -21,13 +21,13 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void CreateFromJson_ValidJson_ReturnsClientInfo()
         {
-            var clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedJson));
+            var clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedJson)!);
 
             Assert.NotNull(clientInfoResult);
             Assert.Equal(Uid, clientInfoResult.UniqueObjectIdentifier);
             Assert.Equal(Utid, clientInfoResult.UniqueTenantIdentifier);
 
-            clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedEmptyJson));
+            clientInfoResult = ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_decodedEmptyJson)!);
             Assert.NotNull(clientInfoResult);
             Assert.Null(clientInfoResult.UniqueObjectIdentifier);
             Assert.Null(clientInfoResult.UniqueTenantIdentifier);
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void CreateFromJson_InvalidString_ThrowsException()
         {
-            Assert.Throws<JsonException>(() => ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_invalidJson)));
+            Assert.Throws<JsonException>(() => ClientInfo.CreateFromJson(Base64UrlHelpers.Encode(_invalidJson)!));
 
             Assert.Throws<ArgumentException>(() => ClientInfo.CreateFromJson(_invalidJson));
         }

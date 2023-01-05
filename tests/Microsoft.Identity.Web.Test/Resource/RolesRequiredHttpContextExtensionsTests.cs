@@ -16,13 +16,13 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public void VerifyUserHasAnyAcceptedScope_NullParameters_ThrowsException()
         {
-            HttpContext httpContext = null;
+            HttpContext? httpContext = null;
 
-            Assert.Throws<ArgumentNullException>(() => httpContext.ValidateAppRole(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => httpContext!.ValidateAppRole(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
 
-            Assert.Throws<ArgumentNullException>("acceptedRoles", () => httpContext.ValidateAppRole(null));
+            Assert.Throws<ArgumentNullException>("acceptedRoles", () => httpContext.ValidateAppRole(null!));
         }
 
         [Fact]

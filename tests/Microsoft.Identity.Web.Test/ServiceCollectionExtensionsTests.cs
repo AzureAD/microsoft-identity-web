@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void AddHttpContextAccessor_ThrowsWithoutServices()
         {
-            Assert.Throws<ArgumentNullException>("services", () => ServiceCollectionExtensions.AddTokenAcquisition(null));
+            Assert.Throws<ArgumentNullException>("services", () => ServiceCollectionExtensions.AddTokenAcquisition(null!));
         }
     }
 }

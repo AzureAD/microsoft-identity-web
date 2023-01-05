@@ -75,14 +75,14 @@ namespace Microsoft.Identity.Web.Test
 
             if (useApp)
             {
-                tokenAcquisition.GetAuthenticationResultForAppAsync(default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForAppAsync(default!, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 builder.AddHttpMessageHandler(() => new MicrosoftIdentityAppAuthenticationMessageHandler(tokenAcquisition, options));
             }
             else
             {
-                tokenAcquisition.GetAuthenticationResultForUserAsync(default, default, default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForUserAsync(default!, default, default, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 var identityOptions = Substitute.For<IOptionsMonitor<MicrosoftIdentityOptions>>();
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Test
             if (useApp)
             {
                 await tokenAcquisition.Received().GetAuthenticationResultForAppAsync(
-                    _handlerOptions.Scopes,
+                    _handlerOptions.Scopes!,
                     _handlerOptions.AuthenticationScheme,
                     _handlerOptions.Tenant,
                     Arg.Any<TokenAcquisitionOptions>() /* options are cloned */)
@@ -142,14 +142,14 @@ namespace Microsoft.Identity.Web.Test
 
             if (useApp)
             {
-                tokenAcquisition.GetAuthenticationResultForAppAsync(default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForAppAsync(default!, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 builder.AddHttpMessageHandler(() => new MicrosoftIdentityAppAuthenticationMessageHandler(tokenAcquisition, options));
             }
             else
             {
-                tokenAcquisition.GetAuthenticationResultForUserAsync(default, default, default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForUserAsync(default!, default, default, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 var identityOptions = Substitute.For<IOptionsMonitor<MicrosoftIdentityOptions>>();
@@ -182,7 +182,7 @@ namespace Microsoft.Identity.Web.Test
 
             public IReadOnlyList<HttpRequestMessage> Requests => _requests;
 
-            public MockHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK, HttpContent content = default, string reason = default)
+            public MockHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK, HttpContent content = default!, string reason = default!)
             {
                 _statusCode = statusCode;
                 _reason = reason;
