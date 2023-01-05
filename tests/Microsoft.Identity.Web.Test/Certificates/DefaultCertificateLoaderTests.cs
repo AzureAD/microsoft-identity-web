@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     certificateDescription.CertificateStorePath = container;
                     break;
                 default:
-                    certificateDescription = null;
+                    certificateDescription = new CertificateDescription();
                     break;
             }
 
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 container,
                 referenceOrValue);
 
-            X509Certificate2 certificate = DefaultCertificateLoader.LoadFirstCertificate(certDescriptions);
+            X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(certDescriptions);
 
             Assert.NotNull(certificate);
             Assert.Equal("CN=ACS2ClientCertificate", certificate.Issuer);
@@ -90,15 +90,17 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 ReferenceOrValue = referenceOrValue,
             });
 
-            certDescriptions.Add(CertificateDescription.FromCertificate(null));
+            certDescriptions.Add(CertificateDescription.FromCertificate(null!));
 
-            IEnumerable<X509Certificate2> certificates = DefaultCertificateLoader.LoadAllCertificates(certDescriptions);
+            IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(certDescriptions);
 
             Assert.NotNull(certificates);
             Assert.Equal(2, certificates.Count());
             Assert.Equal(3, certDescriptions.Count);
-            Assert.Equal("CN=ACS2ClientCertificate", certificates.First().Issuer);
-            Assert.Equal("CN=ACS2ClientCertificate", certificates.Last().Issuer);
+            Assert.NotNull(certificates.First());
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.First()!.Issuer);
+            Assert.NotNull(certificates.Last());
+            Assert.Equal("CN=ACS2ClientCertificate", certificates.Last()!.Issuer);
             Assert.Null(certDescriptions.ElementAt(2).Certificate);
         }
 

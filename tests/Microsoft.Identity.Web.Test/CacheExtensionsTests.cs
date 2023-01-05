@@ -14,7 +14,10 @@ namespace Microsoft.Identity.Web.Test
 {
     public class CacheExtensionsTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private IConfidentialClientApplication _confidentialApp;
+        // Non nullable needed for the Argument null exception tests
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
         public void InMemoryCacheExtensionsTests()
@@ -81,7 +84,7 @@ namespace Microsoft.Identity.Web.Test
         public void InMemoryCache_WithServices_NoService_ThrowsException_Tests()
         {
             CreateCca();
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache(null));
+            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache(null!));
 
             Assert.Equal("initializeMemoryCache", ex.ParamName);
         }
@@ -114,7 +117,7 @@ namespace Microsoft.Identity.Web.Test
         public void DistributedCacheExtensions_NoService_ThrowsException_Tests()
         {
             CreateCca();
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null));
+            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null!));
 
             Assert.Equal("initializeDistributedCache", ex.ParamName);
         }

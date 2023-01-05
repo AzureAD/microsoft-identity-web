@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var builder = new ConfigurationBuilder();
             builder.AddInMemoryCollection(
-                new Dictionary<string, string>()
+                new Dictionary<string, string?>()
                 {
                     { $"{key}:Scopes", TestConstants.Scopes },
                     { $"{key}:Tenant", TestConstants.TenantIdAsGuid },
@@ -51,12 +51,12 @@ namespace Microsoft.Identity.Web.Test
             {
             }
 
-            public DelegatingHandler CreateAppHandler(string serviceName)
+            public DelegatingHandler CreateAppHandler(string? serviceName)
             {
                 return new CustomMicrosoftIdentityAuthenticationAppHandler();
             }
 
-            public DelegatingHandler CreateUserHandler(string serviceName)
+            public DelegatingHandler CreateUserHandler(string? serviceName)
             {
                 return new CustomMicrosoftIdentityAuthenticationUserHandler();
             }

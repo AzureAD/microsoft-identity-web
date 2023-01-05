@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web
                  OidcConstants.ScopeProfile,
             };
 
-            HashSet<string> oidcParams = new HashSet<string>(scopes);
+            HashSet<string> oidcParams = new(scopes);
             oidcParams.UnionWith(additionalBuiltInScopes);
             properties.SetParameter(OpenIdConnectParameterNames.Scope, oidcParams.ToList());
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -16,7 +17,12 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Implementation for the downstream web API.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
+    [Obsolete("Use DownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class DownstreamWebApi : IDownstreamWebApi
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;

@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void ToClaimsPrincipal_NullAccount_ReturnsNull()
         {
-            IAccount account = null;
+            IAccount account = null!; // Forcing null to test the argument null exception
 
             Assert.Throws<ArgumentNullException>("account", () => account.ToClaimsPrincipal());
         }

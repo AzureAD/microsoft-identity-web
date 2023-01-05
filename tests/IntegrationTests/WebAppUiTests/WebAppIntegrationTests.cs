@@ -112,10 +112,8 @@ namespace WebAppUiTests
             try
             {
                 element = wait.Until(drv => drv.FindElement(By.Id(elementName)));
-                IWebElement e;
-                   
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 element = wait.Until(drv => drv.FindElement(By.Id(elementName)));
             }

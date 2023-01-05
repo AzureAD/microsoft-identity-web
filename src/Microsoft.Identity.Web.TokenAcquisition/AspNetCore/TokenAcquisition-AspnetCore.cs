@@ -151,8 +151,8 @@ namespace Microsoft.Identity.Web
             string authCode = context!.ProtocolMessage!.Code;
             string? userFlow = context.Principal?.GetUserFlowId();
 
-            string idToken = await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
-            context.HandleCodeRedemption(null, idToken);
+            AcquireTokenResult result = await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
+            context.HandleCodeRedemption(result.AccessToken!, result.IdToken!);
         }
 
         TokenAcquirerFactory_GetTokenAcquirers? _implementation;

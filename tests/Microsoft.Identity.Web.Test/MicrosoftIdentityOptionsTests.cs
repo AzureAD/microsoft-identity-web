@@ -21,7 +21,9 @@ namespace Microsoft.Identity.Web.Test
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
         private ServiceProvider? _provider;
-        private IOptionsMonitor<MicrosoftIdentityOptions>? _microsoftIdentityOptionsMonitor;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -88,7 +90,7 @@ namespace Microsoft.Identity.Web.Test
             }
 
             BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
@@ -116,7 +118,7 @@ namespace Microsoft.Identity.Web.Test
             });
 
             BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
@@ -134,7 +136,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.IsType<UniqueJsonKeyClaimAction>(genderClaim);
 
             // Ensure gender has the value of sex
-            var jsonKeyClaim = genderClaim as UniqueJsonKeyClaimAction;
+            var jsonKeyClaim = (genderClaim as UniqueJsonKeyClaimAction)!;
             Assert.Equal("theGender", jsonKeyClaim.JsonKey);
         }
 

@@ -13,7 +13,10 @@ namespace Microsoft.Identity.Web.Test
 {
     public class L1L2CacheOptionsTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        // _provider is initialized by BuildTheRequiredServices() called in all tests.
         private ServiceProvider _provider;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Theory]
         [InlineData(0)]
@@ -34,7 +37,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Throws<ArgumentOutOfRangeException>(() => new TestMsalDistributedTokenCacheAdapter(
                 new TestDistributedCache(),
                 msalDistributedTokenOptions,
-                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>()));
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>()!));
         }
 
         [Theory]
@@ -55,7 +58,7 @@ namespace Microsoft.Identity.Web.Test
             var testCache = new TestMsalDistributedTokenCacheAdapter(
                 new TestDistributedCache(),
                 msalDistributedTokenOptions,
-                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>()!);
 
             // Assert
             Assert.NotNull(testCache);
@@ -81,7 +84,7 @@ namespace Microsoft.Identity.Web.Test
             var testCache = new TestMsalDistributedTokenCacheAdapter(
                 new TestDistributedCache(),
                 msalDistributedTokenOptions,
-                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>()!);
 
             // Assert
             Assert.NotNull(testCache);

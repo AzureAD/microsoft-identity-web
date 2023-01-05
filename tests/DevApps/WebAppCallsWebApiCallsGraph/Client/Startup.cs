@@ -67,9 +67,9 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
               .AddMicrosoftIdentityWebApp(Configuration)
                  .EnableTokenAcquisitionToCallDownstreamApi()
-                     .AddDownstreamWebApi("SayHello", Configuration.GetSection("SayHello"))
-                     .AddDownstreamWebApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
-                     .AddDownstreamWebApi("AzureFunction", Configuration.GetSection("AzureFunction"))
+                     .AddDownstreamRestApi("SayHello", Configuration.GetSection("SayHello"))
+                     .AddDownstreamRestApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
+                     .AddDownstreamRestApi("AzureFunction", Configuration.GetSection("AzureFunction"))
 
 #if UseRedisCache
                      .AddDistributedTokenCaches();

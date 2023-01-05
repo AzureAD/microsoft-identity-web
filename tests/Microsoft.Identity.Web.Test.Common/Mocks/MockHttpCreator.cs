@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         private static string CreateClientInfo(string uid = TestConstants.Uid, string utid = TestConstants.Utid)
         {
-            return Base64UrlHelpers.Encode("{\"uid\":\"" + uid + "\",\"utid\":\"" + utid + "\"}");
+            return Base64UrlHelpers.Encode("{\"uid\":\"" + uid + "\",\"utid\":\"" + utid + "\"}")!;
         }
 
         public static MockHttpMessageHandler CreateInstanceDiscoveryMockHandler(

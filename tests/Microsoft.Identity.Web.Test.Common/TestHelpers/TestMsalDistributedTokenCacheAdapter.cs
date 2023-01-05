@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             IDistributedCache distributedCache,
             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
             ILogger<MsalDistributedTokenCacheAdapter> logger,
-            IServiceProvider serviceProvider = null)
+            IServiceProvider? serviceProvider=null)
             : base(distributedCache, distributedCacheOptions, logger, serviceProvider)
         {
         }
@@ -33,12 +33,12 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             await RemoveKeyAsync(cacheKey).ConfigureAwait(false);
         }
 
-        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints cacheSerializerHints = null)
+        public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints? cacheSerializerHints = null)
         {
             await WriteCacheBytesAsync(cacheKey, bytes, cacheSerializerHints).ConfigureAwait(false);
         }
 
-        public async Task<byte[]> TestReadCacheBytesAsync(string cacheKey)
+        public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
         }

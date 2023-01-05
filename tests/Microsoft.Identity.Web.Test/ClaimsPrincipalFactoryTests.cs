@@ -14,8 +14,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void FromHomeTenantIdAndHomeObjectId_NullParameters_ThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromHomeTenantIdAndHomeObjectId(TestConstants.Utid, null));
-            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromHomeTenantIdAndHomeObjectId(null, TestConstants.Uid));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromHomeTenantIdAndHomeObjectId(TestConstants.Utid, null!));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromHomeTenantIdAndHomeObjectId(null!, TestConstants.Uid));
         }
 
         [Fact]
@@ -31,8 +31,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void FromTenantIdAndObjectId_NullParameters_ThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(TestConstants.ClaimNameTid, null));
-            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(null, TestConstants.Oid));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(TestConstants.ClaimNameTid, null!));
+            Assert.Throws<ArgumentNullException>(TestConstants.Value, () => ClaimsPrincipalFactory.FromTenantIdAndObjectId(null!, TestConstants.Oid));
         }
 
         [Fact]

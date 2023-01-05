@@ -54,7 +54,7 @@ namespace PerformanceTestService
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override Task RemoveKeyAsync(string cacheKey)
         {
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
             _memoryCache.Remove(cacheKey);
 
             MemoryCacheEventSource.Log.IncrementRemoveCount();
@@ -71,10 +71,10 @@ namespace PerformanceTestService
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <returns>Read Bytes.</returns>
-        protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             var stopwatch = Stopwatch.StartNew();
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
             stopwatch.Stop();
 
             MemoryCacheEventSource.Log.IncrementReadCount();

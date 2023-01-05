@@ -27,7 +27,7 @@ namespace PerformanceTestService.EventSource
 
         private static void RemoveExistingMemoryCache(IServiceCollection services)
         {
-            ServiceDescriptor msalMemoryCacheService = services.FirstOrDefault(s => s.ServiceType == typeof(IMsalTokenCacheProvider));
+            ServiceDescriptor msalMemoryCacheService = services.First(s => s.ServiceType == typeof(IMsalTokenCacheProvider));
 
             if (msalMemoryCacheService != null)
             {

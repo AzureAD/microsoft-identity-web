@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The builder for chaining.</returns>
         [Obsolete("Use AddDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
@@ -44,6 +46,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The builder for chaining.</returns>
         [Obsolete("Use AddDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,

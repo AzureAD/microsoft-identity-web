@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test
             return s_memoryCache;
         }
 
-        private static IMemoryCache s_memoryCache;
+        private static IMemoryCache? s_memoryCache;
 
         private static IMsalTokenCacheProvider CreateTokenCacheSerializer()
         {

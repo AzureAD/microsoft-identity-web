@@ -189,7 +189,7 @@ namespace Microsoft.Identity.Web
                 context.TokenEndpointRequest.Parameters.TryGetValue("code_verifier", out string codeVerifier);
                 var tokenAcquisition = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<ITokenAcquisitionInternal>();
                 var msIdentityOptions = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<IOptions<MicrosoftIdentityOptions>>();
-                var idToken = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAsync(
+                var result = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAsync(
                     new string[] { options.Scope },
                     context.Code,
                     string.Empty,
@@ -198,7 +198,7 @@ namespace Microsoft.Identity.Web
                     msIdentityOptions?.Value.DefaultUserFlow)).ConfigureAwait(false);
                 HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
                 httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
-                context.HandleCodeRedemption(null, idToken);
+                context.HandleCodeRedemption(result.AccessToken, result.IdToken);
             };
 
             updateOptions?.Invoke(options);

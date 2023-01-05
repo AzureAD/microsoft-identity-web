@@ -70,7 +70,7 @@ namespace PerformanceTestService.EventSource
         /// <param name="cacheKey">Key of the cache item to retrieve.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             var stopwatch = Stopwatch.StartNew();
             var bytes = await _distributedCache.GetAsync(cacheKey).ConfigureAwait(false);

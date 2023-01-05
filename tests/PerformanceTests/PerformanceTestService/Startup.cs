@@ -31,7 +31,7 @@ namespace PerformanceTestService
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                       .AddMicrosoftIdentityWebApi(Configuration)
                       .EnableTokenAcquisitionToCallDownstreamApi()
-                            .AddDownstreamWebApi(
+                            .AddDownstreamRestApi(
                                 TestConstants.SectionNameCalledApi,
                                 Configuration.GetSection(TestConstants.SectionNameCalledApi))
                             .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));

@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test
         public void ReSignInOfUser_ReturnsBoolOnErrorTest(bool isUserNullError)
         {
             MsalUiRequiredException msalUiEx;
-            Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(null));
+            Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(null!));
             if (isUserNullError)
             {
                 msalUiEx = new(MsalError.UserNullError, MsalError.InvalidGrantError);
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void ReSignInOfUser_ThrowsOnNullMsalUiRequiredExceptionTest()
         {
-            Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(null));
+            Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(null!));
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web.Test
         {
             Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                 null,
-                null,
+                null!,
                 new ClaimsPrincipal(new ClaimsIdentity(null, "Basic")),
                 null));
         }
