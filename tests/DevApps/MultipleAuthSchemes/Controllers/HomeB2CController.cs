@@ -5,6 +5,8 @@ using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using mvcwebapp_graph.Models;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace mvcwebapp_graph.Controllers
 {
@@ -17,9 +19,9 @@ namespace mvcwebapp_graph.Controllers
         }
 
         private readonly ILogger<HomeController> _logger;
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
-        public HomeB2CController(ILogger<HomeController> logger, IDownstreamWebApi downstreamWebApi)
+        public HomeB2CController(ILogger<HomeController> logger, IDownstreamRestApi downstreamWebApi)
         {
             _downstreamWebApi = downstreamWebApi;
             _logger = logger;
@@ -29,7 +31,8 @@ namespace mvcwebapp_graph.Controllers
             ScopeKeySection = "DownstreamB2CApi:Scopes", UserFlow = "b2c_1_susi", AuthenticationScheme = "B2C")]
         public async Task<IActionResult> Index()
         {
-            var value = await _downstreamWebApi.GetForUserAsync<Item>("DownstreamB2CApi", string.Empty, authenticationScheme:"B2C");
+            var value = await _downstreamWebApi.GetForUserAsync<Item>("DownstreamB2CApi",
+                options => options.AcquireTokenOptions.AuthenticationOptionsName = "B2C");
             ViewData["ApiResult"] = value.name;
             return View();
         }

@@ -25,10 +25,10 @@ namespace Company.WebApplication1.Pages
         private readonly ILogger<IndexModel> _logger;
 
 #if (GenerateApi)
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
         public IndexModel(ILogger<IndexModel> logger,
-                          IDownstreamWebApi downstreamWebApi)
+                          IDownstreamRestApi downstreamWebApi)
         {
              _logger = logger;
             _downstreamWebApi = downstreamWebApi;

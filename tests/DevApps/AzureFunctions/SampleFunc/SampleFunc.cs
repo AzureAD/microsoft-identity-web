@@ -11,13 +11,14 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.Net.Http;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 
 namespace SampleFunc
 {
     public class SampleFunc
     {
         private readonly ILogger<SampleFunc> _logger;
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
         private readonly GraphServiceClient _graphServiceClient;
 
         // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
@@ -25,7 +26,7 @@ namespace SampleFunc
 
         public SampleFunc(ILogger<SampleFunc> logger,
             GraphServiceClient graphServiceClient,
-            IDownstreamWebApi downstreamWebApi)
+            IDownstreamRestApi downstreamWebApi)
         {
             _graphServiceClient = graphServiceClient;
             _downstreamWebApi = downstreamWebApi;
@@ -44,7 +45,7 @@ namespace SampleFunc
             if (!authenticationStatus)
                 return authenticationResponse;
 
-            using var response = await _downstreamWebApi.CallWebApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            using var response = await _downstreamWebApi.CallRestApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

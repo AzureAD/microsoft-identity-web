@@ -5,7 +5,7 @@ namespace IntegrationTestService
 {
     public class UserInfo
     {
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
     }
 
 }

@@ -6,6 +6,7 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using System.Diagnostics;
 using System.Net.Http;
@@ -19,11 +20,11 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
     {
         private ITokenAcquisition _tokenAcquisition;
 
-        private IDownstreamWebApi _downstreamWebApi;
+        private IDownstreamRestApi _downstreamWebApi;
 
         public HomeController(
             ITokenAcquisition tokenAcquisition,
-            IDownstreamWebApi downstreamWebApi)
+            IDownstreamRestApi downstreamWebApi)
         {
             _tokenAcquisition = tokenAcquisition;
             _downstreamWebApi = downstreamWebApi;
@@ -61,7 +62,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
         [AuthorizeForScopes(ScopeKeySection = "AzureFunction:Scopes")]
         public async Task<ActionResult> CallAzureFunction()
         {
-            string message = await _downstreamWebApi.CallWebApiForUserAsync<string>(
+            string message = await _downstreamWebApi.CallRestApiForUserAsync<string>(
                 "AzureFunction");
             ViewBag.reply = message;
             return View();

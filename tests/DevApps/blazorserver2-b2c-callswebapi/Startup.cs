@@ -30,7 +30,7 @@ namespace blazor
                     .AddMicrosoftIdentityWebApp(Configuration, "AzureAdB2C")
                         .EnableTokenAcquisitionToCallDownstreamApi(new string [] {
                 "https://fabrikamb2c.onmicrosoft.com/tasks/read"})
-                            .AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
+                            .AddDownstreamRestApi("CalledApi", Configuration.GetSection("CalledApi"))
                         .AddInMemoryTokenCaches();
 
             services.AddControllersWithViews()
