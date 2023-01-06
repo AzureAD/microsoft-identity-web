@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -21,22 +22,31 @@ namespace Microsoft.Identity.Web.Test
 {
     public class TokenAcquisitionAuthorityTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private TokenAcquisition _tokenAcquisition;
+        private TokenAcquisitionAspnetCoreHost _tokenAcquisitionAspnetCoreHost;
         private ServiceProvider _provider;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+        private ICredentialsLoader _credentialsLoader;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         private void InitializeTokenAcquisitionObjects()
         {
-            _tokenAcquisition = new TokenAcquisition(
-                new MsalTestTokenCacheProvider(
-                _provider.GetService<IMemoryCache>(),
-                _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()),
+            _credentialsLoader = new DefaultCredentialsLoader();
+            _tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IMergedOptionsStore>(),
-                _provider.GetService<IHttpClientFactory>(),
-                _provider.GetService<ILogger<TokenAcquisition>>(),
+                _provider.GetService<IMergedOptionsStore>()!,
                 _provider);
+            _tokenAcquisition = new TokenAcquisitionAspNetCore(
+                new MsalTestTokenCacheProvider(
+                _provider.GetService<IMemoryCache>()!,
+                _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()!),
+                _provider.GetService<IHttpClientFactory>()!,
+                _provider.GetService<ILogger<TokenAcquisition>>()!,
+                _tokenAcquisitionAspnetCoreHost,
+                _provider,
+                _credentialsLoader);
         }
 
         private void BuildTheRequiredServices()

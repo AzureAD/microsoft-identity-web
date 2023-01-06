@@ -10,6 +10,7 @@ using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 using Xunit;
 
 namespace WebAppUiTests
@@ -45,7 +46,7 @@ namespace WebAppUiTests
             driver.Dispose();
         }
 
-        private static void PerformLogin(
+        internal static void PerformLogin(
             IWebDriver driver,
             LabUser user)
         {
@@ -56,7 +57,7 @@ namespace WebAppUiTests
             HandleStaySignedInPrompt(driver);
         }
 
-        private static void EnterUsername(
+        internal static void EnterUsername(
             IWebDriver driver,
             LabUser user,
             UserInformationFieldIds fields)
@@ -71,26 +72,55 @@ namespace WebAppUiTests
             driver.FindElement(By.Id(fields.AADSignInButtonId)).Click();
         }
 
-        private static void EnterPassword(
+        internal static void EnterPassword(
             IWebDriver driver,
             LabUser user,
             UserInformationFieldIds fields)
         {
             Trace.WriteLine("Logging in ... Entering password");
             string password = user.GetOrFetchPassword();
-            string passwordField = fields.GetPasswordInputId();
-            driver.FindElement(By.Id(passwordField)).SendKeys(password);
+            WaitUntilWithRetry(driver, fields.GetPasswordInputId())
+                .SendKeys(password);
+
+            // Wait a bit for the dialog to be refreshed before attempting
+            // to get the button (who is already there, inactive, but will be stale
+            // when the dialog refreshes.
+            Task.Delay(1000).Wait();
 
             Trace.WriteLine("Logging in ... Clicking next after password");
-            driver.FindElement(By.Id(fields.GetPasswordSignInButtonId())).Click();
+            WaitUntilWithRetry(driver, fields.GetPasswordSignInButtonId())
+                .Click();
+
         }
 
-        private static void HandleStaySignedInPrompt(IWebDriver driver)
+        internal static void HandleStaySignedInPrompt(IWebDriver driver)
         {
             Trace.WriteLine("Logging in ... Clicking 'No' for staying signed in");
-            var acceptBtn = driver.FindElement(By.Id(TestConstants.StaySignedInNoId));
-            acceptBtn?.Click();
+            WaitUntilWithRetry(driver, TestConstants.StaySignedInNoId)
+                .Click();
         }
+
+        private static IWebElement WaitUntilWithRetry(IWebDriver driver, string elementName)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeout: TimeSpan.FromSeconds(10))
+            {
+                PollingInterval = TimeSpan.FromSeconds(0.200),
+            };
+            wait.IgnoreExceptionTypes(typeof(NoSuchElementException));
+
+            IWebElement element;
+            try
+            {
+                element = wait.Until(drv => drv.FindElement(By.Id(elementName)));
+            }
+            catch (Exception)
+            {
+                element = wait.Until(drv => drv.FindElement(By.Id(elementName)));
+            }
+
+            return element;
+        }
+
     }
 #endif //FROM_GITHUB_ACTION
 }

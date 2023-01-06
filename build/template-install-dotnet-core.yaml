@@ -3,11 +3,6 @@
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Use .Net Core SDK 5'
-  inputs:
-    version: 5.0.x
-
-- task: UseDotNet@2
   displayName: 'Use .Net Core SDK 6'
   inputs:
     version: 6.0.x   
@@ -16,9 +11,3 @@ steps:
   displayName: 'Use .Net Core SDK 7'
   inputs:
     version: 7.0.x   
-
-- task: UseDotNet@2
-  displayName: 'Use .Net Core SDK 3.1.404'
-  inputs:
-    version: 3.1.404
-    

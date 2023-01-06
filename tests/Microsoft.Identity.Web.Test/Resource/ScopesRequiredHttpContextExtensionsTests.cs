@@ -15,12 +15,12 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public void VerifyUserHasAnyAcceptedScope_NullParameters_ThrowsException()
         {
-            HttpContext httpContext = null;
-            Assert.Throws<ArgumentNullException>(() => httpContext.VerifyUserHasAnyAcceptedScope(string.Empty));
+            HttpContext? httpContext = null;
+            Assert.Throws<ArgumentNullException>(() => httpContext!.VerifyUserHasAnyAcceptedScope(string.Empty));
 
             httpContext = HttpContextUtilities.CreateHttpContext();
 
-            Assert.Throws<ArgumentNullException>("acceptedScopes", () => httpContext.VerifyUserHasAnyAcceptedScope(null));
+            Assert.Throws<ArgumentNullException>("acceptedScopes", () => httpContext.VerifyUserHasAnyAcceptedScope(null!));
         }
 
         [Fact]

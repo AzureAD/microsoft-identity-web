@@ -1,0 +1,44 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+     <TargetFrameworks>net6.0; net7.0; net462; net472</TargetFrameworks>
+     <SignAssembly>True</SignAssembly>
+     <IsPackable>false</IsPackable>
+     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Common dependency versions">
+		<MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftNetTestSdkVersion>17.4.0</MicrosoftNetTestSdkVersion>
+		<!--GHSA-5crp-9r3c-p9vr-->
+		<NewtonsoftJsonVersion>13.0.2</NewtonsoftJsonVersion>
+		<XunitVersion>2.4.2</XunitVersion>
+		<XunitRunnerVisualStudioVersion>2.4.5</XunitRunnerVisualStudioVersion>
+    <XunitAssertVersion>2.4.2</XunitAssertVersion>
+    <XunitExtensibilityCoreVersion>2.4.2</XunitExtensibilityCoreVersion>
+    <NSubstituteVersion>4.2.2</NSubstituteVersion>
+    <NSubstituteAnalyzersCSharpVersion>1.0.13</NSubstituteAnalyzersCSharpVersion>
+		<CoverletCollectorVersion>3.1.2</CoverletCollectorVersion>
+    <SeleniumWebDriverVersion>4.7.0</SeleniumWebDriverVersion>
+    <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
+    <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
+    <MicrosoftApplicationInsightsAspNetCoreVersion>2.21.0</MicrosoftApplicationInsightsAspNetCoreVersion>
+    <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.21.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
+    <MicrosoftExtensionsCachingStackExchangeRedisVersion>6.0.12</MicrosoftExtensionsCachingStackExchangeRedisVersion>
+    <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
+    <!--CVE-2021-24112-->
+    <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
+    <MicrosoftAzureKeyVaultVersion>3.0.5</MicrosoftAzureKeyVaultVersion>
+	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <DefineConstants>$(DefineConstants);AZURE_DEVOPS_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
+  </PropertyGroup>
+
+</Project>

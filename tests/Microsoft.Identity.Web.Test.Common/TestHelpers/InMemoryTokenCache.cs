@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     public class InMemoryTokenCache
     {
-        private byte[] _cacheData;
+        private byte[]? _cacheData;
 
         /// <summary>
         /// Path to the token cache.

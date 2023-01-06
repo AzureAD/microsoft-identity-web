@@ -1,6 +1,16 @@
 name: .NET Core
 
-on: [push]
+on:
+  push:
+    branches:
+      - "master"
+      - "rel/v2"
+  pull_request:
+    branches:
+      - "master"
+      - "rel/v2"
+    paths:
+      - ".github/workflows/dotnetcore.yml"
 
 jobs:
   build:
@@ -35,7 +45,7 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build with .NET 6.0.x
-      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
 
     - name: Build with .NET 7.0.x
-      run: dotnet test Microsoft.Identity.Web.sln -f net7.0 --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"

@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Base class for Microsoft Identity authentication message handlers.
     /// </summary>
-    public abstract class MicrosoftIdentityAuthenticationBaseMessageHandler : DelegatingHandler
+    public class MicrosoftIdentityAuthenticationBaseMessageHandler : DelegatingHandler
     {
         private readonly IOptionsMonitor<MicrosoftIdentityAuthenticationMessageHandlerOptions> _namedMessageHandlerOptions;
         private readonly string? _serviceName;
@@ -45,10 +45,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The configured options.</returns>
         protected MicrosoftIdentityAuthenticationMessageHandlerOptions GetOptionsForRequest(HttpRequestMessage request)
         {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+            _ = Throws.IfNull(request);
 
             var options = _serviceName == null
                 ? _namedMessageHandlerOptions.CurrentValue

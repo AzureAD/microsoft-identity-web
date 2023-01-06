@@ -21,10 +21,7 @@ namespace Microsoft.Identity.Web
             IConfigurationSection? configurationSection)
             : base(services, jwtBearerAuthenticationScheme, configureJwtBearerOptions, configureMicrosoftIdentityOptions, configurationSection)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(configurationSection);
         }
 
         /// <summary>
@@ -34,7 +31,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The authentication builder to chain.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
         {
-            return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection.Bind(options));
+            return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection?.Bind(options));
         }
     }
 }

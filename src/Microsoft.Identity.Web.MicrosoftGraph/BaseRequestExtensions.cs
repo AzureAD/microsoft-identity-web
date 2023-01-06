@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
@@ -53,6 +54,20 @@ namespace Microsoft.Identity.Web
             return SetParameter(baseRequest, options => options.AuthenticationScheme = authenticationScheme);
         }
 
+        /// <summary>
+        /// Overrides authentication options for a given request.
+        /// </summary>
+        /// <typeparam name="T">Request</typeparam>
+        /// <param name="baseRequest">Request.</param>
+        /// <param name="overrideAuthenticationOptions">Delegate to override
+        /// the authentication options</param>
+        /// <returns>Base request</returns>
+        public static T WithAuthenticationOptions<T>(this T baseRequest, 
+            Action<AuthorizationHeaderProviderOptions> overrideAuthenticationOptions) where T : IBaseRequest
+        {
+            return SetParameter(baseRequest, options => options.AuthorizationHeaderProviderOptions = overrideAuthenticationOptions);
+        }
+
         private static T SetParameter<T>(T baseRequest, Action<TokenAcquisitionAuthenticationProviderOption> action) where T : IBaseRequest
         {
             string authHandlerOptionKey = typeof(AuthenticationHandlerOption).FullName!;
@@ -60,11 +75,12 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                authHandlerOptionKey = typeof(AuthenticationHandlerOption).Name!;
                 authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
             }
             catch (Exception)
             {
-                authHandlerOptionKey = typeof(AuthenticationHandlerOption).Name!;
+                // This flow only exists with very old versions of the Microsoft Graph SDK
                 authHandlerOptions = baseRequest.MiddlewareOptions[authHandlerOptionKey] as AuthenticationHandlerOption ?? new AuthenticationHandlerOption();
             }
 

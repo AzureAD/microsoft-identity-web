@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -25,10 +24,7 @@ namespace Microsoft.Identity.Web
         /// the user, and <c>false</c>, otherwise.</returns>
         public static bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)
         {
-            if (ex == null)
-            {
-                throw new ArgumentNullException(nameof(ex));
-            }
+            _ = Throws.IfNull(ex);
 
             // ex.ErrorCode != MsalUiRequiredException.UserNullError indicates a cache problem.
             // When calling an [Authenticate]-decorated controller we expect an authenticated
@@ -52,10 +48,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal user,
             string? userflow = null)
         {
-            if (ex == null)
-            {
-                throw new ArgumentNullException(nameof(ex));
-            }
+            _ = Throws.IfNull(ex);
 
             scopes ??= new string[0];
             var properties = new AuthenticationProperties();
@@ -68,7 +61,7 @@ namespace Microsoft.Identity.Web
                  OidcConstants.ScopeProfile,
             };
 
-            HashSet<string> oidcParams = new HashSet<string>(scopes);
+            HashSet<string> oidcParams = new(scopes);
             oidcParams.UnionWith(additionalBuiltInScopes);
             properties.SetParameter(OpenIdConnectParameterNames.Scope, oidcParams.ToList());
 

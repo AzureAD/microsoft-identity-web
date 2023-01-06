@@ -9,20 +9,25 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    public class TestClientAssertion : ClientAssertionProviderBase
+    {
+        private int _n = 0;
+
+        internal override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        {
+            _n++;
+            return Task.FromResult(new ClientAssertion(
+                _n.ToString(CultureInfo.InvariantCulture),
+                DateTimeOffset.Now + TimeSpan.FromSeconds(1)));
+        }
+    }
+
     public class ClientAssertionTests
     {
         [Fact]
         public async Task TestClientAssertion()
         {
-            int n = 0;
-            ClientAssertionDescription clientAssertionDescription = new ClientAssertionDescription(
-                cancellationToken =>
-                {
-                    n++;
-                    return Task.FromResult(new ClientAssertion(
-                        n.ToString(CultureInfo.InvariantCulture),
-                        DateTimeOffset.Now + TimeSpan.FromSeconds(1)));
-                });
+            TestClientAssertion clientAssertionDescription = new TestClientAssertion();
 
             string assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
 
@@ -30,6 +35,7 @@ namespace Microsoft.Identity.Web.Test
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("1", assertion);
 
+            Assert.NotNull(clientAssertionDescription.Expiry);
             await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("2", assertion);

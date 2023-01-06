@@ -12,5 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens " Version="$(IdentityModelVersion)" />
   </ItemGroup>
 </Project>

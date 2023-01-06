@@ -5,12 +5,10 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using NSubstitute.Extensions;
@@ -22,8 +20,10 @@ namespace Microsoft.Identity.Web.Test
     {
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
-        private ServiceProvider _provider;
+        private ServiceProvider? _provider;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web.Test
             }
 
             BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
@@ -113,12 +113,12 @@ namespace Microsoft.Identity.Web.Test
             {
                 ClaimActions =
                 {
-                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "sex"),
+                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "theGender"),
                 },
             });
 
             BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
@@ -136,8 +136,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.IsType<UniqueJsonKeyClaimAction>(genderClaim);
 
             // Ensure gender has the value of sex
-            var jsonKeyClaim = genderClaim as UniqueJsonKeyClaimAction;
-            Assert.Equal("sex", jsonKeyClaim.JsonKey);
+            var jsonKeyClaim = (genderClaim as UniqueJsonKeyClaimAction)!;
+            Assert.Equal("theGender", jsonKeyClaim.JsonKey);
         }
 
         private void BuildTheRequiredServices()

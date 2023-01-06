@@ -18,12 +18,13 @@ namespace Microsoft.Identity.Web.Test
     {
         private const string DefaultCacheKey = "default-key";
         private const string AnotherCacheKey = "another-key";
-        private ServiceProvider _provider;
+        private ServiceProvider? _provider;
+        private ServiceProvider Provider { get { return _provider!; } }
         private readonly TestMsalDistributedTokenCacheAdapter _testCacheAdapter;
 
         private TestDistributedCache L2Cache
         {
-            get { return _testCacheAdapter._distributedCache as TestDistributedCache; }
+            get { return (_testCacheAdapter._distributedCache as TestDistributedCache)!; }
         }
 
         public L1L2CacheTests()
@@ -31,8 +32,8 @@ namespace Microsoft.Identity.Web.Test
             BuildTheRequiredServices();
             _testCacheAdapter = new TestMsalDistributedTokenCacheAdapter(
                 MakeMockDistributedCache(),
-                _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>(),
-                _provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>());
+                Provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>()!,
+                Provider.GetService<ILogger<MsalDistributedTokenCacheAdapter>>()!);
         }
 
         [Theory]
@@ -41,10 +42,10 @@ namespace Microsoft.Identity.Web.Test
         public async Task WriteCache_WritesInL1L2_TestAsync(bool enableAsyncL2Write)
         {
             // Arrange
-            _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>().Value.EnableAsyncL2Write = enableAsyncL2Write;
+            Provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>()!.Value.EnableAsyncL2Write = enableAsyncL2Write;
             byte[] cache = new byte[3];
             AssertCacheValues(_testCacheAdapter);
-            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Equal(0, _testCacheAdapter._memoryCache!.Count);
             Assert.Empty(L2Cache._dict);
 
             // Act
@@ -64,6 +65,7 @@ namespace Microsoft.Identity.Web.Test
             await CreateL1L2TestWithSerializerHints(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Null(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
 
             await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
@@ -77,8 +79,10 @@ namespace Microsoft.Identity.Web.Test
             await CreateL1L2TestWithSerializerHints(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Null(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
-            var options = (_testCacheAdapter._distributedCache as TestDistributedCache).GetDistributedCacheEntryOptions(DefaultCacheKey);
+            var options = (_testCacheAdapter._distributedCache as TestDistributedCache)!.GetDistributedCacheEntryOptions(DefaultCacheKey);
+            Assert.NotNull(options);
             Assert.NotNull(options.AbsoluteExpiration);
             await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
@@ -93,8 +97,13 @@ namespace Microsoft.Identity.Web.Test
             await CreateL1L2TestWithSerializerHints(expiry, 1).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.NotNull(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
-            var options = (_testCacheAdapter._distributedCache as TestDistributedCache).GetDistributedCacheEntryOptions(DefaultCacheKey);
+            TestDistributedCache? testDistributedCache = _testCacheAdapter._distributedCache as TestDistributedCache;
+            Assert.NotNull(testDistributedCache);
+            var options = testDistributedCache.GetDistributedCacheEntryOptions(DefaultCacheKey);
+            Assert.NotNull(options);
+            Assert.NotNull(options.AbsoluteExpiration);
             Assert.Equal(expiry, options.AbsoluteExpiration.Value);
             await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
@@ -117,13 +126,18 @@ namespace Microsoft.Identity.Web.Test
             // Arrange & Act
             var timespan = System.TimeSpan.FromHours(1);
             var suggestedExpiry = System.DateTimeOffset.UtcNow + timespan;
-            var absoluteOptions = _provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>();
+            var absoluteOptions = Provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>();
+            Assert.NotNull(absoluteOptions);
             absoluteOptions.Value.AbsoluteExpiration = System.DateTimeOffset.Now + System.TimeSpan.FromHours(time);
             await CreateL1L2TestWithSerializerHints(suggestedExpiry, 1).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.NotNull(_testCacheAdapter._memoryCache.Get(DefaultCacheKey));
-            var options = (_testCacheAdapter._distributedCache as TestDistributedCache).GetDistributedCacheEntryOptions(DefaultCacheKey);
+            Assert.NotNull(_testCacheAdapter._distributedCache as TestDistributedCache);
+            var options = (_testCacheAdapter._distributedCache as TestDistributedCache)!.GetDistributedCacheEntryOptions(DefaultCacheKey);
+            Assert.NotNull(options);
+            Assert.NotNull(options.AbsoluteExpiration);
             if (time < 1)
             {
                 Assert.Equal(absoluteOptions.Value.AbsoluteExpiration, options.AbsoluteExpiration.Value);
@@ -145,6 +159,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[3];
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
             CacheSerializerHints cacheSerializerHints = new CacheSerializerHints();
@@ -167,15 +182,17 @@ namespace Microsoft.Identity.Web.Test
             byte[] cache = new byte[3];
             cache[0] = 4;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             _testCacheAdapter._memoryCache.Set(DefaultCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(result);
             Assert.Equal(4, result[0]);
         }
 
@@ -188,12 +205,14 @@ namespace Microsoft.Identity.Web.Test
             AssertCacheValues(_testCacheAdapter);
             _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cache);
             Assert.Single(L2Cache._dict);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(result);
             Assert.Equal(4, result[0]);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache._dict);
@@ -206,10 +225,11 @@ namespace Microsoft.Identity.Web.Test
             byte[] cache = new byte[3];
             cache[0] = 4;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result);
@@ -224,13 +244,14 @@ namespace Microsoft.Identity.Web.Test
             byte[] cache = new byte[3];
             cache[0] = 4;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
             _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cache, new MemoryCacheEntryOptions { Size = cache.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result);
@@ -246,6 +267,7 @@ namespace Microsoft.Identity.Web.Test
             byte[] cacheL2 = new byte[2];
             cacheL2[0] = 9;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
             _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);
@@ -253,12 +275,14 @@ namespace Microsoft.Identity.Web.Test
             Assert.Single(L2Cache._dict);
 
             // Act & Assert
-            byte[] result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            Assert.NotNull(result);
             Assert.Equal(9, result[0]);
             Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache._dict);
 
-            byte[] result2 = await _testCacheAdapter.TestReadCacheBytesAsync(AnotherCacheKey).ConfigureAwait(false);
+            byte[]? result2 = await _testCacheAdapter.TestReadCacheBytesAsync(AnotherCacheKey).ConfigureAwait(false);
+            Assert.NotNull(result2);
             Assert.Equal(4, result2[0]);
             Assert.Equal(2, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache._dict);
@@ -271,6 +295,7 @@ namespace Microsoft.Identity.Web.Test
             byte[] cacheL1 = new byte[3];
             cacheL1[0] = 4;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             _testCacheAdapter._memoryCache.Set(DefaultCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
@@ -289,6 +314,7 @@ namespace Microsoft.Identity.Web.Test
             byte[] cacheL2 = new byte[3];
             cacheL2[0] = 4;
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);
             Assert.Single(L2Cache._dict);
@@ -308,6 +334,7 @@ namespace Microsoft.Identity.Web.Test
             byte[] cacheL1 = new byte[3];
             byte[] cacheL2 = new byte[2];
             AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             _testCacheAdapter._memoryCache.Set(AnotherCacheKey, cacheL1, new MemoryCacheEntryOptions { Size = cacheL1.Length });
             _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cacheL2);

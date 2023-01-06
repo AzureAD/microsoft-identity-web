@@ -29,10 +29,7 @@ namespace Microsoft.Identity.Web
             IConfigurationSection configurationSection)
             : base(services, openIdConnectScheme, configureMicrosoftIdentityOptions, configurationSection)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(configurationSection);
         }
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace Microsoft.Identity.Web
             return EnableTokenAcquisitionToCallDownstreamApi(
                 options =>
                 {
-                    ConfigurationSection.Bind(options);
+                    ConfigurationSection?.Bind(options);
                     if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
                     {
                         options.ClientId = AppServicesAuthenticationInformation.ClientId;

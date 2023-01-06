@@ -1,3 +1,11 @@
+2.0.8-preview
+==========
+- Update [Microsoft.Identity.Abstractions 1.0.5-preview](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/1.0.5-preview), which has breaking changes.
+
+2.0.7-preview
+==========
+- Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
 1.25.10
 ==========
 - Merge the PR for #1957.
@@ -6,6 +14,16 @@
 1.25.9
 ==========
 Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+2.0.6-preview
+==========
+### New Feature:
+- Enable using the TokenAcquireFactory default instance from anywhere in an ASP.NET Core application [#1958](https://github.com/AzureAD/microsoft-identity-web/pull/1958)
+
+### Bug Fixes:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+- Fix from @rvplauborg to DownstreamWebApiOptions.Clone, which was missing two properties. [#1970](https://github.com/AzureAD/microsoft-identity-web/issues/1970)
+- Updates to OWIN and 1P extensibility
 
 1.25.8
 ==========
@@ -25,6 +43,42 @@ Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com
 1.25.5
 ==========
 - Update to latest IdentityModel 6.25.0
+
+2.0.4-preview
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1, cve-2022-29117 for OWIN and cve-2021-24112 for data protection.
+
+### New Features:
+- Add support for [private keys in certificates](https://github.com/AzureAD/microsoft-identity-web/pull/1923).
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
+
+### Perf improvements:
+- [Use Throws.cs from R9](https://github.com/AzureAD/microsoft-identity-web/pull/1928), [use high-perf logging for new log messages](https://github.com/AzureAD/microsoft-identity-web/pull/1927), [take suggestions from R9 analyzers](https://github.com/AzureAD/microsoft-identity-web/pull/1924).
+
+2.0.3-preview
+==========
+### New Features:
+- Leverage new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) library, version 1.0.0-preview.
+
+### Bug fixes:
+- Bug fixes in the credential loader to use the cached value and make `LoadCredentialsIfNeeded` public.
+- Integrate `TokenAcquirerFactory` with ASP NET core.
+- Add `ClientSecret` to Owin config #1911.
+- Finish the E2E for Owin.
+
+2.0.2-preview
+==========
+### New Features:
+- Support for Proof-of-possession (PoP) as introduced by MSAL.NET 4.47.2.
+- Support for .NET 6.
+
+Leverages new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) repo.
+
+2.0.0-preview
+==========
+Detailed released notes [here](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0).
 
 1.25.4
 ==========

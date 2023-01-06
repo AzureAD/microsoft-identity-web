@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -15,13 +16,13 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
-        public TokenAcquisitionAuthenticationProvider(ITokenAcquisition tokenAcquisition, TokenAcquisitionAuthenticationProviderOption options)
+        public TokenAcquisitionAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider, TokenAcquisitionAuthenticationProviderOption options)
         {
-            _tokenAcquisition = tokenAcquisition;
+            _authorizationHeaderProvider = authorizationHeaderProvider;
             _initialOptions = options;
         }
 
-        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
 
         /// <summary>
@@ -50,20 +51,27 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            AuthenticationResult authenticationResult;
+            DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
+            downstreamRestApiOptions.AcquireTokenOptions.AuthenticationOptionsName = scheme;
+            downstreamRestApiOptions.AcquireTokenOptions.Tenant = tenant;
+
+            if (msalAuthProviderOption?.AuthorizationHeaderProviderOptions != null)
+            {
+                msalAuthProviderOption.AuthorizationHeaderProviderOptions(downstreamRestApiOptions);
+            }
+
+            string authorizationHeader;
             if (appOnly)
             {
-                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
                     Constants.DefaultGraphScope,
-                    authenticationScheme: scheme,
-                    tenant: tenant).ConfigureAwait(false);
+                    downstreamRestApiOptions).ConfigureAwait(false);
             }
             else
             {
-                authenticationResult = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     scopes!,
-                    tenantId: tenant,
-                    authenticationScheme: scheme).ConfigureAwait(false);
+                    downstreamRestApiOptions).ConfigureAwait(false);
             }
 
             // add or replace authorization header
@@ -73,8 +81,9 @@ namespace Microsoft.Identity.Web
             }
 
             request.Headers.Add(
-                Constants.Authorization,
-                authenticationResult.CreateAuthorizationHeader());
+                Constants.Authorization, authorizationHeader);
+
+            downstreamRestApiOptions?.CustomizeHttpRequestMessage?.Invoke(request);
         }
 
         /// <summary>

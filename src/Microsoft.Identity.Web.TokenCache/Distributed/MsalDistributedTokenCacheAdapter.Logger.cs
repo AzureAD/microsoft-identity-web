@@ -78,20 +78,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="operation">Cache operation (Read, Write, etc...).</param>
             /// <param name="cacheKey">MSAL.NET cache key.</param>
             /// <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
-            /// <param name="ex">Exception.</param>
             public static void MemoryCacheRead(
                 ILogger logger,
                 string cacheType,
                 string operation,
                 string cacheKey,
-                int cacheSize,
-                Exception? ex) => s_l1CacheRead(
+                int cacheSize) => s_l1CacheRead(
                     logger,
                     cacheType,
                     operation,
                     cacheKey,
                     cacheSize,
-                    ex);
+                    default!);
 
             /// <summary>
             /// Memory cache remove.
@@ -120,18 +118,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="cacheType">Distributed or Memory.</param>
             /// <param name="operation">Cache operation (Read, Write, etc...).</param>
             /// <param name="count">L1 cache count.</param>
-            /// <param name="ex">Exception.</param>
             public static void MemoryCacheCount(
                 ILogger logger,
                 string cacheType,
                 string operation,
-                int count,
-                Exception? ex) => s_l1CacheCount(
+                int count) => s_l1CacheCount(
                     logger,
                     cacheType,
                     operation,
                     count,
-                    ex);
+                    default!);
 
             /// <summary>
             /// L2 cache state logging.
@@ -142,22 +138,20 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="cacheKey">MSAL.NET cache key.</param>
             /// <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
             /// <param name="inRetry">L2 cache retry due to possible connection issue.</param>
-            /// <param name="ex">Exception.</param>
             public static void DistributedCacheState(
                 ILogger logger,
                 string cacheType,
                 string operation,
                 string cacheKey,
                 int cacheSize,
-                bool inRetry,
-                Exception? ex) => s_l2CacheState(
+                bool inRetry) => s_l2CacheState(
                     logger,
                     cacheType,
                     operation,
                     cacheKey,
                     cacheSize,
                     inRetry,
-                    ex);
+                    default!);
 
             /// <summary>
             /// L2 cache state logging.
@@ -169,7 +163,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
             /// <param name="inRetry">L2 cache retry due to possible connection issue.</param>
             /// <param name="time">Time in milliseconds.</param>
-            /// <param name="ex">Exception.</param>
             public static void DistributedCacheStateWithTime(
                 ILogger logger,
                 string cacheType,
@@ -177,8 +170,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 string cacheKey,
                 int cacheSize,
                 bool inRetry,
-                double time,
-                Exception? ex) => s_l2CacheStateWithTime(
+                double time) => s_l2CacheStateWithTime(
                     logger,
                     cacheType,
                     operation,
@@ -186,7 +178,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     cacheSize,
                     inRetry,
                     time,
-                    ex);
+                    default!);
 
             /// <summary>
             /// L2 cache retry.
@@ -215,18 +207,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// <param name="cacheType">Distributed or Memory.</param>
             /// <param name="operation">Cache operation (Read, Write, etc...).</param>
             /// <param name="time">Time in milliseconds.</param>
-            /// <param name="ex">Exception.</param>
             public static void DistributedCacheReadTime(
                 ILogger logger,
                 string cacheType,
                 string operation,
-                double time,
-                Exception? ex) => s_l2CacheReadTime(
+                double time) => s_l2CacheReadTime(
                     logger,
                     cacheType,
                     operation,
                     time,
-                    ex);
+                    default!);
 
             /// <summary>
             /// L2 cache error.
@@ -256,14 +246,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             /// </summary>
             /// <param name="logger">ILogger.</param>
             /// <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
-            /// <param name="ex">Exception.</param>
             public static void BackPropagateL2toL1(
                 ILogger logger,
-                long cacheSize,
-                Exception? ex) => s_backPropagateL2toL1(
+                long cacheSize) => s_backPropagateL2toL1(
                     logger,
                     cacheSize,
-                    ex);
+                    default!);
         }
     }
 }

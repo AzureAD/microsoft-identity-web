@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +57,6 @@ namespace Microsoft.Identity.Web
             public string[]? AcceptedAppPermission { get; }
 
             public string? RequiredScopesConfigurationKey { get; }
-            public string? RequiredAppPermissionsConfigurationKey { get; }
         }
     }
 }

@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         private void AssertSuccess()
         {
             Assert.True(_customEventWasRaised);
-            _logger.Received().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>());
+            _logger.Received().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception?, string>>());
         }
     }
 }

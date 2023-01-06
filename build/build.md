@@ -7,8 +7,8 @@
   - 'Post Analysis'
 - [template-bootstrap-build.yaml](template-bootstrap-build.yaml)
   - [template-install-dotnet-core.yaml](template-install-dotnet-core.yaml)
-    - 'Use .Net Core SDK 5.0.100'
-    - 'Use .Net Core SDK 3.1.404'
+    - 'Use .Net Core SDK 6'
+    - 'Use .Net Core SDK 7'
   - [template-install-nuget.yaml](template-install-nuget.yaml)
 - [template-install-keyvault-secrets.yaml](template-install-keyvault-secrets.yaml)
   - 'Azure Key Vault: buildautomation'
@@ -29,8 +29,11 @@
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\ProjectTemplates')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache')`
+  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition')`
   - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.IdentityFederation')`
+  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless')`
+  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN')`
+    - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamRestApi')`
   - 'Copy Files from `$(Build.SourcesDirectory)` to: `$(Build.ArtifactStagingDirectory)\packages'`
   - Sign Packages `'('$(Build.ArtifactStagingDirectory)\packages')`
 - [template-publish-packages-and-symbols.yaml](template-publish-packages-and-symbols.yaml)

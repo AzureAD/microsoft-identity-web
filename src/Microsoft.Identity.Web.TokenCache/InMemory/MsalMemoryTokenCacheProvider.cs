@@ -33,10 +33,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
         {
-            if (cacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(cacheOptions));
-            }
+            _ = Throws.IfNull(cacheOptions);
 
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
@@ -59,9 +56,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <returns>Read Bytes.</returns>
-        protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
             return Task.FromResult(tokenCacheBytes);
         }
 
@@ -89,7 +86,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             CacheSerializerHints cacheSerializerHints)
         {
             TimeSpan? cacheExpiry = null;
-            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
+            if (cacheSerializerHints != null && cacheSerializerHints.SuggestedCacheExpiry != null)
             {
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
                 if (cacheExpiry < TimeSpan.Zero)
@@ -98,7 +95,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
                 }
             }
 
-            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
                 Size = bytes?.Length,

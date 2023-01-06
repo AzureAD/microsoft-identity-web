@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,15 +21,15 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+        [Obsolete("Use AddDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configuration);
             builder.Services.AddHttpClient<IDownstreamWebApi, DownstreamWebApi>();
@@ -43,15 +44,15 @@ namespace Microsoft.Identity.Web
         /// This is the name which will be used when calling the service from controller/pages.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
         /// <returns>The builder for chaining.</returns>
+        [Obsolete("Use AddDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
             Action<DownstreamWebApiOptions> configureOptions)
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<DownstreamWebApiOptions>(serviceName, configureOptions);
 

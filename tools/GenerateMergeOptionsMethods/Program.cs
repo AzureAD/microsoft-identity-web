@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
@@ -12,6 +13,8 @@ namespace GenerateMergeOptionsMethods
     {
         static void Main(string[] args)
         {
+            GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftIdentityApplicationOptions));
+/*
             GenerateMergeMethod(typeof(MergedOptions), typeof(MicrosoftIdentityOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(ConfidentialClientApplicationOptions));
             GenerateMergeMethod(typeof(MergedOptions), typeof(JwtBearerOptions));
@@ -22,6 +25,7 @@ namespace GenerateMergeOptionsMethods
             GenerateMergeMethod(typeof(JwtBearerMergedOptions), typeof(JwtBearerOptions));
             GenerateMergeMethod(typeof(JwtBearerMergedOptions), typeof(ConfidentialClientApplicationOptions));
             GenerateMergeMethod(typeof(ConfidentialClientApplicationOptions), typeof(JwtBearerMergedOptions));
+*/
         }
 
         private static void GenerateCommonProperties(Type type1, Type type2)

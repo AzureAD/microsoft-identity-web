@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Microsoft Identity Web.Azure</Title>
+    <Product>Microsoft Identity Web.Azure</Product>
+    <Description>
+      This package enables ASP.NET Core web apps and web APIs to use the Azure SDKs with the Microsoft identity platform (formerly Azure AD v2.0)
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+  </ItemGroup>
+</Project>

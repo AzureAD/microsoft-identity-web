@@ -24,10 +24,10 @@ namespace Company.Application1
     {
         private readonly ILogger<GreeterService> _logger;
 #if (GenerateApi)
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
         public GreeterService(ILogger<GreeterService> logger,
-                        IDownstreamWebApi downstreamWebApi)
+                        IDownstreamRestApi downstreamWebApi)
         {
             _logger = logger;
             _downstreamWebApi = downstreamWebApi;

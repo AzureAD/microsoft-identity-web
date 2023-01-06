@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,10 +22,7 @@ namespace Microsoft.Identity.Web.UI
         /// <returns>MVC builder for chaining.</returns>
         public static IMvcBuilder AddMicrosoftIdentityUI(this IMvcBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.ConfigureApplicationPartManager(apm =>
             {

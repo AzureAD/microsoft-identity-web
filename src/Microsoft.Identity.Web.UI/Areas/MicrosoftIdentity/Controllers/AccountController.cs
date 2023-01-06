@@ -95,7 +95,10 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             };
 
             OAuthChallengeProperties oAuthChallengeProperties = new OAuthChallengeProperties(items, parameters);
-            oAuthChallengeProperties.Scope = scope?.Split(" ");
+            if (scope != null)
+            {
+                oAuthChallengeProperties.Scope = scope.Split(" ");
+            }
             oAuthChallengeProperties.RedirectUri = redirectUri;
 
             return Challenge(
@@ -114,7 +117,11 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
-                return LocalRedirect(AppServicesAuthenticationInformation.LogoutUrl);
+                if (AppServicesAuthenticationInformation.LogoutUrl != null)
+                {
+                    return LocalRedirect(AppServicesAuthenticationInformation.LogoutUrl);
+                }
+                return Ok();
             }
             else
             {

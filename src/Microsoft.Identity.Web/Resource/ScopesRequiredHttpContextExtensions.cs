@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -35,15 +36,9 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
         public static void VerifyUserHasAnyAcceptedScope(this HttpContext context, params string[] acceptedScopes)
         {
-            if (acceptedScopes == null)
-            {
-                throw new ArgumentNullException(nameof(acceptedScopes));
-            }
+            _ = Throws.IfNull(acceptedScopes);
 
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            _ = Throws.IfNull(context);
 
             IEnumerable<Claim> userClaims;
             ClaimsPrincipal user;

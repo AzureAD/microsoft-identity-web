@@ -35,12 +35,7 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             OpenIdConnectScheme = openIdConnectScheme;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            ConfigureMicrosoftIdentityOptions = Throws.IfNull(configureMicrosoftIdentityOptions);
         }
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
@@ -108,9 +103,8 @@ namespace Microsoft.Identity.Web
                 services.AddTokenAcquisition();
 
                 services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                   .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                   .Configure<IMergedOptionsStore, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
                        options,
-                       serviceProvider,
                        mergedOptionsMonitor,
                        ccaOptionsMonitor,
                        ccaOptions) =>
@@ -172,7 +166,7 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context, openIdConnectScheme).ConfigureAwait(false);
+                           await tokenAcquisition.RemoveAccountAsync(context!.HttpContext.User, openIdConnectScheme).ConfigureAwait(false);
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

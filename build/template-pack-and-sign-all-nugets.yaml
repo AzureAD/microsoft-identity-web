@@ -42,6 +42,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache'
     AssemblyName: 'Microsoft.Identity.Web.TokenCache*'
 
+# Pack and sign Microsoft.Identity.Web.TokenAcquisition
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition'
+    AssemblyName: 'Microsoft.Identity.Web.TokenAcquisition*'
+
 # Pack and sign Microsoft.Identity.Web.Certificate
 - template: template-pack-and-sign-nuget.yaml
   parameters:
@@ -56,12 +63,33 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
     AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
 
-# Pack and sign Microsoft.Identity.Web.ProjectTemplates
+# Pack and sign Microsoft.Identity.Web.OWIN
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\ProjectTemplates'
-    AssemblyName: 'AspNetCoreMicrosoftIdentityWebProjectTemplates'
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN'
+    AssemblyName: 'Microsoft.Identity.Web.OWIN*'
+
+# Pack and sign Microsoft.Identity.Web.DownstreamRestApi
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamRestApi'
+    AssemblyName: 'Microsoft.Identity.Web.DownstreamRestApi*'
+
+# Pack and sign Microsoft.Identity.Web.Diagnostics
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Diagnostics'
+    AssemblyName: 'Microsoft.Identity.Web.Diagnostics*'
+
+# Pack and sign Microsoft.Identity.Web.Diagnostics
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Azure'
+    AssemblyName: 'Microsoft.Identity.Web.Azure*'
 
 # Copy all packages out to staging
 - task: CopyFiles@2

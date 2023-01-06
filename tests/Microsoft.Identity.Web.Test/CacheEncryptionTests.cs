@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Client;
@@ -18,8 +20,12 @@ namespace Microsoft.Identity.Web.Test
 {
     public class CacheEncryptionTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        // These fields won't be null in tests, as tests call BuildTheRequiredServices()
         private TestMsalDistributedTokenCacheAdapter _testCacheAdapter;
         private IServiceProvider _provider;
+
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Theory]
         [InlineData(true)]
@@ -29,7 +35,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[] { 1, 2, 3, 4 };
             BuildTheRequiredServices(isEncrypted);
-            _testCacheAdapter = _provider.GetService<IMsalTokenCacheProvider>() as TestMsalDistributedTokenCacheAdapter;
+            _testCacheAdapter = (_provider.GetRequiredService<IMsalTokenCacheProvider>() as TestMsalDistributedTokenCacheAdapter)!;
             TestTokenCache tokenCache = new TestTokenCache();
             TokenCacheNotificationArgs args = InstantiateTokenCacheNotificationArgs(tokenCache);
             _testCacheAdapter.Initialize(tokenCache);
@@ -40,22 +46,34 @@ namespace Microsoft.Identity.Web.Test
             await tokenCache._afterAccess(args).ConfigureAwait(false);
 
             // Assert
+            Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
-            Assert.NotEqual(cache.SequenceEqual(GetFirstCacheValue()), isEncrypted);
+            Assert.NotEqual(cache.SequenceEqual(GetFirstCacheValue(_testCacheAdapter._memoryCache)), isEncrypted);
         }
 
-        private byte[] GetFirstCacheValue()
+        private byte[] GetFirstCacheValue(MemoryCache memoryCache)
         {
-            dynamic content = _testCacheAdapter._memoryCache
+            IDictionary memoryCacheContent;
+#if NET7_0_OR_GREATER
+            dynamic content1 = memoryCache
+                .GetType()
+                .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(memoryCache)!;
+            memoryCacheContent = (content1?
                 .GetType()
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                .GetValue(_testCacheAdapter._memoryCache);
-            System.Collections.IDictionary dictionary = content as System.Collections.IDictionary;
-            var firstEntry = dictionary.Values.OfType<object>().First();
+                .GetValue(content1) as IDictionary)!;
+#else
+            memoryCacheContent = (memoryCache
+                .GetType()
+                .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(_testCacheAdapter._memoryCache) as IDictionary)!;
+#endif
+            var firstEntry = memoryCacheContent.Values.OfType<object>().First();
             var firstEntryValue = firstEntry.GetType()
-                .GetProperty("Value")
+                .GetProperty("Value")!
                 .GetValue(firstEntry);
-            return firstEntryValue as byte[];
+            return (firstEntryValue as byte[])!;
         }
 
         private void BuildTheRequiredServices(bool isEncrypted)
@@ -80,7 +98,7 @@ namespace Microsoft.Identity.Web.Test
         {
             ITokenCacheSerializer tokenCacheSerializer = tokenCache;
             string clientId = string.Empty;
-            IAccount account = null;
+            IAccount? account = null;
             bool hasStateChanged = true;
             bool isAppCache = false;
             bool hasTokens = true;
@@ -104,9 +122,11 @@ namespace Microsoft.Identity.Web.Test
 
     public class TestTokenCache : ITokenCache, ITokenCacheSerializer
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public byte[] cache;
         public Func<TokenCacheNotificationArgs, Task> _beforeAccess;
         public Func<TokenCacheNotificationArgs, Task> _afterAccess;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         public void Deserialize(byte[] msalV2State)
         {

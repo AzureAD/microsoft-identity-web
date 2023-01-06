@@ -25,10 +25,10 @@ namespace Company.FunctionApp1
         static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
 #endif
 #if (GenerateApi)
-        private readonly IDownstreamWebApi _downstreamWebApi;
+        private readonly IDownstreamRestApi _downstreamWebApi;
 
         public SampleFunc(ILogger<SampleFunc> logger,
-            IDownstreamWebApi downstreamWebApi)
+            IDownstreamRestApi downstreamWebApi)
         {
             _downstreamWebApi = downstreamWebApi;
             _logger = logger;

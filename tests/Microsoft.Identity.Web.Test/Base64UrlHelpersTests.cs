@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void Encode_NullByteArray_ReturnsNull()
         {
-            byte[] byteArrayToEncode = null;
+            byte[]? byteArrayToEncode = null;
             Assert.Null(Base64UrlHelpers.Encode(byteArrayToEncode));
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void Encode_NullString_ReturnsNull()
         {
-            string stringToEncode = null;
+            string? stringToEncode = null;
             Assert.Null(Base64UrlHelpers.Encode(stringToEncode));
         }
 

@@ -9,13 +9,10 @@
       that call Microsoft Graph Beta.
     </Description>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\BaseRequestExtensions.cs" Link="BaseRequestExtensions.cs" />
+    <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\GraphServiceCollectionExtensions.cs" Link="GraphServiceCollectionExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphExtensions.cs" Link="MicrosoftGraphExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphOptions.cs" Link="MicrosoftGraphOptions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionAuthenticationProvider.cs" Link="TokenAcquisitionAuthenticationProvider.cs" />
@@ -27,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 
 </Project>

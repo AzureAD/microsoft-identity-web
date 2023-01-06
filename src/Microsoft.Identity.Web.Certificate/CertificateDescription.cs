@@ -3,14 +3,37 @@
 
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Description of a certificate.
     /// </summary>
-    public class CertificateDescription
+    public class CertificateDescription : CredentialDescription
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public CertificateDescription()
+        {
+        }
+
+        /// <summary>
+        /// Creates a certificate description from a credential description.
+        /// </summary>
+        /// <param name="credentialDescription"></param>
+        public CertificateDescription(CredentialDescription credentialDescription)
+        {
+            _ = Throws.IfNull(credentialDescription);
+
+            // TODO: Check credentialDescription is really a cert
+            SourceType = (CertificateSource)credentialDescription.SourceType;
+            Container = credentialDescription.Container;
+            Certificate = credentialDescription.Certificate;
+            ReferenceOrValue = credentialDescription.ReferenceOrValue;
+        }
+
         /// <summary>
         /// Creates a certificate description from a certificate (by code).
         /// </summary>
@@ -58,6 +81,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Creates a certificate description from a Base64 encoded value.
+        /// </summary>
+        /// <param name="base64EncodedValue">Base64 encoded certificate value.</param>
+        /// <param name="password">The password to use when decoding the certificate.</param>
+        /// <returns>A certificate description.</returns>
+        public static CertificateDescription FromBase64Encoded(string base64EncodedValue, string password)
+        {
+            return new CertificateDescription
+            {
+                SourceType = CertificateSource.Base64Encoded,
+                Base64EncodedValue = base64EncodedValue,
+                CertificatePassword = password
+            };
+        }
+
+        /// <summary>
         /// Creates a certificate description from path on disk.
         /// </summary>
         /// <param name="path">Path where to find the certificate file.</param>
@@ -71,25 +110,6 @@ namespace Microsoft.Identity.Web
                 CertificateDiskPath = path,
                 CertificatePassword = password,
             };
-        }
-
-        /// <summary>
-        /// Creates a certificate description from a thumbprint and store location (Certificate Manager on Windows, for instance).
-        /// </summary>
-        /// <param name="certificateThumbprint">Certificate thumbprint.</param>
-        /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
-        /// <param name="certificateStoreName">Store name where to find the certificate.</param>
-        /// <returns>A certificate description.</returns>
-        [Obsolete(CertificateErrorMessage.FromStoreWithThumprintIsObsolete, false)]
-        public static CertificateDescription FromStoreWithThumprint(
-            string certificateThumbprint,
-            StoreLocation certificateStoreLocation = StoreLocation.CurrentUser,
-            StoreName certificateStoreName = StoreName.My)
-        {
-            return FromStoreWithThumbprint(
-                certificateThumbprint,
-                certificateStoreLocation,
-                certificateStoreName);
         }
 
         /// <summary>
@@ -133,111 +153,6 @@ namespace Microsoft.Identity.Web
             };
         }
 
-        /// <summary>
-        /// Type of the source of the certificate.
-        /// </summary>
-        public CertificateSource SourceType { get; set; }
-
-        /// <summary>
-        /// Container in which to find the certificate.
-        /// <list type="bullet">
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.KeyVault"/>, then
-        /// the container is the Key Vault base URL.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Base64Encoded"/>, then
-        /// this value is not used.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Path"/>, then
-        /// this value is the path on disk where to find the certificate.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithDistinguishedName"/>,
-        /// or <see cref="CertificateSource.StoreWithThumbprint"/>, then
-        /// this value is the path to the certificate in the cert store, for instance <c>CurrentUser/My</c>.</item>
-        /// </list>
-        /// </summary>
-        internal string? Container
-        {
-            get
-            {
-                switch (SourceType)
-                {
-                    case CertificateSource.Certificate:
-                        return null;
-                    case CertificateSource.KeyVault:
-                        return KeyVaultUrl;
-                    case CertificateSource.Base64Encoded:
-                        return null;
-                    case CertificateSource.Path:
-                        return CertificateDiskPath;
-                    case CertificateSource.StoreWithThumbprint:
-                    case CertificateSource.StoreWithDistinguishedName:
-                        return CertificateStorePath;
-                    default:
-                        return null;
-                }
-            }
-            set
-            {
-                switch (SourceType)
-                {
-                    case CertificateSource.Certificate:
-                        break;
-                    case CertificateSource.KeyVault:
-                        KeyVaultUrl = value;
-                        break;
-                    case CertificateSource.Base64Encoded:
-                        break;
-                    case CertificateSource.Path:
-                        CertificateDiskPath = value;
-                        break;
-                    case CertificateSource.StoreWithDistinguishedName:
-                    case CertificateSource.StoreWithThumbprint:
-                        CertificateStorePath = value;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// URL of the Key Vault, for instance https://msidentitywebsamples.vault.azure.net.
-        /// </summary>
-        public string? KeyVaultUrl { get; set; }
-
-        /// <summary>
-        /// Certificate store path, for instance "CurrentUser/My".
-        /// </summary>
-        /// <remarks>This property should only be used in conjunction with DistinguishedName or Thumbprint.</remarks>
-        public string? CertificateStorePath { get; set; }
-
-        /// <summary>
-        /// Certificate distinguished name.
-        /// </summary>
-        public string? CertificateDistinguishedName { get; set; }
-
-        /// <summary>
-        /// Name of the certificate in Key Vault.
-        /// </summary>
-        public string? KeyVaultCertificateName { get; set; }
-
-        /// <summary>
-        /// Certificate thumbprint.
-        /// </summary>
-        public string? CertificateThumbprint { get; set; }
-
-        /// <summary>
-        /// Path on disk to the certificate.
-        /// </summary>
-        public string? CertificateDiskPath { get; set; }
-
-        /// <summary>
-        /// Path on disk to the certificate password.
-        /// </summary>
-        public string? CertificatePassword { get; set; }
-
-        /// <summary>
-        /// Base64 encoded certificate value.
-        /// </summary>
-        public string? Base64EncodedValue { get; set; }
-
 #if NET462 || NETSTANDARD2_0
         /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
@@ -250,73 +165,45 @@ namespace Microsoft.Identity.Web
         public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
 #endif
 
+        // Should Container and ReferenceOrValue be moved to
+        // the tests (As extension methods)
+
+        #region Backwards compatibilty with 1.x
         /// <summary>
-        /// Reference to the certificate or value.
+        /// <inheritdoc/>.
         /// </summary>
-        /// <list type="bullet">
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.KeyVault"/>, then
-        /// the reference is the name of the certificate in Key Vault (maybe the version?).</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Base64Encoded"/>, then
-        /// this value is the base 64 encoded certificate itself.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.Path"/>, then
-        /// this value is the password to access the certificate (if needed).</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithDistinguishedName"/>,
-        /// this value is the distinguished name.</item>
-        /// <item>If <see cref="SourceType"/> equals <see cref="CertificateSource.StoreWithThumbprint"/>,
-        /// this value is the thumbprint.</item>
-        /// </list>
-        internal string? ReferenceOrValue
+        internal new string? Container
         {
-            get
-            {
-                switch (SourceType)
-                {
-                    case CertificateSource.KeyVault:
-                        return KeyVaultCertificateName;
-                    case CertificateSource.Path:
-                        return CertificatePassword;
-                    case CertificateSource.StoreWithThumbprint:
-                        return CertificateThumbprint;
-                    case CertificateSource.StoreWithDistinguishedName:
-                        return CertificateDistinguishedName;
-                    case CertificateSource.Certificate:
-                    case CertificateSource.Base64Encoded:
-                        return Base64EncodedValue;
-                    default:
-                        return null;
-                }
-            }
-            set
-            {
-                switch (SourceType)
-                {
-                    case CertificateSource.Certificate:
-                        break;
-                    case CertificateSource.KeyVault:
-                        KeyVaultCertificateName = value;
-                        break;
-                    case CertificateSource.Base64Encoded:
-                        Base64EncodedValue = value;
-                        break;
-                    case CertificateSource.Path:
-                        CertificateDiskPath = value;
-                        break;
-                    case CertificateSource.StoreWithThumbprint:
-                        CertificateThumbprint = value;
-                        break;
-                    case CertificateSource.StoreWithDistinguishedName:
-                        CertificateDistinguishedName = value;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            get { return base.Container; }
+            set { base.Container = value; }
         }
 
         /// <summary>
-        /// The certificate, either provided directly in code
-        /// or loaded from the description.
+        /// <inheritdoc/>.
         /// </summary>
-        public X509Certificate2? Certificate { get; protected internal set; }
+        internal new string? ReferenceOrValue
+        {
+            get { return base.ReferenceOrValue; }
+            set { base.ReferenceOrValue = value; }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>.
+        /// </summary>
+        public new X509Certificate2? Certificate
+        {
+            get { return base.Certificate; }
+            protected internal set { base.Certificate = value; }
+        }
+        
+        /// <summary>
+        /// <inheritdoc/>.
+        /// </summary>
+        public new CertificateSource SourceType
+        {
+            get { return (CertificateSource)base.SourceType; }
+            set { base.SourceType = (CredentialSource)value; }
+        }
+        #endregion
     }
 }

@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.Internal
@@ -31,16 +31,16 @@ namespace Microsoft.Identity.Web.Internal
             IServiceCollection services,
             IConfigurationSection? configuration)
         {
-            services.AddOptions<ConfidentialClientApplicationOptions>(authenticationScheme)
-                            .Configure<IMergedOptionsStore>((
-                               ccaOptions, mergedOptionsMonitor) =>
-                            {
-                                configureConfidentialClientApplicationOptions(ccaOptions);
-                                MergedOptions mergedOptions = mergedOptionsMonitor.Get(authenticationScheme);
-                                configuration?.Bind(mergedOptions);
-                                MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(ccaOptions, mergedOptions);
-                            });
-
+            if (configuration != null)
+            {
+                services.Configure<ConfidentialClientApplication>(authenticationScheme, configuration);
+                services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
+                    =>
+                { configuration.Bind(options); });
+                services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
+                    =>
+                { configuration.Bind(options); });
+            }
             services.AddTokenAcquisition();
 
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(

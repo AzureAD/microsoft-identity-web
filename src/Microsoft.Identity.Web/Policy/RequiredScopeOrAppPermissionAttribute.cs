@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -79,8 +78,8 @@ namespace Microsoft.Identity.Web.Resource
         /// if you want to express the required scopes or app permissions from the configuration.
         public RequiredScopeOrAppPermissionAttribute(string[] acceptedScopes, string[] acceptedAppPermissions)
         {
-            AcceptedScope = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
-            AcceptedAppPermission = acceptedAppPermissions ?? throw new ArgumentNullException(nameof(acceptedAppPermissions));
+            AcceptedScope = Throws.IfNull(acceptedScopes);
+            AcceptedAppPermission = Throws.IfNull(acceptedAppPermissions);
         }
 
         /// <summary>

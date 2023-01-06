@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -11,6 +12,9 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Interface used to call a downstream web API, for instance from controllers.
     /// </summary>
+    [Obsolete("Use IDownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public interface IDownstreamWebApi
     {
         /// <summary>

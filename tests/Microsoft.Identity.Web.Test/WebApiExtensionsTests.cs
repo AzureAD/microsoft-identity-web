@@ -58,9 +58,10 @@ namespace Microsoft.Identity.Web.Test
             config.Configure().GetSection(ConfigSectionName).Returns(_configSection);
 
             var services = new ServiceCollection()
+                .AddSingleton(config)
                 .AddLogging();
 
-            new AuthenticationBuilder(services)
+            services.AddAuthentication()
                 .AddMicrosoftIdentityWebApi(config, ConfigSectionName, JwtBearerScheme, true);
 
             var provider = services.BuildServiceProvider();
@@ -76,10 +77,14 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void AddMicrosoftIdentityWebApi_WithConfigActions()
         {
+            var config = Substitute.For<IConfiguration>();
+            config.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
             var services = new ServiceCollection()
+                .AddSingleton(config)
                 .AddLogging();
 
-            new AuthenticationBuilder(services)
+            services.AddAuthentication()
                 .AddMicrosoftIdentityWebApi(_configureJwtOptions, _configureMsOptions, JwtBearerScheme, true);
 
             var provider = services.BuildServiceProvider();
@@ -87,11 +92,6 @@ namespace Microsoft.Identity.Web.Test
             // Configure options actions added correctly
             var configuredMsOptions = provider.GetServices<IConfigureOptions<MicrosoftIdentityOptions>>().Cast<ConfigureNamedOptions<MicrosoftIdentityOptions>>();
 
-#if DOTNET_CORE_31
-            var configuredJwtOptions = provider.GetServices<IConfigureOptions<JwtBearerOptions>>().Cast<ConfigureNamedOptions<JwtBearerOptions>>();
-
-            Assert.Contains(configuredJwtOptions, o => o.Action == _configureJwtOptions);
-#endif
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
             AddMicrosoftIdentityWebApi_TestCommon(services, provider);
@@ -104,6 +104,7 @@ namespace Microsoft.Identity.Web.Test
             config.Configure().GetSection(ConfigSectionName).Returns(_configSection);
 
             var services = new ServiceCollection()
+                .AddSingleton(config)
                 .AddLogging();
 
             services.AddMicrosoftIdentityWebApiAuthentication(config, ConfigSectionName, JwtBearerScheme, true);
@@ -153,9 +154,10 @@ namespace Microsoft.Identity.Web.Test
             var diagnostics = Substitute.For<IJwtBearerMiddlewareDiagnostics>();
 
             var services = new ServiceCollection()
-                .AddLogging();
+               .AddSingleton(config)
+               .AddLogging();
 
-            new AuthenticationBuilder(services)
+            services.AddAuthentication()
                 .AddMicrosoftIdentityWebApi(config, ConfigSectionName, JwtBearerScheme, subscribeToDiagnostics);
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
@@ -181,11 +183,13 @@ namespace Microsoft.Identity.Web.Test
         public void AddMicrosoftIdentityWebApi_WithConfigActions_SubscribesToDiagnostics(bool subscribeToDiagnostics)
         {
             var diagnostics = Substitute.For<IJwtBearerMiddlewareDiagnostics>();
+            var config = Substitute.For<IConfiguration>();
 
             var services = new ServiceCollection()
+                .AddSingleton(config)
                 .AddLogging();
 
-            new AuthenticationBuilder(services)
+            services.AddAuthentication()
                 .AddMicrosoftIdentityWebApi(_configureJwtOptions, _configureMsOptions, JwtBearerScheme, subscribeToDiagnostics);
 
             services.RemoveAll<IJwtBearerMiddlewareDiagnostics>();
@@ -214,7 +218,7 @@ namespace Microsoft.Identity.Web.Test
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     PropertyNameCaseInsensitive = true,
                 }).Replace(":2", ": \"Base64Encoded\"", StringComparison.OrdinalIgnoreCase);
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { configSectionName, null },
                 { $"{configSectionName}:Instance", TestConstants.AadInstance },
@@ -237,6 +241,7 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
 
             var services = new ServiceCollection()
+                .AddSingleton(configMock)
                 .Configure<JwtBearerOptions>(JwtBearerScheme, (options) =>
                 {
                     options.Events ??= new JwtBearerEvents();
@@ -265,7 +270,10 @@ namespace Microsoft.Identity.Web.Test
         public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigActions()
         {
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
+            var config = Substitute.For<IConfiguration>();
+
             var services = new ServiceCollection()
+                .AddSingleton(config)
                 .Configure<JwtBearerOptions>(JwtBearerScheme, (options) =>
                 {
                     options.Events ??= new JwtBearerEvents();

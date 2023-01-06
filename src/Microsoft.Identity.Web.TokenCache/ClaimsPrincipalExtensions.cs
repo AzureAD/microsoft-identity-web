@@ -79,13 +79,10 @@ namespace Microsoft.Identity.Web
         /// <returns>A string corresponding to an account identifier as defined in <see cref="Microsoft.Identity.Client.AccountId.Identifier"/>.</returns>
         public static string? GetMsalAccountId(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
+            _ = Throws.IfNull(claimsPrincipal);
 
-            string? uniqueObjectIdentifier = claimsPrincipal?.GetHomeObjectId();
-            string? uniqueTenantIdentifier = claimsPrincipal?.GetHomeTenantId();
+            string? uniqueObjectIdentifier = claimsPrincipal.GetHomeObjectId();
+            string? uniqueTenantIdentifier = claimsPrincipal.GetHomeTenantId();
 
             if (!string.IsNullOrWhiteSpace(uniqueObjectIdentifier) && !string.IsNullOrWhiteSpace(uniqueTenantIdentifier))
             {
@@ -136,10 +133,7 @@ namespace Microsoft.Identity.Web
         /// <returns> The domain hint for the identity, or <c>null</c> if it cannot be found.</returns>
         public static string? GetDomainHint(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
+            _ = Throws.IfNull(claimsPrincipal);
 
             string? tenantId = GetTenantId(claimsPrincipal);
             string? domainHint = string.IsNullOrWhiteSpace(tenantId)
@@ -207,10 +201,7 @@ namespace Microsoft.Identity.Web
 
         private static string? GetClaimValue(ClaimsPrincipal? claimsPrincipal, params string[] claimNames)
         {
-            if (claimsPrincipal == null)
-            {
-                throw new ArgumentNullException(nameof(claimsPrincipal));
-            }
+            _ = Throws.IfNull(claimsPrincipal);
 
             for (var i = 0; i < claimNames.Length; i++)
             {

@@ -26,13 +26,14 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public void PostConfigure(
+#if NET7_0_OR_GREATER
+            string? name,
+#else
             string name,
+#endif
             AuthorizationOptions options)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            _ = Throws.IfNull(options);
 
             options.DefaultPolicy = options.DefaultPolicy is null
                                      ? _defaultPolicy

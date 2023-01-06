@@ -8,16 +8,11 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
-using Microsoft.IdentityModel.Abstractions;
-using Microsoft.IdentityModel.LoggingExtensions;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
@@ -25,7 +20,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static partial class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
+    public static class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -46,15 +41,8 @@ namespace Microsoft.Identity.Web
         string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
         bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            if (configSectionName == null)
-            {
-                throw new ArgumentNullException(nameof(configSectionName));
-            }
+            _ = Throws.IfNull(configuration);
+            _ = Throws.IfNull(configSectionName);
 
             IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
 
@@ -81,15 +69,8 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
-
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(configurationSection);
+            _ = Throws.IfNull(builder);
 
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
@@ -123,20 +104,9 @@ namespace Microsoft.Identity.Web
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configureJwtBearerOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureJwtBearerOptions));
-            }
-
-            if (configureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureJwtBearerOptions);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
@@ -162,6 +132,7 @@ namespace Microsoft.Identity.Web
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
             builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
+            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
@@ -169,8 +140,14 @@ namespace Microsoft.Identity.Web
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
-            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
-
+            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            {
+                builder.Services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
+            }
+            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(JwtBearerOptionsMerger)) == null)
+            {
+                builder.Services.TryAddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsMerger>();
+            }
             if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
             {
                 builder.Services.AddTransient<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
@@ -178,18 +155,15 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,
-                msIdOptionsMonitor,
-                msIdOptions) =>
+                msIdOptionsMonitor) =>
                 {
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
+                    msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
-                    MergedOptions.UpdateMergedOptionsFromJwtBearerOptions(options, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(jwtBearerScheme), mergedOptions);
 
                     MergedOptionsValidation.Validate(mergedOptions);
 
@@ -224,10 +198,11 @@ namespace Microsoft.Identity.Web
                     }
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
-                    if (mergedOptions.TokenDecryptionCertificates != null)
+                    // TODO use the credential loader
+                    if (mergedOptions.TokenDecryptionCredentials != null)
                     {
                         DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
-                        IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCertificates);
+                        IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCredentials.OfType<CertificateDescription>());
                         IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -28,16 +29,21 @@ namespace Microsoft.Identity.Web.Test.Integration
     public class AcquireTokenForAppIntegrationTests
     {
         private TokenAcquisition _tokenAcquisition;
-        private ServiceProvider _provider;
+        private ServiceProvider? _provider;
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
+        private ICredentialsLoader _credentialsLoader;
 
         private readonly KeyVaultSecretsProvider _keyVault;
         private readonly string _ccaSecret;
         private readonly ITestOutputHelper _output;
 
+        private ServiceProvider Provider { get => _provider!;  }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public AcquireTokenForAppIntegrationTests(ITestOutputHelper output) // test set-up
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             _output = output;
 
@@ -199,7 +205,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task result() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.FirstOrDefault()).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(result).ConfigureAwait(false);
 
@@ -207,7 +213,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task authResult() =>
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.FirstOrDefault()).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
 
             ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResult).ConfigureAwait(false);
 
@@ -220,7 +226,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         {
             var serviceCollection = new ServiceCollection();
             var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
+                .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     { "AzureAd:Instance", "https://login.microsoftonline.com/" },
                     { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
@@ -244,24 +250,28 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            _credentialsLoader = new DefaultCredentialsLoader();
+            MergedOptions mergedOptions = Provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
             _msalTestTokenCacheProvider = new MsalTestTokenCacheProvider(
-                 _provider.GetService<IMemoryCache>(),
-                 _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>());
+                 Provider.GetService<IMemoryCache>()!,
+                 Provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()!);
 
-            _tokenAcquisition = new TokenAcquisition(
+            var tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                Provider.GetService<IMergedOptionsStore>()!,
+                Provider);
+            _tokenAcquisition = new TokenAcquisitionAspNetCore(
                  _msalTestTokenCacheProvider,
-                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                 _provider.GetService<IMergedOptionsStore>(),
-                 _provider.GetService<IHttpClientFactory>(),
-                 _provider.GetService<ILogger<TokenAcquisition>>(),
-                 _provider);
-            _tokenAcquisition.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out string effectiveAuthenticationScheme);
-            Assert.Equal(OpenIdConnectDefaults.AuthenticationScheme, effectiveAuthenticationScheme);
+                 Provider.GetService<IHttpClientFactory>()!,
+                 Provider.GetService<ILogger<TokenAcquisition>>()!,
+                 tokenAcquisitionAspnetCoreHost,
+                 Provider,
+                 _credentialsLoader);
+            tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _);
         }
 
         private void BuildTheRequiredServices()
@@ -283,6 +293,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme);
             services.AddTransient(
                 provider => _microsoftIdentityOptionsMonitor);
             services.AddTransient(

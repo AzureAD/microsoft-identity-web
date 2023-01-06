@@ -31,7 +31,7 @@ namespace IntegrationTestService
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                        .AddDownstreamWebApi(
+                                        .AddDownstreamRestApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
@@ -39,17 +39,22 @@ namespace IntegrationTestService
             services.AddAuthentication()
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: TestConstants.CustomJwtScheme2, configSectionName: "AzureAd2", subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
-                                         .AddDownstreamWebApi(
+                                         .AddDownstreamRestApi(
                                             TestConstants.SectionNameCalledApi,
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
-            services.Configure<MicrosoftIdentityOptions>(options =>
+            services.Configure<MicrosoftIdentityOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.ClientSecret = ccaSecret;
             });
 
-          //  services.AddAuthorization();
+            services.Configure<MicrosoftIdentityOptions>(TestConstants.CustomJwtScheme2, options =>
+            {
+                options.ClientSecret = ccaSecret;
+            });
+
+            //  services.AddAuthorization();
 
             services.AddRazorPages();
             //services.AddRazorPages(options =>
