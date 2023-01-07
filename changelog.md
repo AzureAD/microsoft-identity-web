@@ -1,3 +1,7 @@
+2.1.0
+==========
+[Id Web v2.1.0](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0) brings a varity of new higher-level APIs, including support for .NET Framework (Owin), Daemon scenarios, and the new DownstreamRestApi.
+
 2.0.8-preview
 ==========
 - Update [Microsoft.Identity.Abstractions 1.0.5-preview](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/1.0.5-preview), which has breaking changes.
