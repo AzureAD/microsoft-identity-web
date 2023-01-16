@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AzureFunctionsVersion>v3</AzureFunctionsVersion>    
+    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="local.settings.json">

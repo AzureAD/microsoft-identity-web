@@ -3,6 +3,7 @@
   <PropertyGroup>
     <UserSecretsId>aspnet-TodoListService-03230DB1-5145-408C-A48B-BE3DAFC56C30</UserSecretsId>
     <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
