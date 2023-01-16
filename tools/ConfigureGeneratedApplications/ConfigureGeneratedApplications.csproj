@@ -5,6 +5,7 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
