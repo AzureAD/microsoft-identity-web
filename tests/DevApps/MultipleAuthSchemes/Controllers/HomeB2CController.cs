@@ -19,11 +19,11 @@ namespace mvcwebapp_graph.Controllers
         }
 
         private readonly ILogger<HomeController> _logger;
-        private readonly IDownstreamRestApi _downstreamWebApi;
+        private readonly IDownstreamApi _downstreamApi;
 
-        public HomeB2CController(ILogger<HomeController> logger, IDownstreamRestApi downstreamWebApi)
+        public HomeB2CController(ILogger<HomeController> logger, IDownstreamApi downstreamApi)
         {
-            _downstreamWebApi = downstreamWebApi;
+            _downstreamApi = downstreamApi;
             _logger = logger;
         }
 
@@ -31,7 +31,7 @@ namespace mvcwebapp_graph.Controllers
             ScopeKeySection = "DownstreamB2CApi:Scopes", UserFlow = "b2c_1_susi", AuthenticationScheme = "B2C")]
         public async Task<IActionResult> Index()
         {
-            var value = await _downstreamWebApi.GetForUserAsync<Item>("DownstreamB2CApi",
+            var value = await _downstreamApi.GetForUserAsync<Item>("DownstreamB2CApi",
                 options => options.AcquireTokenOptions.AuthenticationOptionsName = "B2C");
             ViewData["ApiResult"] = value.name;
             return View();

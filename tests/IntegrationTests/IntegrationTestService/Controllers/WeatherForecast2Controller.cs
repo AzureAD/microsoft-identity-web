@@ -19,16 +19,16 @@ namespace IntegrationTestService.Controllers
     [RequiredScope("user_impersonation")]
     public class WeatherForecast2Controller : ControllerBase
     {
-        private readonly IDownstreamRestApi _downstreamWebApi;
+        private readonly IDownstreamApi _downstreamApi;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
 
         public WeatherForecast2Controller(
-            IDownstreamRestApi downstreamWebApi,
+            IDownstreamApi downstreamApi,
             ITokenAcquisition tokenAcquisition,
             GraphServiceClient graphServiceClient)
         {
-            _downstreamWebApi = downstreamWebApi;
+            _downstreamApi = downstreamApi;
             _tokenAcquisition = tokenAcquisition;
             _graphServiceClient = graphServiceClient;
         }
@@ -44,7 +44,7 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePage2CallDownstreamWebApi)]
         public async Task<HttpResponseMessage> CallDownstreamWebApiAsync()
         {
-            return await _downstreamWebApi.CallRestApiForUserAsync(
+            return await _downstreamApi.CallApiForUserAsync(
                 TestConstants.SectionNameCalledApi,
                 options => options.AcquireTokenOptions.AuthenticationOptionsName = TestConstants.CustomJwtScheme2);
         }
@@ -52,7 +52,7 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
         public async Task<string?> CallDownstreamWebApiGenericAsync()
         {
-            var user = await _downstreamWebApi.GetForUserAsync<UserInfo>(
+            var user = await _downstreamApi.GetForUserAsync<UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 options =>
                 {
@@ -73,7 +73,7 @@ namespace IntegrationTestService.Controllers
         [HttpGet(TestConstants.SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions)]
         public async Task<string?> CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync()
         {
-            var user = await _downstreamWebApi.GetForUserAsync<UserInfo>(
+            var user = await _downstreamApi.GetForUserAsync<UserInfo>(
                 TestConstants.SectionNameCalledApi,
                 options =>
                 {

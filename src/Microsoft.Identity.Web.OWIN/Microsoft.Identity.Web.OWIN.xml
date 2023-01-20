@@ -22,9 +22,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamRestApi(System.Web.Http.ApiController)">
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamApi(System.Web.Http.ApiController)">
             <summary>
-            Get the downstream REST API service from an ApiController.
+            Get the downstream API service from an ApiController.
             </summary>
             <returns></returns>
         </member>
@@ -73,9 +73,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamRestApi(System.Web.Mvc.ControllerBase)">
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamApi(System.Web.Mvc.ControllerBase)">
             <summary>
-            Get the downstream REST API service from an ApiController.
+            Get the downstream API service from an ApiController.
             </summary>
             <returns></returns>
         </member>

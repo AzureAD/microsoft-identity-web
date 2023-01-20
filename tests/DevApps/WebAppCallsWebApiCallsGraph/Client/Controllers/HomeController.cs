@@ -20,14 +20,14 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
     {
         private ITokenAcquisition _tokenAcquisition;
 
-        private IDownstreamRestApi _downstreamWebApi;
+        private IDownstreamApi _downstreamApi;
 
         public HomeController(
             ITokenAcquisition tokenAcquisition,
-            IDownstreamRestApi downstreamWebApi)
+            IDownstreamApi downstreamApi)
         {
             _tokenAcquisition = tokenAcquisition;
-            _downstreamWebApi = downstreamWebApi;
+            _downstreamApi = downstreamApi;
         }
 
         public IActionResult Index()
@@ -62,7 +62,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
         [AuthorizeForScopes(ScopeKeySection = "AzureFunction:Scopes")]
         public async Task<ActionResult> CallAzureFunction()
         {
-            string message = await _downstreamWebApi.CallRestApiForUserAsync<string>(
+            string message = await _downstreamApi.CallApiForUserAsync<string>(
                 "AzureFunction");
             ViewBag.reply = message;
             return View();

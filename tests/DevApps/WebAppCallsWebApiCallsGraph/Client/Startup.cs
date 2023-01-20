@@ -67,9 +67,9 @@ namespace WebApp_OpenIDConnect_DotNet
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
               .AddMicrosoftIdentityWebApp(Configuration)
                  .EnableTokenAcquisitionToCallDownstreamApi()
-                     .AddDownstreamRestApi("SayHello", Configuration.GetSection("SayHello"))
-                     .AddDownstreamRestApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
-                     .AddDownstreamRestApi("AzureFunction", Configuration.GetSection("AzureFunction"))
+                     .AddDownstreamApi("SayHello", Configuration.GetSection("SayHello"))
+                     .AddDownstreamApi("TodoListJwe", Configuration.GetSection("TodoListJwe"))
+                     .AddDownstreamApi("AzureFunction", Configuration.GetSection("AzureFunction"))
 
 #if UseRedisCache
                      .AddDistributedTokenCaches();
@@ -79,7 +79,7 @@ namespace WebApp_OpenIDConnect_DotNet
             //services.Configure<MicrosoftIdentityOptions>(
             //                                 o => o.ClientSecret = "");
 
-            services.AddDownstreamRestApi("TodoList", Configuration.GetSection("TodoList"));
+            services.AddDownstreamApi("TodoList", Configuration.GetSection("TodoList"));
 
             services.AddControllersWithViews(options =>
             {

@@ -5,7 +5,7 @@
 @using blazor
 @using Microsoft.Identity.Web
 @inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
-@inject IDownstreamRestApi downstreamAPI
+@inject IDownstreamApi downstreamAPI
 
 <h1>Call an API</h1>
 
@@ -29,7 +29,7 @@ else
     {
         try
         {
-            response = await downstreamAPI.CallRestApiForUserAsync(
+            response = await downstreamAPI.CallApiForUserAsync(
                     "CalledApi",
                     options =>
                  {

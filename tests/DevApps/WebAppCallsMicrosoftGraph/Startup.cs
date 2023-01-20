@@ -37,7 +37,7 @@ namespace WebAppCallsMicrosoftGraph
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
                         .EnableTokenAcquisitionToCallDownstreamApi()
                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                           .AddDownstreamRestApi("GraphBeta", Configuration.GetSection("GraphBeta"))
+                           .AddDownstreamApi("GraphBeta", Configuration.GetSection("GraphBeta"))
                            .AddInMemoryTokenCaches();
 
             //services.Configure<ConfidentialClientApplicationOptions>(OpenIdConnectDefaults.AuthenticationScheme,

@@ -17,7 +17,7 @@ using Microsoft.Identity.Abstractions;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamRestApi : IDownstreamRestApi
+    internal partial class DownstreamApi : IDownstreamApi
     {
 <#
   bool firstMethod = true;
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
 <# if (hasInput){ #>
             TInput input,
 <# } #>
-            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
 <# if (!hasApp){ #>
             ClaimsPrincipal? user = null,
 <# } #>
@@ -69,11 +69,11 @@ namespace Microsoft.Identity.Web
             where TOutput : class
 <# } #>
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride, HttpMethod.<#=httpMethod#>);
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.<#=httpMethod#>);
 <# if (hasInput){ #>
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
 <# } #>
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
 
 <# if (hasInput){ #>
             // Only dispose the HttpContent if was created here, not provided by the caller.

@@ -25,7 +25,7 @@ namespace OwinWebApp
             factory.Services
                 .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
                 .AddMicrosoftGraph()
-                .AddDownstreamRestApi("DownstreamAPI1", factory.Configuration.GetSection("DownstreamAPI"))
+                .AddDownstreamApi("DownstreamAPI1", factory.Configuration.GetSection("DownstreamAPI"))
                 .AddInMemoryTokenCaches();
             factory.Build();
 
@@ -36,7 +36,7 @@ namespace OwinWebApp
                 .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
                 .AddMicrosoftGraph()
                // WE cannot do that today: Configuration is not available.
-               // .AddDownstreamRestApi("CalledApi", null)
+               // .AddDownstreamApi("CalledApi", null)
                 .AddInMemoryTokenCaches();
             });
             */

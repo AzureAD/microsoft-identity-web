@@ -13,19 +13,19 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="DownstreamRestApi.HttpMethods.tt">
+    <None Update="DownstreamApi.HttpMethods.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DownstreamRestApi.HttpMethods.cs</LastGenOutput>
+      <LastGenOutput>DownstreamApi.HttpMethods.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="DownstreamRestApi.HttpMethods.cs">
+    <Compile Update="DownstreamApi.HttpMethods.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>DownstreamRestApi.HttpMethods.tt</DependentUpon>
+      <DependentUpon>DownstreamApi.HttpMethods.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

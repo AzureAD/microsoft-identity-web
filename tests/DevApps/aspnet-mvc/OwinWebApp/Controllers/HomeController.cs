@@ -21,10 +21,10 @@ namespace OwinWebApp.Controllers
                 GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
                 var me = await graphServiceClient.Me?.Request().GetAsync();
 
-                // OR - Example calling a downstream directly with the IDownstreamRestApi helper (uses the
+                // OR - Example calling a downstream directly with the IDownstreamApi helper (uses the
                 // authorization header provider, encapsulates MSAL.NET)
-                IDownstreamRestApi downstreamRestApi = this.GetDownstreamRestApi();
-                var result = await downstreamRestApi.CallRestApiForUserAsync("DownstreamAPI1");
+                IDownstreamApi downstreamApi = this.GetDownstreamApi();
+                var result = await downstreamApi.CallApiForUserAsync("DownstreamAPI1");
 
                 // OR - Get an authorization header (uses the token acquirer)
                 IAuthorizationHeaderProvider authorizationHeaderProvider =
