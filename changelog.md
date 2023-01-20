@@ -1,5 +1,6 @@
-2.1.1
+2.2.0
 ==========
+- Re-add netcoreapp3.1 target framework.
 - Update to Microsoft.Identity.Abstractions 2.0.1 which includes API change moving from `IDownstreamRestApi` to `IDownstreamApi`.
 
 2.1.0
