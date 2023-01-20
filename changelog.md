@@ -1,3 +1,7 @@
+2.1.1
+==========
+- Update to Microsoft.Identity.Abstractions 2.0.1 which includes API change moving from `IDownstreamRestApi` to `IDownstreamApi`.
+
 2.1.0
 ==========
 [Id Web v2.1.0](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0) brings a varity of new higher-level APIs, including support for .NET Framework (Owin), Daemon scenarios, and the new DownstreamRestApi.
