@@ -15,11 +15,11 @@ using Microsoft.Identity.Abstractions;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamRestApi : IDownstreamRestApi
+    internal partial class DownstreamApi : IDownstreamApi
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IOptionsMonitor<DownstreamRestApiOptions> _namedDownstreamRestApiOptions;
+        private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         private const string Authorization = "Authorization";
 
@@ -27,81 +27,81 @@ namespace Microsoft.Identity.Web
         /// Constructor.
         /// </summary>
         /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
-        /// <param name="namedDownstreamRestApiOptions">Named options provider.</param>
+        /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
-        public DownstreamRestApi(
+        public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
-            IOptionsMonitor<DownstreamRestApiOptions> namedDownstreamRestApiOptions,
+            IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
-            _namedDownstreamRestApiOptions = namedDownstreamRestApiOptions;
+            _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<HttpResponseMessage> CallRestApiAsync(
+        public Task<HttpResponseMessage> CallApiAsync(
             string? serviceName,
-            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
             CancellationToken cancellationToken = default)
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-            return CallRestApiInternalAsync(serviceName, effectiveOptions, effectiveOptions.RequestAppToken, content,
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            return CallApiInternalAsync(serviceName, effectiveOptions, effectiveOptions.RequestAppToken, content,
                                             user, cancellationToken);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<HttpResponseMessage> CallRestApiAsync(
-            DownstreamRestApiOptions downstreamRestApiOptions,
+        public Task<HttpResponseMessage> CallApiAsync(
+            DownstreamApiOptions downstreamApiOptions,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
             CancellationToken cancellationToken = default)
         {
-            return CallRestApiInternalAsync(null, downstreamRestApiOptions, downstreamRestApiOptions.RequestAppToken, content,
+            return CallApiInternalAsync(null, downstreamApiOptions, downstreamApiOptions.RequestAppToken, content,
                                 user, cancellationToken);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<HttpResponseMessage> CallRestApiForUserAsync(
+        public Task<HttpResponseMessage> CallApiForUserAsync(
             string? serviceName,
-            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             HttpContent? content = null,
             CancellationToken cancellationToken = default)
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-            return CallRestApiInternalAsync(serviceName, effectiveOptions, false, content, user, cancellationToken);
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            return CallApiInternalAsync(serviceName, effectiveOptions, false, content, user, cancellationToken);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<HttpResponseMessage> CallRestApiForAppAsync(
+        public Task<HttpResponseMessage> CallApiForAppAsync(
            string? serviceName,
-           Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+           Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
            HttpContent? content = null,
            CancellationToken cancellationToken = default)
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-            return CallRestApiInternalAsync(serviceName, effectiveOptions, true, content, null, cancellationToken);
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            return CallApiInternalAsync(serviceName, effectiveOptions, true, content, null, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> CallRestApiForUserAsync<TInput, TOutput>(
+        public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
-            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
 
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           effectiveInput, user, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
@@ -115,11 +115,15 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<TOutput?> CallRestApiForAppAsync<TInput, TOutput>(string? serviceName, TInput input, Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
+            string? serviceName,
+            TInput input,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           effectiveInput, null, cancellationToken).ConfigureAwait(false);
 
             // Only dispose the HttpContent if was created here, not provided by the caller.
@@ -133,24 +137,26 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<TOutput?> CallRestApiForAppAsync<TOutput>(string serviceName, Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null, CancellationToken cancellationToken = default) where TOutput : class
+        public async Task<TOutput?> CallApiForAppAsync<TOutput>(string serviceName,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            CancellationToken cancellationToken = default) where TOutput : class
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, true,
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public async Task<TOutput?> CallRestApiForUserAsync<TOutput>(
+        public async Task<TOutput?> CallApiForUserAsync<TOutput>(
             string? serviceName,
-            Action<DownstreamRestApiOptions>? downstreamRestApiOptionsOverride = null,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             CancellationToken cancellationToken = default) where TOutput : class
         {
-            DownstreamRestApiOptions effectiveOptions = MergeOptions(serviceName, downstreamRestApiOptionsOverride);
-            HttpResponseMessage response = await CallRestApiInternalAsync(serviceName, effectiveOptions, false,
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
@@ -160,22 +166,22 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ DownstreamRestApiOptions MergeOptions(
+        internal /* for tests */ DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
-            Action<DownstreamRestApiOptions>? calledApiOptionsOverride)
+            Action<DownstreamApiOptions>? calledApiOptionsOverride)
         {
             // Gets the options from configuration (or default value)
-            DownstreamRestApiOptions options;
+            DownstreamApiOptions options;
             if (optionsInstanceName != null)
             {
-                options = _namedDownstreamRestApiOptions.Get(optionsInstanceName);
+                options = _namedDownstreamApiOptions.Get(optionsInstanceName);
             }
             else
             {
-                options = _namedDownstreamRestApiOptions.CurrentValue;
+                options = _namedDownstreamApiOptions.CurrentValue;
             }
 
-            DownstreamRestApiOptions clonedOptions = new DownstreamRestApiOptions(options);
+            DownstreamApiOptions clonedOptions = new DownstreamApiOptions(options);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -186,27 +192,27 @@ namespace Microsoft.Identity.Web
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         /// <param name="httpMethod">Http method overriding the configuration options.</param>
-        internal /* for tests */ DownstreamRestApiOptions MergeOptions(
+        internal /* for tests */ DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
-            Action<DownstreamRestApiOptionsReadOnlyHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
+            Action<DownstreamApiOptionsReadOnlyHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
         {
             // Gets the options from configuration (or default value)
-            DownstreamRestApiOptions options;
+            DownstreamApiOptions options;
             if (optionsInstanceName != null)
             {
-                options = _namedDownstreamRestApiOptions.Get(optionsInstanceName);
+                options = _namedDownstreamApiOptions.Get(optionsInstanceName);
             }
             else
             {
-                options = _namedDownstreamRestApiOptions.CurrentValue;
+                options = _namedDownstreamApiOptions.CurrentValue;
             }
 
-            DownstreamRestApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamRestApiOptionsReadOnlyHttpMethod(options, httpMethod);
+            DownstreamApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamApiOptionsReadOnlyHttpMethod(options, httpMethod);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
 
-        private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamRestApiOptions effectiveOptions)
+        private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
         {
             HttpContent? effectiveInput;
             if (input is HttpContent)
@@ -227,7 +233,7 @@ namespace Microsoft.Identity.Web
             return effectiveInput;
         }
 
-        private static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamRestApiOptions effectiveOptions)
+        private static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
             try
@@ -263,9 +269,9 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<HttpResponseMessage> CallRestApiInternalAsync(
+        private async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
-            DownstreamRestApiOptions effectiveOptions,
+            DownstreamApiOptions effectiveOptions,
             bool appToken,
             HttpContent? content = null,
             ClaimsPrincipal? user = null,

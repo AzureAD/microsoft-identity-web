@@ -43,17 +43,17 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Get the downstream REST API service from an ApiController.
+        /// Get the downstream API service from an ApiController.
         /// </summary>
         /// <returns></returns>
-        public static IDownstreamRestApi GetDownstreamRestApi(this ApiController _)
+        public static IDownstreamApi GetDownstreamApi(this ApiController _)
         {
-            IDownstreamRestApi? downstreamRestApi = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
-            if (downstreamRestApi == null)
+            IDownstreamApi? downstreamApi = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamApi)) as IDownstreamApi;
+            if (downstreamApi == null)
             {
                 throw new ConfigurationErrorsException("Cannot find IDownstreamRestApi. Did you add services.AddDownstreamRestApi() in Startup_Auth.cs? See https://aka.ms/ms-id-web/owin. ");
             }
-            return downstreamRestApi;
+            return downstreamApi;
         }
 
         // An extension method to get the TokenAcquirerFactory is, on purpose, not provided because to avoid encouraging
