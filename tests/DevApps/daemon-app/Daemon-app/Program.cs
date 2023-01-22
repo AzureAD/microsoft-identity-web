@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-// #define UseMicrosoftGraphSdk
+#define UseMicrosoftGraphSdk
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
