@@ -80,9 +80,9 @@
       <Project>{1e0b96cd-fdbf-482c-996a-775f691d984e}</Project>
       <Name>Microsoft.Identity.Web.Certificate</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj">
+    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj">
       <Project>{a123bd94-812d-40ec-9576-1a7ab5c59913}</Project>
-      <Name>Microsoft.Identity.Web.DownstreamRestApi</Name>
+      <Name>Microsoft.Identity.Web.DownstreamApi</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj">
       <Project>{e4bc2331-6822-45c3-9702-d76dd0556532}</Project>

@@ -43,8 +43,8 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Call downstream web API
-            var downstreamRestApi = serviceProvider.GetRequiredService<IDownstreamApi>();
-            var httpResponseMessage = await downstreamRestApi.CallApiForAppAsync("GraphBeta", options => 
+            var downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();
+            var httpResponseMessage = await downstreamApi.CallApiForAppAsync("GraphBeta", options => 
             {
                 options.BaseUrl = "https://graph.microsoft.com/beta";
                 options.Scopes = new string[] { "https://graph.microsoft.com/.default" };

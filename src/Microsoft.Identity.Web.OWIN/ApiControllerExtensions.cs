@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web
             IDownstreamApi? downstreamApi = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IDownstreamApi)) as IDownstreamApi;
             if (downstreamApi == null)
             {
-                throw new ConfigurationErrorsException("Cannot find IDownstreamRestApi. Did you add services.AddDownstreamRestApi() in Startup_Auth.cs? See https://aka.ms/ms-id-web/owin. ");
+                throw new ConfigurationErrorsException("Cannot find IDownstreamApi. Did you add services.AddDownstreamApi() in Startup_Auth.cs? See https://aka.ms/ms-id-web/owin. ");
             }
             return downstreamApi;
         }

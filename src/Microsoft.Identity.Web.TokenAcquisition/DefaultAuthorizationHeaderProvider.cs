@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
                 downstreamApiOptions?.AcquireTokenOptions.Tenant,
                 downstreamApiOptions?.AcquireTokenOptions.UserFlow,
                 claimsPrincipal,
-                CreateTokenAcquisitionOptionsFromRestApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
+                CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
         }
 
@@ -43,11 +43,11 @@ namespace Microsoft.Identity.Web
                 scopes,
                 downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                 downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                CreateTokenAcquisitionOptionsFromRestApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
+                CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
         }
 
-        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromRestApiOptions(AuthorizationHeaderProviderOptions? downstreamApiOptions, CancellationToken cancellationToken)
+        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(AuthorizationHeaderProviderOptions? downstreamApiOptions, CancellationToken cancellationToken)
         {
             return new TokenAcquisitionOptions()
             {

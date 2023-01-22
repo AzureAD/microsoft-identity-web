@@ -70,12 +70,12 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN'
     AssemblyName: 'Microsoft.Identity.Web.OWIN*'
 
-# Pack and sign Microsoft.Identity.Web.DownstreamRestApi
+# Pack and sign Microsoft.Identity.Web.DownstreamApi
 - template: template-pack-and-sign-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamRestApi'
-    AssemblyName: 'Microsoft.Identity.Web.DownstreamRestApi*'
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamApi'
+    AssemblyName: 'Microsoft.Identity.Web.DownstreamApi*'
 
 # Pack and sign Microsoft.Identity.Web.Diagnostics
 - template: template-pack-and-sign-nuget.yaml

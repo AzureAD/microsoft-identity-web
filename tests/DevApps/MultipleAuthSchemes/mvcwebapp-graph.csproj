@@ -3,7 +3,7 @@
      <UserSecretsId>5d200413-0b8e-40d1-b1e9-1874fe6e8bde</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
