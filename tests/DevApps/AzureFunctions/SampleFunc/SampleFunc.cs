@@ -18,7 +18,7 @@ namespace SampleFunc
     public class SampleFunc
     {
         private readonly ILogger<SampleFunc> _logger;
-        private readonly IDownstreamRestApi _downstreamWebApi;
+        private readonly IDownstreamApi _downstreamWebApi;
         private readonly GraphServiceClient _graphServiceClient;
 
         // The web API will only accept tokens 1) for users, and 2) having the "api-scope" scope for this API
@@ -26,7 +26,7 @@ namespace SampleFunc
 
         public SampleFunc(ILogger<SampleFunc> logger,
             GraphServiceClient graphServiceClient,
-            IDownstreamRestApi downstreamWebApi)
+            IDownstreamApi downstreamWebApi)
         {
             _graphServiceClient = graphServiceClient;
             _downstreamWebApi = downstreamWebApi;
@@ -45,7 +45,7 @@ namespace SampleFunc
             if (!authenticationStatus)
                 return authenticationResponse;
 
-            using var response = await _downstreamWebApi.CallRestApiForUserAsync("DownstreamApi").ConfigureAwait(false);
+            using var response = await _downstreamWebApi.CallApiForUserAsync("DownstreamApi").ConfigureAwait(false);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

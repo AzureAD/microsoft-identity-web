@@ -20,7 +20,7 @@ namespace OwinWebApi
             app.AddMicrosoftIdentityWebApi(factory);
             factory.Services
                 .AddMicrosoftGraph()
-                .AddDownstreamRestApi("DownstreamAPI", factory.Configuration.GetSection("DownstreamAPI"));
+                .AddDownstreamApi("DownstreamAPI", factory.Configuration.GetSection("DownstreamAPI"));
             factory.Build();
         }
     }

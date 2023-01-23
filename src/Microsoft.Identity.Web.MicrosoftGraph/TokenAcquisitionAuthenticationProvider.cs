@@ -51,13 +51,13 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(IDWebErrorMessage.ScopesRequiredToCallMicrosoftGraph);
             }
 
-            DownstreamRestApiOptions? downstreamRestApiOptions = new DownstreamRestApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
-            downstreamRestApiOptions.AcquireTokenOptions.AuthenticationOptionsName = scheme;
-            downstreamRestApiOptions.AcquireTokenOptions.Tenant = tenant;
+            DownstreamApiOptions? downstreamOptions = new DownstreamApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
+            downstreamOptions.AcquireTokenOptions.AuthenticationOptionsName = scheme;
+            downstreamOptions.AcquireTokenOptions.Tenant = tenant;
 
             if (msalAuthProviderOption?.AuthorizationHeaderProviderOptions != null)
             {
-                msalAuthProviderOption.AuthorizationHeaderProviderOptions(downstreamRestApiOptions);
+                msalAuthProviderOption.AuthorizationHeaderProviderOptions(downstreamOptions);
             }
 
             string authorizationHeader;
@@ -65,13 +65,13 @@ namespace Microsoft.Identity.Web
             {
                 authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
                     Constants.DefaultGraphScope,
-                    downstreamRestApiOptions).ConfigureAwait(false);
+                    downstreamOptions).ConfigureAwait(false);
             }
             else
             {
                 authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     scopes!,
-                    downstreamRestApiOptions).ConfigureAwait(false);
+                    downstreamOptions).ConfigureAwait(false);
             }
 
             // add or replace authorization header
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web
             request.Headers.Add(
                 Constants.Authorization, authorizationHeader);
 
-            downstreamRestApiOptions?.CustomizeHttpRequestMessage?.Invoke(request);
+            downstreamOptions?.CustomizeHttpRequestMessage?.Invoke(request);
         }
 
         /// <summary>

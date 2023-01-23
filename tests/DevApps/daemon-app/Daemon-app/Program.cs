@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-// #define UseMicrosoftGraphSdk
+#define UseMicrosoftGraphSdk
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -25,7 +25,7 @@ namespace daemon_console
 #if UseMicrosoftGraphSdk
                 .AddMicrosoftGraph();
 #else
-                .AddDownstreamRestApi("GraphBeta", tokenAcquirerFactory.Configuration.GetSection("GraphBeta"));
+                .AddDownstreamApi("GraphBeta", tokenAcquirerFactory.Configuration.GetSection("GraphBeta"));
 #endif
 
             // Add a distributed cache if you wish
@@ -43,8 +43,8 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Call downstream web API
-            var downstreamRestApi = serviceProvider.GetRequiredService<IDownstreamRestApi>();
-            var httpResponseMessage = await downstreamRestApi.CallRestApiForAppAsync("GraphBeta", options => 
+            var downstreamRestApi = serviceProvider.GetRequiredService<IDownstreamApi>();
+            var httpResponseMessage = await downstreamRestApi.CallApiForAppAsync("GraphBeta", options => 
             {
                 options.BaseUrl = "https://graph.microsoft.com/beta";
                 options.Scopes = new string[] { "https://graph.microsoft.com/.default" };

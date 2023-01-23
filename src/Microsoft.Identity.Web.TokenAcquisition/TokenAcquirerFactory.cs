@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the default instance.
         /// </summary>
-        static public T GetDefaultInstance<T>() where T : TokenAcquirerFactory, new()
+        static public T GetDefaultInstance<T>(string configSection="AzureAd") where T : TokenAcquirerFactory, new()
         {
             T instance;
             if (defaultInstance == null)
@@ -73,6 +73,7 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
+                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.GetSection(configSection).Bind(option));
                 instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }
@@ -84,7 +85,7 @@ namespace Microsoft.Identity.Web
         /// Get the default instance
         /// </summary>
         /// <returns></returns>
-        static public TokenAcquirerFactory GetDefaultInstance()
+        static public TokenAcquirerFactory GetDefaultInstance(string configSection = "AzureAd")
         {
             TokenAcquirerFactory instance;
             if (defaultInstance == null)
@@ -95,7 +96,7 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>(string.Empty);
-                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.Bind(option));
+                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.GetSection(configSection).Bind(option));
                 instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }

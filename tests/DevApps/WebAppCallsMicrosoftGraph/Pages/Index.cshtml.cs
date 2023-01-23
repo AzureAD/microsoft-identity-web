@@ -18,13 +18,13 @@ namespace WebAppCallsMicrosoftGraph.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly GraphServiceClient _graphServiceClient;
-        private readonly IDownstreamRestApi _downstreamWebApi;
+        private readonly IDownstreamApi _downstreamApi;
 
-        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient, IDownstreamRestApi downstreamWebApi)
+        public IndexModel(ILogger<IndexModel> logger, GraphServiceClient graphServiceClient, IDownstreamApi downstreamApi)
         {
             _logger = logger;
             _graphServiceClient = graphServiceClient;
-            _downstreamWebApi = downstreamWebApi;
+            _downstreamApi = downstreamApi;
         }
 
         public async Task OnGet()
@@ -40,7 +40,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
                 }
                 ViewData["name"] = user.DisplayName;
 
-                var graphData = await _downstreamWebApi.CallRestApiForUserAsync(
+                var graphData = await _downstreamApi.CallApiForUserAsync(
                     "GraphBeta"
                     );
                 ViewData["json"] = await graphData.Content.ReadAsStringAsync();
@@ -52,8 +52,8 @@ namespace WebAppCallsMicrosoftGraph.Pages
 
             // Or - Call a downstream directly with the IDownstreamRestApi helper (uses the authorization header provider, encapsulates MSAL.NET)
             // See https://aka.ms/ms-id-web/downstream-web-api
-            IDownstreamRestApi downstreamRestApi = HttpContext.RequestServices.GetService(typeof(IDownstreamRestApi)) as IDownstreamRestApi;
-            var result = await downstreamRestApi.CallRestApiForUserAsync(string.Empty,
+            IDownstreamApi downstreamApi = HttpContext.RequestServices.GetService(typeof(IDownstreamApi)) as IDownstreamApi;
+            var result = await downstreamApi.CallApiForUserAsync(string.Empty,
                 options =>
                 {
                     options.BaseUrl = "https://graph.microsoft.com/v1.0/me";
