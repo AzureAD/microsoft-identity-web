@@ -1,3 +1,7 @@
+2.3.0
+==========
+- TokenAcquirerFactory.GetDefaultInstance now takes the default configuration section `AzureAd` from where to get the application configuration.
+
 2.2.0
 ==========
 - Re-add netcoreapp3.1 target framework.
