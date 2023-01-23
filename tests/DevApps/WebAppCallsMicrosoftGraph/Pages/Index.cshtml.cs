@@ -50,7 +50,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
                 ViewData["photo"] = null;
             }
 
-            // Or - Call a downstream directly with the IDownstreamRestApi helper (uses the authorization header provider, encapsulates MSAL.NET)
+            // Or - Call a downstream directly with the IDownstreamApi helper (uses the authorization header provider, encapsulates MSAL.NET)
             // See https://aka.ms/ms-id-web/downstream-web-api
             IDownstreamApi downstreamApi = HttpContext.RequestServices.GetService(typeof(IDownstreamApi)) as IDownstreamApi;
             var result = await downstreamApi.CallApiForUserAsync(string.Empty,

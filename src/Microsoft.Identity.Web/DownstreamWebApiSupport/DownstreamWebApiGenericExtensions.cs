@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task GetForUserAsync<TInput>(
@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.PostForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.PostForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
@@ -165,7 +165,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task PutForUserAsync<TInput>(
@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
@@ -255,7 +255,7 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
-        [Obsolete("Use IDownstreamRestApi.CallWebApiForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+        [Obsolete("Use IDownstreamApi.CallWebApiForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(

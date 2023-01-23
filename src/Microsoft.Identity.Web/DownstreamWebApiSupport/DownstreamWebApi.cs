@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
     /// Implementation for the downstream web API.
     /// </summary>
 #pragma warning disable CS0618 // Type or member is obsolete
-    [Obsolete("Use DownstreamRestApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamRestApi." +
+    [Obsolete("Use DownstreamApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class DownstreamWebApi : IDownstreamWebApi

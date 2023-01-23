@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.TokenAcquisition", "src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj", "{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.DownstreamRestApi", "src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj", "{A123BD94-812D-40EC-9576-1A7AB5C59913}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.DownstreamApi", "src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj", "{A123BD94-812D-40EC-9576-1A7AB5C59913}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.MicrosoftGraph", "src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj", "{E4BC2331-6822-45C3-9702-D76DD0556532}"
 EndProject
