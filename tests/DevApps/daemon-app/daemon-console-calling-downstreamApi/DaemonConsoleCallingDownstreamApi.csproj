@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\minimal-web-api\WeatherForecast.cs" Link="WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseWip)' == ''">
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamRestApi" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseWip)' == 'true'">
+    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamRestApi\Microsoft.Identity.Web.DownstreamRestApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
