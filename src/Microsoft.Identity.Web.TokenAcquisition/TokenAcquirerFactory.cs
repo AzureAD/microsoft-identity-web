@@ -19,17 +19,19 @@ namespace Microsoft.Identity.Web
     public class TokenAcquirerFactory : ITokenAcquirerFactory
     {
         /// <summary>
-        /// Configuration
+        /// Configuration. By default the configuration contains the content of the 
+        /// appsettings.json file, provided this file is copied in the folder of the app.
         /// </summary>
         public IConfiguration Configuration { get; protected set; }
 
         /// <summary>
-        /// Service Provider
+        /// Service Provider. The service provider is only available once the factory was built
+        /// using <see cref="Build"/>.
         /// </summary>
         public IServiceProvider? ServiceProvider { get; protected internal set; }
 
         /// <summary>
-        /// Services. Used in the initialization phase.
+        /// Services. Used in the initialization phase
         /// </summary>
         /// <exception cref="InvalidOperationException"/> will be thrown if you try to access
         /// Services after you called <see cref="Build"/>.
@@ -61,8 +63,15 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Get the default instance.
+        /// Get the default instance of a token acquirer factory. Use this method, for instance, if you have an ASP.NET OWIN application
+        /// and you want to get the default instance of the OwinTokenAcquirerFactory.
         /// </summary>
+        /// /// <example>
+        /// <format type="text/markdown">
+        /// <![CDATA[
+        ///  [!code-csharp[ConvertType](~/../tests/DevApps/aspnet-mvc/OwinWebApp/App_Start/Startup.Auth.cs?highlight=22)]
+        /// ]]></format>
+        /// </example>
         static public T GetDefaultInstance<T>(string configSection="AzureAd") where T : TokenAcquirerFactory, new()
         {
             T instance;
@@ -82,9 +91,16 @@ namespace Microsoft.Identity.Web
 
 
         /// <summary>
-        /// Get the default instance
+        /// Get the default instance. Use this method to retrieve the instance, optionally add some services to 
+        /// the service collection, and build the instance.
         /// </summary>
         /// <returns></returns>
+        /// <example>
+        /// <format type="text/markdown">
+        /// <![CDATA[
+        ///  [!code-csharp[ConvertType](~/../tests/DevApps/daemon-app/daemon-console-calling-msgraph/Program.cs?highlight=5)]
+        /// ]]></format>
+        /// </example>
         static public TokenAcquirerFactory GetDefaultInstance(string configSection = "AzureAd")
         {
             TokenAcquirerFactory instance;
@@ -104,9 +120,20 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Build the Token acquirer
+        /// Build the Token acquirer. This does the composition of all the services you have added to
+        /// <see cref="Services"/>, and returns a service provider, which you can then use to get access
+        /// to the services you have added.
         /// </summary>
         /// <returns></returns>
+        /// <example>
+        /// The following example shows how you add Microsoft GraphServiceClient to the services
+        /// and use it after you've built the token acquirer factory. The authentication is handled
+        /// transparently based on the information in the appsettings.json.
+        /// <format type="text/markdown">
+        /// <![CDATA[
+        ///  [!code-csharp[ConvertType](~/../tests/DevApps/daemon-app/daemon-console-calling-msgraph/Program.cs?highlight=7)]
+        /// ]]></format>
+        /// </example>
         public IServiceProvider Build()
         {
             // Prevent from building twice.
