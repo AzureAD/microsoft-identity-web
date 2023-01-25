@@ -11,7 +11,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(UseWip)' == ''">
+  <ItemGroup Condition="'$(UseWip)' != 'true'">
     <PackageReference Include="Microsoft.Identity.Web" Version="2.2.1" />
   </ItemGroup>
 

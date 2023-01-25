@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<ItemGroup Condition="'$(UseWip)' == ''">
+	<ItemGroup Condition="'$(UseWip)' != 'true'">
 		<PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="2.2.1" />
 	</ItemGroup>
 

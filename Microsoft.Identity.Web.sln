@@ -72,6 +72,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "tests\IntegrationTests\NET 7 tests\WebApp\WebApp.csproj", "{9374363E-1B66-405C-A82D-E56530F504D0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevApps", "DevApps", "{7786D2DD-9EE4-42E1-B587-740A2E15C41D}"
+	ProjectSection(SolutionItems) = preProject
+		tests\DevApps\Directory.Build.props = tests\DevApps\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAppCallsMicrosoftGraph", "WebAppCallsMicrosoftGraph", "{FFAB31A6-D7B8-4C1D-BD8E-53EE51760F7D}"
 EndProject
