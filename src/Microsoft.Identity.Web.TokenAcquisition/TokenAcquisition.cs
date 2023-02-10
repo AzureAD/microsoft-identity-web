@@ -103,15 +103,10 @@ namespace Microsoft.Identity.Web
         }
 
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
-            IEnumerable<string> scopes,
-            string authCode,
-            string authenticationScheme,
-            string? clientInfo,
-            string? codeVerifier,
-            string? userFlow)
+            AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
-            _ = Throws.IfNull(scopes);
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out string effectiveAuthenticationScheme);
+            _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
             try
             {
@@ -122,9 +117,9 @@ namespace Microsoft.Identity.Web
                 // Share the ID token though
 
                 string? backUpAuthRoutingHint = string.Empty;
-                if (!string.IsNullOrEmpty(clientInfo))
+                if (!string.IsNullOrEmpty(authCodeRedemptionParameters.ClientInfo))
                 {
-                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(clientInfo);
+                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(authCodeRedemptionParameters.ClientInfo);
                     if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
                     {
                         backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
@@ -132,16 +127,21 @@ namespace Microsoft.Identity.Web
                 }
 
                 var builder = application
-                    .AcquireTokenByAuthorizationCode(scopes.Except(_scopesRequestedByMsal), authCode)
+                    .AcquireTokenByAuthorizationCode(authCodeRedemptionParameters.Scopes.Except(_scopesRequestedByMsal), authCodeRedemptionParameters.AuthCode)
                     .WithSendX5C(mergedOptions.SendX5C)
-                    .WithPkceCodeVerifier(codeVerifier)
+                    .WithPkceCodeVerifier(authCodeRedemptionParameters.CodeVerifier)
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
+
+                if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
+                {
+                    builder.WithTenantId(authCodeRedemptionParameters.Tenant);
+                }
 
                 if (mergedOptions.IsB2C)
                 {
 
-                    var authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{userFlow ?? mergedOptions.DefaultUserFlow}";
+                    var authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{authCodeRedemptionParameters.UserFlow ?? mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
 
@@ -169,7 +169,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                return await AddAccountToCacheFromAuthorizationCodeAsync(scopes, authCode, authenticationScheme, clientInfo, codeVerifier, userFlow).ConfigureAwait(false);
+                return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {

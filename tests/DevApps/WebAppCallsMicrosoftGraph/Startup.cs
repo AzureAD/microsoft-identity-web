@@ -33,6 +33,17 @@ namespace WebAppCallsMicrosoftGraph
             string configSection = "AzureAd";
 #endif
 
+            //services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme,
+            //  options => {
+            //      var previous = options.Events.OnAuthorizationCodeReceived;
+            //      options.Events.OnAuthorizationCodeReceived = async context =>
+            //      {
+            //          // In the case you want to change the tenant ID based on the MyApp query parameter:
+            //          context.ProtocolMessage.DomainHint = "{yourTenantID}";
+            //          await previous(context);
+            //      };
+            //  });
+
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
                         .EnableTokenAcquisitionToCallDownstreamApi()

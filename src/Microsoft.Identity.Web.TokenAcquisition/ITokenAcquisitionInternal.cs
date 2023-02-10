@@ -56,23 +56,14 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received (after the user
         /// signed-in and consented)
-        /// the token redeemed from the <paramref name="authCode"/>"/> is added to the cache, so that it can then be used to acquire another token on-behalf-of the
+        /// the token redeemed from the auth code is added to the cache, so that it can then be used to acquire another token on-behalf-of the
         /// same user in order to call to downstream APIs.
         /// </summary>
-        /// <param name="scopes">Scopes to request. Can be empty</param>
-        /// <param name="authCode">Authorization code</param>
-        /// <param name="authenticationScheme">Authentication scheme to use (config section)</param>
-        /// <param name="clientInfo">Client Info obtained with the code</param>
-        /// <param name="codeVerifier">PKCE code verifier</param>
-        /// <param name="userFlow">User flow in the case of B2C</param>
+        /// <param name="authCodeRedemptionParameters">Auth code redemption params, some of which
+        /// can be null. Includes scope, tenant, authCode, code verifier, etc...</param>
         /// <returns>The token acquirer result.</returns>
         Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
-            IEnumerable<string> scopes, 
-            string authCode, 
-            string authenticationScheme, 
-            string? clientInfo, 
-            string? codeVerifier, 
-            string? userFlow);
+            AuthCodeRedemptionParameters authCodeRedemptionParameters);
 #endif
 
         /// <summary>
