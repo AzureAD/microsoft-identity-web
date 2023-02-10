@@ -190,12 +190,14 @@ namespace Microsoft.Identity.Web
                 var tokenAcquisition = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<ITokenAcquisitionInternal>();
                 var msIdentityOptions = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<IOptions<MicrosoftIdentityOptions>>();
                 var result = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAsync(
+                    new AuthCodeRedemptionParameters(
                     new string[] { options.Scope },
                     context.Code,
                     string.Empty,
                     context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo),
                     codeVerifier,
-                    msIdentityOptions?.Value.DefaultUserFlow)).ConfigureAwait(false);
+                    msIdentityOptions?.Value.DefaultUserFlow,
+                    context.ProtocolMessage.DomainHint))).ConfigureAwait(false);
                 HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
                 httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
                 context.HandleCodeRedemption(result.AccessToken, result.IdToken);
