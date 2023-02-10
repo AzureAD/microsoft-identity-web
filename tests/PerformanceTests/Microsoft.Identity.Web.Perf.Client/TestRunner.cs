@@ -84,6 +84,8 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
 
             await Task.WhenAll(CreateTasks());
+
+            DisplayProgress(true);
         }
 
         /// <summary>
@@ -259,9 +261,14 @@ namespace Microsoft.Identity.Web.Perf.Client
             }
         }
 
-        private void DisplayProgress()
+        private void DisplayProgress(bool summary=false)
         {
             var stringBuilder = new StringBuilder();
+            if (summary)
+            {
+                stringBuilder.AppendLine("------------------------------------------------------------------------");
+                stringBuilder.AppendLine("Summary");
+            }
             stringBuilder.AppendLine("------------------------------------------------------------------------");
             stringBuilder.AppendLine((string)$"Run time: {_processingStartTime} - {DateTime.Now} = {DateTime.Now - _processingStartTime}.");
             stringBuilder.AppendLine((string)$"Total number of users: {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1}.");
@@ -271,9 +278,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                 stringBuilder.AppendLine((string)$"Loop: {_globalMetrics.TotalRequests / _options.NumberOfUsersToTest}");
                 stringBuilder.AppendLine((string)$"Total requests: {_globalMetrics.TotalRequests}.");
                 stringBuilder.AppendLine((string)$"Average request time: {_globalMetrics.AverageRequestTimeInMilliseconds:0.0000} ms.");
+#if DEBUGGING_RUNNER
                 stringBuilder.AppendLine((string)$"Cache requests: {_globalMetrics.TotalTokensReturnedFromCache}.");
                 stringBuilder.AppendLine((string)$"Average cache time: {_globalMetrics.AverageMsalLookupTimeInMilliseconds:0.0000} ms.");
                 stringBuilder.AppendLine((string)$"AuthRequest failures: {_globalMetrics.TotalAcquireTokenFailures}. Generic failures: {_globalMetrics.TotalExceptions}.");
+#endif
             }
 
             Console.WriteLine(stringBuilder);
