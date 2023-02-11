@@ -1,3 +1,7 @@
+2.4.0
+==========
+- Fix for #2035
+
 2.3.0
 ==========
 - TokenAcquirerFactory.GetDefaultInstance now takes the default configuration section `AzureAd` from where to get the application configuration.
