@@ -175,5 +175,41 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal("https://IdentityDotNetSDKAutomation/", app.AppConfig.RedirectUri);
             }
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VerifyCorrectBooleansAsync(
+           bool sendx5c)
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AuthorityCommonTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                SendX5C = sendx5c,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                ClientSecret = TestConstants.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            if (sendx5c)
+            {
+                Assert.True(mergedOptions.SendX5C);
+            }
+            else
+            {
+                Assert.False(mergedOptions.SendX5C);
+            }
+        }
     }
 }
