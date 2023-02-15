@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Graph.SecurityNamespace;
 using Microsoft.Identity.Abstractions;
 using Xunit;
@@ -105,20 +106,20 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(mergedOptions.AllowWebApiToBeAuthorizedByACL);
             Assert.Equal(_appOptionsAuthority, mergedOptions.Authority);
             Assert.Equal(_appOptionsAzureRegion, mergedOptions.AzureRegion);
-            Assert.Equal(_appOptionsClientCapabilities, mergedOptions.ClientCapabilities);
+            Assert.Equal(_appOptionsClientCapabilities, mergedOptions.ClientCapabilities!);
             Assert.Equal(_appOptionsClientId, mergedOptions.ClientId);
             Assert.Equal(_appOptionsDomain, mergedOptions.Domain);
             Assert.Equal(_appOptionsEditProfile, mergedOptions.EditProfilePolicyId);
             Assert.True(mergedOptions.EnablePiiLogging);
             Assert.Equal(_appOptionsErrorPath, mergedOptions.ErrorPath);
-            Assert.Equal(_appOptionsClientCredentials, mergedOptions.ClientCredentials);
+            Assert.Equal(_appOptionsClientCredentials, mergedOptions.ClientCredentials!);
             Assert.Equal(_appOptionsInstance, mergedOptions.Instance);
             Assert.Equal(_appOptionsResetPath, mergedOptions.ResetPasswordPath);
             Assert.Equal(_appOptionsPasswordRestId, mergedOptions.ResetPasswordPolicyId);
             Assert.True(mergedOptions.SendX5C);
             Assert.Equal(_appOptionsSuSiPolicyId, mergedOptions.SignUpSignInPolicyId);
             Assert.Equal(_appOptionsTenantId, mergedOptions.TenantId);
-            Assert.Equal(_appOptionsTokenDecyrptCreds, mergedOptions.TokenDecryptionCredentials);
+            Assert.Equal(_appOptionsTokenDecyrptCreds, mergedOptions.TokenDecryptionCredentials!);
             Assert.True(mergedOptions.WithSpaAuthCode);
         }
 
@@ -172,7 +173,7 @@ namespace Microsoft.Identity.Web.Test
             microsoftIdentityOptions.SkipUnrecognizedRequests = true;
             microsoftIdentityOptions.TenantId = _msIdentityTenantId;
             microsoftIdentityOptions.TokenDecryptionCertificates = _msIdentityTokenDecryptCertificates;
-            microsoftIdentityOptions.TokenDecryptionCredentials = _msIdentityTokenDecryptDescription;
+            //TODO: add another test for this case microsoftIdentityOptions.TokenDecryptionCredentials = _msIdentityTokenDecryptDescription;
             microsoftIdentityOptions.UsePkce = true;
             microsoftIdentityOptions.UseTokenLifetime = true;
             microsoftIdentityOptions.WithSpaAuthCode = true;
@@ -196,10 +197,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(_msIdentityCallbackPath, mergedOptions.CallbackPath);
             Assert.Equal(_msIdentityClaimsIssuer, mergedOptions.ClaimsIssuer);
             Assert.Null(mergedOptions.ClientCertificates);
-            Assert.Equal(_msIdentityClientCredentials, mergedOptions.ClientCredentials);
+            Assert.Equal(_msIdentityClientCredentials, mergedOptions.ClientCredentials!);
             Assert.Equal(_msIdentityClientCredsUsingMI, mergedOptions.ClientCredentialsUsingManagedIdentity);
             Assert.Equal(_msIdentityClientId, mergedOptions.ClientId);
-            //TODO: Assert.Equal(_msIdentityClientSecret, mergedOptions.ClientSecret);
+            Assert.Null(mergedOptions.ClientSecret); // client secret no longer used directly, but through clientCredentials
             Assert.Equal(_msIdentityDomain, mergedOptions.Domain);
             Assert.Equal(_msIdentityEditProfile, mergedOptions.EditProfilePolicyId);
             Assert.Equal(_msIdentityForwardAuth, mergedOptions.ForwardAuthenticate);
@@ -223,8 +224,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(_msIdentitySignedOutScheme, mergedOptions.SignOutScheme);
             Assert.Equal(_msIdentitySuSiPolicyId, mergedOptions.SignUpSignInPolicyId);
             Assert.Equal(_msIdentityTenantId, mergedOptions.TenantId);
-            //Assert.Equal(_msIdentityTokenDecryptCertificates, mergedOptions.TokenDecryptionCertificates);
-            //Assert.Equal(_msIdentityTokenDecryptDescription, mergedOptions.TokenDecryptionCredentials);
+            Assert.Equal(_msIdentityTokenDecryptCertificates, mergedOptions.TokenDecryptionCertificates!);
+            Assert.Equal(_msIdentityTokenDecryptCertificates!.First(), mergedOptions.TokenDecryptionCredentials!.First());
             Assert.True(mergedOptions.AllowWebApiToBeAuthorizedByACL);
             Assert.True(mergedOptions.DisableTelemetry);
             Assert.True(mergedOptions.GetClaimsFromUserInfoEndpoint);
