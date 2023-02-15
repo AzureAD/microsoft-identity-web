@@ -61,6 +61,22 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public const string SpaAuthCode = "SpaAuthCode";
 
+        /// <summary>
+        /// Defaults which is the value used by Microsoft.Identity.Web.UI.
+        /// </summary>
+        public const string ResetPasswordPath = "/MicrosoftIdentity/Account/ResetPassword";
+
+        /// <summary>
+        /// Defaults to the value used by Microsoft.Identity.Web.UI.
+        /// </summary>
+        public const string ErrorPath = "/MicrosoftIdentity/Account/Error";
+
+        /// <summary>
+        /// Used to convey the original location of the user before
+        /// the remote challenge was triggered up to the access denied page.
+        /// </summary>
+        public const string ReturnUrl = "ReturnUrl";
+
         // IssuerMetadata
         internal const string TenantDiscoveryEndpoint = "tenant_discovery_endpoint";
         internal const string ApiVersion = "api-version";
