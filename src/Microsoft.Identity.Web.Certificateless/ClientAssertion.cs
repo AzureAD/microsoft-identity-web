@@ -6,7 +6,9 @@ using System;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Client assertion.
+    /// Describes a client assertion, which can be used instead
+    /// of a client secrete or client certificates to authenticate
+    /// the confidential client application.
     /// </summary>
     public sealed class ClientAssertion
     {
