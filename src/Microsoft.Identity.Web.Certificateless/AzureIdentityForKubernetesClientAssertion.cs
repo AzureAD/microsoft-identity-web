@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
         /// Get the signed assertion from a file.
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        internal override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        public override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             string signedAssertion = File.ReadAllText(_filePath);
             // Compute the expiry
