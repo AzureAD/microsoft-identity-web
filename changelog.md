@@ -1,3 +1,7 @@
+2.5.0
+==========
+- Make ClientAssertion public, see [for details](https://github.com/AzureAD/microsoft-identity-web/pull/2079).
+
 2.4.0
 ==========
 - Fix for #2035
