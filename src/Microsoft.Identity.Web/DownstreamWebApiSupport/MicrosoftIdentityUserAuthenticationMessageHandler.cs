@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -35,6 +36,23 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        protected override async Task<AuthenticationResult> GetTokenAsync(MicrosoftIdentityAuthenticationMessageHandlerOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            return await TokenAcquisition.GetAuthenticationResultForUserAsync(
+                options.GetScopes(),
+                authenticationScheme: options.AuthenticationScheme,
+                tenantId: options.Tenant,
+                userFlow: options.UserFlow,
+                tokenAcquisitionOptions: options.TokenAcquisitionOptions)
+                .ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // validate arguments
@@ -45,17 +63,12 @@ namespace Microsoft.Identity.Web
             var microsoftIdentityOptions = _microsoftIdentityOptions
                 .Get(TokenAcquisition.GetEffectiveAuthenticationScheme(options.AuthenticationScheme));
 
-            var userflow = microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(options.UserFlow)
-                ? microsoftIdentityOptions.DefaultUserFlow
-                : options.UserFlow;
+            if (microsoftIdentityOptions.IsB2C && string.IsNullOrEmpty(options.UserFlow))
+            {
+                options.UserFlow = microsoftIdentityOptions.DefaultUserFlow;
+            }
 
-            var authResult = await TokenAcquisition.GetAuthenticationResultForUserAsync(
-                options.GetScopes(),
-                authenticationScheme: options.AuthenticationScheme,
-                tenantId: options.Tenant,
-                userFlow: userflow,
-                tokenAcquisitionOptions: options.TokenAcquisitionOptions)
-                .ConfigureAwait(false);
+            var authResult = await GetTokenAsync(options).ConfigureAwait(false);
 
             // add or replace authorization header
             if (request.Headers.Contains(Constants.Authorization))

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -30,6 +31,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        protected override async Task<AuthenticationResult> GetTokenAsync(MicrosoftIdentityAuthenticationMessageHandlerOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            return await TokenAcquisition.GetAuthenticationResultForAppAsync(
+                options.Scopes!,
+                options.AuthenticationScheme,
+                options.Tenant,
+                options.TokenAcquisitionOptions)
+                .ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // validate arguments
@@ -38,12 +55,7 @@ namespace Microsoft.Identity.Web
             // authenticate
             var options = GetOptionsForRequest(request);
 
-            var authResult = await TokenAcquisition.GetAuthenticationResultForAppAsync(
-                options.Scopes!,
-                options.AuthenticationScheme,
-                options.Tenant,
-                options.TokenAcquisitionOptions)
-                .ConfigureAwait(false);
+            var authResult = await GetTokenAsync(options).ConfigureAwait(false);
 
             // add or replace authorization header
             if (request.Headers.Contains(Constants.Authorization))
