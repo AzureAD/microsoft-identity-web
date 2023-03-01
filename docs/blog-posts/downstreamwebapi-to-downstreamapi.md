@@ -15,7 +15,7 @@ This article explains:
 
 To migrate your existing code using **IDownstreamWebApi** to Microsoft.Identity.Web 2.x and **IDownstreamApi** you will need to:
 
-1. add a reference to the Microsoft.Identity.Web.AddDownstreamApi NuGet package
+1. add a reference to the Microsoft.Identity.Web.DownstreamApi NuGet package
 1. in the code doing the initialization of the application (usually **startup.cs** or **program.cs**) replace:
 
    ```csharp
@@ -74,6 +74,6 @@ To migrate your existing code using **IDownstreamWebApi** to Microsoft.Identity.
 
 ### Example code
 
-The following pull request illustrates the update of the Microsoft.Identity.Web test apps from IDownstreamWebApi to IDownstreamApi: [Update test apps and integration tests to DownstreamApi#2036](https://github.com/AzureAD/microsoft-identity-web/pull/2036/files).
+The following sample illustrates the usage of IDownstreamApi: [ASP.NET Core web app calling web API/TodoListController]([https://github.com/AzureAD/microsoft-identity-web/pull/2036/files](https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/blob/jmprieur/relv2/4-WebApp-your-API/4-1-MyOrg/Client/Controllers/TodoListController.cs)).
 
 ### Differences between IDownstreamWebApi and IDownstreamApi
