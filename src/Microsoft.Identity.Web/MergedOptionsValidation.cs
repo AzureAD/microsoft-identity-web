@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(options.ClientId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
             }
 
-            if (string.IsNullOrEmpty(options.Instance))
+            if (string.IsNullOrEmpty(options.Authority) && string.IsNullOrEmpty(options.Instance))
             {
                 throw new ArgumentNullException(options.Instance, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
             }
@@ -25,13 +25,6 @@ namespace Microsoft.Identity.Web
                 if (string.IsNullOrEmpty(options.Domain))
                 {
                     throw new ArgumentNullException(options.Domain, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
-                }
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(options.TenantId))
-                {
-                    throw new ArgumentNullException(options.TenantId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
                 }
             }
         }
