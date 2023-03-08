@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
 {
@@ -20,7 +21,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             _ = Throws.IfNull(services);
 
             services.AddMemoryCache();
-            services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
+            services.TryAddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return services;
         }
     }

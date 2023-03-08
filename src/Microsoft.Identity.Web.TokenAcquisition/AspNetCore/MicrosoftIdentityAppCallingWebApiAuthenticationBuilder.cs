@@ -5,6 +5,7 @@ using System;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -49,7 +50,7 @@ namespace Microsoft.Identity.Web
             }
 
             Services.AddHttpContextAccessor();
-            Services.AddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
+            Services.TryAddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return this;
         }
 
