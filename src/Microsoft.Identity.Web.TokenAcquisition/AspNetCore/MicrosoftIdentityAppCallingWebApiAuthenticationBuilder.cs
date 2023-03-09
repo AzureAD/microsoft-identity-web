@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Add in memory token caches.
+        /// Add in memory token caches, if no other implementation of IMsalTokenCacheProvider was already added.
         /// </summary>
         /// <param name="configureOptions"><see cref="MsalMemoryTokenCacheOptions"/> to configure.</param>
         /// <param name="memoryCacheOptions"><see cref="MemoryCacheOptions"/> to configure.</param>
