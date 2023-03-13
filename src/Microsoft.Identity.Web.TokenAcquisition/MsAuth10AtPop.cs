@@ -18,26 +18,30 @@ namespace Microsoft.Identity.Web
             this AcquireTokenForClientParameterBuilder builder,
             X509Certificate2 clientCertificate,
             string popPublicKey,
+            string jwkClaim,
             string clientId)
         {
+            builder.WithProofOfPosessionKeyId(popPublicKey);
             builder.OnBeforeTokenRequest((data) =>
              {
                  string? signedAssertion = GetSignedClientAssertion(
                      clientCertificate,
                      data.RequestUri.AbsoluteUri,
-                     popPublicKey,
+                     jwkClaim,
                      clientId);
 
+                 data.BodyParameters.Remove("client_assertion");
                  data.BodyParameters.Add("request", signedAssertion);
                  return Task.CompletedTask;
              });
+
             return builder;
         }
 
         private static string? GetSignedClientAssertion(
             X509Certificate2 certificate,
             string audience,
-            string popPublicKey,
+            string jwkClaim,
             string clientId)
         {
             // no need to add exp, nbf as JsonWebTokenHandler will add them by default.
@@ -47,8 +51,7 @@ namespace Microsoft.Identity.Web
                 { "iss", clientId },
                 { "jti", Guid.NewGuid().ToString() },
                 { "sub", clientId },
-                { "x5c", Convert.ToBase64String(certificate.GetRawCertData())},
-                { "pop_jwk", popPublicKey }
+                { "pop_jwk", jwkClaim }
             };
 
             var securityTokenDescriptor = new SecurityTokenDescriptor

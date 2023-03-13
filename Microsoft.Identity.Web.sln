@@ -53,10 +53,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PerformanceTestService", "tests\PerformanceTests\PerformanceTestService\PerformanceTestService.csproj", "{AA1F64B8-EFA8-4000-9B91-A8B0D50A5D0E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{A7B1AE31-4E89-42A0-8264-FBEA795AB7D2}"
-	ProjectSection(SolutionItems) = preProject
-		tests\IntegrationTests\Directory.Build.props = tests\IntegrationTests\Directory.Build.props
-		tests\IntegrationTests\TokenAcquirerTests\TokenAcquirerTests.csproj = tests\IntegrationTests\TokenAcquirerTests\TokenAcquirerTests.csproj
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppUiTests", "tests\IntegrationTests\WebAppUiTests\WebAppUiTests.csproj", "{ECDE3310-9548-491F-A0C6-8F086E0579D3}"
 EndProject
@@ -165,6 +161,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalWebApi", "tests\DevApps\daemon-app\minimal-web-api\MinimalWebApi.csproj", "{D12AF43A-72EC-4459-B6F4-0755190D9222}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DaemonConsoleCallingDownstreamApi", "tests\DevApps\daemon-app\daemon-console-calling-downstreamApi\DaemonConsoleCallingDownstreamApi.csproj", "{5DE68949-118E-4A2E-A541-8FB5CA030CD6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenAcquirerTests", "tests\IntegrationTests\TokenAcquirerTests\TokenAcquirerTests.csproj", "{AB8177BE-8961-4698-B064-42943885D48D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -371,6 +369,10 @@ Global
 		{5DE68949-118E-4A2E-A541-8FB5CA030CD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DE68949-118E-4A2E-A541-8FB5CA030CD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DE68949-118E-4A2E-A541-8FB5CA030CD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB8177BE-8961-4698-B064-42943885D48D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8177BE-8961-4698-B064-42943885D48D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8177BE-8961-4698-B064-42943885D48D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8177BE-8961-4698-B064-42943885D48D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -445,6 +447,7 @@ Global
 		{30CFD8F7-8B85-4433-8EDB-A644FCE28804} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 		{D12AF43A-72EC-4459-B6F4-0755190D9222} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 		{5DE68949-118E-4A2E-A541-8FB5CA030CD6} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
+		{AB8177BE-8961-4698-B064-42943885D48D} = {A7B1AE31-4E89-42A0-8264-FBEA795AB7D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

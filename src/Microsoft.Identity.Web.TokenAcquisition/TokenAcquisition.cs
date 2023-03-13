@@ -370,15 +370,14 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                 }
-                if (tokenAcquisitionOptions.PopPublicKey != null )
+                if (!string.IsNullOrEmpty(tokenAcquisitionOptions.PopPublicKey))
                 {
-                    string encodedPopKey = Base64UrlEncoder.Encode(tokenAcquisitionOptions.PopPublicKey);
-                    if (tokenAcquisitionOptions.PopPublicKey.StartsWith(@"{{""kid""", StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(tokenAcquisitionOptions.JwkClaim))
                     {
-                        builder.WithProofOfPosessionKeyId(encodedPopKey, "pop");
+                        builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
                         builder.OnBeforeTokenRequest((data) =>
                         {
-                            data.BodyParameters.Add("req_cnf", encodedPopKey);
+                            data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
                             data.BodyParameters.Add("token_type", "pop");
                             return Task.CompletedTask;
                         });
@@ -387,7 +386,8 @@ namespace Microsoft.Identity.Web
                     {
                         builder.WithAtPop(
                             application.AppConfig.ClientCredentialCertificate,
-                            encodedPopKey,
+                            tokenAcquisitionOptions.PopPublicKey,
+                            tokenAcquisitionOptions.JwkClaim,
                             application.AppConfig.ClientId);
                     }
                 }

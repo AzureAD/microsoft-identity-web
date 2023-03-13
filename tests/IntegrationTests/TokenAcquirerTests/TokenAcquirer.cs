@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -144,6 +146,70 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireTokenWithMs10AtPop_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
+                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            services.AddInMemoryTokenCaches();
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(s_optionName);
+            var credentialsLoader = serviceProvider.GetRequiredService<ICredentialsLoader>();
+            await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
+            var cert = options.ClientCredentials!.First().Certificate;
+
+            // Get the token acquisition service
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
+            RsaSecurityKey rsaSecurityKey = CreateRsaSecurityKey();
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default",
+                   new TokenAcquisitionOptions()
+                   { 
+                       PopPublicKey = rsaSecurityKey.KeyId,
+                       JwkClaim = CreateJwkClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
+                   });
+            Assert.NotNull(result.AccessToken);
+        }
+
+        private static string CreateJwkClaim(RsaSecurityKey key, string algorithm)
+        {
+            var parameters = key.Rsa == null ? key.Parameters : key.Rsa.ExportParameters(false);
+            return "{\"kty\":\"RSA\",\"n\":\"" + Base64UrlEncoder.Encode(parameters.Modulus) + "\",\"e\":\"" + Base64UrlEncoder.Encode(parameters.Exponent) + "\",\"alg\":\"" + algorithm + "\",\"kid\":\"" + key.KeyId + "\"}";
+        }
+
+        private static RsaSecurityKey CreateRsaSecurityKey()
+        {
+#if NET472
+            RSA rsa = RSA.Create(2048);
+#else
+            RSA rsa = new RSACryptoServiceProvider(2048);
+#endif
+            // the reason for creating the RsaSecurityKey from RSAParameters is so that a SignatureProvider created with this key
+            // will own the RSA object and dispose it. If we pass a RSA object, the SignatureProvider does not own the object, the RSA object will not be disposed.
+            RSAParameters rsaParameters = rsa.ExportParameters(true);
+            RsaSecurityKey rsaSecuirtyKey = new RsaSecurityKey(rsaParameters) { KeyId = CreateRsaKeyId(rsaParameters) };
+            rsa.Dispose();
+            return rsaSecuirtyKey;
+        }
+
+        private static string CreateRsaKeyId(RSAParameters rsaParameters)
+        {
+            byte[] kidBytes = new byte[rsaParameters.Exponent.Length + rsaParameters.Modulus.Length];
+            Array.Copy(rsaParameters.Exponent, 0, kidBytes, 0, rsaParameters.Exponent.Length);
+            Array.Copy(rsaParameters.Modulus, 0, kidBytes, rsaParameters.Exponent.Length, rsaParameters.Modulus.Length);
+            using (var sha2 = SHA256.Create())
+                return Base64UrlEncoder.Encode(sha2.ComputeHash(kidBytes));
+        }
+
         private string? ComputePublicKeyString(X509Certificate2? certificate)
         {
             if (certificate == null)
@@ -158,8 +224,6 @@ namespace TokenAcquirerTests
             var keyId = Base64UrlEncoder.Encode(reqCnf);
             return keyId;
         }
-
-
 
         private static async Task CreateGraphClientAndAssert(TokenAcquirerFactory tokenAcquirerFactory, IServiceCollection services)
         {
