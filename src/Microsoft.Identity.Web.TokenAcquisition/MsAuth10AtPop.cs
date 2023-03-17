@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
             string jwkClaim,
             string clientId)
         {
-            // no need to add exp, nbf as JsonWebTokenHandler will add them by default.
+            // no need to add exp, nbf as JsonWebTokenHandler will add them by default
             var claims = new Dictionary<string, object>()
             {
                 { "aud", audience },
