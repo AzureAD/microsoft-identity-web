@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Globalization;
+using Azure.Identity;
+using Azure.Security.KeyVault.Certificates;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,8 +30,8 @@ namespace IntegrationTestService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            KeyVaultSecretsProvider _keyVault = new KeyVaultSecretsProvider();
-            string ccaSecret = _keyVault.GetSecret(TestConstants.OBOClientKeyVaultUri).Value;
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
+            string secret = keyVaultSecretsProvider.GetMsidLabSecret(TestConstants.OBOClientKeyVaultUri).Value;
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
@@ -46,12 +51,12 @@ namespace IntegrationTestService
 
             services.Configure<MicrosoftIdentityOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                options.ClientSecret = ccaSecret;
+                options.ClientSecret = secret;
             });
 
             services.Configure<MicrosoftIdentityOptions>(TestConstants.CustomJwtScheme2, options =>
             {
-                options.ClientSecret = ccaSecret;
+                options.ClientSecret = secret;
             });
 
             //  services.AddAuthorization();
