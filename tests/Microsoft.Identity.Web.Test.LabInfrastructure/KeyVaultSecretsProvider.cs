@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             CredentialDescription credentialDescription= new()
             {
                 SourceType = CredentialSource.StoreWithThumbprint,
-                CertificateStorePath = "CurrentUser/My",
+                CertificateStorePath = "LocalMachine/My",
                 CertificateThumbprint = "444B697D869032F29F9A162D711AF3E2791AD748"
 
             };
