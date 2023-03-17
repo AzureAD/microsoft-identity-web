@@ -6,6 +6,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 
@@ -68,13 +69,24 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             IConfidentialClientApplication confidentialApp;
             X509Certificate2 cert;
 
+            DefaultCertificateLoader certLoader = new DefaultCertificateLoader();
+
+            CredentialDescription credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateStorePath = "CurrentUser/My",
+                CertificateThumbprint = string.IsNullOrEmpty(clientId) ? LabAccessThumbPrint : certThumbprint
+
+            };
+
+            await certLoader.LoadCredentialsIfNeededAsync(credentialDescription);
+
             switch (authType)
             {
                 case LabAccessAuthenticationType.ClientCertificate:
                     var clientIdForCertAuth = string.IsNullOrEmpty(clientId) ? LabAccessConfidentialClientId : clientId;
-                    var certThumbprintForLab = string.IsNullOrEmpty(clientId) ? LabAccessThumbPrint : certThumbprint;
 
-                    cert = CertificateHelper.FindCertificateByThumbprint(certThumbprintForLab);
+                    cert = credentialDescription.Certificate;
                     if (cert == null)
                     {
                         throw new InvalidOperationException(

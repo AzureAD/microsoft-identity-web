@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
-                TestConstants.OBOApiScope,
+                TestConstants.s_oBOApiScope,
                 TestConstants.OBOUser,
                 labResponse.User.GetOrFetchPassword())
                 .ExecuteAsync(CancellationToken.None)

@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - "master"
-      - "rel/v2"
   pull_request:
     branches:
       - "master"
-      - "rel/v2"
     paths:
       - ".github/workflows/dotnetcore.yml"
 
@@ -24,11 +22,6 @@ jobs:
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 3.1.301
-
-    - name: Setup .NET 5.0.x
-      uses: actions/setup-dotnet@v1.7.2
-      with:
-        dotnet-version: 5.0.x
 
     - name: Setup .NET 6.0.301
       uses: actions/setup-dotnet@v1.7.2
