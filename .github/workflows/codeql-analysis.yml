@@ -36,13 +36,13 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    - name: Setup .NET 5.0.408
+    - name: Setup .NET 6.0.301
       uses: actions/setup-dotnet@v2.1.0
       with:
-        dotnet-version: 5.0.408
+        dotnet-version: 6.0.301
 
-    - name: Build with .NET 5
-      run: dotnet build Microsoft.Identity.Web-Source.sln -f net5.0 -p:FROM_GITHUB_ACTION=true --configuration Release
+    - name: Build with .NET 6
+      run: dotnet build Microsoft.Identity.Web-Source.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
