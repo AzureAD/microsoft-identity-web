@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Identity.Web.Test.Common;
 using Newtonsoft.Json;
 
 namespace Microsoft.Identity.Web.Test.LabInfrastructure
@@ -22,9 +23,9 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
         public LabServiceApi()
         {
-            using KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider();
-            _labAccessAppId = keyVaultSecretsProvider.GetMsidLabSecret("LabVaultAppID").Value;
-            _labAccessClientSecret = keyVaultSecretsProvider.GetMsidLabSecret("LabVaultAppSecret").Value;
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
+            _labAccessAppId = keyVaultSecretsProvider.GetMsidLabSecret(TestConstants.LabVaultAppId).Value;
+            _labAccessClientSecret = keyVaultSecretsProvider.GetMsidLabSecret(TestConstants.LabVaultAppSecret).Value;
         }
 
         public async Task<string> GetUserSecretAsync(string lab)

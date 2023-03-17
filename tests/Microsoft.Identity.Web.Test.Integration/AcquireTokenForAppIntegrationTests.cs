@@ -47,8 +47,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         {
             _output = output;
 
-            _keyVault = new KeyVaultSecretsProvider();
-            _ccaSecret = _keyVault.GetSecret(TestConstants.ConfidentialClientKeyVaultUri).Value;
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
+            _ccaSecret = keyVaultSecretsProvider.GetKeyVaultSecret().Value;
 
             // Need the secret before building the services
             if (!string.IsNullOrEmpty(_ccaSecret))
