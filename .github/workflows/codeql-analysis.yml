@@ -42,7 +42,7 @@ jobs:
         dotnet-version: 6.0.301
 
     - name: Build with .NET 6
-      run: dotnet build Microsoft.Identity.Web-Source.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release
+      run: dotnet build Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
