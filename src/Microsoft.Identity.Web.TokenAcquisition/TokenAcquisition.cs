@@ -370,15 +370,26 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                 }
-                if (tokenAcquisitionOptions.PopPublicKey != null)
+                if (!string.IsNullOrEmpty(tokenAcquisitionOptions.PopPublicKey))
                 {
-                    builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
-                    builder.OnBeforeTokenRequest((data) =>
+                    if (string.IsNullOrEmpty(tokenAcquisitionOptions.JwkClaim))
                     {
-                        data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
-                        data.BodyParameters.Add("token_type", "pop");
-                        return Task.CompletedTask;
-                    });
+                        builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
+                        builder.OnBeforeTokenRequest((data) =>
+                        {
+                            data.BodyParameters.Add("req_cnf", tokenAcquisitionOptions.PopPublicKey);
+                            data.BodyParameters.Add("token_type", "pop");
+                            return Task.CompletedTask;
+                        });
+                    }
+                    else
+                    {
+                        builder.WithAtPop(
+                            application.AppConfig.ClientCredentialCertificate,
+                            tokenAcquisitionOptions.PopPublicKey,
+                            tokenAcquisitionOptions.JwkClaim,
+                            application.AppConfig.ClientId);
+                    }
                 }
             }
 
