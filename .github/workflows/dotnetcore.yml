@@ -5,7 +5,11 @@ on:
     branches:
       - "master"
   pull_request:
-    types: [opened, edited]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     branches:
       - "master"
     paths:
