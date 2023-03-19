@@ -135,7 +135,7 @@ namespace TokenAcquirerTests
             services.AddInMemoryTokenCaches();
             var serviceProvider = tokenAcquirerFactory.Build();
             var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(s_optionName);
-            var credentialsLoader= serviceProvider.GetRequiredService<ICredentialsLoader>();
+            var credentialsLoader = serviceProvider.GetRequiredService<ICredentialsLoader>();
             await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
             var cert = options.ClientCredentials!.First().Certificate;
 
@@ -173,7 +173,7 @@ namespace TokenAcquirerTests
             RsaSecurityKey rsaSecurityKey = CreateRsaSecurityKey();
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default",
                    new TokenAcquisitionOptions()
-                   { 
+                   {
                        PopPublicKey = rsaSecurityKey.KeyId,
                        JwkClaim = CreateJwkClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
                    });
@@ -203,6 +203,9 @@ namespace TokenAcquirerTests
 
         private static string CreateRsaKeyId(RSAParameters rsaParameters)
         {
+            Throws.IfNull(rsaParameters.Exponent);
+            Throws.IfNull(rsaParameters.Modulus);
+
             byte[] kidBytes = new byte[rsaParameters.Exponent.Length + rsaParameters.Modulus.Length];
             Array.Copy(rsaParameters.Exponent, 0, kidBytes, 0, rsaParameters.Exponent.Length);
             Array.Copy(rsaParameters.Modulus, 0, kidBytes, rsaParameters.Exponent.Length, rsaParameters.Modulus.Length);
