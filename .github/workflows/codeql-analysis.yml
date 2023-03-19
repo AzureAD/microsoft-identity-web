@@ -57,10 +57,10 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build with .NET 6
-      run: dotnet build Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
 
     - name: Build with .NET 7
-      run: dotnet build Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
