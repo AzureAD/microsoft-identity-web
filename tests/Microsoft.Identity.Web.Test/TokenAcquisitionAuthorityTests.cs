@@ -211,5 +211,25 @@ namespace Microsoft.Identity.Web.Test
                 Assert.False(mergedOptions.SendX5C);
             }
         }
+
+        [Fact]
+        public void TestParseAuthorityIfNecessary()
+        {
+            // Arrange
+            MergedOptions mergedOptions = new()
+            {
+                Authority = TestConstants.AuthorityWithTenantSpecified,
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance
+            };
+
+            // Act
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            // Assert
+            Assert.Equal(TestConstants.AuthorityWithTenantSpecified, mergedOptions.Authority);
+            Assert.Equal(TestConstants.AadInstance, mergedOptions.Instance);
+            Assert.Equal(TestConstants.TenantIdAsGuid, mergedOptions.TenantId);
+        }
     }
 }

@@ -63,14 +63,11 @@ namespace Microsoft.Identity.Web
             return options;
         }
 
-        private static void CreateProofOfPossessionConfiguration(MicrosoftIdentityAuthenticationMessageHandlerOptions options, Uri apiUri, HttpMethod method)
+        internal static void CreateProofOfPossessionConfiguration(MicrosoftIdentityAuthenticationMessageHandlerOptions options, Uri apiUri, HttpMethod method)
         {
             if (options.IsProofOfPossessionRequest)
             {
-                if (options.TokenAcquisitionOptions == null)
-                {
-                    options.TokenAcquisitionOptions = new TokenAcquisitionOptions();
-                }
+                options.TokenAcquisitionOptions ??= new TokenAcquisitionOptions();
 
                 options.TokenAcquisitionOptions.PoPConfiguration = new PoPAuthenticationConfiguration(apiUri)
                 {
