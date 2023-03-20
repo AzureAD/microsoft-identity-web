@@ -454,6 +454,9 @@ dotnet_diagnostic.CA5350.severity = error
 # CA5351: Do Not Use Broken Cryptographic Algorithms
 dotnet_diagnostic.CA5351.severity = error
 
+#CA5391: Use antiforgery tokens in ASP.NET Core MVC controllers
+dotnet_diagnostic.CA5391.severity = none
+
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
 

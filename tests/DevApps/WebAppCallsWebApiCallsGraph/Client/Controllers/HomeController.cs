@@ -31,7 +31,6 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
         }
 
         [HttpPut]
-        [ValidateAntiForgeryToken]
         public IActionResult Index()
         {
             return View();
@@ -39,7 +38,6 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
