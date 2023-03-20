@@ -31,6 +31,7 @@ namespace TodoListClient.Controllers
 
         // GET: TodoList
         //[AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
+        [HttpGet]
         [AuthorizeForScopes(
             ScopeKeySection = "TodoList:Scopes", UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> Index()
@@ -40,6 +41,7 @@ namespace TodoListClient.Controllers
             return View(value);
         }
 
+        [HttpGet]
         [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = Susi)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> ClaimsSusi()
         {
@@ -62,6 +64,7 @@ namespace TodoListClient.Controllers
 
 
         // GET: TodoList/Details/5
+        [HttpGet]
         public async Task<ActionResult> Details(int id)
         {
             var value = await _downstreamApi.GetForUserAsync<Todo>(
@@ -71,6 +74,7 @@ namespace TodoListClient.Controllers
         }
 
         // GET: TodoList/Create
+        [HttpGet]
         public ActionResult Create()
         {
             Todo todo = new Todo() { Owner = HttpContext.User.Identity.Name };
@@ -87,6 +91,7 @@ namespace TodoListClient.Controllers
         }
 
         // GET: TodoList/Edit/5
+        [HttpGet]
         public async Task<ActionResult> Edit(int id)
         {
             Todo todo = await _downstreamApi.GetForUserAsync<Todo>(
@@ -117,6 +122,7 @@ namespace TodoListClient.Controllers
         }
 
         // GET: TodoList/Delete/5
+        [HttpGet]
         public async Task<ActionResult> Delete(int id)
         {
             Todo todo = await _downstreamApi.GetForUserAsync<Todo>(

@@ -25,6 +25,7 @@ namespace TodoListClient.Controllers
         }
 
         // GET: api/todolist
+        [HttpGet]
         public async Task<ActionResult> Index()
         {
             var value = await _downstreamApi.GetForUserAsync<IEnumerable<Todo>>(
@@ -35,6 +36,7 @@ namespace TodoListClient.Controllers
         }
 
         // GET: api/todolist/5
+        [HttpGet]
         public async Task<ActionResult> Details(int id)
         {
             var value = await _downstreamApi.GetForUserAsync<Todo>(
@@ -44,6 +46,7 @@ namespace TodoListClient.Controllers
         }
 
         // Create and present to the user (no service call)
+        [HttpPost]
         public ActionResult Create()
         {
             Todo todo = new Todo() { Owner = HttpContext.User.Identity.Name };
@@ -64,6 +67,7 @@ namespace TodoListClient.Controllers
 
         // Get the content of the TODO of ID id to present it to the user for edition
         // GET: api/todolist/5
+        [HttpGet]
         public async Task<ActionResult> Edit(int id)
         {
             Todo todo = await _downstreamApi.GetForUserAsync<Todo>(
@@ -92,6 +96,7 @@ namespace TodoListClient.Controllers
         }
 
         // Get the content of the TODO of ID to present it to the user for deletion
+        [HttpGet]
         public async Task<ActionResult> Delete(int id)
         {
             Todo todo = await _downstreamApi.GetForUserAsync<Todo>(

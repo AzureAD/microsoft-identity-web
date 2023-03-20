@@ -30,11 +30,13 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             _downstreamApi = downstreamApi;
         }
 
+        [HttpPut]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpPost]
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -42,6 +44,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [HttpGet]
         [AuthorizeForScopes(ScopeKeySection = "SayHello:Scopes")]
         public async Task<ActionResult> SayHello()
         {
@@ -59,6 +62,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             return View();
         }
 
+        [HttpGet]
         [AuthorizeForScopes(ScopeKeySection = "AzureFunction:Scopes")]
         public async Task<ActionResult> CallAzureFunction()
         {
