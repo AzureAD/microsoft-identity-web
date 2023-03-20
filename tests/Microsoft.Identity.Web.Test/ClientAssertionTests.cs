@@ -40,5 +40,20 @@ namespace Microsoft.Identity.Web.Test
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("2", assertion);
         }
+
+        [Fact]
+        public void Constructor_ValidInput_SetsProperties()
+        {
+            // Arrange
+            var signedAssertion = "assertion";
+            var expiry = DateTimeOffset.Now.AddDays(1);
+
+            // Act
+            var assertion = new ClientAssertion(signedAssertion, expiry);
+
+            // Assert
+            Assert.Equal(signedAssertion, assertion.SignedAssertion);
+            Assert.Equal(expiry, assertion.Expiry);
+        }
     }
 }
