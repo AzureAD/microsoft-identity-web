@@ -9,21 +9,8 @@ steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-uploadtotsa.TSAUpload@3
   displayName: 'TSA upload to Codebase: Microsoft Identity Web .NET Stamp: Azure'
   inputs:
-    tsaVersion: TsaV2
-    codebase: NewOrUpdate
-    codeBaseName: 'Microsoft Identity Web'
-    notificationAlias: 'IdentityDevExDotnet@microsoft.com'
-    codeBaseAdmins: 'EUROPE\\aadidagt'
-    instanceUrlForTsaV2: IDENTITYDIVISION
-    projectNameIDENTITYDIVISION: IDDP
-    areaPath: 'IDDP\DevEx-Client-SDK\DotNet'
-    iterationPath: 'IDDP\Unscheduled'
-    uploadAPIScan: false
-    uploadFortifySCA: false
-    uploadFxCop: false
-    uploadModernCop: false
-    uploadPREfast: false
-    uploadTSLint: false
+    GdnPublishTsaOnboard: false 
+    GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/tsaConfig.json'
   continueOnError: true
 
 - task: mspremier.PostBuildCleanup.PostBuildCleanup-task.PostBuildCleanup@3
