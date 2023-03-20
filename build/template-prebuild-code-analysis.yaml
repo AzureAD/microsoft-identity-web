@@ -2,7 +2,7 @@
 # Run pre-build code analysis (e.g. credscan, policheck)
 
 steps:
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@3
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@2
   displayName: 'Run PoliCheck'
   inputs:
     targetArgument: $(Build.SourcesDirectory)
@@ -11,14 +11,14 @@ steps:
     optionsUEPATH: '$(Build.SourcesDirectory)/build/policheck_exclusions.xml'
   continueOnError: true
 
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@4
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
   displayName: 'Run CredScan'
   inputs:
     suppressionsFile: 'build/credscan-exclusion.json'
     toolMajorVersion: V2
     debugMode: false
 
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@3
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
   displayName: 'Post Analysis'
   inputs:
     CredScan: true
