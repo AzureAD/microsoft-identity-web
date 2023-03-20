@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private int _n = 0;
 
-        internal override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        public override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             _n++;
             return Task.FromResult(new ClientAssertion(
@@ -39,6 +39,21 @@ namespace Microsoft.Identity.Web.Test
             await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
             assertion = await clientAssertionDescription.GetSignedAssertion(CancellationToken.None).ConfigureAwait(false);
             Assert.Equal("2", assertion);
+        }
+
+        [Fact]
+        public void Constructor_ValidInput_SetsProperties()
+        {
+            // Arrange
+            var signedAssertion = "assertion";
+            var expiry = DateTimeOffset.Now.AddDays(1);
+
+            // Act
+            var assertion = new ClientAssertion(signedAssertion, expiry);
+
+            // Assert
+            Assert.Equal(signedAssertion, assertion.SignedAssertion);
+            Assert.Equal(expiry, assertion.Expiry);
         }
     }
 }

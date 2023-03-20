@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        internal override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        public override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _managedIdentityClientId });
 
