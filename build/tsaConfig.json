@@ -1,7 +1,7 @@
 {
     "codebaseName": "Unified .NET Core", 
     "notificationAliases": [
-        "IdentityDevExDotnet@microsoft.com"
+        "idauthsdkmsidweb@microsoft.com"
     ],
     "codebaseAdmins": [
         "EUROPE\\aadidagt"
