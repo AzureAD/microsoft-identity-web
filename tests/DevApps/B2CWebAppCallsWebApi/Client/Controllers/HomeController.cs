@@ -21,13 +21,16 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
         }
 
         [HttpPut]
+        [ValidateAntiForgeryToken]
         public IActionResult Index()
         {
             return View();
         }
 
+        
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

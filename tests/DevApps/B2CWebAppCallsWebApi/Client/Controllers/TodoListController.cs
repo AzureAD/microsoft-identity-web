@@ -52,6 +52,7 @@ namespace TodoListClient.Controllers
             return View(Claims, null);
         }
 
+        [HttpGet]
         [AuthorizeForScopes(Scopes = new string[] { Scope }, UserFlow = EditProfile)] // Must be the same user flow as used in `GetAccessTokenForUserAsync()`
         public async Task<ActionResult> ClaimsEditProfile()
         {
