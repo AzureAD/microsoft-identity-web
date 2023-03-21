@@ -62,6 +62,7 @@ steps:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
     AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
+    Enabled: 'false'
 
 # Pack and sign Microsoft.Identity.Web.OWIN
 - template: template-pack-and-sign-nuget.yaml

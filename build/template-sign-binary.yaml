@@ -4,6 +4,7 @@
 parameters:
   FolderPath: ''
   Pattern: ''
+  Enabled: 'true'
 
 steps:
 # The signing task requires dotnet core 2.x
@@ -65,6 +66,7 @@ steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@4
   displayName: 'Run BinSkim ${{ parameters.Pattern }}'
   inputs:
+    enabled: ${{ parameters.Enabled }}
     InputType: Basic
     AnalyzeTargetGlob: ${{ parameters.Pattern }}
     AnalyzeVerbose: true
