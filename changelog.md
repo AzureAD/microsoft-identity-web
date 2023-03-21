@@ -1,3 +1,14 @@
+2.6.0 
+========== 
+- Update to Wilson 6.27.0 and MSAL.NET 4.51.0
+
+### New Feature:
+- **`GetClientAssertion` is now public, which enables inheritance of `ClientAssertionProviderBase`**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2112) for details. 
+- **Id Web now uses `TryAdd` instead of `Add` in the InMemory and Distributed caches,** this is to not overwrite previously added caches. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/2090) for details.
+- **Id Web now supports MsAuth10ATPop**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2109) for details.
+### Fundamentals:
+- Address compliance and build issues: [#2137], [#2116], [#2113], [#2120], [#2121], [#2122], [#2128], and [#2125].
+
 2.5.0
 ==========
 - Make ClientAssertion public, see [for details](https://github.com/AzureAD/microsoft-identity-web/pull/2079).
