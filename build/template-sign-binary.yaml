@@ -4,7 +4,7 @@
 parameters:
   FolderPath: ''
   Pattern: ''
-  Enabled: 'true'
+  Enabled: true
 
 steps:
 # The signing task requires dotnet core 2.x
