@@ -40,7 +40,6 @@ namespace Microsoft.Identity.Web.Test
                 mergedOptions.ClientSecret = TestConstants.ClientSecret;
             }
 
-
             // Act
             MicrosoftIdentityWebAppAuthenticationBuilderExtensions.PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
