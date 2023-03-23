@@ -386,8 +386,8 @@ namespace Microsoft.Identity.Web
                     {
                         builder.WithAtPop(
                             application.AppConfig.ClientCredentialCertificate,
-                            tokenAcquisitionOptions.PopPublicKey,
-                            tokenAcquisitionOptions.JwkClaim,
+                            tokenAcquisitionOptions.PopPublicKey!,
+                            tokenAcquisitionOptions.JwkClaim!,
                             application.AppConfig.ClientId);
                     }
                 }
