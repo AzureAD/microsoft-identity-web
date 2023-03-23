@@ -402,13 +402,13 @@ namespace Microsoft.Identity.Web
                 });
         }
 
-        private static void PopulateOpenIdOptionsFromMergedOptions(
+        internal static void PopulateOpenIdOptionsFromMergedOptions(
             OpenIdConnectOptions options,
             MergedOptions mergedOptions)
         {
             options.Authority = mergedOptions.Authority;
             options.ClientId = mergedOptions.ClientId;
-            options.ClientSecret = mergedOptions.ClientSecret;
+            options.ClientSecret = mergedOptions.ClientSecret ?? mergedOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == Abstractions.CredentialType.Secret)?.ClientSecret;
             options.Configuration = mergedOptions.Configuration;
             options.ConfigurationManager = mergedOptions.ConfigurationManager;
             options.GetClaimsFromUserInfoEndpoint = mergedOptions.GetClaimsFromUserInfoEndpoint;
