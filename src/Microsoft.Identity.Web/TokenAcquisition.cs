@@ -192,6 +192,11 @@ namespace Microsoft.Identity.Web
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
+                if (!string.IsNullOrEmpty(context.ProtocolMessage.DomainHint))
+                {
+                    builder.WithTenantId(context.ProtocolMessage.DomainHint);
+                }
+
                 if (mergedOptions.IsB2C)
                 {
                     string? userFlow = context.Principal?.GetUserFlowId();

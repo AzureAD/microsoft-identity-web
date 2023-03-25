@@ -1,3 +1,7 @@
+1.23.2
+==========
+- Patch for MyApps with #2035.
+
 1.23.1
 ==========
 Update to MSAL.NET 4.42.0.
