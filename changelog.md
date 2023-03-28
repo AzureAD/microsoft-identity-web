@@ -1,3 +1,8 @@
+2.7.0-preview
+==========
+### New Feature:
+- `MicrosoftIdentityAppCallsWebApiAuthenticationBuilder` is now available on netstandard2.0
+
 2.6.1 
 ========== 
 - Update to Wilson 6.27.0 and MSAL.NET 4.51.0
