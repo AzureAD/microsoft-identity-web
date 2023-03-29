@@ -81,12 +81,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey, ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
+                    await WriteCacheBytesAsync(GetSuggestedCacheKey(args), ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
                 }
                 else
                 {
                     // No token in the cache. we can remove the cache entry
-                    await RemoveKeyAsync(args.SuggestedCacheKey, cacheSerializerHints).ConfigureAwait(false);
+                    await RemoveKeyAsync(GetSuggestedCacheKey(args), cacheSerializerHints).ConfigureAwait(false);
                 }
             }
         }
@@ -106,9 +106,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
+            if (!string.IsNullOrEmpty(GetSuggestedCacheKey(args)))
             {
-                byte[]? tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
+                byte[]? tokenCacheBytes = await ReadCacheBytesAsync(GetSuggestedCacheKey(args), CreateHintsFromArgs(args)).ConfigureAwait(false);
                 if (tokenCacheBytes == null)
                 {
                     return;
@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                     {
                         Logger.CacheDeserializationError(
                           _logger,
-                          args.SuggestedCacheKey,
+                          GetSuggestedCacheKey(args),
                           _protector != null,
                           exception.Message,
                           exception);
@@ -235,6 +235,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected virtual Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return RemoveKeyAsync(cacheKey); // default implementation avoids a breaking change.
+        }
+
+        /// <summary>
+        /// Method to be overridden by concrete cache serializers to express the suggested key.
+        /// </summary>
+        /// <param name="args">Parameters used by MSAL call</param>
+        /// <returns>A string that contains the cache key suggested by MSAL.NET.</returns>
+        public virtual string GetSuggestedCacheKey(TokenCacheNotificationArgs args)
+        {
+            return args.SuggestedCacheKey;
         }
     }
 }
