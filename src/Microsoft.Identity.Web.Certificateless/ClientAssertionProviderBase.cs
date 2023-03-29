@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public abstract Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken);
+        protected abstract Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken);
 
         /// <summary>
         /// Client assertion.
