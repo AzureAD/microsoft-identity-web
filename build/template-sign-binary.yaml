@@ -70,6 +70,8 @@ steps:
     TargetPattern: binskimPattern
     AnalyzeVerbose: true
     AnalyzeHashes: true
+    toolVersion: Exact
+    exactToolVersion: '4.0.0-rc2'
  
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
   displayName: 'Check BinSkim Results'
