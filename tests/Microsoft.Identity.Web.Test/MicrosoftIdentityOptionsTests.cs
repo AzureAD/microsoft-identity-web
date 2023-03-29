@@ -49,21 +49,23 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, AzureAd, null)]
-        [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData("", TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData(TestConstants.ClientId, null, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
-        [InlineData(TestConstants.ClientId, "", TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, null, null, null, AzureAd, MissingParam.TenantId)]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, "", null, null, AzureAd, MissingParam.TenantId)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, null, AzureAdB2C, MissingParam.Domain)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
-        [InlineData(TestConstants.ClientId, TestConstants.AuthorityWithTenantSpecified, null, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, null)]
+        [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData("", TestConstants.AadInstance, TestConstants.GuestTenantId, null,  null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData(TestConstants.ClientId, null, TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, "", TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, null, null, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, "", null, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, null, AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(null, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd, MissingParam.ClientId)]
         public void ValidateRequiredMicrosoftIdentityOptions(
            string clientId,
            string instance,
            string tenantid,
+           string authority,
            string signUpSignInPolicyId,
            string domain,
            string optionsName,
@@ -87,6 +89,7 @@ namespace Microsoft.Identity.Web.Test
                     ClientId = clientId,
                     Instance = instance,
                     TenantId = tenantid,
+                    Authority = authority,
                 });
             }
 
