@@ -92,5 +92,28 @@ namespace Microsoft.Identity.Web.Test
             var exception = Assert.Throws<ArgumentException>(decodeAction);
             Assert.Equal(IDWebErrorMessage.InvalidBase64UrlString + " (Parameter 'str')", exception.Message);
         }
+
+        [Fact]
+        public void EncodeString_TakesStringArgument_ReturnsEncodedString()
+        {
+            // Arrange
+            var input = "Hello, world!";
+
+            // Act
+            string? result = Base64UrlHelpers.EncodeString(input);
+
+            // Assert
+            Assert.NotEmpty(result!);
+        }
+
+        [Fact]
+        public void DecodeBytes_TakesNullArgument_ReturnsNull()
+        {
+            // Arrange & Act
+            var result = Base64UrlHelpers.DecodeBytes(null);
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }
