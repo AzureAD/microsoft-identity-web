@@ -59,6 +59,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]
         [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, null, AzureAdB2C, MissingParam.Domain)]
         [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, TestConstants.AuthorityWithTenantSpecified, null, null, null, AzureAd, MissingParam.TenantId)]
         public void ValidateRequiredMicrosoftIdentityOptions(
            string clientId,
            string instance,
