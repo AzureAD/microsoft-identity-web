@@ -49,7 +49,9 @@ namespace Microsoft.Identity.Web
                 Services.AddMemoryCache();
             }
 
+# if NET6_0_OR_GREATER || NETCOREAPP3_1
             Services.AddHttpContextAccessor();
+#endif
             Services.TryAddSingleton<IMsalTokenCacheProvider, MsalMemoryTokenCacheProvider>();
             return this;
         }

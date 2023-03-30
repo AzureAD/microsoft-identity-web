@@ -1,3 +1,27 @@
+2.7.0
+==========
+### New Feature:
+- **`MicrosoftIdentityAppCallsWebApiAuthenticationBuilder` is now available on netstandard2.0**
+- **Id Web now supports expressing the cache key used for serializing/deserializing**. See [#2156](https://github.com/AzureAD/microsoft-identity-web/pull/2156)
+
+### Bug Fixes:
+- Make `GetClientAssertion` protected.
+
+2.6.1 
+========== 
+- Update to Wilson 6.27.0 and MSAL.NET 4.51.0
+
+### New Features:
+- **`GetClientAssertion` is now public, which enables inheritance of `ClientAssertionProviderBase`**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2112) for details. 
+- **Id Web now uses `TryAdd` instead of `Add` in the InMemory and Distributed caches,** this is to not overwrite previously added caches. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/2090) for details.
+- **Id Web now supports MsAuth10ATPop**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2109) for details.
+
+### Bug Fixes:
+- **Fix a regression from v1.16.x to v2.5.0 with auth code redemption** when the `ResponseType == "code"`. See issue [#2096](https://github.com/AzureAD/microsoft-identity-web/issues/2096) for details.
+
+### Fundamentals:
+- Address compliance and build issues: [#2113](https://github.com/AzureAD/microsoft-identity-web/issues/2113), [#2116](https://github.com/AzureAD/microsoft-identity-web/issues/2116), [#2120](https://github.com/AzureAD/microsoft-identity-web/issues/2120), [#2121](https://github.com/AzureAD/microsoft-identity-web/issues/2121), [#2122](https://github.com/AzureAD/microsoft-identity-web/issues/2122), [#2128](https://github.com/AzureAD/microsoft-identity-web/issues/2128), [#2125](https://github.com/AzureAD/microsoft-identity-web/issues/2125), and [#2137](https://github.com/AzureAD/microsoft-identity-web/issues/2137). 
+
 2.5.0
 ==========
 - Make ClientAssertion public, see [for details](https://github.com/AzureAD/microsoft-identity-web/pull/2079).

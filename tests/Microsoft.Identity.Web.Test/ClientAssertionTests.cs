@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private int _n = 0;
 
-        public override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        protected override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             _n++;
             return Task.FromResult(new ClientAssertion(

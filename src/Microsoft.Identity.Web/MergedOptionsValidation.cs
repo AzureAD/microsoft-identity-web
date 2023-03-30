@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(options.ClientId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
             }
 
-            if (string.IsNullOrEmpty(options.Instance))
+            if (string.IsNullOrEmpty(options.Authority) && string.IsNullOrEmpty(options.Instance))
             {
                 throw new ArgumentNullException(options.Instance, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
             }

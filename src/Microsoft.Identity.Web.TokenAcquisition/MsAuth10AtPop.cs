@@ -14,13 +14,16 @@ namespace Microsoft.Identity.Web
 {
     internal static class MsAuth10AtPop
     {
-        public static AcquireTokenForClientParameterBuilder WithAtPop(
+        internal static AcquireTokenForClientParameterBuilder WithAtPop(
             this AcquireTokenForClientParameterBuilder builder,
             X509Certificate2 clientCertificate,
             string popPublicKey,
             string jwkClaim,
             string clientId)
         {
+            _ = Throws.IfNull(popPublicKey);
+            _ = Throws.IfNull(jwkClaim);
+
             builder.WithProofOfPosessionKeyId(popPublicKey);
             builder.OnBeforeTokenRequest((data) =>
              {
