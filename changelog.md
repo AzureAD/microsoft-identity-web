@@ -5,7 +5,7 @@
 - **Id Web now supports expressing the cache key used for serializing/deserializing**.See [#2156](https://github.com/AzureAD/microsoft-identity-web/pull/2156)
 
 ### Bug Fixes:
-- Make `GetClientAssertion` protected
+- Make `GetClientAssertion` protected.
 
 2.6.1 
 ========== 
