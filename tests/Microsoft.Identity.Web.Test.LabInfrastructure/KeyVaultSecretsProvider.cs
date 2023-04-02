@@ -7,6 +7,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Common;
+using Xunit;
 
 namespace Microsoft.Identity.Web.Test.LabInfrastructure
 {
@@ -23,7 +24,14 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
 
             };
             defaultcertloader.LoadCredentialsIfNeededAsync(credentialDescription).GetAwaiter().GetResult();
-            Certificate = credentialDescription.Certificate;
+            if (credentialDescription.Certificate == null)
+            {
+                Assert.Fail($"Did you install the lab certificate '{credentialDescription.CertificateThumbprint}' in the `Local Machine/Personal` credential store?");
+            }
+            else
+            {
+                Certificate = credentialDescription.Certificate;
+            }
         }
 
         public X509Certificate2 Certificate  { get; set; }

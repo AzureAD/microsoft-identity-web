@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.GetSection(configSection).Bind(option));
-                instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
+                instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplentation>();
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }
             return (defaultInstance as T)!;
@@ -113,8 +113,7 @@ namespace Microsoft.Identity.Web
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
                 instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>(string.Empty);
-                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.GetSection(configSection).Bind(option));
-                instance.Services.AddSingleton<ITokenAcquirerFactory>(defaultInstance);
+                instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplentation>();
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }
             return defaultInstance!;
@@ -201,26 +200,32 @@ namespace Microsoft.Identity.Web
             return Path.GetDirectoryName(assembly!.Location)!;
         }
 
-        TokenAcquirerFactory_GetTokenAcquirers implementation;
+        ITokenAcquirerFactory implementation;
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region = null)
         {
-            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
-            return implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
+            implementation ??= ServiceProvider!.GetRequiredService<ITokenAcquirerFactory>();
+            return implementation.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
+            {
+                Authority = authority,
+                ClientId = clientId,
+                ClientCredentials = clientCredentials,
+                AzureRegion = region
+            }) ;
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(IdentityApplicationOptions applicationIdentityOptions)
         {
-            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
+            implementation ??= ServiceProvider!.GetRequiredService<ITokenAcquirerFactory>();
             return implementation.GetTokenAcquirer(applicationIdentityOptions);
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string optionName = "")
         {
-            implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(ServiceProvider!);
+            implementation ??= ServiceProvider!.GetRequiredService<ITokenAcquirerFactory>();
             return implementation.GetTokenAcquirer(optionName);
         }
     }

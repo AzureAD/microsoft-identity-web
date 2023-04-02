@@ -247,7 +247,8 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            throw new NotSupportedException();
+            return this.GetAuthenticationResultForUserAsync(new string[] {scope}, authenticationScheme, tenant,
+                tokenAcquisitionOptions: tokenAcquisitionOptions);
         }
 
         /// <inheritdoc/>
