@@ -3,7 +3,7 @@ name: .NET Core
 on:
   push:
     branches:
-      - "master"
+      - master
   pull_request:
     types:
       - opened
@@ -13,7 +13,7 @@ on:
     branches:
       - master
     paths:
-      - ".github/workflows/dotnetcore.yml"
+      - '.github/workflows/dotnetcore.yml'
 
 jobs:
   build:
