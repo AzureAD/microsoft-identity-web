@@ -10,7 +10,6 @@ updates:
     schedule:
       interval: "weekly"
     allow:
-      # Allow updates for Lodash
       - dependency-name: "Microsoft.Identity*"
     labels:
       - "MSAL/IdentityModel"
