@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.JsonWebTokens;
-using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -190,7 +189,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimsIdentity.DefaultRoleClaimType));
+                    ClaimConstants.Roles));
             }
             else
             {
