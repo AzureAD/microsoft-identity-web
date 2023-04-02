@@ -189,7 +189,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    "roles"));
+                    ClaimConstants.Roles));
             }
             else
             {
