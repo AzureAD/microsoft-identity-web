@@ -54,7 +54,9 @@ namespace Microsoft.Identity.Web.Test
             var clientId = "client_id";
 
             // Act & Assert
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => MsAuth10AtPop.WithAtPop(app.AcquireTokenForClient(new[] { TestConstants.Scopes }), clientCertificate, popPublicKey, null, clientId));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         private static IConfidentialClientApplication CreateBuilder()
