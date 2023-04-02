@@ -12,5 +12,5 @@ updates:
     allow:
       - dependency-name: "Microsoft.Identity*"
     labels:
-      - "MSAL/IdentityModel"
+      - "dependabot"
       - "dependencies"
