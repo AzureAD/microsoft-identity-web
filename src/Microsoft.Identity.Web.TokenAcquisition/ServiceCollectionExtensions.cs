@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
-                services.AddSingleton(s => (ITokenAcquirerFactory)s.GetRequiredService<ITokenAcquisition>());
+                services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
 
                 services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
 
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web
                 services.AddHttpContextAccessor();
 
                 services.AddScoped<ITokenAcquisition, TokenAcquisitionAspNetCore>();
-                services.AddScoped(s => (ITokenAcquirerFactory)s.GetRequiredService<ITokenAcquisition>());
+                services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
 
                 services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
 #else

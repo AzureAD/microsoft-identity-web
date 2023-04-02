@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -97,6 +98,8 @@ namespace Microsoft.Identity.Web
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
                 services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
+                services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
             }
             else
             {

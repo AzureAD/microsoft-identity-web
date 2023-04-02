@@ -11,7 +11,7 @@ on:
       - reopened
       - ready_for_review
     branches:
-      - "master"
+      - master
     paths:
       - ".github/workflows/dotnetcore.yml"
 

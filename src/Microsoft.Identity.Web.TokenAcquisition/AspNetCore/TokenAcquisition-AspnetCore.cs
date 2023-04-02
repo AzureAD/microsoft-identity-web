@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -20,7 +19,7 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 
 namespace Microsoft.Identity.Web
 {
-    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisitionInternal, ITokenAcquirerFactory
+    internal class TokenAcquisitionAspNetCore : TokenAcquisition, ITokenAcquisitionInternal
     {
         /// <summary>
         /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
@@ -160,30 +159,6 @@ namespace Microsoft.Identity.Web
                 userFlow,
                 context!.ProtocolMessage.DomainHint)).ConfigureAwait(false);
             context.HandleCodeRedemption(result.AccessToken!, result.IdToken!);
-        }
-
-        TokenAcquirerFactory_GetTokenAcquirers? _implementation;
-
-        /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string authority, string clientId, IEnumerable<CredentialDescription> clientCredentials, string? region)
-        {
-            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            return _implementation.GetTokenAcquirer(authority, clientId, clientCredentials, region);
-        }
-
-        /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(IdentityApplicationOptions applicationIdentityOptions)
-        {
-            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            return _implementation.GetTokenAcquirer(applicationIdentityOptions);
-        }
-
-        /// <inheritdoc/>
-        public ITokenAcquirer GetTokenAcquirer(string optionName = "")
-        {
-            _implementation ??= new TokenAcquirerFactory_GetTokenAcquirers(_serviceProvider);
-            string effectiveAuthenticationScheme = GetEffectiveAuthenticationScheme(optionName);
-            return _implementation.GetTokenAcquirer(effectiveAuthenticationScheme);
         }
 
         private void CheckParameters(
