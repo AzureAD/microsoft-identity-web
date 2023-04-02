@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test.LabInfrastructure
             defaultcertloader.LoadCredentialsIfNeededAsync(credentialDescription).GetAwaiter().GetResult();
             if (credentialDescription.Certificate == null)
             {
-                Assert.Fail($"Did you install the lab certificate '{credentialDescription.CertificateThumbprint}' in the `Local Machine/Personal` credential store?");
+                throw new ArgumentException ($"Lab cert not found. Did you install the lab certificate '{credentialDescription.CertificateThumbprint}' in the `Local Machine/Personal` credential store?");
             }
             else
             {

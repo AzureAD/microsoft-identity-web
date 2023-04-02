@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web
             {
                 services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
-                services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplentation>();
+                services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
             }
             else
             {

@@ -9,9 +9,9 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultTokenAcquirerFactoryImplentation : ITokenAcquirerFactory
+    internal sealed class DefaultTokenAcquirerFactoryImplementation : ITokenAcquirerFactory
     {
-        public DefaultTokenAcquirerFactoryImplentation(IServiceProvider serviceProvider)
+        public DefaultTokenAcquirerFactoryImplementation(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
         }
