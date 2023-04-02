@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
@@ -190,7 +191,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimsIdentity.DefaultRoleClaimType));
+                    "roles"));
             }
             else
             {
