@@ -12,6 +12,6 @@ updates:
     allow:
       # Allow updates for Lodash
       - dependency-name: "Microsoft.Identity*"
-    lables:
+    labels:
       - "MSAL/IdentityModel"
       - "dependencies"
