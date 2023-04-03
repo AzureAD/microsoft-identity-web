@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web

@@ -22,6 +22,8 @@ namespace Microsoft.Identity.Web
 
             _ = Throws.IfNull(requirement);
 
+            // acct is an optional claim
+            // if it is present, it dictates wether the user is a guest or not
             var acct = context.User.FindFirstValue(Acct);
 
             if (!string.IsNullOrEmpty(acct))
@@ -34,6 +36,8 @@ namespace Microsoft.Identity.Web
                 return Task.CompletedTask;
             }
 
+            // if acct is not present
+            // we can use the iss and idp claim to determine if the user is a guest
             var iss = context.User.FindFirstValue(Iss);
             var idp = context.User.GetIdentityProvider();
 
