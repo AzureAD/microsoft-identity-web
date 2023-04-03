@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
             var iss = context.User.FindFirstValue(Iss);
             var idp = context.User.GetIdentityProvider();
 
-            if (iss == idp)
+            if (!string.IsNullOrEmpty(iss) && iss == idp)
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;
