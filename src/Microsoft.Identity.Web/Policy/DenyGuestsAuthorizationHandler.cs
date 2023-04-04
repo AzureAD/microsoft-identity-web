@@ -7,13 +7,35 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web
 {
+    /// <summary>
+    /// Handler for the <see cref="DenyGuestsAuthorizationRequirement"/>.
+    /// Will prioritize checking the "acct" claim. If it is not present, it will check the "iss" and "idp" claims.
+    /// </summary>
     internal class DenyGuestsAuthorizationsHandler : AuthorizationHandler<DenyGuestsAuthorizationRequirement>
     {
+        /// <summary>
+        /// Account status claim: "acct"
+        /// "0" indicates the user is a member of the tenant.
+        /// "1" indicates the user is a guest of the tenant.
+        /// </summary>
         private const string Acct = "acct";
+
+        /// <summary>
+        /// Tenant Member value of the Account Status claim: "0"
+        /// </summary>
         private const string TenantMember = "0";
 
+        /// <summary>
+        /// Issuer claim: "iss"
+        /// </summary>
         private const string Iss = "iss";
 
+        /// <summary>
+        /// Makes a decision if authorization is allowed based on a specific requirement.
+        /// </summary>
+        /// <param name="context">AuthorizationHandlerContext.</param>
+        /// <param name="requirement">Deny Guests authorization requirement.</param>
+        /// <returns>Task.</returns>
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             DenyGuestsAuthorizationRequirement requirement)
