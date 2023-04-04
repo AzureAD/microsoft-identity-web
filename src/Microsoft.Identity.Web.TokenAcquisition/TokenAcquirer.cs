@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Web
                 Tenant = tokenAcquisitionOptions.Tenant,
                 UserFlow = tokenAcquisitionOptions.UserFlow,
                 PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
-                JwkClaim = tokenAcquisitionOptions.JwkClaim,
+                PopClaim = tokenAcquisitionOptions.PopClaim,
             };
         }
     }

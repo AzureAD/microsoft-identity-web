@@ -175,7 +175,7 @@ namespace TokenAcquirerTests
                    new TokenAcquisitionOptions()
                    {
                        PopPublicKey = rsaSecurityKey.KeyId,
-                       JwkClaim = CreateJwkClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
+                       PopClaim = CreateJwkClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
                    });
             Assert.NotNull(result.AccessToken);
         }
