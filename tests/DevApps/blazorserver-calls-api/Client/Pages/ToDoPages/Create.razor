@@ -1,8 +1,9 @@
 ﻿@page "/create"
 
 @using ToDoListModel
+@using Microsoft.Identity.Abstractions
 
-@inject ToDoListService ToDoListService
+@inject IDownstreamApi _downstreamApi
 @inject NavigationManager Navigation
 
 <h3>Create Task</h3>
@@ -14,7 +15,7 @@
     protected ToDo toDo = new ToDo();
     protected async Task AddTask()
     {
-        await ToDoListService.AddAsync(toDo);
+        await _downstreamApi.PostForUserAsync("TodoList", toDo);
         Navigation.NavigateTo("todolist");
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
@@ -10,24 +11,22 @@ namespace blazorserver_client.Pages.ToDoPages
 
     public class ToDoListBase : ComponentBase
     {
-        [Inject]
-        ToDoListService ToDoListService { get; set; }
 
         [Inject]
         MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler { get; set; }
 
         [Inject]
-        NavigationManager Navigation { get; set; }
+        IDownstreamApi _downstreamApi { get; set; }
 
         protected IEnumerable<ToDo> toDoList = new List<ToDo>();
-        
+
         protected ToDo toDo = new ToDo();
-       
+
         protected override async Task OnInitializedAsync()
         {
             await GetToDoListService();
         }
-       
+
         /// <summary>
         /// Gets all todo list items.
         /// </summary>
@@ -37,7 +36,7 @@ namespace blazorserver_client.Pages.ToDoPages
         {
             try
             {
-                toDoList = await ToDoListService.GetAsync();
+                toDoList = await _downstreamApi.GetForUserAsync<IEnumerable<ToDo>>("TodoList");
             }
             catch (Exception ex)
             {
@@ -55,7 +54,9 @@ namespace blazorserver_client.Pages.ToDoPages
         /// <returns></returns>
         protected async Task DeleteItem(int Id)
         {
-            await ToDoListService.DeleteAsync(Id);
+            await _downstreamApi.DeleteForUserAsync<ToDo>(
+                "TodoList", toDo,
+                options => options.RelativePath = $"api/todolist/{Id}");
             await GetToDoListService();
         }
     }
