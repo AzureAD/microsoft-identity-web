@@ -372,7 +372,7 @@ namespace Microsoft.Identity.Web
                 }
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.PopPublicKey))
                 {
-                    if (string.IsNullOrEmpty(tokenAcquisitionOptions.JwkClaim))
+                    if (string.IsNullOrEmpty(tokenAcquisitionOptions.PopClaim))
                     {
                         builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
                         builder.OnBeforeTokenRequest((data) =>
@@ -387,7 +387,7 @@ namespace Microsoft.Identity.Web
                         builder.WithAtPop(
                             application.AppConfig.ClientCredentialCertificate,
                             tokenAcquisitionOptions.PopPublicKey!,
-                            tokenAcquisitionOptions.JwkClaim!,
+                            tokenAcquisitionOptions.PopClaim!,
                             application.AppConfig.ClientId);
                     }
                 }
