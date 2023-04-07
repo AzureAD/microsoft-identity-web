@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
                 Claims = Claims,
                 PoPConfiguration = PoPConfiguration,
                 PopPublicKey = PopPublicKey,
-                JwkClaim = JwkClaim,
+                PopClaim = PopClaim,
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
             };
