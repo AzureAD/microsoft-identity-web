@@ -33,5 +33,22 @@ namespace Microsoft.Identity.Web
 
             return authority;
         }
+
+        internal static string? BuildCiamAuthorityIfNeeded(string? authority)
+        {
+            const string ciamAuthority = ".ciamlogin.com";
+            if (authority != null && authority.Contains(ciamAuthority, StringComparison.OrdinalIgnoreCase))
+            {
+                Uri baseUri = new Uri(authority);
+                string host = baseUri.Host;
+                if (host.EndsWith(ciamAuthority, StringComparison.OrdinalIgnoreCase)
+                    && baseUri.AbsolutePath == "/")
+                {
+                    string tenantId = host.Substring(0, host.IndexOf(ciamAuthority, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
+                    return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
+                }
+            }
+            return authority;
+        }
     }
 }

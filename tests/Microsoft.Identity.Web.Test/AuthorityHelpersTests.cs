@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
@@ -61,6 +62,36 @@ namespace Microsoft.Identity.Web.Test
             string expectedResult = $"{TestConstants.AadInstance}/{options.TenantId}/v2.0";
 
             string result = AuthorityHelpers.BuildAuthority(options);
+
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void BuildAuthority_CiamAuthority_ReturnsValidAadAuthority()
+        {
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Authority = "https://tenant.ciamlogin.com/"
+            };
+            string expectedResult = options.Authority + "tenant.onmicrosoft.com/v2.0";
+
+            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
+
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void BuildAuthority_CiamAuthorityWithTenant_ReturnsValidAadAuthority()
+        {
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                Authority = "https://tenant.ciamlogin.com/anything"
+            };
+            string expectedResult = options.Authority ;
+
+            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
 
             Assert.NotNull(result);
             Assert.Equal(expectedResult, result);
