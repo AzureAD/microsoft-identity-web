@@ -20,17 +20,15 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             _tokenAcquisition = tokenAcquisition;
         }
 
-        [HttpPut]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
         
-        [HttpPost]
+        [HttpGet]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
