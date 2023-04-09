@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
                     && baseUri.AbsolutePath == "/")
                 {
                     string tenantId = host.Substring(0, host.IndexOf(ciamAuthority, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
-                    return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
+                    return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}")).ToString();
                 }
             }
             return authority;
