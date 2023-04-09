@@ -164,6 +164,7 @@ namespace Microsoft.Identity.Web
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
+                    mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
 
                     MergedOptionsValidation.Validate(mergedOptions);
 

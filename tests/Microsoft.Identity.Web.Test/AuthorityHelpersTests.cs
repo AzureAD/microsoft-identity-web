@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 Authority = "https://tenant.ciamlogin.com/"
             };
-            string expectedResult = options.Authority + "tenant.onmicrosoft.com/v2.0";
+            string expectedResult = options.Authority + "tenant.onmicrosoft.com";
 
             string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
 
