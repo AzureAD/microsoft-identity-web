@@ -289,6 +289,12 @@ namespace Microsoft.Identity.Web
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
                     MergedOptionsValidation.Validate(mergedOptions);
+
+                    if (mergedOptions.Authority != null)
+                    {
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                    }
+
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(

@@ -83,7 +83,13 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
-                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option => instance.Configuration.GetSection(configSection).Bind(option));
+                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                {
+                    instance.Configuration.GetSection(configSection).Bind(option);
+
+                    // This is temporary and will be removed eventually.
+                    CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                });
                 instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }
@@ -112,7 +118,13 @@ namespace Microsoft.Identity.Web
                 defaultInstance = instance;
                 instance.Services.AddTokenAcquisition();
                 instance.Services.AddHttpClient();
-                instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>(string.Empty);
+                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                {
+                    instance.Configuration.GetSection(configSection).Bind(option);
+
+                    // This is temporary and will be removed eventually.
+                    CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                });
                 instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                 instance.Services.AddSingleton(defaultInstance.Configuration);
             }

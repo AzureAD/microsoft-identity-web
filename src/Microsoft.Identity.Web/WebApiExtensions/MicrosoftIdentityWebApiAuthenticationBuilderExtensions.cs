@@ -165,6 +165,11 @@ namespace Microsoft.Identity.Web
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
+                    if (mergedOptions.Authority != null)
+                    {
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                    }
+
                     MergedOptionsValidation.Validate(mergedOptions);
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
