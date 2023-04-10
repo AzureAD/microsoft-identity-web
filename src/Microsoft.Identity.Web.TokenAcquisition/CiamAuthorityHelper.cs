@@ -7,6 +7,8 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
+
+    // This class is temporary. Will be removed when the authority supports the right pattern.
     internal class CiamAuthorityHelper
     {
         internal static void BuildCiamAuthorityIfNeeded(MicrosoftIdentityApplicationOptions options)

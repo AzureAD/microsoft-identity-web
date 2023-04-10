@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web.Test
     public class CiamAuthorityHelperTest
     {
         [Fact]
-        public void NotCiam()
+        public void CiamHelperWithNonCiamAuthority()
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void CiamTenantSpecified()
+        public void CiamHelperWithCiamTenantSpecified()
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void CiamTenantInferredFromAuthority()
+        public void CiamHelperWithCiamTenantInferredFromAuthority()
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void CiamTenantInferredFromInstance()
+        public void CiamHelperWithCiamTenantInferredFromInstance()
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
