@@ -36,15 +36,14 @@ namespace Microsoft.Identity.Web
 
         internal static string? BuildCiamAuthorityIfNeeded(string? authority)
         {
-            const string ciamAuthority = ".ciamlogin.com";
-            if (authority != null && authority.Contains(ciamAuthority, StringComparison.OrdinalIgnoreCase))
+            if (authority != null && authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
             {
                 Uri baseUri = new Uri(authority);
                 string host = baseUri.Host;
-                if (host.EndsWith(ciamAuthority, StringComparison.OrdinalIgnoreCase)
+                if (host.EndsWith(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)
                     && baseUri.AbsolutePath == "/")
                 {
-                    string tenantId = host.Substring(0, host.IndexOf(ciamAuthority, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
+                    string tenantId = host.Substring(0, host.IndexOf(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
                     return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}")).ToString();
                 }
             }

@@ -11,12 +11,14 @@ namespace Microsoft.Identity.Web
     {
         internal static void BuildCiamAuthorityIfNeeded(MicrosoftIdentityApplicationOptions options)
         {
-            const string ciamAuthority = ".ciamlogin.com";
             string? authority = options.Authority;
 
-            // Case where the instance is given with tenant.ciamlogin.com, and not tenant Id
-            // We trim the v2.0
-            if (authority != null)
+            if (authority != null
+#if NET462 || NET472 || NETSTANDARD2_0
+                && authority.Contains(Constants.CiamAuthoritySuffix))
+#else
+                && authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
+#endif
             {
                 if (authority.EndsWith("//v2.0", StringComparison.OrdinalIgnoreCase))
                 {
@@ -26,21 +28,13 @@ namespace Microsoft.Identity.Web
                 {
                     authority = authority.Substring(0, authority.Length - 4);
                 }
-            }
 
-            if (authority != null
-#if NET462 || NET472 || NETSTANDARD2_0
-                && authority.Contains(ciamAuthority))
-#else
-                && authority.Contains(ciamAuthority, StringComparison.OrdinalIgnoreCase))
-#endif
-            {
                 Uri baseUri = new Uri(authority);
                 string host = baseUri.Host;
-                if (host.EndsWith(ciamAuthority, StringComparison.OrdinalIgnoreCase)
+                if (host.EndsWith(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)
                     && baseUri.AbsolutePath == "/")
                 {
-                    string tenantId = host.Substring(0, host.IndexOf(ciamAuthority, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
+                    string tenantId = host.Substring(0, host.IndexOf(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
                     options.Authority = new Uri(baseUri, $"{baseUri.PathAndQuery}{tenantId}/v2.0").ToString();
                     options.Instance = new Uri(baseUri, $"{baseUri.PathAndQuery}").ToString();
                     options.TenantId = tenantId;

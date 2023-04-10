@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -13,13 +14,13 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
-                Instance = "https://login.microsoftonline.com/",
-                TenantId = "common"
+                Instance = TestConstants.AadInstance +"/",
+                TenantId = TestConstants.Organizations
             };
 
             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(options);
-            Assert.Equal("https://login.microsoftonline.com/common/v2.0", options.Authority);
-            Assert.Equal("common", options.TenantId);
+            Assert.Equal(TestConstants.AuthorityOrganizationsWithV2, options.Authority);
+            Assert.Equal(TestConstants.Organizations, options.TenantId);
         }
 
         [Fact]
@@ -27,14 +28,14 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
-                Instance = "https://tenant.ciamlogin.com/",
-                TenantId = "aDomain"
+                Instance = $"https://tenant{Constants.CiamAuthoritySuffix}/",
+                TenantId = TestConstants.B2CCustomDomainTenant
             };
 
             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(options);
-            Assert.Equal("https://tenant.ciamlogin.com/aDomain/v2.0", options.Authority);
-            Assert.Equal("aDomain", options.TenantId);
-            Assert.Equal("https://tenant.ciamlogin.com/", options.Instance);
+            Assert.Equal($"https://tenant{Constants.CiamAuthoritySuffix}/{TestConstants.B2CCustomDomainTenant}/v2.0", options.Authority);
+            Assert.Equal(TestConstants.B2CCustomDomainTenant, options.TenantId);
+            Assert.Equal($"https://tenant{Constants.CiamAuthoritySuffix}/", options.Instance);
         }
 
         [Fact]
@@ -42,13 +43,13 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
-                Instance = "https://tenant.ciamlogin.com/",
+                Instance = $"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/",
             };
 
             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(options);
-            Assert.Equal("https://tenant.ciamlogin.com/tenant.onmicrosoft.com/v2.0", options.Authority);
-            Assert.Equal("tenant.onmicrosoft.com", options.TenantId);
-            Assert.Equal("https://tenant.ciamlogin.com/", options.Instance);
+            Assert.Equal($"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/{TestConstants.B2CCustomDomainTenant}/v2.0", options.Authority);
+            Assert.Equal(TestConstants.B2CCustomDomainTenant, options.TenantId);
+            Assert.Equal($"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/", options.Instance);
         }
 
         [Fact]
@@ -56,13 +57,13 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityApplicationOptions options = new MicrosoftIdentityApplicationOptions
             {
-                Authority = "https://tenant.ciamlogin.com/",
+                Authority = $"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/",
             };
 
             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(options);
-            Assert.Equal("https://tenant.ciamlogin.com/tenant.onmicrosoft.com/v2.0", options.Authority);
-            Assert.Equal("tenant.onmicrosoft.com", options.TenantId);
-            Assert.Equal("https://tenant.ciamlogin.com/", options.Instance);
+            Assert.Equal($"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/{TestConstants.B2CCustomDomainTenant}/v2.0", options.Authority);
+            Assert.Equal(TestConstants.B2CCustomDomainTenant, options.TenantId);
+            Assert.Equal($"https://cpimtestpartners{Constants.CiamAuthoritySuffix}/", options.Instance);
         }
     }
 }

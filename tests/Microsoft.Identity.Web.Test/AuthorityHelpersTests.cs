@@ -72,9 +72,9 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
-                Authority = "https://tenant.ciamlogin.com/"
+                Authority = $"https://contoso{Constants.CiamAuthoritySuffix}/"
             };
-            string expectedResult = options.Authority + "tenant.onmicrosoft.com";
+            string expectedResult = options.Authority + TestConstants.Domain;
 
             string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
 
@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Web.Test
         {
             MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
             {
-                Authority = "https://tenant.ciamlogin.com/anything"
+                Authority = $"https://contoso{Constants.CiamAuthoritySuffix}/{TestConstants.TenantIdAsGuid}/"
             };
             string expectedResult = options.Authority ;
 
