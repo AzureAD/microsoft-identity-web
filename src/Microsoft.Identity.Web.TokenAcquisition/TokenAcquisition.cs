@@ -133,6 +133,11 @@ namespace Microsoft.Identity.Web
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
+                if (mergedOptions.ExtraQueryParameters != null)
+                {
+                    builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+                }
+
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
                 {
                     builder.WithTenantId(authCodeRedemptionParameters.Tenant);
@@ -352,9 +357,11 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+                if (dict != null)
                 {
-                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                    builder.WithExtraQueryParameters(dict);
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -597,7 +604,7 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithClientCredentials(
                         mergedOptions.ClientCredentials!,
-                        _logger, 
+                        _logger,
                         _credentialsLoader,
                         new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
                 }
@@ -707,9 +714,11 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
-                        if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                        var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+                        if (dict != null)
                         {
-                            builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                            builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -842,9 +851,11 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+                var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+                if (dict != null)
                 {
-                    builder.WithExtraQueryParameters(new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters));
+                        builder.WithExtraQueryParameters(dict);
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -882,6 +893,27 @@ namespace Microsoft.Identity.Web
             }
 
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+        }
+
+        internal static Dictionary<string, string>? MergeExtraQueryParameters(
+            MergedOptions mergedOptions,
+            TokenAcquisitionOptions tokenAcquisitionOptions)
+        {
+            if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+            {
+                var mergedDict = new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters);
+                if (mergedOptions.ExtraQueryParameters != null)
+                {                    
+                    foreach (var pair in mergedOptions!.ExtraQueryParameters)
+                    {
+                        if (!mergedDict!.ContainsKey(pair.Key))
+                            mergedDict.Add(pair.Key, pair.Value);
+                    }                   
+                }
+                return mergedDict;
+            }
+            
+            return (Dictionary<string, string>?)mergedOptions.ExtraQueryParameters;
         }
 
         protected static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

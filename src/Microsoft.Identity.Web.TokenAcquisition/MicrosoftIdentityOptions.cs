@@ -208,5 +208,10 @@ namespace Microsoft.Identity.Web
         /// which is the value used by Microsoft.Identity.Web.UI.
         /// </summary>
         public PathString? ErrorPath { get; set; } = Constants.ErrorPath;
+
+        /// <summary>
+        /// Sets query parameters for the query string in the HTTP request to the IdP.
+        /// </summary>
+        public IDictionary<string, string>? ExtraQueryParameters { get; set; }
     }
 }

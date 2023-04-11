@@ -129,6 +129,7 @@ namespace Microsoft.Identity.Web
         internal const string InvalidClient = "invalid_client";
         internal const string InvalidKeyError = "AADSTS700027";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
+        internal const string TestSlice = "dc";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
