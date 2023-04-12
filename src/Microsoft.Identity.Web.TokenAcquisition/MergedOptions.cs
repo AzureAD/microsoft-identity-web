@@ -296,6 +296,11 @@ namespace Microsoft.Identity.Web
             mergedOptions.ClientCredentialsUsingManagedIdentity ??= microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity;
 
             mergedOptions._confidentialClientApplicationOptions = null;
+
+            if ((mergedOptions.ExtraQueryParameters == null || !mergedOptions.ExtraQueryParameters.Any()) && microsoftIdentityOptions.ExtraQueryParameters != null)
+            {
+                mergedOptions.ExtraQueryParameters = microsoftIdentityOptions.ExtraQueryParameters;
+            }
         }
 
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
@@ -518,6 +523,12 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.TokenDecryptionCredentials = microsoftIdentityApplicationOptions.TokenDecryptionCredentials;
             }
+
+            if ((mergedOptions.ExtraQueryParameters == null || !mergedOptions.ExtraQueryParameters.Any()) && microsoftIdentityApplicationOptions.ExtraQueryParameters != null)
+            {
+                mergedOptions.ExtraQueryParameters = microsoftIdentityApplicationOptions.ExtraQueryParameters;
+            }
+
         }
 
         private static IEnumerable<CredentialDescription> ComputeFromLegacyClientCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)

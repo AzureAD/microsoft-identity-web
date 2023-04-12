@@ -168,6 +168,10 @@ namespace Microsoft.Identity.Web
                     if (mergedOptions.Authority != null)
                     {
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                        if (mergedOptions.ExtraQueryParameters != null)
+                        {
+                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                        }
                     }
 
                     MergedOptionsValidation.Validate(mergedOptions);
