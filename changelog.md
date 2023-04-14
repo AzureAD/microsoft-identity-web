@@ -2,6 +2,8 @@
 ==========
 ### New features:
 - ID Web works with Authority in place of Tenant ID and Domain. See [#2160](https://github.com/AzureAD/microsoft-identity-web/pull/2160)
+- ID Web now supports CIAM authorities.
+- Abstractions is now updated to version 3.1.0
 ### Bug fixes:
 - Fixed a bug causing ClaimsIdentity.RoleClaimType to always be "roles" when using App Service Authentication. See [#2166](https://github.com/AzureAD/microsoft-identity-web/pull/2166)
 
