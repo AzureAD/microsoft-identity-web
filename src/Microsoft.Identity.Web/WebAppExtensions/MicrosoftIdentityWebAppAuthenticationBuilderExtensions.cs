@@ -226,7 +226,7 @@ namespace Microsoft.Identity.Web
             {
                 builder.Services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }
-            
+
             builder.Services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             builder.Services.AddHttpClient();
@@ -289,6 +289,16 @@ namespace Microsoft.Identity.Web
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
                     MergedOptionsValidation.Validate(mergedOptions);
+
+                    if (mergedOptions.Authority != null)
+                    {
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                        if (mergedOptions.ExtraQueryParameters != null)
+                        {
+                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                        }
+                    }
+
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
@@ -367,6 +377,14 @@ namespace Microsoft.Identity.Web
                             context.ProtocolMessage.SetParameter(
                                 OidcConstants.AdditionalClaims,
                                 additionClaims);
+                        }
+
+                        if (mergedOptions.ExtraQueryParameters != null)
+                        {
+                            foreach (var ExtraQP in mergedOptions.ExtraQueryParameters)
+                            {
+                                context.ProtocolMessage.SetParameter(ExtraQP.Key, ExtraQP.Value);
+                            }
                         }
 
                         if (mergedOptions.IsB2C)

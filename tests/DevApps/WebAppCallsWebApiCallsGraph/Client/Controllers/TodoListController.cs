@@ -46,8 +46,7 @@ namespace TodoListClient.Controllers
         }
 
         // Create and present to the user (no service call)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public ActionResult Create()
         {
             Todo todo = new Todo() { Owner = HttpContext.User.Identity.Name };

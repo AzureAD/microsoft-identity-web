@@ -175,12 +175,12 @@ namespace TokenAcquirerTests
                    new TokenAcquisitionOptions()
                    {
                        PopPublicKey = rsaSecurityKey.KeyId,
-                       JwkClaim = CreateJwkClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
+                       PopClaim = CreatePopClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
                    });
             Assert.NotNull(result.AccessToken);
         }
 
-        private static string CreateJwkClaim(RsaSecurityKey key, string algorithm)
+        private static string CreatePopClaim(RsaSecurityKey key, string algorithm)
         {
             var parameters = key.Rsa == null ? key.Parameters : key.Rsa.ExportParameters(false);
             return "{\"kty\":\"RSA\",\"n\":\"" + Base64UrlEncoder.Encode(parameters.Modulus) + "\",\"e\":\"" + Base64UrlEncoder.Encode(parameters.Exponent) + "\",\"alg\":\"" + algorithm + "\",\"kid\":\"" + key.KeyId + "\"}";
