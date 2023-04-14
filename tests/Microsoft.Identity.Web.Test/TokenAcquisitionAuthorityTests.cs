@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
@@ -230,6 +231,83 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(TestConstants.AuthorityWithTenantSpecified, mergedOptions.Authority);
             Assert.Equal(TestConstants.AadInstance, mergedOptions.Instance);
             Assert.Equal(TestConstants.TenantIdAsGuid, mergedOptions.TenantId);
+        }
+
+        [Fact]
+        public void MergeExtraQueryParametersTest()
+        {
+            // Arrange
+            var mergedOptions = new MergedOptions
+            {
+                ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            }
+            };
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "key1", "newvalue1" },
+                { "key3", "value3" }
+            }
+            };
+
+            // Act
+            var mergedDict = TokenAcquisition.MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+
+            // Assert
+            Assert.Equal(3, mergedDict!.Count);
+            Assert.Equal("newvalue1", mergedDict["key1"]);
+            Assert.Equal("value2", mergedDict["key2"]);
+            Assert.Equal("value3", mergedDict["key3"]);
+        }
+
+        [Fact]
+        public void MergeExtraQueryParameters_TokenAcquisitionOptionsNull_Test()
+        {
+            // Arrange
+            var mergedOptions = new MergedOptions
+            {
+                ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            }
+            };
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraQueryParameters = null,
+            };
+
+            // Act
+            var mergedDict = TokenAcquisition.MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+            // Assert
+            Assert.Equal("value1", mergedDict!["key1"]);
+            Assert.Equal("value2", mergedDict["key2"]);
+        }
+
+        [Fact]
+        public void MergeExtraQueryParameters_MergedOptionsNull_Test()
+        {
+            // Arrange
+            var mergedOptions = new MergedOptions
+            {
+                ExtraQueryParameters = null,
+            };
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraQueryParameters = null,
+            };
+
+            // Act
+            var mergedDict = TokenAcquisition.MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+
+            // Assert
+            Assert.Null(mergedDict);
         }
     }
 }

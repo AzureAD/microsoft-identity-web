@@ -10,9 +10,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj" />
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\ToDoListModel\ToDoListModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>

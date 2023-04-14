@@ -3,16 +3,17 @@
 @using ToDoListModel
 @using Microsoft.Identity.Abstractions
 
-@inject IDownstreamApi _downstreamApi
 @inject NavigationManager Navigation
+@inject IDownstreamApi _downstreamApi
 
 <h3>Create Task</h3>
 
 <CommonForm ButtonText="Add Task" ToDoItem="@toDo"
-      OnValidSubmit="@AddTask" />
+            OnValidSubmit="@AddTask" />
 
 @code {
     protected ToDo toDo = new ToDo();
+
     protected async Task AddTask()
     {
         await _downstreamApi.PostForUserAsync("TodoList", toDo);

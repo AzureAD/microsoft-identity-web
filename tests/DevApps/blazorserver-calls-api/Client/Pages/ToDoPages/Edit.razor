@@ -23,9 +23,9 @@
 
     protected async Task EditTask()
     {
-        await _downstreamApi.CallApiForUserAsync<ToDo, ToDo>(
+        await _downstreamApi.PatchForUserAsync<ToDo, ToDo>(
                  "TodoList", toDo,
-                 options => { options.RelativePath = $"api/todolist/{Id}"; options.HttpMethod = HttpMethod.Patch; });
+                 options => options.RelativePath = $"api/todolist/{Id}");
         Navigation.NavigateTo("todolist");
     }
 }
