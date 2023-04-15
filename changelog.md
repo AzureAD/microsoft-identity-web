@@ -1,3 +1,10 @@
+2.9.0
+==========
+- Update to Wilson 6.29.0 and MSAL.NET 4.53.0
+
+### Bug Fix:
+- **The [ASP.NET Core regression](https://github.com/dotnet/razor/issues/7577) between .NET 5 and 6 with Razor Pages**, is now addressed with Microsoft.Identity.Web.UI targeting .NET 5 until a more permanent solution is found. See issues [#2111](https://github.com/AzureAD/microsoft-identity-web/issues/2111), [#2095](https://github.com/AzureAD/microsoft-identity-web/issues/2095) and [#2183](https://github.com/AzureAD/microsoft-identity-web/issues/2183) for details.
+
 2.8.0
 ==========
 ### New features:
