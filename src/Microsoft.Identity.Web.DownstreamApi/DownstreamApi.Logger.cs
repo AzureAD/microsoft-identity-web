@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web
@@ -16,10 +17,16 @@ namespace Microsoft.Identity.Web
             private static readonly Action<ILogger, string, string, Exception?> s_effectiveOptionsError =
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug, 
-                    new EventId(400, "EffectiveOptions"), 
-                    "[MsIdWeb] An error occurred during Get: " + 
+                    DownstreamApiLoggingEventId.EffectiveOptionsError, 
+                    "[MsIdWeb] An error occurred during Get. " + 
                     "BaseUrl: {BaseUrl} " +
                     "RelativePath: {RelativePath} ");
+
+            private static readonly Action<ILogger, Exception?> s_unauthenticatedApiCall =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    DownstreamApiLoggingEventId.UnauthenticatedApiCall, 
+                    "[MsIdWeb] An unauthenticated call was made to the Api with null Scopes");
 
 
             /// <summary>
@@ -34,6 +41,15 @@ namespace Microsoft.Identity.Web
                 string BaseUrl, 
                 string RelativePath, 
                 Exception? ex) => s_effectiveOptionsError(logger, BaseUrl, RelativePath, ex);
+
+            /// <summary>
+            /// Logger for unauthenticated internal Api call in DownstreamApi
+            /// </summary>
+            /// <param name="logger">Logger</param>
+            /// <param name="ex">Exception</param>
+            public static void UnauthenticatedApiCall(
+                ILogger logger,
+                Exception? ex) => s_unauthenticatedApiCall(logger, ex);
         }
     }
 }

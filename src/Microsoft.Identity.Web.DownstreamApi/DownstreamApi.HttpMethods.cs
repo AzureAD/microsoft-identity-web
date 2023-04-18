@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -22,9 +23,22 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
-
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            
+            try
+            {
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.EffectiveOptionsError(
+                    _logger, 
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>

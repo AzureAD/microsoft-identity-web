@@ -311,6 +311,10 @@ namespace Microsoft.Identity.Web
                                             cancellationToken).ConfigureAwait(false);
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
+            else
+            {
+                Logger.UnauthenticatedApiCall(_logger, null);
+            }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
 
