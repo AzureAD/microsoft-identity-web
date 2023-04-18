@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web

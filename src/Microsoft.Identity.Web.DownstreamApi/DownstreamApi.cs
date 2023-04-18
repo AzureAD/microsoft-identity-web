@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Web
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
-        private const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         private const string Authorization = "Authorization";
         protected readonly ILogger<DownstreamApi> _logger;
 

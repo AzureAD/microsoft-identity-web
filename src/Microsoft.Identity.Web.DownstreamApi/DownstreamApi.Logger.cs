@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// LoggerMessage class for DownstreamApi
+    /// LoggerMessage class for DownstreamApi.
     /// </summary>
     internal partial class DownstreamApi
     {
@@ -31,13 +30,13 @@ namespace Microsoft.Identity.Web
 
 
             /// <summary>
-            /// Logger for handling options exceptions in DownstreamApi
+            /// Logger for handling options exceptions in DownstreamApi.
             /// </summary>
-            /// <param name="logger">ILogger</param>
-            /// <param name="ServiceName">Name of Api receiving request</param>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="ServiceName">Name of API receiving request.</param>
             /// <param name="BaseUrl">Base url from appsettings.</param>
             /// <param name="RelativePath">Relative path from appsettings.</param>
-            /// <param name="ex">Exception</param>
+            /// <param name="ex">Exception.</param>
             public static void HttpRequestError(
                 ILogger logger, 
                 string ServiceName,
@@ -46,10 +45,10 @@ namespace Microsoft.Identity.Web
                 Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, ex);
 
             /// <summary>
-            /// Logger for unauthenticated internal Api call in DownstreamApi
+            /// Logger for unauthenticated internal API call in DownstreamApi.
             /// </summary>
-            /// <param name="logger">Logger</param>
-            /// <param name="ex">Exception</param>
+            /// <param name="logger">Logger.</param>
+            /// <param name="ex">Exception.</param>
             public static void UnauthenticatedApiCall(
                 ILogger logger,
                 Exception? ex) => s_unauthenticatedApiCall(logger, ex);
