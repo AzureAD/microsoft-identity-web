@@ -14,12 +14,13 @@ namespace Microsoft.Identity.Web
     {
         internal static class Logger
         {
-            private static readonly Action<ILogger, string, string, Exception?> s_effectiveOptionsError =
-                LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, string, string, Exception?> s_httpRequestError =
+                LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug, 
-                    DownstreamApiLoggingEventId.EffectiveOptionsError, 
-                    "[MsIdWeb] An error occurred during Get. " + 
-                    "BaseUrl: {BaseUrl} " +
+                    DownstreamApiLoggingEventId.HttpRequestError, 
+                    "[MsIdWeb] An error occurred during HTTP Request. " + 
+                    "ServiceName: {serviceName}, " +
+                    "BaseUrl: {BaseUrl}, " +
                     "RelativePath: {RelativePath} ");
 
             private static readonly Action<ILogger, Exception?> s_unauthenticatedApiCall =
@@ -33,14 +34,16 @@ namespace Microsoft.Identity.Web
             /// Logger for handling options exceptions in DownstreamApi
             /// </summary>
             /// <param name="logger">ILogger</param>
+            /// <param name="ServiceName">Name of Api receiving request</param>
             /// <param name="BaseUrl">Base url from appsettings.</param>
             /// <param name="RelativePath">Relative path from appsettings.</param>
             /// <param name="ex">Exception</param>
-            public static void EffectiveOptionsError(
+            public static void HttpRequestError(
                 ILogger logger, 
+                string ServiceName,
                 string BaseUrl, 
                 string RelativePath, 
-                Exception? ex) => s_effectiveOptionsError(logger, BaseUrl, RelativePath, ex);
+                Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, ex);
 
             /// <summary>
             /// Logger for unauthenticated internal Api call in DownstreamApi

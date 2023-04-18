@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
     {
 #pragma warning disable IDE1006 // Naming styles
         // DownstreamApi EventIds 100+
-        public static readonly EventId EffectiveOptionsError = new EventId(100, "EffectiveOptionsError");
+        public static readonly EventId HttpRequestError = new EventId(100, "HttpRequestError");
         public static readonly EventId UnauthenticatedApiCall = new EventId(101, "UnauthenticatedApiCall");
 #pragma warning restore IDE1006 // Naming styles
     }

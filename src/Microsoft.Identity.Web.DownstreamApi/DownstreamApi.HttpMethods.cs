@@ -33,8 +33,9 @@ namespace Microsoft.Identity.Web
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
-                Logger.EffectiveOptionsError(
+                Logger.HttpRequestError(
                     _logger, 
+                    serviceName!,
                     effectiveOptions.BaseUrl!, 
                     effectiveOptions.RelativePath!, ex);
                 throw;
