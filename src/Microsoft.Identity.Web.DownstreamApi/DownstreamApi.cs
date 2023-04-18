@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
@@ -21,8 +22,8 @@ namespace Microsoft.Identity.Web
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
-        private const string ScopesNotConfiguredInConfigurationOrViaDelegate = "IDW10107: Scopes need to be passed-in either by configuration or by the delegate overriding it. ";
         private const string Authorization = "Authorization";
+        protected readonly ILogger<DownstreamApi> _logger;
 
         /// <summary>
         /// Constructor.
@@ -30,14 +31,17 @@ namespace Microsoft.Identity.Web
         /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="logger">Logger.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            ILogger<DownstreamApi> logger)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -305,6 +309,10 @@ namespace Microsoft.Identity.Web
                                             user,
                                             cancellationToken).ConfigureAwait(false);
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+            }
+            else
+            {
+                Logger.UnauthenticatedApiCall(_logger, null);
             }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
