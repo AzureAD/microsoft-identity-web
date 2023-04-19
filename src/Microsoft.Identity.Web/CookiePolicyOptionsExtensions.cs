@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Web
 
             bool IsChromiumVersionAtLeast(int major)
             {
-                const string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]* ";
+                const string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]*";
 
                 // Extract digits from first capturing group.
                 Match match = Regex.Match(userAgent, regex);
