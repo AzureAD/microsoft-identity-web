@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
-            
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
@@ -52,14 +51,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -70,9 +83,22 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
-
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            try
+            {
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -85,14 +111,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -105,12 +145,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -125,14 +179,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -144,12 +212,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -163,14 +245,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -183,12 +279,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -203,14 +313,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -222,12 +346,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -241,14 +379,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
 #if !NETFRAMEWORK && !NETSTANDARD2_0
@@ -263,12 +415,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -283,14 +449,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -302,12 +482,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -321,14 +515,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
 #endif // !NETFRAMEWORK && !NETSTANDARD2_0
@@ -343,12 +551,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -363,14 +585,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -382,12 +618,26 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
             }
         }
 
@@ -401,14 +651,28 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
-
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
     }
 }
