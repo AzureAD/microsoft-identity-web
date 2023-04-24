@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,9 @@ namespace Microsoft.Identity.Web
         /// <param name="context">AuthorizationHandlerContext.</param>
         /// <param name="requirement">Scope authorization requirement.</param>
         /// <returns>Task.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue<T>(String).")]
+#endif
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             ScopeAuthorizationRequirement requirement)

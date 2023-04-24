@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Logging;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.NetworkInformation;
 
 namespace Microsoft.Identity.Web
 {
@@ -22,6 +24,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">The services being configured.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
         protected MicrosoftIdentityBaseAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
