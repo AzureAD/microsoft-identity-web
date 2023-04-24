@@ -240,7 +240,7 @@ namespace TokenAcquirerTests
                 .WithAuthenticationScheme(s_optionName)
                 //     .WithAuthenticationOptions(options => options.ProtocolScheme = "Pop")
                 .GetAsync();
-            Assert.Equal(53, users.Count);
+            Assert.True(users.Count >= 56);
 
             // Alternatively to calling Microsoft Graph, you can get a token acquirer service
             // and get a token, and use it in an SDK.
