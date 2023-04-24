@@ -3,5 +3,7 @@
   <PropertyGroup>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PublishTrimmed>true</PublishTrimmed>
+    <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
 </Project>
