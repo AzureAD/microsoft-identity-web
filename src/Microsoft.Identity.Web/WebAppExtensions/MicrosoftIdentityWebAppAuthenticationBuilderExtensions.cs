@@ -128,6 +128,7 @@ namespace Microsoft.Identity.Web
             string? displayName = null)
         {
             _ = Throws.IfNull(builder);
+
             return builder.AddMicrosoftWebAppWithoutConfiguration(
                 configureMicrosoftIdentityOptions,
                 configureCookieAuthenticationOptions,
