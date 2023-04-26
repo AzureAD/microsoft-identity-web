@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Abstractions;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Logging;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.NetworkInformation;
 
 namespace Microsoft.Identity.Web
 {

@@ -73,9 +73,9 @@ namespace Microsoft.Identity.Web
         [RequiresUnreferencedCode("Microsoft.Identity.Web.DownstreamApiExtensions.AddDownstreamApi(IServiceCollection, String, IConfiguration).")]
 #endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApi(
-        this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
-        string serviceName,
-        IConfiguration configuration)
+            this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
+            string serviceName,
+            IConfiguration configuration)
         {
             _ = Throws.IfNull(builder);
 

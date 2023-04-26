@@ -119,21 +119,21 @@ namespace Microsoft.Identity.Web
         [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(AuthenticationBuilder, Action<MicrosoftIdentityOptions>, Action<CookieAuthenticationOptions>, String, String, Boolean, String).")]
 #endif
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftIdentityWebApp(
-        this AuthenticationBuilder builder,
-        Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-        Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
-        string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-        string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-        bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
-        string? displayName = null)
+            this AuthenticationBuilder builder,
+            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
+            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+            string? displayName = null)
         {
             _ = Throws.IfNull(builder);
             return builder.AddMicrosoftWebAppWithoutConfiguration(
-            configureMicrosoftIdentityOptions,
-            configureCookieAuthenticationOptions,
-            openIdConnectScheme,
-            cookieScheme,
-            subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                configureMicrosoftIdentityOptions,
+                configureCookieAuthenticationOptions,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 displayName);
         }
 
