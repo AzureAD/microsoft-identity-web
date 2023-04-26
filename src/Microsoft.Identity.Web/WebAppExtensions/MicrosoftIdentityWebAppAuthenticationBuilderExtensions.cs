@@ -115,23 +115,25 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(AuthenticationBuilder, Action<MicrosoftIdentityOptions>, Action<CookieAuthenticationOptions>, String, String, Boolean, String).")]
+#endif
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftIdentityWebApp(
-            this AuthenticationBuilder builder,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
-            Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
-            string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
-            string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
-            string? displayName = null)
+        this AuthenticationBuilder builder,
+        Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+        Action<CookieAuthenticationOptions>? configureCookieAuthenticationOptions = null,
+        string openIdConnectScheme = OpenIdConnectDefaults.AuthenticationScheme,
+        string? cookieScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+        bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
+        string? displayName = null)
         {
             _ = Throws.IfNull(builder);
-
             return builder.AddMicrosoftWebAppWithoutConfiguration(
-                configureMicrosoftIdentityOptions,
-                configureCookieAuthenticationOptions,
-                openIdConnectScheme,
-                cookieScheme,
-                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+            configureMicrosoftIdentityOptions,
+            configureCookieAuthenticationOptions,
+            openIdConnectScheme,
+            cookieScheme,
+            subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 displayName);
         }
 
@@ -147,6 +149,9 @@ namespace Microsoft.Identity.Web
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER        
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         private static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebAppWithConfiguration(
                 this AuthenticationBuilder builder,
                 Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -184,6 +189,9 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.MicrosoftIdentityWebAppAuthenticationBuilder(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppWithoutConfiguration(
         this AuthenticationBuilder builder,
         Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,

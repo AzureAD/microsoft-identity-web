@@ -23,6 +23,9 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.MicrosoftIdentityWebAppAuthenticationBuilder(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         internal MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
             IServiceCollection services,
             string openIdConnectScheme,
