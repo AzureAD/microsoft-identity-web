@@ -352,8 +352,19 @@ namespace Microsoft.Identity.Web
 
             var builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
-                   .WithSendX5C(mergedOptions.SendX5C)
-                   .WithTenantId(tenant);
+                   .WithSendX5C(mergedOptions.SendX5C);
+
+            // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
+            // not be cross tenant operations with such an authority.
+            if (!mergedOptions.Instance.Contains(".ciamlogin.com"
+#if NET5_0_OR_GREATER
+                , StringComparison.OrdinalIgnoreCase
+#endif
+
+                ))
+            { 
+                   builder.WithTenantId(tenant);
+            }
 
             if (tokenAcquisitionOptions != null)
             {
