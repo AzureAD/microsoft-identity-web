@@ -1,0 +1,14 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../'))" />
+  <PropertyGroup>
+     <TargetFrameworks>net7.0</TargetFrameworks>
+     <SignAssembly>True</SignAssembly>
+     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+
+ <ItemGroup>
+    <None Remove="..\..\LICENSE"/>
+ </ItemGroup>
+
+</Project>

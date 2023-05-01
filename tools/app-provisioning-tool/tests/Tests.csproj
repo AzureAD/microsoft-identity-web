@@ -4,6 +4,8 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
+
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

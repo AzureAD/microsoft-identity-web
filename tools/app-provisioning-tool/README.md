@@ -40,7 +40,7 @@ You can install the tool as an external tool in Visual Studio for this:
    5. Check **Use output window** and **Prompt for arguments**
  6. Select OK 
 
-![image](https://user-images.githubusercontent.com/13203188/113719161-9e2b8580-96ed-11eb-8ad8-7b02eedbd4ed.png)
+   ![image](https://user-images.githubusercontent.com/13203188/113719161-9e2b8580-96ed-11eb-8ad8-7b02eedbd4ed.png)
 
 `msidentity-app-sync` now appears in the **Tools** menu, and when you select an ASP.NET Core project, you can run it on that project.
 

@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <None Remove="..\..\LICENSE" />
-    <None Include="..\..\..\LICENSE" Link="LICENSE" />
+    <None Include="..\..\..\..\LICENSE" Link="LICENSE" />
   </ItemGroup>
 
   <ItemGroup>
