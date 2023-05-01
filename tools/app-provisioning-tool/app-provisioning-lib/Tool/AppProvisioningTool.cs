@@ -151,10 +151,7 @@ namespace Microsoft.Identity.App
             ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet", $"add package {package}")
             {
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
             };
-            processStartInfo.UseShellExecute = false;
             Process? process = Process.Start(processStartInfo);
             process?.WaitForExit();
         }

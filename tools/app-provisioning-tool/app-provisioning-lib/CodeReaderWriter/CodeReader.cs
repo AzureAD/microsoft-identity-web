@@ -338,13 +338,25 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     {
                         // TODO: something more generic
                         Uri authority = new Uri(value);
-                        string? tenantOrDomain = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
-                        if (tenantOrDomain == "qualified.domain.name")
+                        string[] segments = authority.LocalPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        if (segments.Length > 0)
                         {
-                            tenantOrDomain = null;
+                            string? tenantOrDomain = segments[0];
+
+                            if (tenantOrDomain == "qualified.domain.name")
+                            {
+                                tenantOrDomain = null;
+                            }
+                            projectAuthenticationSettings.ApplicationParameters.Domain = tenantOrDomain;
+                            projectAuthenticationSettings.ApplicationParameters.TenantId = tenantOrDomain;
                         }
-                        projectAuthenticationSettings.ApplicationParameters.Domain = tenantOrDomain;
-                        projectAuthenticationSettings.ApplicationParameters.TenantId = tenantOrDomain;
+                        else
+                        {
+                            if (value.Contains(".ciamlogin.com", StringComparison.OrdinalIgnoreCase))
+                            {
+                                projectAuthenticationSettings.ApplicationParameters.IsCiam = true;
+                            }
+                        }
                     }
                     break;
                 case "Directory.Domain":
