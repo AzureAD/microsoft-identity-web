@@ -170,7 +170,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     replacement = reconciledApplicationParameters.IsCiam ? "*Remove*" : reconciledApplicationParameters.TenantId;
                     break;
                 case "Directory.Domain":
-                    replacement = reconciledApplicationParameters.Domain;
+                    replacement = reconciledApplicationParameters.IsCiam ? "*Remove*" : reconciledApplicationParameters.Domain;
                     break;
                 case "Application.SusiPolicy":
                     replacement = reconciledApplicationParameters.SusiPolicy;

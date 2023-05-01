@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
+using Microsoft.Graph;
 using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Identity.App.CodeReaderWriter;
 using Microsoft.Identity.App.DeveloperCredentials;
@@ -9,10 +10,12 @@ using Microsoft.Identity.App.MicrosoftIdentityPlatformApplication;
 using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using File = System.IO.File;
+using Process = System.Diagnostics.Process;
 
 namespace Microsoft.Identity.App
 {
@@ -135,7 +138,25 @@ namespace Microsoft.Identity.App
 
             // Summarizes what happened
             WriteSummary(summary);
+
+            Console.WriteLine("Updating NuGet packages\n");
+            EnsurePackage("Microsoft.Identity.Web");
+            EnsurePackage("Microsoft.Identity.Web.UI");
+
             return effectiveApplicationParameters;
+        }
+
+        private static void EnsurePackage(string package)
+        {
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet", $"add package {package}")
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            processStartInfo.UseShellExecute = false;
+            Process? process = Process.Start(processStartInfo);
+            process?.WaitForExit();
         }
 
         /// <summary>
