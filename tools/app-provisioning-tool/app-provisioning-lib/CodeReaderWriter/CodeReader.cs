@@ -258,7 +258,8 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     index,
                     length,
                     replaceFrom,
-                    propertyMapping.Represents);
+                    propertyMapping.Represents,
+                    propertyMapping.Property!);
             }
         }
 
@@ -331,9 +332,9 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     projectAuthenticationSettings.ApplicationParameters.EffectiveTenantId = (value != defaultValue) ? value : null;
                     break;
                 case "Application.Authority":
-                    // Case of Blazorwasm where the authority is not separated :(
+                    // Case of Blazorwasm and CIAM where the authority is not separated :(
                     projectAuthenticationSettings.ApplicationParameters.Authority = value;
-                    if (!string.IsNullOrEmpty(value))
+                    if (!string.IsNullOrEmpty(value) && !projectAuthenticationSettings.ApplicationParameters.IsCiam)
                     {
                         // TODO: something more generic
                         Uri authority = new Uri(value);
@@ -388,9 +389,10 @@ namespace Microsoft.Identity.App.CodeReaderWriter
             int index,
             int length,
             string replaceFrom,
-            string replaceBy)
+            string replaceBy,
+            string property)
         {
-            projectAuthenticationSettings.Replacements.Add(new Replacement(filePath, index, length, replaceFrom, replaceBy));
+            projectAuthenticationSettings.Replacements.Add(new Replacement(filePath, index, length, replaceFrom, replaceBy, property));
         }
 
     }

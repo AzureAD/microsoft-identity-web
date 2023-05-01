@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using File = System.IO.File;
 
 namespace Microsoft.Identity.App
 {
@@ -262,13 +263,49 @@ namespace Microsoft.Identity.App
             // Override with the tools options
             projectSettings.ApplicationParameters.ApplicationDisplayName ??= Path.GetFileName(provisioningToolOptions.CodeFolder);
             projectSettings.ApplicationParameters.ClientId ??= provisioningToolOptions.ClientId;
-            projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
+
+            // To do: Un-comment when the Graph API returns the right tenant type.
+            // projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
+
+
+            WorkaroundCiam(projectSettings.ApplicationParameters, provisioningToolOptions.TenantId);
+            if (projectSettings.ApplicationParameters.IsCiam && !projectSettings.Replacements.Any(r => r.Property == "AzureAd:Authority"))
+            {
+                Replacement? r = projectSettings.Replacements.FirstOrDefault(r => r.Property == "AzureAd");
+                if (r != null)
+                {
+                    projectSettings.Replacements.Remove(r);
+                    projectSettings.Replacements.Add(new Replacement(r.FilePath, -1, -1, "", "Application.Authority", "AzureAd:Authority"));
+                    projectSettings.Replacements.Add(new Replacement(r.FilePath, -1, -1, "", "Application.ExtraQueryParameters", "AzureAd:ExtraQueryParameters"));
+                }
+            }
             projectSettings.ApplicationParameters.CalledApiScopes ??= provisioningToolOptions.CalledApiScopes;
             if (!string.IsNullOrEmpty(provisioningToolOptions.AppIdUri))
             {
                 projectSettings.ApplicationParameters.AppIdUri = provisioningToolOptions.AppIdUri;
             }
             return projectSettings;
+        }
+
+        /// <summary>
+        /// Workaround for the Graph API not returning the right Tenant type
+        /// </summary>
+        /// <param name="applicationParameters"></param>
+        /// <param name="tenantId"></param>
+        private void WorkaroundCiam(ApplicationParameters applicationParameters, string? tenantId)
+        {
+            bool isCiam = false;
+            if (!string.IsNullOrWhiteSpace(tenantId) && tenantId.EndsWith(".ciamlogin.com", StringComparison.OrdinalIgnoreCase))
+            {
+                applicationParameters.IsCiam = true;
+                applicationParameters.IsB2C = false;
+                applicationParameters.EffectiveTenantId ??= tenantId.Replace(".ciamlogin.com", ".onmicrosoft.com", StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                applicationParameters.IsCiam = false;
+                applicationParameters.EffectiveTenantId ??=tenantId ;
+            }
         }
 
         private TokenCredential GetTokenCredential(ProvisioningToolOptions provisioningToolOptions, string? currentApplicationTenantId)

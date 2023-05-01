@@ -578,7 +578,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Application application,
             ApplicationParameters originalApplicationParameters)
         {
-            bool isB2C = (tenant.TenantType == "AAD B2C");
+            bool isB2C = (tenant.TenantType == "AAD B2C") && !originalApplicationParameters.IsCiam;
             var effectiveApplicationParameters = new ApplicationParameters
             {
                 ApplicationDisplayName = application.DisplayName,
@@ -586,6 +586,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,
+                IsCiam = originalApplicationParameters.IsCiam,
                 HasAuthentication = true,
                 IsWebApi = application.Api != null
                         && (application.Api.Oauth2PermissionScopes != null && application.Api.Oauth2PermissionScopes.Any())
@@ -617,9 +618,11 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             // TODO: introduce the Instance?
             effectiveApplicationParameters.Authority = isB2C
                  ? $"https://{effectiveApplicationParameters.Domain1}.b2clogin.com/{effectiveApplicationParameters.Domain}/{effectiveApplicationParameters.SusiPolicy}/"
+                 : originalApplicationParameters.IsCiam ? $"https://{effectiveApplicationParameters.Domain1}.ciamlogin.com/"
                  : $"https://login.microsoftonline.com/{effectiveApplicationParameters.TenantId ?? effectiveApplicationParameters.Domain}/";
             effectiveApplicationParameters.Instance = isB2C
                 ? $"https://{effectiveApplicationParameters.Domain1}.b2clogin.com/"
+                : originalApplicationParameters.IsCiam ? $"https://{effectiveApplicationParameters.Domain1}.ciamlogin.com/"
                 : originalApplicationParameters.Instance;
 
             effectiveApplicationParameters.PasswordCredentials.AddRange(application.PasswordCredentials.Select(p => p.Hint + "******************"));
