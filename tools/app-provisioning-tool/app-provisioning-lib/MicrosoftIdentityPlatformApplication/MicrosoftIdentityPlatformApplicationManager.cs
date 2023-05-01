@@ -147,7 +147,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 }
                 else
                 {
-                    if (ex.Message.Contains("User was not found") || ex.Message.Contains("not found in tenant"))
+                    if (ex.Message.Contains("User was not found", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("not found in tenant", StringComparison.OrdinalIgnoreCase))
                     {
                         Console.WriteLine("User was not found.\nUse both --tenant-id <tenant> --username <username@tenant>.\nAnd re-run the tool.");
                     }
@@ -352,7 +352,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             if (!string.IsNullOrEmpty(calledApiScopes))
             {
                 string[] scopes = calledApiScopes.Split(' ', '\t', StringSplitOptions.RemoveEmptyEntries);
-                scopesPerResource = scopes.Select(s => (!s.Contains('/'))
+                scopesPerResource = scopes.Select(s => (!s.Contains('/', StringComparison.OrdinalIgnoreCase))
                 // Microsoft Graph shortcut scopes (for instance "User.Read")
                 ? new ResourceAndScope("https://graph.microsoft.com", s)
                 // Proper AppIdUri/scope
@@ -421,11 +421,11 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 {
                     applicationParameters.CalledApiScopes = string.Empty;
                 }
-                if (!applicationParameters.CalledApiScopes.Contains("openid"))
+                if (!applicationParameters.CalledApiScopes.Contains("openid", StringComparison.OrdinalIgnoreCase))
                 {
                     applicationParameters.CalledApiScopes += " openid";
                 }
-                if (!applicationParameters.CalledApiScopes.Contains("offline_access"))
+                if (!applicationParameters.CalledApiScopes.Contains("offline_access", StringComparison.OrdinalIgnoreCase))
                 {
                     applicationParameters.CalledApiScopes += " offline_access";
                 }

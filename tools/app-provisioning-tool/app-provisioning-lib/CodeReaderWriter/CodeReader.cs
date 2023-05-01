@@ -117,7 +117,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 IEnumerable<string> httpsProfileLaunchUrls = projectAuthenticationSettings.Replacements
                     .Where(r => r.ReplaceBy == "profilesApplicationUrls")
                     .SelectMany(r => r.ReplaceFrom.Split(';'))
-                    .Where(u => u.StartsWith("https://"));
+                    .Where(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
                 launchUrls.AddRange(httpsProfileLaunchUrls);
 
                 // Set the web redirect URIs
@@ -132,7 +132,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 }
                 if (!string.IsNullOrEmpty(signoutPath))
                 {
-                    if (signoutPath.StartsWith("/"))
+                    if (signoutPath.StartsWith("/", StringComparison.OrdinalIgnoreCase))
                     {
                         if (launchUrls.Any())
                         {
@@ -158,12 +158,12 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 JsonElement jsonContent = default;
                 XmlDocument? xmlDocument = null;
 
-                if (filePath.EndsWith(".json"))
+                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 {
                     jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
                                                                           s_serializerOptionsWithComments);
                 }
-                else if (filePath.EndsWith(".csproj"))
+                else if (filePath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
                 {
                     xmlDocument = new XmlDocument();
                     xmlDocument.Load(filePath);
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     {
                         string[] path = property.Split(':');
 
-                        if (filePath.EndsWith(".json"))
+                        if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                         {
                             IEnumerable<KeyValuePair<JsonElement, int>> elements = FindMatchingElements(jsonContent, path, 0);
                             foreach (var pair in elements)
@@ -213,7 +213,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                         }
                         else
                         {
-                            int index = fileContent.IndexOf(property);
+                            int index = fileContent.IndexOf(property, StringComparison.OrdinalIgnoreCase);
                             if (index != -1)
                             {
                                 UpdatePropertyRepresents(
@@ -227,7 +227,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     }
 
                     if (!string.IsNullOrEmpty(propertyMapping.Sets) && (found
-                            || (propertyMapping.MatchAny != null && propertyMapping.MatchAny.Any(m => fileContent.Contains(m)))))
+                            || (propertyMapping.MatchAny != null && propertyMapping.MatchAny.Any(m => fileContent.Contains(m, StringComparison.OrdinalIgnoreCase)))))
                     {
                         projectAuthenticationSettings.ApplicationParameters.Sets(propertyMapping.Sets);
                     }

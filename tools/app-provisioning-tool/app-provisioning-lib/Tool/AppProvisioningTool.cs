@@ -154,13 +154,13 @@ namespace Microsoft.Identity.App
             foreach (string filePath in filesWithReplacementsForB2C)
             {
                 string fileContent = File.ReadAllText(filePath);
-                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C", StringComparison.OrdinalIgnoreCase);
 
                 // Add the policies to the appsettings.json
-                if (filePath.EndsWith("appsettings.json"))
+                if (filePath.EndsWith("appsettings.json", StringComparison.OrdinalIgnoreCase))
                 {
                     // Insert the policies
-                    int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
+                    int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"", StringComparison.OrdinalIgnoreCase);
                     if (indexCallbackPath > 0)
                     {
                         updatedContent = updatedContent.Substring(0, indexCallbackPath)

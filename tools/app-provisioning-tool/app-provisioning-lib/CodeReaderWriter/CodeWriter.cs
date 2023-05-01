@@ -53,7 +53,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 string? replaceBy = ComputeReplacement(r.ReplaceBy, reconcialedApplicationParameters);
                 if (replaceBy != null && replaceBy != r.ReplaceFrom)
                 {
-                    int index = fileContent.IndexOf(r.ReplaceFrom /*, r.Index*/);
+                    int index = fileContent.IndexOf(r.ReplaceFrom /*, r.Index*/, StringComparison.OrdinalIgnoreCase);
                     if (index != -1)
                     {
                         fileContent = fileContent.Substring(0, index)
@@ -192,7 +192,7 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                 case "Application.Authority":
                     replacement = reconciledApplicationParameters.Authority;
                     // Blazor b2C
-                    replacement = replacement?.Replace("onmicrosoft.com.b2clogin.com", "b2clogin.com");
+                    replacement = replacement?.Replace("onmicrosoft.com.b2clogin.com", "b2clogin.com", StringComparison.OrdinalIgnoreCase);
                     break;
                 case "MsalAuthenticationOptions":
                     // Todo generalize with a directive: Ensure line after line, or ensure line
@@ -207,8 +207,8 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     break;
                 case "Application.CalledApiScopes":
                     replacement = reconciledApplicationParameters.CalledApiScopes
-                        ?.Replace("openid", string.Empty)
-                        ?.Replace("offline_access", string.Empty)
+                        ?.Replace("openid", string.Empty, StringComparison.OrdinalIgnoreCase)
+                        ?.Replace("offline_access", string.Empty, StringComparison.OrdinalIgnoreCase)
                         ?.Trim();
                     break;
 
@@ -223,10 +223,10 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                         if (reconciledApplicationParameters.Instance == "https://login.microsoftonline.com/tfp/"
                         && reconciledApplicationParameters.IsB2C
                         && !string.IsNullOrEmpty(reconciledApplicationParameters.Domain)
-                        && reconciledApplicationParameters.Domain.EndsWith(".onmicrosoft.com"))
+                        && reconciledApplicationParameters.Domain.EndsWith(".onmicrosoft.com", StringComparison.OrdinalIgnoreCase))
                         {
-                            replacement = "https://" + reconciledApplicationParameters.Domain.Replace(".onmicrosoft.com", ".b2clogin.com")
-                                .Replace("aadB2CInstance", reconciledApplicationParameters.Domain1);
+                            replacement = "https://" + reconciledApplicationParameters.Domain.Replace(".onmicrosoft.com", ".b2clogin.com", StringComparison.OrdinalIgnoreCase)
+                                .Replace("aadB2CInstance", reconciledApplicationParameters.Domain1, StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {

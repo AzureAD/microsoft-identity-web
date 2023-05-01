@@ -43,7 +43,7 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         {
             get
             {
-                return Domain?.Replace(".onmicrosoft.com", string.Empty);
+                return Domain?.Replace(".onmicrosoft.com", string.Empty, StringComparison.OrdinalIgnoreCase);
             }
         }
 
