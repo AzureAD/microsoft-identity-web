@@ -719,6 +719,17 @@ namespace Microsoft.Identity.Web
                         if (dict != null)
                         {
                             builder.WithExtraQueryParameters(dict);
+                            if (dict.ContainsKey("assertion") && dict.ContainsKey("sub_assertion"))
+                            {
+                                builder.OnBeforeTokenRequest((data) =>
+                                {
+                                    // Replace the assertion and adds sub_assertion with the values from the extra query parameters
+                                    // Used in PFT to OBO.
+                                    data.BodyParameters["assertion"] = dict["assertion"];
+                                    data.BodyParameters.Add("sub_assertion", dict["sub_assertion"]);
+                                    return Task.CompletedTask;
+                                });
+                            }    
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -734,6 +745,7 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
+
                     }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
