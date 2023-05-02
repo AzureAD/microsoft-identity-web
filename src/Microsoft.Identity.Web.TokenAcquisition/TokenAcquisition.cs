@@ -715,22 +715,29 @@ namespace Microsoft.Identity.Web
                     if (tokenAcquisitionOptions != null)
                     {
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
-
                         if (dict != null)
                         {
-                            builder.WithExtraQueryParameters(dict);
+                            const string assertionConstant = "assertion";
+                            const string subAssertionConstant = "sub_assertion";
 
                             // Special case when the OBO inbound token is composite (for instance PFT)
-                            if (dict.ContainsKey("assertion") && dict.ContainsKey("sub_assertion"))
+                            if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
                                 builder.OnBeforeTokenRequest((data) =>
                                 {
                                     // Replace the assertion and adds sub_assertion with the values from the extra query parameters
-                                    data.BodyParameters["assertion"] = dict["assertion"];
-                                    data.BodyParameters.Add("sub_assertion", dict["sub_assertion"]);
+                                    data.BodyParameters[assertionConstant] = dict[assertionConstant];
+                                    data.BodyParameters.Add(subAssertionConstant, dict[subAssertionConstant]);
                                     return Task.CompletedTask;
                                 });
-                            }    
+
+                                // Remove the assertion and sub_assertion from the extra query parameters
+                                // as they are already handled as body parameters.
+                                dict.Remove(assertionConstant);
+                                dict.Remove(subAssertionConstant);
+                            }
+
+                            builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
