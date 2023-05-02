@@ -719,12 +719,13 @@ namespace Microsoft.Identity.Web
                         if (dict != null)
                         {
                             builder.WithExtraQueryParameters(dict);
+
+                            // Special case when the OBO inbound token is composite (for instance PFT)
                             if (dict.ContainsKey("assertion") && dict.ContainsKey("sub_assertion"))
                             {
                                 builder.OnBeforeTokenRequest((data) =>
                                 {
                                     // Replace the assertion and adds sub_assertion with the values from the extra query parameters
-                                    // Used in PFT to OBO.
                                     data.BodyParameters["assertion"] = dict["assertion"];
                                     data.BodyParameters.Add("sub_assertion", dict["sub_assertion"]);
                                     return Task.CompletedTask;
@@ -745,7 +746,6 @@ namespace Microsoft.Identity.Web
                         {
                             builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
-
                     }
 
                     return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
