@@ -54,9 +54,6 @@ namespace Microsoft.Identity.Web
         /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
         /// <param name="context">Context provided by ASP.NET Core.</param>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue<T>(String).")]
-#endif
         public override void OnException(ExceptionContext context)
         {
             if (context != null)
@@ -93,7 +90,7 @@ namespace Microsoft.Identity.Web
                                     IDWebErrorMessage.ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
                                     nameof(ScopeKeySection)));
                         }
-                        string? scopeKeySectionValue = configuration.GetValue<string>(ScopeKeySection);
+                        string? scopeKeySectionValue = configuration[ScopeKeySection];
 
                         if (!string.IsNullOrEmpty(scopeKeySectionValue))
                         {

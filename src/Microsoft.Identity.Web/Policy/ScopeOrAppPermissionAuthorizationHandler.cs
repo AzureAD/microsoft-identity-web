@@ -37,9 +37,6 @@ namespace Microsoft.Identity.Web
         /// <param name="context">AuthorizationHandlerContext.</param>
         /// <param name="requirement">Scope authorization requirement.</param>
         /// <returns>Task.</returns>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue<T>(String).")]
-#endif
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             ScopeOrAppPermissionAuthorizationRequirement requirement)
@@ -66,7 +63,7 @@ namespace Microsoft.Identity.Web
 
             if (scopeConfigurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(scopeConfigurationKey)?.Split(' ');
+                scopes = _configuration[scopeConfigurationKey]?.Split(' ');
             }
 
             if (scopes is null)
