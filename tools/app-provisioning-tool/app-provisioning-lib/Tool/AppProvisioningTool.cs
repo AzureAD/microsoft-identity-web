@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
+using Microsoft.Graph;
 using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Identity.App.CodeReaderWriter;
 using Microsoft.Identity.App.DeveloperCredentials;
@@ -9,9 +10,12 @@ using Microsoft.Identity.App.MicrosoftIdentityPlatformApplication;
 using Microsoft.Identity.App.Project;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using File = System.IO.File;
+using Process = System.Diagnostics.Process;
 
 namespace Microsoft.Identity.App
 {
@@ -134,7 +138,22 @@ namespace Microsoft.Identity.App
 
             // Summarizes what happened
             WriteSummary(summary);
+
+            Console.WriteLine("Updating NuGet packages\n");
+            EnsurePackage("Microsoft.Identity.Web");
+            EnsurePackage("Microsoft.Identity.Web.UI");
+
             return effectiveApplicationParameters;
+        }
+
+        private static void EnsurePackage(string package)
+        {
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet", $"add package {package}")
+            {
+                UseShellExecute = false,
+            };
+            Process? process = Process.Start(processStartInfo);
+            process?.WaitForExit();
         }
 
         /// <summary>
@@ -153,13 +172,13 @@ namespace Microsoft.Identity.App
             foreach (string filePath in filesWithReplacementsForB2C)
             {
                 string fileContent = File.ReadAllText(filePath);
-                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C");
+                string updatedContent = fileContent.Replace("AzureAd", "AzureAdB2C", StringComparison.OrdinalIgnoreCase);
 
                 // Add the policies to the appsettings.json
-                if (filePath.EndsWith("appsettings.json"))
+                if (filePath.EndsWith("appsettings.json", StringComparison.OrdinalIgnoreCase))
                 {
                     // Insert the policies
-                    int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"");
+                    int indexCallbackPath = updatedContent.IndexOf("\"CallbackPath\"", StringComparison.OrdinalIgnoreCase);
                     if (indexCallbackPath > 0)
                     {
                         updatedContent = updatedContent.Substring(0, indexCallbackPath)
@@ -262,13 +281,49 @@ namespace Microsoft.Identity.App
             // Override with the tools options
             projectSettings.ApplicationParameters.ApplicationDisplayName ??= Path.GetFileName(provisioningToolOptions.CodeFolder);
             projectSettings.ApplicationParameters.ClientId ??= provisioningToolOptions.ClientId;
-            projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
+
+            // To do: Un-comment when the Graph API returns the right tenant type.
+            // projectSettings.ApplicationParameters.TenantId ??= provisioningToolOptions.TenantId;
+
+
+            WorkaroundCiam(projectSettings.ApplicationParameters, provisioningToolOptions.TenantId);
+            if (projectSettings.ApplicationParameters.IsCiam && !projectSettings.Replacements.Any(r => r.Property == "AzureAd:Authority"))
+            {
+                Replacement? r = projectSettings.Replacements.FirstOrDefault(r => r.Property == "AzureAd");
+                if (r != null)
+                {
+                    projectSettings.Replacements.Remove(r);
+                    projectSettings.Replacements.Add(new Replacement(r.FilePath, -1, -1, "", "Application.Authority", "AzureAd:Authority"));
+                    projectSettings.Replacements.Add(new Replacement(r.FilePath, -1, -1, "", "Application.ExtraQueryParameters", "AzureAd:ExtraQueryParameters"));
+                }
+            }
             projectSettings.ApplicationParameters.CalledApiScopes ??= provisioningToolOptions.CalledApiScopes;
             if (!string.IsNullOrEmpty(provisioningToolOptions.AppIdUri))
             {
                 projectSettings.ApplicationParameters.AppIdUri = provisioningToolOptions.AppIdUri;
             }
             return projectSettings;
+        }
+
+        /// <summary>
+        /// Workaround for the Graph API not returning the right Tenant type
+        /// </summary>
+        /// <param name="applicationParameters"></param>
+        /// <param name="tenantId"></param>
+        private void WorkaroundCiam(ApplicationParameters applicationParameters, string? tenantId)
+        {
+            bool isCiam = false;
+            if (!string.IsNullOrWhiteSpace(tenantId) && tenantId.EndsWith(".ciamlogin.com", StringComparison.OrdinalIgnoreCase))
+            {
+                applicationParameters.IsCiam = true;
+                applicationParameters.IsB2C = false;
+                applicationParameters.EffectiveTenantId ??= tenantId.Replace(".ciamlogin.com", ".onmicrosoft.com", StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                applicationParameters.IsCiam = false;
+                applicationParameters.EffectiveTenantId ??=tenantId ;
+            }
         }
 
         private TokenCredential GetTokenCredential(ProvisioningToolOptions provisioningToolOptions, string? currentApplicationTenantId)

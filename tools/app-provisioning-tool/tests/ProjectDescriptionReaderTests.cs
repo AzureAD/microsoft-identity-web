@@ -51,15 +51,15 @@ namespace Tests
             var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
 
             Assert.NotNull(projectDescription);
-            Assert.Equal(expectedProjectType, projectDescription.Identifier);
+            Assert.Equal(expectedProjectType, projectDescription!.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
                 createdProjectFolder,
                 projectDescription,
                 _projectDescriptionReader.projectDescriptions);
 
-            bool callsGraph = folderPath.Contains(TestConstants.CallsGraph);
-            bool callsWebApi = folderPath.Contains(TestConstants.CallsWebApi) || callsGraph;
+            bool callsGraph = folderPath.Contains(TestConstants.CallsGraph, StringComparison.OrdinalIgnoreCase);
+            bool callsWebApi = folderPath.Contains(TestConstants.CallsWebApi, StringComparison.OrdinalIgnoreCase) || callsGraph;
 
             if (isB2C)
             {
@@ -95,7 +95,7 @@ namespace Tests
             var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
 
             Assert.NotNull(projectDescription);
-            Assert.Equal(expectedProjectType, projectDescription.Identifier);
+            Assert.Equal(expectedProjectType, projectDescription!.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
                 createdProjectFolder,
@@ -130,7 +130,7 @@ namespace Tests
             var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
 
             Assert.NotNull(projectDescription);
-            Assert.Equal(expectedProjectType, projectDescription.Identifier);
+            Assert.Equal(expectedProjectType, projectDescription!.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
                 createdProjectFolder,
@@ -155,7 +155,7 @@ namespace Tests
 
             var projectDescription = _projectDescriptionReader.GetProjectDescription(string.Empty, createdProjectFolder);
             Assert.NotNull(projectDescription);
-            Assert.Equal(expectedProjectType, projectDescription.Identifier);
+            Assert.Equal(expectedProjectType, projectDescription!.Identifier);
 
             var authenticationSettings = _codeReader.ReadFromFiles(
                 createdProjectFolder,
@@ -217,7 +217,7 @@ namespace Tests
             string parentFolder = Path.Combine(tempFolder, "Provisioning", testName);
             string createdProjectFolder = Path.Combine(
                 parentFolder, 
-                projectFolderName.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)));
+                projectFolderName.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase));
 
             if (!Directory.Exists(createdProjectFolder))
             {
@@ -226,7 +226,7 @@ namespace Tests
                 TestUtilities.RunProcess(_testOutput, command, createdProjectFolder, " --force");
 
                 // Add the capability of holding user secrets aside of appsettings.json if needed
-                if (command.Contains("--calls"))
+                if (command.Contains("--calls", StringComparison.OrdinalIgnoreCase))
                 {
                     try
                     {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.App
@@ -86,7 +87,7 @@ namespace Microsoft.Identity.App
             {
                 foreach (string projectFolder in System.IO.Directory.GetDirectories(subFolder))
                 {
-                    System.Console.WriteLine($"[InlineData(@\"{System.IO.Path.GetFileName(subFolder)}\\{System.IO.Path.GetFileName(projectFolder)}\", {projectFolder.Contains("b2c")}, \"dotnet-WebApp\")]");
+                    System.Console.WriteLine($"[InlineData(@\"{System.IO.Path.GetFileName(subFolder)}\\{System.IO.Path.GetFileName(projectFolder)}\", {projectFolder.Contains("b2c", StringComparison.OrdinalIgnoreCase)}, \"dotnet-WebApp\")]");
                 }
             }
         }
