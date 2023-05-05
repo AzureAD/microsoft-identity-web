@@ -1,3 +1,15 @@
+2.10.0
+==========
+- Update to Wilson 6.30.0
+
+### New features:
+- **Microsoft.Identity.Web now provides more logging in DownstreamAPI**, see [#2148](https://github.com/AzureAD/microsoft-identity-web/issues/2148) for details.
+- **OBO support for composite tokens** based assertion and sub_assertion extra query parameters. See issue [#2222](https://github.com/AzureAD/microsoft-identity-web/issues/2222) for details.
+
+### Bug fixes:
+- **Fix a regex issue** relating to same site, see [#1811](https://github.com/AzureAD/microsoft-identity-web/issues/1811) for details.
+- Bug fixes for CIAM support, see [#2218](https://github.com/AzureAD/microsoft-identity-web/pull/2218) for details.
+
 2.9.0
 ==========
 - Update to Wilson 6.29.0 and MSAL.NET 4.53.0
