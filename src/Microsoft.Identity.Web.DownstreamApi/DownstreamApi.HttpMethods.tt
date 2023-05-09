@@ -73,19 +73,33 @@ namespace Microsoft.Identity.Web
 <# if (hasInput){ #>
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
 <# } #>
-            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
-
-<# if (hasInput){ #>
-            // Only dispose the HttpContent if was created here, not provided by the caller.
-            if (input is not HttpContent)
+            try
             {
-                effectiveInput?.Dispose();
-            }
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
+<# if (hasInput){ #>
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
 <# }
    if (hasOutput)
    { #>
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
 <# } #>
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
         }
 <#
     }

@@ -356,8 +356,18 @@ namespace Microsoft.Identity.Web
 
             var builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
-                   .WithSendX5C(mergedOptions.SendX5C)
-                   .WithTenantId(tenant);
+                   .WithSendX5C(mergedOptions.SendX5C);
+
+            // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
+            // not be cross tenant operations with such an authority.
+            if (!mergedOptions.Instance.Contains(".ciamlogin.com"
+#if NETCOREAPP3_1_OR_GREATER
+                , StringComparison.OrdinalIgnoreCase
+#endif
+                ))
+            { 
+                   builder.WithTenantId(tenant);
+            }
 
             if (tokenAcquisitionOptions != null)
             {
@@ -719,9 +729,28 @@ namespace Microsoft.Identity.Web
                     if (tokenAcquisitionOptions != null)
                     {
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
-
                         if (dict != null)
                         {
+                            const string assertionConstant = "assertion";
+                            const string subAssertionConstant = "sub_assertion";
+
+                            // Special case when the OBO inbound token is composite (for instance PFT)
+                            if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
+                            {
+                                builder.OnBeforeTokenRequest((data) =>
+                                {
+                                    // Replace the assertion and adds sub_assertion with the values from the extra query parameters
+                                    data.BodyParameters[assertionConstant] = dict[assertionConstant];
+                                    data.BodyParameters.Add(subAssertionConstant, dict[subAssertionConstant]);
+                                    return Task.CompletedTask;
+                                });
+
+                                // Remove the assertion and sub_assertion from the extra query parameters
+                                // as they are already handled as body parameters.
+                                dict.Remove(assertionConstant);
+                                dict.Remove(subAssertionConstant);
+                            }
+
                             builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)

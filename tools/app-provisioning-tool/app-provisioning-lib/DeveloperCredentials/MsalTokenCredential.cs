@@ -109,7 +109,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
             }
             catch (MsalServiceException ex)
             {
-                if (ex.Message.Contains("AADSTS70002")) // "The client does not exist or is not enabled for consumers"
+                if (ex.Message.Contains("AADSTS70002", StringComparison.OrdinalIgnoreCase)) // "The client does not exist or is not enabled for consumers"
                 {
                     Console.WriteLine("An Azure AD tenant, and a user in that tenant, " +
                         "needs to be created for this account before an application can be created. See https://aka.ms/ms-identity-app/create-a-tenant. ");
