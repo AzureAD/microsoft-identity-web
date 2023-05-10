@@ -32,7 +32,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
@@ -109,17 +109,17 @@
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
-    <!-- Microsoft.Extensions.Hosting 5.* are obsoleted -->    
+    <!-- Microsoft.Extensions.Hosting 5.* are obsoleted -->
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>5.0.8</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
-    
+
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
     <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>6.0.0</SystemTextEncodingsWebVersion>
-    
+
     <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
-    <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>    
+    <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
