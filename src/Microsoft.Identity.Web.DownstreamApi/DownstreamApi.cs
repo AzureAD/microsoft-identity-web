@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -97,6 +97,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER               
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
+#endif
         public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -121,6 +124,9 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NET6_0_OR_GREATER               
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
+#endif
         public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -143,6 +149,9 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")] 
+#endif
         public async Task<TOutput?> CallApiForAppAsync<TOutput>(string serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             CancellationToken cancellationToken = default) where TOutput : class
@@ -155,6 +164,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")]
+#endif
         public async Task<TOutput?> CallApiForUserAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
@@ -218,15 +230,11 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-#if NET6_0_OR_GREATER
-        [JsonSourceGenerationOptions(WriteIndented = true)]
-        [JsonSerializable(typeof(HttpContent))]
-        [JsonSerializable(typeof(string))]
-        internal partial class SourceGenerationContext : JsonSerializerContext
-        {
-        }
-#endif
 
+
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
+#endif
         private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
         {
             HttpContent? effectiveInput;
@@ -241,18 +249,16 @@ namespace Microsoft.Identity.Web
             else
             {
 #pragma warning disable CA2000 // Dispose objects before losing scope
-#if NET6_0_OR_GREATER
-                effectiveInput = new StringContent(JsonSerializer.Serialize(input, typeof(TInput), SourceGenerationContext.Default), Encoding.UTF8, "application/json");
-#else
                 effectiveInput = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
-#endif
 #pragma warning restore CA2000 // Dispose objects before losing scope
             }
 
             return effectiveInput;
         }
 
-
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
+#endif
         private static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
@@ -285,11 +291,7 @@ namespace Microsoft.Identity.Web
             else
             {
                 string stringContent = await content.ReadAsStringAsync();
-#if NET6_0_OR_GREATER
-                return (TOutput?)JsonSerializer.Deserialize(stringContent, typeof(TOutput), SourceGenerationContext.Default);
-#else
                 return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-#endif
                 }
         }
 
