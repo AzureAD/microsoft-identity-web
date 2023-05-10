@@ -1,0 +1,10 @@
+<Project InitialTargets="DownloadContentFiles">
+    <PropertyGroup>
+        <DependencyFileUrl>https://raw.githubusercontent.com/AzureAD/microsoft-identity-abstractions-for-dotnet/geok/central-package-management/Directory.Packages.props</DependencyFileUrl>
+    </PropertyGroup>
+   <Target Name="DownloadContentFiles" Condition="!Exists('$(MSBuildThisFileDirectory)Directory.Packages.props')">
+        <Message Importance="High" Text=">>> Downloading $(DependencyFileUrl) to $(MSBuildThisFileDirectory)Directory.Packages.props"/>
+        <DownloadFile SourceUrl="$(DependencyFileUrl)" DestinationFolder="$(MSBuildThisFileDirectory)" DestinationFileName="Directory.Packages.props">
+        </DownloadFile>
+    </Target>
+</Project>
