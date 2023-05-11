@@ -25,7 +25,7 @@ jobs:
       inputs:
         command: test
         projects: | 
-          'tests/**/Microsoft.Identity.Web.Test*.csproj'
-          '!tests/**/Microsoft.Identity.Web.Test.LabInfrastructure.csproj`
-          '!tests/**/xunit.assert.dll'
+          tests/**/Microsoft.Identity.Web.Test*.csproj
+          !tests/**/Microsoft.Identity.Web.Test.LabInfrastructure.csproj
+          !tests/**/xunit.assert.dll
         arguments: '-f net7.0 --collect "Code coverage"'
