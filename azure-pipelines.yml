@@ -24,5 +24,9 @@ jobs:
       displayName: 'Run unit tests'
       inputs:
         command: test
-        projects: 'tests/**/Microsoft.Identity.Web.Test*.csproj'
+        arguments: '-f net7.0'
+        projects: | 
+          'tests/**/Microsoft.Identity.Web.Test*.csproj'
+          '!tests/**/Microsoft.Identity.Web.Test.LabInfrastructure.csproj`
+          '!tests/**/xunit.assert.dll'
         arguments: '--collect "Code coverage"'
