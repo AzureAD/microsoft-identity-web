@@ -20,9 +20,6 @@ jobs:
       inputs:
         projects: 'Microsoft.Identity.Web.sln'
         command: 'restore'
-    - task: VSBuild@1
-      inputs:
-        solution: Microsoft.Identity.Web.sln
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests'
       inputs:
