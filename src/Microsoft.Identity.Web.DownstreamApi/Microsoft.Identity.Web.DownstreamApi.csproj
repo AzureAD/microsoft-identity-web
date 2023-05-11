@@ -6,7 +6,8 @@
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
+    
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"   />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />

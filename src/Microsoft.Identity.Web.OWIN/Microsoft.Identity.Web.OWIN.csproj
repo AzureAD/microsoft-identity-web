@@ -15,22 +15,22 @@
     <DocumentationFile>Microsoft.Identity.Web.OWIN.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-   <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />
-    <PackageReference Include="Microsoft.Graph" Version="$(MicrosoftGraphVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
-    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
-    <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
-    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage" Version="5.2.7" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.5.0" />
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
-    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
-    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+   <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json"  />
+    <PackageReference Include="Microsoft.Graph"   />
+    <PackageReference Include="Microsoft.IdentityModel.Logging"   />
+    <PackageReference Include="Microsoft.IdentityModel.Validators"   />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt"   />
+    <PackageReference Include="Microsoft.Extensions.Http"   />
+    <PackageReference Include="Microsoft.AspNet.Mvc" />
+    <PackageReference Include="Microsoft.AspNet.Web.Optimization"  />
+    <PackageReference Include="Microsoft.AspNet.WebApi"  />
+    <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage"  />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation"  />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb"  />
+    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory"  />
+    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>
