@@ -295,6 +295,7 @@ namespace Microsoft.Identity.Web
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
+
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
 #endif
@@ -302,6 +303,7 @@ namespace Microsoft.Identity.Web
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
         }
+
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
 #endif
