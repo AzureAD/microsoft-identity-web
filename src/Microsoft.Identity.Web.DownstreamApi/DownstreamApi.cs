@@ -230,8 +230,6 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-
-
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
 #endif
@@ -292,7 +290,7 @@ namespace Microsoft.Identity.Web
             {
                 string stringContent = await content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                }
+            }
         }
 
         private async Task<HttpResponseMessage> CallApiInternalAsync(
