@@ -18,13 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractions)" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
-    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="$(NSubstituteAnalyzersCSharpVersion)" />
-    <PackageReference Include="xunit" Version="$(XunitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)">
+	<PackageReference Include="Microsoft.Identity.Abstractions" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -32,7 +32,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <!-- Special need for Microsoft.Extensions.Hosting.Host which is only available from 3.1-->
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" VersionOverride="3.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462'">

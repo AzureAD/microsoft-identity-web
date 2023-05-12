@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="$(MicrosoftApplicationInsightsAspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="$(MicrosoftApplicationInsightsEventCounterCollectionVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftExtensionsCachingStackExchangeRedisVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="StackExchange.Redis" Version="$(StackExchangeRedisVersion)" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="StackExchange.Redis" />
 
-    <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommonVersion)" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup>

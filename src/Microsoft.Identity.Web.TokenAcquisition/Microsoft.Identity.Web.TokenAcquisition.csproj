@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" VersionOverride="3.1.0" />
     <Compile Remove="AspNetCore\*.cs" />
   </ItemGroup>
 </Project>

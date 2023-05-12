@@ -5,8 +5,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
+    <PackageReference Include="Google.Protobuf" VersionOverride="3.21.7" />
+    <PackageReference Include="Grpc.AspNetCore" VersionOverride="2.49.0" />
   </ItemGroup>
 
   <ItemGroup>

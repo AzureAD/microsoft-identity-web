@@ -3,7 +3,7 @@
      <UserSecretsId>66e5c3c7-f757-4032-bfcf-68bd81948618</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.5.1" />
+    <PackageReference Include="Microsoft.Azure.SignalR" VersionOverride="1.5.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />

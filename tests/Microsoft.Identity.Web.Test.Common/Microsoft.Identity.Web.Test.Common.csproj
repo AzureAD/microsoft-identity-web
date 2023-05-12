@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
-    <PackageReference Include="xunit.assert" Version="$(XunitAssertVersion)" />    
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="xunit.assert" />    
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462'">

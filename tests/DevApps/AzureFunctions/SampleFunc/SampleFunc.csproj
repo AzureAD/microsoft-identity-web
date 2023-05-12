@@ -9,10 +9,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.22" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" VersionOverride="3.0.11" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" VersionOverride="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" VersionOverride="13.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" VersionOverride="2.1.22" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />

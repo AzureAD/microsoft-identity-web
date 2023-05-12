@@ -8,18 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MicrosoftAspNetCoreMvcTestingVersion)" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <!--GHSA-5crp-9r3c-p9vr from Microsoft.NET.Test.Sdk  -->
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="xunit" Version="$(XunitVersion)" />
-    <!--<PackageReference Include="xunit.core" Version="$(XunitVersion)" />
-    <PackageReference Include="xunit.extensibility.core" Version="$(XunitExtensibilityCoreVersion)" />-->
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)">
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="xunit" />
+    <!--<PackageReference Include="xunit.core" />
+    <PackageReference Include="xunit.extensibility.core" />-->
+    <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)">
+    <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

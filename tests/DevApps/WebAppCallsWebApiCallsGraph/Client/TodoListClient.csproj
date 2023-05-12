@@ -21,17 +21,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.6" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.42.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.44.0">
+    <PackageReference Include="Google.Protobuf" VersionOverride="3.21.6" />
+    <PackageReference Include="Grpc.Net.Client" VersionOverride="2.42.0" />
+    <PackageReference Include="Grpc.Tools" VersionOverride="2.44.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <!--<PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="3.1.1" />-->
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+    <!--<PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" VersionOverride="3.1.1" />-->
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" VersionOverride="5.0.1" />
+    <PackageReference Include="StackExchange.Redis" VersionOverride="2.2.4" />
     <!--CVE-2021-24112-->
-    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />  
+    <PackageReference Include="System.Drawing.Common" VersionOverride="5.0.3" />  
   </ItemGroup>
 
   <ItemGroup>

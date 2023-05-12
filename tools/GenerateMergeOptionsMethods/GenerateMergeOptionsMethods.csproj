@@ -14,17 +14,17 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" VersionOverride="6.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" VersionOverride="6.*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" VersionOverride="6.*" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.18" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" VersionOverride="3.1.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" VersionOverride="3.1.18" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" VersionOverride="6.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" VersionOverride="6.*" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" VersionOverride="6.*" />
   </ItemGroup>
 
   <ItemGroup>

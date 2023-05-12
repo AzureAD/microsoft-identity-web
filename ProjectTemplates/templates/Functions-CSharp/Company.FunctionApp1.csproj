@@ -5,11 +5,11 @@
     <RootNamespace Condition="'$(name)' != '$(name{-VALUE-FORMS-}safe_namespace)'">Company.FunctionApp1</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" VersionOverride="3.0.11" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" VersionOverride="1.1.0" />
+    <PackageReference Include="Microsoft.Identity.Web" VersionOverride="1.*" />
     <!--#if (GenerateGraph) -->
-    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="1.*" />
+    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" VersionOverride="1.*" />
     <!--#endif -->
   </ItemGroup>
   <ItemGroup>
