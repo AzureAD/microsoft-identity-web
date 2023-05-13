@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Threading.Tasks;
 #if !NETSTANDARD2_0 && !NET462 && !NET472
@@ -48,6 +49,9 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(AuthCodeRedemptionParameters)")]
+#endif
         Task AddAccountToCacheFromAuthorizationCodeAsync(
             AuthorizationCodeReceivedContext context,
             IEnumerable<string> scopes,

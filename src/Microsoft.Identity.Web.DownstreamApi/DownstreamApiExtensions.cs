@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -21,6 +22,9 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOptions>(IServiceCollection, String, IConfiguration).")]
+#endif
         public static IServiceCollection AddDownstreamApi(
             this IServiceCollection services,
             string serviceName,
@@ -65,6 +69,9 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Identity.Web.DownstreamApiExtensions.AddDownstreamApi(IServiceCollection, String, IConfiguration).")]
+#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,

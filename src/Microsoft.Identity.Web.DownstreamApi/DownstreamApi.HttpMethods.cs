@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
@@ -14,6 +15,9 @@ namespace Microsoft.Identity.Web
     internal partial class DownstreamApi : IDownstreamApi
     {
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> GetForUserAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
@@ -41,6 +45,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> GetForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -76,6 +83,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> GetForAppAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
@@ -102,6 +112,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> GetForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -136,6 +149,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PostForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -169,6 +185,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PostForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -204,6 +223,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PostForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -236,6 +258,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PostForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -270,6 +295,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PutForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -303,6 +331,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PutForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -338,6 +369,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PutForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -370,6 +404,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PutForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -406,6 +443,9 @@ namespace Microsoft.Identity.Web
 #if !NETFRAMEWORK && !NETSTANDARD2_0
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PatchForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -439,6 +479,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PatchForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -474,6 +517,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task PatchForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -506,6 +552,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> PatchForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -542,6 +591,9 @@ namespace Microsoft.Identity.Web
 #endif // !NETFRAMEWORK && !NETSTANDARD2_0
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task DeleteForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -575,6 +627,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> DeleteForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -610,6 +665,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task DeleteForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -642,6 +700,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async Task<TOutput?> DeleteForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
