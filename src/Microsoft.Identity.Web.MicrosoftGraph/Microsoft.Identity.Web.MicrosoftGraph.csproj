@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph"   />
+    <PackageReference Include="Microsoft.Graph" />
   </ItemGroup>
 
   <ItemGroup>

@@ -14,16 +14,16 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"   />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Validators"   />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"   />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt"   />
-    <PackageReference Include="Microsoft.Extensions.Http"   />
-    <PackageReference Include="System.Text.Encodings.Web"   />
-    <PackageReference Include="System.Drawing.Common"   />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="System.Text.Encodings.Web" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'">
@@ -36,10 +36,10 @@
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />
     <Compile Remove="TokenCacheProviders\Session\**" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory"   />
-    <PackageReference Include="Microsoft.Extensions.Hosting"   />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection"   />
-    <PackageReference Include="System.Security.Cryptography.Xml"   />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
     <ItemGroup>
