@@ -19,13 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
-	<PackageReference Include="Microsoft.IdentityModel.Logging"   />
-    <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions"   />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt"   />
-    <PackageReference Include="Microsoft.Extensions.Http"   />
-    <PackageReference Include="System.Text.Encodings.Web"   />
-    <PackageReference Include="Microsoft.Identity.Abstractions"   />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" />
+    <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="System.Text.Encodings.Web" />
+    <PackageReference Include="Microsoft.Identity.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" VersionOverride="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <Compile Remove="AspNetCore\*.cs" />
   </ItemGroup>
 </Project>
