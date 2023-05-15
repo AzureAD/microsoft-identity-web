@@ -3,7 +3,7 @@
 -Update to MSAL 4.54.0
 
 ### New Features
-- ID Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained). See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
+- **ID Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
 
 2.10.0
 ==========
