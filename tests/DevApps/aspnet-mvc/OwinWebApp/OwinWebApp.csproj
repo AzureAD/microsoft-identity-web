@@ -141,46 +141,46 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr">
-      <Version>3.5.0.2</Version>
+      <VersionOverride>3.5.0.2</VersionOverride>
     </PackageReference>
     <PackageReference Include="bootstrap">
-      <Version>3.4.1</Version>
+      <VersionOverride>3.4.1</VersionOverride>
     </PackageReference>
     <PackageReference Include="jQuery">
-      <Version>3.4.1</Version>
+      <VersionOverride>3.4.1</VersionOverride>
     </PackageReference>
     <PackageReference Include="jQuery.Validation">
-      <Version>1.19.3</Version>
+      <VersionOverride>1.19.3</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.Mvc">
-      <Version>5.2.7</Version>
+      <VersionOverride>5.2.7</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.Web.Optimization">
-      <Version>1.1.3</Version>
+      <VersionOverride>1.1.3</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
-      <Version>2.0.1</Version>
+      <VersionOverride>2.0.1</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Protocol.Extensions">
-      <Version>1.0.4.403061554</Version>
+      <VersionOverride>1.0.4.403061554</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation">
-      <Version>3.2.11</Version>
+      <VersionOverride>3.2.11</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb">
-      <Version>4.2.2</Version>
+      <VersionOverride>4.2.2</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Security.Cookies">
-      <Version>4.2.2</Version>
+      <VersionOverride>4.2.2</VersionOverride>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect">
-      <Version>4.2.2</Version>
+      <VersionOverride>4.2.2</VersionOverride>
     </PackageReference>
     <PackageReference Include="Modernizr">
-      <Version>2.8.3</Version>
+      <VersionOverride>2.8.3</VersionOverride>
     </PackageReference>
     <PackageReference Include="WebGrease">
-      <Version>1.6.0</Version>
+      <VersionOverride>1.6.0</VersionOverride>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

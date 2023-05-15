@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols" VersionOverride="6.*" />
     <PackageReference Include="StackExchange.Redis" VersionOverride="2.2.4" />
     <!--CVE-2021-24112-->
-    <PackageReference Include="System.Drawing.Common" VersionOverride="5.0.3" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
