@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,9 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             IConfigurationSection configurationSection)

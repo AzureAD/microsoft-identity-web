@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
@@ -55,6 +56,9 @@ namespace Microsoft.Identity.Web
      firstMethod = false; 
 #>
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
+#endif
         public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
             string? serviceName,
 <# if (hasInput){ #>

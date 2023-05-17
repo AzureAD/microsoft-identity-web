@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -28,6 +29,9 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+#endif
         internal MicrosoftIdentityWebAppAuthenticationBuilder(
             IServiceCollection services,
             string openIdConnectScheme,
@@ -48,6 +52,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+#endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             IEnumerable<string>? initialScopes = null)
         {
@@ -62,6 +69,9 @@ namespace Microsoft.Identity.Web
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(IServiceCollection, IEnumerable<string>, Action<MicrosoftIdentityOptions>, string, Action<ConfidentialClientApplicationOptions>.")]
+#endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
@@ -77,6 +87,9 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(string).")]
+#endif
         internal static void WebAppCallsWebApiImplementation(
             IServiceCollection services,
             IEnumerable<string>? initialScopes,
@@ -105,7 +118,7 @@ namespace Microsoft.Identity.Web
             {
                 services.AddTokenAcquisition();
 
-                services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                _ = services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
                    .Configure<IMergedOptionsStore, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
                        options,
                        mergedOptionsMonitor,

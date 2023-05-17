@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -62,7 +63,7 @@ namespace Microsoft.Identity.Web
 
             if (scopeConfigurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(scopeConfigurationKey)?.Split(' ');
+                scopes = _configuration[scopeConfigurationKey]?.Split(' ');
             }
 
             if (scopes is null)

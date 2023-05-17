@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -25,6 +26,9 @@ namespace Microsoft.Identity.Web.Internal
         /// <param name="services">The services being configured.</param>
         /// <param name="configuration">IConfigurationSection.</param>
         /// <returns>The authentication builder to chain.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Bind, Configure with Unspecified Configuration and ServiceCollection.")]
+#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string authenticationScheme,

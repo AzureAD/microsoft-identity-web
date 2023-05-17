@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -89,7 +90,7 @@ namespace Microsoft.Identity.Web
                                     IDWebErrorMessage.ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
                                     nameof(ScopeKeySection)));
                         }
-                        string? scopeKeySectionValue = configuration.GetValue<string>(ScopeKeySection);
+                        string? scopeKeySectionValue = configuration[ScopeKeySection];
 
                         if (!string.IsNullOrEmpty(scopeKeySectionValue))
                         {
