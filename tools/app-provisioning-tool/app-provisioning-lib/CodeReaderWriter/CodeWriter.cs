@@ -190,9 +190,17 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     replacement = reconciledApplicationParameters.TargetFramework;
                     break;
                 case "Application.Authority":
-                    replacement = reconciledApplicationParameters.Authority;
-                    // Blazor b2C
-                    replacement = replacement?.Replace("onmicrosoft.com.b2clogin.com", "b2clogin.com", StringComparison.OrdinalIgnoreCase);
+                    if (reconciledApplicationParameters.IsCiam && reconciledApplicationParameters.Domain!=null)
+                    {
+                        replacement = "https://"
+                            + reconciledApplicationParameters.Domain.Replace(".onmicrosoft.com", ".ciamlogin.com", StringComparison.OrdinalIgnoreCase) + "/";
+                    }
+                    else
+                    {
+                        replacement = reconciledApplicationParameters.Authority;
+                        // Blazor b2C
+                        replacement = replacement?.Replace("onmicrosoft.com.b2clogin.com", "b2clogin.com", StringComparison.OrdinalIgnoreCase);
+                    }
                     break;
                 case "MsalAuthenticationOptions":
                     // Todo generalize with a directive: Ensure line after line, or ensure line
