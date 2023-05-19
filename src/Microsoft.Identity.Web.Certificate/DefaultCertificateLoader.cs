@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -26,6 +27,22 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class DefaultCertificateLoader : DefaultCredentialsLoader, ICertificateLoader
     {
+        /// <summary>
+        /// Constructor with a logger.
+        /// </summary>
+        /// <param name="logger"></param>
+        public DefaultCertificateLoader(ILogger<DefaultCertificateLoader>? logger) : base(logger)
+        {
+
+        }
+
+        /// <summary>
+        /// Default constuctor.
+        /// </summary>
+        //[Obsolete("Rather use the constructor with a logger")]
+        public DefaultCertificateLoader() : this(null)
+        {
+        }
 
         /// <summary>
         ///  This default is overridable at the level of the credential description (for the certificate from KeyVault).
@@ -50,7 +67,7 @@ namespace Microsoft.Identity.Web
         /// <returns>First certificate in the certificate description list.</returns>
         public static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescriptions)
         {
-            DefaultCertificateLoader defaultCertificateLoader = new();
+            DefaultCertificateLoader defaultCertificateLoader = new(null);
             CertificateDescription? certDescription = certificateDescriptions.FirstOrDefault(c =>
             {
                 defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).GetAwaiter().GetResult();
@@ -67,12 +84,22 @@ namespace Microsoft.Identity.Web
         /// <returns>All the certificates in the certificate description list.</returns>
         public static IEnumerable<X509Certificate2?> LoadAllCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
         {
-            DefaultCertificateLoader defaultCertificateLoader = new();
+            DefaultCertificateLoader defaultCertificateLoader = new(null);
+            return defaultCertificateLoader.LoadCertificates(certificateDescriptions);
+        }
+
+        /// <summary>
+        /// Load the certificates from the certificate description list.
+        /// </summary>
+        /// <param name="certificateDescriptions"></param>
+        /// <returns>a collection of certificates</returns>
+        private IEnumerable<X509Certificate2?> LoadCertificates(IEnumerable<CertificateDescription> certificateDescriptions)
+        {
             if (certificateDescriptions != null)
             {
                 foreach (var certDescription in certificateDescriptions)
                 {
-                    defaultCertificateLoader.LoadCredentialsIfNeededAsync(certDescription).GetAwaiter().GetResult();
+                    LoadCredentialsIfNeededAsync(certDescription).GetAwaiter().GetResult();
                     if (certDescription.Certificate != null)
                     {
                         yield return certDescription.Certificate;
