@@ -38,7 +38,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Default constructor (for backward compatibility)
         /// </summary>
-        //[Obsolete("Rather use the constructor with a logger.")]
         public DefaultCredentialsLoader() : this(null)
         {
         }

@@ -17,6 +17,11 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public partial class AzureIdentityForKubernetesClientAssertion : ClientAssertionProviderBase
     {
+        const string azureAccessTokenFileEnvironmentVariable = "AZURE_ACCESS_TOKEN_FILE";
+        const string azureFederatedTokenFileEnvironmentVariable =   "AZURE_FEDERATED_TOKEN_FILE";
+        private readonly string? _filePath;
+        private readonly ILogger? _logger;
+
         /// <summary>
         /// Gets a signed assertion from Azure workload identity for kubernetes. The file path is provided
         /// by an environment variable ("AZURE_FEDERATED_TOKEN_FILE")
@@ -38,27 +43,23 @@ namespace Microsoft.Identity.Web
 
             if (filePath == null)
             {
-                Log.SignedAssertionFileDiskPathNotProvided(_logger);
+                Logger.SignedAssertionFileDiskPathNotProvided(_logger);
             }
 
-            _filePath = _filePath ?? Environment.GetEnvironmentVariable("AZURE_ACCESS_TOKEN_FILE");
+            _filePath = _filePath ?? Environment.GetEnvironmentVariable(azureAccessTokenFileEnvironmentVariable);
             if (filePath == null)
             {
-                Log.SignedAssertionEnvironmentVariableNotProvided(_logger, "AZURE_ACCESS_TOKEN_FILE");
+                Logger.SignedAssertionEnvironmentVariableNotProvided(_logger, azureAccessTokenFileEnvironmentVariable);
             }
 
             // See https://blog.identitydigest.com/azuread-federate-k8s/
-            _filePath = filePath ?? Environment.GetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE");
+            _filePath = filePath ?? Environment.GetEnvironmentVariable(azureFederatedTokenFileEnvironmentVariable);
             if (_filePath == null)
             {
-                Log.SignedAssertionEnvironmentVariableNotProvided(_logger, "AZURE_FEDERATED_TOKEN_FILE");
-                Log.NoSignedAssertionParameterProvided(_logger);
+                Logger.SignedAssertionEnvironmentVariableNotProvided(_logger, azureFederatedTokenFileEnvironmentVariable);
+                Logger.NoSignedAssertionParameterProvided(_logger);
             }
         }
-
-        private readonly string? _filePath;
-
-        private readonly ILogger? _logger;
 
         /// <summary>
         /// Get the signed assertion from a file.
@@ -68,7 +69,7 @@ namespace Microsoft.Identity.Web
         {
             if (_filePath != null && !File.Exists(_filePath))
             {
-                Log.FileAssertionPathNotFound(_logger, _filePath);
+                Logger.FileAssertionPathNotFound(_logger, _filePath);
                 throw new FileNotFoundException($"The file '{_filePath}' containing the signed assertion was not found.");
 
             }
@@ -79,13 +80,13 @@ namespace Microsoft.Identity.Web
             {
                 JsonWebToken jwt = new JsonWebToken(signedAssertion);
 
-                Log.SuccessFullyReadSignedAssertion(_logger, _filePath!, jwt.ValidTo);
+                Logger.SuccessFullyReadSignedAssertion(_logger, _filePath!, jwt.ValidTo);
 
                 return Task.FromResult(new ClientAssertion(signedAssertion, jwt.ValidTo));
             }
             catch (ArgumentException ex)
             {
-                Log.FileDoesNotContainValidAssertion(_logger, _filePath!, ex.Message);
+                Logger.FileDoesNotContainValidAssertion(_logger, _filePath!, ex.Message);
                 throw;
             }
         }

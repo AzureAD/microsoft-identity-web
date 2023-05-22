@@ -33,13 +33,11 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCertificateLoader(ILogger<DefaultCertificateLoader>? logger) : base(logger)
         {
-
         }
 
         /// <summary>
         /// Default constuctor.
         /// </summary>
-        //[Obsolete("Rather use the constructor with a logger")]
         public DefaultCertificateLoader() : this(null)
         {
         }

@@ -1,8 +1,12 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Xunit;
 
@@ -11,6 +15,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
     public class SignedAssertionFilePathCredentialsLoaderTests
     {
         const string filePath = "signedAssertion.txt";
+        const string aksEnvironmentVariableName = "AZURE_FEDERATED_TOKEN_FILE";
         string token;
         SignedAssertionFilePathCredentialsLoader signedAssertionFilePathCredentialsLoader = new SignedAssertionFilePathCredentialsLoader(null);
 
@@ -47,7 +52,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         {
             // Arrange
             File.WriteAllText(filePath, token.ToString());
-            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", filePath);
+            Environment.SetEnvironmentVariable(aksEnvironmentVariableName, filePath);
             CredentialDescription credentialDescription = new CredentialDescription
             {
                 SourceType = CredentialSource.SignedAssertionFilePath,
@@ -61,7 +66,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             // Delete the signed assertion file and remove the environment variable.
             File.Delete(filePath);
-            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", null);
+            Environment.SetEnvironmentVariable(aksEnvironmentVariableName, null);
         }
 
         [Fact]
