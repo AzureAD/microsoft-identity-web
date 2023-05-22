@@ -474,20 +474,23 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
-            var permissionScopes = spWithScopes.Oauth2PermissionScopes
+            var permissionScopes = spWithScopes.Oauth2PermissionScopes?
                 .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
 
-            RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+            if (permissionScopes != null)
             {
-                ResourceAppId = spWithScopes.AppId,
-                ResourceAccess = new List<ResourceAccess>(permissionScopes.Select(p =>
-                 new ResourceAccess
-                 {
-                     Id = p.Id,
-                     Type = ScopeType
-                 }))
-            };
-            apiRequests.Add(requiredResourceAccess);
+                RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+                {
+                    ResourceAppId = spWithScopes.AppId,
+                    ResourceAccess = new List<ResourceAccess>(permissionScopes.Select(p =>
+                     new ResourceAccess
+                     {
+                         Id = p.Id,
+                         Type = ScopeType
+                     }))
+                };
+                apiRequests.Add(requiredResourceAccess);
+            }
         }
 
         /// <summary>
@@ -578,7 +581,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Application application,
             ApplicationParameters originalApplicationParameters)
         {
-            bool isB2C = (tenant.TenantType == "AAD B2C") && !originalApplicationParameters.IsCiam;
+            bool isCiam = (tenant.TenantType == "CIAM");
+            bool isB2C = (tenant.TenantType == "AAD B2C");
             var effectiveApplicationParameters = new ApplicationParameters
             {
                 ApplicationDisplayName = application.DisplayName,
@@ -586,7 +590,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,
-                IsCiam = originalApplicationParameters.IsCiam,
+                IsCiam = isCiam,
                 HasAuthentication = true,
                 IsWebApi = application.Api != null
                         && (application.Api.Oauth2PermissionScopes != null && application.Api.Oauth2PermissionScopes.Any())
