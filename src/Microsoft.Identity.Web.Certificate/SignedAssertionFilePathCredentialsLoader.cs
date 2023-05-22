@@ -5,11 +5,22 @@ using System;
 using System.Threading;
 using Microsoft.Identity.Abstractions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web
 {
     internal class SignedAssertionFilePathCredentialsLoader : ICredentialSourceLoader
     {
+        ILogger? _logger;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logger">Optional logger.</param>
+        public SignedAssertionFilePathCredentialsLoader(ILogger? logger)
+        {
+            _logger = logger;
+        }
         public CredentialSource CredentialSource => CredentialSource.SignedAssertionFilePath;
 
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
@@ -19,17 +30,17 @@ namespace Microsoft.Identity.Web
                 AzureIdentityForKubernetesClientAssertion? signedAssertion = credentialDescription.CachedValue as AzureIdentityForKubernetesClientAssertion;
                 if (credentialDescription.CachedValue == null)
                 {
-                    signedAssertion = new AzureIdentityForKubernetesClientAssertion(credentialDescription.SignedAssertionFileDiskPath);
+                    signedAssertion = new AzureIdentityForKubernetesClientAssertion(credentialDescription.SignedAssertionFileDiskPath, _logger);
                 }
                 try
                 {
                     // Given that managed identity can be not available locally, we need to try to get a
                     // signed assertion, and if it fails, move to the next credentials
                     _= await signedAssertion!.GetSignedAssertion(CancellationToken.None);
+                    credentialDescription.CachedValue = signedAssertion;
                 }
                 catch (Exception)
                 {
-                    credentialDescription.CachedValue = signedAssertion;
                     credentialDescription.Skip = true;
                 }
             }
