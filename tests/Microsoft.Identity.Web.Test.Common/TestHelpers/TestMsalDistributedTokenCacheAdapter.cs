@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
@@ -41,6 +42,11 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
+        }
+
+        public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey, TelemetryData telemetryData)
+        {
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints(), telemetryData).ConfigureAwait(false);
         }
     }
 }

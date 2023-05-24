@@ -9,6 +9,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
+using Microsoft.IdentityModel.Abstractions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -145,6 +147,20 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints(), null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Read a specific token cache, described by its cache key, from the
+        /// distributed cache.
+        /// </summary>
+        /// <param name="cacheKey">Key of the cache item to retrieve.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <param name="telemetryData">Stores details to log to the <see cref="ITelemetryClient"/></param>
+        /// <returns>Read blob representing a token cache for the cache key
+        /// (account or app).</returns>
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints, TelemetryData? telemetryData)
+        {
             const string read = "Read";
             byte[]? result = null;
 
@@ -185,6 +201,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0);
                         _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
                         Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count);
+
+                        if (telemetryData != null)
+                        {
+                            telemetryData.CacheLevel = Client.Cache.CacheLevel.L2Cache;
+                        }
                     }
                 }
             }
@@ -195,6 +216,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                        (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
                        cacheKey,
                        result!).ConfigureAwait(false);
+
+                if (telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L1Cache;
+                }
             }
 
 #pragma warning disable CS8603 // Possible null reference return.

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client.Cache;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
@@ -181,6 +183,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[3];
             cache[0] = 4;
+            TelemetryData telemetryData = new TelemetryData();
             AssertCacheValues(_testCacheAdapter);
             Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
@@ -189,11 +192,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache._dict);
 
             // Act
-            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, telemetryData).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(4, result[0]);
+            Assert.Equal(CacheLevel.L1Cache, telemetryData.CacheLevel);
         }
 
         [Fact]
@@ -202,6 +206,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[3];
             cache[0] = 4;
+            TelemetryData telemetryData = new TelemetryData();
             AssertCacheValues(_testCacheAdapter);
             _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cache);
             Assert.Single(L2Cache._dict);
@@ -209,13 +214,48 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, telemetryData).ConfigureAwait(false);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(4, result[0]);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.Single(L2Cache._dict);
+            Assert.Equal(CacheLevel.L2Cache, telemetryData.CacheLevel);
+        }
+
+        [Fact]
+        public async Task EmptyL1Cache_ReadL2AndSetL1_ForTelemetryTestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            cache[0] = 4;
+            AssertCacheValues(_testCacheAdapter);
+            _testCacheAdapter._distributedCache.Set(DefaultCacheKey, cache);
+            TelemetryData telemetryData = new TelemetryData();
+            Assert.Single(L2Cache._dict);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+
+            // Act
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, telemetryData).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(4, result[0]);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache._dict);
+            Assert.Equal(CacheLevel.L2Cache, telemetryData.CacheLevel);
+
+            // Act
+            result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, telemetryData).ConfigureAwait(false);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(4, result[0]);
+            Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
+            Assert.Single(L2Cache._dict);
+            Assert.Equal(CacheLevel.L1Cache, telemetryData.CacheLevel);
         }
 
         [Fact]
@@ -224,17 +264,19 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[3];
             cache[0] = 4;
+            TelemetryData telemetryData = new TelemetryData();
             AssertCacheValues(_testCacheAdapter);
             Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
 
             // Act
-            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey).ConfigureAwait(false);
+            byte[]? result = await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, telemetryData).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
+            Assert.Equal(CacheLevel.None, telemetryData.CacheLevel);
         }
 
         [Fact]

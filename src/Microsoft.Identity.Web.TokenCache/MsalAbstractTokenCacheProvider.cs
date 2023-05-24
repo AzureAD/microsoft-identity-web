@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
+using Microsoft.IdentityModel.Abstractions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
@@ -215,6 +217,18 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read bytes.</returns>
         protected virtual Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+            return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
+        }
+
+        /// <summary>
+        /// Method to be overridden by concrete cache serializers to Read the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <param name="telemetryData">Stores details to log to the <see cref="ITelemetryClient"/></param>
+        /// <returns>Read bytes.</returns>
+        protected virtual Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints, TelemetryData? telemetryData)
         {
             return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
         }
