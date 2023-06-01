@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey, TelemetryData telemetryData)
         {
-            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints(), telemetryData).ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints() { TelemetryData = telemetryData }).ConfigureAwait(false);
         }
     }
 }

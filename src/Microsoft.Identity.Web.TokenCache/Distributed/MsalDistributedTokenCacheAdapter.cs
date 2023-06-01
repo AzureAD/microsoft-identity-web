@@ -147,22 +147,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// (account or app).</returns>
         protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints(), null).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Read a specific token cache, described by its cache key, from the
-        /// distributed cache.
-        /// </summary>
-        /// <param name="cacheKey">Key of the cache item to retrieve.</param>
-        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
-        /// <param name="telemetryData">Stores details to log to the <see cref="ITelemetryClient"/></param>
-        /// <returns>Read blob representing a token cache for the cache key
-        /// (account or app).</returns>
-        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints, TelemetryData? telemetryData)
-        {
             const string read = "Read";
             byte[]? result = null;
+            var telemetryData = cacheSerializerHints.TelemetryData;
 
             if (_memoryCache != null)
             {
