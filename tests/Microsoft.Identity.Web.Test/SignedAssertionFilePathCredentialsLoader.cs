@@ -3,10 +3,8 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Xunit;
 
@@ -14,70 +12,67 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 {
     public class SignedAssertionFilePathCredentialsLoaderTests
     {
-        const string filePath = "signedAssertion.txt";
-        const string aksEnvironmentVariableName = "AZURE_FEDERATED_TOKEN_FILE";
-        string token;
-        SignedAssertionFilePathCredentialsLoader signedAssertionFilePathCredentialsLoader = new SignedAssertionFilePathCredentialsLoader(null);
-
+        private const string FilePath = "signedAssertion.txt";
+        private const string FilePath2 = "signedAssertion2.txt";
+        private const string AksEnvironmentVariableName = "AZURE_FEDERATED_TOKEN_FILE";
+        private readonly string _token;
+        private readonly SignedAssertionFilePathCredentialsLoader _signedAssertionFilePathCredentialsLoader = new(null);
 
         public SignedAssertionFilePathCredentialsLoaderTests()
         {
-            JsonWebTokenHandler handler = new JsonWebTokenHandler();
-            token = handler.CreateToken("{}");
+            JsonWebTokenHandler handler = new();
+            _token = handler.CreateToken("{}");
         }
 
-        [Fact]
-        public async Task GetClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion(bool withEnvVariable)
         {
             // Arrange
-            File.WriteAllText(filePath, token.ToString());
-            CredentialDescription credentialDescription = new CredentialDescription
+            var filePath = withEnvVariable ? FilePath : FilePath2;
+            File.WriteAllText(filePath, _token.ToString());
+            CredentialDescription credentialDescription;
+            if (withEnvVariable)
             {
-                SourceType = CredentialSource.SignedAssertionFilePath,
-                SignedAssertionFileDiskPath = filePath
-            };
+                Environment.SetEnvironmentVariable(AksEnvironmentVariableName, filePath);
+                credentialDescription = new()
+                {
+                    SourceType = CredentialSource.SignedAssertionFilePath,
+                };
+            }
+            else
+            {
+                credentialDescription = new()
+                {
+                    SourceType = CredentialSource.SignedAssertionFilePath,
+                    SignedAssertionFileDiskPath = filePath
+                };
+            }
 
             // Act
-            await signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
+            await _signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
 
             // Assert
             Assert.NotNull(credentialDescription.CachedValue);
 
             // Delete the signed assertion file.
             File.Delete(filePath);
-        }
-
-        [Fact]
-        public async Task GetClientAssertion_WhenEnvironmentVariablePointsToSignedAssertionFileExists_ReturnsClientAssertion()
-        {
-            // Arrange
-            File.WriteAllText(filePath, token.ToString());
-            Environment.SetEnvironmentVariable(aksEnvironmentVariableName, filePath);
-            CredentialDescription credentialDescription = new CredentialDescription
+            if (withEnvVariable)
             {
-                SourceType = CredentialSource.SignedAssertionFilePath,
-            };
-
-            // Act
-            await signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
-
-            // Assert
-            Assert.NotNull(credentialDescription.CachedValue);
-
-            // Delete the signed assertion file and remove the environment variable.
-            File.Delete(filePath);
-            Environment.SetEnvironmentVariable(aksEnvironmentVariableName, null);
+                Environment.SetEnvironmentVariable(AksEnvironmentVariableName, null);
+            }
         }
 
         [Fact]
         public async Task GetClientAssertion_WhenSignedAssertionFileDoesNotExist_ThrowsFileNotFoundException()
         {
             // Act
-            CredentialDescription credentialDescription = new CredentialDescription
+            CredentialDescription credentialDescription = new()
             {
                 SourceType = CredentialSource.SignedAssertionFilePath,
             };
-            await signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
+            await _signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
 
             // Act & Assert
             Assert.Null(credentialDescription.CachedValue);
