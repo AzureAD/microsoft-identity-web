@@ -57,7 +57,6 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.NotNull(credentialDescription.CachedValue);
 
             // Delete the signed assertion file.
-            File.Delete(filePath);
             if (withEnvVariable)
             {
                 Environment.SetEnvironmentVariable(AksEnvironmentVariableName, null);
