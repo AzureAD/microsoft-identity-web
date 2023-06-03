@@ -1,0 +1,61 @@
+# template-run-unit-tests.yaml
+# Run all unit tests across the IdWeb project
+
+parameters:
+  BuildConfiguration: 'Release'
+
+steps:
+
+- task: VSTest@2
+  displayName: 'Run unit tests (.NET FX)'
+  condition: and(succeeded(), eq(variables['RunTests'], 'true'))
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\Microsoft.Identity.Web.Test\bin\**\net4*\Microsoft.Identity.Web.Test.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
+    pathtoCustomTestAdapters: 'C:\temp' # Workaround for test failure, as NUnit Test Adapter that gets detected seems to mess something up
+    runSettingsFile: '**\test\IdWeb.CodeCoverage.runsettings'
+
+- task: VSTest@2
+  displayName: 'Run unit tests (.NET CORE 7)'
+  condition: and(succeeded(), eq(variables['RunTests'], 'true'))
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\Microsoft.Identity.Web.Test\bin\**\net7.0\Microsoft.Identity.Web.Test.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
+    runSettingsFile: '**\test\IdWeb.CodeCoverage.runsettings'
+
+- task: VSTest@2
+  displayName: 'Run integration tests (.NET Core 7)'
+  condition: and(succeeded(), eq(variables['RunTests'], 'true'))
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\Microsoft.Identity.Web.Test.Integration\bin\**\net7.0\Microsoft.Identity.Web.Test.Integration.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
+    runSettingsFile: '**\test\IdWeb.CodeCoverage.runsettings'
+
+    
+- task: VSTest@2
+  displayName: 'Run .NET 7 integration tests (.NET Core 7)'
+  condition: and(succeeded(), eq(variables['RunTests'], 'true'))
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\IntegrationTests\bin\**\net7.0\MIntegrationTests.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
+    runSettingsFile: '**\test\IdWeb.CodeCoverage.runsettings'
