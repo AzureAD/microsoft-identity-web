@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         {
             // Arrange
             File.WriteAllText(FilePath, token.ToString());
-            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(TestConstants.signedAssertionFilePath);
+            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(FilePath);
 
             // Act
             string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertion(CancellationToken.None);
