@@ -23,7 +23,7 @@ jobs:
     - task: VSBuild@1
       inputs:
         solution: Microsoft.Identity.Web.sln
-        vsVersion: '16.0'
+        vsVersion: 'latest'
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests'
       inputs:
