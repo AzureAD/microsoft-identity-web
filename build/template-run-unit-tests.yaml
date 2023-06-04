@@ -5,8 +5,8 @@ steps:
 
 - task: DotNetCoreCLI@2
   inputs:
+    command: 'test'
     projects: |
         **/*.csproj
         !**/DevApps/**/*.csproj 
-    command: 'test'
     arguments: '--collect "Code coverage"'
