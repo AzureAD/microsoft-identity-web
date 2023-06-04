@@ -7,6 +7,6 @@ steps:
   inputs:
     command: 'test'
     projects: |
-        **/*.csproj
-        !**/DevApps/**/*.csproj 
+        Tests/**/*.csproj
+        !Tests/DevApps/**/*.csproj 
     arguments: '--collect "Code coverage"'
