@@ -14,6 +14,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
     public class AzureIdentityForKubernetesClientAssertionTests
     {
         string token;
+        private const string FilePath = "signedAssertion.txt";
+        private const string FilePath2 = "signedAssertion2.txt";
 
         public AzureIdentityForKubernetesClientAssertionTests()
         {
@@ -25,25 +27,22 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         public async Task GetAksClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion()
         {
             // Arrange
-            File.WriteAllText(TestConstants.signedAssertionFilePath, token.ToString());
-            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(TestConstants.signedAssertionFilePath);
+            File.WriteAllText(FilePath, token.ToString());
+            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(FilePath);
 
             // Act
             string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertion(CancellationToken.None);
 
             // Assert
             Assert.NotNull(signedAssertion);
-
-            // Delete the signed assertion file.
-            File.Delete(TestConstants.signedAssertionFilePath);
         }
 
         [Fact]
         public async Task GetAksClientAssertion_WhenEnvironmentVariablePointsToSignedAssertionFileExists_ReturnsClientAssertion()
         {
             // Arrange
-            File.WriteAllText(TestConstants.signedAssertionFilePath, token.ToString());
-            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", TestConstants.signedAssertionFilePath);
+            File.WriteAllText(FilePath2, token.ToString());
+            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", FilePath2);
             AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion();
 
             // Act
@@ -53,7 +52,6 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.NotNull(signedAssertion);
 
             // Delete the signed assertion file and remove the environment variable.
-            File.Delete(TestConstants.signedAssertionFilePath);
             Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", null);
         }
 
