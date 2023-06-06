@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Web.Test
         private IConfidentialClientApplication _confidentialApp;
         // Non nullable needed for the Argument null exception tests
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private static TestTelemetryClient _testTelemetryClient;
 
         [Fact]
         public void InMemoryCacheExtensionsTests()
@@ -38,37 +37,39 @@ namespace Microsoft.Identity.Web.Test
         public async Task CacheExtensions_CcaAlreadyExists_TestsAsync()
         {
             AuthenticationResult result;
+            TestTelemetryClient testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
             // new InMemory serializer and new cca
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addInstanceMock: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, testTelemetryClient, addInstanceMock: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.None);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, testTelemetryClient, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.L1Cache);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.L1Cache);
 
             // new DistributedInMemory and same cca
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.None);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.L1Cache);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.L1Cache);
         }
 
         [Fact]
         public async Task CacheExtensions_CcaAlreadyExistsL2_TestsAsync()
         {
             AuthenticationResult result;
+            TestTelemetryClient testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
             // new DistributedInMemory serializer with L1 cache disabled
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addInstanceMock: true, disableL1Cache: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient, addInstanceMock: true, disableL1Cache: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.None);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false, disableL1Cache: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient, addTokenMock: false, disableL1Cache: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(CacheLevel.L2Cache);
+            AssertCacheTelemetry(testTelemetryClient, CacheLevel.L2Cache);
         }
 
         [Fact]
@@ -153,6 +154,7 @@ namespace Microsoft.Identity.Web.Test
 
         private static async Task<AuthenticationResult> CreateAppAndGetTokenAsync(
             CacheType cacheType,
+            ITelemetryClient telemetryClient,
             bool addTokenMock = true,
             bool addInstanceMock = false,
             bool disableL1Cache = false)
@@ -160,8 +162,6 @@ namespace Microsoft.Identity.Web.Test
             using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
             using var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler();
             using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
-
-            _testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
 
             if (addInstanceMock)
             {
@@ -179,7 +179,7 @@ namespace Microsoft.Identity.Web.Test
                            .WithAuthority(TestConstants.AuthorityCommonTenant)
                            .WithHttpClientFactory(mockHttp)
                            .WithClientSecret(TestConstants.ClientSecret)
-                           .WithTelemetryClient(_testTelemetryClient)
+                           .WithTelemetryClient(telemetryClient)
                            .Build();
 
             switch (cacheType)
@@ -212,9 +212,9 @@ namespace Microsoft.Identity.Web.Test
             return result;
         }
 
-        private void AssertCacheTelemetry(CacheLevel cacheLevel)
+        private void AssertCacheTelemetry(TestTelemetryClient testTelemetryClient, CacheLevel cacheLevel)
         {
-            TelemetryEventDetails eventDetails = _testTelemetryClient.TestTelemetryEventDetails;
+            TelemetryEventDetails eventDetails = testTelemetryClient.TestTelemetryEventDetails;
             Assert.Equal(Convert.ToInt64(cacheLevel, new CultureInfo("en-US")), eventDetails.Properties["CacheLevel"]);
         }
 
