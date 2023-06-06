@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Cache;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.IdentityModel.Abstractions;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -18,6 +22,7 @@ namespace Microsoft.Identity.Web.Test
         private IConfidentialClientApplication _confidentialApp;
         // Non nullable needed for the Argument null exception tests
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private static TestTelemetryClient _testTelemetryClient;
 
         [Fact]
         public void InMemoryCacheExtensionsTests()
@@ -36,16 +41,34 @@ namespace Microsoft.Identity.Web.Test
             // new InMemory serializer and new cca
             result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addInstanceMock: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.None);
 
             result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.L1Cache);
 
             // new DistributedInMemory and same cca
             result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.None);
 
             result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.L1Cache);
+        }
+
+        [Fact]
+        public async Task CacheExtensions_CcaAlreadyExistsL2_TestsAsync()
+        {
+            AuthenticationResult result;
+            // new DistributedInMemory serializer with L1 cache disabled
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addInstanceMock: true, disableL1Cache: true).ConfigureAwait(false);
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.None);
+
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false, disableL1Cache: true).ConfigureAwait(false);
+            Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
+            AssertCacheTelemetry(CacheLevel.L2Cache);
         }
 
         [Fact]
@@ -131,11 +154,15 @@ namespace Microsoft.Identity.Web.Test
         private static async Task<AuthenticationResult> CreateAppAndGetTokenAsync(
             CacheType cacheType,
             bool addTokenMock = true,
-            bool addInstanceMock = false)
+            bool addInstanceMock = false,
+            bool disableL1Cache = false)
         {
             using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
             using var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler();
             using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
+
+            _testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
+
             if (addInstanceMock)
             {
                 mockHttp.AddMockHandler(discoveryHandler);
@@ -152,6 +179,7 @@ namespace Microsoft.Identity.Web.Test
                            .WithAuthority(TestConstants.AuthorityCommonTenant)
                            .WithHttpClientFactory(mockHttp)
                            .WithClientSecret(TestConstants.ClientSecret)
+                           .WithTelemetryClient(_testTelemetryClient)
                            .Build();
 
             switch (cacheType)
@@ -166,6 +194,14 @@ namespace Microsoft.Identity.Web.Test
                         services.AddDistributedMemoryCache();
                         services.AddLogging(configure => configure.AddConsole())
                         .Configure<LoggerFilterOptions>(options => options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Warning);
+
+                        if (disableL1Cache)
+                        {
+                            services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
+                            {
+                                options.DisableL1Cache = true;
+                            });
+                        }
                     });
                     break;
             }
@@ -174,6 +210,12 @@ namespace Microsoft.Identity.Web.Test
                 .ExecuteAsync().ConfigureAwait(false);
 
             return result;
+        }
+
+        private void AssertCacheTelemetry(CacheLevel cacheLevel)
+        {
+            TelemetryEventDetails eventDetails = _testTelemetryClient.TestTelemetryEventDetails;
+            Assert.Equal(Convert.ToInt64(cacheLevel, new CultureInfo("en-US")), eventDetails.Properties["CacheLevel"]);
         }
 
         private void CreateCca()

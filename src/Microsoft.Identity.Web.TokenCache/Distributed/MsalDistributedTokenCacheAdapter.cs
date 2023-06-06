@@ -172,6 +172,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 }, cacheSerializerHints.CancellationToken).Measure().ConfigureAwait(false);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
+                if (result != null && telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L2Cache;
+                }
+
                 Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds);
 
                 if (_memoryCache != null)
@@ -188,11 +193,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0);
                         _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
                         Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count);
-
-                        if (telemetryData != null)
-                        {
-                            telemetryData.CacheLevel = Client.Cache.CacheLevel.L2Cache;
-                        }
                     }
                 }
             }
