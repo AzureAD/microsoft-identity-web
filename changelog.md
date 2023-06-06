@@ -1,3 +1,10 @@
+2.11.1
+==========
+- Update to MSAL 4.54.1
+
+### Bug Fix:
+- **Fix bug with signed assertion for AKS**, see issue [#2252](https://github.com/AzureAD/microsoft-identity-web/pull/2252) for details.
+
 2.11.0
 ==========
 - Update to MSAL 4.54.0
