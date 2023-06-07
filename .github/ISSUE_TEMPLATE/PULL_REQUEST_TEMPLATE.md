@@ -1,7 +1,7 @@
 # {PR title}
 <!-- Thank you for submitting a pull request to our repo. -->
 
-<!-- If this is your first PR in the ASP.NET Core repo, please run through the checklist
+<!-- If this is your first PR in the Id Web repo, please run through the checklist
 below to ensure a smooth review and merge process for your PR. -->
 
 - [ ] You've read the [Contributor Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/CONTRIBUTING.md) and [Code of Conduct](https://github.com/AzureAD/microsoft-identity-web/blob/master/CODE_OF_CONDUCT.md).
