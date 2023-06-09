@@ -156,7 +156,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(accessToken))
             {
-                accessToken = AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthAccessTokenHeader);
+                accessToken = AppServicesAuthenticationInformation.SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthAccessTokenHeader);
             }
 #endif
             if (!string.IsNullOrEmpty(accessToken))

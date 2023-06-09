@@ -87,7 +87,7 @@
             Issuer of the App Services Auth web site.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.SimulateGetttingHeaderFromDebugEnvironmentVariable(System.String)">
+        <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationInformation.SimulateGettingHeaderFromDebugEnvironmentVariable(System.String)">
             <summary>
             Get headers from environment to help debugging App Services authentication.
             </summary>
