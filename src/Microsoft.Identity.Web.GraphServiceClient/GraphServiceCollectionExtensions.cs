@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
+using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.Beta_Dist;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -47,25 +47,25 @@ namespace Microsoft.Identity.Web
         /// <param name="services">Builder.</param>
         /// <param name="configureMicrosoftGraphOptions">Delegate to configure the graph service options</param>
         /// <returns>The service collection to chain.</returns>
-        public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, Action<MicrosoftGraphOptions> configureMicrosoftGraphOptions)
+        public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, Action<GraphServiceClientOptions> configureMicrosoftGraphOptions)
         {
             // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            services.AddOptions<MicrosoftGraphOptions>().Configure(configureMicrosoftGraphOptions);
+            services.AddOptions<GraphServiceClientOptions>().Configure(configureMicrosoftGraphOptions);
 
             services.AddScoped<GraphServiceClient, GraphServiceClient>(serviceProvider =>
             {
                 var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-                var options = serviceProvider.GetRequiredService<IOptions<MicrosoftGraphOptions>>();
+                var options = serviceProvider.GetRequiredService<IOptions<GraphServiceClientOptions>>();
                 var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
                 var microsoftGraphOptions = options.Value;
                 if (microsoftGraphOptions.Scopes == null)
                 {
-                    throw new ArgumentException(IDWebErrorMessage.CalledApiScopesAreNull);
+                    Throws.ArgumentNullException("scopes", IDWebErrorMessage.CalledApiScopesAreNull);
                 }
 
-                var httpClient = httpClientFactory.CreateClient("MicrosoftGraphServiceClient");
+                var httpClient = httpClientFactory.CreateClient("GraphServiceClient");
 
-                GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient,
+                GraphServiceClient graphServiceClient = new(httpClient,
                     new GraphAuthenticationProvider(authorizationHeaderProvider, microsoftGraphOptions), microsoftGraphOptions.BaseUrl);
                 return graphServiceClient;
             });

@@ -11,12 +11,12 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Options passed-in to call Microsoft Graph.
     /// </summary>
-    public class MicrosoftGraphOptions : DownstreamApiOptions
+    public class GraphServiceClientOptions : DownstreamApiOptions
     {
         /// <summary>
         /// Options used to configure the authentication provider for Microsoft Graph.
         /// </summary>
-        public MicrosoftGraphOptions()
+        public GraphServiceClientOptions()
         {
             BaseUrl = Constants.GraphBaseUrlV1;
             Scopes = new[] { Constants.UserReadScope };
