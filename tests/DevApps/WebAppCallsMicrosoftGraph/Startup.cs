@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Identity.Web.UI;
 
 namespace WebAppCallsMicrosoftGraph
@@ -36,7 +37,9 @@ namespace WebAppCallsMicrosoftGraph
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
-                        .EnableTokenAcquisitionToCallDownstreamApi()
+                        .EnableTokenAcquisitionToCallDownstreamApi();
+
+            services
                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                            .AddDownstreamApi("GraphBeta", Configuration.GetSection("GraphBeta"))
                            .AddInMemoryTokenCaches();

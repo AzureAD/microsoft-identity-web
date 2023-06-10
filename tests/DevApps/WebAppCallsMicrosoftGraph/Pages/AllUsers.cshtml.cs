@@ -26,10 +26,8 @@ namespace WebAppCallsMicrosoftGraph.Pages
         public async Task OnGet()
         {
             var messages = await _graphServiceClient.Users
-                .Request()
-                .WithScopes("User.Read.All")
-                .GetAsync();
-            NumberOfUsers = messages.Count;
+                .GetAsync(b => b.Options.WithAuthenticationOptions(o => o.Scopes = new[] { "User.Read.All"} ));
+            NumberOfUsers = messages.Value.Count;
         }
     }
 }

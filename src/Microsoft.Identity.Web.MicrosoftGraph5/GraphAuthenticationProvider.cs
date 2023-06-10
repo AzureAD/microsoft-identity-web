@@ -13,7 +13,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 
-namespace Microsoft.Identity.Web.MicrosoftGraph5
+namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Authentication provider for Microsoft Graph, based on IAuthorizationHeaderProvider. This is richer
@@ -59,7 +59,11 @@ namespace Microsoft.Identity.Web.MicrosoftGraph5
 
             // Attempts to get the scopes
             string[] scopes = additionalAuthenticationContext is not null && additionalAuthenticationContext.ContainsKey(ScopeKey) ?
-                   (string[])additionalAuthenticationContext[ScopeKey] : Array.Empty<string>();
+                   (string[])additionalAuthenticationContext[ScopeKey] : null;
+            if (scopes == null)
+            {
+                scopes = _defaultAuthenticationOptions.Scopes.ToArray();
+            }
 
             // Attempts to get the authorization header provider options
             MicrosoftGraphOptions authorizationHeaderProviderOptions = additionalAuthenticationContext is not null &&
@@ -81,14 +85,14 @@ namespace Microsoft.Identity.Web.MicrosoftGraph5
 
                 if (appToken)
                 {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                         scopes,
-                         authorizationHeaderProviderOptions);
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(scopes.FirstOrDefault(),
+                        authorizationHeaderProviderOptions);
                 }
                 else
                 {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(scopes.FirstOrDefault(),
-                        authorizationHeaderProviderOptions);
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                         scopes,
+                         authorizationHeaderProviderOptions);
                 }
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }

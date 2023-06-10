@@ -29,11 +29,11 @@ namespace WebAppCallsMicrosoftGraph.Pages
 
         public async Task OnGet()
         {
-            var user = await _graphServiceClient.Me.Request().GetAsync();
+            var user = await _graphServiceClient.Me.GetAsync();
          
             try
             {
-                using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
+                using (var photoStream = await _graphServiceClient.Me.Photo.Content.GetAsync())
                 {
                     byte[] photoByte = ((MemoryStream)photoStream).ToArray();
                     ViewData["photo"] = Convert.ToBase64String(photoByte);

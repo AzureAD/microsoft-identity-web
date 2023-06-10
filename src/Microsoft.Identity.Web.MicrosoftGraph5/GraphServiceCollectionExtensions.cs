@@ -4,11 +4,11 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.MicrosoftGraph5;
 
 namespace Microsoft.Identity.Web
 {
@@ -28,6 +28,17 @@ namespace Microsoft.Identity.Web
             services.AddTokenAcquisition();
             services.AddHttpClient();
             return services.AddMicrosoftGraph(options => { });
+        }
+
+        /// <summary>
+        /// Add support to call Microsoft Graph. From a base Graph URL and a default scope.
+        /// </summary>
+        /// <param name="services">Builder.</param>
+        /// <param name="configurationSection">Configuration section containing the Microsoft graph config.</param>
+        /// <returns>The service collection to chain.</returns>
+        public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, IConfiguration configurationSection)
+        {
+            return services.AddMicrosoftGraph(o => configurationSection.Bind(o));
         }
 
         /// <summary>
@@ -54,7 +65,7 @@ namespace Microsoft.Identity.Web
 
                 var httpClient = httpClientFactory.CreateClient("MicrosoftGraphServiceClient");
 
-                GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient, 
+                GraphServiceClient graphServiceClient = new GraphServiceClient(httpClient,
                     new GraphAuthenticationProvider(authorizationHeaderProvider, microsoftGraphOptions), microsoftGraphOptions.BaseUrl);
                 return graphServiceClient;
             });

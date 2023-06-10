@@ -28,10 +28,9 @@ namespace WebAppCallsMicrosoftGraph.Pages
         public async Task OnGet()
         {
             var messages = await _graphServiceClient.Applications
-                .Request()
-                .WithAppOnly()
-                .GetAsync();
-            NumberOfApps = messages.Count;
+                .GetAsync(r => r.Options.WithAuthenticationOptions(o => o.RequestAppToken = true));
+            ;
+            NumberOfApps = messages.Value.Count;
         }
     }
 }

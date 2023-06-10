@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Kiota.Abstractions;
 
-namespace Microsoft.Identity.Web.MicrosoftGraph5
+namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Extension class on the <see cref="IRequestOption"/>

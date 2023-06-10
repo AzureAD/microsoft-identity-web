@@ -4,7 +4,7 @@
 using Microsoft.Identity.Abstractions;
 using Microsoft.Kiota.Abstractions;
 
-namespace Microsoft.Identity.Web.MicrosoftGraph5
+namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Authentication options controlling how the authentication request to the Microsoft Graph service.
