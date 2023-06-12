@@ -89,6 +89,16 @@
    ```csharp
     var mailFolders = await _graphServiceClient.Me.MailFolders.GetAsync(r =>
     {
+        r.Options.WithScopes("Mail.Read")
+                 .WithAuthenticationScheme(JwtBearerDefaults.AuthenticationScheme);
+    });
+    ```
+
+   You could also write the same code as follows:
+
+   ```csharp
+    var mailFolders = await _graphServiceClient.Me.MailFolders.GetAsync(r =>
+    {
         r.Options.WithAuthenticationOptions(o =>
         {
             // Specify scopes for the request
@@ -102,6 +112,14 @@
     ```
    
    If you call a Graph API on behalf of your application, you'll need to request an application token. You can do this by setting
+
+   ```charp
+   int? appsInTenant = await _graphServiceClient.Applications.Count.GetAsync(
+                                                                    r => r.Options.WithAppOnly() );
+   ```
+
+   which is a shortcut for:
+ 
    ```charp
    int? appsInTenant = await _graphServiceClient.Applications.Count.GetAsync(r =>
    {
@@ -112,6 +130,27 @@
     });
    });
    ```
+
+## You can now use both Microsoft Graph and Microsoft Graph Beta
+
+You can now use both Microsoft Graph and Microsoft Graph Beta in the same application:
+
+    1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphBetaServiceClient in your project
+
+    1. In the startup method, add Microsoft Graph and Graph Beta to the service collection:
+ 
+       ```csharp
+       services.AddMicrosoftGraph();
+       services.AddMicrosoftGraphBeta();
+       ```
+
+    1. In the controller or wherever you want to use them declare both GraphServiceClient and GraphBetaServiceClient
+       and inject them in the constructor:
+       
+       ```csharp
+       using GraphServiceClient = Microsoft.Graph.GraphServiceClient;
+       using GraphBetaServiceClient = Microsoft.Graph.GraphBetaServiceClient;
+       ```
 
 ## Migrate from Microsoft.Identity.Web.MicrosoftGraph 2.x to 3.x
 
@@ -145,11 +184,11 @@ var messages = await _graphServiceClient.Users
 int NumberOfUsers = messages.Count;
 ```
 
-With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAuthenticationOptions() and set the AppOnlyToken property to true.
+With Microsoft.Identity.Web.GraphServiceClient, you need to call WithScopes() on the options of the builder.
 
 ```csharp
 var messages = await _graphServiceClient.Users
-                .GetAsync(b => b.Options.WithAuthenticationOptions(o => o.Scopes = new[] { "User.Read.All"} ));
+                .GetAsync(b => b.Options.WithScopes("User.Read.All"));
 int NumberOfUsers = messages.Value.Count;
 ```
 
@@ -160,18 +199,36 @@ In Microsoft.Identity.Web.MicrosoftGraph 2.x, you could request an application t
 ```csharp
 var messages = await _graphServiceClient.Users
                 .Request()
-                .WithScopes("User.Read.All")
+                .WithAppOnly()
                 .GetAsync();
 int NumberOfUsers = messages.Count;
 ```
 
-With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAuthenticationOptions() and set the AppOnlyToken property to true.
+With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAppOnly() on the options of the builder.
 
 ```csharp
 var messages = await _graphServiceClient.Users
-                .GetAsync(b => b.Options.WithAuthenticationOptions(o => o.Scopes = new[] { "User.Read.All"} ));
+                .GetAsync(b => b.Options.WithAppOnly() ));
 int NumberOfUsers = messages.Value.Count;
 ```
 
-#### WithAuthenticationOptions()
+#### WithAuthenticationOptions() in ASP.NET Core applications.
 
+If you are using Microsoft.Identity.Web.MicrosoftGraph in an ASP.NET Core application, you can specify the authentication scheme
+to use by calling WithAuthenticationScheme().
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .Request()
+                .WithAuthenticationScheme(JwtBearerDefaults.AuthenticationScheme)
+                .GetAsync();
+int NumberOfUsers = messages.Count;
+```
+
+With Microsoft.Identity.Web.GraphServiceClient, this becomes:
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .GetAsync(b => b.Options.WithAuthenticationScheme(JwtBearerDefaults.AuthenticationScheme) ));
+int NumberOfUsers = messages.Value.Count;
+```
