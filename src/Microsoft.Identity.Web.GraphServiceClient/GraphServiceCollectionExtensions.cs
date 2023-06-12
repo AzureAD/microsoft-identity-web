@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
-using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.Beta_Dist;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -72,5 +71,4 @@ namespace Microsoft.Identity.Web
             return services;
         }
     }
-
 }

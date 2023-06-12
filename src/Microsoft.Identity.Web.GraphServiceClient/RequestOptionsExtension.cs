@@ -37,7 +37,5 @@ namespace Microsoft.Identity.Web
             options.Add(authorizationOptions);
             return options;
         }
-
-
     }
 }

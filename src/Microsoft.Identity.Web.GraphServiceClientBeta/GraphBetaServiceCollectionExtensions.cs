@@ -72,5 +72,4 @@ namespace Microsoft.Identity.Web
             return services;
         }
     }
-
 }
