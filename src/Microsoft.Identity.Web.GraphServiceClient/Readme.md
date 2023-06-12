@@ -1,7 +1,7 @@
 ﻿# Microsoft.Identity.Web.GraphServiceClient
 
 With the introduction of Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphServiceClientBeta
-libraries in version Microsoft.Identity.Web 1.12, you now have the choice to use either the legacy 
+libraries in version Microsoft.Identity.Web 2.12, you now have the choice to use either the legacy 
 Microsoft.Identity.Web.MicrosoftGraph and Microsoft.Identity.Web.MicrosoftGraphBeta NuGet packages 
 based on Microsoft Graph SDK 4.x or the new libraries based on Microsoft Graph SDK 5. 
 By keeping both options available, you can choose to migrate to the latest version of the SDK at your own pace 
