@@ -1,21 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 
-    <Title>Microsoft Identity Web, Microsoft Graph helper</Title>
+    <Title>Microsoft Identity Web, Microsoft Graph v5+ helper</Title>
     <Product>Microsoft Identity Web</Product>
     <Description>
       This package enables ASP.NET Core web apps and web APIs to use the Microsoft identity platform (formerly Azure AD v2.0).
       This package is specifically used for web applications, which sign-in users and call Microsoft Graph, and for protected web APIs
-      that call Microsoft Graph.
+      that call Microsoft Graph. Works specifically with MS Graph SDK v5 and above. For MS Graph SDK v4 support, please use Microsoft.Identity.Web.MicrosoftGraph.
     </Description>
-    <ProjectGuid>{4DF02DF7-D092-4F45-8892-8A1D3E612706}</ProjectGuid>
+    <ProjectGuid>{608F0E0B-A52D-4E0F-9B1A-BA9BDA866484}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph" Version="5.12.0" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.34.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 
