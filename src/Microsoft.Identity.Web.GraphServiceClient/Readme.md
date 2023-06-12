@@ -153,7 +153,11 @@ as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosof
 You can now use both Microsoft Graph and Microsoft Graph Beta in the same application:
 
 1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphBetaServiceClient in your project
-
+   ```shell
+   dotnet add package Microsoft.Identity.Web.GraphServiceClient
+   dotnet add package Microsoft.Identity.Web.GraphServiceClientBeta
+   ```
+   
 1. In the startup method, add Microsoft Graph and Graph Beta to the service collection:
  
     ```csharp
@@ -169,23 +173,32 @@ You can now use both Microsoft Graph and Microsoft Graph Beta in the same applic
     using GraphBetaServiceClient = Microsoft.Graph.GraphBetaServiceClient;
     ```
 
+    ```csharp
+    MyController(GraphServiceClient graphServiceClient, GraphBetaServiceClient graphServiceClient)
+    {
+     // more here
+    }
+    ```
+
 ## Migrate from Microsoft.Identity.Web.MicrosoftGraph 2.x to Microsoft.Identity.Web.GraphServiceClient
 
 Microsoft.Identity.Web.GraphServiceClient is based on Microsoft.GraphSDK 5.x, which introduces breaking changes.
-The Request() method has disappeared, and the extension methods it enabled are now part moved to the GetAsync(), GetPost(), etc methods.
+The Request() method has disappeared, and the extension methods it enabled in Microsoft.Identity.Web.MicrosoftGraph
+are now moved to the GetAsync(), GetPost(), etc methods.
 
+The Microsoft Graph 4.x code:
 
 ```csharp
 var user = await _graphServiceClient.Me.Request().GetAsync();
 ```
 
-becomes with Microsoft.Graph 5.x
+becomes with Microsoft.Graph 5.x:
 
 ```csharp
 var user = await _graphServiceClient.Me.GetAsync();
 ```
 
-Here how to migrate from Microsoft.Identity.Web.MicrosoftGraph to Microsoft.Identity.Web.GraphServiceClient.
+The following paragraphs help you migrate from Microsoft.Identity.Web.MicrosoftGraph to Microsoft.Identity.Web.GraphServiceClient.
 
 ### Replace the nuget packages
 
@@ -198,10 +211,11 @@ Here how to migrate from Microsoft.Identity.Web.MicrosoftGraph to Microsoft.Iden
 ### Update the code
 
 In addition to the changes to the code due to the migration from Microsoft.Graph 4.x to Microsoft.Graph 5.x, you need to change the location of the
-modifiers .WithScopes(), .WithAppOnly(), WithAuthenticationScheme() and .WithAuthenticationOptions().
+modifiers `.WithScopes()`, `.WithAppOnly()`, `WithAuthenticationScheme()` and `.WithAuthenticationOptions()`.
 
 #### WithScopes()
 
+In Microsoft.Identity.Web.MicrosoftGraph, you used to use `.WithScopes()` on the request to specify scopes to use to authenticate to Microsoft Graph:
 ```csharp
 var messages = await _graphServiceClient.Users
                 .Request()
@@ -210,7 +224,7 @@ var messages = await _graphServiceClient.Users
 int NumberOfUsers = messages.Count;
 ```
 
-With Microsoft.Identity.Web.GraphServiceClient, you need to call WithScopes() on the options of the builder.
+With Microsoft.Identity.Web.GraphServiceClient, you need to call `.WithScopes()` on the options of the builder.
 
 ```csharp
 var messages = await _graphServiceClient.Users
@@ -220,7 +234,7 @@ int NumberOfUsers = messages.Value.Count;
 
 #### WithAppOnly()
 
-In Microsoft.Identity.Web.MicrosoftGraph 2.x, you could request an application token by calling WithAppOnlyToken().
+In Microsoft.Identity.Web.MicrosoftGraph 2.x, you could specify using app permissions (which require an app-only-token) by calling `.WithAppOnly()`.
 
 ```csharp
 var messages = await _graphServiceClient.Users
@@ -230,7 +244,7 @@ var messages = await _graphServiceClient.Users
 int NumberOfUsers = messages.Count;
 ```
 
-With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAppOnly() on the options of the builder.
+With Microsoft.Identity.Web.GraphServiceClient, you need to call `.WithAppOnly()` on the options of the builder.
 
 ```csharp
 var messages = await _graphServiceClient.Users
@@ -238,10 +252,13 @@ var messages = await _graphServiceClient.Users
 int NumberOfUsers = messages.Value.Count;
 ```
 
+Note that this will use, under the hood, the scopes **["https://graph.microsoft.com/.default"]** which means all the pre-authorized scopes. You don't need
+to specify these scopes, as this is the only possible when calling a Microsof Graph API requiring app permissions. 
+
 #### WithAuthenticationScheme() in ASP.NET Core applications.
 
 If you are using Microsoft.Identity.Web.MicrosoftGraph in an ASP.NET Core application, you can specify the authentication scheme
-to use by calling WithAuthenticationScheme().
+to use by calling `WithAuthenticationScheme()`.
 
 ```csharp
 var messages = await _graphServiceClient.Users
