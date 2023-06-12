@@ -4,20 +4,31 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Graph;
+using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
-    public class GraphSeriveClientTests
+
+    /// <summary>
+    /// This is a compilation test only. It is not meant to be run.
+    /// </summary>
+    public class GraphServiceClientTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS0649 // Field 'GraphServiceClientTests._authorizationHeaderProvider' is never assigned to, and will always have its default value null
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
+#pragma warning restore CS0649 // Field 'GraphServiceClientTests._authorizationHeaderProvider' is never assigned to, and will always have its default value null
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+#pragma warning disable IDE0051 // Remove unused private members
         async Task Test()
+#pragma warning restore IDE0051 // Remove unused private members
         {
             GraphServiceClient graphServiceClient = new(new GraphAuthenticationProvider(_authorizationHeaderProvider, new GraphServiceClientOptions()));
 
-            var me = await graphServiceClient.Me.GetAsync(r =>
+            User? me = await graphServiceClient.Me.GetAsync(r =>
             {
                 r.Options.WithAuthenticationOptions(o =>
                 {
@@ -34,12 +45,10 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
             );
 
-            var mailFolders = await graphServiceClient.Me.MailFolders.GetAsync(r =>
+            MailFolderCollectionResponse? mailFolders = await graphServiceClient.Me.MailFolders.GetAsync(r =>
             {
                 r.Options.WithAuthenticationOptions(o =>
                 {
-                    o.HttpMethod = HttpMethod.Get;
-
                     // Specify scopes for the request
                     o.Scopes = new string[] { "Mail.Read" };
 

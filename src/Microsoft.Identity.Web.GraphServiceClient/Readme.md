@@ -2,10 +2,19 @@
 
 ## Usage
 
-1. Add Microsoft Graph to the service collection. By default, the scopes are set to `User.Read` and the
-   BaseUrl is "https://graph.microsoft.com/v1.0". 
+1. Reference Microsoft.Identity.Web.GraphServiceClient in your project.
+
+1. In the startup method, add Microsoft Graph to the service collection. 
+   By default, the scopes are set to `User.Read` and the BaseUrl is "https://graph.microsoft.com/v1.0". 
    You can change them by passing a delegate to the `AddMicrosoftGraph` method (See below).
+
+   Use the following namespace.
+   ```csharp
+   using Microsoft.Identity.Web;
+   ```
    
+   Add the Microsoft graph
+
    ```csharp
    services.AddMicrosoftGraph();
    ```
@@ -21,18 +30,19 @@
    {
      "MicrosoftGraph":
         {
-             // Change this to "https://graph.microsoft.com/beta" if you want to use Graph Beta.
-             "BaseUrl": "https://graph.microsoft.com/v1.0",
+            // Specify BaseUrl if you want to use Microsoft graph in a national cloud.
+            // See https://learn.microsoft.com/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints
+            // "BaseUrl": "https://graph.microsoft.com/v1.0",
 
-             // Change this to "true" if you want to request an application token (to call graph on 
-             // behalf of the application). The scopes will then automatically
-             // be ['https://graph.microsoft.com/.default'].
-             "RequestAppToken": false
+            // Set RequestAppToken this to "true" if you want to request an application token (to call graph on 
+            // behalf of the application). The scopes will then automatically
+            // be ['https://graph.microsoft.com/.default'].
+            // "RequestAppToken": false
 
-             // Scopes aren't needed if you request an app token.
-             "Scopes": ["User.Read", "User.ReadBasic.All"]
+            // Set Scopes to request (unless you request an app token).
+            "Scopes": ["User.Read", "User.ReadBasic.All"]
 
-             // See https://aka.ms/ms-id-web/downstreamApiOptions for all the properties you can set.
+            // See https://aka.ms/ms-id-web/downstreamApiOptions for all the properties you can set.
         }
    }
    ```
@@ -52,9 +62,10 @@
                                              services.Configuration.GetSection("DownstreamApis:MicrosoftGraph"));
    ```
 
-
 2. Inject the GraphServiceClient from the constructor of controllers.
    ```csharp
+   using Microsoft.Graph;   
+
    public class HomeController : Controller
    {
        private readonly GraphServiceClient _graphServiceClient;
@@ -106,10 +117,61 @@
 
 ### Breaking changes
 
-Microsoft.Identity.Web.MicrosoftGraph 3.x is based on Microsoft.GraphSDK 5.x, which introduces breaking changes.
-The Request() method has disappeared.
+Microsoft.Identity.Web.GraphServiceClient is based on Microsoft.GraphSDK 5.x, which introduces breaking changes.
+The Request() method has disappeared, and the extension methods it enabled are now part moved to the GetAsync(), GetPost(), etc methods.
+
+If you don't want to change your code, you can still use the Request() method by adding Microsoft.Identity.Web.MicrosoftGraph to your project
+instead of Microsoft.Identity.Web.GraphServiceClient. This package is based on Microsoft.GraphSDK 4.x.
 
    ```csharp
    var user = await _graphServiceClient.Me.Request().GetAsync();
    ```
+
+   becomes with Microsoft.Graph 5.x
+
+   ```csharp
+   var user = await _graphServiceClient.Me.GetAsync();
+   ```
+
+Here how to migrate from Microsoft.Identity.Web.MicrosoftGraph to Microsoft.Identity.Web.GraphServiceClient.
+
+#### WithScopes()
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .Request()
+                .WithScopes("User.Read.All")
+                .GetAsync();
+int NumberOfUsers = messages.Count;
+```
+
+With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAuthenticationOptions() and set the AppOnlyToken property to true.
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .GetAsync(b => b.Options.WithAuthenticationOptions(o => o.Scopes = new[] { "User.Read.All"} ));
+int NumberOfUsers = messages.Value.Count;
+```
+
+#### WithAppOnlyToken()
+
+In Microsoft.Identity.Web.MicrosoftGraph 2.x, you could request an application token by calling WithAppOnlyToken().
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .Request()
+                .WithScopes("User.Read.All")
+                .GetAsync();
+int NumberOfUsers = messages.Count;
+```
+
+With Microsoft.Identity.Web.GraphServiceClient, you need to call WithAuthenticationOptions() and set the AppOnlyToken property to true.
+
+```csharp
+var messages = await _graphServiceClient.Users
+                .GetAsync(b => b.Options.WithAuthenticationOptions(o => o.Scopes = new[] { "User.Read.All"} ));
+int NumberOfUsers = messages.Value.Count;
+```
+
+#### WithAuthenticationOptions()
 
