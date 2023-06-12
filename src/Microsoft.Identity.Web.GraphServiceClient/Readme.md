@@ -1,16 +1,18 @@
 ﻿# Microsoft.Identity.Web.GraphServiceClient
 
-Microsoft.Identity.Web 1.12 adds a couple of new libraries to call Microsoft Graph and Microsoft Graph Beta
-using the version 5 of the Microsoft Graph SDK, which has breaking changes with respect to Microsoft SDK 4.x and earlier.
-These new libraries Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphServiceClientBeta are an alternative 
-to the legacy Microsoft.Identity.Web.MicrosoftGraph and Microsoft.Identity.Web.MicrosoftGraphBeta NuGet packages, 
-which are based on Microsoft Graph SDK 4.x.
+Microsoft.Identity.Web 1.12 has introduced two new libraries, Microsoft.Identity.Web.GraphServiceClient and
+Microsoft.Identity.Web.GraphServiceClientBeta, which allow you 
+to call Microsoft Graph and Microsoft Graph Beta using version 5 of the Microsoft Graph SDK.
+These new libraries are an alternative to the legacy Microsoft.Identity.Web.MicrosoftGraph 
+and Microsoft.Identity.Web.MicrosoftGraphBeta NuGet packages, which are based on Microsoft Graph SDK 4.x.
+Microsoft.Identity.Web.MicrosoftGraph and Microsoft.Identity.Web.MicrosoftGraphBeta are still provided to enable you to decide when you want to migrate
+to Microsoft Graph SDK 5 (as it has breaking changes with respect to Microsoft.Graph SDK 4). They will be deprecated in the future.
 
-Microsoft.Identity.Web.GraphServiceClient enables you to benefit from the latest features of the Microsoft Graph SDK,
-including a simplified fluent API, and the possibility to use both Microsoft Graph and Microsoft Graph Beta in the same application.
+By migrating to Microsoft.Identity.Web.GraphServiceClient, you can benefit from the latest features of the Microsoft Graph SDK,
+including a simplified fluent API and the ability to use both Microsoft Graph and Microsoft Graph Beta APIs in the same application.
+However, migrating from Microsoft.Identity.Web.MicrosoftGraph 2.x to Microsoft.Identity.Web.GraphServiceClient requires moving some of your code,
+as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosoftgraph-2x-to-microsoftidentitywebgraphserviceclient).
 
-Migrating from Microsoft.Identity.Web.MicrosoftGraph 2.x to Microsoft.Identity.Web.GraphServiceClient requires moving some of your code as
-discussed in []()
 
 ## Usage
 
@@ -243,3 +245,5 @@ var messages = await _graphServiceClient.Users
                 .GetAsync(b => b.Options.WithAuthenticationScheme(JwtBearerDefaults.AuthenticationScheme) ));
 int NumberOfUsers = messages.Value.Count;
 ```
+
+More information about the migration from Microsoft Graph SDK 4.x to 5.x can be found in [Microsoft Graph .NET SDK v5 changelog and upgrade guide](https://github.com/microsoftgraph/msgraph-sdk-dotnet/blob/dev/docs/upgrade-to-v5.md)
