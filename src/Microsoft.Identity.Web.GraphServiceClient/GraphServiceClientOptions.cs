@@ -27,6 +27,6 @@ namespace Microsoft.Identity.Web
         /// requested by the app on behalf of itself), there should be only one scope, and it
         /// should end in "./default")
         /// </summary>
-        public IEnumerable<string> Scopes { get; }
+        public IEnumerable<string> Scopes { get; set; }
     }
 }
