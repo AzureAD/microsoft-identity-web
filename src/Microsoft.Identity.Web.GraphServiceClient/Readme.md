@@ -135,21 +135,21 @@
 
 You can now use both Microsoft Graph and Microsoft Graph Beta in the same application:
 
-    1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphBetaServiceClient in your project
+1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphBetaServiceClient in your project
 
-    1. In the startup method, add Microsoft Graph and Graph Beta to the service collection:
+1. In the startup method, add Microsoft Graph and Graph Beta to the service collection:
  
-       ```csharp
-       services.AddMicrosoftGraph();
-       services.AddMicrosoftGraphBeta();
-       ```
+    ```csharp
+    services.AddMicrosoftGraph();
+    services.AddMicrosoftGraphBeta();
+    ```
 
-    1. In the controller or wherever you want to use them declare both GraphServiceClient and GraphBetaServiceClient
-       and inject them in the constructor:
+1. In the controller or wherever you want to use them declare both GraphServiceClient and GraphBetaServiceClient
+    and inject them in the constructor:
        
-       ```csharp
-       using GraphServiceClient = Microsoft.Graph.GraphServiceClient;
-       using GraphBetaServiceClient = Microsoft.Graph.GraphBetaServiceClient;
+    ```csharp
+    using GraphServiceClient = Microsoft.Graph.GraphServiceClient;
+    using GraphBetaServiceClient = Microsoft.Graph.GraphBetaServiceClient;
        ```
 
 ## Migrate from Microsoft.Identity.Web.MicrosoftGraph 2.x to 3.x
