@@ -150,7 +150,7 @@ You can now use both Microsoft Graph and Microsoft Graph Beta in the same applic
     ```csharp
     using GraphServiceClient = Microsoft.Graph.GraphServiceClient;
     using GraphBetaServiceClient = Microsoft.Graph.GraphBetaServiceClient;
-       ```
+    ```
 
 ## Migrate from Microsoft.Identity.Web.MicrosoftGraph 2.x to 3.x
 
@@ -162,15 +162,15 @@ The Request() method has disappeared, and the extension methods it enabled are n
 If you don't want to change your code, you can still use the Request() method by adding Microsoft.Identity.Web.MicrosoftGraph to your project
 instead of Microsoft.Identity.Web.GraphServiceClient. This package is based on Microsoft.GraphSDK 4.x.
 
-   ```csharp
-   var user = await _graphServiceClient.Me.Request().GetAsync();
-   ```
+```csharp
+var user = await _graphServiceClient.Me.Request().GetAsync();
+```
 
-   becomes with Microsoft.Graph 5.x
+becomes with Microsoft.Graph 5.x
 
-   ```csharp
-   var user = await _graphServiceClient.Me.GetAsync();
-   ```
+```csharp
+var user = await _graphServiceClient.Me.GetAsync();
+```
 
 Here how to migrate from Microsoft.Identity.Web.MicrosoftGraph to Microsoft.Identity.Web.GraphServiceClient.
 
