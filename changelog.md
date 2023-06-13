@@ -1,3 +1,8 @@
+2.12.0
+==========
+### New Feature:
+- **Id Web now supports the MS Graph v5 SDK,** see issue [#2097](https://github.com/AzureAD/microsoft-identity-web/issues/2097) for details.
+
 2.11.1
 ==========
 - Update to MSAL 4.54.1
@@ -10,7 +15,7 @@
 - Update to MSAL 4.54.0
 
 ### New Features
-- **ID Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
+- **Id Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
 
 2.10.0
 ==========
