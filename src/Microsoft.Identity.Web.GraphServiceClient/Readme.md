@@ -12,7 +12,6 @@ including a simplified fluent API and the ability to use both Microsoft Graph an
 However, migrating from Microsoft.Identity.Web.MicrosoftGraph 2.x to Microsoft.Identity.Web.GraphServiceClient requires moving some of your code,
 as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosoftgraph-2x-to-microsoftidentitywebgraphserviceclient).
 
-
 ## Usage
 
 1. Reference Microsoft.Identity.Web.GraphServiceClient in your project.
@@ -29,7 +28,7 @@ as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosof
    using Microsoft.Identity.Web;
    ```
    
-   Add the Microsoft graph
+   Add the Microsoft Graph
 
    ```csharp
    services.AddMicrosoftGraph();
@@ -99,7 +98,7 @@ as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosof
 
 4. You can override the default options in the GetAsync(), PostAsync() etc.. methods. 
    For example to get the mail folders of the current user, you'll need to request more scopes ("Mail.Read"). 
-   If your app registred several authentication schemes in ASP.NET Core, you'll also need to specify
+   If your app registered several authentication schemes in ASP.NET Core, you'll also need to specify
    which to authentication scheme to apply.
 
    ```csharp
@@ -152,7 +151,7 @@ as discussed in the [migration guide](#migrate-from-microsoftidentitywebmicrosof
 
 You can now use both Microsoft Graph and Microsoft Graph Beta in the same application:
 
-1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphBetaServiceClient in your project
+1. Reference both Microsoft.Identity.Web.GraphServiceClient and Microsoft.Identity.Web.GraphServiceClientBeta in your project
    ```shell
    dotnet add package Microsoft.Identity.Web.GraphServiceClient
    dotnet add package Microsoft.Identity.Web.GraphServiceClientBeta
@@ -165,7 +164,7 @@ You can now use both Microsoft Graph and Microsoft Graph Beta in the same applic
     services.AddMicrosoftGraphBeta();
     ```
 
-1. In the controller or wherever you want to use them declare both GraphServiceClient and GraphBetaServiceClient
+1. In the controller or wherever you want to use them declare both GraphServiceClient and GraphServiceClientBeta
     and inject them in the constructor:
        
     ```csharp
