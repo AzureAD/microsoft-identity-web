@@ -6,7 +6,7 @@ using Microsoft.Kiota.Abstractions;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Authentication options controlling how the authentication request to the Microsoft Graph service.
+    /// Authentication options controlling the authentication request to the Microsoft Graph service.
     /// </summary>
     public class GraphAuthenticationOptions : GraphServiceClientOptions, IRequestOption
     {
