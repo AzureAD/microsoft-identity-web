@@ -1,4 +1,4 @@
-2.12.0
+2.12.1
 ==========
 ### New Feature:
 - **Id Web now supports the MS Graph v5 SDK,** see issue [#2097](https://github.com/AzureAD/microsoft-identity-web/issues/2097) for details.
