@@ -15,7 +15,7 @@ schedules:
     - master
  
 pool:
-  name: MWPerfAndStress1EsHostedPool
+  name: MwWilson1EsHostedPool
   demands:
   - msbuild
   - visualstudio
