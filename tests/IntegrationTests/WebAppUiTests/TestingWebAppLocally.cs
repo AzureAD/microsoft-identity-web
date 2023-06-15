@@ -10,7 +10,6 @@ using System;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.Test.Common;
 using OpenQA.Selenium.Edge;
-using System.Security.Cryptography.Pkcs;
 using System.IO;
 using System.Linq;
 
