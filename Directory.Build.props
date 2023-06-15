@@ -84,6 +84,8 @@
     <MicrosoftExtensionsCachingMemoryVersion>7.*</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>7.*</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>7.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <!--CVE-2023-29331-->
+    <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>7.*</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>7.*</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>7.*</SystemTextEncodingsWebVersion>
@@ -98,6 +100,8 @@
     <MicrosoftExtensionsHostingVersion>6.*</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.*</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    <!--CVE-2023-29331-->
+    <SystemSecurityCryptographyPkcsVersion>6.0.3</SystemSecurityCryptographyPkcsVersion>
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
     <MicrosoftExtensionsLoggingVersion>6.*</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>6.*</SystemTextEncodingsWebVersion>

@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="$(MicrosoftAspNetCoreDataProtectionVersion)" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlVersion)" />
+    <PackageReference Include="System.Security.Cryptograph.Pkcs" Version="$(SystemSecurityCryptographyPkcsVersion)" />
     <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
   </ItemGroup>
 
