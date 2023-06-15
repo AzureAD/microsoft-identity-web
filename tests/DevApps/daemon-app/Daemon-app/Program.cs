@@ -36,11 +36,9 @@ namespace daemon_console
 #if UseMicrosoftGraphSdk
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var users = await graphServiceClient.Users
-                .Request()
-                .WithAppOnly()
                 // Change the protocol if you wish .WithAuthenticationOptions(options => options.ProtocolScheme = "Bearer")
-                .GetAsync();
-            Console.WriteLine($"{users.Count} users");
+                .GetAsync(r => r.Options.WithAppOnly());
+            Console.WriteLine($"{users.Value.Count} users");
 #else
             // Call downstream web API
             var downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();

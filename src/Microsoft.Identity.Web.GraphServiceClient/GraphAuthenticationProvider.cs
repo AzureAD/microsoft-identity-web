@@ -56,18 +56,10 @@ namespace Microsoft.Identity.Web
             IEnumerable<string>? scopes;
             GraphServiceClientOptions? graphServiceClientOptions;
 
-            if (additionalAuthenticationContext != null)
-            {
-                scopes = additionalAuthenticationContext.ContainsKey(ScopeKey) ? (string[])additionalAuthenticationContext[ScopeKey] : _defaultAuthenticationOptions?.Scopes;
-                graphServiceClientOptions = additionalAuthenticationContext.ContainsKey(AuthorizationHeaderProviderOptionsKey) ?
-                 (GraphServiceClientOptions)additionalAuthenticationContext[AuthorizationHeaderProviderOptionsKey] :
-                 _defaultAuthenticationOptions;
-            }
-            else
-            {
-                scopes = _defaultAuthenticationOptions.Scopes;
-                graphServiceClientOptions = _defaultAuthenticationOptions;
-            }
+            GraphAuthenticationOptions? authenticationOptions = request.RequestOptions.OfType<GraphAuthenticationOptions>().FirstOrDefault();
+
+            scopes = authenticationOptions?.Scopes ?? _defaultAuthenticationOptions.Scopes;
+            graphServiceClientOptions = authenticationOptions ?? _defaultAuthenticationOptions;
 
             // Remove the authorization header if it exists
             if (request.Headers.ContainsKey(AuthorizationHeaderKey))
@@ -95,7 +87,7 @@ namespace Microsoft.Identity.Web
                 string authorizationHeader;
                 if (authorizationHeaderProviderOptions!.RequestAppToken)
                 {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(scopes!.FirstOrDefault()!,
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
                         authorizationHeaderProviderOptions);
                 }
                 else
