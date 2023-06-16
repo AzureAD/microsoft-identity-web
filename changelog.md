@@ -1,3 +1,7 @@
+2.12.3
+==========
+- fix for CVE-2023-29331 in `System.Security.Cryptography.Pkcs`
+
 2.12.2
 ==========
 ### New Feature:
