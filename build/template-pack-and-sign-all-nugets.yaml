@@ -3,8 +3,16 @@
 
 parameters:
   BuildConfiguration: 'release'
+  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\packages\*.nupkg'
+
 
 steps:
+
+# The signing task requires dotnet core 2.x
+- task: UseDotNet@2
+  displayName: 'Use .Net Core sdk 2.x'
+  inputs:
+    version: 2.x
 
 # Pack and sign Microsoft.Identity.Web
 - template: template-pack-and-sign-nuget.yaml
@@ -142,3 +150,10 @@ steps:
     SessionTimeout: 20
     VerboseLogin: true
   timeoutInMinutes: 5
+
+- task: NuGetCommand@2
+  displayName: 'Verify packages are signed'
+  inputs:
+    command: custom
+    arguments: 'verify -Signature ${{ parameters.NugetPackagesWildcard }}'
+  continueOnError: true
