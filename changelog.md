@@ -1,4 +1,4 @@
-2.12.3
+2.12.4
 ==========
 - fix for CVE-2023-29331 in `System.Security.Cryptography.Pkcs`
 
