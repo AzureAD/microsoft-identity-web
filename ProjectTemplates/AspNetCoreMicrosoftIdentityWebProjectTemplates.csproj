@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.12.2</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.12.3</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <PackageVersion>$(ClientSemVer)</PackageVersion>
 
