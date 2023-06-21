@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0; net7.0; net462; net472; netstandard2.0; netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472; netstandard2.0; netcoreapp3.1</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -72,6 +72,19 @@
     <MicrosoftIdentityAbstractions>3.1.0</MicrosoftIdentityAbstractions>
     <!--CVE-2021-24112-->
     <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.0-preview.5.23280.8</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>8.0.0-preview.5.23280.8</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.0-preview.5.23280.8</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>8.0.0-preview.5.23280.8</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>8.0.0-preview.5.23280.8</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0-preview.5.23280.8</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-preview.5.23280.8</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
