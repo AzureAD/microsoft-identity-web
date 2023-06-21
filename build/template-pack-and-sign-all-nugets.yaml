@@ -35,6 +35,20 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraphBeta*'
 
+# Pack and sign Microsoft.Identity.Web.GraphServiceClient
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClient'
+    AssemblyName: 'Microsoft.Identity.Web.GraphServiceClient*'
+
+# Pack and sign Microsoft.Identity.Web.GraphServiceClientBeta
+- template: template-pack-and-sign-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClientBeta'
+    AssemblyName: 'Microsoft.Identity.Web.GraphServiceClientBeta*'
+
 # Pack and sign Microsoft.Identity.Web.TokenCache
 - template: template-pack-and-sign-nuget.yaml
   parameters:

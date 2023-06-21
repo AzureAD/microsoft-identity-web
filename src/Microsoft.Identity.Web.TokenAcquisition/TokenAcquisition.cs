@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -102,6 +103,9 @@ namespace Microsoft.Identity.Web
             _credentialsLoader = credentialsLoader;
         }
 
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(String)")]
+#endif
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
@@ -167,7 +171,7 @@ namespace Microsoft.Identity.Web
                 result.CorrelationId,
                 result.TokenType);
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
@@ -262,7 +266,7 @@ namespace Microsoft.Identity.Web
                 LogAuthResult(authenticationResult);
                 return authenticationResult;
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
@@ -356,13 +360,13 @@ namespace Microsoft.Identity.Web
 
             // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
             // not be cross tenant operations with such an authority.
-            if (!mergedOptions.Instance.Contains(".ciamlogin.com"
+            if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NETCOREAPP3_1_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
                 ))
-            { 
-                   builder.WithTenantId(tenant);
+            {
+                builder.WithTenantId(tenant);
             }
 
             if (tokenAcquisitionOptions != null)
@@ -414,7 +418,7 @@ namespace Microsoft.Identity.Web
             {
                 return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
@@ -540,14 +544,15 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private bool IsInvalidClientCertificateError(MsalServiceException exMsal)
+        private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
             return !_retryClientCertificate &&
                 string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
 #if !NETSTANDARD2_0 && !NET462 && !NET472
-                exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase);
+                (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase));
 #else
-                exMsal.Message.Contains(Constants.InvalidKeyError);
+                (exMsal.Message.Contains(Constants.InvalidKeyError) || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange));
 #endif
         }
 

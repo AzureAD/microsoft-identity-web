@@ -216,5 +216,7 @@ namespace Microsoft.Identity.Web.Test.Common
                                 ""login-us.microsoftonline.com""]}
                         ]
                 }";
+
+        public const string signedAssertionFilePath = "signedAssertion.txt";
     }
 }

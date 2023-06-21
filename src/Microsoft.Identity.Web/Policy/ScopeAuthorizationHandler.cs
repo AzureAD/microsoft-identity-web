@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
 
             if (configurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(configurationKey)?.Split(' ');
+                scopes = _configuration[configurationKey]?.Split(' ');
             }
 
             if (scopes is null)
