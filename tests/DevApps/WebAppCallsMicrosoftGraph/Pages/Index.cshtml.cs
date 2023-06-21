@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -29,8 +30,11 @@ namespace WebAppCallsMicrosoftGraph.Pages
 
         public async Task OnGet()
         {
+            DiagnosticsConfig.AppTokenRequestCounter.Add(1,
+             new KeyValuePair<string, object?>("Action", nameof(OnGet)));
+
             var user = await _graphServiceClient.Me.Request().GetAsync();
-         
+
             try
             {
                 using (var photoStream = await _graphServiceClient.Me.Photo.Content.Request().GetAsync())
@@ -64,7 +68,7 @@ namespace WebAppCallsMicrosoftGraph.Pages
             IAuthorizationHeaderProvider authorizationHeaderProvider = HttpContext.RequestServices.GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
             string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                 new[] { "user.read" },
-                new AuthorizationHeaderProviderOptions { BaseUrl = "https://graph.microsoft.com/v1.0/me"} );
+                new AuthorizationHeaderProviderOptions { BaseUrl = "https://graph.microsoft.com/v1.0/me" });
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", authorizationHeader);
             HttpResponseMessage response = await client.GetAsync("https://graph.microsoft.com/v1.0/users");

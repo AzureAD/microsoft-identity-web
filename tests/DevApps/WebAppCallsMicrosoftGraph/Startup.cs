@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 
 namespace WebAppCallsMicrosoftGraph
 {
@@ -32,7 +34,15 @@ namespace WebAppCallsMicrosoftGraph
 #else
             string configSection = "AzureAd";
 #endif
-
+            services.AddOpenTelemetry()
+                   .WithMetrics(metricsProviderBuilder =>
+                   {
+                       metricsProviderBuilder
+                       .ConfigureResource(resource => resource
+                       .AddService(DiagnosticsConfig.ServiceName))
+                      // .AddAspNetCoreInstrumentation()
+                       .AddConsoleExporter();
+                   });
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
