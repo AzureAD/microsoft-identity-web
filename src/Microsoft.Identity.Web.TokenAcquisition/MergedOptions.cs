@@ -205,7 +205,9 @@ namespace Microsoft.Identity.Web
             mergedOptions.SkipUnrecognizedRequests |= microsoftIdentityOptions.SkipUnrecognizedRequests;
             mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
             mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
-
+#if NET8_0_OR_GREATER
+            mergedOptions.TimeProvider = microsoftIdentityOptions.TimeProvider;
+#endif
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce |= microsoftIdentityOptions.UsePkce;
 

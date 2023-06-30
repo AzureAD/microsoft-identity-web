@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0; net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net7.0; net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net7.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 

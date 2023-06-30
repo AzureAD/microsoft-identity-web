@@ -16,3 +16,11 @@ steps:
   displayName: 'Use .Net Core SDK 7'
   inputs:
     version: 7.0.x   
+
+- task: UseDotNet@2
+  displayName: 'Use .Net Core SDK 8'
+  inputs:
+    version: 8.x  
+    includePreviewVersions: true
+  condition: eq(variables['TargetNet8'], 'True')
+

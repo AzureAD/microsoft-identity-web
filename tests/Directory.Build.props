@@ -2,10 +2,11 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-     <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
-     <SignAssembly>True</SignAssembly>
-     <IsPackable>false</IsPackable>
-     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net6.0; net7.0; net462; net472</TargetFrameworks>
+    <SignAssembly>True</SignAssembly>
+    <IsPackable>false</IsPackable>
+    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
@@ -37,7 +38,19 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-  <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <MicrosoftAspNetCoreMvcTestingVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
+    <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
+    <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
+        true
+    </EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
+  </PropertyGroup>
+  
 </Project>

@@ -35,6 +35,11 @@ jobs:
       uses: actions/setup-dotnet@v2.1.0
       with:
         dotnet-version: 7.0.x
+
+    - name: Setup .NET 8.0.x
+      uses: actions/setup-dotnet@v2.1.0
+      with:
+        dotnet-version: 8.0.100-preview.5.23303.2
   
     # Install workload
     - name: Setup wasm-tools
@@ -45,3 +50,6 @@ jobs:
 
     - name: Build with .NET 7.0.x
       run: dotnet test Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    
+    - name: Build with .NET 8.0.x
+      run: dotnet test Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
