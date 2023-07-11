@@ -9,4 +9,4 @@ steps:
     projects: |
         Tests/**/*.csproj
         !Tests/DevApps/**/*.csproj 
-    arguments: '--collect "Code coverage"'
+    arguments: '--collect "XPlat Code coverage"'
