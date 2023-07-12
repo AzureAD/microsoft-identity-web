@@ -9,4 +9,4 @@ steps:
     projects: |
         Tests/**/*.csproj
         !Tests/DevApps/**/*.csproj 
-    arguments: '-p:CollectCoverage:true -p:CoverletOutput=../TestResults/ -p:MergeWith=../TestResults/coverlet.json -p:CoverletOutputFormat=\"json,cobertura\"' 
+    arguments: '--collect "XPlat Code coverage"'
