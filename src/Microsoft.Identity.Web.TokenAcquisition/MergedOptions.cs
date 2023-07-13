@@ -454,7 +454,7 @@ namespace Microsoft.Identity.Web
         public static void UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions, MergedOptions mergedOptions)
         {
             mergedOptions.AllowWebApiToBeAuthorizedByACL |= microsoftIdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL;
-            if (string.IsNullOrEmpty(mergedOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "/v2.0" && !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority))
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "//v2.0" && !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority))
             {
                 mergedOptions.Authority = microsoftIdentityApplicationOptions.Authority;
             }
