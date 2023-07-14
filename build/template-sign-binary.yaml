@@ -28,11 +28,11 @@ steps:
          "parameters": [
          {
            "parameterName": "OpusName",
-           "parameterValue": "Microsoft.Identity.Web"
+           "parameterValue": "Microsoft"
          },
          {
            "parameterName": "OpusInfo",
-           "parameterValue": "http://test"
+           "parameterValue": "http://www.microsoft.com"
          },
          {
            "parameterName": "PageHash",

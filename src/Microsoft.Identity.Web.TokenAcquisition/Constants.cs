@@ -128,6 +128,7 @@ namespace Microsoft.Identity.Web
         internal const string True = "True";
         internal const string InvalidClient = "invalid_client";
         internal const string InvalidKeyError = "AADSTS700027";
+        internal const string SignedAssertionInvalidTimeRange = "AADSTS700024";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
 

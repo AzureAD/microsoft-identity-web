@@ -122,7 +122,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get headers from environment to help debugging App Services authentication.
         /// </summary>
-        internal static string? SimulateGetttingHeaderFromDebugEnvironmentVariable(string header)
+        internal static string? SimulateGettingHeaderFromDebugEnvironmentVariable(string header)
         {
             string? headerPlusValue = Environment.GetEnvironmentVariable(AppServicesAuthDebugHeadersEnvironmentVariable)
                 ?.Split(';')
@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+                idToken = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;
@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Web
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+                idp = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
