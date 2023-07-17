@@ -1,7 +1,30 @@
-# template-install-keyvault-secrets.yaml
-# Install all secrets needed from KeyVault onto the build machine.
+#template-install-dependencies.yaml
+
+#install dotnet core
 
 steps:
+- task: UseDotNet@2
+  displayName: 'Use .Net Core SDK 3.1'
+  inputs:
+    version: 3.1.x   
+
+- task: UseDotNet@2
+  displayName: 'Use .Net Core SDK 6'
+  inputs:
+    version: 6.0.x   
+
+- task: UseDotNet@2
+  displayName: 'Use .Net Core SDK 7'
+  inputs:
+    version: 7.0.x   
+
+# Run Nuget Tool Installer
+
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet latest version'
+
+# Install all secrets needed from KeyVault onto the build machine.
+
 - task: AzureKeyVault@1
   displayName: 'Azure Key Vault: buildautomation'
   inputs:

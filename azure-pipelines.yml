@@ -14,6 +14,5 @@ jobs:
     demands:
     - msbuild
   steps:
-    - template: build/template-install-dotnet-core.yaml
-    - template: build/template-install-keyvault-secrets.yaml
+    - template: build/template-install-dependencies.yaml
     - template: build/template-run-unit-tests.yaml
