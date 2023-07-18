@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Validators;
 
 namespace Microsoft.Identity.Web
 {
@@ -215,6 +216,8 @@ namespace Microsoft.Identity.Web
                         options.TokenValidationParameters.IssuerValidator =
                         microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
+
+                    mergedOptions.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     // TODO use the credential loader

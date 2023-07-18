@@ -1,3 +1,10 @@
+2.13.0
+=========
+- Update to Wilson 6.32.0 and Microsoft.Identity.Abstractions 4.0.0
+
+### New Feature:
+Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
 2.12.4
 ==========
 - fix for CVE-2023-29331 in `System.Security.Cryptography.Pkcs`
