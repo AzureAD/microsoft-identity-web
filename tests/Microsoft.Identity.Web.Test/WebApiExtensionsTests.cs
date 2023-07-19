@@ -50,8 +50,11 @@ namespace Microsoft.Identity.Web.Test
         {
             _configSection = GetConfigSection(ConfigSectionName);
         }
-
+#if NET8_0
+        [Fact(Skip = "Need to Adjust with .Net 8, see https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+#else
         [Fact]
+#endif
         public void AddMicrosoftIdentityWebApi_WithConfigName()
         {
             var config = Substitute.For<IConfiguration>();
@@ -74,7 +77,11 @@ namespace Microsoft.Identity.Web.Test
             AddMicrosoftIdentityWebApi_TestCommon(services, provider, false);
         }
 
+#if NET8_0
+        [Fact(Skip = "Need to Adjust with .Net 8, see https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+#else
         [Fact]
+#endif
         public void AddMicrosoftIdentityWebApi_WithConfigActions()
         {
             var config = Substitute.For<IConfiguration>();
@@ -97,7 +104,11 @@ namespace Microsoft.Identity.Web.Test
             AddMicrosoftIdentityWebApi_TestCommon(services, provider);
         }
 
+#if NET8_0
+        [Fact(Skip = "Need to Adjust with .Net 8, see https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+#else
         [Fact]
+#endif
         public void AddMicrosoftIdentityWebApiAuthentication_WithConfigName()
         {
             var config = Substitute.For<IConfiguration>();
@@ -143,9 +154,17 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
+#if NET8_0
+        [Theory(Skip = "Need to Adjust with .Net 8, https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+        [InlineData(true)]
+        [InlineData(false)]
+#else
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
+#endif
+        
+
         public void AddMicrosoftIdentityWebApi_WithConfigName_SubscribesToDiagnostics(bool subscribeToDiagnostics)
         {
             var config = Substitute.For<IConfiguration>();
@@ -177,9 +196,15 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
+#if NET8_0
+        [Theory(Skip = "Need to Adjust with .Net 8, https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+        [InlineData(true)]
+        [InlineData(false)]
+#else
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
+#endif
         public void AddMicrosoftIdentityWebApi_WithConfigActions_SubscribesToDiagnostics(bool subscribeToDiagnostics)
         {
             var diagnostics = Substitute.For<IJwtBearerMiddlewareDiagnostics>();
@@ -233,7 +258,11 @@ namespace Microsoft.Identity.Web.Test
             return configSection;
         }
 
+#if NET8_0
+        [Fact(Skip = "Need to Adjust with .Net 8, see https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+#else
         [Fact]
+#endif
         public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigName()
         {
             var configMock = Substitute.For<IConfiguration>();
@@ -266,7 +295,11 @@ namespace Microsoft.Identity.Web.Test
             await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
         }
 
+#if NET8_0
+        [Fact(Skip = "Need to Adjust with .Net 8, see https://github.com/AzureAD/microsoft-identity-web/issues/2310")]
+#else
         [Fact]
+#endif
         public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigActions()
         {
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
