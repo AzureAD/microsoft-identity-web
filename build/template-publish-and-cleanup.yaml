@@ -1,5 +1,6 @@
 # template-publish-packages-and-symbols.yaml
 # Publishes all nuget packages and symbols to appropriate destinations.
+# Publish any security analysis logs (e.g. TSA) and perform post-build cleanup
 
 parameters:
   NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\packages\*.nupkg'
@@ -8,12 +9,6 @@ parameters:
   DropArtifactName: 'packages'
 
 steps:
-- task: NuGetCommand@2
-  displayName: 'Verify packages are signed'
-  inputs:
-    command: custom
-    arguments: 'verify -Signature ${{ parameters.NugetPackagesWildcard }}'
-  continueOnError: true
 
 - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
   displayName: 'Generation Task'
@@ -43,3 +38,16 @@ steps:
     IndexSources: false
     SymbolServerType: TeamServices
   condition: eq(variables['PublishSymbols'], 'true')
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+  displayName: 'Publish Security Analysis Logs'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-uploadtotsa.TSAUpload@2
+  displayName: 'TSA upload to Codebase: Microsoft Identity Web .NET Stamp: Azure'
+  inputs:
+    GdnPublishTsaOnboard: false 
+    GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/tsaConfig.json'
+  continueOnError: true
+
+- task: mspremier.PostBuildCleanup.PostBuildCleanup-task.PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'

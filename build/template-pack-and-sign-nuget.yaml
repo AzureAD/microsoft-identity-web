@@ -1,18 +1,87 @@
 
 parameters:
   BuildConfiguration: 'release'
+  HasRefAssembly: 'false'
+  NoBuild: 'true'
   ProjectRootPath: ''
   AssemblyName: ''
-  HasRefAssembly: 'false'
 
 steps:
-- template: template-sign-binary.yaml
-  parameters:
-    FolderPath: '${{ parameters.ProjectRootPath }}'
+# Signs a binary via ESRP
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: '**\bin\**\**\${{ parameters.AssemblyName }}.dll'
+  inputs:
+    ConnectedServiceName: 'IDDP Code Signing'
+    FolderPath: ${{ parameters.ProjectRootPath }}
     Pattern: '**\bin\**\**\${{ parameters.AssemblyName }}.dll'
+    UseMinimatch: true
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolSign",
+         "parameters": [
+         {
+           "parameterName": "OpusName",
+           "parameterValue": "Microsoft.Identity.Web"
+         },
+         {
+           "parameterName": "OpusInfo",
+           "parameterValue": "http://test"
+         },
+         {
+           "parameterName": "PageHash",
+           "parameterValue": "/NPH"
+         },
+         {
+           "parameterName": "FileDigest",
+           "parameterValue": "/fd sha256"
+         },
+         {
+           "parameterName": "TimeStamp",
+           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+         }
+         ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       },
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolVerify",
+         "parameters": [ ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       }
+     ]
+    SessionTimeout: 20
+    VerboseLogin: true
+  timeoutInMinutes: 10
 
-- template: template-nuget-pack.yaml
-  parameters:
-    NoBuild: 'true'
-    BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectPath: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-binskim.BinSkim@4
+  displayName: '**\bin\**\**\${{ parameters.AssemblyName }}.dll'
+  inputs:
+    InputType: Basic
+    AnalyzeTargetGlob: '**\bin\**\**\${{ parameters.AssemblyName }}.dll'
+    AnalyzeVerbose: true
+    AnalyzeHashes: true
+    toolVersion: Exact
+    exactToolVersion: '4.0.0-rc2'
+ 
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
+  displayName: 'Check BinSkim Results'
+  inputs:
+    GdnBreakGdnToolBinSkim: true
+
+# Pack a nuget
+- task: DotNetCoreCLI@2
+  displayName: 'Pack ${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+  inputs:
+    command: pack
+    projects: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+    nobuild: '${{parameters.NoBuild}}'
+    packagesToPack: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+    IncludeSymbols: true
+    verbosityPack: normal
+    packDirectory:
+    arguments: '--configuration ${{ parameters.BuildConfiguration }}'
