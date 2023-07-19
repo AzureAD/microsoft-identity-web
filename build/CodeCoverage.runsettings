@@ -22,11 +22,15 @@ Included items must then not match any entries in the exclude list to remain inc
                         <!-- Match assembly file paths: -->
                         <ModulePaths>
                             <Include>
-                                <ModulePath>.*\microsoft.identity.web.dll$</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.certificate.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.certificateless.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.diagnostics.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.downstreamapi.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.microsoftgraph.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.tokenacquisition.dll</ModulePath>
+                                <ModulePath>.*\microsoft.identity.web.tokencache.dll</ModulePath>
                             </Include>
-                            <Exclude>
-                                <ModulePath>.*\microsoft.identity.web.test.dll$</ModulePath>
-                            </Exclude>
                         </ModulePaths>
 
                     </CodeCoverage>
