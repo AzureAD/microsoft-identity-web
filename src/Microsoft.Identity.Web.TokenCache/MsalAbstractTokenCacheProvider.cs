@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
@@ -109,10 +108,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             if (!string.IsNullOrEmpty(GetSuggestedCacheKey(args)))
             {
                 byte[]? tokenCacheBytes = await ReadCacheBytesAsync(GetSuggestedCacheKey(args), CreateHintsFromArgs(args)).ConfigureAwait(false);
-                if (tokenCacheBytes == null)
-                {
-                    return;
-                }
 
                 try
                 {
@@ -139,7 +134,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
-        private byte[] UnprotectBytes(byte[]? msalBytes)
+        private byte[]? UnprotectBytes(byte[]? msalBytes)
         {
             if (msalBytes != null && _protector != null)
             {
@@ -154,7 +149,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 }
             }
 
-            return msalBytes!;
+            return msalBytes;
         }
 
         /// <summary>
