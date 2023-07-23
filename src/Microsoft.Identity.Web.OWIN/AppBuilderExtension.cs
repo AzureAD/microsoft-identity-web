@@ -70,6 +70,8 @@ namespace Microsoft.Identity.Web
                 IssuerValidator = AadIssuerValidator.GetAadIssuerValidator(authority).Validate,
                 SaveSigninToken = true,
             };
+            tokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+
             OAuthBearerAuthenticationOptions options = new()
             {
                 AccessTokenFormat = new JwtFormat(tokenValidationParameters, new OpenIdConnectCachingSecurityTokenProvider(authority + "/.well-known/openid-configuration"))

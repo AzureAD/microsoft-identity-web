@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-   <IsPackable>false</IsPackable>
+  <PropertyGroup>    
+    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net6.0; net7.0</TargetFrameworks>
+    <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

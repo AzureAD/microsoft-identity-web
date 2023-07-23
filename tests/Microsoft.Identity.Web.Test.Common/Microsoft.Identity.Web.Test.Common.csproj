@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-     <TargetFrameworks>net462; net472; net6.0; net7.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net462; net472; net6.0; net7.0; net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net462; net472; net6.0; net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
@@ -16,7 +17,7 @@
     <PackageReference Include="xunit.assert" Version="$(XunitAssertVersion)" />    
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Compile Remove="Mocks\LoggerMock.cs" />
     <Compile Remove="Mocks\MockHttpContextAccessor.cs" />
     <Compile Remove="TestHelpers\HttpContextUtilities.cs" />
