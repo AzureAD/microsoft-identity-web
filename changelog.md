@@ -1,3 +1,7 @@
+2.13.1
+=========
+- Update to MSAL 4.55.0
+
 2.13.0
 =========
 - Update to Wilson 6.32.0 and Microsoft.Identity.Abstractions 4.0.0
