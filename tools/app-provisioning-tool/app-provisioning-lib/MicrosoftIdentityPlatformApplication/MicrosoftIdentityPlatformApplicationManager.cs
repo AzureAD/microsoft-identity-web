@@ -482,8 +482,17 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
-            var permissionScopes = spWithScopes.Oauth2PermissionScopes?
-                .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+            IEnumerable<PermissionScope>? permissionScopes;
+
+            if (scopes.Contains(".default"))
+            {
+                permissionScopes = spWithScopes.Oauth2PermissionScopes;
+            }
+            else
+            {
+                permissionScopes = spWithScopes.Oauth2PermissionScopes?
+                 .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+            }
 
             if (permissionScopes != null)
             {
