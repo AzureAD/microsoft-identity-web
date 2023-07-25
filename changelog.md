@@ -2,6 +2,11 @@
 =========
 - Update to MSAL 4.55.0
 
+### New Features:
+- Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default in Owin. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
+- **Microsoft.Identity.Web now supports .NET 8 with conditional compilation**, see [#2309](https://github.com/AzureAD/microsoft-identity-web/issues/2309).
+  
 2.13.0
 =========
 - Update to Wilson 6.32.0 and Microsoft.Identity.Abstractions 4.0.0
