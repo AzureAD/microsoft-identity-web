@@ -65,6 +65,9 @@ namespace TodoListService
                      .AddInMemoryTokenCaches();
 #endif
 
+            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme,
+     options => options.MetadataAddress = "https://localhost:7184/");
+
             services.AddControllers();
             #region
             /*

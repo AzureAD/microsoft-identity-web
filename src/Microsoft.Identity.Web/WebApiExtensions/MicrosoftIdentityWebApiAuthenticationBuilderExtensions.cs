@@ -176,6 +176,8 @@ namespace Microsoft.Identity.Web
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
+//                    options.MetadataAddress = "https://localhost:44355/openid-configuration.json";
+
                     if (mergedOptions.Authority != null)
                     {
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
