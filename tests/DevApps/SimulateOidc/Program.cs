@@ -22,8 +22,13 @@ namespace SimulateOidc
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            // app.UseHttpsRedirection();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                ServeUnknownFileTypes = true,
+                //DefaultContentType = "application/json"
+            });
+
 
             app.UseRouting();
 

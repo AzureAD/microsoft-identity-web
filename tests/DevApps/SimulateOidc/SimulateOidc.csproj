@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="wwwroot\v2.0\.well-known\keys.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\v2.0\.well-known\openid-configuration" />
+  </ItemGroup>
+
 </Project>

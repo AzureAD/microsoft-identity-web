@@ -66,7 +66,12 @@ namespace TodoListService
 #endif
 
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme,
-     options => options.MetadataAddress = "https://localhost:7184/");
+     options =>
+     {
+         options.RequireHttpsMetadata = false;
+     }
+     
+     );
 
             services.AddControllers();
             #region
