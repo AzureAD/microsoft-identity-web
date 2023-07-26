@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
 
             return new MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
                 builder.Services,
-                jwtBearerScheme,// first sends here
+                jwtBearerScheme,
                 options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 configurationSection);
@@ -165,7 +165,7 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>(( //here
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,
