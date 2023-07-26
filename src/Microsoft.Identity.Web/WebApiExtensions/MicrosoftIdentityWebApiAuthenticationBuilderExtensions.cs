@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(configurationSection);
             _ = Throws.IfNull(builder);
-
+            
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 options => configurationSection.Bind(options),
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
 
             return new MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
                 builder.Services,
-                jwtBearerScheme,
+                jwtBearerScheme,// first sends here
                 options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 configurationSection);
@@ -142,7 +142,6 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
-            builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             builder.Services.AddHttpContextAccessor();
@@ -166,7 +165,7 @@ namespace Microsoft.Identity.Web
 
             // Change the authentication configuration to accommodate the Microsoft identity platform endpoint (v2.0).
             builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
-                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>>(( //here
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,
