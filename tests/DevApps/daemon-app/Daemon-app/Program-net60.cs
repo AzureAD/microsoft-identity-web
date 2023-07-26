@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using GraphServiceClient = Microsoft.Graph.GraphServiceClient;
@@ -23,8 +24,11 @@ namespace daemon_console
             var builder = WebApplication.CreateBuilder(args);
             var services = builder.Services;
             
-            services.Configure<MicrosoftIdentityOptions>(option => builder.Configuration.Bind(option));
-            services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
+            services.Configure<MicrosoftIdentityOptions>(option => builder.Configuration.GetSection("AzureAd").Bind(option));
+            services.AddTokenAcquisition();
+            services.AddHttpClient();
+           
+            //services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
 
             // Add a cache
             services.AddDistributedTokenCaches();
@@ -41,8 +45,9 @@ namespace daemon_console
             Console.WriteLine($"{users.Count} users");
 #else
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = app.Services.GetRequiredService<ITokenAcquirer>();
-            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default");
+            ITokenAcquirerFactory tokenAcquirerFactory = app.Services.GetRequiredService<ITokenAcquirerFactory>();
+            var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
+            var result = await tokenAcquirer.GetTokenForAppAsync("api://a4c2469b-cf84-4145-8f5f-cb7bacf814bc/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif
