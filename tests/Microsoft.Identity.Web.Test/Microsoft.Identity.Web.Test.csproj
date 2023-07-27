@@ -43,6 +43,7 @@
     <Compile Include="Certificates\DefaultCertificateLoaderTests.cs" />
     <Compile Include="CacheExtensionsTests.cs" />
     <Compile Include="CacheEncryptionTests.cs" />
+    <Compile Include="TestDistributedCache.cs" />
   </ItemGroup>
 
   <ItemGroup>
