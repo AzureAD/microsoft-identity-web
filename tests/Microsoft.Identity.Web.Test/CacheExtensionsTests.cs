@@ -124,36 +124,37 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task SingletonMsal_ResultsInCorrectCacheEntries_Test()
         {
-            MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
-            mockHttpClient.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
-            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
-            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
-
-            var confidentialApp = ConfidentialClientApplicationBuilder
-                           .Create(TestConstants.ClientId)
-                           .WithAuthority(TestConstants.AuthorityCommonTenant)
-                           .WithHttpClientFactory(mockHttpClient)
-                           .WithClientSecret(TestConstants.ClientSecret)
-                           .Build();
-
-            var distributedCache = new TestDistributedCache();
-            confidentialApp.AddDistributedTokenCache(services =>
+            using MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
+            using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
+            using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
             {
-                services.AddSingleton<IDistributedCache>(distributedCache);
-            });
+                var confidentialApp = ConfidentialClientApplicationBuilder
+                               .Create(TestConstants.ClientId)
+                               .WithAuthority(TestConstants.AuthorityCommonTenant)
+                               .WithHttpClientFactory(mockHttpClient)
+                               .WithInstanceDiscovery(false)
+                               .WithClientSecret(TestConstants.ClientSecret)
+                               .Build();
 
-            // Different tenants used to created different cache entries
-            var result1 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                .WithTenantId("tenant1")
-                .ExecuteAsync().ConfigureAwait(false);
-            var result2 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                .WithTenantId("tenant2")
-                .ExecuteAsync().ConfigureAwait(false);
+                var distributedCache = new TestDistributedCache();
+                confidentialApp.AddDistributedTokenCache(services =>
+                {
+                    services.AddSingleton<IDistributedCache>(distributedCache);
+                });
 
-            Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(2, distributedCache._dict.Count);
-            Assert.Equal(distributedCache.Get($"{TestConstants.ClientId}_tenant1_AppTokenCache")!.Length, distributedCache.Get($"{TestConstants.ClientId}_tenant2_AppTokenCache")!.Length);
+                // Different tenants used to created different cache entries
+                var result1 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
+                    .WithTenantId("tenant1")
+                    .ExecuteAsync().ConfigureAwait(false);
+                var result2 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
+                    .WithTenantId("tenant2")
+                    .ExecuteAsync().ConfigureAwait(false);
+
+                Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
+                Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
+                Assert.Equal(2, distributedCache._dict.Count);
+                Assert.Equal(distributedCache.Get($"{TestConstants.ClientId}_tenant1_AppTokenCache")!.Length, distributedCache.Get($"{TestConstants.ClientId}_tenant2_AppTokenCache")!.Length);
+            }
         }
 
         private enum CacheType
