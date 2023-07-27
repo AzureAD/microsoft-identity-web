@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
@@ -14,19 +15,14 @@ namespace Microsoft.Identity.Web.Test
 {
     public class CacheExtensionsTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private IConfidentialClientApplication _confidentialApp;
-        // Non nullable needed for the Argument null exception tests
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
         [Fact]
         public void InMemoryCacheExtensionsTests()
         {
-            CreateCca();
-            _confidentialApp.AddInMemoryTokenCache();
+            var confidentialApp = CreateCca();
+            confidentialApp.AddInMemoryTokenCache();
 
-            Assert.NotNull(_confidentialApp.UserTokenCache);
-            Assert.NotNull(_confidentialApp.AppTokenCache);
+            Assert.NotNull(confidentialApp.UserTokenCache);
+            Assert.NotNull(confidentialApp.AppTokenCache);
         }
 
         [Fact]
@@ -51,7 +47,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void InMemoryCacheExtensions_NoCca_ThrowsException_Tests()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache());
+            IConfidentialClientApplication confidentialApp = null!;
+            var ex = Assert.Throws<ArgumentNullException>(() => confidentialApp.AddInMemoryTokenCache());
 
             Assert.Equal("confidentialClientApp", ex.ParamName);
         }
@@ -59,20 +56,21 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void InMemoryCache_WithServices_ExtensionsTests()
         {
-            CreateCca();
-            _confidentialApp.AddInMemoryTokenCache(services =>
+            var confidentialApp = CreateCca();
+            confidentialApp.AddInMemoryTokenCache(services =>
             {
                 services.AddMemoryCache();
             });
 
-            Assert.NotNull(_confidentialApp.UserTokenCache);
-            Assert.NotNull(_confidentialApp.AppTokenCache);
+            Assert.NotNull(confidentialApp.UserTokenCache);
+            Assert.NotNull(confidentialApp.AppTokenCache);
         }
 
         [Fact]
         public void InMemoryCache_WithServices_NoCca_ThrowsException_Tests()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache(services =>
+            IConfidentialClientApplication confidentialApp = null!;
+            var ex = Assert.Throws<ArgumentNullException>(() => confidentialApp.AddInMemoryTokenCache(services =>
             {
                 services.AddMemoryCache();
             }));
@@ -83,8 +81,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void InMemoryCache_WithServices_NoService_ThrowsException_Tests()
         {
-            CreateCca();
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddInMemoryTokenCache(null!));
+            var confidentialApp = CreateCca();
+            var ex = Assert.Throws<ArgumentNullException>(() => confidentialApp.AddInMemoryTokenCache(null!));
 
             Assert.Equal("initializeMemoryCache", ex.ParamName);
         }
@@ -92,20 +90,21 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DistributedCacheExtensionsTests()
         {
-            CreateCca();
-            _confidentialApp.AddDistributedTokenCache(services =>
+            var confidentialApp = CreateCca();
+            confidentialApp.AddDistributedTokenCache(services =>
             {
                 services.AddDistributedMemoryCache();
             });
 
-            Assert.NotNull(_confidentialApp.UserTokenCache);
-            Assert.NotNull(_confidentialApp.AppTokenCache);
+            Assert.NotNull(confidentialApp.UserTokenCache);
+            Assert.NotNull(confidentialApp.AppTokenCache);
         }
 
         [Fact]
         public void DistributedCacheExtensions_NoCca_ThrowsException_Tests()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(services =>
+            IConfidentialClientApplication confidentialApp = null!;
+            var ex = Assert.Throws<ArgumentNullException>(() => confidentialApp.AddDistributedTokenCache(services =>
             {
                 services.AddDistributedMemoryCache();
             }));
@@ -116,10 +115,45 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void DistributedCacheExtensions_NoService_ThrowsException_Tests()
         {
-            CreateCca();
-            var ex = Assert.Throws<ArgumentNullException>(() => _confidentialApp.AddDistributedTokenCache(null!));
+            var confidentialApp = CreateCca();
+            var ex = Assert.Throws<ArgumentNullException>(() => confidentialApp.AddDistributedTokenCache(null!));
 
             Assert.Equal("initializeDistributedCache", ex.ParamName);
+        }
+
+        [Fact]
+        public async Task SingletonMsal_ResultsInCorrectCacheEntries_Test()
+        {
+            MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+
+            var confidentialApp = ConfidentialClientApplicationBuilder
+                           .Create(TestConstants.ClientId)
+                           .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithHttpClientFactory(mockHttpClient)
+                           .WithClientSecret(TestConstants.ClientSecret)
+                           .Build();
+
+            var distributedCache = new TestDistributedCache();
+            confidentialApp.AddDistributedTokenCache(services =>
+            {
+                services.AddSingleton<IDistributedCache>(distributedCache);
+            });
+
+            // Different tenants used to created different cache entries
+            var result1 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
+                .WithTenantId("tenant1")
+                .ExecuteAsync().ConfigureAwait(false);
+            var result2 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
+                .WithTenantId("tenant2")
+                .ExecuteAsync().ConfigureAwait(false);
+
+            Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal(2, distributedCache._dict.Count);
+            Assert.Equal(distributedCache.Get($"{TestConstants.ClientId}_tenant1_AppTokenCache")!.Length, distributedCache.Get($"{TestConstants.ClientId}_tenant2_AppTokenCache")!.Length);
         }
 
         private enum CacheType
@@ -176,16 +210,11 @@ namespace Microsoft.Identity.Web.Test
             return result;
         }
 
-        private void CreateCca()
-        {
-            if (_confidentialApp == null)
-            {
-                _confidentialApp = ConfidentialClientApplicationBuilder
+        private IConfidentialClientApplication CreateCca() =>
+                        ConfidentialClientApplicationBuilder
                            .Create(TestConstants.ClientId)
                            .WithAuthority(TestConstants.AuthorityCommonTenant)
                            .WithClientSecret(TestConstants.ClientSecret)
                            .Build();
-            }
-        }
     }
 }
