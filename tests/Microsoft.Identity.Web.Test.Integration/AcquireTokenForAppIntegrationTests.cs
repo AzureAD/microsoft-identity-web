@@ -18,7 +18,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 using Xunit.Abstractions;
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             _output = output;
 
             KeyVaultSecretsProvider keyVaultSecretsProvider = new();
-            _ccaSecret = keyVaultSecretsProvider.GetKeyVaultSecret().Value;
+            _ccaSecret = keyVaultSecretsProvider.GetSecretByName(TestConstants.BuildAutomationKeyVaultName).Value;
 
             // Need the secret before building the services
             if (!string.IsNullOrEmpty(_ccaSecret))

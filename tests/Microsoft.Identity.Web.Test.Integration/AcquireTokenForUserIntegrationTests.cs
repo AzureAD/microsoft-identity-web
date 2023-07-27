@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;

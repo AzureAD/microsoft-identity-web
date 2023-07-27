@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MicrosoftAspNetCoreMvcTestingVersion)" />
+    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Selenium.WebDriver" Version="$(SeleniumWebDriverVersion)" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="$(SeleniumWebDriverChromeDriverVersion)" />
@@ -25,7 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DevApps\WebAppCallsMicrosoftGraph\WebAppCallsMicrosoftGraph.csproj" />
-    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test\Microsoft.Identity.Web.Test.csproj" />
   </ItemGroup>
 
 </Project>
