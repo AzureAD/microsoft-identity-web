@@ -124,6 +124,11 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task SingletonMsal_ResultsInCorrectCacheEntries_Test()
         {
+            var tenantId1 = "tenant1";
+            var tenantId2 = "tenant2";
+            var cacheKey1 = $"{TestConstants.ClientId}_{tenantId1}_AppTokenCache";
+            var cacheKey2 = $"{TestConstants.ClientId}_{tenantId2}_AppTokenCache";
+
             using MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
             using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
             using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
@@ -144,16 +149,16 @@ namespace Microsoft.Identity.Web.Test
 
                 // Different tenants used to created different cache entries
                 var result1 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                    .WithTenantId("tenant1")
+                    .WithTenantId(tenantId1)
                     .ExecuteAsync().ConfigureAwait(false);
                 var result2 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                    .WithTenantId("tenant2")
+                    .WithTenantId(tenantId2)
                     .ExecuteAsync().ConfigureAwait(false);
 
                 Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
                 Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
                 Assert.Equal(2, distributedCache._dict.Count);
-                Assert.Equal(distributedCache.Get($"{TestConstants.ClientId}_tenant1_AppTokenCache")!.Length, distributedCache.Get($"{TestConstants.ClientId}_tenant2_AppTokenCache")!.Length);
+                Assert.Equal(distributedCache.Get(cacheKey1)!.Length, distributedCache.Get(cacheKey2)!.Length);
             }
         }
 

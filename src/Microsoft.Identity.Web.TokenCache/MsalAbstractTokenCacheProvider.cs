@@ -111,6 +111,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
                 try
                 {
+                    // Must call Deserialize, even if the L2 read operation returned nothing.
+                    // Deserialize with null value will ensure that the cache in MSAL is properly initialized.
+                    // This will also ensure that the cache in MSAL is cleared if the cache entry in L2 was empty.
                     args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
                 }
                 catch (MsalClientException exception)
@@ -134,6 +137,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
+        // Tries to unprotect the bytes if protection is enabled and the cache is encrypted.
+        // If the cache is unencrypted, returns the same bytes.
+        // Returns null, if the bytes are null.
         private byte[]? UnprotectBytes(byte[]? msalBytes)
         {
             if (msalBytes != null && _protector != null)
