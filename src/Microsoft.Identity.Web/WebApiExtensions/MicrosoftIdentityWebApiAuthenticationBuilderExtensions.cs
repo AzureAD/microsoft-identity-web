@@ -219,8 +219,6 @@ namespace Microsoft.Identity.Web
                         microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
 
-                    mergedOptions.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     // TODO use the credential loader
                     if (mergedOptions.TokenDecryptionCredentials != null)
@@ -236,11 +234,11 @@ namespace Microsoft.Identity.Web
                         options.Events = new JwtBearerEvents();
                     }
 
-                    // Enable the validation of the signing key issuer.
-                    options.Events.OnMessageReceived = context =>
+                    options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+                    options.Events.OnMessageReceived = async context =>
                     {
-                        context.Options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-                        return Task.CompletedTask;
+                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
+                        await Task.CompletedTask.ConfigureAwait(false);
                     };
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
