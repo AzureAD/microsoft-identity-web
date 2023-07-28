@@ -5,7 +5,7 @@
         "private_key_jwt",
         "client_secret_basic"
     ],
-    "jwks_uri": "http://localhost:1234/v2.0/.well-known/keys.json",
+    "jwks_uri": "https://localhost:1234/v2.0/.well-known/keys.json",
     "response_modes_supported": [
         "query",
         "fragment",

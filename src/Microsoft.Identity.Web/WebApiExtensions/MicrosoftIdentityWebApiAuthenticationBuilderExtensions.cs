@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -176,7 +177,6 @@ namespace Microsoft.Identity.Web
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
-//                    options.MetadataAddress = "https://localhost:44355/openid-configuration.json";
 
                     if (mergedOptions.Authority != null)
                     {
@@ -235,6 +235,13 @@ namespace Microsoft.Identity.Web
                     {
                         options.Events = new JwtBearerEvents();
                     }
+
+                    // Enable the validation of the signing key issuer.
+                    options.Events.OnMessageReceived = context =>
+                    {
+                        context.Options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+                        return Task.CompletedTask;
+                    };
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.
