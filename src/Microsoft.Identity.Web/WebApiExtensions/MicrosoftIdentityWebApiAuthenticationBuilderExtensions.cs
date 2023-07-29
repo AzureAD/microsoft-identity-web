@@ -83,7 +83,6 @@ namespace Microsoft.Identity.Web
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 options => configurationSection.Bind(options),
-                options => configurationSection.Bind(options),
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
@@ -122,7 +121,6 @@ namespace Microsoft.Identity.Web
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 configureJwtBearerOptions,
-                configureMicrosoftIdentityOptions,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
@@ -137,7 +135,6 @@ namespace Microsoft.Identity.Web
         private static void AddMicrosoftIdentityWebApiImplementation(
             AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
