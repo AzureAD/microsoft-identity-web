@@ -67,8 +67,7 @@ public class TestingWebAppLocally
             }
             finally
             {
-                p.Kill();
-//                p.Kill(true);
+                p.Kill(true);
             }
         }
     }

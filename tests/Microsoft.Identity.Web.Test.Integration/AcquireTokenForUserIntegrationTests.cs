@@ -87,11 +87,12 @@ namespace Microsoft.Identity.Web.Test.Integration
         public async Task TestSigningKeyIssuer()
         {
             // Arrange
+            string authority = "http://localhost:1234";
             Process? p = ExternalApp.Start(
                 typeof(AcquireTokenForUserIntegrationTests),
                 @"tests\IntegrationTests\SimulateOidc\", 
                 "SimulateOidc.exe",
-                "--urls=https://localhost:1234");
+                $"--urls={authority}");
             if (p != null && !p.HasExited)
             {
                 // The metadata should be served from https://localhost:1234/v2.0/.well-known/openid-configuration
@@ -99,14 +100,16 @@ namespace Microsoft.Identity.Web.Test.Integration
                 // string oidcMetadata = await oidcClient.GetStringAsync("https://localhost:1234/v2.0/.well-known/openid-configuration");
                 HttpClient client = CreateHttpClient(true,
 
-              // Setting the authority to https://localhost:1234/v2.0 will make the test return a 401, as the signing key
+              // Setting the authority to http://localhost:1234/v2.0 will make the test return a 401, as the signing key
               // issuer (from the metadata document) won't match the issuer. The same test returns a 200 if the authority is
               // the real AAD authority.
               services => services.Configure<JwtBearerOptions>(
                   TestConstants.CustomJwtScheme2,
                   config =>
                   {
-                      config.Authority = "https://localhost:1234/v2.0";
+                      // Contact the test STS on HTTP to avoid untrusted SSL certs during CI builds.
+                      config.Authority = $"{authority}/v2.0";
+                      config.RequireHttpsMetadata = false;
                   })
               );
 
@@ -124,7 +127,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
             else
             {
-                Assert.Fail("Could not start the OIDC proxy at https://localhost:1234/v2.0/");
+                Assert.Fail($"Could not start the OIDC proxy at {authority}/v2.0/");
             }
         }
 #endif
