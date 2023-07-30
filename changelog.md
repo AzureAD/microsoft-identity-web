@@ -1,3 +1,11 @@
+2.13.2
+=========
+### Bug fixes:
+- **Fix bug found in usage of AzureAD key issuer validator,** see issue [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323).
+- **Improved performance in downstreamAPI**, see issue [#2355](https://github.com/AzureAD/microsoft-identity-web/issues/2355) for details.
+- **Address duplicate cache entries,** with singleton token acquisition, which was causing much larger cache size than needed. See issue [#2349](https://github.com/AzureAD/microsoft-identity-web/issues/2349).
+- **Distributed cache logger now prints correct cache entry size,** see issue [#2348](https://github.com/AzureAD/microsoft-identity-web/issues/2349)
+
 2.13.1
 =========
 - Update to MSAL 4.55.0
