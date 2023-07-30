@@ -65,14 +65,6 @@ namespace TodoListService
                      .AddInMemoryTokenCaches();
 #endif
 
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme,
-     options =>
-     {
-         options.RequireHttpsMetadata = false;
-     }
-     
-     );
-
             services.AddControllers();
             #region
             /*
