@@ -1,16 +1,20 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+﻿// Licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using IntegrationTestService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -78,26 +82,82 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
+#if NET7_0
+        [Fact]
+        public async Task TestSigningKeyIssuer()
+        {
+            // Arrange
+            string authority = "http://localhost:1234";
+            Process? p = ExternalApp.Start(
+                typeof(AcquireTokenForUserIntegrationTests),
+                @"tests\IntegrationTests\SimulateOidc\", 
+                "SimulateOidc.exe",
+                $"--urls={authority}");
+            if (p != null && !p.HasExited)
+            {
+                // The metadata should be served from https://localhost:1234/v2.0/.well-known/openid-configuration
+                // HttpClient oidcClient = new HttpClient();
+                // string oidcMetadata = await oidcClient.GetStringAsync("https://localhost:1234/v2.0/.well-known/openid-configuration");
+                HttpClient client = CreateHttpClient(true,
+
+              // Setting the authority to http://localhost:1234/v2.0 will make the test return a 401, as the signing key
+              // issuer (from the metadata document) won't match the issuer. The same test returns a 200 if the authority is
+              // the real AAD authority.
+              services => services.Configure<JwtBearerOptions>(
+                  TestConstants.CustomJwtScheme2,
+                  config =>
+                  {
+                      // Contact the test STS on HTTP to avoid untrusted SSL certs during CI builds.
+                      config.Authority = $"{authority}/v2.0";
+                      config.RequireHttpsMetadata = false;
+                  })
+              );
+
+                // Act
+                var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+                HttpResponseMessage response = await CreateHttpResponseMessage(
+                    TestConstants.SecurePage2GetTokenForUserAsync,
+                    client,
+                    result).ConfigureAwait(false);
+                p.Kill();
+
+                // Assert
+                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+                Assert.Contains("error=\"invalid_token\", error_description=\"The issuer '(null)' is invalid\"", response.Headers.WwwAuthenticate.Select(h => h.Parameter));
+            }
+            else
+            {
+                Assert.Fail($"Could not start the OIDC proxy at {authority}/v2.0/");
+            }
+        }
+#endif
+      
+
         private static async Task<HttpResponseMessage> CreateHttpResponseMessage(string webApiUrl, HttpClient client, AuthenticationResult result)
         {
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 HttpMethod.Get, webApiUrl))
             {
-                httpRequestMessage.Headers.Add(
-                    Constants.Authorization,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0} {1}",
-                        Constants.Bearer,
-                        result.AccessToken));
+                if (result != null)
+                {
+                    httpRequestMessage.Headers.Add(
+                        Constants.Authorization,
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0} {1}",
+                            Constants.Bearer,
+                            result.AccessToken));
+                }
                 response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
 
             return response;
         }
 
-        private HttpClient CreateHttpClient(bool addInMemoryTokenCache)
+        private HttpClient CreateHttpClient(
+            bool addInMemoryTokenCache,
+            Action<IServiceCollection>? additionalAction = null)
         {
             return _factory.WithWebHostBuilder(builder =>
             {
@@ -113,12 +173,17 @@ namespace Microsoft.Identity.Web.Test.Integration
                         services.AddDistributedTokenCaches();
                     }
 
+                    if (additionalAction != null)
+                    {
+                        additionalAction(services);
+                    }
+
                     services.BuildServiceProvider();
                 });
             })
                 .CreateClient(new WebApplicationFactoryClientOptions
                 {
-                     AllowAutoRedirect = false,
+                    AllowAutoRedirect = false,
                 });
         }
 
@@ -142,4 +207,4 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
     }
 #endif //FROM_GITHUB_ACTION
-}
+    }

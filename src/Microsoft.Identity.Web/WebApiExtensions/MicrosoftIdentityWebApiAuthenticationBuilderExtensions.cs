@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -213,8 +214,6 @@ namespace Microsoft.Identity.Web
                         microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
                     }
 
-                    mergedOptions.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-
                     // If you provide a token decryption certificate, it will be used to decrypt the token
                     // TODO use the credential loader
                     if (mergedOptions.TokenDecryptionCredentials != null)
@@ -229,6 +228,13 @@ namespace Microsoft.Identity.Web
                     {
                         options.Events = new JwtBearerEvents();
                     }
+
+                    options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+                    options.Events.OnMessageReceived = async context =>
+                    {
+                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
+                        await Task.CompletedTask.ConfigureAwait(false);
+                    };
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.

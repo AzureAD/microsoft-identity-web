@@ -12,6 +12,7 @@ using Microsoft.Identity.Web.Test.Common;
 using OpenQA.Selenium.Edge;
 using System.IO;
 using System.Linq;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 
 namespace WebAppUiTests;
 
@@ -24,22 +25,12 @@ public class TestingWebAppLocally
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         { return; }
 
-        string uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
-        // e.g. C:\gh\microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0\WebAppUiTests.dll
-        string testedAppLocation = Path.Combine(Path.GetDirectoryName(uiTestAssemblyLocation)!);
-        // e.g. C:\gh\microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
-        string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
-        int numberSegments = segments.Length;
-        int startLastSegments = numberSegments - 3;
-        int endFirstSegments = startLastSegments - 2;
-        string testedApplicationPath = Path.Combine(
-            Path.Combine(segments.Take(endFirstSegments).ToArray()),
+        string testedApplicationPath = "WebAppCallsMicrosoftGraph.exe";
+        Process ?p = ExternalApp.Start(
+            typeof(TestingWebAppLocally),
             @"DevApps\WebAppCallsMicrosoftGraph",
-            Path.Combine(segments.Skip(startLastSegments).ToArray()),
-            "WebAppCallsMicrosoftGraph.exe");
+            testedApplicationPath);
 
-        ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
-        Process? p = Process.Start(processStartInfo);
         if (p != null)
         {
             if (p.HasExited)

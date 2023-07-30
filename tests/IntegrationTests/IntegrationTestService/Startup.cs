@@ -1,11 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
-using System;
-using System.Globalization;
-using Azure.Identity;
-using Azure.Security.KeyVault.Certificates;
-using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace IntegrationTestService
 {
@@ -49,6 +44,9 @@ namespace IntegrationTestService
                                             Configuration.GetSection(TestConstants.SectionNameCalledApi))
                                         .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"));
 
+            // Will be overriden by tests if needed
+            services.AddInMemoryTokenCaches();
+
             services.Configure<MicrosoftIdentityOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.ClientSecret = secret;
@@ -59,13 +57,9 @@ namespace IntegrationTestService
                 options.ClientSecret = secret;
             });
 
-            //  services.AddAuthorization();
+            services.AddAuthorization();
 
             services.AddRazorPages();
-            //services.AddRazorPages(options =>
-            //{
-            //    options.Conventions.AuthorizePage("/SecurePage");
-            //});
             services.AddControllers();
         }
 
