@@ -79,10 +79,9 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(configurationSection);
             _ = Throws.IfNull(builder);
-
+            
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
-                options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
@@ -122,7 +121,6 @@ namespace Microsoft.Identity.Web
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 configureJwtBearerOptions,
-                configureMicrosoftIdentityOptions,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
@@ -137,12 +135,10 @@ namespace Microsoft.Identity.Web
         private static void AddMicrosoftIdentityWebApiImplementation(
             AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
-            builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             builder.Services.AddHttpContextAccessor();
