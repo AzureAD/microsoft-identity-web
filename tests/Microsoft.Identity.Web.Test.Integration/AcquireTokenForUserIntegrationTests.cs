@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -83,14 +82,14 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
-
+#if NET7_0
         [Fact]
         public async Task TestSigningKeyIssuer()
         {
             // Arrange
             Process? p = ExternalApp.Start(
-                typeof(AcquireTokenForUserIntegrationTests), 
-                @"tests\DevApps\SimulateOidc", 
+                typeof(AcquireTokenForUserIntegrationTests),
+                @"tests\IntegrationTests\SimulateOidc\", 
                 "SimulateOidc.exe",
                 "--urls=https://localhost:1234");
             if (p != null && !p.HasExited)
@@ -121,16 +120,15 @@ namespace Microsoft.Identity.Web.Test.Integration
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+                string wwwAuthenticate = response.Headers.WwwAuthenticate.Select(h => h.Parameter).First()!;
+                Assert.Contains("error=\"invalid_token\", error_description=\"The issuer '(null)' is invalid\"", response.Headers.WwwAuthenticate.Select(h => h.Parameter));
             }
             else
             {
                 Assert.Fail("Could not start the OIDC proxy at https://localhost:1234/v2.0/");
             }
-
-
-
         }
-
+#endif
       
 
         private static async Task<HttpResponseMessage> CreateHttpResponseMessage(string webApiUrl, HttpClient client, AuthenticationResult result)
@@ -207,4 +205,4 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
     }
 #endif //FROM_GITHUB_ACTION
-}
+    }
