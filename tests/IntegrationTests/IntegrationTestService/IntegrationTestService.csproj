@@ -15,4 +15,7 @@
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>

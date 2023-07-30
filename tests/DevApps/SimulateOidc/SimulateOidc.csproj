@@ -7,11 +7,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wwwroot\v2.0\.well-known\keys.json" />
+    <None Remove="Properties\openid-configuration" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\v2.0\.well-known\openid-configuration" />
+    <Content Include="Properties\openid-configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resource.Designer.cs">
+      <DependentUpon>Resource.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Properties\keys.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resource.resx">
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

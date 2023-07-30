@@ -8,9 +8,7 @@ namespace SimulateOidc
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddRazorPages();
+            builder.Services.AddControllers();
 
             var app = builder.Build();
 
@@ -22,19 +20,11 @@ namespace SimulateOidc
                 app.UseHsts();
             }
 
-            // app.UseHttpsRedirection();
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                ServeUnknownFileTypes = true,
-                //DefaultContentType = "application/json"
-            });
-
-
             app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.MapRazorPages();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.Run();
         }
