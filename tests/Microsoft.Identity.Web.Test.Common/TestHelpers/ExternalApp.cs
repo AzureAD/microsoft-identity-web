@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     public class ExternalApp
     {
-        public static Process? Start(Type testType, string pathToAppToStart, string nameOfAppToStart, string ?arguments)
+        public static Process? Start(Type testType, string pathToAppToStart, string nameOfAppToStart, string ?arguments=null)
         {
             string thisTestAssemblyLocation = testType.Assembly.Location;
             string thisTestAssemblyFolder = Path.Combine(Path.GetDirectoryName(thisTestAssemblyLocation)!);
