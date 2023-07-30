@@ -120,7 +120,6 @@ namespace Microsoft.Identity.Web.Test.Integration
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-                string wwwAuthenticate = response.Headers.WwwAuthenticate.Select(h => h.Parameter).First()!;
                 Assert.Contains("error=\"invalid_token\", error_description=\"The issuer '(null)' is invalid\"", response.Headers.WwwAuthenticate.Select(h => h.Parameter));
             }
             else
