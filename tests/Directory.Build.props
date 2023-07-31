@@ -7,7 +7,6 @@
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
