@@ -15,4 +15,7 @@
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.13.0-preview2" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>

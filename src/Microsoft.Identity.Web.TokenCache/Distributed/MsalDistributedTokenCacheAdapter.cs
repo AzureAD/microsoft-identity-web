@@ -267,7 +267,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                 // the parent class 
                         distributedCacheEntryOptions,
                         cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-                    cacheKey).Measure().ConfigureAwait(false);
+                    cacheKey,
+                    bytes!).Measure().ConfigureAwait(false);
             }
             else
             {
@@ -279,7 +280,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                      bytes!,
                      distributedCacheEntryOptions,
                      cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-                 cacheKey).Measure().ConfigureAwait(false));
+                 cacheKey,
+                 bytes!).Measure().ConfigureAwait(false));
             }
         }
 
