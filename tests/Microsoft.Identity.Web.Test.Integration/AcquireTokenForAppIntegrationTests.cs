@@ -48,13 +48,9 @@ namespace Microsoft.Identity.Web.Test.Integration
         {
             _output = output;
 
-            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
-            var tokenCredential = keyVaultSecretsProvider.GetKeyVaultCredentialAsync().Result;
-            var token = tokenCredential.GetTokenAsync(
-                            new Azure.Core.TokenRequestContext(
-                                new[] { "https://vault.azure.net/.default" }), new CancellationToken()).Result;
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider(TestConstants.BuildAutomationKeyVaultName);
+            _ccaSecret = keyVaultSecretsProvider.GetSecretByName(TestConstants.AzureADIdentityDivisionTestAgentSecret).Value;
 
-            _ccaSecret = token.Token;
             // Need the secret before building the services
             if (!string.IsNullOrEmpty(_ccaSecret))
             {
