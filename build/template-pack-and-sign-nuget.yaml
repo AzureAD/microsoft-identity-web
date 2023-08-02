@@ -27,8 +27,8 @@ steps:
            "parameterValue": "Microsoft.Identity.Web"
          },
          {
-           "parameterName": "OpusInfo",
-           "parameterValue": "http://test"
+           "parameterName": "Microsoft",
+           "parameterValue": "http://www.microsoft.com"
          },
          {
            "parameterName": "PageHash",
