@@ -13,7 +13,7 @@
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
-    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.12.0" />
+    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="$(MicrosoftIdentityLabApi)" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\" />
