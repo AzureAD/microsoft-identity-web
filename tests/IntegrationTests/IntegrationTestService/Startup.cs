@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace IntegrationTestService
@@ -26,7 +26,7 @@ namespace IntegrationTestService
         public void ConfigureServices(IServiceCollection services)
         {
             KeyVaultSecretsProvider keyVaultSecretsProvider = new();
-            string secret = keyVaultSecretsProvider.GetMsidLabSecret(TestConstants.OBOClientKeyVaultUri).Value;
+            string secret = keyVaultSecretsProvider.GetSecretByName(TestConstants.OBOClientKeyVaultUri).Value;
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)

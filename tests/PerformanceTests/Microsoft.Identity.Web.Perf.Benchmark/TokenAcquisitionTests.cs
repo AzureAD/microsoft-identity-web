@@ -12,7 +12,7 @@ using IntegrationTestService;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 
 namespace Microsoft.Identity.Web.Perf.Benchmark
 {

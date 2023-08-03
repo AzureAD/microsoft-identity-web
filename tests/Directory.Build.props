@@ -30,6 +30,7 @@
     <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
+    <MicrosoftIdentityLabApiVersion>0.12.0</MicrosoftIdentityLabApiVersion>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">

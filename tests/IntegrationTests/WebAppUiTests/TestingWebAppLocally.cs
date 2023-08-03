@@ -7,7 +7,7 @@ using OpenQA.Selenium;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.Test.Common;
 using OpenQA.Selenium.Edge;
 using System.IO;
