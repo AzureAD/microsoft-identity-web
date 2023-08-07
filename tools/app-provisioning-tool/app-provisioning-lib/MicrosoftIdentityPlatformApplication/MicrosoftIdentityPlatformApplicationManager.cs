@@ -12,6 +12,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
+    public static class GraphServiceClientExtensions
+    {
+        public static string? GetTenantType(this Organization tenant)
+        {
+            return tenant.AdditionalData["tenantType"]?.ToString();
+        }
+    }
     public class MicrosoftIdentityPlatformApplicationManager
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
@@ -25,7 +32,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             // Get the tenant
             Organization? tenant = await GetTenant(graphServiceClient);
-            bool isCiamTenant = tenant?.TenantType == "CIAM";
+            bool isCiamTenant = tenant?.GetTenantType() == "CIAM";
 
             // Create the app.
             Application application = new Application()
@@ -126,6 +133,16 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                     graphServiceClient,
                     createdApplication,
                     effectiveApplicationParameters);
+            }
+
+            if (isCiamTenant)
+            {
+                // NOT FOR CIAM 
+                // var userFlow = (await graphServiceClient.Identity.B2xUserFlows.Request().GetAsync()).FirstOrDefault();
+
+                // Need to use authenticationEventsFlows but requires Graph 5.x
+                // graphServiceClient.Identity.AuthenticationEventFlows
+                // See https://github.com/microsoft/entra-previews/blob/PP3/docs/API-reference-CIAM-user-flows.md#scenario-9-attach-an-application-to-a-user-flow
             }
 
             return effectiveApplicationParameters;
@@ -322,7 +339,9 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                         ConsentType = "AllPrincipals",
                         PrincipalId = null,
                         ResourceId = resourceAndScopes.FirstOrDefault()?.ResourceServicePrincipalId,
-                        Scope = string.Join(" ", resourceAndScopes.Select(r => r.Scope))
+                        Scope = string.Join(" ", resourceAndScopes.Select(r => r.Scope)),
+                        StartTime = DateTimeOffset.UtcNow,
+                        ExpiryTime = DateTimeOffset.MaxValue,
                     };
 
                     // TODO: See https://github.com/jmprieur/app-provisonning-tool/issues/9. 
@@ -333,7 +352,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                             .Request()
                             .AddAsync(oAuth2PermissionGrant);
                     }
-                    catch(ServiceException ex) when (ex.Message == "Permission entry already exists.")
+                    catch (ServiceException ex) when (ex.Message == "Permission entry already exists.")
                     {
                         // Nothing to do.
                     }
@@ -482,29 +501,46 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
-            IEnumerable<PermissionScope>? permissionScopes;
+            IEnumerable<PermissionScope>? permissionScopes = null;
+            IEnumerable<AppRole> appRoles = null;
 
             if (scopes.Contains(".default"))
             {
-                permissionScopes = spWithScopes.Oauth2PermissionScopes;
+                //permissionScopes = null; spWithScopes.Oauth2PermissionScopes;
             }
             else
             {
-                permissionScopes = spWithScopes.Oauth2PermissionScopes?
-                 .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+                permissionScopes = spWithScopes.PublishedPermissionScopes.Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+                appRoles = spWithScopes.AppRoles.Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
             }
 
-            if (permissionScopes != null)
+            if (permissionScopes != null | appRoles != null)
             {
-                RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+                var resourceAccess = new List<ResourceAccess>();
+                if (permissionScopes != null)
                 {
-                    ResourceAppId = spWithScopes.AppId,
-                    ResourceAccess = new List<ResourceAccess>(permissionScopes.Select(p =>
+                    resourceAccess.AddRange(permissionScopes.Select(p =>
                      new ResourceAccess
                      {
                          Id = p.Id,
                          Type = ScopeType
-                     }))
+                     }));
+                };
+
+                if (appRoles != null)
+                {
+                    resourceAccess.AddRange(appRoles.Select(p =>
+                     new ResourceAccess
+                     {
+                         Id = p.Id,
+                         Type = ScopeType
+                     }));
+                };
+
+                RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+                {
+                    ResourceAppId = spWithScopes.AppId,
+                    ResourceAccess = resourceAccess
                 };
                 apiRequests.Add(requiredResourceAccess);
             }
@@ -598,8 +634,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Application application,
             ApplicationParameters originalApplicationParameters)
         {
-            bool isCiam = (tenant.TenantType == "CIAM");
-            bool isB2C = (tenant.TenantType == "AAD B2C");
+            bool isCiam = (tenant.GetTenantType() == "CIAM");
+            bool isB2C = (tenant.GetTenantType() == "AAD B2C");
             var effectiveApplicationParameters = new ApplicationParameters
             {
                 ApplicationDisplayName = application.DisplayName,

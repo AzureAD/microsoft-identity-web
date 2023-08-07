@@ -6,9 +6,9 @@
       "workingDirectory": "C:\\temp\\Provisioning\\ProjectDescriptionReaderTests\\webapp\\SingleOrgtoB2CTest"
     },
     "Profile 1": {
-      "commandName": "Project",
-      "commandLineArgs": "--tenant-id 66be8beb-7e7b-4719-8032-7d0a273c2fe0 --username jmprieur@hotmail.com",
-      "workingDirectory": "C:\\temp\\testAppSyncTool\\webapi"
+        "commandName": "Project",
+        "commandLineArgs": "--tenant-id 0a49c5d2-ec6f-40e0-9017-c0c4e793c02b --username jmprieur@hotmail.com",
+        "workingDirectory": "C:\\temp\\testAppSyncTool\\webapi"
     }
   }
 }
