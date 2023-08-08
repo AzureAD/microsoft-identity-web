@@ -3,7 +3,6 @@
 
 using Xunit;
 using System.Threading.Tasks;
-using OpenQA.Selenium;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System;
@@ -16,7 +15,7 @@ using System.Linq;
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
-public class TestingWebAppLocally 
+public class TestingWebAppLocally
 {
     [Fact]
     public async Task ChallengeUser_SignInSucceedsTestAsync_LocalHttp()
@@ -47,28 +46,22 @@ public class TestingWebAppLocally
                 Assert.Fail($"Could not run {testedApplicationPath}.");
             }
 
-            EdgeOptions edgeOptions = new EdgeOptions();
-            edgeOptions.AddArgument("-inprivate");
-            // ~2x faster, no visual rendering
-            // comment-out below when debugging to see the UI automation
-            edgeOptions.AddArgument(TestConstants.Headless);
-            using IWebDriver driver = new EdgeDriver(edgeOptions);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+            using var playwright = await Playwright.CreateAsync();
+            var browser = await playwright.Edge.LaunchAsync();
+            var page = await browser.NewPageAsync();
+            await page.GotoAsync($"https://localhost:5001/MicrosoftIdentity/Account/signin");
+            ILocator locator = page.Locater();
 
             try
             {
                 // Act
-                Trace.WriteLine("Starting Selenium automation: web app sign-in & call Graph");
-                driver.Navigate()
-                   .GoToUrl($"https://localhost:5001/MicrosoftIdentity/Account/signin");
+                Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
-                WebAppIntegrationTests.PerformLogin(driver, labResponse.User);
+                await WebAppIntegrationTests.PerformLogin(page, labResponse.User);
 
                 // Assert
-                Assert.Contains(labResponse.User.Upn, driver.PageSource, System.StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(TestConstants.PhotoLabel, driver.PageSource, System.StringComparison.OrdinalIgnoreCase);
-                driver.Quit();
-                driver.Dispose();
+                Assert.Contains(labResponse.User.Upn, await page.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(TestConstants.PhotoLabel, await page.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception ex)
             {
@@ -76,6 +69,7 @@ public class TestingWebAppLocally
             }
             finally
             {
+                await browser.CloseAsync();
                 p.Kill(true);
             }
         }
