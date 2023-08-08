@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Identity.Web.Test.Common;
-using OpenQA.Selenium.Edge;
+using Microsoft.Playwright;
 using System.IO;
 using System.Linq;
 

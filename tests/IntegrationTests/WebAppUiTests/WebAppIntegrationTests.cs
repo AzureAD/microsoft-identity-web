@@ -8,9 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
+using Microsoft.Playwright;
 using Xunit;
 
 namespace WebAppUiTests

@@ -1,0 +1,20 @@
+{
+  "name": "microsoft-identity-web",
+  "version": "1.0.0",
+  "description": "[Microsoft Identity Web](https://www.nuget.org/packages/Microsoft.Identity.Web) is a library which contains a set of reusable classes used in conjunction with ASP.NET Core for integrating with the [Microsoft identity platform](https://docs.microsoft.com/en-us/azure/active-directory/develop/) (formerly *Azure AD v2.0 endpoint*) and [AAD B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "dependencies": {
+    "playwright-core": "^1.36.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.36.2"
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
