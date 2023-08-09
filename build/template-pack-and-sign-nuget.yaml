@@ -27,7 +27,7 @@ steps:
            "parameterValue": "Microsoft.Identity.Web"
          },
          {
-           "parameterName": "Microsoft",
+           "parameterName": "OpusInfo",
            "parameterValue": "http://www.microsoft.com"
          },
          {
