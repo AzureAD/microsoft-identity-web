@@ -28,7 +28,7 @@ steps:
          },
          {
            "parameterName": "OpusInfo",
-           "parameterValue": "https://www.microsoft.com"
+           "parameterValue": "http://www.microsoft.com"
          },
          {
            "parameterName": "PageHash",
