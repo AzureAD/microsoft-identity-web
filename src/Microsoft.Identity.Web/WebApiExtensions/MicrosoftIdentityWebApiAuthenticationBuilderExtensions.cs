@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Validators;
 
 namespace Microsoft.Identity.Web
 {
@@ -78,10 +80,9 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(configurationSection);
             _ = Throws.IfNull(builder);
-
+            
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
-                options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
@@ -121,7 +122,6 @@ namespace Microsoft.Identity.Web
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 configureJwtBearerOptions,
-                configureMicrosoftIdentityOptions,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
 
@@ -136,12 +136,10 @@ namespace Microsoft.Identity.Web
         private static void AddMicrosoftIdentityWebApiImplementation(
             AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
             string jwtBearerScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
         {
             builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions);
-            builder.Services.Configure(jwtBearerScheme, configureMicrosoftIdentityOptions);
             builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
 
             builder.Services.AddHttpContextAccessor();
@@ -230,6 +228,13 @@ namespace Microsoft.Identity.Web
                     {
                         options.Events = new JwtBearerEvents();
                     }
+
+                    options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+                    options.Events.OnMessageReceived = async context =>
+                    {
+                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
+                        await Task.CompletedTask.ConfigureAwait(false);
+                    };
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.

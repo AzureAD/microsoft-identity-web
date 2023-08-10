@@ -196,7 +196,7 @@ namespace TokenAcquirerTests
             // the reason for creating the RsaSecurityKey from RSAParameters is so that a SignatureProvider created with this key
             // will own the RSA object and dispose it. If we pass a RSA object, the SignatureProvider does not own the object, the RSA object will not be disposed.
             RSAParameters rsaParameters = rsa.ExportParameters(true);
-            RsaSecurityKey rsaSecuirtyKey = new RsaSecurityKey(rsaParameters) { KeyId = CreateRsaKeyId(rsaParameters) };
+            RsaSecurityKey rsaSecuirtyKey = new(rsaParameters) { KeyId = CreateRsaKeyId(rsaParameters) };
             rsa.Dispose();
             return rsaSecuirtyKey;
         }
@@ -210,7 +210,9 @@ namespace TokenAcquirerTests
             Array.Copy(rsaParameters.Exponent, 0, kidBytes, 0, rsaParameters.Exponent.Length);
             Array.Copy(rsaParameters.Modulus, 0, kidBytes, rsaParameters.Exponent.Length, rsaParameters.Modulus.Length);
             using (var sha2 = SHA256.Create())
+            {
                 return Base64UrlEncoder.Encode(sha2.ComputeHash(kidBytes));
+            }
         }
 
         private string? ComputePublicKeyString(X509Certificate2? certificate)

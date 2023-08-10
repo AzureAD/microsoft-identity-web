@@ -4,7 +4,6 @@
      <TargetFrameworks>net7.0</TargetFrameworks>
      <SignAssembly>True</SignAssembly>
      <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
  <ItemGroup>

@@ -1,9 +1,49 @@
+2.13.2
+=========
+### Bug fixes:
+- **Fix bug found in usage of AzureAD key issuer validator,** see issue [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323).
+- **Improved performance in downstreamAPI**, see issue [#2355](https://github.com/AzureAD/microsoft-identity-web/issues/2355) for details.
+- **Address duplicate cache entries,** with singleton token acquisition, which was causing much larger cache size than needed. See issue [#2349](https://github.com/AzureAD/microsoft-identity-web/issues/2349).
+- **Distributed cache logger now prints correct cache entry size,** see issue [#2348](https://github.com/AzureAD/microsoft-identity-web/issues/2349)
+
+2.13.1
+=========
+- Update to MSAL 4.55.0
+
+### New Features:
+- Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default in Owin. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
+- **Microsoft.Identity.Web now supports .NET 8 with conditional compilation**, see [#2309](https://github.com/AzureAD/microsoft-identity-web/issues/2309).
+  
+2.13.0
+=========
+- Update to Wilson 6.32.0 and Microsoft.Identity.Abstractions 4.0.0
+
+### New Feature:
+Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
+2.12.4
+==========
+- fix for CVE-2023-29331 in `System.Security.Cryptography.Pkcs`
+
+2.12.2
+==========
+### New Feature:
+- **Id Web now supports the MS Graph v5 SDK,** see issue [#2097](https://github.com/AzureAD/microsoft-identity-web/issues/2097) for details.
+
+2.11.1
+==========
+- Update to MSAL 4.54.1
+
+### Bug Fix:
+- **Fix bug with signed assertion for AKS**, see issue [#2252](https://github.com/AzureAD/microsoft-identity-web/pull/2252) for details.
+
 2.11.0
 ==========
 - Update to MSAL 4.54.0
 
 ### New Features
-- **ID Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
+- **Id Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
 
 2.10.0
 ==========

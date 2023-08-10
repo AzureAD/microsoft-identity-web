@@ -6,8 +6,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -50,7 +50,7 @@ namespace WebAppUiTests
             IWebDriver driver,
             LabUser user)
         {
-            UserInformationFieldIds fields = new UserInformationFieldIds();
+            UserInformationFieldIds fields = new UserInformationFieldIds(user);
 
             EnterUsername(driver, user, fields);
             EnterPassword(driver, user, fields);

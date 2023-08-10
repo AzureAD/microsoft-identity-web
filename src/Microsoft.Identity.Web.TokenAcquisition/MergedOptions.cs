@@ -205,7 +205,9 @@ namespace Microsoft.Identity.Web
             mergedOptions.SkipUnrecognizedRequests |= microsoftIdentityOptions.SkipUnrecognizedRequests;
             mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
             mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
-
+#if NET8_0_OR_GREATER
+            mergedOptions.TimeProvider = microsoftIdentityOptions.TimeProvider;
+#endif
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce |= microsoftIdentityOptions.UsePkce;
 
@@ -454,7 +456,7 @@ namespace Microsoft.Identity.Web
         public static void UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions, MergedOptions mergedOptions)
         {
             mergedOptions.AllowWebApiToBeAuthorizedByACL |= microsoftIdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL;
-            if (string.IsNullOrEmpty(mergedOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "/v2.0" && !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority))
+            if (string.IsNullOrEmpty(mergedOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "//v2.0" && !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority))
             {
                 mergedOptions.Authority = microsoftIdentityApplicationOptions.Authority;
             }

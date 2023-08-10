@@ -1,0 +1,12 @@
+# template-run-unit-tests.yaml
+# Run all unit tests across the IdWeb project
+
+steps:
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: |
+        Tests/**/*.csproj
+        !Tests/DevApps/**/*.csproj 
+    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'

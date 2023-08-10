@@ -4,6 +4,11 @@
       "commandName": "Project",
       "commandLineArgs": "--tenant-id fabrikamb2c.onmicrosoft.com --susi-policy-id susi",
       "workingDirectory": "C:\\temp\\Provisioning\\ProjectDescriptionReaderTests\\webapp\\SingleOrgtoB2CTest"
+    },
+    "Profile 1": {
+      "commandName": "Project",
+      "commandLineArgs": "--tenant-id 66be8beb-7e7b-4719-8032-7d0a273c2fe0 --username jmprieur@hotmail.com",
+      "workingDirectory": "C:\\temp\\testAppSyncTool\\webapi"
     }
   }
 }

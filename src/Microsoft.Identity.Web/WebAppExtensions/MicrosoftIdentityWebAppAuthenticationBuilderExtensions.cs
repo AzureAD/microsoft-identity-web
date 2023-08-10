@@ -521,6 +521,9 @@ namespace Microsoft.Identity.Web
             options.ForwardSignIn = mergedOptions.ForwardSignIn;
             options.ForwardSignOut = mergedOptions.ForwardSignOut;
             options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
+#if NET8_0_OR_GREATER
+            options.TimeProvider = mergedOptions.TimeProvider;
+#endif
         }
     }
 }

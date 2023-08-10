@@ -874,13 +874,16 @@ namespace Microsoft.Identity.Web.Test
         public void PreventChangesInOpenIdConnectOptionsToBeOverlooked()
         {
             // If the number of public properties of OpenIdConnectOptions changes,
-            // then, the PopulateOpenIdOptionsFromMicrosoftIdentityOptions method
+            // then, the PopulateOpenIdOptionsFromMergedOptions method
             // needs to be updated. For this uncomment the 2 lines below, and run the test
             // then diff the files to find what are the new properties
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
-
+#if NET8_0_OR_GREATER
+            int expectedNumberOfProperties = 58;
+#else
             int expectedNumberOfProperties = 57;
-            // System.IO.File.WriteAllLines(@"c:\temp\net5.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+#endif
+            //System.IO.File.WriteAllLines(@"C:\temp\net8.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
             Assert.Equal(expectedNumberOfProperties, numberOfProperties);
         }
     }

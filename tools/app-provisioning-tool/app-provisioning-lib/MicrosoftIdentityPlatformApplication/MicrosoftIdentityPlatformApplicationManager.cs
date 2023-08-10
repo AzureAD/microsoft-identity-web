@@ -25,6 +25,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             // Get the tenant
             Organization? tenant = await GetTenant(graphServiceClient);
+            bool isCiamTenant = tenant?.TenantType == "CIAM";
 
             // Create the app.
             Application application = new Application()
@@ -82,8 +83,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 .Request()
                 .AddAsync(servicePrincipal).ConfigureAwait(false);
 
-            // B2C does not allow user consent, and therefore we need to explicity grant permissions
-            if (applicationParameters.IsB2C)
+            // B2C and CIAM don't allow user consent, and therefore we need to explicity grant permissions
+            if (applicationParameters.IsB2C || applicationParameters.IsCiam || isCiamTenant)
             {
                 await AddAdminConsentToApiPermissions(
                     graphServiceClient,
@@ -106,7 +107,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                         graphServiceClient,
                         createdApplication,
                         createdServicePrincipal,
-                        applicationParameters.IsB2C);
+                        applicationParameters.IsB2C || applicationParameters.IsCiam || isCiamTenant);
                 }
             }
 
@@ -202,7 +203,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             GraphServiceClient graphServiceClient,
             Application createdApplication,
             ServicePrincipal createdServicePrincipal,
-            bool isB2C)
+            bool isB2cOrCiam)
         {
             var requiredResourceAccess = new List<RequiredResourceAccess>();
             var resourcesAccessAndScopes = new List<ResourceAndScope>
@@ -227,7 +228,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 .Request()
                 .UpdateAsync(applicationToUpdate).ConfigureAwait(false);
 
-            if (isB2C)
+            if (isB2cOrCiam)
             {
                 var oAuth2PermissionGrant = new OAuth2PermissionGrant
                 {
@@ -326,9 +327,16 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
                     // TODO: See https://github.com/jmprieur/app-provisonning-tool/issues/9. 
                     // We need to process the case where the developer is not a tenant admin
-                    await graphServiceClient.Oauth2PermissionGrants
-                        .Request()
-                        .AddAsync(oAuth2PermissionGrant);
+                    try
+                    {
+                        await graphServiceClient.Oauth2PermissionGrants
+                            .Request()
+                            .AddAsync(oAuth2PermissionGrant);
+                    }
+                    catch(ServiceException ex) when (ex.Message == "Permission entry already exists.")
+                    {
+                        // Nothing to do.
+                    }
                 }
             }
         }
@@ -474,20 +482,32 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             }
 
             IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
-            var permissionScopes = spWithScopes.Oauth2PermissionScopes
-                .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+            IEnumerable<PermissionScope>? permissionScopes;
 
-            RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+            if (scopes.Contains(".default"))
             {
-                ResourceAppId = spWithScopes.AppId,
-                ResourceAccess = new List<ResourceAccess>(permissionScopes.Select(p =>
-                 new ResourceAccess
-                 {
-                     Id = p.Id,
-                     Type = ScopeType
-                 }))
-            };
-            apiRequests.Add(requiredResourceAccess);
+                permissionScopes = spWithScopes.Oauth2PermissionScopes;
+            }
+            else
+            {
+                permissionScopes = spWithScopes.Oauth2PermissionScopes?
+                 .Where(s => scopes.Contains(s.Value.ToLower(CultureInfo.InvariantCulture)));
+            }
+
+            if (permissionScopes != null)
+            {
+                RequiredResourceAccess requiredResourceAccess = new RequiredResourceAccess
+                {
+                    ResourceAppId = spWithScopes.AppId,
+                    ResourceAccess = new List<ResourceAccess>(permissionScopes.Select(p =>
+                     new ResourceAccess
+                     {
+                         Id = p.Id,
+                         Type = ScopeType
+                     }))
+                };
+                apiRequests.Add(requiredResourceAccess);
+            }
         }
 
         /// <summary>
@@ -578,7 +598,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Application application,
             ApplicationParameters originalApplicationParameters)
         {
-            bool isB2C = (tenant.TenantType == "AAD B2C") && !originalApplicationParameters.IsCiam;
+            bool isCiam = (tenant.TenantType == "CIAM");
+            bool isB2C = (tenant.TenantType == "AAD B2C");
             var effectiveApplicationParameters = new ApplicationParameters
             {
                 ApplicationDisplayName = application.DisplayName,
@@ -586,7 +607,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 EffectiveClientId = application.AppId,
                 IsAAD = !isB2C,
                 IsB2C = isB2C,
-                IsCiam = originalApplicationParameters.IsCiam,
+                IsCiam = isCiam,
                 HasAuthentication = true,
                 IsWebApi = application.Api != null
                         && (application.Api.Oauth2PermissionScopes != null && application.Api.Oauth2PermissionScopes.Any())
