@@ -47,21 +47,25 @@ public class TestingWebAppLocally
             }
 
             using var playwright = await Playwright.CreateAsync();
-            var browser = await playwright.Edge.LaunchAsync();
-            var page = await browser.NewPageAsync();
+            await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+            {
+                Headless = false,
+            });
+            var context = await browser.NewContextAsync();
+
+            var page = await context.NewPageAsync();
             await page.GotoAsync($"https://localhost:5001/MicrosoftIdentity/Account/signin");
-            ILocator locator = page.Locater();
 
             try
             {
                 // Act
                 Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
-                await WebAppIntegrationTests.PerformLogin(page, labResponse.User);
+                await LoginMethods.PerformLogin(page, labResponse.User);
 
                 // Assert
-                Assert.Contains(labResponse.User.Upn, await page.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(TestConstants.PhotoLabel, await page.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(labResponse.User.Upn, await locator.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(TestConstants.PhotoLabel, await locator.InnerHTMLAsync(), System.StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception ex)
             {
