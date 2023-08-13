@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
         /// Get the <see cref="SecurityToken"/> used to call a protected web API.
         /// </summary>
         /// <param name="claimsPrincipal"></param>
-        /// <returns></returns>
+        /// <returns><see cref="SecurityToken"/></returns>
         public static SecurityToken? GetBootstrapToken(this IPrincipal claimsPrincipal)
         {
             object? o = (claimsPrincipal?.Identity as ClaimsIdentity)?.BootstrapContext;
