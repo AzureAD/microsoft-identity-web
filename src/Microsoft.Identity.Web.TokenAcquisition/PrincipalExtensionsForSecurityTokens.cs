@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensions to retrive a <see cref="SecurityToken"/> from <see cref="ClaimsPrincipal"/>.
+    /// Extensions to retrieve a <see cref="SecurityToken"/> from <see cref="ClaimsPrincipal"/>.
     /// </summary>
     public static class PrincipalExtensionsForSecurityTokens
     {
