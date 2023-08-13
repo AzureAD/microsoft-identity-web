@@ -230,7 +230,7 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-            user = await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
+            user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 

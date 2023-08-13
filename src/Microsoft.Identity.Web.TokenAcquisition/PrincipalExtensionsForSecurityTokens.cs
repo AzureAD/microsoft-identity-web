@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
             {
                 return new JsonWebToken(s);
             }
-            return null;
+            return (o != null) ? new JsonWebToken(o.ToString()) : null;
         }
     }
 }
