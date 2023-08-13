@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
             // Token acquisition service
             if (isTokenAcquisitionSingleton)
             {
-#if !NETSTANDARD2_0 && !NET462 && !NET472
+#if NETCOREAPP3_1_OR_GREATER
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
                 if (forceSdk)
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#if !NETSTANDARD2_0 && !NET462 && !NET472
+#if NETCOREAPP3_1_OR_GREATER
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
 
