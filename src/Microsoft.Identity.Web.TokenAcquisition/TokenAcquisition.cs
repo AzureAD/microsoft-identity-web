@@ -9,11 +9,9 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -232,7 +230,7 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-            user = await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
+            user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
@@ -245,7 +243,8 @@ namespace Microsoft.Identity.Web
                     tenantId,
                     scopes,
                     tokenAcquisitionOptions,
-                    mergedOptions).ConfigureAwait(false);
+                    mergedOptions,
+                    user).ConfigureAwait(false);
 
                 if (authenticationResult != null)
                 {
@@ -658,12 +657,13 @@ namespace Microsoft.Identity.Web
            string? tenantId,
            IEnumerable<string> scopes,
            TokenAcquisitionOptions? tokenAcquisitionOptions,
-           MergedOptions mergedOptions)
+           MergedOptions mergedOptions,
+           ClaimsPrincipal? userHint)
         {
             try
             {
                 // In web API, validatedToken will not be null
-                SecurityToken? validatedToken = _tokenAcquisitionHost.GetTokenUsedToCallWebAPI();
+                SecurityToken? validatedToken = userHint?.GetBootstrapToken() ?? _tokenAcquisitionHost.GetTokenUsedToCallWebAPI();
 
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
@@ -889,7 +889,7 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
-                        builder.WithExtraQueryParameters(dict);
+                    builder.WithExtraQueryParameters(dict);
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -937,16 +937,16 @@ namespace Microsoft.Identity.Web
             {
                 var mergedDict = new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters);
                 if (mergedOptions.ExtraQueryParameters != null)
-                {                    
+                {
                     foreach (var pair in mergedOptions!.ExtraQueryParameters)
                     {
                         if (!mergedDict!.ContainsKey(pair.Key))
                             mergedDict.Add(pair.Key, pair.Value);
-                    }                   
+                    }
                 }
                 return mergedDict;
             }
-            
+
             return (Dictionary<string, string>?)mergedOptions.ExtraQueryParameters;
         }
 

@@ -41,6 +41,10 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
+#if !NETSTANDARD2_0 && !NET462 && !NET472
+            bool forceSdk = !services.Any(s => s.ServiceType == typeof(AspNetCore.Hosting.IWebHostEnvironment));
+#endif
+
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(ICredentialsLoader)) == null)
             {
                 services.AddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
@@ -85,13 +89,20 @@ namespace Microsoft.Identity.Web
             // Token acquisition service
             if (isTokenAcquisitionSingleton)
             {
-#if !NETSTANDARD2_0 && !NET462 && !NET472
+#if NETCOREAPP3_1_OR_GREATER
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
+                if (forceSdk)
+                {
+                    services.AddSingleton<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
+                }
+                else
+                {
+                    services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
+                }
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
                 services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
 
-                services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
 
 #else
                 // .NET FW.
@@ -103,14 +114,21 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#if !NETSTANDARD2_0 && !NET462 && !NET472
+#if NETCOREAPP3_1_OR_GREATER
                 // ASP.NET Core
                 services.AddHttpContextAccessor();
 
+                if (forceSdk)
+                {
+                    services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
+                }
+                else
+                {
+                    services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
+                }
                 services.AddScoped<ITokenAcquisition, TokenAcquisitionAspNetCore>();
                 services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
 
-                services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
 #else
                 // .NET FW.
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();

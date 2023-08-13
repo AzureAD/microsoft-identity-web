@@ -24,6 +24,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Threading;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -225,7 +226,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Fact]
         public async Task GetAccessTokenForApp_WithAnonymousController_Async()
         {
-            var serviceCollection = new ServiceCollection();
+            // ASP.NET Core builder.
+            var serviceCollection = WebApplication.CreateBuilder().Services;
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
@@ -243,6 +245,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var services = serviceCollection.BuildServiceProvider();
 
             var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+            var tokenAcquisitionHost = services.GetRequiredService<ITokenAcquisitionHost>();
 
             var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
 
