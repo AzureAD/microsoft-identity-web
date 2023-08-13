@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -13,10 +15,10 @@ namespace Microsoft.Identity.Web.Tests
         public void GetBootstrapToken_Returns_Null_When_ClaimsPrincipal_Is_Null()
         {
             // Arrange
-            IPrincipal claimsPrincipal = null;
+            IPrincipal? claimsPrincipal = null;
 
             // Act
-            var result = claimsPrincipal.GetBootstrapToken();
+            var result = claimsPrincipal?.GetBootstrapToken();
 
             // Assert
             Assert.Null(result);
