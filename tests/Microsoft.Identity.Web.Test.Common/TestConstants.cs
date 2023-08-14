@@ -161,7 +161,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string CustomJwtScheme = "customJwt";
         public const string CustomJwtScheme2 = "customJwt2";
 
-        // Selenium Automation
+        // UI Testing Automation
         public const string WebSubmitId = "idSIButton9";
         public const string WebUPNInputId = "i0116";
         public const string WebPasswordId = "i0118";
@@ -169,6 +169,13 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string StaySignedInNoId = "idBtn_Back";
         public const string PhotoLabel = "photo";
         public const string Headless = "headless";
+        public const string HeaderText = "Header";
+        public const string EmailText = "Email";
+        public const string PasswordText = "Password";
+        public enum BrowserTypeEnum 
+            {
+            CHROMIUM, FIREFOX
+            }
 
         // TokenAcqusitionOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");

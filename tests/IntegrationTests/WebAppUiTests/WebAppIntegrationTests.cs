@@ -1,78 +1,70 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Playwright;
-using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace WebAppUiTests
 {
 #if !FROM_GITHUB_ACTION
+
     public class WebAppIntegrationTests
     {
-        [Fact(Skip = "We cannot republish the web app atm. https://github.com/AzureAD/microsoft-identity-web/issues/984")]
-        public async Task ChallengeUser_SignInSucceedsTestAsync()
+        const string UrlString = "https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin";
+
+        [Theory(Skip = "We cannot republish the web app atm. https://github.com/AzureAD/microsoft-identity-web/issues/984")]
+        [InlineData(TestConstants.BrowserTypeEnum.CHROMIUM)]
+        [InlineData(TestConstants.BrowserTypeEnum.FIREFOX)]
+        public async Task ChallengeUser_MicrosoftIdentityFlow_RemoteApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync(TestConstants.BrowserTypeEnum browserType)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
 
             // Arrange
+            using var playwright = await Playwright.CreateAsync();
+            IBrowser browser;
+            switch (browserType)
+            {
+                case TestConstants.BrowserTypeEnum.CHROMIUM:
+                    browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+                    break;
+
+                case TestConstants.BrowserTypeEnum.FIREFOX:
+                    browser = await playwright.Firefox.LaunchAsync(new() { Headless = true });
+                    break;
+
+                default:
+                    Trace.WriteLine($"Testing for the {browserType} has not been implemented, defaulting to Chromium");
+                    browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+                    break;
+            }
+            IPage page = await browser.NewPageAsync();
+            await page.GotoAsync(UrlString);
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
-            var options = new BrowserTypeLaunchOptions { Headless = false };
-            var playwright = await Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(options);
-            var page = await browser.NewPageAsync();
-            ILocator locator = page.Locator("//body");
+            try
+            {
+                // Act
+                Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
+                string email = labResponse.User.Upn;
+                string password = labResponse.User.GetOrFetchPassword();
+                await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, password);
 
-            // Act
-            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-            await page.GotoAsync("https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin");
-            await LoginMethods.PerformLogin(page, labResponse.User);
+                // Assert
+                await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"the UI automation failed: {ex}");
+            }
 
-            // Assert
-            var pageContent = await locator.InnerHTMLAsync();
-            Assert.Contains(labResponse.User.Upn, pageContent, System.StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(TestConstants.PhotoLabel, pageContent, StringComparison.OrdinalIgnoreCase);
         }
 #endif //FROM_GITHUB_ACTION
-    }
-    public class LoginMethods
-    { 
-        protected static async Task PerformLogin(IPage page, LabUser user)
-        {
-            const string EmailEntryPlaceholderText = "email";
-            const string PasswordEntryPlaceholderText = "password";
-
-            ILocator emailInputLocator = page.GetByPlaceholder(EmailEntryPlaceholderText);
-            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Logging in ... Entering user name: {0}", user.Upn));
-            await emailInputLocator.ClickAsync();
-            await emailInputLocator.FillAsync(user.Upn);
-            
-
-            Trace.WriteLine("Logging in ... submitting email input");
-            await emailInputLocator.PressAsync("Enter");
-
-            Trace.WriteLine("Selecting \"Password\" as authentication method");
-            await page.GetByRole(AriaRole.Button, new() { Name = "Password" }).ClickAsync();
-
-            Trace.WriteLine("Logging in ... entering password");
-            var password = user.GetOrFetchPassword();
-            ILocator passwordInputLocator = page.GetByPlaceholder(PasswordEntryPlaceholderText);
-            await passwordInputLocator.ClickAsync();
-            await passwordInputLocator.FillAsync(password);
-
-            Trace.WriteLine("Logging in ... submitting password input");
-            await passwordInputLocator.PressAsync("Enter");
-            
-            Trace.WriteLine("Logging in ... Clicking 'No' for staying signed in");
-            await page.GetByRole(AriaRole.Button, new() { Name = "No" }).ClickAsync();
-        }
-
     }
 }

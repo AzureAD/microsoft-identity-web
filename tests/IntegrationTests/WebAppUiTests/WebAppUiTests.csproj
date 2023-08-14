@@ -11,8 +11,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MicrosoftAspNetCoreMvcTestingVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Microsoft.Playwright" Version="1.36.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="$(SeleniumWebDriverVersion)" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="$(SeleniumWebDriverChromeDriverVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
