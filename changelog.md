@@ -1,3 +1,15 @@
+2.13.3
+=========
+- Update to Wilson 7.0.0-preview2 on .NET 8.
+
+### New features:
+- Support langversion 11, which as fewer allocations compared to 10. See issue [#2351](https://github.com/AzureAD/microsoft-identity-web/issues/2351).
+- In AspNET Core 3.1 and Net 5+, Microsoft.Identity.Web now use the DefaultTokenAcquisitionHost (the host for SDK apps) instead of the
+Asp.NET Core one, when the service collection was not initialized by ASP.NET Core (that is the `IWebHostEnvironment` is not present in the collection. If you want the ASP.NET Core host, you would need to use the `WebApplication.CreateBuilder().Services` instead
+of instantiating a simple service collection.
+- In web APIs, `GetAuthenticationResultForUserAsync` tries to find the inbound token from `user.Identity.BootstrapContext` first (if not null), and then from the token acquisition host. This will help for non-asp.NET Core Azure functions for instance.
+See issue [#2371](https://github.com/AzureAD/microsoft-identity-web/issues/2371) for details.
+
 2.13.2
 =========
 ### Bug fixes:
