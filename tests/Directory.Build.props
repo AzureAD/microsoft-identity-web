@@ -7,7 +7,6 @@
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
@@ -32,6 +31,7 @@
     <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
+    <MicrosoftIdentityLabApiVersion>0.12.1</MicrosoftIdentityLabApiVersion>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">

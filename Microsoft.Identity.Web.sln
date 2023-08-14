@@ -36,8 +36,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B4E72F1C
 		tests\Directory.Build.props = tests\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test.LabInfrastructure", "tests\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj", "{65D4033E-70D4-4399-BBEB-18A629BC67D9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test.Common", "tests\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj", "{28D01B8A-CD4C-4886-BD5E-4BF1B6C0A4C1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Test", "tests\Microsoft.Identity.Web.Test\Microsoft.Identity.Web.Test.csproj", "{2B1E8B69-D74F-4D0C-B80B-78ACA1DD4E77}"
@@ -170,6 +168,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Grap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphServiceClientTests", "tests\IntegrationTests\GraphServiceClientTests\GraphServiceClientTests.csproj", "{F686A507-CAC6-4349-9112-27F5AEFBF12B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimulateOidc", "tests\IntegrationTests\SimulateOidc\SimulateOidc.csproj", "{9014A1C1-7552-4950-AB86-7BE97B301701}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,10 +216,6 @@ Global
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65D4033E-70D4-4399-BBEB-18A629BC67D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65D4033E-70D4-4399-BBEB-18A629BC67D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65D4033E-70D4-4399-BBEB-18A629BC67D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65D4033E-70D4-4399-BBEB-18A629BC67D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28D01B8A-CD4C-4886-BD5E-4BF1B6C0A4C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28D01B8A-CD4C-4886-BD5E-4BF1B6C0A4C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28D01B8A-CD4C-4886-BD5E-4BF1B6C0A4C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -391,6 +387,10 @@ Global
 		{F686A507-CAC6-4349-9112-27F5AEFBF12B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F686A507-CAC6-4349-9112-27F5AEFBF12B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F686A507-CAC6-4349-9112-27F5AEFBF12B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9014A1C1-7552-4950-AB86-7BE97B301701}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9014A1C1-7552-4950-AB86-7BE97B301701}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9014A1C1-7552-4950-AB86-7BE97B301701}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9014A1C1-7552-4950-AB86-7BE97B301701}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -406,7 +406,6 @@ Global
 		{A423DCA3-BEB8-4D1B-8A4D-63B21950F388} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{2467D9A0-045B-4B45-8CCB-1AA229093F9F} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{20535D28-C2F4-4975-9982-A18E7141DA53} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
-		{65D4033E-70D4-4399-BBEB-18A629BC67D9} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
 		{28D01B8A-CD4C-4886-BD5E-4BF1B6C0A4C1} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
 		{2B1E8B69-D74F-4D0C-B80B-78ACA1DD4E77} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
 		{E664F890-8EB7-4CB6-8469-17CF8E3D3F33} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
@@ -469,6 +468,7 @@ Global
 		{4DF02DF7-D092-4F45-8892-8A1D3E612706} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{608F0E0B-A52D-4E0F-9B1A-BA9BDA866484} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{F686A507-CAC6-4349-9112-27F5AEFBF12B} = {A7B1AE31-4E89-42A0-8264-FBEA795AB7D2}
+		{9014A1C1-7552-4950-AB86-7BE97B301701} = {A7B1AE31-4E89-42A0-8264-FBEA795AB7D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

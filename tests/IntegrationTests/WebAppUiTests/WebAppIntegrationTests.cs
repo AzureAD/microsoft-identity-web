@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.LabInfrastructure;
 using Microsoft.Playwright;

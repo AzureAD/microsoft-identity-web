@@ -30,6 +30,7 @@ public class TestingWebAppLocally
 
         // Arrange
         Process? p = StartWebAppLocally();
+
         if (p != null)
         {
             if (p.HasExited)
