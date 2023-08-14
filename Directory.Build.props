@@ -86,7 +86,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <IdentityModelVersion>7.0.0-preview</IdentityModelVersion>
+    <IdentityModelVersion>7.0.0-preview2</IdentityModelVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0-preview.6.23329.11</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0-preview.6.23329.11</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsCachingMemoryVersion>
