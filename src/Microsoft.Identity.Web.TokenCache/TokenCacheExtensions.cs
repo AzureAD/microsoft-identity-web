@@ -19,13 +19,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-#if DEBUG
-        internal static ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
+        internal static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
             = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
-#else
-        private static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
-            = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
-#endif
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
