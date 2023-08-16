@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,13 +37,16 @@ namespace Microsoft.Identity.Web.Test
             AuthenticationResult result;
             TestTelemetryClient testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
             // new InMemory serializer and new cca
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, testTelemetryClient, addInstanceMock: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, testTelemetryClient).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(testTelemetryClient, CacheLevel.None);
 
             result = await CreateAppAndGetTokenAsync(CacheType.InMemory, testTelemetryClient, addTokenMock: false).ConfigureAwait(false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(testTelemetryClient, CacheLevel.L1Cache);
+
+            //Resetting token caches due to potential collision with other tests
+            TokenCacheExtensions.s_serviceProviderFromAction = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
 
             // new DistributedInMemory and same cca
             result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient).ConfigureAwait(false);
@@ -59,7 +64,7 @@ namespace Microsoft.Identity.Web.Test
             AuthenticationResult result;
             TestTelemetryClient testTelemetryClient = new TestTelemetryClient(TestConstants.ClientId);
             // new DistributedInMemory serializer with L1 cache disabled
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient, addInstanceMock: true, disableL1Cache: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, testTelemetryClient, disableL1Cache: true).ConfigureAwait(false);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(testTelemetryClient, CacheLevel.None);
 
@@ -153,6 +158,9 @@ namespace Microsoft.Identity.Web.Test
             var cacheKey1 = $"{TestConstants.ClientId}_{tenantId1}_AppTokenCache";
             var cacheKey2 = $"{TestConstants.ClientId}_{tenantId2}_AppTokenCache";
 
+            //Resetting token caches due to potential collision with other tests
+            TokenCacheExtensions.s_serviceProviderFromAction = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+
             using MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
             using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
             using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
@@ -196,22 +204,17 @@ namespace Microsoft.Identity.Web.Test
             CacheType cacheType,
             ITelemetryClient telemetryClient,
             bool addTokenMock = true,
-            bool addInstanceMock = false,
             bool disableL1Cache = false)
         {
             using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
             using var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler();
             using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
 
-            if (addInstanceMock)
-            {
-                mockHttp.AddMockHandler(discoveryHandler);
-            }
-
             // for when the token is requested from ESTS
             if (addTokenMock)
             {
                 mockHttp.AddMockHandler(tokenHandler);
+                tokenHandler.ReplaceMockHttpMessageHandler += mockHttp.OnReplaceMockHandler;
             }
 
             var confidentialApp = ConfidentialClientApplicationBuilder
@@ -249,6 +252,7 @@ namespace Microsoft.Identity.Web.Test
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                 .ExecuteAsync().ConfigureAwait(false);
 
+            tokenHandler.ReplaceMockHttpMessageHandler -= mockHttp.OnReplaceMockHandler;
             return result;
         }
 

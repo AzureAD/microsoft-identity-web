@@ -33,6 +33,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             }
         }
 
+        public void OnReplaceMockHandler(object sender, ReplaceMockHttpMessageHandlerEventArgs e)
+        {
+            AddMockHandler(e.MockHttpMessageHandler);
+        }
+
         public MockHttpMessageHandler AddMockHandler(MockHttpMessageHandler handler)
         {
             _httpMessageHandlerQueue.Enqueue(handler);

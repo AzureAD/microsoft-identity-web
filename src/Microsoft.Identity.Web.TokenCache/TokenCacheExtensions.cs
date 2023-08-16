@@ -19,8 +19,13 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
+#if DEBUG
+        internal static ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
+            = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+#else
         private static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
             = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+#endif
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
@@ -204,5 +209,10 @@ namespace Microsoft.Identity.Web
             });
             return confidentialClientApp;
         }
+
+        //internal static /*For testing only */ void ResetStaticCache()
+        //{
+        //    s_serviceProviderFromAction = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+        //}
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
+        public event EventHandler<ReplaceMockHttpMessageHandlerEventArgs> ReplaceMockHttpMessageHandler;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MockHttpMessageHandler()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -41,6 +44,22 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             var uri = request.RequestUri;
             Assert.NotNull(uri);
+
+            //Intercept instance discovery requests and reque the current mock handler.
+            if (uri.AbsoluteUri.Contains("/discovery/instance"))
+            {
+                var args = new ReplaceMockHttpMessageHandlerEventArgs();
+                args.MockHttpMessageHandler = this;
+                ReplaceMockHttpMessageHandler(this, args);
+
+                var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(TestConstants.DiscoveryJsonResponse),
+                };
+
+                return new TaskFactory().StartNew(() => responseMessage, cancellationToken);
+            }
+
             if (!string.IsNullOrEmpty(ExpectedUrl))
             {
                 Assert.Equal(
