@@ -63,8 +63,7 @@ public class TestingWebAppLocally
                 // Act
                 Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
                 string email = labResponse.User.Upn;
-                string password = labResponse.User.GetOrFetchPassword();
-                await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, password);
+                await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, labResponse.User.GetOrFetchPassword());
 
                 // Assert
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
