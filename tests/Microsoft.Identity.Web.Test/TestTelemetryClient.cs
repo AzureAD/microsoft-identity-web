@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web.Test
             TestTelemetryEventDetails = eventDetails;
         }
 
-        public void TrackEvent(string eventName, IDictionary<string, string> stringProperties = null, IDictionary<string, long> longProperties = null, IDictionary<string, bool> boolProperties = null, IDictionary<string, DateTime> dateTimeProperties = null, IDictionary<string, double> doubleProperties = null, IDictionary<string, Guid> guidProperties = null)
+        public void TrackEvent(string eventName, IDictionary<string, string> stringProperties, IDictionary<string, long> longProperties, IDictionary<string, bool> boolProperties, IDictionary<string, DateTime> dateTimeProperties, IDictionary<string, double> doubleProperties, IDictionary<string, Guid> guidProperties)
         {
             throw new NotImplementedException();
         }

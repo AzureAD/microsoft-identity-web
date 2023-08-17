@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Globalization;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
@@ -253,7 +251,7 @@ namespace Microsoft.Identity.Web.Test
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                 .ExecuteAsync().ConfigureAwait(false);
 
-            tokenHandler.ReplaceMockHttpMessageHandler = null;
+            tokenHandler.ReplaceMockHttpMessageHandler = null!;
             return result;
         }
 

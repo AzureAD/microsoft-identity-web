@@ -9,8 +9,6 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
-using Microsoft.IdentityModel.Abstractions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {

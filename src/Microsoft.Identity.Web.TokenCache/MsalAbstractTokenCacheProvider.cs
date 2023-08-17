@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
-using Microsoft.IdentityModel.Abstractions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {

@@ -47,7 +47,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             //Intercept instance discovery requests and serve a response. 
             //Also, requeue the current mock handler for MSAL's next request.
+#if NET6_0_OR_GREATER
+            if (uri.AbsoluteUri.Contains("/discovery/instance", StringComparison.OrdinalIgnoreCase))
+#else
             if (uri.AbsoluteUri.Contains("/discovery/instance"))
+#endif
             {
                 ReplaceMockHttpMessageHandler(this);
 
@@ -56,7 +60,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                     Content = new StringContent(TestConstants.DiscoveryJsonResponse),
                 };
 
-                return new TaskFactory().StartNew(() => responseMessage, cancellationToken);
+                return Task.FromResult(responseMessage);
             }
 
             if (!string.IsNullOrEmpty(ExpectedUrl))
@@ -77,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 string postData = request.Content.ReadAsStringAsync().Result;
             }
 
-            return new TaskFactory().StartNew(() => ResponseMessage, cancellationToken);
+            return Task.FromResult(ResponseMessage);
         }
     }
 }
