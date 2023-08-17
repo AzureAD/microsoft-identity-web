@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DevApps\WebAppCallsMicrosoftGraph\WebAppCallsMicrosoftGraph.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.LabInfrastructure\Microsoft.Identity.Web.Test.LabInfrastructure.csproj" />
   </ItemGroup>
 
 </Project>

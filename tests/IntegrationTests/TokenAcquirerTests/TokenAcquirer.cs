@@ -33,6 +33,16 @@ namespace TokenAcquirerTests
             TokenAcquirerFactory.ResetDefaultInstance(); // Test only
         }
 
+        [Fact]
+        public void TokenAcquirerFactoryDoesNotUseAspNetCoreHost()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var service = serviceProvider.GetService<ITokenAcquisitionHost>();
+            Assert.NotNull(service);
+            Assert.Equal("Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost", service.GetType().FullName);
+        }
+
         [IgnoreOnAzureDevopsFact]
         //[Theory]
         //[InlineData(false)]
@@ -42,7 +52,6 @@ namespace TokenAcquirerTests
             bool withClientCredentials = false; //add as param above
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
-
 
             services.Configure<MicrosoftIdentityOptions>(s_optionName, option =>
             {

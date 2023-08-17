@@ -8,7 +8,6 @@ using System.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Hosts
@@ -68,14 +67,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         public SecurityToken? GetTokenUsedToCallWebAPI()
         {
-            object? o = (HttpContext.Current.User.Identity as ClaimsIdentity)?.BootstrapContext;
-
-            if (o != null)
-            {
-                // TODO: do better as this won't do for JWE and wastes time. The token was already decrypted.
-                return new JsonWebToken(o as string);
-            }
-            return null;
+            return HttpContext.Current.User.GetBootstrapToken();
         }
 
         public ClaimsPrincipal? GetUserFromRequest()

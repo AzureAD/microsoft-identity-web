@@ -38,7 +38,14 @@ namespace daemon_console
             var users = await graphServiceClient.Users
                 // Change the protocol if you wish .WithAuthenticationOptions(options => options.ProtocolScheme = "Bearer")
                 .GetAsync(r => r.Options.WithAppOnly());
-            Console.WriteLine($"{users.Value.Count} users");
+            if (users != null && users.Value!=null)
+            {
+                Console.WriteLine($"{users.Value.Count} users");
+            }
+            else
+            {
+                Console.WriteLine("No user");
+            }
 #else
             // Call downstream web API
             var downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();

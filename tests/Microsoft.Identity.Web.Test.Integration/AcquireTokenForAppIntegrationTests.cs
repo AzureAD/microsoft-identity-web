@@ -18,10 +18,13 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
+using System.Threading;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -46,8 +49,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         {
             _output = output;
 
-            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
-            _ccaSecret = keyVaultSecretsProvider.GetKeyVaultSecret().Value;
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider(TestConstants.BuildAutomationKeyVaultName);
+            _ccaSecret = keyVaultSecretsProvider.GetSecretByName(TestConstants.AzureADIdentityDivisionTestAgentSecret).Value;
 
             // Need the secret before building the services
             if (!string.IsNullOrEmpty(_ccaSecret))
@@ -60,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 throw new ArgumentNullException(message: "No secret returned from Key Vault. ", null);
             }
         }
-
+        
         [Theory]
         [InlineData(true, Constants.Bearer)]
         [InlineData(true, "PoP")]
@@ -223,7 +226,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Fact]
         public async Task GetAccessTokenForApp_WithAnonymousController_Async()
         {
-            var serviceCollection = new ServiceCollection();
+            // ASP.NET Core builder.
+            var serviceCollection = WebApplication.CreateBuilder().Services;
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
@@ -241,6 +245,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var services = serviceCollection.BuildServiceProvider();
 
             var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+            var tokenAcquisitionHost = services.GetRequiredService<ITokenAcquisitionHost>();
 
             var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
 
