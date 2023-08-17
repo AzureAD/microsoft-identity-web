@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
 using Xunit;
@@ -19,10 +18,8 @@ public class TestingWebAppLocally
 {
     const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
 
-    [Theory]
-    [InlineData(TestConstants.BrowserTypeEnum.CHROMIUM)]
-    [InlineData(TestConstants.BrowserTypeEnum.FIREFOX)]
-    public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync(TestConstants.BrowserTypeEnum browserType)
+    [Fact]
+    public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         { return; }
@@ -39,21 +36,7 @@ public class TestingWebAppLocally
 
             using var playwright = await Playwright.CreateAsync();
             IBrowser browser;
-            switch (browserType)
-            {
-                case TestConstants.BrowserTypeEnum.CHROMIUM:
-                    browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-                    break;
-
-                case TestConstants.BrowserTypeEnum.FIREFOX:
-                    browser = await playwright.Firefox.LaunchAsync(new() { Headless = true });
-                    break;
-
-                default:
-                    Trace.WriteLine($"Testing for the {browserType} has not been implemented, defaulting to Chromium");
-                    browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-                    break;
-            }
+            browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);

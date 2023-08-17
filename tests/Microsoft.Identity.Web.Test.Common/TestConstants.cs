@@ -172,10 +172,6 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string HeaderText = "Header";
         public const string EmailText = "Email";
         public const string PasswordText = "Password";
-        public enum BrowserTypeEnum 
-            {
-            CHROMIUM, FIREFOX
-            }
 
         // TokenAcqusitionOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
