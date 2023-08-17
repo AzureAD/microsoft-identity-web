@@ -19,6 +19,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
+        //internal for testing only
         internal static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
             = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
 
@@ -204,10 +205,5 @@ namespace Microsoft.Identity.Web
             });
             return confidentialClientApp;
         }
-
-        //internal static /*For testing only */ void ResetStaticCache()
-        //{
-        //    s_serviceProviderFromAction = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
-        //}
     }
 }
