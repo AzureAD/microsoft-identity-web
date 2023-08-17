@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        public event EventHandler<ReplaceMockHttpMessageHandlerEventArgs> ReplaceMockHttpMessageHandler;
+        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MockHttpMessageHandler()
@@ -45,12 +45,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             var uri = request.RequestUri;
             Assert.NotNull(uri);
 
-            //Intercept instance discovery requests and reque the current mock handler.
+            //Intercept instance discovery requests and serve a response. 
+            //Also, requeue the current mock handler for MSAL's next request.
             if (uri.AbsoluteUri.Contains("/discovery/instance"))
             {
-                var args = new ReplaceMockHttpMessageHandlerEventArgs();
-                args.MockHttpMessageHandler = this;
-                ReplaceMockHttpMessageHandler(this, args);
+                ReplaceMockHttpMessageHandler(this);
 
                 var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {

@@ -207,14 +207,15 @@ namespace Microsoft.Identity.Web.Test
             bool disableL1Cache = false)
         {
             using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
-            using var discoveryHandler = MockHttpCreator.CreateInstanceDiscoveryMockHandler();
             using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
 
             // for when the token is requested from ESTS
             if (addTokenMock)
             {
                 mockHttp.AddMockHandler(tokenHandler);
-                tokenHandler.ReplaceMockHttpMessageHandler += mockHttp.OnReplaceMockHandler;
+
+                //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
+                tokenHandler.ReplaceMockHttpMessageHandler = mockHttp.AddMockHandler;
             }
 
             var confidentialApp = ConfidentialClientApplicationBuilder
@@ -252,7 +253,7 @@ namespace Microsoft.Identity.Web.Test
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                 .ExecuteAsync().ConfigureAwait(false);
 
-            tokenHandler.ReplaceMockHttpMessageHandler -= mockHttp.OnReplaceMockHandler;
+            tokenHandler.ReplaceMockHttpMessageHandler = null;
             return result;
         }
 
