@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Playwright;
-using System.Diagnostics;
-using System.Globalization;
-using System.Threading.Tasks;
 using System;
+using System.Globalization;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Playwright;
 
 namespace WebAppUiTests
 {
@@ -21,7 +21,7 @@ namespace WebAppUiTests
             await FillEntryBox(emailInputLocator, email);
 
             // If using an account that has other non-password validation options, the below code should be uncommented
-            /* Trace.WriteLine("Selecting \"Password\" as authentication method");
+            /* Trace.WriteLine("Selecting \"Password\" as authentication method"); 
             await page.GetByRole(AriaRole.Button, new() { Name = TestConstants.PasswordText }).ClickAsync();*/
 
             Trace.WriteLine("Logging in ... entering and submitting password");

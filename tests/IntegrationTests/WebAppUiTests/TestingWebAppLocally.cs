@@ -7,9 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.Graph.Models.TermStore;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Web.Test.LabInfrastructure;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
 using Xunit;
 
