@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Graph.Beta.Models;
+using Microsoft.Graph.Beta;
 
 namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 {
@@ -38,7 +40,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Application application = new Application()
             {
                 DisplayName = applicationParameters.ApplicationDisplayName,
-                SignInAudience = AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(applicationParameters.SignInAudience!),
+                SignInAudience = AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(applicationParameters.SignInAudience!, isCiamTenant),
                 Description = applicationParameters.Description
             };
 
@@ -73,9 +75,17 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 graphServiceClient,
                 application).ConfigureAwait(false);
 
-            Application createdApplication = await graphServiceClient.Applications
-                .Request()
-                .AddAsync(application);
+            Application? createdApplication = await graphServiceClient.Applications
+                .PostAsync(application);
+
+            // Add the current user as a owner.
+            User? me = await graphServiceClient.Me.GetAsync();
+            var requestBody = new ReferenceCreate
+            {
+                OdataId = $"https://graph.microsoft.com/beta/directoryObjects/{me.Id}",
+            };
+            await graphServiceClient.Applications[createdApplication.Id].Owners.Ref.PostAsync(requestBody);
+
 
             // Creates a service principal (needed for B2C)
             ServicePrincipal servicePrincipal = new ServicePrincipal
@@ -87,8 +97,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             // a service principal and permission grants. It's also useful for Blazorwasm hosted
             // applications. We create it always.
             var createdServicePrincipal = await graphServiceClient.ServicePrincipals
-                .Request()
-                .AddAsync(servicePrincipal).ConfigureAwait(false);
+                .PostAsync(servicePrincipal).ConfigureAwait(false);
 
             // B2C and CIAM don't allow user consent, and therefore we need to explicity grant permissions
             if (applicationParameters.IsB2C || applicationParameters.IsCiam || isCiamTenant)
@@ -120,9 +129,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             // Re-reading the app to be sure to have everything.
             createdApplication = (await graphServiceClient.Applications
-                .Request()
-                .Filter($"appId eq '{createdApplication.AppId}'")
-                .GetAsync()).First();
+                .GetAsync(options => options.QueryParameters.Filter = $"appId eq '{createdApplication.AppId}'")).Value.First();
 
             var effectiveApplicationParameters = GetEffectiveApplicationParameters(tenant!, createdApplication, applicationParameters);
 
@@ -137,13 +144,21 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             if (isCiamTenant)
             {
-                // NOT FOR CIAM 
-                // var userFlow = (await graphServiceClient.Identity.B2xUserFlows.Request().GetAsync()).FirstOrDefault();
+               // Disabled for the moment, as it requires the following permissions:
+/*             // (Policy.ReadWrite.AuthenticationFlows, EventListener.Read.All, EventListener.ReadWrite.All, Application.Read.All, Application.ReadWrite.All) to access the resource."
+ 
+                var flows = await graphServiceClient.Identity.AuthenticationEventsFlows.GetAsync();
+                var flow = flows.Value.FirstOrDefault();
+                if (flow != null)
+                {
+                    flow.Conditions.Applications.IncludeApplications.Add(new AuthenticationConditionApplication() { AppId = createdApplication.AppId });
+                    await graphServiceClient.Identity.AuthenticationEventsFlows[flow.Id].PatchAsync(flow);
+                }
 
-                // Need to use authenticationEventsFlows but requires Graph 5.x
-                // graphServiceClient.Identity.AuthenticationEventFlows
                 // See https://github.com/microsoft/entra-previews/blob/PP3/docs/API-reference-CIAM-user-flows.md#scenario-9-attach-an-application-to-a-user-flow
+*/
             }
+
 
             return effectiveApplicationParameters;
         }
@@ -154,8 +169,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             try
             {
                 tenant = (await graphServiceClient.Organization
-                    .Request()
-                    .GetAsync()).FirstOrDefault();
+                    .GetAsync()).Value?.FirstOrDefault();
             }
             catch (ServiceException ex)
             {
@@ -185,9 +199,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
             var existingApplication = (await graphServiceClient.Applications
-               .Request()
-               .Filter($"appId eq '{reconcialedApplicationParameters.ClientId}'")
-               .GetAsync()).First();
+               .GetAsync(options => options.QueryParameters.Filter = $"appId eq '{reconcialedApplicationParameters.ClientId}'"))?.Value.First();
 
             // Updates the redirect URIs
             var updatedApp = new Application
@@ -198,9 +210,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             // TODO: update other fields. 
             // See https://github.com/jmprieur/app-provisonning-tool/issues/10
-            await graphServiceClient.Applications[existingApplication.Id]
-                .Request()
-                .UpdateAsync(updatedApp).ConfigureAwait(false);
+            await graphServiceClient.Applications[existingApplication.Id].
+                PatchAsync(updatedApp).ConfigureAwait(false);
 
             if (existingApplication.RequiredResourceAccess != null
                 && !reconcialedApplicationParameters.IsBlazorWasm
@@ -242,8 +253,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             };
 
             await graphServiceClient.Applications[createdApplication.Id]
-                .Request()
-                .UpdateAsync(applicationToUpdate).ConfigureAwait(false);
+                .PatchAsync(applicationToUpdate).ConfigureAwait(false);
 
             if (isB2cOrCiam)
             {
@@ -257,8 +267,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                 };
 
                 await graphServiceClient.Oauth2PermissionGrants
-                    .Request()
-                    .AddAsync(oAuth2PermissionGrant).ConfigureAwait(false);
+                    .PostAsync(oAuth2PermissionGrant).ConfigureAwait(false);
             }
         }
 
@@ -271,16 +280,20 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         /// <returns></returns>
         private static async Task AddPasswordCredentials(GraphServiceClient graphServiceClient, Application createdApplication, ApplicationParameters effectiveApplicationParameters)
         {
-            var passwordCredential = new PasswordCredential
+            var requestBody = new Microsoft.Graph.Beta.Applications.Item.AddPassword.AddPasswordPostRequestBody
             {
-                DisplayName = "Password created by the provisioning tool"
+                PasswordCredential = new PasswordCredential
+                {
+                    DisplayName = "Password created by the provisioning tool"
+                },
             };
 
-            PasswordCredential returnedPasswordCredential = await graphServiceClient.Applications[$"{createdApplication.Id}"]
-                .AddPassword(passwordCredential)
-                .Request()
-                .PostAsync();
-            effectiveApplicationParameters.PasswordCredentials.Add(returnedPasswordCredential.SecretText);
+            PasswordCredential? returnedPasswordCredential = await graphServiceClient.Applications[$"{createdApplication.Id}"]
+                .AddPassword.PostAsync(requestBody);
+            if (returnedPasswordCredential != null)
+            {
+                effectiveApplicationParameters.PasswordCredentials.Add(returnedPasswordCredential.SecretText);
+            }
         }
 
         /// <summary>
@@ -293,7 +306,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
         {
             var updatedApp = new Application
             {
-                IdentifierUris = new[] { $"api://{createdApplication.AppId}" },
+                IdentifierUris = new List<string>(new[] { $"api://{createdApplication.AppId}" }),
             };
             var scopes = createdApplication.Api.Oauth2PermissionScopes?.ToList() ?? new List<PermissionScope>();
             var newScope = new PermissionScope
@@ -311,8 +324,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             updatedApp.Api = new ApiApplication { Oauth2PermissionScopes = scopes };
 
             await graphServiceClient.Applications[createdApplication.Id]
-                .Request()
-                .UpdateAsync(updatedApp).ConfigureAwait(false);
+                .PatchAsync(updatedApp).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -326,6 +338,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             ServicePrincipal servicePrincipal,
             IEnumerable<IGrouping<string, ResourceAndScope>>? scopesPerResource)
         {
+            // Changed: https://learn.microsoft.com/en-us/graph/permissions-grant-via-msgraph?tabs=csharp&pivots=grant-application-permissions#step-2-grant-an-app-role-to-a-client-service-principal
+
             // Consent to the scopes
             if (scopesPerResource != null)
             {
@@ -348,9 +362,8 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
                     // We need to process the case where the developer is not a tenant admin
                     try
                     {
-                        await graphServiceClient.Oauth2PermissionGrants
-                            .Request()
-                            .AddAsync(oAuth2PermissionGrant);
+                        var effectivePermissionGrant = await graphServiceClient.Oauth2PermissionGrants
+                            .PostAsync(oAuth2PermissionGrant);
                     }
                     catch (ServiceException ex) when (ex.Message == "Permission entry already exists.")
                     {
@@ -474,18 +487,14 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             IGrouping<string, ResourceAndScope> g)
         {
 
-            var spsWithScopes = await graphServiceClient.ServicePrincipals
-                .Request()
-                .Filter($"servicePrincipalNames/any(t: t eq '{g.Key}')")
-                .GetAsync();
+            var spsWithScopes = (await graphServiceClient.ServicePrincipals
+                .GetAsync(options => options.QueryParameters.Filter = $"servicePrincipalNames/any(t: t eq '{g.Key}')"))?.Value;
 
             // Special case for B2C where the service principal does not contain the graph URL :(
             if (!spsWithScopes.Any() && g.Key == "https://graph.microsoft.com")
             {
-                spsWithScopes = await graphServiceClient.ServicePrincipals
-                                .Request()
-                                .Filter($"AppId eq '{MicrosoftGraphAppId}'")
-                                .GetAsync();
+                spsWithScopes = (await graphServiceClient.ServicePrincipals
+                                .GetAsync(options => options.QueryParameters.Filter = $"AppId eq '{MicrosoftGraphAppId}'"))?.Value;
             }
             ServicePrincipal? spWithScopes = spsWithScopes.FirstOrDefault();
 
@@ -502,11 +511,10 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
 
             IEnumerable<string> scopes = g.Select(r => r.Scope.ToLower(CultureInfo.InvariantCulture));
             IEnumerable<PermissionScope>? permissionScopes = null;
-            IEnumerable<AppRole> appRoles = null;
+            IEnumerable<AppRole>? appRoles = null;
 
             if (scopes.Contains(".default"))
             {
-                //permissionScopes = null; spWithScopes.Oauth2PermissionScopes;
             }
             else
             {
@@ -563,8 +571,12 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             };
         }
 
-        private string AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(string audience)
+        private string AppParameterAudienceToMicrosoftIdentityPlatformAppAudience(string audience, bool isCiamTenant)
         {
+            if (isCiamTenant)
+            {
+                return "AzureADMyOrg";
+            }
             return audience switch
             {
                 "SingleOrg" => "AzureADMyOrg",
@@ -579,15 +591,12 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             var graphServiceClient = GetGraphServiceClient(tokenCredential);
 
             var apps = await graphServiceClient.Applications
-                .Request()
-                .Filter($"appId eq '{applicationParameters.ClientId}'")
-                .GetAsync();
+                .GetAsync(options => options.QueryParameters.Filter = $"appId eq '{applicationParameters.ClientId}'");
 
-            var readApplication = apps.FirstOrDefault();
+            var readApplication = apps?.Value.FirstOrDefault();
             if (readApplication != null)
             {
                 await graphServiceClient.Applications[$"{readApplication.Id}"]
-                    .Request()
                     .DeleteAsync();
             }
         }
@@ -609,11 +618,9 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             Organization? tenant = await GetTenant(graphServiceClient);
 
             var apps = await graphServiceClient.Applications
-                .Request()
-                .Filter($"appId eq '{applicationParameters.ClientId}'")
-                .GetAsync();
+                .GetAsync(options => options.QueryParameters.Filter = $"appId eq '{applicationParameters.ClientId}'");
 
-            var readApplication = apps.FirstOrDefault();
+            var readApplication = apps?.Value.FirstOrDefault();
 
             if (readApplication == null)
             {
