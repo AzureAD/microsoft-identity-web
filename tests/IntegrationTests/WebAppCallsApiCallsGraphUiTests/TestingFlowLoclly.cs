@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Xunit;
+
 namespace WebAppCallsApiCallsGraphUiTests
 {
-    [TestClass]
-    public class UnitTest1
+    public class TestingFlowLoclly
     {
-        [TestMethod]
+        [Fact]
         public void TestMethod1()
         {
         }
