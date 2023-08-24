@@ -63,6 +63,24 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
+        /// Method to be overridden by concrete cache serializers to Read the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <returns>Read bytes.</returns>
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
+
+            if (tokenCacheBytes != null && cacheSerializerHints.TelemetryData != null)
+            {
+                cacheSerializerHints.TelemetryData.CacheLevel = Client.Cache.CacheLevel.L1Cache;
+            }
+
+            return Task.FromResult(tokenCacheBytes);
+        }
+
+        /// <summary>
         /// Writes a token cache blob to the serialization cache (identified by its key).
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>

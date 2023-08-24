@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         }
 
         private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints 
-        { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
+        { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry, TelemetryData = args.TelemetryData };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {

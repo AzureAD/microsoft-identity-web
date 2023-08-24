@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
@@ -21,5 +22,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// with the app token cache.
         /// </summary>
         public DateTimeOffset? SuggestedCacheExpiry { get; set; }
+
+        /// <summary>
+        /// Stores details to log to MSAL's telemetry client
+        /// </summary>
+        internal TelemetryData? TelemetryData { get; set; }
     }
 }
