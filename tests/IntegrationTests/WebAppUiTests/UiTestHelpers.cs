@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
@@ -66,5 +68,24 @@ namespace WebAppUiTests
                 Path = "PlaywrightTrace.zip"
             });
         }
+
+        public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName)
+        {
+            string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
+            // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
+            string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
+            int numberSegments = segments.Length;
+            int startLastSegments = numberSegments - 3;
+            int endFirstSegments = startLastSegments - 2;
+            string testedApplicationPath = Path.Combine(
+                Path.Combine(segments.Take(endFirstSegments).ToArray()),
+                appLocation,
+                Path.Combine(segments.Skip(startLastSegments).ToArray()),
+                executableName
+            );
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
+            return Process.Start(processStartInfo);
+        }
     }
 }
+

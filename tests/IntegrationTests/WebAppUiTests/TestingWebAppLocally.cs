@@ -3,8 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
@@ -16,7 +14,10 @@ namespace WebAppUiTests;
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 public class TestingWebAppLocally
 {
-    const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
+    private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
+    private const string DevAppPath = @"DevApps\WebAppCallsMicrosoftGraph";
+    private const string DevAppExecutable = "WebAppCallsMicrosoftGraph.exe";
+    private string UiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
 
     [Fact]
     public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
@@ -25,7 +26,7 @@ public class TestingWebAppLocally
         { return; }
 
         // Arrange
-        Process? p = StartWebAppLocally();
+        Process? p = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath, DevAppExecutable);
 
         if (p != null)
         {
@@ -61,26 +62,6 @@ public class TestingWebAppLocally
                 p.Kill(true);
             }
         }
-    }
-
-    private Process? StartWebAppLocally()
-    {
-        string uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
-        // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0\WebAppUiTests.dll
-        string testedAppLocation = Path.Combine(Path.GetDirectoryName(uiTestAssemblyLocation)!);
-        // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
-        string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
-        int numberSegments = segments.Length;
-        int startLastSegments = numberSegments - 3;
-        int endFirstSegments = startLastSegments - 2;
-        string testedApplicationPath = Path.Combine(
-            Path.Combine(segments.Take(endFirstSegments).ToArray()),
-            @"DevApps\WebAppCallsMicrosoftGraph",
-            Path.Combine(segments.Skip(startLastSegments).ToArray()),
-            "WebAppCallsMicrosoftGraph.exe");
-
-        ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
-        return Process.Start(processStartInfo);
     }
 }
 #endif //FROM_GITHUB_ACTION

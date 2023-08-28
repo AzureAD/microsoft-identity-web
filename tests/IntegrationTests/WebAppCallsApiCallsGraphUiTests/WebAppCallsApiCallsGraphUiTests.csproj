@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0</TargetFrameworks>
@@ -21,6 +21,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\Client\TodoListClient.csproj" />
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\gRPC\grpc.csproj" />
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\TodoListService\TodoListService.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
+    <ProjectReference Include="..\WebAppUiTests\WebAppUiTests.csproj" />
   </ItemGroup>
 
 </Project>
