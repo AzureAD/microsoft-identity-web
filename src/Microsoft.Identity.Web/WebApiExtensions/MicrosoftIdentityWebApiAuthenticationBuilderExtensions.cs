@@ -192,9 +192,6 @@ namespace Microsoft.Identity.Web
                     // This is a Microsoft identity platform web API
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
-                    // Take into account extra query parameters
-                    UpdateOptionsMetadata(options, mergedOptions);
-
                     if (options.TokenValidationParameters.AudienceValidator == null
                      && options.TokenValidationParameters.ValidAudience == null
                      && options.TokenValidationParameters.ValidAudiences == null)
@@ -254,18 +251,6 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
-        }
-
-
-        private static void UpdateOptionsMetadata(JwtBearerOptions options, MergedOptions mergedOptions)
-        {
-            options.MetadataAddress ??= options.Authority + "/.well-known/openid-configuration";
-
-            if (mergedOptions.ExtraQueryParameters != null)
-            {
-                options.MetadataAddress += options.MetadataAddress.Contains('?', StringComparison.OrdinalIgnoreCase) ? "&" : "?";
-                options.MetadataAddress += string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-            }
         }
 
         /*

@@ -21,6 +21,14 @@ public class TestingWebAppLocally
     [Fact]
     public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
     {
+/*
+        // Uncomment to initialise Playwright, which will download the browsers
+        var exitCode = Microsoft.Playwright.Program.Main(new[] { "install" });
+        if (exitCode != 0)
+        {
+            throw new Exception($"Playwright exited with code {exitCode}");
+        }
+*/
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         { return; }
 
