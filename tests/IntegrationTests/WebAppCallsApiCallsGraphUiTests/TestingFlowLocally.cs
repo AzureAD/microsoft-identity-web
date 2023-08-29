@@ -37,16 +37,31 @@ namespace WebAppCallsApiCallsGraphUiTests
                     Assert.Fail($"Could not run web app locally.");
                 }
 
-                using var playwright = Playwright.CreateAsync();
+                using var playwright = await Playwright.CreateAsync();
                 IBrowser browser;
                 browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-                IPage page = browser.NewPageAsync();
+                IPage page = await browser.NewPageAsync();
+                await page.GotoAsync(UrlString);
+                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 try
                 {
                     // Act
-                    Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-                    string email = ""
+                    Trace.WriteLine("Starting Playwright automation: web app sign-in, call api, to call graph");
+                    string email = labResponse.User.Upn;
+                    await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, labResponse.User.GetOrFetchPassword());
+
+                    // Assert
+
+                } catch (System.Exception ex)
+                {
+                    Assert.Fail($"the UI automation failed: {ex}");
+                }
+                finally
+                {
+                    clientProcess.Kill();
+                    serviceProcess.Kill();
+                    grpcProcess.Kill();
                 }
             }
         }
