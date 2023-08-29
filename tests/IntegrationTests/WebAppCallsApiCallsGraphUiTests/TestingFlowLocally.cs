@@ -13,10 +13,10 @@ namespace WebAppCallsApiCallsGraphUiTests
     public class TestingFlowLocally
     {
         private const string UrlString = "https://localhost:44351/MicrosoftIdentity/Account/signin";
-        private const string DevAppPath = @"DevApps\WebAppsCallsWebApiCallsGraph";
+        private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
         private const string TodoListServicePath = @"\TodoListService";
-        private const string TodoListClientPath = @"\TodoListClient";
-        private const string GrpcPath = @"\grpc";
+        private const string TodoListClientPath = @"\Client";
+        private const string GrpcPath = @"\gRPC";
         private const string TodoListServiceExecutable = "TodoListService.exe";
         private const string TodoListClientExecutable = "TodoListClient.exe";
         private const string GrpcExecutable = "grpc.exe";
@@ -39,7 +39,7 @@ namespace WebAppCallsApiCallsGraphUiTests
 
                 using var playwright = await Playwright.CreateAsync();
                 IBrowser browser;
-                browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+                browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
                 IPage page = await browser.NewPageAsync();
                 await page.GotoAsync(UrlString);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
