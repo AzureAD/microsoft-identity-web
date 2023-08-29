@@ -173,17 +173,17 @@ namespace Microsoft.Identity.Web
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
+                    // Process CIAM tenants
                     if (mergedOptions.Authority != null)
                     {
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
-                        if (mergedOptions.ExtraQueryParameters != null)
-                        {
-                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-                        }
+                        options.Authority = mergedOptions.Authority;
                     }
 
+                    // Validate the configuration of the web API
                     MergedOptionsValidation.Validate(mergedOptions);
 
+                    // Ensure a well-formed authority was provided
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
                         options.Authority = AuthorityHelpers.BuildAuthority(mergedOptions);
@@ -252,6 +252,38 @@ namespace Microsoft.Identity.Web
                     }
                 });
         }
+
+        /*
+        private static void UpdateOptionsMetadata(JwtBearerOptions options, MergedOptions mergedOptions)
+        {
+            if (mergedOptions.ExtraQueryParameters != null)
+            {
+                if (options.MetadataAddress == null)
+                {
+                    options.MetadataAddress = options.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+
+                }
+                else
+                {
+                    if (options.MetadataAddress.Contains('?', StringComparison.OrdinalIgnoreCase))
+                    {
+                        options.MetadataAddress += "&" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                    }
+                    else
+                    {
+                        options.MetadataAddress += "?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                    }
+                }
+            }
+            else
+            {
+                if (options.MetadataAddress == null)
+                {
+                    options.MetadataAddress = options.Authority + "/.well-known/openid-configuration";
+                }
+            }
+        }
+        */
 
         /// <summary>
         /// In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that
