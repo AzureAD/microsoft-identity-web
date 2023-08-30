@@ -147,6 +147,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             const string read = "Read";
             byte[]? result = null;
+            var telemetryData = cacheSerializerHints.TelemetryData;
 
             if (_memoryCache != null)
             {
@@ -168,6 +169,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 #pragma warning disable CA1062 // Validate arguments of public methods
                 }, cacheSerializerHints.CancellationToken).Measure().ConfigureAwait(false);
 #pragma warning restore CA1062 // Validate arguments of public methods
+
+                if (result != null && telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L2Cache;
+                }
 
                 Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds);
 
@@ -195,6 +201,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                        (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
                        cacheKey,
                        result!).ConfigureAwait(false);
+
+                if (telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L1Cache;
+                }
             }
 
 #pragma warning disable CS8603 // Possible null reference return.
