@@ -47,7 +47,6 @@ namespace Microsoft.Identity.Web
         public bool IsDefaultPlatformLoggingEnabled { get; set; }
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
-        public bool EnableCacheSynchronization { get; set; }
         internal bool MergedWithCca { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
@@ -282,6 +281,8 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.LegacyCacheCompatibilityEnabled |= microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
+            
+            mergedOptions.EnableCacheSynchronization |= microsoftIdentityOptions.EnableCacheSynchronization;
 
             if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
             {
@@ -343,8 +344,8 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.IsDefaultPlatformLoggingEnabled |= confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
-            // mergedOptions.LegacyCacheCompatibilityEnabled |= confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled; // must be set through id web options
-            mergedOptions.EnableCacheSynchronization |= confidentialClientApplicationOptions.EnableCacheSynchronization;
+            // mergedOptions.LegacyCacheCompatibilityEnabled |= confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled; // must be set through MicrosoftIdentityOptions because MSAL has different default
+            // mergedOptions.EnableCacheSynchronization |= confidentialClientApplicationOptions.EnableCacheSynchronization; // must be set through MicrosoftIdentityOptions because MSAL has different default
             mergedOptions.LogLevel = confidentialClientApplicationOptions.LogLevel;
             if (string.IsNullOrEmpty(mergedOptions.RedirectUri) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri))
             {

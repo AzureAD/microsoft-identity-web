@@ -93,8 +93,22 @@ namespace Microsoft.Identity.Web
         /// Performance improvements when working with MSAL only apps.
         /// Set to true if you have a shared cache with ADAL apps.
         /// </summary>
-        /// The default is <c>false.</c>
+        /// <remarks>
+        /// The default is <c>false</c>.
+        /// </remarks>
         public bool LegacyCacheCompatibilityEnabled { get; set; }
+
+        /// <summary>
+        /// When set to <c>true</c>, MSAL will lock cache access at the ConfidentialClientApplication level, i.e.
+        /// the block of code between BeforeAccessAsync and AfterAccessAsync callbacks will be synchronized. 
+        /// Apps can set this flag to <c>false</c> to enable an optimistic cache locking strategy, which may result in better performance
+        /// at the cost of cache consistency. 
+        /// Setting this flag to <c>false</c> is only recommended for apps which create a new ConfidentialClientApplication per request.
+        /// </summary>
+        /// <remarks>
+        /// The default is <c>false</c>.
+        /// </remarks>
+        public bool EnableCacheSynchronization { get; set; }
 
         /// <summary>
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
@@ -165,14 +179,18 @@ namespace Microsoft.Identity.Web
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or PowerShell/CLI operation). For details see https://aka.ms/msal-net-sni.
         /// </summary>
-        /// The default is <c>false.</c>
+        /// <remarks>
+        /// The default is <c>false</c>.
+        /// </remarks>
         public bool SendX5C { get; set; }
 
         /// <summary>
         /// Requests an auth code for the frontend (SPA using MSAL.js for instance). 
         /// See https://aka.ms/msal-net/spa-auth-code for details.
         /// </summary>
-        /// The default is <c>false.</c>
+        /// <remarks>
+        /// The default is <c>false</c>.
+        /// </remarks>
         public bool WithSpaAuthCode { get; set; }
 
         /// <summary>
@@ -181,7 +199,9 @@ namespace Microsoft.Identity.Web
         /// Microsoft Identity Web will not throw if roles or scopes are not in the Claims.
         /// For details see https://aka.ms/ms-identity-web/daemon-ACL.
         /// </summary>
-        /// The default is <c>false.</c>
+        /// <remarks>
+        /// The default is <c>false</c>.
+        /// </remarks>
         public bool AllowWebApiToBeAuthorizedByACL { get; set; }
 
         /// <summary>

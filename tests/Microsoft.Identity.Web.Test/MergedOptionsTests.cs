@@ -142,6 +142,7 @@ namespace Microsoft.Identity.Web.Test
             microsoftIdentityOptions.DisableTelemetry = true;
             microsoftIdentityOptions.Domain = _msIdentityDomain;
             microsoftIdentityOptions.EditProfilePolicyId = _msIdentityEditProfile;
+            microsoftIdentityOptions.EnableCacheSynchronization = true;
             microsoftIdentityOptions.ForwardAuthenticate = _msIdentityForwardAuth;
             microsoftIdentityOptions.ForwardChallenge = _msIdentityForwardChallenge;
             microsoftIdentityOptions.ForwardDefault = _msIdentityForwardDefault;
@@ -227,6 +228,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(_msIdentityTokenDecryptCertificates!.First(), mergedOptions.TokenDecryptionCredentials!.First());
             Assert.True(mergedOptions.AllowWebApiToBeAuthorizedByACL);
             Assert.True(mergedOptions.DisableTelemetry);
+            Assert.True(mergedOptions.EnableCacheSynchronization);
             Assert.True(mergedOptions.GetClaimsFromUserInfoEndpoint);
             Assert.True(mergedOptions.LegacyCacheCompatibilityEnabled);
             Assert.True(mergedOptions.MapInboundClaims);
