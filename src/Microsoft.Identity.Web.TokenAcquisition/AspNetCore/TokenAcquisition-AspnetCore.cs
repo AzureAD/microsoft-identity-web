@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
                 + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
                 + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
-            IDictionary<string, string> parameters = new Dictionary<string, string>()
+            Dictionary<string, string> parameters = new()
                 {
                     { Constants.ConsentUrl, consentUrl },
                     { Constants.Claims, msalServiceException.Claims },

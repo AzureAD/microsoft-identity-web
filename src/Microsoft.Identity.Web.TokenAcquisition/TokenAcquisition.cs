@@ -41,12 +41,12 @@ namespace Microsoft.Identity.Web
 #endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private readonly object _applicationSyncObj = new object();
+        private readonly object _applicationSyncObj = new();
 
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
-        private ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
+        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -558,8 +558,7 @@ namespace Microsoft.Identity.Web
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
            MergedOptions mergedOptions)
         {
-            IConfidentialClientApplication? application;
-            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) || application == null)
+            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
             {
                 lock (_applicationSyncObj)
                 {
