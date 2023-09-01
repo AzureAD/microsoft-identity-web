@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Internal;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -99,7 +100,8 @@ namespace Microsoft.Identity.Web
 
                     options.Events.OnTokenValidated = async context =>
                     {
-                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
+                        // Only pass through a token if it is of an expected type
+                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken is JwtSecurityToken or JsonWebToken ? context.SecurityToken : null);
                         await onTokenValidatedHandler(context).ConfigureAwait(false);
                     };
                 });
