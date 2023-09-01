@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace WebAppUiTests
     {
         public static async Task PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(IPage page, string email, string password, bool staySignedIn=false)
         {
-            string StaySignedInText = staySignedIn ? "Yes" : "No";
+            string staySignedInText = staySignedIn ? "Yes" : "No";
 
             Trace.WriteLine($"Logging in ... Entering and submitting user name: {email}");
             ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
@@ -28,8 +29,8 @@ namespace WebAppUiTests
             ILocator passwordInputLocator = page.GetByPlaceholder(TestConstants.PasswordText);
             await FillEntryBox(passwordInputLocator, password);
             
-            Trace.WriteLine($"Logging in ... Clicking {StaySignedInText} to signed in");
-            await page.GetByRole(AriaRole.Button, new() { Name = StaySignedInText }).ClickAsync();
+            Trace.WriteLine($"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in");
+            await page.GetByRole(AriaRole.Button, new() { Name = staySignedInText }).ClickAsync();
         }
 
         private static async Task FillEntryBox(ILocator entryBox, string entryText)
@@ -84,6 +85,8 @@ namespace WebAppUiTests
                 executableName
             );
             ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
+            processStartInfo.UseShellExecute = true;
+            processStartInfo.Verb = "runas";
             return Process.Start(processStartInfo);
         }
     }

@@ -10,20 +10,22 @@
   },
   "profiles": {
     "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "https://localhost:44351/",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "commandName": "IISExpress",
+        "launchBrowser": true,
+        "launchUrl": "https://localhost:44351/",
+//        "environmentVariables": {
+//            "ASPNETCORE_ENVIRONMENT": "Development",
+//            "Kestrel:Endpoints:Https:Url": "https://*:44351"
+//        }
     },
     "TodoListService": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:44351/"
+        "commandName": "Project",
+        "launchBrowser": true,
+//        "environmentVariables": {
+//            "ASPNETCORE_ENVIRONMENT": "Development",
+//            "Kestrel:Endpoints:Https:Url": "https://*:44351"
+//        },
+        "applicationUrl": "https://localhost:44351/"
     }
   }
 }
