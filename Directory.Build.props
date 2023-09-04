@@ -86,18 +86,18 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <IdentityModelVersion>7.0.0-preview2</IdentityModelVersion>
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0-preview.6.23329.11</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0-preview.6.23329.11</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0-preview.6.23329.11</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>8.0.0-preview.6.23329.7</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.0-preview.6.23329.7</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>8.0.0-preview.6.23329.7</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-preview.6.23329.7</MicrosoftExtensionsDependencyInjectionVersion>
+    <IdentityModelVersion>7.0.0-preview4</IdentityModelVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.100-preview.7.23376.3</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.100-preview.7.23376.3</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.100-preview.7.23376.3</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>8.0.100-preview.7.23376.3</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>8.0.100-preview.7.23376.3</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>8.0.100-preview.7.23376.3</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.100-preview.7.23376.3</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>8.0.100-preview.7.23376.3</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>8.0.100-preview.7.23376.3</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>8.0.100-preview.7.23376.3</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>8.0.100-preview.7.23376.3</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup> 
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
