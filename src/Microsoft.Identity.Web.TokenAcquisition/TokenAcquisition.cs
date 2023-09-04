@@ -215,7 +215,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// passing the validated token (as a JwtSecurityToken or JSonWebToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
@@ -485,7 +485,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// passing the validated token (as a JwtSecurityToken or JSonWebToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
