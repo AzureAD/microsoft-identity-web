@@ -170,6 +170,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -243,6 +244,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -316,6 +318,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -389,6 +392,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -464,6 +468,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -537,6 +542,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -612,6 +618,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -685,6 +692,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
