@@ -165,7 +165,23 @@ namespace Microsoft.Identity.Web
                     {
                         HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
 
-                        if (httpContext.Session[ClaimConstants.ClientInfo] is string clientInfo && !string.IsNullOrEmpty(clientInfo))
+                        if (httpContext.Session is null)
+                        {
+                            var clientInfo = context.OwinContext.Get<string>(ClaimConstants.ClientInfo);
+
+                            if (!string.IsNullOrEmpty(clientInfo))
+                            {
+                                ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
+
+                                if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                {
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                }
+                                context.OwinContext.Environment.Remove(ClaimConstants.ClientInfo);
+                            }
+                        }
+                        else if (httpContext.Session[ClaimConstants.ClientInfo] is string clientInfo && !string.IsNullOrEmpty(clientInfo))
                         {
                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
@@ -201,7 +217,14 @@ namespace Microsoft.Identity.Web
                     msIdentityOptions?.Value.DefaultUserFlow,
                     context.ProtocolMessage.DomainHint))).ConfigureAwait(false);
                 HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
-                httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
+                if (httpContext.Session is null)
+                {
+                    context.OwinContext.Set(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
+                }
+                else
+                {
+                    httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
+                }
                 context.HandleCodeRedemption(result.AccessToken, result.IdToken);
             };
 
