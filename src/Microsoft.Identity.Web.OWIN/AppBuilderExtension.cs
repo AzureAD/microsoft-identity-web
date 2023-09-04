@@ -177,8 +177,14 @@ namespace Microsoft.Identity.Web
                             httpContext.Session.Remove(ClaimConstants.ClientInfo);
                         }
 
-                        string name = context.AuthenticationTicket.Identity.FindFirst("preferred_username").Value;
-                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, name, string.Empty));
+                        Claim nameClaim = context.AuthenticationTicket.Identity.FindFirst("preferred_username")
+                                          ?? context.AuthenticationTicket.Identity.FindFirst("name");
+
+                        if (!string.IsNullOrEmpty(nameClaim?.Value))
+                        {
+                            context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, nameClaim.Value, string.Empty));
+                        }
+                        
                         return Task.CompletedTask;
                     },
                 }
