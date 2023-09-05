@@ -8,36 +8,87 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
+using Xunit.Abstractions;
 
 namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
-        public static async Task PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(IPage page, string email, string password, bool staySignedIn=false)
+        public static async Task FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output=null ,bool staySignedIn=false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
 
-            Trace.WriteLine($"Logging in ... Entering and submitting user name: {email}");
+            WriteLine(output, $"Logging in ... Entering and submitting user name: {email}");
             ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
             await FillEntryBox(emailInputLocator, email);
+            await EnterPassword_MicrosoftIdentityFlow_ValidPassword(page, password, staySignedInText);
+        }
 
+        public static async Task SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
+        {
+            string staySignedInText = staySignedIn ? "Yes" : "No";
+
+            WriteLine(output, $"Logging in again in this browsing session... selecting user via email: {email}");
+            await SelectKnownAccountByEmail_MicrosoftIdentityFlow(page, email);
+            await EnterPassword_MicrosoftIdentityFlow_ValidPassword(page, password, staySignedInText);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="email"></param>
+        /// <param name="signOutPageUrl"></param>
+        /// <returns></returns>
+        public static async Task PerformSignOut_MicrosoftIdentityFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
+        {
+            WriteLine(output, "Signing out ...");
+            await SelectKnownAccountByEmail_MicrosoftIdentityFlow(page, email);
+            await page.WaitForURLAsync(signOutPageUrl);
+            WriteLine(output, "Sign out page successfully reached");
+        }
+
+        /// <summary>
+        /// In the Microsoft Identity flow, the user is at certain stages presented with a list of accounts known in 
+        /// the current browsing session to choose from. This method selects the account using the user's email.
+        /// </summary>
+        /// <param name="page">page for the playwright browser</param>
+        /// <param name="email">user email address to select</param>
+        private static async Task SelectKnownAccountByEmail_MicrosoftIdentityFlow(IPage page, string email)
+        {
+            await page.Locator($"[data-test-id=\"{email}\"]").ClickAsync();
+        }
+
+        public static async Task EnterPassword_MicrosoftIdentityFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
+        {
             // If using an account that has other non-password validation options, the below code should be uncommented
-            /* Trace.WriteLine("Selecting \"Password\" as authentication method"); 
+            /* WriteLine(output, "Selecting \"Password\" as authentication method"); 
             await page.GetByRole(AriaRole.Button, new() { Name = TestConstants.PasswordText }).ClickAsync();*/
 
-            Trace.WriteLine("Logging in ... entering and submitting password");
+            WriteLine(output, "Logging in ... entering and submitting password");
             ILocator passwordInputLocator = page.GetByPlaceholder(TestConstants.PasswordText);
             await FillEntryBox(passwordInputLocator, password);
-            
-            Trace.WriteLine($"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in");
+
+            WriteLine(output, $"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in");
             await page.GetByRole(AriaRole.Button, new() { Name = staySignedInText }).ClickAsync();
         }
 
-        private static async Task FillEntryBox(ILocator entryBox, string entryText)
+        public static async Task FillEntryBox(ILocator entryBox, string entryText)
         {
             await entryBox.ClickAsync();
             await entryBox.FillAsync(entryText);
             await entryBox.PressAsync("Enter");
+        }
+        private static void WriteLine(ITestOutputHelper? output, string message)
+        {
+            if (output != null)
+            {
+                output.WriteLine(message);
+            }
+            else
+            {
+                Trace.WriteLine(message);
+            }
         }
 
         /// <summary>

@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,13 +31,15 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string TodoListServiceExecutable = @"\TodoListService.exe";
         private const string TodoListClientExecutable = @"\TodoListClient.exe";
         private const string GrpcExecutable = "grpc.exe";
+        private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
+        private const string TodoTitle1 = "Testing create todo item";
+        private const string TodoTitle2 = "Testing edit todo item";
         private string UiTestAssemblyLocation = typeof(TestingFlowLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
 
         public TestingFlowLocally(ITestOutputHelper output)
         {
-            //UiTestAssemblyLocation = typeof(TestingFlowLocally).Assembly.Location;
             _output = output;
         }
 
@@ -45,13 +49,22 @@ namespace WebAppCallsApiCallsGraphUiTests
             // Arrange process setup, grpc left commented out for now
             //Process? grpcProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44351");
-            Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, true, "44351");
-            Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44321");
-            Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, true, "44321");
-
+            //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44321");
+            Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
+            //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44351");
+            Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, false, "44351");
             try
             {
+                StringDictionary clientProcessVars = clientProcess.StartInfo.EnvironmentVariables;
+                StringDictionary serviceProcessVars = serviceProcess.StartInfo.EnvironmentVariables;
+                foreach (DictionaryEntry variable in clientProcessVars)
+                {
+                    _output.WriteLine($"Client: {variable.Key} = {variable.Value}");
+                }
+                foreach (DictionaryEntry variable in clientProcessVars)
+                {
+                    _output.WriteLine($"Service: {variable.Key} = {variable.Value}");
+                }
                 if (clientProcess != null && serviceProcess != null /*&& grpcProcess != null*/)
                 {
                     if (clientProcess.HasExited || serviceProcess.HasExited/* || grpcProcess.HasExited*/)
@@ -67,29 +80,50 @@ namespace WebAppCallsApiCallsGraphUiTests
                     await page.GotoAsync(UrlString);
                     LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
-                    // Act Login
-                    Trace.WriteLine("Starting web app sign-in flow");
+                    // Initial sign in
+                    _output.WriteLine("Starting web app sign-in flow");
                     string email = labResponse.User.Upn;
-                    await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, labResponse.User.GetOrFetchPassword());
-
-                    // Assert Login Successful
-                    await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
+                    await UiTestHelpers.FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                    await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync();
                     await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-                    Trace.WriteLine("Web app sign-in flow successful");
+                    _output.WriteLine("Web app sign-in flow successful");
 
-                    // Act Sign Out
-                    Trace.WriteLine("Starting web app sign-out flow");
-                    var accountSelectMenuLocator = page.Locator($"[data-test-id=\"{email}\"]");
+                    // Sign out
+                    _output.WriteLine("Starting web app sign-out flow");
                     await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                    await accountSelectMenuLocator.ClickAsync();
+                    await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, UrlString + SignOutPagePath, _output);
+                    _output.WriteLine("Web app sign out successful");
+                    
+                    // Sign in again using Todo List button
+                    _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out");
+                    await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
+                    // await page.GetByRole(AriaRole.Link, new() { Name = "Sign In", Exact = true}).ClickAsync();
+                    await UiTestHelpers.SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                    var CreateNewTodoButton =  page.GetByRole(AriaRole.Button, new() { Name = "Create New" });
+                    await Assertions.Expect(CreateNewTodoButton).ToBeVisibleAsync();
+                    _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out");
 
-                    // Assert Sign Out Successful
-                    await page.WaitForURLAsync(UrlString + "/MicrosoftIdentity/Account/SignedOut");
-                    Trace.WriteLine("Web app sign out successful");
-                    
-                    // Act Sign In Again
-                    Trace.WriteLine("Starting web app sign-in flow after sign out");
-                    
+                    // Create new todo item
+                    _output.WriteLine("Starting web app create new todo flow");
+                    await CreateNewTodoButton.ClickAsync();
+                    var TitleEntryBox = page.GetByLabel("Title");
+                    await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle1);
+                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle1 })).ToBeVisibleAsync();
+                    _output.WriteLine("Web app create new todo flow successful");
+
+                    // Edit todo item
+                    _output.WriteLine("Starting web app edit todo flow");
+                    await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
+                    await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle2);
+                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).ToBeVisibleAsync();
+                    _output.WriteLine("Web app edit todo flow successful");
+
+                    // Delete todo item
+                    _output.WriteLine("Starting web app delete todo flow");
+                    await page.GetByRole(AriaRole.Link, new() { Name = "Delete" }).ClickAsync();
+                    await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
+                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
+                    _output.WriteLine("Web app delete todo flow successful");
 
                 }
             }
@@ -180,7 +214,6 @@ namespace WebAppCallsApiCallsGraphUiTests
                         Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
 #pragma warning restore CA1416
                     .ToList();
- // Validate platform compatibility
             }
             else
             {
