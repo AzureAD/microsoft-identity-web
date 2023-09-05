@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
                 string key = GenerateKey(credentialDescription);
 
                 // Get or create a semaphore for this key
-                SemaphoreSlim semaphore;
+                SemaphoreSlim? semaphore;
                 lock (_semaphoreLock)
                 {
                     if (!_loadingSemaphores.TryGetValue(key, out semaphore))
