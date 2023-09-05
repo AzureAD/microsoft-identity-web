@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -15,6 +16,9 @@ namespace Microsoft.Identity.Web
     public class DefaultCredentialsLoader : ICredentialsLoader
     {
         ILogger<DefaultCredentialsLoader>? _logger;
+        
+        private readonly Dictionary<string, SemaphoreSlim> _loadingSemaphores = new Dictionary<string, SemaphoreSlim>();
+        private readonly object _semaphoreLock = new object();
 
         /// <summary>
         /// Constructor with a logger
@@ -56,11 +60,45 @@ namespace Microsoft.Identity.Web
 
             if (credentialDescription.CachedValue == null)
             {
-                if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
+                // Generate a unique key for the credentialDescription
+                string key = GenerateKey(credentialDescription);
+
+                // Get or create a semaphore for this key
+                SemaphoreSlim semaphore;
+                lock (_semaphoreLock)
                 {
-                    await loader.LoadIfNeededAsync(credentialDescription, parameters);
+                    if (!_loadingSemaphores.TryGetValue(key, out semaphore))
+                    {
+                        semaphore = new SemaphoreSlim(1);
+                        _loadingSemaphores[key] = semaphore;
+                    }
+                }
+
+                // Wait to acquire the semaphore
+                await semaphore.WaitAsync();
+
+                try
+                {
+                    if (credentialDescription.CachedValue == null)
+                    {
+                        if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
+                        {
+                            await loader.LoadIfNeededAsync(credentialDescription, parameters);
+                        }
+                    }
+                }
+                finally
+                {
+                    // Release the semaphore
+                    semaphore.Release();
                 }
             }
+        }
+
+        private string GenerateKey(CredentialDescription credentialDescription)
+        {
+            // Generate a unique key for the credentialDescription
+            return $"{credentialDescription.SourceType}_{credentialDescription.ReferenceOrValue}";
         }
 
         /// <inheritdoc/>
