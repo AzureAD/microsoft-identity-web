@@ -1,6 +1,23 @@
+2.13.4
+=========
+- Update to IdentityModel 7.0.0-preview5 on .NET 8 and IdentityModel 6.32.3 for the other target frameworks.
+- Support for .NET 8 preview 7. See PR [#2430](https://github.com/AzureAD/microsoft-identity-web/pull/2430)
+
+### Bug fixes
+- In Microsoft.Identity.Web.Owin, removed un-needed reference to Microsoft.Aspnet.WebApi.HelpPage. See issue [#2417](https://github.com/AzureAD/microsoft-identity-web/issues/2417)
+- Fix to accomodate for breaking change in ASP.NET Core on .NET 8 that the SecurityToken is now a JsonWebToken. See issue [#2420](https://github.com/AzureAD/microsoft-identity-web/issues/2420) 
+- Improved the usability of IDownstreamApi by checking all `HttpResponse` for success before returning to the caller, instead of swallowing issues. This is a change of behavior. See issue [#2426](https://github.com/AzureAD/microsoft-identity-web/issues/2426)
+- Improvement/Fix of OWIN scenarios, especially the session with B2C: [#2388](https://github.com/AzureAD/microsoft-identity-web/issues/2388)
+- Fix an issue with CIAM web APIs and added two CIAM test apps. See PR [#2411](https://github.com/AzureAD/microsoft-identity-web/pull/2411)
+
+### Fundamentals
+- performance improvements: [#2414](https://github.com/AzureAD/microsoft-identity-web/pull/2414)
+- Replaced Selenim with Playwright for more reliable faster UI tests. See issue [#2354](https://github.com/AzureAD/microsoft-identity-web/issues/2354)
+- Added MSAL telemetry about the kind of token cache used (L1/L2). See issue [#1900](https://github.com/AzureAD/microsoft-identity-web/issues/1900)
+
 2.13.3
 =========
-- Update to Wilson 7.0.0-preview2 on .NET 8.
+- Update to IdentityModel 7.0.0-preview2 on .NET 8.
 
 ### New features:
 - Support langversion 11, which as fewer allocations compared to 10. See issue [#2351](https://github.com/AzureAD/microsoft-identity-web/issues/2351).
