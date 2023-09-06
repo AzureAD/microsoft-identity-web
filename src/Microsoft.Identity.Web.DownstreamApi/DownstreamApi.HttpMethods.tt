@@ -87,6 +87,7 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                response.EnsureSuccessStatusCode();
 <# }
    if (hasOutput)
    { #>
