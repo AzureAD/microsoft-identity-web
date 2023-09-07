@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -14,6 +17,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
+using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
@@ -124,6 +128,46 @@ namespace TokenAcquirerTests
 
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphore()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
+                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            services.AddInMemoryTokenCaches();
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var options = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(s_optionName);
+            var credentialsLoader = serviceProvider.GetRequiredService<ICredentialsLoader>();
+
+            var task1 = Task.Run(async () =>
+            {
+                await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
+            });
+
+            var task2 = Task.Run(async () =>
+            {
+                await credentialsLoader.LoadCredentialsIfNeededAsync(options.ClientCredentials!.First());
+            });
+
+            // Run task1 and task2 concurrently
+            await Task.WhenAll(task1, task2);
+
+            var cert = options.ClientCredentials!.First().Certificate;
+
+            Assert.NotNull(cert);
+            Assert.Equal(TaskStatus.RanToCompletion, task1.Status);
+            Assert.Equal(TaskStatus.RanToCompletion, task2.Status);
         }
 
         [IgnoreOnAzureDevopsFact]

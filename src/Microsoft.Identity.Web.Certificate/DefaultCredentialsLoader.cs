@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -79,12 +78,6 @@ namespace Microsoft.Identity.Web
                     semaphore.Release();
                 }
             }
-        }
-
-        private string GenerateKey(CredentialDescription credentialDescription)
-        {
-            // Generate a unique key for the credentialDescription
-            return $"{credentialDescription.SourceType}_{credentialDescription.ReferenceOrValue}";
         }
 
         /// <inheritdoc/>
