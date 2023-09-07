@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,7 @@ namespace Microsoft.Identity.Web
     public class DefaultCredentialsLoader : ICredentialsLoader
     {
         ILogger<DefaultCredentialsLoader>? _logger;
-        
-        private readonly Dictionary<string, SemaphoreSlim> _loadingSemaphores = new Dictionary<string, SemaphoreSlim>();
-        private readonly object _semaphoreLock = new object();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _loadingSemaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         /// <summary>
         /// Constructor with a logger
@@ -60,19 +59,8 @@ namespace Microsoft.Identity.Web
 
             if (credentialDescription.CachedValue == null)
             {
-                // Generate a unique key for the credentialDescription
-                string key = GenerateKey(credentialDescription);
-
-                // Get or create a semaphore for this key
-                SemaphoreSlim? semaphore;
-                lock (_semaphoreLock)
-                {
-                    if (!_loadingSemaphores.TryGetValue(key, out semaphore))
-                    {
-                        semaphore = new SemaphoreSlim(1);
-                        _loadingSemaphores[key] = semaphore;
-                    }
-                }
+                // Get or create a semaphore for this credentialDescription
+                var semaphore = _loadingSemaphores.GetOrAdd(credentialDescription.Id, new SemaphoreSlim(1));
 
                 // Wait to acquire the semaphore
                 await semaphore.WaitAsync();
@@ -82,9 +70,7 @@ namespace Microsoft.Identity.Web
                     if (credentialDescription.CachedValue == null)
                     {
                         if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
-                        {
                             await loader.LoadIfNeededAsync(credentialDescription, parameters);
-                        }
                     }
                 }
                 finally
