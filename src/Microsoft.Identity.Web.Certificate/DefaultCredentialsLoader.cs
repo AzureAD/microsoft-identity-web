@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
             if (credentialDescription.CachedValue == null)
             {
                 // Get or create a semaphore for this credentialDescription
-                var semaphore = _loadingSemaphores.GetOrAdd(credentialDescription.Id, new SemaphoreSlim(1));
+                var semaphore = _loadingSemaphores.GetOrAdd(credentialDescription.Id, (v) => new SemaphoreSlim(1));
 
                 // Wait to acquire the semaphore
                 await semaphore.WaitAsync();
