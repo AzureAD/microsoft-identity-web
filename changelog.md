@@ -1,7 +1,10 @@
 2.13.4
 =========
 - Update to IdentityModel 7.0.0-preview5 on .NET 8 and IdentityModel 6.32.3 for the other target frameworks.
+- Update to MSAL [4.56.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.56.0), which now
+  enables the cache synchronization by default
 - Support for .NET 8 preview 7. See PR [#2430](https://github.com/AzureAD/microsoft-identity-web/pull/2430)
+
 
 ### Bug fixes
 - In Microsoft.Identity.Web.Owin, removed un-needed reference to Microsoft.Aspnet.WebApi.HelpPage. See issue [#2417](https://github.com/AzureAD/microsoft-identity-web/issues/2417)
@@ -9,11 +12,14 @@
 - Improved the usability of IDownstreamApi by checking all `HttpResponse` for success before returning to the caller, instead of swallowing issues. This is a change of behavior. See issue [#2426](https://github.com/AzureAD/microsoft-identity-web/issues/2426)
 - Improvement/Fix of OWIN scenarios, especially the session with B2C: [#2388](https://github.com/AzureAD/microsoft-identity-web/issues/2388)
 - Fix an issue with CIAM web APIs and added two CIAM test apps. See PR [#2411](https://github.com/AzureAD/microsoft-identity-web/pull/2411)
+- Fix a bug that is now surfaced by the .NET 8 runtime. See issue [#2448](https://github.com/AzureAD/microsoft-identity-web/issues/2448)
+- Added a lock while loading credentials. See issue [#2439](https://github.com/AzureAD/microsoft-identity-web/issues/2439)
 
 ### Fundamentals
 - performance improvements: [#2414](https://github.com/AzureAD/microsoft-identity-web/pull/2414)
 - Replaced Selenim with Playwright for more reliable faster UI tests. See issue [#2354](https://github.com/AzureAD/microsoft-identity-web/issues/2354)
 - Added MSAL telemetry about the kind of token cache used (L1/L2). See issue [#1900](https://github.com/AzureAD/microsoft-identity-web/issues/1900)
+- Resilience improvement: IdWeb now attempts to reload a certificate from its description when AAD returns "certificate revoked" error. See issue [#244](https://github.com/AzureAD/microsoft-identity-web/issues/2444)
 
 2.13.3
 =========
