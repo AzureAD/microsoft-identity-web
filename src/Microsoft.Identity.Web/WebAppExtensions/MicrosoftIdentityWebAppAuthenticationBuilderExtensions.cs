@@ -523,6 +523,8 @@ namespace Microsoft.Identity.Web
             options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
 #if NET8_0_OR_GREATER
             options.TimeProvider = mergedOptions.TimeProvider;
+            options.UseSecurityTokenValidator = mergedOptions.UseSecurityTokenValidator;
+            options.TokenHandler = mergedOptions.TokenHandler;
 #endif
         }
     }
