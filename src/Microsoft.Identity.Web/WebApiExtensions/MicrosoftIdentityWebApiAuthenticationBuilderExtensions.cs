@@ -230,7 +230,7 @@ namespace Microsoft.Identity.Web
                     }
 
                     options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-                    options.Events.OnMessageReceived = async context =>
+                    options.Events.OnMessageReceived += async context =>
                     {
                         context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
                         await Task.CompletedTask.ConfigureAwait(false);
