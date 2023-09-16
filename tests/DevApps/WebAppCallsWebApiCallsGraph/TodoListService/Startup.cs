@@ -75,12 +75,15 @@ namespace TodoListService
                             };
                         }, options =>
                         {
-
-                        }, "AzureAD");
+                            options.TenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
+                            options.Instance = "https://login.microsoftonline.com/";
+                            options.ClientId = "a4c2469b-cf84-4145-8f5f-cb7bacf814bc";
+                        }, JwtBearerDefaults.AuthenticationScheme)
+                        .EnableTokenAcquisitionToCallDownstreamApi(options => { options.ClientSecret = "secret-of-web-api"; })
 #if UseRedisCache
                      //.AddDistributedTokenCaches();
 #else
-            //.AddInMemoryTokenCaches();
+            .AddInMemoryTokenCaches();
 #endif
 
             services.AddControllers();
