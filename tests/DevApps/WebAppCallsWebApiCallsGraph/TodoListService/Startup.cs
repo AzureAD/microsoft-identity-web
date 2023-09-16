@@ -61,48 +61,26 @@ namespace TodoListService
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(options =>
-                    {
-                        options.Events = new JwtBearerEvents
+                        .AddMicrosoftIdentityWebApi(options =>
                         {
-                            OnTokenValidated = (context) =>
+                            options.Events = new JwtBearerEvents
                             {
-                                // called in 2.13.1 and 2.13.2 after successful token validation
-                                return Task.CompletedTask;
-                            },
-                            OnChallenge = (context) =>
-                            {
-                                // called in 2.13.2 when a client tries to connect to API's signalR hub
-                                return Task.CompletedTask;
-                            },
-                            OnMessageReceived = (context) =>
-                            {
-                                // called in 2.13.1 only before handling REST request or when a client tries to connect to API's signalR hub
-                                StringValues values;
-                                Console.WriteLine("[OnMessageReceived]");
-                                if (!context.Request.Query.TryGetValue("access_token", out values))
+                                OnMessageReceived = (context) =>
                                 {
+
+                                    Console.WriteLine("[OnMessageReceived]");
+
                                     return Task.CompletedTask;
                                 }
+                            };
+                        }, options =>
+                        {
 
-                                context.Token = values.FirstOrDefault();
-
-                                return Task.CompletedTask;
-                            }
-                        };
-                        options.TokenValidationParameters.ValidAudiences = new List<string>() { "*" };
-                        options.TokenValidationParameters.ValidateIssuer = false;
-                        options.TokenValidationParameters.SaveSigninToken = true;
-                    }, options =>
-                    {
-                        options.TenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
-                        options.Instance = "https://login.microsoftonline.com/";
-                        options.ClientId = "notUsed";
-                    }, "AzureADBearer");
+                        }, "AzureAD");
 #if UseRedisCache
                      //.AddDistributedTokenCaches();
 #else
-                     //.AddInMemoryTokenCaches();
+            //.AddInMemoryTokenCaches();
 #endif
 
             services.AddControllers();
