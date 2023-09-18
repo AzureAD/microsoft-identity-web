@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CrossPlatformValidation
 {
@@ -27,9 +30,14 @@ namespace CrossPlatformValidation
         {
             string authorizationHeaderString = Marshal.PtrToStringAnsi(authorizationHeader);
             var result = requestValidator.Validate(authorizationHeaderString);
-            // string json = JsonSerializer.Serialize(result);
-            // return Marshal.StringToCoTaskMemAnsi(json);
+            //string json = JsonSerializer.Serialize(result, SourceGenerationContext.Default.TokenValidationResult);
+            //return Marshal.StringToCoTaskMemAnsi(json);
             return Marshal.StringToCoTaskMemAnsi(result.Issuer);
         }
     }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(TokenValidationResult))]
+    [JsonSerializable(typeof(long))]
+    internal partial class SourceGenerationContext : JsonSerializerContext { }
 }

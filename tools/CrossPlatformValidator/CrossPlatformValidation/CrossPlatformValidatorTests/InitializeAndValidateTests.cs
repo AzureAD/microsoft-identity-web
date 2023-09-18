@@ -32,8 +32,12 @@ namespace CrossPlatformValidatorTests
         {
             Initialize("https://login.microsoftonline.com/organizations", "f4aa5217-e87c-42b2-82af-5624dd14ee72");
             string authorizationHeader = AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
-            var result = Validate(authorizationHeader);
-            Assert.NotNull(result);
+            for (int i = 0; i < 1000000; i++)
+            {
+                var result = Validate(authorizationHeader);
+                Assert.NotNull(result);
+            }
+            
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
