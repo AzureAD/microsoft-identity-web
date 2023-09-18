@@ -33,6 +33,9 @@ namespace CrossPlatformValidation
             //string json = JsonSerializer.Serialize(result, SourceGenerationContext.Default.TokenValidationResult);
             //return Marshal.StringToCoTaskMemAnsi(json);
             return Marshal.StringToCoTaskMemAnsi(result.Issuer);
+
+            // Todos:
+            // Serialize the result we want as JSON
         }
     }
 
