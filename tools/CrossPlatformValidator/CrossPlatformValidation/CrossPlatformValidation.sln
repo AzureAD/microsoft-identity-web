@@ -3,14 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34112.27
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformValidation", "CrossPlatformValidation\CrossPlatformValidation.csproj", "{7B54974F-0F80-4977-9308-F30551631DC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossPlatformValidation", "CrossPlatformValidation\CrossPlatformValidation.csproj", "{7B54974F-0F80-4977-9308-F30551631DC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpConsoleApp", "CSharpConsoleApp\CSharpConsoleApp.csproj", "{3C81905F-AE2E-42BF-9E97-7F3B73C78B0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpConsoleApp", "CSharpConsoleApp\CSharpConsoleApp.csproj", "{3C81905F-AE2E-42BF-9E97-7F3B73C78B0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29F829F8-8C53-4A88-A9A8-7A0B15DA0A4D}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossPlatformValidatorTests", "CrossPlatformValidatorTests\CrossPlatformValidatorTests.csproj", "{50363EC7-5B33-4EC8-93F2-C32FC9786D10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{3C81905F-AE2E-42BF-9E97-7F3B73C78B0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C81905F-AE2E-42BF-9E97-7F3B73C78B0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C81905F-AE2E-42BF-9E97-7F3B73C78B0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50363EC7-5B33-4EC8-93F2-C32FC9786D10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50363EC7-5B33-4EC8-93F2-C32FC9786D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50363EC7-5B33-4EC8-93F2-C32FC9786D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50363EC7-5B33-4EC8-93F2-C32FC9786D10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

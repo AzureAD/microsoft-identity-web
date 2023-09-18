@@ -38,11 +38,10 @@ namespace CrossPlatformValidation
         /// </summary>
         /// <param name="authorizationHeader"></param>
         /// <returns></returns>
-        public IDictionary<string, object> Validate(string authorizationHeader)
+        public TokenValidationResult Validate(string authorizationHeader)
         {
             var token = authorizationHeader.Replace("Bearer ", string.Empty, StringComparison.OrdinalIgnoreCase);
-            var result = jsonWebTokenHandler.ValidateTokenAsync(token, tokenValidationParameters).GetAwaiter().GetResult();
-            return result.Claims;
+            return jsonWebTokenHandler.ValidateTokenAsync(token, tokenValidationParameters).GetAwaiter().GetResult();
         }
     }
 }
