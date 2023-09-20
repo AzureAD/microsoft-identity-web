@@ -6,7 +6,6 @@
 ### Bug Fixes
 - Chain the OnMessageReceived event. See PR [#2468](https://github.com/AzureAD/microsoft-identity-web/pull/2468)
 
-
 2.13.4
 =========
 - Update to IdentityModel 7.0.0-preview5 on .NET 8 and IdentityModel 6.32.3 for the other target frameworks.
