@@ -19,9 +19,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     internal class GraphAuthenticationProvider : IAuthenticationProvider
     {
-        const string ScopeKey = "scopes";
         private const string AuthorizationHeaderKey = "Authorization";
-        private const string AuthorizationHeaderProviderOptionsKey = "authorizationHeaderProviderOptions";
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
 
@@ -101,34 +99,34 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Transforms the Kiota HTTP Method (enum) into a .NET HttpMethod (static members).
+        /// Transforms the Kiota HTTP Method (enum) into a string representing a .NET HttpMethod (static members).
         /// </summary>
         /// <param name="httpMethod">Kiota Http method</param>
-        /// <returns>HttpMethod</returns>
-        private HttpMethod GetHttpMethod(Method httpMethod)
+        /// <returns>string</returns>
+        private string GetHttpMethod(Method httpMethod)
         {
             switch (httpMethod)
             {
                 case Method.GET:
-                    return HttpMethod.Get;
+                    return HttpMethod.Get.ToString();
                 case Method.POST:
-                    return HttpMethod.Post;
+                    return HttpMethod.Post.ToString();
                 case Method.PUT:
-                    return HttpMethod.Put;
+                    return HttpMethod.Put.ToString();
                 case Method.PATCH:
 #if NETFRAMEWORK || NETSTANDARD2_0
-                    return HttpMethod.Put;
+                    return HttpMethod.Put.ToString();
 #else
-                    return HttpMethod.Patch;
+                    return HttpMethod.Patch.ToString();
 #endif
                 case Method.DELETE:
-                    return HttpMethod.Delete;
+                    return HttpMethod.Delete.ToString();
                 case Method.OPTIONS:
-                    return HttpMethod.Options;
+                    return HttpMethod.Options.ToString();
                 case Method.TRACE:
-                    return HttpMethod.Trace;
+                    return HttpMethod.Trace.ToString();
                 case Method.HEAD:
-                    return HttpMethod.Head;
+                    return HttpMethod.Head.ToString();
                 default:
                     throw new ArgumentOutOfRangeException();
             }
