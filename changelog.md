@@ -1,4 +1,4 @@
-3.14.0
+2.14.0
 =========
 - Update to Abstractions 5.0.0
 - Include new `OpenIdConnect` options from net 8. See PR [#2462](https://github.com/AzureAD/microsoft-identity-web/pull/2462) 
