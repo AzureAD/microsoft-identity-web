@@ -13,6 +13,7 @@ namespace CrossPlatformValidatorTests
         public const string OBOUser = "fIDLAB@msidlab4.com";
         public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
         public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
+        public int numberValidations = 1000000;
 
         [DllImport("CrossPlatformValidation.dll")]
         static extern void Initialize(string authority, string audience);
@@ -32,7 +33,7 @@ namespace CrossPlatformValidatorTests
         {
             Initialize("https://login.microsoftonline.com/organizations", "f4aa5217-e87c-42b2-82af-5624dd14ee72");
             string authorizationHeader = AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < numberValidations; i++)
             {
                 var result = Validate(authorizationHeader);
                 Assert.NotNull(result);

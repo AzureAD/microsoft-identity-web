@@ -29,10 +29,17 @@ namespace CrossPlatformValidation
         public static IntPtr C_Validate(IntPtr authorizationHeader)
         {
             string authorizationHeaderString = Marshal.PtrToStringAnsi(authorizationHeader);
-            var result = requestValidator.Validate(authorizationHeaderString);
+            try
+            {
+                var result = requestValidator.Validate(authorizationHeaderString);
+                return Marshal.StringToCoTaskMemAnsi(result.Issuer);
+            }
+            catch(Exception ex) 
+            {
+                return Marshal.StringToCoTaskMemAnsi(ex.ToString());
+            }
             //string json = JsonSerializer.Serialize(result, SourceGenerationContext.Default.TokenValidationResult);
             //return Marshal.StringToCoTaskMemAnsi(json);
-            return Marshal.StringToCoTaskMemAnsi(result.Issuer);
 
             // Todos:
             // Serialize the result we want as JSON
