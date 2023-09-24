@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossPlatformValidatorTests", "CrossPlatformValidatorTests\CrossPlatformValidatorTests.csproj", "{50363EC7-5B33-4EC8-93F2-C32FC9786D10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brenchmark", "Brenchmark\Brenchmark.csproj", "{A698B371-8C8B-48B3-B0BB-CC3E841BD209}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{A698B371-8C8B-48B3-B0BB-CC3E841BD209}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
