@@ -21,10 +21,12 @@ namespace Brenchmark
     }
 
     [Config(typeof(AntiVirusFriendlyConfig))]
+    [MemoryDiagnoser]
     public class ValidateBenchmark
     {
         private static IPublicClientApplication msalPublicClient;
         private static LabResponse labResponse;
+        private static string authorizationHeader;
 
         static ValidateBenchmark()
         {
@@ -34,6 +36,8 @@ namespace Brenchmark
                .Create(OBOClientSideClientId)
                .WithAuthority(labResponse.Lab.Authority, Organizations)
                .Build();
+            authorizationHeader = AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
+
         }
 
         public const string Organizations = "organizations";
@@ -51,8 +55,14 @@ namespace Brenchmark
         [Benchmark]
         public void ValidateAuthRequestBenchmark()
         {
-            string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
-            Validate(authorizationHeader);
+            if (Validate(authorizationHeader) == null)
+            {
+                string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
+                if (Validate(authorizationHeader) == null)
+                {
+                    throw new ArgumentException("Validation failed");
+                }
+            }
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
