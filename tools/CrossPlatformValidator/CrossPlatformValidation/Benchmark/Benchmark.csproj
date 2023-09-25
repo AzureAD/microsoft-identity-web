@@ -2,19 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishAot>true</PublishAot>
-    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.12.1" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CrossPlatformValidation\CrossPlatformValidation.csproj" />
   </ItemGroup>
 
 </Project>
