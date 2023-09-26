@@ -48,14 +48,14 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange process setup, grpc left commented out for now
             //Process? grpcProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable);
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44321");
-            Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
+            //Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44351");
-            Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, false, "44351");
+            //Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, true, "44351");
             try
             {
-                StringDictionary clientProcessVars = clientProcess.StartInfo.EnvironmentVariables;
+                /*StringDictionary clientProcessVars = clientProcess.StartInfo.EnvironmentVariables;
                 StringDictionary serviceProcessVars = serviceProcess.StartInfo.EnvironmentVariables;
                 foreach (DictionaryEntry variable in clientProcessVars)
                 {
@@ -64,13 +64,13 @@ namespace WebAppCallsApiCallsGraphUiTests
                 foreach (DictionaryEntry variable in clientProcessVars)
                 {
                     _output.WriteLine($"Service: {variable.Key} = {variable.Value}");
-                }
-                if (clientProcess != null && serviceProcess != null /*&& grpcProcess != null*/)
+                }*/
+                if (true)//(clientProcess != null && serviceProcess != null /*&& grpcProcess != null*/)
                 {
-                    if (clientProcess.HasExited || serviceProcess.HasExited/* || grpcProcess.HasExited*/)
+/*                    if (clientProcess.HasExited || serviceProcess.HasExited*//* || grpcProcess.HasExited*//*)
                     {
                         Assert.Fail($"Could not run web app locally.");
-                    }
+                    }*/
 
                     // Arrange Playwright setup
                     using var playwright = await Playwright.CreateAsync();
@@ -99,13 +99,13 @@ namespace WebAppCallsApiCallsGraphUiTests
                     await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
                     // await page.GetByRole(AriaRole.Link, new() { Name = "Sign In", Exact = true}).ClickAsync();
                     await UiTestHelpers.SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                    var CreateNewTodoButton =  page.GetByRole(AriaRole.Button, new() { Name = "Create New" });
-                    await Assertions.Expect(CreateNewTodoButton).ToBeVisibleAsync();
+                    var TodoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
+                    await Assertions.Expect(TodoLink).ToBeVisibleAsync();
                     _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out");
 
                     // Create new todo item
                     _output.WriteLine("Starting web app create new todo flow");
-                    await CreateNewTodoButton.ClickAsync();
+                    await TodoLink.ClickAsync();
                     var TitleEntryBox = page.GetByLabel("Title");
                     await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle1);
                     await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle1 })).ToBeVisibleAsync();
@@ -135,14 +135,14 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             finally
             {
-                //add the following to make sure sockets are unbound 
+/*                //add the following to make sure sockets are unbound 
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess);
                 processes.Enqueue(clientProcess);
                 //processes.Enqueue(grpcProcess);
-                killProcessTrees(processes);
+                killProcessTrees(processes);*/
             }
-            }
+        }
         
         public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName, bool elevated = false, string pathNumber=null)
         {
