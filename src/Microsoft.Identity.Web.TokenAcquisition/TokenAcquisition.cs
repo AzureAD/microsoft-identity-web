@@ -41,12 +41,12 @@ namespace Microsoft.Identity.Web
 #endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private readonly object _applicationSyncObj = new object();
+        private readonly object _applicationSyncObj = new();
 
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
-        private ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
+        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -215,7 +215,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// passing the validated token (as a JwtSecurityToken or JSonWebToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
@@ -485,7 +485,7 @@ namespace Microsoft.Identity.Web
         /// <returns>An access token to call the downstream API and populated with this downstream API's scopes.</returns>
         /// <remarks>Calling this method from a web API supposes that you have previously called,
         /// in a method called by JwtBearerOptions.Events.OnTokenValidated, the HttpContextExtensions.StoreTokenUsedToCallWebAPI method
-        /// passing the validated token (as a JwtSecurityToken). Calling it from a web app supposes that
+        /// passing the validated token (as a JwtSecurityToken or JSonWebToken). Calling it from a web app supposes that
         /// you have previously called AddAccountToCacheFromAuthorizationCodeAsync from a method called by
         /// OpenIdConnectOptions.Events.OnAuthorizationCodeReceived.</remarks>
         public async Task<string> GetAccessTokenForUserAsync(
@@ -549,17 +549,19 @@ namespace Microsoft.Identity.Web
                 string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
 #if !NETSTANDARD2_0 && !NET462 && !NET472
                 (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase));
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase));
 #else
-                (exMsal.Message.Contains(Constants.InvalidKeyError) || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange));
+                (exMsal.Message.Contains(Constants.InvalidKeyError) 
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange) 
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked));
 #endif
         }
 
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
            MergedOptions mergedOptions)
         {
-            IConfidentialClientApplication? application;
-            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) || application == null)
+            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
             {
                 lock (_applicationSyncObj)
                 {

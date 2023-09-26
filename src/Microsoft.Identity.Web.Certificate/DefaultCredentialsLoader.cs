@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -15,6 +16,7 @@ namespace Microsoft.Identity.Web
     public class DefaultCredentialsLoader : ICredentialsLoader
     {
         ILogger<DefaultCredentialsLoader>? _logger;
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _loadingSemaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         /// <summary>
         /// Constructor with a logger
@@ -56,9 +58,24 @@ namespace Microsoft.Identity.Web
 
             if (credentialDescription.CachedValue == null)
             {
-                if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
+                // Get or create a semaphore for this credentialDescription
+                var semaphore = _loadingSemaphores.GetOrAdd(credentialDescription.Id, (v) => new SemaphoreSlim(1));
+
+                // Wait to acquire the semaphore
+                await semaphore.WaitAsync();
+
+                try
                 {
-                    await loader.LoadIfNeededAsync(credentialDescription, parameters);
+                    if (credentialDescription.CachedValue == null)
+                    {
+                        if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
+                            await loader.LoadIfNeededAsync(credentialDescription, parameters);
+                    }
+                }
+                finally
+                {
+                    // Release the semaphore
+                    semaphore.Release();
                 }
             }
         }

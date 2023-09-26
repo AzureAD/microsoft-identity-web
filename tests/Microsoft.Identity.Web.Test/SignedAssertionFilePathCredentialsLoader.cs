@@ -31,7 +31,10 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         {
             // Arrange
             var filePath = withEnvVariable ? FilePath : FilePath2;
-            File.WriteAllText(filePath, _token.ToString());
+            lock (_signedAssertionFilePathCredentialsLoader)
+            {
+                File.WriteAllText(filePath, _token.ToString());
+            }
             CredentialDescription credentialDescription;
             if (withEnvVariable)
             {

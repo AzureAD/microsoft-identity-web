@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.SessionState;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -81,6 +82,15 @@ namespace Microsoft.Identity.Web.Hosts
 
         public void SetSession(string key, string value)
         {
+            HttpSessionState session = HttpContext.Current.Session;
+            if (session is not null)
+            {
+                session.Add(key, value);
+            }
+            else
+            {
+                HttpContext.Current.GetOwinContext().Set(key, value);
+            }
         }
     }
 }

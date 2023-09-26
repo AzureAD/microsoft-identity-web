@@ -47,6 +47,8 @@ namespace Microsoft.Identity.Web
         public new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             IEnumerable<string>? initialScopes = null)
         {
+            Services.AddHttpClient();
+
             return EnableTokenAcquisitionToCallDownstreamApi(
                 options =>
                 {
@@ -57,8 +59,6 @@ namespace Microsoft.Identity.Web
                         options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
                         options.Instance = AppServicesAuthenticationInformation.Issuer;
                     }
-
-                    Services.AddHttpClient();
                 },
                 initialScopes);
         }

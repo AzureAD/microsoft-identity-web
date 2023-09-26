@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
 using NSubstitute.Extensions;
 using Xunit;
+using TokenValidatedContext = Microsoft.AspNetCore.Authentication.OpenIdConnect.TokenValidatedContext;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -879,12 +881,24 @@ namespace Microsoft.Identity.Web.Test
             // then diff the files to find what are the new properties
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 #if NET8_0_OR_GREATER
-            int expectedNumberOfProperties = 58;
+            int expectedNumberOfProperties = 60;
 #else
             int expectedNumberOfProperties = 57;
 #endif
             //System.IO.File.WriteAllLines(@"C:\temp\net8.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
             Assert.Equal(expectedNumberOfProperties, numberOfProperties);
+        }
+
+        [Fact]
+        public void PreventChangesInJwtBearerOptionsToBeOverlooked()
+        {
+            int numProps = typeof(JwtBearerOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
+#if NET8_0_OR_GREATER
+            int expectedNumberOfProperties = 32;
+#else
+            int expectedNumberOfProperties = 29;
+#endif
+            Assert.Equal(expectedNumberOfProperties, numProps);
         }
     }
 }
