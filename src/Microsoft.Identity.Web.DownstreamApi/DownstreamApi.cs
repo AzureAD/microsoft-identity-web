@@ -225,7 +225,7 @@ namespace Microsoft.Identity.Web
                 options = _namedDownstreamApiOptions.CurrentValue;
             }
 
-            DownstreamApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamApiOptionsReadOnlyHttpMethod(options, httpMethod);
+            DownstreamApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamApiOptionsReadOnlyHttpMethod(options, httpMethod.ToString());
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -306,7 +306,7 @@ namespace Microsoft.Identity.Web
 
             // Creation of the Http Request message with the right HTTP Method
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                effectiveOptions.HttpMethod,
+                new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
             if (content != null)
             {

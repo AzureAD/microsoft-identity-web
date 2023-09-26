@@ -14,8 +14,8 @@ namespace Microsoft.Identity.Web
     {
         private readonly ILoginErrorAccessor _errorAccessor;
 
-        private readonly IDictionary<string, string> _userFlowToIssuerAddress =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _userFlowToIssuerAddress =
+            new(StringComparer.OrdinalIgnoreCase);
 
         public AzureADB2COpenIDConnectEventHandlers(
             string schemeName,

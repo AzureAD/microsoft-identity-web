@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Resource
@@ -57,11 +58,12 @@ namespace Microsoft.Identity.Web.Resource
             SecurityToken securityToken,
             TokenValidationParameters validationParameters)
         {
-            JwtSecurityToken? token = securityToken as JwtSecurityToken;
-            if (token == null)
+            var claims = securityToken switch
             {
-                throw new SecurityTokenValidationException(IDWebErrorMessage.TokenIsNotJwtToken);
-            }
+                JwtSecurityToken jwtSecurityToken => jwtSecurityToken.Claims,
+                JsonWebToken jwtWebToken => jwtWebToken.Claims,
+                _ => throw new SecurityTokenValidationException(IDWebErrorMessage.TokenIsNotJwtToken),
+            };
 
             validationParameters.AudienceValidator = null;
 
@@ -70,13 +72,13 @@ namespace Microsoft.Identity.Web.Resource
                 validationParameters.ValidAudiences == null)
             {
                 // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
-                if (IsB2C || token.Claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V2))
+                if (IsB2C || claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V2))
                 {
                     validationParameters.ValidAudience = $"{ClientId}";
                 }
 
                 // handle v1.0 access token
-                else if (token.Claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V1))
+                else if (claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V1))
                 {
                     validationParameters.ValidAudience = $"api://{ClientId}";
                 }
