@@ -23,6 +23,7 @@ namespace WebAppCallsApiCallsGraphUiTests
 {
     public class TestingFlowLocally
     {
+#if !FROM_GITHUB_ACTION
         private const string UrlString = @"https://localhost:44321";
         private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
         private const string TodoListServicePath = @"\TodoListService";
@@ -221,4 +222,5 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
         }
     }
+#endif // !FROM_GITHUB_ACTION
 }
