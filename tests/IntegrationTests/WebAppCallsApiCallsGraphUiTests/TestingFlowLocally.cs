@@ -50,12 +50,12 @@ namespace WebAppCallsApiCallsGraphUiTests
             //Process? grpcProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable);
             //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44321");
-            //Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
+            Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44351");
-            //Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, true, "44351");
+            Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, false, "44351");
             try
             {
-                /*StringDictionary clientProcessVars = clientProcess.StartInfo.EnvironmentVariables;
+                StringDictionary clientProcessVars = clientProcess.StartInfo.EnvironmentVariables;
                 StringDictionary serviceProcessVars = serviceProcess.StartInfo.EnvironmentVariables;
                 foreach (DictionaryEntry variable in clientProcessVars)
                 {
@@ -64,13 +64,13 @@ namespace WebAppCallsApiCallsGraphUiTests
                 foreach (DictionaryEntry variable in clientProcessVars)
                 {
                     _output.WriteLine($"Service: {variable.Key} = {variable.Value}");
-                }*/
-                if (true)//(clientProcess != null && serviceProcess != null /*&& grpcProcess != null*/)
+                }
+                if (clientProcess != null && serviceProcess != null /*&& grpcProcess != null*/)
                 {
-/*                    if (clientProcess.HasExited || serviceProcess.HasExited*//* || grpcProcess.HasExited*//*)
+                    if (clientProcess.HasExited || serviceProcess.HasExited)//* || grpcProcess.HasExited*//*)
                     {
                         Assert.Fail($"Could not run web app locally.");
-                    }*/
+                    }
 
                     // Arrange Playwright setup
                     using var playwright = await Playwright.CreateAsync();
@@ -135,12 +135,12 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             finally
             {
-/*                //add the following to make sure sockets are unbound 
+                //add the following to make sure sockets are unbound 
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess);
                 processes.Enqueue(clientProcess);
                 //processes.Enqueue(grpcProcess);
-                killProcessTrees(processes);*/
+                killProcessTrees(processes);
             }
         }
         
