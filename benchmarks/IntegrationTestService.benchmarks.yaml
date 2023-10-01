@@ -6,7 +6,7 @@ jobs:
     source:
       repository: https://github.com/AzureAd/microsoft-identity-web
       branchOrCommit: jennyf/crank
-      project: tests/IntegrationTests/IntegrationTestService.csproj
+      project: ../tests/IntegrationTests/IntegrationTestService.csproj
 
 scenarios:
   integrationTestScenario:
