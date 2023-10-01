@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,7 +80,7 @@ namespace Microsoft.Identity.Web
             WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
-                ConfigureMicrosoftIdentityOptions,
+                null, /* to avoid calling the delegate twice */
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
@@ -93,14 +94,21 @@ namespace Microsoft.Identity.Web
         internal static void WebAppCallsWebApiImplementation(
             IServiceCollection services,
             IEnumerable<string>? initialScopes,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<MicrosoftIdentityOptions>? configureMicrosoftIdentityOptions,
             string openIdConnectScheme,
             Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions)
         {
-            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
-            // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
-
+            // When called from MISE, ensure that configuration options for MSAL.NET, HttpContext accessor
+            // and the Token acquisition service (encapsulating MSAL.NET) are available through dependency injection.
+            // When called from AddMicrosoftIdentityWebApp(delegate), should not be re-configured otherwise
+            // the delegate would be called twice.
+            if (configureMicrosoftIdentityOptions != null)
+            {
+                // Won't be null in the case where the caller is MISE (to ensure that the configuration for MSAL.NET
+                // is available through DI).
+                // Will be null when called from AddMicrosoftIdentityWebApp(delegate) to avoid calling the delegate twice.
+                services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
+            }
             if (configureConfidentialClientApplicationOptions != null)
             {
                 services.Configure(openIdConnectScheme, configureConfidentialClientApplicationOptions);
@@ -157,8 +165,7 @@ namespace Microsoft.Identity.Web
                        };
 
                        // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
-                       var onTokenValidatedHandler = options.Events.OnTokenValidated;
-                       options.Events.OnTokenValidated = async context =>
+                       options.Events.OnTokenValidated += async context =>
                        {
                            string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
@@ -172,8 +179,7 @@ namespace Microsoft.Identity.Web
                                    context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
-
-                           await onTokenValidatedHandler(context).ConfigureAwait(false);
+                           await Task.CompletedTask;
                        };
 
                        // Handling the sign-out: removing the account from MSAL.NET cache

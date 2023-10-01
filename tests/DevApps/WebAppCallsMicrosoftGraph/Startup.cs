@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 // #define USE_SIGNED_ASSERTION
+using System;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -34,9 +36,24 @@ namespace WebAppCallsMicrosoftGraph
             string configSection = "AzureAd";
 #endif
 
-
+            int count = 0;
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(Configuration.GetSection(configSection))
+                    .AddMicrosoftIdentityWebApp(options =>
+                    {
+                        // Verification of the fix for #2456
+                        if (count>0)
+                        {
+                            throw new ArgumentException("AddMicrosoftIdentityWebApp(delegate). the delegate" +
+                                "is called more than once");
+                        }
+                        else
+                        {
+                            count++;
+                        }
+
+                        Configuration.Bind(configSection, options);
+                    }
+                )
                         .EnableTokenAcquisitionToCallDownstreamApi()
                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
                            .AddDownstreamApi("GraphBeta", Configuration.GetSection("GraphBeta"))
