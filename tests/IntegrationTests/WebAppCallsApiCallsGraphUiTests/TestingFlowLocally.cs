@@ -94,7 +94,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                     await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
                     await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, UrlString + SignOutPagePath, _output);
                     _output.WriteLine("Web app sign out successful");
-                    
+
                     // Sign in again using Todo List button
                     _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out");
                     await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
@@ -160,6 +160,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 
             );
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
+            processStartInfo.WorkingDirectory = applicationWorkingDirectory;
             if (elevated)
             {
                 processStartInfo.UseShellExecute = true;
@@ -172,7 +173,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 processStartInfo.CreateNoWindow = false;
                 // processStartInfo.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Development";
                 // processStartInfo.AddEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-                
+
 
                 if (!pathNumber.IsNullOrEmpty())
                 {
