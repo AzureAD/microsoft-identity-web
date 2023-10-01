@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web
             WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
-                null,
+                null, /* to avoid calling the delegate twice */
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
@@ -98,12 +98,15 @@ namespace Microsoft.Identity.Web
             string openIdConnectScheme,
             Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions)
         {
-            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
-            // (encapsulating MSAL.NET) are available through dependency injection
+            // When called from MISE, ensure that configuration options for MSAL.NET, HttpContext accessor
+            // and the Token acquisition service (encapsulating MSAL.NET) are available through dependency injection.
+            // When called from AddMicrosoftIdentityWebApp(delegate), should not be re-configured otherwise
+            // the delegate would be called twice.
             if (configureMicrosoftIdentityOptions != null)
             {
-                // Won't be null in the case where the caller is MISE. Will be null when called
-                // from IdWeb
+                // Won't be null in the case where the caller is MISE (to ensure that the configuration for MSAL.NET
+                // is available through DI).
+                // Will be null when called from AddMicrosoftIdentityWebApp(delegate) to avoid calling the delegate twice.
                 services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
             }
             if (configureConfidentialClientApplicationOptions != null)
