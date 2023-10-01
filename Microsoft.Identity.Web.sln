@@ -176,6 +176,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "myWebApi", "tests\DevApps\c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "myWebApp", "tests\DevApps\ciam\myWebApp\myWebApp.csproj", "{1C23A824-A9D3-46BC-822A-9BA3DE00CEB8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{E39350DD-EA19-449C-BFCC-3ED4109C9D90}"
+	ProjectSection(SolutionItems) = preProject
+		benchmarks\IntegrationTestService.benchmarks.yaml = benchmarks\IntegrationTestService.benchmarks.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
