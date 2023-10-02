@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossPlatformValidatorTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "Benchmark\Benchmark.csproj", "{A698B371-8C8B-48B3-B0BB-CC3E841BD209}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkCSharp", "BenchmarkCSharp\BenchmarkCSharp.csproj", "{192C8FAF-7021-4AFF-98AC-2E15CEAE74D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{A698B371-8C8B-48B3-B0BB-CC3E841BD209}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A698B371-8C8B-48B3-B0BB-CC3E841BD209}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A698B371-8C8B-48B3-B0BB-CC3E841BD209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{192C8FAF-7021-4AFF-98AC-2E15CEAE74D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{192C8FAF-7021-4AFF-98AC-2E15CEAE74D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{192C8FAF-7021-4AFF-98AC-2E15CEAE74D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{192C8FAF-7021-4AFF-98AC-2E15CEAE74D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
