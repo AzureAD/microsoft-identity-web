@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -19,7 +20,7 @@ namespace Microsoft.Identity.Web.Test.Integration
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
         const string tenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
-   //     Application? _application;
+        //     Application? _application;
         ServicePrincipal? _servicePrincipal;
         GraphServiceClient graphServiceClient;
 
@@ -45,8 +46,14 @@ namespace Microsoft.Identity.Web.Test.Integration
                 "MySelfSignedCert",
                 DateTimeOffset.Now.AddMinutes(3));
 
+            // And a cert active in 2 mins, and expiring in 10 mins
+            X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
+                "MySelfSignedCert",
+                 DateTimeOffset.Now.AddMinutes(10),
+                 DateTimeOffset.Now.AddMinutes(2));
+
             // and add it as client creds
-            await AddClientCertificateToApp(aadApplication!, firstCertificate);
+            await AddClientCertificatesToApp(aadApplication!, firstCertificate, secondCertificate);
 
             // Add the cert to the configuration
             CredentialDescription[] clientCertificates = new CredentialDescription[]
@@ -80,6 +87,8 @@ namespace Microsoft.Identity.Web.Test.Integration
             {
                 authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
                 "https://graph.microsoft.com/.default");
+                Assert.NotNull(authorizationHeader);
+                Assert.NotEqual(string.Empty, authorizationHeader);
             }
             catch (Exception ex)
             {
@@ -89,16 +98,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             finally
             {
             }
-
-            // Create a new certificate with the same distinguish name, expiring later and
-            // add it to the store
-            X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
-                "MySelfSignedCert",
-                DateTimeOffset.Now.AddMinutes(10));
-
-            // add this certificate as client creds to the app registration.
-            // You would have to do that except if you have an SN/I cert and use UseX5C in the config.
-            await AddClientCertificateToApp(aadApplication, secondCertificate);
 
             // Keep acquiring tokens every minute for 5 mins
             // Tokens should be acquired successfully
@@ -116,7 +115,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                                            {
                                                AcquireTokenOptions = new AcquireTokenOptions
                                                {
-                                                    ForceRefresh = true // Exceptionnaly as we want to test the cert rotation.
+                                                   ForceRefresh = true // Exceptionnaly as we want to test the cert rotation.
                                                }
                                            });
                     Assert.NotNull(authorizationHeader);
@@ -127,7 +126,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     await RemoveAppAndCertificates(firstCertificate, secondCertificate);
                     Assert.Fail("Failed to acquire token with the second certificate");
                 }
-            }   
+            }
 
 
             // Delete both certs from the cert store and remove the app registration
@@ -136,15 +135,15 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private async Task RemoveAppAndCertificates(
             X509Certificate2 firstCertificate,
-            X509Certificate2? secondCertificate = null, 
-            Application? application = null, 
+            X509Certificate2? secondCertificate = null,
+            Application? application = null,
             ServicePrincipal? servicePrincipal = null)
         {
             // Delete the cert from the cert store
             X509Store x509Store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             x509Store.Open(OpenFlags.ReadWrite);
             x509Store.Remove(firstCertificate);
-            if (secondCertificate !=null)
+            if (secondCertificate != null)
             {
                 x509Store.Remove(secondCertificate);
             }
@@ -157,7 +156,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     .DeleteAsync();
             }
             if (servicePrincipal != null)
-            { 
+            {
                 await graphServiceClient.ServicePrincipals[$"{_servicePrincipal!.Id}"]
                     .DeleteAsync();
             }
@@ -170,7 +169,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 .Applications
                 .GetAsync(options => options.QueryParameters.Filter = $"DisplayName eq 'Daemon app to test cert rotation'"))
                 ?.Value?.FirstOrDefault();
-                
+
             if (application == null)
             {
                 application = await CreateDaemonAppRegistration();
@@ -178,7 +177,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             return application!;
         }
 
-         private async Task<Application?> CreateDaemonAppRegistration()
+        private async Task<Application?> CreateDaemonAppRegistration()
         {
             // Get the Microsoft Graph service principal and the user.read.all role.
             ServicePrincipal graphSp = (await graphServiceClient.ServicePrincipals
@@ -240,7 +239,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             return createdApp;
         }
 
-        private X509Certificate2 CreateSelfSignedCertificateAddAddToCertStore(string certName, DateTimeOffset expiry)
+        private X509Certificate2 CreateSelfSignedCertificateAddAddToCertStore(string certName, DateTimeOffset expiry, DateTimeOffset? notBefore = null)
         {
             // Create the self signed certificate
 #if ECDsa
@@ -251,7 +250,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var req = new CertificateRequest($"CN={certName}", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 #endif
 
-            var cert = req.CreateSelfSigned(DateTimeOffset.Now, expiry);
+            var cert = req.CreateSelfSigned(notBefore.HasValue ? notBefore.Value : DateTimeOffset.Now, expiry);
 
             byte[] bytes = cert.Export(X509ContentType.Pfx, (string?)null);
             X509Certificate2 certWithPrivateKey = new X509Certificate2(bytes);
@@ -264,20 +263,33 @@ namespace Microsoft.Identity.Web.Test.Integration
             return certWithPrivateKey;
         }
 
-        private async Task<Application> AddClientCertificateToApp(Application application, X509Certificate2 firstCertificate)
+        private async Task<Application> AddClientCertificatesToApp(Application application, X509Certificate2 firstCertificate, X509Certificate2 secondCertificate2)
         {
-            KeyCredential keyCredential = new KeyCredential()
+            Application update = new Application
             {
-                EndDateTime = firstCertificate.NotAfter,
-                StartDateTime = firstCertificate.NotBefore,
-             //   KeyId = Guid.NewGuid(),
-                Type = "AsymmetricX509Cert",
-                Usage = "Verify",
-                Key = firstCertificate.Export(X509ContentType.Cert)
+                KeyCredentials = new System.Collections.Generic.List<KeyCredential>()
+                {
+                         new KeyCredential()
+                         {
+                             DisplayName = firstCertificate.NotAfter.ToString(CultureInfo.InvariantCulture),
+                             EndDateTime = firstCertificate.NotAfter,
+                             StartDateTime = firstCertificate.NotBefore,
+                             Type = "AsymmetricX509Cert",
+                             Usage = "Verify",
+                             Key = firstCertificate.Export(X509ContentType.Cert)
+                         },
+                        new KeyCredential()
+                        {
+                            DisplayName = secondCertificate2.NotAfter.ToString(CultureInfo.InvariantCulture),
+                            EndDateTime = secondCertificate2.NotAfter,
+                            StartDateTime = secondCertificate2.NotBefore,
+                            Type = "AsymmetricX509Cert",
+                            Usage = "Verify",
+                            Key = secondCertificate2.Export(X509ContentType.Cert)
+                        }
+                  }
             };
-            application.KeyCredentials.Clear();
-            application.KeyCredentials.Add(keyCredential);
-            return await graphServiceClient.Applications[application.Id].PatchAsync(application);
+            return await graphServiceClient.Applications[application.Id].PatchAsync(update)!;
         }
     }
 }
