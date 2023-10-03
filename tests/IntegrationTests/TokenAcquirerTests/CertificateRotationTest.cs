@@ -18,7 +18,7 @@ using Xunit;
 
 namespace TokenAcquirerTests
 {
-    public class CertificateRotationTest : ICertificatesObserver
+    public sealed class CertificateRotationTest : ICertificatesObserver
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
         const string tenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
@@ -39,6 +39,8 @@ namespace TokenAcquirerTests
             graphServiceClient = new GraphServiceClient(credential);
         }
 
+        X509Certificate? currentCertificate = null;
+
         [IgnoreOnAzureDevopsFact]
         public async Task TestCertificateRotation()
         {
@@ -46,7 +48,7 @@ namespace TokenAcquirerTests
             // -----------------------
             // Create an app registration for a daemon app
             Application aadApplication = (await CreateDaemonAppRegistrationIfNeeded())!;
-            DateTimeOffset now =  DateTimeOffset.Now;
+            DateTimeOffset now = DateTimeOffset.Now;
 
             // Create a certificate expiring in 3 mins, add it to the local cert store
             X509Certificate2 firstCertificate = CreateSelfSignedCertificateAddAddToCertStore(
@@ -57,7 +59,7 @@ namespace TokenAcquirerTests
             X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
                 "MySelfSignedCert",
                  now.AddMinutes(validitySecondCertInMinutes),
-                 now.AddMinutes(validityFirstCertInMinutes-0.25));
+                 now.AddMinutes(validityFirstCertInMinutes - 0.25));
 
             // and add it as client creds to the app registration
             await AddClientCertificatesToApp(aadApplication!, firstCertificate, secondCertificate);
@@ -130,6 +132,13 @@ namespace TokenAcquirerTests
                                            });
                     Assert.NotNull(authorizationHeader);
                     Assert.NotEqual(string.Empty, authorizationHeader);
+
+                    // If the token acquisition was successful and the cert use is the second one, the test can terminate.
+                    if (currentCertificate != null && currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString())
+                    {
+                        break;
+                    }
+
                 }
                 catch (Exception)
                 {
@@ -138,6 +147,8 @@ namespace TokenAcquirerTests
                 }
             }
 
+            // Check the last certificate used is the second one.
+            Assert.True(currentCertificate != null && currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString());
 
             // Delete both certs from the cert store and remove the app registration
             await RemoveAppAndCertificates(firstCertificate, secondCertificate);
@@ -305,17 +316,21 @@ namespace TokenAcquirerTests
         private static string GetDisplayName(X509Certificate2 cert)
         {
             return cert.NotBefore.ToString(CultureInfo.InvariantCulture)
-                +"-"
+                + "-"
                 + cert.NotAfter.ToString(CultureInfo.InvariantCulture);
         }
 
-#pragma warning disable CA1033 // Interface methods should be callable by child types
         void ICertificatesObserver.OnClientCertificateChanged(CertificateChangeEventArg e)
-#pragma warning restore CA1033 // Interface methods should be callable by child types
         {
-            if (e.Action == CerticateObserverAction.Deselected)
+            switch (e.Action)
             {
+                case CerticateObserverAction.Selected:
+                    currentCertificate = e.Certificate;
+                    break;
 
+                case CerticateObserverAction.Deselected:
+                    currentCertificate = null;
+                    break;
             }
         }
     }
