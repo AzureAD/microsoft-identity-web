@@ -691,8 +691,7 @@ namespace Microsoft.Identity.Web
                     {
                         Action = action,
                         Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c =>
-                            c.Certificate == selectedCertificate)
+                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate)
                     });
                 ;
             }
