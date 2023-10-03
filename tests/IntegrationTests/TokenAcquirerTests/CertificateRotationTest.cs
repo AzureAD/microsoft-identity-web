@@ -12,10 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
-using TokenAcquirerTests;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Experimental;
 using Xunit;
 
-namespace Microsoft.Identity.Web.Test.Integration
+namespace TokenAcquirerTests
 {
     public class CertificateRotationTest : ICertificatesObserver
     {

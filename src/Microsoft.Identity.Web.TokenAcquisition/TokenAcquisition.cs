@@ -23,6 +23,7 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Web.Experimental;
 
 namespace Microsoft.Identity.Web
 {
@@ -114,7 +115,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
-            IConfidentialClientApplication application=null;
+            IConfidentialClientApplication? application=null;
             try
             {
                 application = GetOrBuildConfidentialClientApplication(mergedOptions);

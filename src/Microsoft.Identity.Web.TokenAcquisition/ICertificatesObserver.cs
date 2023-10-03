@@ -4,20 +4,25 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Abstractions;
 
-namespace Microsoft.Identity.Web
+// Types in the Microsoft.Identity.Web.Experimental namespace
+// are meant to get feedback from the community on proposed features, and
+// may be modified or removed in future releases without obeying to the
+// semantic versionning.
+namespace Microsoft.Identity.Web.Experimental
 {
     /// <summary>
-    /// Action of the app on the certificate.
+    /// Action of the token acquirer on the certificate.
     /// </summary>
     public enum CerticateObserverAction
     {
         /// <summary>
-        /// The certificate was selected.
+        /// The certificate was selected as a client certificate.
         /// </summary>
         Selected,
 
         /// <summary>
-        /// The certificate was deselected.
+        /// The certificate was deselected as a client certificate. This
+        /// happens when the STS does not accept the certificate any longer.
         /// </summary>
         Deselected,
     }
@@ -28,14 +33,14 @@ namespace Microsoft.Identity.Web
     public class CertificateChangeEventArg
     {
         /// <summary>
-        /// Action of the certifcate
+        /// Action on the certificate
         /// </summary>
         public CerticateObserverAction Action { get; set; }
 
         /// <summary>
         /// Certificate
         /// </summary>
-        public X509Certificate2 Certificate { get; set; }
+        public X509Certificate2? Certificate { get; set; }
 
         /// <summary>
         /// Credential description

@@ -41,10 +41,6 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                if (ServiceProvider != null)
-                {
-                    throw new InvalidOperationException("Cannot change services once you called Build()");
-                }
                 return _services;
             }
 
