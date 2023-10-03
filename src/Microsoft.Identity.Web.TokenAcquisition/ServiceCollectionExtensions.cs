@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(services);
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
-            bool forceSdk = !services.Any(s => s.ServiceType == typeof(AspNetCore.Hosting.IWebHostEnvironment));
+            bool forceSdk = !services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Authentication.IAuthenticationService");
 #endif
 
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(ICredentialsLoader)) == null)
