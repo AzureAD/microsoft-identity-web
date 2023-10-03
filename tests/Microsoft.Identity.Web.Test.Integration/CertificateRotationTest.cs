@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
+using TokenAcquirerTests;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
@@ -37,13 +38,13 @@ namespace Microsoft.Identity.Web.Test.Integration
             graphServiceClient = new GraphServiceClient(credential);
         }
 
-        [Fact]
+        [IgnoreOnAzureDevopsFact]
         public async Task TestCertificateRotation()
         {
             // Prepare the environment
             // -----------------------
             // Create an app registration for a daemon app
-            Application aadApplication = await CreateDaemonAppRegistrationIfNeeded();
+            Application aadApplication = (await CreateDaemonAppRegistrationIfNeeded())!;
             DateTimeOffset now =  DateTimeOffset.Now;
 
             // Create a certificate expiring in 3 mins, add it to the local cert store
@@ -98,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 Assert.NotNull(authorizationHeader);
                 Assert.NotEqual(string.Empty, authorizationHeader);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await RemoveAppAndCertificates(firstCertificate);
                 Assert.Fail("Failed to acquire token with the first certificate");
@@ -129,7 +130,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     Assert.NotNull(authorizationHeader);
                     Assert.NotEqual(string.Empty, authorizationHeader);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     await RemoveAppAndCertificates(firstCertificate, secondCertificate);
                     Assert.Fail("Failed to acquire token with the second certificate");
@@ -214,8 +215,8 @@ namespace Microsoft.Identity.Web.Test.Integration
                         }
                 }
             };
-            Application createdApp = await graphServiceClient.Applications
-                .PostAsync(application)!;
+            Application createdApp = (await graphServiceClient.Applications
+                .PostAsync(application))!;
 
             // Create a service principal for the app
             var servicePrincipal = new ServicePrincipal
@@ -240,7 +241,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 var effectivePermissionGrant = await graphServiceClient.Oauth2PermissionGrants
                     .PostAsync(oAuth2PermissionGrant);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
 
@@ -297,7 +298,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                         }
                   }
             };
-            return await graphServiceClient.Applications[application.Id].PatchAsync(update)!;
+            return (await graphServiceClient.Applications[application.Id].PatchAsync(update))!;
         }
 
         private static string GetDisplayName(X509Certificate2 cert)
