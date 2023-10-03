@@ -16,10 +16,12 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
-    public class CertificateRotationTest
+    public class CertificateRotationTest : ICertificatesObserver
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
         const string tenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
+        const double validityFirstCertInMinutes = 1.5;
+        const double validitySecondCertInMinutes = 10;
         //     Application? _application;
         ServicePrincipal? _servicePrincipal;
         GraphServiceClient graphServiceClient;
@@ -38,23 +40,28 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Fact]
         public async Task TestCertificateRotation()
         {
+            // Prepare the environment
+            // -----------------------
             // Create an app registration for a daemon app
             Application aadApplication = await CreateDaemonAppRegistrationIfNeeded();
+            DateTimeOffset now =  DateTimeOffset.Now;
 
             // Create a certificate expiring in 3 mins, add it to the local cert store
             X509Certificate2 firstCertificate = CreateSelfSignedCertificateAddAddToCertStore(
                 "MySelfSignedCert",
-                DateTimeOffset.Now.AddMinutes(3));
+                now.AddMinutes(validityFirstCertInMinutes));
 
-            // And a cert active in 2 mins, and expiring in 10 mins
+            // Create a cert active in 2 mins, and expiring in 10 mins, and add it to the cert store
             X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
                 "MySelfSignedCert",
-                 DateTimeOffset.Now.AddMinutes(10),
-                 DateTimeOffset.Now.AddMinutes(2));
+                 now.AddMinutes(validitySecondCertInMinutes),
+                 now.AddMinutes(validityFirstCertInMinutes-0.25));
 
-            // and add it as client creds
+            // and add it as client creds to the app registration
             await AddClientCertificatesToApp(aadApplication!, firstCertificate, secondCertificate);
 
+            // Code for the application
+            // ------------------------
             // Add the cert to the configuration
             CredentialDescription[] clientCertificates = new CredentialDescription[]
             {
@@ -75,6 +82,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 options.TenantId = tenantId;
                 options.ClientCredentials = clientCertificates;
             });
+            tokenAcquirerFactory.Services.AddSingleton<ICertificatesObserver>(this);
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
@@ -101,7 +109,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Keep acquiring tokens every minute for 5 mins
             // Tokens should be acquired successfully
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 6; i++)
             {
                 // Wait for a minute
                 await Task.Delay(60 * 1000);
@@ -271,7 +279,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 {
                          new KeyCredential()
                          {
-                             DisplayName = firstCertificate.NotAfter.ToString(CultureInfo.InvariantCulture),
+                             DisplayName = GetDisplayName(firstCertificate),
                              EndDateTime = firstCertificate.NotAfter,
                              StartDateTime = firstCertificate.NotBefore,
                              Type = "AsymmetricX509Cert",
@@ -280,7 +288,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                          },
                         new KeyCredential()
                         {
-                            DisplayName = secondCertificate2.NotAfter.ToString(CultureInfo.InvariantCulture),
+                            DisplayName = GetDisplayName(secondCertificate2),
                             EndDateTime = secondCertificate2.NotAfter,
                             StartDateTime = secondCertificate2.NotBefore,
                             Type = "AsymmetricX509Cert",
@@ -290,6 +298,23 @@ namespace Microsoft.Identity.Web.Test.Integration
                   }
             };
             return await graphServiceClient.Applications[application.Id].PatchAsync(update)!;
+        }
+
+        private static string GetDisplayName(X509Certificate2 cert)
+        {
+            return cert.NotBefore.ToString(CultureInfo.InvariantCulture)
+                +"-"
+                + cert.NotAfter.ToString(CultureInfo.InvariantCulture);
+        }
+
+#pragma warning disable CA1033 // Interface methods should be callable by child types
+        void ICertificatesObserver.OnClientCertificateChanged(CertificateChangeEventArg e)
+#pragma warning restore CA1033 // Interface methods should be callable by child types
+        {
+            if (e.Action == CerticateObserverAction.Deselected)
+            {
+
+            }
         }
     }
 }
