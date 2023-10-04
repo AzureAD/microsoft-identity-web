@@ -1,6 +1,6 @@
 2.15.1
 =========
-- Updated IdentityModel dependencies to Identity.Model.*.6.33.0 for all target frameworks others than .NET 8 rc1, for which Microsoft,Identity.Web leverages Identity.Model 7.0.2
+- Updated IdentityModel dependencies to Identity.Model.*.6.33.0 for all target frameworks other than .NET 8 rc1, for which Microsoft,Identity.Web leverages Identity.Model 7.0.2
 
 2.15.0
 =========
