@@ -1,3 +1,7 @@
+2.15.1
+=========
+- Updated IdentityModel dependencies to latest version
+
 2.15.0
 =========
 ### New features
