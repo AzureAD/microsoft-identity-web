@@ -10,7 +10,7 @@
 ### Bug Fixes
 - Fixes a resiliency issue where the client certificate rotation wasn't always happening (from KeyKeyVault, or certificate store with same distinghished name) 
 - In the override of AddMicrosoftIdentityWebApp taking a delegate, the delegate is now called only once (it was called twice causing the TokenValidated event to be called twice as well). Fixes [#2328](https://github.com/AzureAD/microsoft-identity-web/issues/2328)
-- Fixes a regression introduced in, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder, unless you provided an empty authentication scheme. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
+- Fixes a regression introduced in 2.13.3, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder with AddMicroosftIdentityWebApp/Api, unless you provided an empty authentication scheme when acquiring a token. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
 
 
 2.14.0
