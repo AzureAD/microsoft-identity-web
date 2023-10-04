@@ -1,3 +1,18 @@
+2.15.0
+=========
+### New features
+- TokenAcquirerFactory now adds support for reading the configuration from environment variables. See issue [#2480](https://github.com/AzureAD/microsoft-identity-web/issues/2480)
+
+#### Experimental API
+(to get feedback, could change without bumping-up the major version)
+- It's now possible for an application to observe the client certificate selected by Token acquirer from the ClientCredentials properties, and when the certicate is un-selected (because it's rejected by the Identity Provider, as expired, or revoked). See [Observing client certificates](https://github.com/AzureAD/microsoft-identity-web/wiki/Certificates#observing-client-certificates). PR [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496)
+
+### Bug Fixes
+- Fixes a resiliency issue where the client certificate rotation wasn't always happening (from KeyKeyVault, or certificate store with same distinghished name) 
+- In the override of AddMicrosoftIdentityWebApp taking a delegate, the delegate is now called only once (it was called twice causing the TokenValidated event to be called twice as well). Fixes [#2328](https://github.com/AzureAD/microsoft-identity-web/issues/2328)
+- Fixes a regression introduced in, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder, unless you provided an empty authentication scheme. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
+
+
 2.14.0
 =========
 - Update to Abstractions 5.0.0
