@@ -49,7 +49,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange process setup, grpc left commented out for now
             //Process? grpcProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable);
-            //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44321");
             Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, false, "44321");
             //Environment.SetEnvironmentVariable("Kestrel:Endpoints:Https:Url", "https://*:44351");
