@@ -16,7 +16,9 @@ namespace CrossPlatformValidation
     {
         public static RequestValidator requestValidator { get; } = new RequestValidator();
 
+#if NET6_0_OR_GREATER
         [UnmanagedCallersOnly(EntryPoint = "Initialize")]
+#endif
         public static void C_Initialize(IntPtr authority, IntPtr audience)
         { 
             string authorityString = Marshal.PtrToStringAnsi(authority);
@@ -25,7 +27,9 @@ namespace CrossPlatformValidation
             requestValidator.Initialize(authorityString, audienceString);
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "Validate")]
+#if NET6_0_OR_GREATER
+       [UnmanagedCallersOnly(EntryPoint = "Validate")]
+#endif
         public static IntPtr C_Validate(IntPtr authorizationHeader)
         {
             string authorizationHeaderString = Marshal.PtrToStringAnsi(authorizationHeader);
@@ -46,8 +50,10 @@ namespace CrossPlatformValidation
         }
     }
 
+#if NET6_0_OR_GREATER
     [JsonSourceGenerationOptions(WriteIndented = true)]
     [JsonSerializable(typeof(TokenValidationResult))]
     [JsonSerializable(typeof(long))]
     internal partial class SourceGenerationContext : JsonSerializerContext { }
+#endif
 }

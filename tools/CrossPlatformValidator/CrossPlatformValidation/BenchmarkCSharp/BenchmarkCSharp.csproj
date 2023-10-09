@@ -2,19 +2,37 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net472;net6.0;net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <UseWilson7>false</UseWilson7>
+    <UseJwtSecurityToken>true</UseJwtSecurityToken>
+    <DefineConstants Condition="'$(UseJwtSecurityToken)' == 'true'">JWT_TOKEN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CrossPlatformValidation\CrossPlatformValidation.csproj" />
+    <Compile Include="..\CrossPlatformValidation\RequestValidator.cs" Link="RequestValidator.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.12.1" />
+  </ItemGroup>
 
+  <ItemGroup Condition="'$(UseWilson7)' == 'true'">
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.0.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.0.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="7.0.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseWilson7)' == 'false'">
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.32.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="6.32.3" />
+    <!--<RdXmlFile Include="rd.xml" />-->
   </ItemGroup>
   
 </Project>

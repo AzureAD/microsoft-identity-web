@@ -17,7 +17,18 @@ namespace BenchmarkCSharp
     {
         static void Main(string[] args)
         {
+            DisplayTestSubject();
             BenchmarkRunner.Run<ValidateBenchmark>();
+            DisplayTestSubject();
+        }
+
+        private static void DisplayTestSubject()
+        {
+#if JWT_TOKEN
+            Console.WriteLine($"JwtSecurityToken for {typeof(Program).Assembly.Location}");
+#else
+            Console.WriteLine($"JsonWebToken for {typeof(Program).Assembly.Location}");
+#endif
         }
     }
 
@@ -50,7 +61,7 @@ namespace BenchmarkCSharp
         public int numberValidations = 1000000;
 
         [Benchmark]
-        public void ValidateAuthRequestNativeBenchmark()
+        public void ValidateAuthRequestCSharpBenchmark()
         {
             if (_requestValidator.Validate(authorizationHeader) == null)
             {
