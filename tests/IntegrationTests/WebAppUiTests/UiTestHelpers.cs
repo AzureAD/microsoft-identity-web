@@ -2,12 +2,17 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit.Abstractions;
 
 namespace WebAppUiTests
@@ -121,7 +126,22 @@ namespace WebAppUiTests
             });
         }
 
-        public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName)
+        public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName, string pathNumber = null)
+        {
+            string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
+            processStartInfo.WorkingDirectory = applicationWorkingDirectory;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+
+            if (!pathNumber.IsNullOrEmpty())
+            {
+                processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + pathNumber;
+            }
+            return Process.Start(processStartInfo);
+        }
+
+        private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
             string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
             // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
@@ -129,16 +149,47 @@ namespace WebAppUiTests
             int numberSegments = segments.Length;
             int startLastSegments = numberSegments - 3;
             int endFirstSegments = startLastSegments - 2;
-            string testedApplicationPath = Path.Combine(
+            return Path.Combine(
                 Path.Combine(segments.Take(endFirstSegments).ToArray()),
                 appLocation,
-                Path.Combine(segments.Skip(startLastSegments).ToArray()),
-                executableName
+                Path.Combine(segments.Skip(startLastSegments).ToArray())
             );
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
-            processStartInfo.UseShellExecute = true;
-            processStartInfo.Verb = "runas";
-            return Process.Start(processStartInfo);
+        }
+
+        public static void killProcessTrees(Queue<Process> processQueue)
+        {
+            Process currentProcess;
+            while (processQueue.Count > 0)
+            {
+                currentProcess = processQueue.Dequeue();
+                foreach (Process child in GetChildProcesses(currentProcess))
+                {
+                    processQueue.Enqueue(child);
+                };
+                currentProcess.Kill();
+                currentProcess.Close();
+            }
+        }
+
+        public static IList<Process> GetChildProcesses(this Process process)
+        {
+            // Validate platform compatibility
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new ManagementObjectSearcher(
+                    $"Select * From Win32_Process Where ParentProcessID={process.Id}")
+                    .Get()
+                    .Cast<ManagementObject>()
+#pragma warning disable CA1416 // This call can not be reached except on Windows due to the enclosing if statement
+                    .Select(mo =>
+                        Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
+#pragma warning restore CA1416
+                    .ToList();
+            }
+            else
+            {
+                throw new NotImplementedException("Not implemented for this OS");
+            }
         }
     }
 }

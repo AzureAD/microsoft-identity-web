@@ -3,13 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Management;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Castle.Core.Internal;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
 using WebAppUiTests;
@@ -19,7 +13,7 @@ using Process = System.Diagnostics.Process;
 
 namespace WebAppCallsApiCallsGraphUiTests
 {
-    public class TestingFlowLocally
+    public class TestingWebAppCallsApiCallsGraphLocally
     {
 #if !FROM_GITHUB_ACTION
         private const string UrlString = @"https://localhost:44321";
@@ -33,11 +27,10 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
-        private string UiTestAssemblyLocation = typeof(TestingFlowLocally).Assembly.Location;
+        private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
-
-        public TestingFlowLocally(ITestOutputHelper output)
+        public TestingWebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -47,9 +40,9 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Process? grpcProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, "5001");
-            Process? clientProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, "44321");
-            Process? serviceProcess = TestingFlowLocally.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, "44351");
+            Process? grpcProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, "5001");
+            Process? clientProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, "44321");
+            Process? serviceProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, "44351");
             try
             {
                 if (clientProcess != null && serviceProcess != null && grpcProcess != null)
@@ -115,9 +108,7 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             catch (System.Exception ex)
             {
-                //String message = clientProcess.StandardError.ReadToEnd();
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
-
             }
             finally
             {
@@ -126,78 +117,9 @@ namespace WebAppCallsApiCallsGraphUiTests
                 processes.Enqueue(serviceProcess);
                 processes.Enqueue(clientProcess);
                 processes.Enqueue(grpcProcess);
-                killProcessTrees(processes);
+                UiTestHelpers.killProcessTrees(processes);
             }
         }
-        
-        public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName, string pathNumber=null)
-        {
-            string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
-            processStartInfo.WorkingDirectory = applicationWorkingDirectory;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-
-            if (!pathNumber.IsNullOrEmpty())
-            {
-                processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + pathNumber;
-            }
-            return Process.Start(processStartInfo);
-        }
-     
-        private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
-        {
-            string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
-            // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
-            string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
-            int numberSegments = segments.Length;
-            int startLastSegments = numberSegments - 3;
-            int endFirstSegments = startLastSegments - 2;
-            return Path.Combine(
-                Path.Combine(segments.Take(endFirstSegments).ToArray()),
-                appLocation,
-                Path.Combine(segments.Skip(startLastSegments).ToArray())
-            );
-        }
-        private void killProcessTrees(Queue<Process> processQueue)
-        {
-            Process currentProcess;
-            while (processQueue.Count > 0)
-            {
-                currentProcess = processQueue.Dequeue();
-                foreach (Process child in ProcessExtensions.GetChildProcesses(currentProcess))
-                {
-                    processQueue.Enqueue(child);
-                };
-                _output.WriteLine($"Killing process {currentProcess.Id}");
-                currentProcess.Kill();
-                currentProcess.Close();
-            }
-        }
-    }
-
-    public static class ProcessExtensions
-    {
-        public static IList<Process> GetChildProcesses(this Process process)
-        {
-            // Validate platform compatibility
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return new ManagementObjectSearcher(
-                    $"Select * From Win32_Process Where ParentProcessID={process.Id}")
-                    .Get()
-                    .Cast<ManagementObject>()
-#pragma warning disable CA1416 // This call can not be reached except on Windows due to the enclosing if statement
-                    .Select(mo =>
-                        Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
-#pragma warning restore CA1416
-                    .ToList();
-            }
-            else
-            {
-                throw new NotImplementedException("Not implemented for this OS");
-            }
-        }
-    }
 #endif // !FROM_GITHUB_ACTION
+    }
 }
