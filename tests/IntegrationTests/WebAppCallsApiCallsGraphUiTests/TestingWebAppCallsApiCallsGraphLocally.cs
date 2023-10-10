@@ -16,7 +16,7 @@ namespace WebAppCallsApiCallsGraphUiTests
 #if !FROM_GITHUB_ACTION
     public class TestingWebAppCallsApiCallsGraphLocally
     {
-        private const string UrlString = @"https://localhost:44321";
+        private const string LocalhostUrl = @"https://localhost:";
         private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
         private const string TodoListServicePath = @"\TodoListService";
         private const string TodoListClientPath = @"\Client";
@@ -58,7 +58,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 IBrowser browser;
                 browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // To see the browser UI, set Headless = false
                 IPage page = await browser.NewPageAsync();
-                await page.GotoAsync(UrlString);
+                await page.GotoAsync(LocalhostUrl + TodoListClientPort);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -72,7 +72,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, UrlString + SignOutPagePath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, LocalhostUrl + TodoListClientPort + SignOutPagePath, _output);
                 _output.WriteLine("Web app sign out successful");
 
                 // Sign in again using Todo List button
