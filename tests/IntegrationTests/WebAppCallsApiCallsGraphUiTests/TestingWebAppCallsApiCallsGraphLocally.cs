@@ -36,6 +36,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         public TestingWebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
         {
             _output = output;
+            UiTestHelpers.InstallPlaywrightBrowser(); // will put in a fixture if this works
         }
 
         [Fact]
