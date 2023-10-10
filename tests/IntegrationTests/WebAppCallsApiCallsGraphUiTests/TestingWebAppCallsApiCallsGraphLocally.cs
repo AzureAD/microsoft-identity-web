@@ -14,6 +14,7 @@ using Process = System.Diagnostics.Process;
 namespace WebAppCallsApiCallsGraphUiTests
 {
 #if !FROM_GITHUB_ACTION
+    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we don't want it running at the same time as other tests
     public class TestingWebAppCallsApiCallsGraphLocally
     {
         private const string LocalhostUrl = @"https://localhost:";
@@ -58,7 +59,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 using var playwright = await Playwright.CreateAsync();
                 IBrowser browser;
                 browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // To see the browser UI, set Headless = false
-                IPage page = await browser.NewPageAsync();
+                IPage page = await browser.NewPageAsync(new BrowserNewPageOptions { IgnoreHTTPSErrors = true });
                 await page.GotoAsync(LocalhostUrl + TodoListClientPort);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
