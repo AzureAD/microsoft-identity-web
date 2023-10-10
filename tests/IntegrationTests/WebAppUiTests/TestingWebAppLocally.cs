@@ -27,11 +27,11 @@ public class TestingWebAppLocally
         { return; }
 
         // Arrange
-        Process? p = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        Process? p = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath, DevAppExecutable);
 
         try
         {
-            if (p == null || p.HasExited) { Assert.Fail($"Could not run web app locally."); }
+            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
 
             using var playwright = await Playwright.CreateAsync();
             IBrowser browser;

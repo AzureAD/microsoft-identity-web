@@ -126,7 +126,15 @@ namespace WebAppUiTests
             });
         }
 
-        public static Process? StartWebAppLocally(string testAssemblyLocation, string appLocation, string executableName, string pathNumber = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testAssemblyLocation">The path to the test's directory</param>
+        /// <param name="appLocation">The path to the processes directory</param>
+        /// <param name="executableName">The name of the executable that launches the process</param>
+        /// <param name="portNumber">The port for the process to listen on</param>
+        /// <returns></returns>
+        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, string? portNumber = null)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
@@ -134,13 +142,19 @@ namespace WebAppUiTests
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
 
-            if (!pathNumber.IsNullOrEmpty())
+            if (!portNumber.IsNullOrEmpty())
             {
-                processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + pathNumber;
+                processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + portNumber;
             }
             return Process.Start(processStartInfo);
         }
 
+        /// <summary>
+        /// Builds the path to the process's directory
+        /// </summary>
+        /// <param name="testAssemblyLocation">The path to the test's directory</param>
+        /// <param name="appLocation">The path to the processes directory</param>
+        /// <returns></returns>
         private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
             string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
@@ -156,12 +170,18 @@ namespace WebAppUiTests
             );
         }
 
+        /// <summary>
+        /// Kills the processes in the queue and all of their children
+        /// </summary>
+        /// <param name="processQueue">queue of parent processes</param>
         public static void killProcessTrees(Queue<Process> processQueue)
         {
             Process currentProcess;
             while (processQueue.Count > 0)
             {
                 currentProcess = processQueue.Dequeue();
+                if (currentProcess == null) { continue;}
+
                 foreach (Process child in GetChildProcesses(currentProcess))
                 {
                     processQueue.Enqueue(child);
@@ -171,6 +191,12 @@ namespace WebAppUiTests
             }
         }
 
+        /// <summary>
+        /// Gets the child processes of a process on Windows
+        /// </summary>
+        /// <param name="process">The parent process</param>
+        /// <returns>A list of child processes</returns>
+        /// <exception cref="NotImplementedException">Thrown if running on an OS other than Windows</exception>
         public static IList<Process> GetChildProcesses(this Process process)
         {
             // Validate platform compatibility
@@ -190,6 +216,37 @@ namespace WebAppUiTests
             {
                 throw new NotImplementedException("Not implemented for this OS");
             }
+        }
+
+        /// <summary>
+        /// Checks if all processes in a list are alive
+        /// </summary>
+        /// <param name="processes">List of processes to check</param>
+        /// <returns>True if all are alive else false</returns>
+        public static bool ProcessesAreAlive(List<Process> processes)
+        {
+            foreach (Process process in processes)
+            {
+                if (!ProcessIsAlive(process))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a process is alive
+        /// </summary>
+        /// <param name="process">Process to check</param>
+        /// <returns>True if alive false if not</returns>
+        public static bool ProcessIsAlive(Process process)
+        {
+            if (process == null || process.HasExited)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

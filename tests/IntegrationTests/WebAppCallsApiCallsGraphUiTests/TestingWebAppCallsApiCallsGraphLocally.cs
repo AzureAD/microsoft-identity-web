@@ -16,7 +16,6 @@ namespace WebAppCallsApiCallsGraphUiTests
 #if !FROM_GITHUB_ACTION
     public class TestingWebAppCallsApiCallsGraphLocally
     {
-
         private const string UrlString = @"https://localhost:44321";
         private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
         private const string TodoListServicePath = @"\TodoListService";
@@ -25,6 +24,9 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string TodoListServiceExecutable = @"\TodoListService.exe";
         private const string TodoListClientExecutable = @"\TodoListClient.exe";
         private const string GrpcExecutable = @"\grpc.exe";
+        private const string TodoListServicePort = "44351";
+        private const string TodoListClientPort = "44321";
+        private const string GrpcPort = "5001";
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
@@ -41,71 +43,67 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Process? grpcProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, "5001");
-            Process? clientProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, "44321");
-            Process? serviceProcess = UiTestHelpers.StartWebAppLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, "44351");
+            Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
+            Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
+            Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort);
             try
             {
-                if (clientProcess != null && serviceProcess != null && grpcProcess != null)
-                {
-                    if (clientProcess.HasExited || serviceProcess.HasExited || grpcProcess.HasExited)
+                if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess!, serviceProcess!, grpcProcess! }))
                     {
                         Assert.Fail($"Could not run web app locally.");
                     }
 
-                    // Arrange Playwright setup
-                    using var playwright = await Playwright.CreateAsync();
-                    IBrowser browser;
-                    browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // To see the browser UI, set Headless = false
-                    IPage page = await browser.NewPageAsync();
-                    await page.GotoAsync(UrlString);
-                    LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+                // Arrange Playwright setup
+                using var playwright = await Playwright.CreateAsync();
+                IBrowser browser;
+                browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // To see the browser UI, set Headless = false
+                IPage page = await browser.NewPageAsync();
+                await page.GotoAsync(UrlString);
+                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
-                    // Initial sign in
-                    _output.WriteLine("Starting web app sign-in flow");
-                    string email = labResponse.User.Upn;
-                    await UiTestHelpers.FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                    await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync();
-                    await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-                    _output.WriteLine("Web app sign-in flow successful");
+                // Initial sign in
+                _output.WriteLine("Starting web app sign-in flow");
+                string email = labResponse.User.Upn;
+                await UiTestHelpers.FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync();
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+                _output.WriteLine("Web app sign-in flow successful");
 
-                    // Sign out
-                    _output.WriteLine("Starting web app sign-out flow");
-                    await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                    await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, UrlString + SignOutPagePath, _output);
-                    _output.WriteLine("Web app sign out successful");
+                // Sign out
+                _output.WriteLine("Starting web app sign-out flow");
+                await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
+                await UiTestHelpers.PerformSignOut_MicrosoftIdentityFlow(page, email, UrlString + SignOutPagePath, _output);
+                _output.WriteLine("Web app sign out successful");
 
-                    // Sign in again using Todo List button
-                    _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out");
-                    await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
-                    await UiTestHelpers.SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                    var TodoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
-                    await Assertions.Expect(TodoLink).ToBeVisibleAsync();
-                    _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out");
+                // Sign in again using Todo List button
+                _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out");
+                await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
+                await UiTestHelpers.SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                var TodoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
+                await Assertions.Expect(TodoLink).ToBeVisibleAsync();
+                _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out");
 
-                    // Create new todo item
-                    _output.WriteLine("Starting web app create new todo flow");
-                    await TodoLink.ClickAsync();
-                    var TitleEntryBox = page.GetByLabel("Title");
-                    await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle1);
-                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle1 })).ToBeVisibleAsync();
-                    _output.WriteLine("Web app create new todo flow successful");
+                // Create new todo item
+                _output.WriteLine("Starting web app create new todo flow");
+                await TodoLink.ClickAsync();
+                var TitleEntryBox = page.GetByLabel("Title");
+                await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle1);
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle1 })).ToBeVisibleAsync();
+                _output.WriteLine("Web app create new todo flow successful");
 
-                    // Edit todo item
-                    _output.WriteLine("Starting web app edit todo flow");
-                    await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
-                    await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle2);
-                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).ToBeVisibleAsync();
-                    _output.WriteLine("Web app edit todo flow successful");
+                // Edit todo item
+                _output.WriteLine("Starting web app edit todo flow");
+                await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
+                await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle2);
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).ToBeVisibleAsync();
+                _output.WriteLine("Web app edit todo flow successful");
 
-                    // Delete todo item
-                    _output.WriteLine("Starting web app delete todo flow");
-                    await page.GetByRole(AriaRole.Link, new() { Name = "Delete" }).ClickAsync();
-                    await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
-                    await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
-                    _output.WriteLine("Web app delete todo flow successful");
-
-                }
+                // Delete todo item
+                _output.WriteLine("Starting web app delete todo flow");
+                await page.GetByRole(AriaRole.Link, new() { Name = "Delete" }).ClickAsync();
+                await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
+                _output.WriteLine("Web app delete todo flow successful");
             }
             catch (System.Exception ex)
             {
@@ -115,9 +113,9 @@ namespace WebAppCallsApiCallsGraphUiTests
             {
                 //add the following to make sure sockets are unbound 
                 Queue<Process> processes = new Queue<Process>();
-                processes.Enqueue(serviceProcess);
-                processes.Enqueue(clientProcess);
-                processes.Enqueue(grpcProcess);
+                processes.Enqueue(serviceProcess!);
+                processes.Enqueue(clientProcess!);
+                processes.Enqueue(grpcProcess!);
                 UiTestHelpers.killProcessTrees(processes);
             }
         }
