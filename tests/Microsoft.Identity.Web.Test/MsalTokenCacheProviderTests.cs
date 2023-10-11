@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.Test
                 msalCacheOptions.AbsoluteExpirationRelativeToNow = optionsCacheExpiry.Value;
             }
 
-            var msalCacheProvider = new TestMsalMemoryTokenCacheProvider(GetMemoryCache(), Options.Create(msalCacheOptions));
+            var msalCacheProvider = new MsalMemoryTokenCacheProvider(GetMemoryCache(), Options.Create(msalCacheOptions));
             var cacheHints = new CacheSerializerHints()
             {
                 SuggestedCacheExpiry = suggestedCacheExpiry,
