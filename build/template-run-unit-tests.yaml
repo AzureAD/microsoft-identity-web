@@ -10,10 +10,11 @@ steps:
         Tests/**/*.csproj
         !Tests/DevApps/**/*.csproj 
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
-    continueOnError: true
+    continueOnError: 'true'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/tests/IntegrationTests/WebAppCallsApiCallsGraphUiTests/bin/Debug/net7.0'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+  condition: always()
