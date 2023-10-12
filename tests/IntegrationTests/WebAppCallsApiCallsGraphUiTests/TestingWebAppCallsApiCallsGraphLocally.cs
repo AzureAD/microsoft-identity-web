@@ -51,7 +51,7 @@ namespace WebAppCallsApiCallsGraphUiTests
             
             // Arrange Playwright setup, to see the browser UI, set Headless = false
             using var playwright = await Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false }); // 
+            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // 
             var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
