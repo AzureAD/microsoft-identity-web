@@ -48,6 +48,13 @@ namespace WebAppCallsApiCallsGraphUiTests
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort);
+            
+            // Arrange Playwright setup, to see the browser UI, set Headless = false
+            using var playwright = await Playwright.CreateAsync();
+            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false }); // 
+            var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+            await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
+
             try
             {
                 if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess!, serviceProcess!, grpcProcess! }))
@@ -55,11 +62,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                         Assert.Fail($"Could not run web app locally.");
                     }
 
-                // Arrange Playwright setup
-                using var playwright = await Playwright.CreateAsync();
-                IBrowser browser;
-                browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // To see the browser UI, set Headless = false
-                IPage page = await browser.NewPageAsync(new BrowserNewPageOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
                 await page.GotoAsync(LocalhostUrl + TodoListClientPort);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
@@ -119,6 +122,9 @@ namespace WebAppCallsApiCallsGraphUiTests
                 processes.Enqueue(clientProcess!);
                 processes.Enqueue(grpcProcess!);
                 UiTestHelpers.killProcessTrees(processes);
+
+                // Stop tracing and export it into a zip archive.
+                await context.Tracing.StopAsync(new() { Path = "trace.zip" });
             }
         }
     }
