@@ -127,7 +127,7 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// 
+        /// Starts a process from an executable, sets its working directory and redirects its output to the test's output
         /// </summary>
         /// <param name="testAssemblyLocation">The path to the test's directory</param>
         /// <param name="appLocation">The path to the processes directory</param>
