@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,10 +34,13 @@ namespace SimulateOidc.Controllers
         }
 
         [HttpGet("/v2.0/.well-known/keys.json")]
-        public IActionResult Keys()
+        public async Task<IActionResult> Keys()
         {
-            byte[] keysDocument = Properties.Resource.keys;
-            return new FileContentResult(keysDocument, "application/json");
+            HttpClient client = new HttpClient();
+            string keysDocument = await client.GetStringAsync("https://login.microsoftonline.com/common/discovery/v2.0/keys").ConfigureAwait(false);
+            keysDocument = keysDocument.Replace("https://login.microsoftonline.com/{tenantid}/v2.0", "invalidIssuer", StringComparison.OrdinalIgnoreCase);
+            // byte[] keysDocument = Properties.Resource.keys;
+            return new FileContentResult(Encoding.ASCII.GetBytes(keysDocument), "application/json");
         }
     }
 }
