@@ -25,7 +25,7 @@ To file a design proposal, look for the relevant issue in the `New issue` page o
 
 ## Identifying scale
 
-If you would like to contribute to one of our repositories, first identify the scale of what you would like to contribute. If it is small (grammar/spelling or a bug fix) feel free to start working on a fix. If you are submitting a feature or substantial code contribution, please discuss it with the team and ensure it follows the product roadmap. You might also read these two blogs posts on contributing code: [Open Source Contribution Etiquette by Miguel de Icaza](http://tirania.org/blog/archive/2010/Dec-31.html) and [Don't "Push" Your Pull Requests by Ilya Grigorik](https://www.igvita.com/2011/12/19/dont-push-your-pull-requests/). All code submissions will be rigorously reviewed and tested further by the ID4S team, and only those that meet an extremely high bar for both quality and design/roadmap appropriateness will be merged into the source.
+If you would like to contribute to one of our repositories, first identify the scale of what you would like to contribute. If it is small (grammar/spelling or a bug fix) feel free to start working on a fix. If you are submitting a feature or substantial code contribution, please discuss it with the team and ensure it follows the product roadmap. You might also read these two blogs posts on contributing code: [Open Source Contribution Etiquette by Miguel de Icaza](http://tirania.org/blog/archive/2010/Dec-31.html) and [Don't "Push" Your Pull Requests by Ilya Grigorik](https://www.igvita.com/2011/12/19/dont-push-your-pull-requests/). All code submissions will be rigorously reviewed and tested further by the team, and only those that meet an extremely high bar for both quality and design/roadmap appropriateness will be merged into the source.
 
 ## Before submitting the pull request
 
@@ -64,7 +64,7 @@ If you're not sure how to create a pull request, read this article: https://help
 
 ## Feedback
 
-Your pull request will now go through extensive checks by the subject matter experts on our team. Please be patient; we have hundreds of pull requests across all of our repositories. Update your pull request according to feedback until it is approved by one of the ID4S team members.
+Your pull request will now go through extensive checks by the subject matter experts on our team. Please be patient; we have hundreds of pull requests across all of our repositories. Update your pull request according to feedback until it is approved by one of the team members.
 
 ## Merging pull requests
 
