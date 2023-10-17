@@ -165,7 +165,8 @@ namespace Microsoft.Identity.Web
                        };
 
                        // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
-                       options.Events.OnTokenValidated += async context =>
+                       var onTokenValidatedHandler = options.Events.OnTokenValidated;
+                       options.Events.OnTokenValidated = async context =>
                        {
                            string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
 
@@ -179,7 +180,7 @@ namespace Microsoft.Identity.Web
                                    context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
-                           await Task.CompletedTask;
+                           await onTokenValidatedHandler(context).ConfigureAwait(false);
                        };
 
                        // Handling the sign-out: removing the account from MSAL.NET cache
