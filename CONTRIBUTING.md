@@ -15,7 +15,7 @@ With that said, we have additionally marked issues that are good candidates for 
 
 If you would like to make a contribution to an area not captured [here](https://github.com/AzureAD/microsoft-identity-web/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22help%20wanted%22%20label%3A%22good%20first%20issue%22), first open an issue with a description of the change you would like to make and the problem it solves so it can be discussed before a pull request is submitted.
 
-If you are working on an involved feature, please check in with the team at [TODO PLACEHOLDER]() before starting so we can ensure you have the right support along the way. We have to prioritize MSRCs and other security fixes, so we want to ensure you get the support you need.
+If you are working on an involved feature, please file a design proposal, more instructions can be found below, under [Before writing code](#before-writing-code).
 
 ## Before writing code
 
