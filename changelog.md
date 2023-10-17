@@ -3,7 +3,7 @@
 - For the .NET 8 rc2 target framework, the IdentityModel dependencies have been updated to Identity.Model.*.7.0.3.
 
 ### Bug Fixes
-- Fixes a regression introduced in 2.15.0 where ID.Web was not waiting for all OnTokenValidated delegates to be executed. See issue[#2513](https://github.com/AzureAD/microsoft-identity-web/issues/2513).
+- Fixes a regression introduced in 2.15.0 where the OnTokenValidated delegates were no longer chained with an await. See issue[#2513](https://github.com/AzureAD/microsoft-identity-web/issues/2513).
 
 2.15.1
 =========
