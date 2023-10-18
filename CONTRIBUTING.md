@@ -21,7 +21,7 @@ If you are working on an involved feature, please file a design proposal, more i
 
 We've seen PRs, where customers would solve an issue in a way which either wouldn't fit into the E2E design because of how it's implemented, or it would change the E2E in a way, which is not something we'd like to do. To avoid these situations and potentially save you a lot of time, we encourage customers to discuss the preferred design with the team first. To do so, file a new design proposal issue, link to the issue you'd like to address, and provide detailed information about how you'd like to solve a specific problem.
 
-To file a design proposal, look for the relevant issue in the `New issue` page or simply click [proposal for IdWeb](https://github.com/AzureAD/microsoft-identity-web/blob/dev/.github/ISSUE_TEMPLATE/design_proposal.md)
+To file a design proposal, look for the relevant issue in the `New issue` page or simply click [proposal for IdWeb](https://github.com/AzureAD/microsoft-identity-web/issues/new?assignees=&labels=design-proposal&projects=&template=design_proposal.md)
 
 ## Identifying scale
 
