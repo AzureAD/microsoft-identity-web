@@ -7,6 +7,10 @@ This document will guide you through the process.
 Please visit [https://cla.microsoft.com/](https://cla.microsoft.com/) and sign the Contributor License
 Agreement.  You only need to do that once. We can not look at your code until you've submitted this request.
 
+## Setup, Building and Testing
+
+Please see the [Build & Run](https://github.com/AzureAD/microsoft-identity-web/wiki/build-and-test) wiki page.
+
 ## Finding an issue to work on
 
 Over the years we've seen many PRs targeting areas of the code which are not urgent or critical for us to address, or areas which we didn't plan to expand further at the time. In all these cases we had to say no to those PRs and close them. That, obviously, is not a great outcome for us. And it's especially bad for the contributor, as they've spent a lot of effort preparing the change. To resolve this problem, we've decided to separate a bucket of issues, which would be great candidates for community members to contribute to. We mark these issues with the help wanted label. You can find all these issues [here](https://github.com/AzureAD/microsoft-identity-web/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22help%20wanted%22%20label%3A%22good%20first%20issue%22).
