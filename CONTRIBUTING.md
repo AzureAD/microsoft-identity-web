@@ -7,10 +7,6 @@ This document will guide you through the process.
 Please visit [https://cla.microsoft.com/](https://cla.microsoft.com/) and sign the Contributor License
 Agreement.  You only need to do that once. We can not look at your code until you've submitted this request.
 
-## Setup, Building and Testing
-
-Please see the [Build & Run](https://github.com/AzureAD/microsoft-identity-web/wiki/build-and-test) wiki page.
-
 ## Finding an issue to work on
 
 Over the years we've seen many PRs targeting areas of the code which are not urgent or critical for us to address, or areas which we didn't plan to expand further at the time. In all these cases we had to say no to those PRs and close them. That, obviously, is not a great outcome for us. And it's especially bad for the contributor, as they've spent a lot of effort preparing the change. To resolve this problem, we've decided to separate a bucket of issues, which would be great candidates for community members to contribute to. We mark these issues with the help wanted label. You can find all these issues [here](https://github.com/AzureAD/microsoft-identity-web/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22help%20wanted%22%20label%3A%22good%20first%20issue%22).
@@ -25,7 +21,7 @@ If you are working on an involved feature, please file a design proposal, more i
 
 We've seen PRs, where customers would solve an issue in a way which either wouldn't fit into the E2E design because of how it's implemented, or it would change the E2E in a way, which is not something we'd like to do. To avoid these situations and potentially save you a lot of time, we encourage customers to discuss the preferred design with the team first. To do so, file a new design proposal issue, link to the issue you'd like to address, and provide detailed information about how you'd like to solve a specific problem.
 
-To file a design proposal, look for the relevant issue in the `New issue` page or simply click [proposal for IdWeb](https://github.com/AzureAD/microsoft-identity-web/blob/dev/.github/ISSUE_TEMPLATE/design_proposal.md)
+To file a design proposal, look for the relevant issue in the `New issue` page or simply click [proposal for IdWeb](https://github.com/AzureAD/microsoft-identity-web/issues/new?assignees=&labels=design-proposal&projects=&template=design_proposal.md)
 
 ## Identifying scale
 
