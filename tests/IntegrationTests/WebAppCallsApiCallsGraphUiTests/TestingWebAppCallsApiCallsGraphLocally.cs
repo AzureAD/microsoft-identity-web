@@ -31,7 +31,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
-        private const string ManagedIdentityClientId = "a4acf71f-3855-4675-87cc-4bda64ac1a48";
+        private const string ManagedIdentityClientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
