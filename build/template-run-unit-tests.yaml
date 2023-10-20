@@ -15,6 +15,6 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/IntegrationTests/WebAppCallsApiCallsGraphUiTests/bin/Debug/net7.0'
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/IntegrationTests/WebAppCallsApiCallsGraphUiTests/bin/Debug/net7.0/trace.zip'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
   condition: always()

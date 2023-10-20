@@ -11,7 +11,6 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
-    [CollectionDefinition(nameof(AzureIdentityForKubernetesClientAssertionTests), DisableParallelization = true)]
     public class AzureIdentityForKubernetesClientAssertionTests
     {
         string token;
