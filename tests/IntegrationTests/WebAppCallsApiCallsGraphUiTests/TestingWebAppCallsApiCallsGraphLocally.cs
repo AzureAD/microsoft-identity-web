@@ -31,6 +31,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
+        private const string ManagedIdentityClientId = "a4acf71f-3855-4675-87cc-4bda64ac1a48";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -45,6 +46,8 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("Azure_Client_Id", ManagedIdentityClientId);
+            Environment.SetEnvironmentVariable("AzureAd__ClientCredentials__0__ManagedIdentityClientId", ManagedIdentityClientId);
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort);
