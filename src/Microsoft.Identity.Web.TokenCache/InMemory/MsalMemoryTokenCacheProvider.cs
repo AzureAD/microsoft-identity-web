@@ -103,6 +103,22 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             byte[] bytes,
             CacheSerializerHints cacheSerializerHints)
         {
+            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = DetermineCacheEntryExpiry(cacheSerializerHints),
+                Size = bytes?.Length,
+            };
+
+            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// _cacheOptions.AbsoluteExpirationRelativeToNow represents either a user-provided expiration or the default, if not set.
+        /// Between the suggested expiry and expiry from options, the shorter one takes precedence.
+        /// </summary>
+        internal TimeSpan DetermineCacheEntryExpiry(CacheSerializerHints cacheSerializerHints)
+        {
             TimeSpan? cacheExpiry = null;
             if (cacheSerializerHints != null && cacheSerializerHints.SuggestedCacheExpiry != null)
             {
@@ -113,14 +129,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
                 }
             }
 
-            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
-                Size = bytes?.Length,
-            };
-
-            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            return Task.CompletedTask;
+            return cacheExpiry is null || _cacheOptions.AbsoluteExpirationRelativeToNow < cacheExpiry
+                ? _cacheOptions.AbsoluteExpirationRelativeToNow
+                : cacheExpiry.Value;
         }
     }
 }

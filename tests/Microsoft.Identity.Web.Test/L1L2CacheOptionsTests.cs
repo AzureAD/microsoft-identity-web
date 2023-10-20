@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -99,6 +100,13 @@ namespace Microsoft.Identity.Web.Test
             {
                 Assert.Null(testCache._memoryCache);
             }
+        }
+
+        [Fact]
+        public void MsalMemoryTokenCacheOptions_SetsDefault_Test()
+        {
+            var options = new MsalMemoryTokenCacheOptions();
+            Assert.Equal(MsalMemoryTokenCacheOptions.DefaultAbsoluteExpirationRelativeToNow, options.AbsoluteExpirationRelativeToNow);
         }
 
         private void BuildTheRequiredServices()
