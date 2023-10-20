@@ -73,7 +73,7 @@
 
   <PropertyGroup Label="Common dependency versions">
     <IdentityModelVersion>6.33.0</IdentityModelVersion>
-    <MicrosoftIdentityClientVersion>4.56.0</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientVersion>4.57.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.1.0</AzureSecurityKeyVaultSecretsVersion>
