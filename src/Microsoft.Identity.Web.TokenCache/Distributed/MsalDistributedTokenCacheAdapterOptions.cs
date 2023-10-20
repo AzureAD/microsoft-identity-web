@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
     /// <summary>
     /// Options for the MSAL token cache serialization adapter,
-    /// which delegates the serialization to the <c>IDistributedCache</c> implementations
+    /// which delegates the serialization to the <see cref="IDistributedCache"/> implementations
     /// available with .NET Core.
     /// </summary>
     public class MsalDistributedTokenCacheAdapterOptions : DistributedCacheEntryOptions
