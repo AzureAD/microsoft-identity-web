@@ -47,7 +47,7 @@ namespace WebAppCallsApiCallsGraphUiTests
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             Environment.SetEnvironmentVariable("Azure_Client_Id", ManagedIdentityClientId);
-            Environment.SetEnvironmentVariable("AzureAd__ClientCredentials__0__ManagedIdentityClientId", ManagedIdentityClientId);
+            Environment.SetEnvironmentVariable("AzureAd_ClientCredentials_0_ManagedIdentityClientId", ManagedIdentityClientId);
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort);
