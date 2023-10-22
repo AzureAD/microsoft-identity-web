@@ -1,3 +1,10 @@
+2.15.3
+=========
+- Update Azure.Identity library to 1.10.2 for CVE-2023-36414.
+
+### Bug Fixes:
+- Microsoft.Identity.Web honors the user-provided value for the cache expiry for in-memory cache. See [#2466](https://github.com/AzureAD/microsoft-identity-web/issues/2466) for details.
+
 2.15.2
 =========
 - For the .NET 8 rc2 target framework, the IdentityModel dependencies have been updated to Identity.Model.*.7.0.3.
