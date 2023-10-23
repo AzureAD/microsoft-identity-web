@@ -63,16 +63,6 @@ namespace SimulateOidc.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] keys {
-            get {
-                object obj = ResourceManager.GetObject("keys", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         public static byte[] openid_configuration {
             get {
                 object obj = ResourceManager.GetObject("openid_configuration", resourceCulture);

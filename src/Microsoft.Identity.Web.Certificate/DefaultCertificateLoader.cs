@@ -118,6 +118,24 @@ namespace Microsoft.Identity.Web
                 foreach (var cert in certificateDescriptions)
                 {
                     cert.Certificate = null;
+                    cert.CachedValue = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resets all the certificates in the certificate description list.
+        /// Use, for example, before a retry.
+        /// </summary>
+        /// <param name="credentialDescription">Description of the certificates.</param>
+        public static void ResetCertificates(IEnumerable<CredentialDescription>? credentialDescription)
+        {
+            if (credentialDescription != null)
+            {
+                foreach (var cert in credentialDescription.Where(c => c.Certificate != null))
+                {
+                    cert.Certificate = null;
+                    cert.CachedValue = null;
                 }
             }
         }

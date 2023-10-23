@@ -25,12 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Properties\keys.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Update="Properties\Resource.resx">
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>

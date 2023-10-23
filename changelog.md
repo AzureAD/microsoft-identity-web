@@ -1,3 +1,36 @@
+2.15.3
+=========
+- Update Azure.Identity library to 1.10.2 for CVE-2023-36414.
+
+### Bug Fixes:
+- Microsoft.Identity.Web honors the user-provided value for the cache expiry for in-memory cache. See [#2466](https://github.com/AzureAD/microsoft-identity-web/issues/2466) for details.
+
+2.15.2
+=========
+- For the .NET 8 rc2 target framework, the IdentityModel dependencies have been updated to Identity.Model.*.7.0.3.
+
+### Bug Fixes
+- Fixes a regression introduced in 2.15.0 where the OnTokenValidated delegates were no longer chained with an await. See issue[#2513](https://github.com/AzureAD/microsoft-identity-web/issues/2513).
+
+2.15.1
+=========
+- Updated IdentityModel dependencies to Identity.Model.*.6.33.0 for all target frameworks other than .NET 8 rc1, for which Microsoft,Identity.Web leverages Identity.Model 7.0.2
+
+2.15.0
+=========
+### New features
+- TokenAcquirerFactory now adds support for reading the configuration from environment variables. See issue [#2480](https://github.com/AzureAD/microsoft-identity-web/issues/2480)
+
+#### Experimental API
+(to get feedback, could change without bumping-up the major version)
+- It's now possible for an application to observe the client certificate selected by Token acquirer from the ClientCredentials properties, and when the certicate is un-selected (because it's rejected by the Identity Provider, as expired, or revoked). See [Observing client certificates](https://github.com/AzureAD/microsoft-identity-web/wiki/Certificates#observing-client-certificates). PR [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496)
+
+### Bug Fixes
+- Fixes a resiliency issue where the client certificate rotation wasn't always happening (from KeyKeyVault, or certificate store with same distinguished name). See [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496) for details.
+- In the override of AddMicrosoftIdentityWebApp taking a delegate, the delegate is now called only once (it was called twice causing the TokenValidated event to be called twice as well). Fixes [#2328](https://github.com/AzureAD/microsoft-identity-web/issues/2328)
+- Fixes a regression introduced in 2.13.3, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder with AddMicroosftIdentityWebApp/Api, unless you provided an empty authentication scheme when acquiring a token. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
+
+
 2.14.0
 =========
 - Update to Abstractions 5.0.0

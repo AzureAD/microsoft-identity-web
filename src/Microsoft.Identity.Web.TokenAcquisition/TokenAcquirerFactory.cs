@@ -41,10 +41,6 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                if (ServiceProvider != null)
-                {
-                    throw new InvalidOperationException("Cannot change services once you called Build()");
-                }
                 return _services;
             }
 
@@ -197,11 +193,12 @@ namespace Microsoft.Identity.Web
         {
             if (Configuration == null)
             {
-                // Read the configuration from a file
+                // Read the configuration from a file and augment/replace from environment variable
                 var builder = new ConfigurationBuilder();
                 string basePath = DefineConfiguration(builder);
                 builder.SetBasePath(basePath)
-                       .AddJsonFile("appsettings.json", optional: true);
+                       .AddJsonFile("appsettings.json", optional: true)
+                       .AddEnvironmentVariables();
                 Configuration = builder.Build();
             }
             return Configuration;

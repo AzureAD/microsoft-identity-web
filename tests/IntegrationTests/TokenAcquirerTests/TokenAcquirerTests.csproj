@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 

@@ -10,8 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -21,6 +23,7 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Web.Experimental;
 
 namespace Microsoft.Identity.Web
 {
@@ -53,6 +56,7 @@ namespace Microsoft.Identity.Web
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
+        protected readonly ICertificatesObserver? _certificatesObserver;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -99,6 +103,7 @@ namespace Microsoft.Identity.Web
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
+            _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
         }
 
 #if NET6_0_OR_GREATER
@@ -110,9 +115,10 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
+            IConfidentialClientApplication? application=null;
             try
             {
-                var application = GetOrBuildConfidentialClientApplication(mergedOptions);
+                application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -171,7 +177,8 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
+                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
@@ -267,7 +274,8 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
@@ -325,7 +333,7 @@ namespace Microsoft.Identity.Web
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
-        public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+        public async Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? authenticationScheme = null,
             string? tenant = null,
@@ -415,20 +423,28 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+                return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCertificates);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
                 // Retry
                 _retryClientCertificate = true;
-                return GetAuthenticationResultForAppAsync(
+                return await GetAuthenticationResultForAppAsync(
                     scope,
                     authenticationScheme: authenticationScheme,
                     tenant: tenant,
                     tokenAcquisitionOptions: tokenAcquisitionOptions);
+            }
+            catch (MsalException ex)
+            {
+                // GetAuthenticationResultForAppAsync is an abstraction that can be called from
+                // a web app or a web API
+                Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                throw;
             }
             finally
             {
@@ -635,6 +651,10 @@ namespace Microsoft.Identity.Web
 
                 IConfidentialClientApplication app = builder.Build();
 
+                // If the client application has set certificate observer,
+                // fire the event to notify the client app that a certificate was selected.
+                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected);
+
                 // Initialize token cache providers
                 if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
                 {
@@ -651,6 +671,29 @@ namespace Microsoft.Identity.Web
                     IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
                     ex);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Find the certificate used by the app and fire the event to notify the client app that a certificate was selected/unselected.
+        /// </summary>
+        /// <param name="mergedOptions"></param>
+        /// <param name="app"></param>
+        /// <param name="action"></param>
+        private void NotifyCertificateSelection(MergedOptions mergedOptions, IConfidentialClientApplication app, CerticateObserverAction action)
+        {
+            X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
+            if (_certificatesObserver != null
+                && selectedCertificate != null)
+            {
+                _certificatesObserver.OnClientCertificateChanged(
+                    new CertificateChangeEventArg()
+                    {
+                        Action = action,
+                        Certificate = app.AppConfig.ClientCredentialCertificate,
+                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate)
+                    });
+                ;
             }
         }
 
