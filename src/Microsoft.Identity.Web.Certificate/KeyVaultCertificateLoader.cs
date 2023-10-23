@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
             credentialDescription.Certificate = await LoadFromKeyVault(
                             credentialDescription.KeyVaultUrl!,
                             credentialDescription.KeyVaultCertificateName!,
-                            credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId,
+                            credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId ?? Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"),
                             CertificateLoaderHelper.DetermineX509KeyStorageFlag(credentialDescription));
             credentialDescription.CachedValue = credentialDescription.Certificate;
         }
