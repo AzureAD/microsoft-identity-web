@@ -42,11 +42,8 @@ steps:
 # Run Post-build code analysis (e.g. Roslyn)
 - template: template-postbuild-code-analysis.yaml
  
-# Run the dotnet daemon app
-- task: DotNetCoreCLI@2
-  displayName: 'Build and run dotnet daemon app'
-  inputs:
-    command: run
-    projects: 'tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
-    arguments: '-f net7.0'
-
+# Pack and sign all of the nuget packages
+- template: template-pack-and-sign-all-nugets.yaml
+ 
+# Publish nuget packages and symbols to VSTS package manager.
+- template: template-publish-and-cleanup.yaml
