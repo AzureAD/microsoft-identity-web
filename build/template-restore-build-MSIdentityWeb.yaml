@@ -27,6 +27,15 @@ steps:
     project: Microsoft.Identity.Web.sln
     arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
+# Run the dotnet daemon app
+# This requires that the build machine has a user assigned managed identity that can access the KeyVault.
+- task: DotNetCoreCLI@2
+  displayName: 'Build and run dotnet daemon app'
+  inputs:
+    command: run
+    projects: 'tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
+    arguments: '-f net7.0'    
+
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
   inputs:
