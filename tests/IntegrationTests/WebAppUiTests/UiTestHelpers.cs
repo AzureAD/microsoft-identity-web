@@ -19,6 +19,15 @@ namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
+        /// <summary>
+        /// Login flow for the first time in a given browsing session.
+        /// </summary>
+        /// <param name="page">Playwright Page object the web app is accessed from</param>
+        /// <param name="email">email of the user to sign in</param>
+        /// <param name="password">password for sign in</param>
+        /// <param name="output">Used to communicate output to the test's Standard Output</param>
+        /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
+        /// <returns></returns>
         public static async Task FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output=null ,bool staySignedIn=false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
@@ -29,6 +38,15 @@ namespace WebAppUiTests
             await EnterPassword_MicrosoftIdentityFlow_ValidPassword(page, password, staySignedInText);
         }
 
+        /// <summary>
+        /// Login flow for anytime after the first time in a given browsing session.
+        /// </summary>
+        /// <param name="page">Playwright Page object the web app is accessed from</param>
+        /// <param name="email">email of the user to sign in</param>
+        /// <param name="password">password for sign in</param>
+        /// <param name="output">Used to communicate output to the test's Standard Output</param>
+        /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
+        /// <returns></returns>
         public static async Task SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
@@ -39,11 +57,11 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// 
+        /// Signs the current user out of the web app.
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="email"></param>
-        /// <param name="signOutPageUrl"></param>
+        /// <param name="page">Playwright Page object the web app is accessed from</param>
+        /// <param name="email">email of the user to sign out</param>
+        /// <param name="signOutPageUrl">The url for the page arrived at once successfully signed out</param>
         /// <returns></returns>
         public static async Task PerformSignOut_MicrosoftIdentityFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
         {
