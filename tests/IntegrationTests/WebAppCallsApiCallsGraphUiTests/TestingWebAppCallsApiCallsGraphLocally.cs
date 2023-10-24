@@ -25,13 +25,13 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string TodoListServiceExecutable = @"\TodoListService.exe";
         private const string TodoListClientExecutable = @"\TodoListClient.exe";
         private const string GrpcExecutable = @"\grpc.exe";
-        private const string TodoListServicePort = "44351";
+        private const string TodoListServicePort = "44350";
         private const string TodoListClientPort = "44321";
         private const string GrpcPort = "5001";
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
-        private const string ManagedIdentityObjectId = "a4acf71f-3855-4675-87cc-4bda64ac1a48";
+        private const string ManagedIdentityObjectId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -50,11 +50,11 @@ namespace WebAppCallsApiCallsGraphUiTests
             Environment.SetEnvironmentVariable("AzureAd_ClientCredentials_0_ManagedIdentityClientId", ManagedIdentityObjectId);
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
-            Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort);
+            Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
             
             // Arrange Playwright setup, to see the browser UI, set Headless = false
             using var playwright = await Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true }); // 
+            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 

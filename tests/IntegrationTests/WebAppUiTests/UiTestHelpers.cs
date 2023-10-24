@@ -133,8 +133,9 @@ namespace WebAppUiTests
         /// <param name="appLocation">The path to the processes directory</param>
         /// <param name="executableName">The name of the executable that launches the process</param>
         /// <param name="portNumber">The port for the process to listen on</param>
+        /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
         /// <returns></returns>
-        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, string? portNumber = null)
+        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, string? portNumber = null, bool? isHttp = false)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
@@ -144,7 +145,14 @@ namespace WebAppUiTests
 
             if (!portNumber.IsNullOrEmpty())
             {
-                processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + portNumber;
+                if (isHttp != null && isHttp.Value)
+                {
+                    processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Http:Url"] = "http://*:" + portNumber;
+                }
+                else
+                {
+                    processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + portNumber;
+                }
             }
             return Process.Start(processStartInfo);
         }

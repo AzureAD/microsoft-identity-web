@@ -10,7 +10,7 @@ pr:
 jobs:
 - job: "PR_build"
   pool:
-    vmImage: 'windows-latest'
+    name: MwWilson1EsHostedPool
     demands:
     - msbuild
   steps:
