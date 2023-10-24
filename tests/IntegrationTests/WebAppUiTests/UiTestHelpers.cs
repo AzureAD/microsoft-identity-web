@@ -127,7 +127,7 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// Starts a process from an executable, sets its working directory and redirects its output to the test's output
+        /// Starts a process from an executable, sets its working directory, and redirects its output to the test's output
         /// </summary>
         /// <param name="testAssemblyLocation">The path to the test's directory</param>
         /// <param name="appLocation">The path to the processes directory</param>
@@ -135,7 +135,7 @@ namespace WebAppUiTests
         /// <param name="portNumber">The port for the process to listen on</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
         /// <returns></returns>
-        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, string? portNumber = null, bool? isHttp = false)
+        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, uint? portNumber = null, bool? isHttp = false)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
@@ -143,7 +143,7 @@ namespace WebAppUiTests
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
 
-            if (!portNumber.IsNullOrEmpty())
+            if (portNumber != null && portNumber > 0)
             {
                 if (isHttp != null && isHttp.Value)
                 {
@@ -182,7 +182,7 @@ namespace WebAppUiTests
         /// Kills the processes in the queue and all of their children
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
-        public static void killProcessTrees(Queue<Process> processQueue)
+        public static void KillProcessTrees(Queue<Process> processQueue)
         {
             Process currentProcess;
             while (processQueue.Count > 0)
@@ -210,15 +210,16 @@ namespace WebAppUiTests
             // Validate platform compatibility
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new ManagementObjectSearcher(
-                    $"Select * From Win32_Process Where ParentProcessID={process.Id}")
-                    .Get()
+                ManagementObjectSearcher processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={process.Id}");
+                IList<Process> processList = processSearch.Get()
                     .Cast<ManagementObject>()
 #pragma warning disable CA1416 // This call can not be reached except on Windows due to the enclosing if statement
                     .Select(mo =>
                         Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
 #pragma warning restore CA1416
                     .ToList();
+                processSearch.Dispose();
+                return processList;
             }
             else
             {
@@ -257,6 +258,10 @@ namespace WebAppUiTests
             return true;
         }
 
+        /// <summary>
+        /// Installs the browser for Playwright enabling it to run even if no browser otherwise exists in the test environment
+        /// </summary>
+        /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
         public static void InstallPlaywrightBrowser()
         {
             var exitCode = Microsoft.Playwright.Program.Main(new[] { "install" });

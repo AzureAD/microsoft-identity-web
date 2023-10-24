@@ -25,13 +25,13 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string TodoListServiceExecutable = @"\TodoListService.exe";
         private const string TodoListClientExecutable = @"\TodoListClient.exe";
         private const string GrpcExecutable = @"\grpc.exe";
-        private const string TodoListServicePort = "44350";
-        private const string TodoListClientPort = "44321";
-        private const string GrpcPort = "5001";
+        private const uint TodoListServicePort = 44350;
+        private const uint TodoListClientPort = 44321;
+        private const uint GrpcPort = 5001;
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
-        private const string ManagedIdentityObjectId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
+        //private const string ManagedIdentityObjectId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -46,16 +46,16 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Environment.SetEnvironmentVariable("Azure_Client_Id", ManagedIdentityObjectId);
-            Environment.SetEnvironmentVariable("AzureAd_ClientCredentials_0_ManagedIdentityClientId", ManagedIdentityObjectId);
+            //Environment.SetEnvironmentVariable("Azure_Client_Id", ManagedIdentityObjectId);
+            //Environment.SetEnvironmentVariable("AzureAd_ClientCredentials_0_ManagedIdentityClientId", ManagedIdentityObjectId);
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
             
             // Arrange Playwright setup, to see the browser UI, set Headless = false
-            using var playwright = await Playwright.CreateAsync();
-            var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-            var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+            using IPlaywright playwright = await Playwright.CreateAsync();
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+            IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
             try
@@ -65,7 +65,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                         Assert.Fail($"Could not run web app locally.");
                     }
 
-                var page = await context.NewPageAsync();
+                IPage page = await context.NewPageAsync();
                 await page.GotoAsync(LocalhostUrl + TodoListClientPort);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
@@ -124,7 +124,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 processes.Enqueue(serviceProcess!);
                 processes.Enqueue(clientProcess!);
                 processes.Enqueue(grpcProcess!);
-                UiTestHelpers.killProcessTrees(processes);
+                UiTestHelpers.KillProcessTrees(processes);
 
                 // Stop tracing and export it into a zip archive.
                 await context.Tracing.StopAsync(new() { Path = "trace.zip" });

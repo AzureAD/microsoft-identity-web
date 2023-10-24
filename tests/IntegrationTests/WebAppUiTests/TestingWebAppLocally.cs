@@ -55,7 +55,7 @@ public class TestingWebAppLocally
         {
             Queue<Process> processes = new Queue<Process>();
             processes.Enqueue(p);
-            UiTestHelpers.killProcessTrees(processes);
+            UiTestHelpers.KillProcessTrees(processes);
         }
     }
 }
