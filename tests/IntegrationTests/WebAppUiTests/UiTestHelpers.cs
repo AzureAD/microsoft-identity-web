@@ -10,9 +10,7 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit.Abstractions;
 
 namespace WebAppUiTests
@@ -252,14 +250,7 @@ namespace WebAppUiTests
         /// <returns>True if all are alive else false</returns>
         public static bool ProcessesAreAlive(List<Process> processes)
         {
-            foreach (Process process in processes)
-            {
-                if (!ProcessIsAlive(process))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return processes.All(ProcessIsAlive);
         }
 
         /// <summary>
@@ -267,13 +258,9 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">Process to check</param>
         /// <returns>True if alive false if not</returns>
-        public static bool ProcessIsAlive(Process process)
+        public static bool ProcessIsAlive(Process? process)
         {
-            if (process == null || process.HasExited)
-            {
-                return false;
-            }
-            return true;
+            return !(process == null || process.HasExited);
         }
 
         /// <summary>

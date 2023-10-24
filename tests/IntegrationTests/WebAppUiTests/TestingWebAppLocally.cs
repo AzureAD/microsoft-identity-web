@@ -33,7 +33,7 @@ public class TestingWebAppLocally
         {
             if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
 
-            using var playwright = await Playwright.CreateAsync();
+            using IPlaywright playwright = await Playwright.CreateAsync();
             IBrowser browser;
             browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IPage page = await browser.NewPageAsync();

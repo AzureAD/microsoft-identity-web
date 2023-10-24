@@ -14,7 +14,7 @@ using Process = System.Diagnostics.Process;
 namespace WebAppCallsApiCallsGraphUiTests
 {
 #if !FROM_GITHUB_ACTION
-    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we don't want it running at the same time as other tests
+    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we'd prefer it not run at the same time as other tests
     public class TestingWebAppCallsApiCallsGraphLocally
     {
         private const string LocalhostUrl = @"https://localhost:";
@@ -31,7 +31,6 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
-        //private const string ManagedIdentityObjectId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -46,8 +45,6 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            //Environment.SetEnvironmentVariable("Azure_Client_Id", ManagedIdentityObjectId);
-            //Environment.SetEnvironmentVariable("AzureAd_ClientCredentials_0_ManagedIdentityClientId", ManagedIdentityObjectId);
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
@@ -112,6 +109,10 @@ namespace WebAppCallsApiCallsGraphUiTests
                 await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
                 _output.WriteLine("Web app delete todo flow successful");
+
+                // Close the browser
+                await browser.CloseAsync();
+
             }
             catch (System.Exception ex)
             {
@@ -119,6 +120,8 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             finally
             {
+                
+                
                 //add the following to make sure sockets are unbound 
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess!);
