@@ -23,19 +23,17 @@ public class TestingWebAppLocally
     [Fact]
     public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        { return; }
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
 
         // Arrange
         Process? p = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
 
         try
         {
             if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
 
-            using IPlaywright playwright = await Playwright.CreateAsync();
-            IBrowser browser;
-            browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
@@ -53,8 +51,13 @@ public class TestingWebAppLocally
             Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
         } finally
         {
-            Queue<Process> processes = new Queue<Process>();
-            processes.Enqueue(p);
+            // Cleanup Playwright
+            await browser.DisposeAsync();
+            playwright.Dispose();
+
+            // Cleanup the web app process and any child processes
+            Queue<Process> processes = new();
+            processes.Enqueue(p!);
             UiTestHelpers.KillProcessTrees(processes);
         }
     }

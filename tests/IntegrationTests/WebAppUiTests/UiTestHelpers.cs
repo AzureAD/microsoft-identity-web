@@ -264,7 +264,7 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// Installs the browser for Playwright enabling it to run even if no browser otherwise exists in the test environment
+        /// Installs the browsers for Playwright enabling it to run even if no browser otherwise exists in the test environment
         /// </summary>
         /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
         public static void InstallPlaywrightBrowser()

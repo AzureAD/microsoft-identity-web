@@ -120,17 +120,19 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             finally
             {
+                // Stop tracing and export it into a zip archive.
+                await context.Tracing.StopAsync(new() { Path = "trace.zip" });
+
+                // Close the browser and stop Playwright.
+                await browser.CloseAsync();
+                playwright.Dispose();
                 
-                
-                //add the following to make sure sockets are unbound 
+                // Add the following to make sure all processes and their children are stopped 
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess!);
                 processes.Enqueue(clientProcess!);
                 processes.Enqueue(grpcProcess!);
                 UiTestHelpers.KillProcessTrees(processes);
-
-                // Stop tracing and export it into a zip archive.
-                await context.Tracing.StopAsync(new() { Path = "trace.zip" });
             }
         }
     }
