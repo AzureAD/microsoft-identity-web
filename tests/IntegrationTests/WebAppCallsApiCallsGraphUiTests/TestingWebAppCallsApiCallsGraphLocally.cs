@@ -15,7 +15,7 @@ namespace WebAppCallsApiCallsGraphUiTests
 {
 #if !FROM_GITHUB_ACTION
     [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we'd prefer it not run at the same time as other tests
-    public class TestingWebAppCallsApiCallsGraphLocally
+    public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const string LocalhostUrl = @"https://localhost:";
         private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
@@ -37,7 +37,6 @@ namespace WebAppCallsApiCallsGraphUiTests
         public TestingWebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
         {
             _output = output;
-            UiTestHelpers.InstallPlaywrightBrowser(); // will put in a fixture if this works
         }
 
         [Fact]

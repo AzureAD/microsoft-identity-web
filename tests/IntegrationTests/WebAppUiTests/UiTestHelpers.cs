@@ -267,7 +267,7 @@ namespace WebAppUiTests
         /// Installs the browsers for Playwright enabling it to run even if no browser otherwise exists in the test environment
         /// </summary>
         /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
-        public static void InstallPlaywrightBrowser()
+        public static void InstallPlaywrightBrowsers()
         {
             var exitCode = Microsoft.Playwright.Program.Main(new[] { "install" });
             if (exitCode != 0)
@@ -276,5 +276,15 @@ namespace WebAppUiTests
             }
         }
     }
-}
+    public class InstallPlaywrightBrowserFixture : IDisposable
+    {
+        public InstallPlaywrightBrowserFixture()
+        {
+            UiTestHelpers.InstallPlaywrightBrowsers();
+        }
+
+        public void Dispose()
+        {
+        }
+    }
 

@@ -13,7 +13,7 @@ using Xunit;
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
-public class TestingWebAppLocally
+public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string DevAppPath = @"DevApps\WebAppCallsMicrosoftGraph";
