@@ -61,7 +61,6 @@ If you're not sure how to create a pull request, read this article: https://help
 ## Tests
 
 - Tests need to be provided for every bug/feature that is completed.
-- Tests need to be provided for every bug/feature that is completed.
   - Unit tests cover all new aspects of the code.
 - Before and after performance and stress tests results are evaluated (no regressions allowed).
 - Performance and stress tests are extended as relevant.
