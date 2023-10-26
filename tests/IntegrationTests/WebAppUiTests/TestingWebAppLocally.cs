@@ -2,93 +2,82 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
-public class TestingWebAppLocally
+public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
-    const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
+    private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
+    private const string DevAppPath = @"DevApps\WebAppCallsMicrosoftGraph";
+    private const string DevAppExecutable = @"\WebAppCallsMicrosoftGraph.exe";
+    private const string TraceFileClassName = "TestingWebAppLocally";
+    private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
+    private readonly ITestOutputHelper _output;
+
+    public TestingWebAppLocally(ITestOutputHelper output)
+    {
+        _output = output;
+    }
 
     [Fact]
-    public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
-/*
-        // Uncomment to initialise Playwright, which will download the browsers
-        var exitCode = Microsoft.Playwright.Program.Main(new[] { "install" });
-        if (exitCode != 0)
-        {
-            throw new Exception($"Playwright exited with code {exitCode}");
-        }
-*/
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        { return; }
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
 
         // Arrange
-        Process? p = StartWebAppLocally();
+        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+        await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
-        if (p != null)
+        try
         {
-            if (p.HasExited)
-            {
-                Assert.Fail($"Could not run web app locally.");
-            }
+            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
 
-            using var playwright = await Playwright.CreateAsync();
-            IBrowser browser;
-            browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
-            try
-            {
-                // Act
-                Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-                string email = labResponse.User.Upn;
-                await UiTestHelpers.PerformLogin_MicrosoftIdentityFlow_ValidEmailPasswordCreds(page, email, labResponse.User.GetOrFetchPassword());
+            // Act
+            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph.");
+            string email = labResponse.User.Upn;
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
 
-                // Assert
-                await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
-                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail($"the UI automation failed: {ex}");
-            }
-            finally
-            {
-                p.Kill(true);
-            }
+            // Assert
+            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+        } 
+        catch (Exception ex)
+        {
+            Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
+        } 
+        finally
+        {
+            // Cleanup the web app process and any child processes
+            Queue<Process> processes = new();
+            processes.Enqueue(p!);
+            UiTestHelpers.KillProcessTrees(processes);
+
+            // Cleanup Playwright
+            // Stop tracing and export it into a zip archive.
+            string path = UiTestHelpers.GetTracePath(_uiTestAssemblyLocation, TraceFileName);
+            await context.Tracing.StopAsync(new() { Path = path });
+            _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
+            await browser.DisposeAsync();
+            playwright.Dispose();
         }
-    }
-
-    private Process? StartWebAppLocally()
-    {
-        string uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
-        // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0\WebAppUiTests.dll
-        string testedAppLocation = Path.Combine(Path.GetDirectoryName(uiTestAssemblyLocation)!);
-        // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
-        string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
-        int numberSegments = segments.Length;
-        int startLastSegments = numberSegments - 3;
-        int endFirstSegments = startLastSegments - 2;
-        string testedApplicationPath = Path.Combine(
-            Path.Combine(segments.Take(endFirstSegments).ToArray()),
-            @"DevApps\WebAppCallsMicrosoftGraph",
-            Path.Combine(segments.Skip(startLastSegments).ToArray()),
-            "WebAppCallsMicrosoftGraph.exe");
-
-        ProcessStartInfo processStartInfo = new ProcessStartInfo(testedApplicationPath);
-        return Process.Start(processStartInfo);
     }
 }
 #endif //FROM_GITHUB_ACTION

@@ -39,7 +39,6 @@ steps:
     KeyVaultName: buildautomation
     SecretsFilter: 'AzureADIdentityDivisionTestAgentCert'
 
-
 - powershell: |
    $kvSecretBytes = [System.Convert]::FromBase64String('$(AzureADIdentityDivisionTestAgentCert)')
    $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection

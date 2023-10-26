@@ -10,3 +10,11 @@ steps:
         Tests/**/*.csproj
         !Tests/DevApps/**/*.csproj 
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
+    continueOnError: 'true'
+    
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish traces after test'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/IntegrationTests/PlaywrightTraces/'
+    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+  condition: failed()
