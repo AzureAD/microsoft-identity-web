@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Xunit.Abstractions;
 
 namespace WebAppUiTests
@@ -26,15 +25,14 @@ namespace WebAppUiTests
         /// <param name="password">password for sign in</param>
         /// <param name="output">Used to communicate output to the test's Standard Output</param>
         /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
-        /// <returns></returns>
-        public static async Task FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
+        public static async Task FirstLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
 
-            WriteLine(output, $"Logging in ... Entering and submitting user name: {email}");
+            WriteLine(output, $"Logging in ... Entering and submitting user name: {email}.");
             ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
             await FillEntryBox(emailInputLocator, email);
-            await EnterPassword_MicrosoftIdentityFlow_ValidPassword(page, password, staySignedInText);
+            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
         }
 
         /// <summary>
@@ -45,14 +43,13 @@ namespace WebAppUiTests
         /// <param name="password">password for sign in</param>
         /// <param name="output">Used to communicate output to the test's Standard Output</param>
         /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
-        /// <returns></returns>
-        public static async Task SuccessiveLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
+        public static async Task SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
 
-            WriteLine(output, $"Logging in again in this browsing session... selecting user via email: {email}");
-            await SelectKnownAccountByEmail_MicrosoftIdentityFlow(page, email);
-            await EnterPassword_MicrosoftIdentityFlow_ValidPassword(page, password, staySignedInText);
+            WriteLine(output, $"Logging in again in this browsing session... selecting user via email: {email}.");
+            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
+            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
         }
 
         /// <summary>
@@ -61,13 +58,12 @@ namespace WebAppUiTests
         /// <param name="page">Playwright Page object the web app is accessed from</param>
         /// <param name="email">email of the user to sign out</param>
         /// <param name="signOutPageUrl">The url for the page arrived at once successfully signed out</param>
-        /// <returns></returns>
-        public static async Task PerformSignOut_MicrosoftIdentityFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
+        public static async Task PerformSignOut_MicrosoftIdFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
         {
             WriteLine(output, "Signing out ...");
-            await SelectKnownAccountByEmail_MicrosoftIdentityFlow(page, email);
+            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
             await page.WaitForURLAsync(signOutPageUrl);
-            WriteLine(output, "Sign out page successfully reached");
+            WriteLine(output, "Sign out page successfully reached.");
         }
 
         /// <summary>
@@ -76,22 +72,29 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="page">page for the playwright browser</param>
         /// <param name="email">user email address to select</param>
-        private static async Task SelectKnownAccountByEmail_MicrosoftIdentityFlow(IPage page, string email)
+        private static async Task SelectKnownAccountByEmail_MicrosoftIdFlow(IPage page, string email)
         {
             await page.Locator($"[data-test-id=\"{email}\"]").ClickAsync();
         }
 
-        public static async Task EnterPassword_MicrosoftIdentityFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="password"></param>
+        /// <param name="staySignedInText"></param>
+        /// <param name="output"></param>
+        public static async Task EnterPassword_MicrosoftIdFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
         {
             // If using an account that has other non-password validation options, the below code should be uncommented
             /* WriteLine(output, "Selecting \"Password\" as authentication method"); 
             await page.GetByRole(AriaRole.Button, new() { Name = TestConstants.PasswordText }).ClickAsync();*/
 
-            WriteLine(output, "Logging in ... entering and submitting password");
+            WriteLine(output, "Logging in ... entering and submitting password.");
             ILocator passwordInputLocator = page.GetByPlaceholder(TestConstants.PasswordText);
             await FillEntryBox(passwordInputLocator, password);
 
-            WriteLine(output, $"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in");
+            WriteLine(output, $"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in.");
             await page.GetByRole(AriaRole.Button, new() { Name = staySignedInText }).ClickAsync();
         }
 
@@ -118,7 +121,6 @@ namespace WebAppUiTests
         /// This is not used anywhere by default and will need to be added to the code if desired
         /// </summary>
         /// <param name="page">The page object whose context the trace will record</param>
-        /// <returns></returns>
         public static async Task StartPlaywrightTrace(IPage page)
         {
             await page.Context.Tracing.StartAsync(new()
@@ -130,20 +132,6 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// This file gets written to the test's bin/debug/[dotnet version] folder
-        /// Use the app at https://trace.playwright.dev/ to easily view the trace, all trace data is opened locally by the web app.
-        /// </summary>
-        /// <param name="page">The page object whose context is recording a trace</param>
-        /// <returns>Nothing just creates the file</returns>
-        public static async Task EndAndWritePlaywrightTrace(IPage page, string path)
-        {
-            await page.Context.Tracing.StopAsync(new()
-            {
-                Path = path
-            });
-        }
-
-        /// <summary>
         /// Starts a process from an executable, sets its working directory, and redirects its output to the test's output
         /// </summary>
         /// <param name="testAssemblyLocation">The path to the test's directory</param>
@@ -151,8 +139,8 @@ namespace WebAppUiTests
         /// <param name="executableName">The name of the executable that launches the process</param>
         /// <param name="portNumber">The port for the process to listen on</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
-        /// <returns></returns>
-        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, uint? portNumber = null, bool? isHttp = false)
+        /// <returns>The started process</returns>
+        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, uint? portNumber = null, bool isHttp = false)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
@@ -160,9 +148,9 @@ namespace WebAppUiTests
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
 
-            if (portNumber != null && portNumber > 0)
+            if (portNumber.HasValue && portNumber > 0)
             {
-                if (isHttp != null && isHttp.Value)
+                if (isHttp)
                 {
                     processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Http:Url"] = "http://*:" + portNumber;
                 }
@@ -179,7 +167,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="testAssemblyLocation">The path to the test's directory</param>
         /// <param name="appLocation">The path to the processes directory</param>
-        /// <returns></returns>
+        /// <returns>The path to the directory for the given app</returns>
         private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
             string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
@@ -200,7 +188,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="testAssemblyLocation">The path the test is being run from</param>
         /// <param name="traceName">The name for the zip file containing the trace</param>
-        /// <returns></returns>
+        /// <returns>An absolute path to a Playwright Trace zip folder</returns>
         public static string GetTracePath(string testAssemblyLocation, string traceName)
         {
             const string traceParentFolder = "IntegrationTests";
@@ -231,12 +219,12 @@ namespace WebAppUiTests
             {
                 currentProcess = processQueue.Dequeue();
                 if (currentProcess == null)
-                { continue; }
+                    continue;
 
                 foreach (Process child in GetChildProcesses(currentProcess))
                 {
                     processQueue.Enqueue(child);
-                };
+                }
                 currentProcess.Kill();
                 currentProcess.Close();
             }
@@ -296,7 +284,7 @@ namespace WebAppUiTests
         /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
         public static void InstallPlaywrightBrowsers()
         {
-            var exitCode = Microsoft.Playwright.Program.Main(new[] { "install" });
+            var exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
             if (exitCode != 0)
             {
                 throw new Exception($"Playwright exited with code {exitCode}");
@@ -309,7 +297,6 @@ namespace WebAppUiTests
         {
             UiTestHelpers.InstallPlaywrightBrowsers();
         }
-
         public void Dispose()
         {
         }

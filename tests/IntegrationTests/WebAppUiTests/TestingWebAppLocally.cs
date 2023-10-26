@@ -8,7 +8,9 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace WebAppUiTests;
 
@@ -18,17 +20,27 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string DevAppPath = @"DevApps\WebAppCallsMicrosoftGraph";
     private const string DevAppExecutable = @"\WebAppCallsMicrosoftGraph.exe";
-    private string UiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
+    private const string TraceFileClassName = "TestingWebAppLocally";
+    private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
+    private readonly ITestOutputHelper _output;
+
+    public TestingWebAppLocally(ITestOutputHelper output)
+    {
+        _output = output;
+    }
 
     [Fact]
-    public async Task ChallengeUser_MicrosoftIdentityFlow_LocalApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
 
         // Arrange
-        Process? p = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+        await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
         try
         {
@@ -39,26 +51,32 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
             // Act
-            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
+            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph.");
             string email = labResponse.User.Upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword());
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
 
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
             await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-        } catch (Exception ex)
+        } 
+        catch (Exception ex)
         {
             Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
-        } finally
+        } 
+        finally
         {
-            // Cleanup Playwright
-            await browser.DisposeAsync();
-            playwright.Dispose();
-
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
             processes.Enqueue(p!);
             UiTestHelpers.KillProcessTrees(processes);
+
+            // Cleanup Playwright
+            // Stop tracing and export it into a zip archive.
+            string path = UiTestHelpers.GetTracePath(_uiTestAssemblyLocation, TraceFileName);
+            await context.Tracing.StopAsync(new() { Path = path });
+            _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
+            await browser.DisposeAsync();
+            playwright.Dispose();
         }
     }
 }
