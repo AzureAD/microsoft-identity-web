@@ -31,6 +31,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
+        private const string TraceFileName = "TestingWebAppCallsApiCallsGraphLocally";
         private string UiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -47,7 +48,7 @@ namespace WebAppCallsApiCallsGraphUiTests
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? clientProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(UiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
-            
+
             // Arrange Playwright setup, to see the browser UI, set Headless = false
             using IPlaywright playwright = await Playwright.CreateAsync();
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -108,10 +109,6 @@ namespace WebAppCallsApiCallsGraphUiTests
                 await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
                 _output.WriteLine("Web app delete todo flow successful");
-
-                // Close the browser
-                await browser.CloseAsync();
-
             }
             catch (System.Exception ex)
             {
@@ -119,19 +116,21 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
             finally
             {
-                // Stop tracing and export it into a zip archive.
-                await context.Tracing.StopAsync(new() { Path = "trace.zip" });
-
-                // Close the browser and stop Playwright.
-                await browser.CloseAsync();
-                playwright.Dispose();
-                
                 // Add the following to make sure all processes and their children are stopped 
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess!);
                 processes.Enqueue(clientProcess!);
                 processes.Enqueue(grpcProcess!);
                 UiTestHelpers.KillProcessTrees(processes);
+
+                // Stop tracing and export it into a zip archive.
+                string path = UiTestHelpers.GetTracePath(UiTestAssemblyLocation, TraceFileName);
+                await context.Tracing.StopAsync(new() { Path = path });
+                _output.WriteLine($"Trace data recorded to {path}");
+
+                // Close the browser and stop Playwright.
+                await browser.CloseAsync();
+                playwright.Dispose();
             }
         }
     }

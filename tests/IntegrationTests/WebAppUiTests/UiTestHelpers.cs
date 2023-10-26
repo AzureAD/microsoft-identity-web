@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Xunit.Abstractions;
 
 namespace WebAppUiTests
@@ -26,7 +27,7 @@ namespace WebAppUiTests
         /// <param name="output">Used to communicate output to the test's Standard Output</param>
         /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
         /// <returns></returns>
-        public static async Task FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output=null ,bool staySignedIn=false)
+        public static async Task FirstLogin_MicrosoftIdentityFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
 
@@ -118,7 +119,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="page">The page object whose context the trace will record</param>
         /// <returns></returns>
-        public static async Task StartPlaywrightTrace(IPage page) 
+        public static async Task StartPlaywrightTrace(IPage page)
         {
             await page.Context.Tracing.StartAsync(new()
             {
@@ -134,11 +135,11 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="page">The page object whose context is recording a trace</param>
         /// <returns>Nothing just creates the file</returns>
-        public static async Task EndAndWritePlaywrightTrace(IPage page) 
+        public static async Task EndAndWritePlaywrightTrace(IPage page, string path)
         {
             await page.Context.Tracing.StopAsync(new()
             {
-                Path = "PlaywrightTrace.zip"
+                Path = path
             });
         }
 
@@ -195,6 +196,31 @@ namespace WebAppUiTests
         }
 
         /// <summary>
+        /// Creates absolute path for Playwright trace file
+        /// </summary>
+        /// <param name="testAssemblyLocation">The path the test is being run from</param>
+        /// <param name="traceName">The name for the zip file containing the trace</param>
+        /// <returns></returns>
+        public static string GetTracePath(string testAssemblyLocation, string traceName)
+        {
+            const string traceParentFolder = "IntegrationTests";
+            const string traceFolder = "PlaywrightTraces";
+            const string zipExtension = ".zip";
+            const int netVersionNumberLength = 3;
+
+            int parentFolderIndex = testAssemblyLocation.IndexOf(traceParentFolder, StringComparison.InvariantCulture);
+            string substring = testAssemblyLocation[..(parentFolderIndex + traceParentFolder.Length)];
+            string netVersion = "_net" + Environment.Version.ToString()[..netVersionNumberLength];
+
+            // e.g. [absolute path to repo root]\tests\IntegrationTests\PlaywrightTraces\[traceName]_net[versionNum].zip
+            return Path.Combine(
+                substring,
+                traceFolder,
+                traceName + netVersion + zipExtension
+            );
+        }
+
+        /// <summary>
         /// Kills the processes in the queue and all of their children
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
@@ -204,7 +230,8 @@ namespace WebAppUiTests
             while (processQueue.Count > 0)
             {
                 currentProcess = processQueue.Dequeue();
-                if (currentProcess == null) { continue;}
+                if (currentProcess == null)
+                { continue; }
 
                 foreach (Process child in GetChildProcesses(currentProcess))
                 {
@@ -287,4 +314,5 @@ namespace WebAppUiTests
         {
         }
     }
+}
 
