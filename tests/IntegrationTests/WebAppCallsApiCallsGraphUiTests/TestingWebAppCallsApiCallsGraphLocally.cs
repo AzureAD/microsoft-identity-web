@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
@@ -111,7 +112,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
                 _output.WriteLine("Web app delete todo flow successful.");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.");
             }
