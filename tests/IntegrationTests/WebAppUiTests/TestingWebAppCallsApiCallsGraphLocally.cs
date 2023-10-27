@@ -51,7 +51,7 @@ namespace WebAppCallsApiCallsGraphUiTests
             Process? grpcProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
             Process? serviceProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
             
-            // wait for service to start to avoid a transient issue where the client fails to load on devbox the first time the test is run in VS after rebuild
+            // Wait 5s for service to finish starting. Prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
             Thread.Sleep(5000); 
             Process? clientProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
 
