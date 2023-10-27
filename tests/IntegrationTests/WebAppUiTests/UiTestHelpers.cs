@@ -279,10 +279,10 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// Installs the browsers for Playwright enabling it to run even if no browser otherwise exists in the test environment
+        /// Installs the chromium browser for Playwright enabling it to run even if no browser otherwise exists in the test environment
         /// </summary>
         /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
-        public static void InstallPlaywrightBrowsers()
+        public static void InstallPlaywrightBrowser()
         {
             var exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
             if (exitCode != 0)
@@ -291,11 +291,14 @@ namespace WebAppUiTests
             }
         }
     }
+    /// <summary>
+    /// Fixture class that installs Playwright browser once per xunit test class that implements it
+    /// </summary>
     public class InstallPlaywrightBrowserFixture : IDisposable
     {
         public InstallPlaywrightBrowserFixture()
         {
-            UiTestHelpers.InstallPlaywrightBrowsers();
+            UiTestHelpers.InstallPlaywrightBrowser();
         }
         public void Dispose()
         {
