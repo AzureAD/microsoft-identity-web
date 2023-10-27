@@ -212,6 +212,7 @@ namespace WebAppUiTests
         /// Kills the processes in the queue and all of their children
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
+        [SupportedOSPlatform("windows")]
         public static void KillProcessTrees(Queue<Process> processQueue)
         {
             Process currentProcess;

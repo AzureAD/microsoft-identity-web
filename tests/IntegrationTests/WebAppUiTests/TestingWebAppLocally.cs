@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
@@ -30,10 +31,9 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     }
 
     [Fact]
+    [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
-
         // Arrange
         Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath, DevAppExecutable);
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";

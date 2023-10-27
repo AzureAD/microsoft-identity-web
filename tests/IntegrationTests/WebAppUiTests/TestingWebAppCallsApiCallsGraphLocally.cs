@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
@@ -42,6 +43,7 @@ namespace WebAppCallsApiCallsGraphUiTests
         }
 
         [Fact]
+        [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
         {
             // Arrange web app setup
