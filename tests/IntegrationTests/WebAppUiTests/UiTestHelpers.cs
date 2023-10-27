@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
@@ -235,27 +235,17 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">The parent process</param>
         /// <returns>A list of child processes</returns>
-        /// <exception cref="NotImplementedException">Thrown if running on an OS other than Windows</exception>
+        [SupportedOSPlatform("windows")]
         public static IList<Process> GetChildProcesses(this Process process)
         {
-            // Validate platform compatibility
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ManagementObjectSearcher processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={process.Id}");
-                IList<Process> processList = processSearch.Get()
-                    .Cast<ManagementObject>()
-#pragma warning disable CA1416 // This call can not be reached except on Windows due to the enclosing if statement
-                    .Select(mo =>
-                        Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
-#pragma warning restore CA1416
-                    .ToList();
-                processSearch.Dispose();
-                return processList;
-            }
-            else
-            {
-                throw new NotImplementedException("Not implemented for this OS");
-            }
+            ManagementObjectSearcher processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={process.Id}");
+            IList<Process> processList = processSearch.Get()
+                .Cast<ManagementObject>()
+                .Select(mo =>
+                    Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
+                .ToList();
+            processSearch.Dispose();
+            return processList;
         }
 
         /// <summary>
