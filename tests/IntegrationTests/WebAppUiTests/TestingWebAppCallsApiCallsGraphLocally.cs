@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,20 +21,20 @@ namespace WebAppCallsApiCallsGraphUiTests
     public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const string LocalhostUrl = @"https://localhost:";
-        private const string DevAppPath = @"DevApps\WebAppCallsWebApiCallsGraph";
-        private const string TodoListServicePath = @"\TodoListService";
-        private const string TodoListClientPath = @"\Client";
-        private const string GrpcPath = @"\gRPC";
-        private const string TodoListServiceExecutable = @"\TodoListService.exe";
-        private const string TodoListClientExecutable = @"\TodoListClient.exe";
-        private const string GrpcExecutable = @"\grpc.exe";
-        private const uint TodoListServicePort = 44350;
-        private const uint TodoListClientPort = 44321;
         private const uint GrpcPort = 5001;
-        private const string SignOutPagePath = @"/MicrosoftIdentity/Account/SignedOut";
+        private const uint TodoListClientPort = 44321;
+        private const uint TodoListServicePort = 44350;
+        private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
         private const string TodoTitle1 = "Testing create todo item";
         private const string TodoTitle2 = "Testing edit todo item";
         private const string TraceFileClassName = "TestingWebAppCallsApiCallsGraphLocally";
+        private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
+        private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
+        private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
+        private readonly string _todoListClientExecutable = Path.DirectorySeparatorChar.ToString() + "TodoListClient.exe";
+        private readonly string _todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
+        private readonly string _todoListServiceExecutable = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
+        private readonly string _todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
         private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
@@ -48,12 +49,12 @@ namespace WebAppCallsApiCallsGraphUiTests
         {
             // Arrange web app setup
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Process? grpcProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + GrpcPath, GrpcExecutable, GrpcPort);
-            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + TodoListServicePath, TodoListServiceExecutable, TodoListServicePort, true);
+            Process? grpcProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, GrpcPort);
+            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _todoListServicePath, _todoListServiceExecutable, TodoListServicePort, true);
             
-            // Wait 5s for service to finish starting. Prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
+            // Wait 5s for service to start. Prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
             Thread.Sleep(5000); 
-            Process? clientProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath + TodoListClientPath, TodoListClientExecutable, TodoListClientPort);
+            Process? clientProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _todoListClientPath, _todoListClientExecutable, TodoListClientPort);
 
             // Arrange Playwright setup, to see the browser UI, set Headless = false
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
@@ -84,7 +85,7 @@ namespace WebAppCallsApiCallsGraphUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, LocalhostUrl + TodoListClientPort + SignOutPagePath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button

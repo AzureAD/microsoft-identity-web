@@ -170,7 +170,7 @@ namespace WebAppUiTests
         /// <returns>The path to the directory for the given app</returns>
         private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
-            string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
+            string testedAppLocation = Path.GetDirectoryName(testAssemblyLocation)!;
             // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
             string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
             int numberSegments = segments.Length;
