@@ -14,9 +14,9 @@ using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
 
+#if !FROM_GITHUB_ACTION
 namespace WebAppCallsApiCallsGraphUiTests
 {
-#if !FROM_GITHUB_ACTION
     [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we'd prefer it not run at the same time as other tests
     public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
@@ -142,5 +142,5 @@ namespace WebAppCallsApiCallsGraphUiTests
             }
         }
     }
-#endif // !FROM_GITHUB_ACTION
 }
+#endif // !FROM_GITHUB_ACTION
