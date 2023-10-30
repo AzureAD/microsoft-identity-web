@@ -16,7 +16,8 @@ using Process = System.Diagnostics.Process;
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
-    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we'd prefer it not run at the same time as other tests
+    // since these tests change environment variables we'd prefer it not run at the same time as other tests
+    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)]
     public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const string LocalhostUrl = @"https://localhost:";
