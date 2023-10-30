@@ -13,7 +13,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
 
-
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
