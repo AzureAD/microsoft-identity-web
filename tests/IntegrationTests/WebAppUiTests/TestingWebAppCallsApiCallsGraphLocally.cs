@@ -9,13 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
-using WebAppUiTests;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
 
+
+namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
-namespace WebAppCallsApiCallsGraphUiTests
 {
     [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)] // since this changes environment variables we'd prefer it not run at the same time as other tests
     public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
