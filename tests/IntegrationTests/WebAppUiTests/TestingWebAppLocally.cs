@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.IO;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,11 +18,11 @@ namespace WebAppUiTests;
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
-    private const string DevAppPath = @"DevApps\WebAppCallsMicrosoftGraph";
-    private const string DevAppExecutable = @"\WebAppCallsMicrosoftGraph.exe";
     private const string TraceFileClassName = "TestingWebAppLocally";
-    private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
     private readonly ITestOutputHelper _output;
+    private readonly string _devAppExecutable = Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph.exe";
+    private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph";
+    private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
 
     public TestingWebAppLocally(ITestOutputHelper output)
     {
@@ -30,12 +30,11 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     }
 
     [Fact]
+    [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
-
         // Arrange
-        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, DevAppPath, DevAppExecutable);
+        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });

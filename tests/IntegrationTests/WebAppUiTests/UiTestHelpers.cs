@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Playwright;
@@ -170,7 +170,7 @@ namespace WebAppUiTests
         /// <returns>The path to the directory for the given app</returns>
         private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
-            string testedAppLocation = Path.Combine(Path.GetDirectoryName(testAssemblyLocation)!);
+            string testedAppLocation = Path.GetDirectoryName(testAssemblyLocation)!;
             // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
             string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
             int numberSegments = segments.Length;
@@ -212,6 +212,7 @@ namespace WebAppUiTests
         /// Kills the processes in the queue and all of their children
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
+        [SupportedOSPlatform("windows")]
         public static void KillProcessTrees(Queue<Process> processQueue)
         {
             Process currentProcess;
@@ -235,27 +236,17 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">The parent process</param>
         /// <returns>A list of child processes</returns>
-        /// <exception cref="NotImplementedException">Thrown if running on an OS other than Windows</exception>
+        [SupportedOSPlatform("windows")]
         public static IList<Process> GetChildProcesses(this Process process)
         {
-            // Validate platform compatibility
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ManagementObjectSearcher processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={process.Id}");
-                IList<Process> processList = processSearch.Get()
-                    .Cast<ManagementObject>()
-#pragma warning disable CA1416 // This call can not be reached except on Windows due to the enclosing if statement
-                    .Select(mo =>
-                        Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
-#pragma warning restore CA1416
-                    .ToList();
-                processSearch.Dispose();
-                return processList;
-            }
-            else
-            {
-                throw new NotImplementedException("Not implemented for this OS");
-            }
+            ManagementObjectSearcher processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={process.Id}");
+            IList<Process> processList = processSearch.Get()
+                .Cast<ManagementObject>()
+                .Select(mo =>
+                    Process.GetProcessById(Convert.ToInt32(mo["ProcessID"], System.Globalization.CultureInfo.InvariantCulture)))
+                .ToList();
+            processSearch.Dispose();
+            return processList;
         }
 
         /// <summary>
@@ -279,10 +270,10 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// Installs the browsers for Playwright enabling it to run even if no browser otherwise exists in the test environment
+        /// Installs the chromium browser for Playwright enabling it to run even if no browser otherwise exists in the test environment
         /// </summary>
         /// <exception cref="Exception">Thrown if playwright is unable to install the browsers</exception>
-        public static void InstallPlaywrightBrowsers()
+        public static void InstallPlaywrightBrowser()
         {
             var exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
             if (exitCode != 0)
@@ -291,11 +282,14 @@ namespace WebAppUiTests
             }
         }
     }
+    /// <summary>
+    /// Fixture class that installs Playwright browser once per xunit test class that implements it
+    /// </summary>
     public class InstallPlaywrightBrowserFixture : IDisposable
     {
         public InstallPlaywrightBrowserFixture()
         {
-            UiTestHelpers.InstallPlaywrightBrowsers();
+            UiTestHelpers.InstallPlaywrightBrowser();
         }
         public void Dispose()
         {

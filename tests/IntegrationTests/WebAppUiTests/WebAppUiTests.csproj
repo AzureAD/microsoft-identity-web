@@ -26,6 +26,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DevApps\WebAppCallsMicrosoftGraph\WebAppCallsMicrosoftGraph.csproj" />
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\Client\TodoListClient.csproj" />
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\gRPC\grpc.csproj" />
+    <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\TodoListService\TodoListService.csproj" />
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
   </ItemGroup>
 
