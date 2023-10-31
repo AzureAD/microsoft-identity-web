@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
@@ -22,8 +23,6 @@ namespace TokenAcquirerTests
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
         const string tenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
-        const double validityFirstCertInMinutes = 1.5;
-        const double validitySecondCertInMinutes = 10;
         //     Application? _application;
         ServicePrincipal? _servicePrincipal;
         GraphServiceClient graphServiceClient;
@@ -44,6 +43,9 @@ namespace TokenAcquirerTests
         [IgnoreOnAzureDevopsFact]
         public async Task TestCertificateRotation()
         {
+            const double validityFirstCertInMinutes = 1.5;
+            const double validitySecondCertInMinutes = 10;
+
             // Prepare the environment
             // -----------------------
             // Create an app registration for a daemon app
@@ -152,6 +154,101 @@ namespace TokenAcquirerTests
 
             // Delete both certs from the cert store and remove the app registration
             await RemoveAppAndCertificates(firstCertificate, secondCertificate);
+        }
+
+        [Fact]
+        public async Task TestCertificateRotationByChangingConfig()
+        {
+            const double validityFirstCertInMinutes = 10;
+            const double validitySecondCertInMinutes = 20;
+
+            // Create an app registration for a daemon app
+            Application aadApplication = (await CreateDaemonAppRegistrationIfNeeded())!;
+            DateTimeOffset now = DateTimeOffset.Now;
+
+            // Create a certificate expiring in 10 mins, add it to the local cert store
+            X509Certificate2 firstCertificate = CreateSelfSignedCertificateAddAddToCertStore(
+                "MySelfSignedCert",
+                now.AddMinutes(validityFirstCertInMinutes));
+
+            // Add it as client creds to the app registration
+            await AddClientCertificatesToApp(aadApplication!, firstCertificate);
+
+            // Add the cert to the configuration
+            CredentialDescription[] clientCertificates = new CredentialDescription[]
+           {
+                CertificateDescription.FromCertificate(firstCertificate)
+           };
+
+            // Use the token acquirer factory to run the app and acquire a token
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                options.Instance = $"https://login.microsoftonline.com/";
+                options.ClientId = aadApplication!.AppId;
+                options.TenantId = tenantId;
+                options.ClientCredentials = clientCertificates;
+            });
+            tokenAcquirerFactory.Services.AddSingleton<ICertificatesObserver>(this);
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Before acquiring a token, wait so that the certificate is considered in the app-registration
+            // (this is not immediate :-()
+            await Task.Delay(TimeSpan.FromSeconds(30));
+
+            string authorizationHeader;
+            try
+            {
+                authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default");
+                Assert.NotNull(authorizationHeader);
+                Assert.NotEqual(string.Empty, authorizationHeader);
+                Assert.Equal(currentCertificate, firstCertificate);
+            }
+            catch (Exception)
+            {
+                await RemoveAppAndCertificates(firstCertificate);
+                Assert.Fail("Failed to acquire token with the first certificate");
+            }
+            finally
+            {
+            }
+
+            // Create a cert expiring in 20 mins, and add it to the cert store
+            X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
+                "MySelfSignedCert",
+                 now.AddMinutes(validitySecondCertInMinutes));
+
+            // Add it as client creds to the app registration
+            await AddClientCertificatesToApp(aadApplication!, secondCertificate);
+
+            var microsoftIdentityApplicationOptions = serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>();
+            microsoftIdentityApplicationOptions.CurrentValue.ClientCredentials = new CredentialDescription[]
+            {
+                CertificateDescription.FromCertificate(secondCertificate)
+            };
+
+            // Before acquiring a token, wait so that the certificate is considered in the app-registration
+            // (this is not immediate :-()
+            await Task.Delay(TimeSpan.FromSeconds(30));
+
+            try
+            {
+                authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default");
+                Assert.NotNull(authorizationHeader);
+                Assert.NotEqual(string.Empty, authorizationHeader);
+                Assert.Equal(currentCertificate, secondCertificate);
+            }
+            catch (Exception)
+            {
+                await RemoveAppAndCertificates(firstCertificate, secondCertificate);
+                Assert.Fail("Failed to acquire token with the second certificate");
+            }
+            finally
+            {
+            }
         }
 
         private async Task RemoveAppAndCertificates(
@@ -284,31 +381,39 @@ namespace TokenAcquirerTests
             return certWithPrivateKey;
         }
 
-        private async Task<Application> AddClientCertificatesToApp(Application application, X509Certificate2 firstCertificate, X509Certificate2 secondCertificate2)
+        private async Task<Application> AddClientCertificatesToApp(Application application, X509Certificate2 firstCertificate, X509Certificate2? secondCertificate = null)
         {
-            Application update = new Application
+            var KeyCredentials = new System.Collections.Generic.List<KeyCredential>
             {
-                KeyCredentials = new System.Collections.Generic.List<KeyCredential>()
+                new KeyCredential()
                 {
-                         new KeyCredential()
-                         {
-                             DisplayName = GetDisplayName(firstCertificate),
-                             EndDateTime = firstCertificate.NotAfter,
-                             StartDateTime = firstCertificate.NotBefore,
-                             Type = "AsymmetricX509Cert",
-                             Usage = "Verify",
-                             Key = firstCertificate.Export(X509ContentType.Cert)
-                         },
-                        new KeyCredential()
-                        {
-                            DisplayName = GetDisplayName(secondCertificate2),
-                            EndDateTime = secondCertificate2.NotAfter,
-                            StartDateTime = secondCertificate2.NotBefore,
-                            Type = "AsymmetricX509Cert",
-                            Usage = "Verify",
-                            Key = secondCertificate2.Export(X509ContentType.Cert)
-                        }
-                  }
+                    DisplayName = GetDisplayName(firstCertificate),
+                    EndDateTime = firstCertificate.NotAfter,
+                    StartDateTime = firstCertificate.NotBefore,
+                    Type = "AsymmetricX509Cert",
+                    Usage = "Verify",
+                    Key = firstCertificate.Export(X509ContentType.Cert)
+                }
+            };
+
+            if (secondCertificate != null)
+            {
+                KeyCredentials.Add(
+                      new KeyCredential()
+                      {
+                          DisplayName = GetDisplayName(secondCertificate),
+                          EndDateTime = secondCertificate.NotAfter,
+                          StartDateTime = secondCertificate.NotBefore,
+                          Type = "AsymmetricX509Cert",
+                          Usage = "Verify",
+                          Key = secondCertificate.Export(X509ContentType.Cert)
+                      });
+
+            }
+
+            Application update = new()
+            {
+                KeyCredentials = KeyCredentials
             };
             return (await graphServiceClient.Applications[application.Id].PatchAsync(update))!;
         }
