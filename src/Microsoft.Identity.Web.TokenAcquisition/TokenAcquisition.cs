@@ -15,15 +15,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Identity.Web.Experimental;
 
 namespace Microsoft.Identity.Web
 {
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
         protected readonly ICertificatesObserver? _certificatesObserver;
-
+        private bool _resetCertificate = false;
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
         /// </summary>
@@ -104,6 +105,12 @@ namespace Microsoft.Identity.Web
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
+            serviceProvider?.GetService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>()?.OnChange(OnChangeMicrosoftIdentityApplicationOptions);
+        }
+
+        private void OnChangeMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions options, string? arg2)
+        {
+            _resetCertificate = true;
         }
 
 #if NET6_0_OR_GREATER
@@ -115,7 +122,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
-            IConfidentialClientApplication? application=null;
+            IConfidentialClientApplication? application = null;
             try
             {
                 application = GetOrBuildConfidentialClientApplication(mergedOptions);
@@ -568,8 +575,8 @@ namespace Microsoft.Identity.Web
                 || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase));
 #else
-                (exMsal.Message.Contains(Constants.InvalidKeyError) 
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange) 
+                (exMsal.Message.Contains(Constants.InvalidKeyError)
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange)
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked));
 #endif
         }
@@ -577,10 +584,18 @@ namespace Microsoft.Identity.Web
         internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
            MergedOptions mergedOptions)
         {
-            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
+
+            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application)
+                || application == null
+                || _resetCertificate == true)
             {
                 lock (_applicationSyncObj)
                 {
+                    if (application != null)
+                    {
+                        NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                    }
+                    _resetCertificate = false;
                     application = BuildConfidentialClientApplication(mergedOptions);
                     _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
                 }
