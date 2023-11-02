@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
@@ -172,6 +173,17 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string HeaderText = "Header";
         public const string EmailText = "Email";
         public const string PasswordText = "Password";
+        public const string TodoTitle1 = "Testing create todo item";
+        public const string TodoTitle2 = "Testing edit todo item";
+        public const string LocalhostUrl = @"https://localhost:";
+        public const string KestrelEndpointEnvVar = "Kestrel:Endpoints:Http:Url";
+        public const string HttpStarColon = "http://*:";
+        public const string HttpsStarColon = "https://*:";
+        public static readonly string s_todoListClientExe = Path.DirectorySeparatorChar.ToString() + "TodoListClient.exe";
+        public static readonly string s_todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
+        public static readonly string s_todoListServiceExe = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
+        public static readonly string s_todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
+
 
         // TokenAcqusitionOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");

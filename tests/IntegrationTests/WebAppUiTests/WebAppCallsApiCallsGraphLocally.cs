@@ -8,6 +8,7 @@ using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,28 +18,23 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
-    [CollectionDefinition(nameof(TestingWebAppCallsApiCallsGraphLocally), DisableParallelization = true)]
-    public class TestingWebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
+    [CollectionDefinition(nameof(WebAppCallsApiCallsGraphLocally), DisableParallelization = true)]
+    [Collection("WebAppUiTests")]
+    public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
-        private const string LocalhostUrl = @"https://localhost:";
         private const uint GrpcPort = 5001;
+        private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
         private const uint TodoListClientPort = 44321;
         private const uint TodoListServicePort = 44350;
-        private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
-        private const string TodoTitle1 = "Testing create todo item";
-        private const string TodoTitle2 = "Testing edit todo item";
-        private const string TraceFileClassName = "TestingWebAppCallsApiCallsGraphLocally";
+        private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
         private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
-        private readonly string _todoListClientExecutable = Path.DirectorySeparatorChar.ToString() + "TodoListClient.exe";
-        private readonly string _todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
-        private readonly string _todoListServiceExecutable = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
-        private readonly string _todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
-        private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppCallsApiCallsGraphLocally).Assembly.Location;
+        private readonly string _testAssemblyLocation = typeof(WebAppCallsApiCallsGraphLocally).Assembly.Location;
         private readonly ITestOutputHelper _output;
 
-        public TestingWebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
+        public WebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -47,16 +43,31 @@ namespace WebAppUiTests
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
         {
-            // Arrange web app setup
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Process? grpcProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, GrpcPort);
-            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _todoListServicePath, _todoListServiceExecutable, TodoListServicePort, true);
-            
-            // Wait 5s for service to start. Prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
-            Thread.Sleep(5000); 
-            Process? clientProcess = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath + _todoListClientPath, _todoListClientExecutable, TodoListClientPort);
+            // Setup web app and api environmental variables.
+            var grpcEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + GrpcPort}
+            };
+            var serviceEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development" },
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
+            };
+            var clientEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
+            };
 
-            // Arrange Playwright setup, to see the browser UI, set Headless = false
+            // Start the web app and api processes.
+            // Five second delay before starting client prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
+            Process? grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
+            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+            Thread.Sleep(5000); 
+            Process? clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+
+            // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
             using IPlaywright playwright = await Playwright.CreateAsync();
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -70,52 +81,53 @@ namespace WebAppUiTests
                         Assert.Fail($"Could not run web app locally.");
                     }
 
+                // Navigate to web app
                 IPage page = await context.NewPageAsync();
-                await page.GotoAsync(LocalhostUrl + TodoListClientPort);
+                await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = labResponse.User.Upn;
                 await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync();
-                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+                await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync(_assertVisibleOptions);
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
 
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
                 await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                var TodoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
-                await Assertions.Expect(TodoLink).ToBeVisibleAsync();
+                var todoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
+                await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
 
                 // Create new todo item
                 _output.WriteLine("Starting web app create new todo flow.");
-                await TodoLink.ClickAsync();
-                var TitleEntryBox = page.GetByLabel("Title");
-                await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle1);
-                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle1 })).ToBeVisibleAsync();
+                await todoLink.ClickAsync();
+                var titleEntryBox = page.GetByLabel("Title");
+                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle1);
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle1 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app create new todo flow successful.");
 
                 // Edit todo item
                 _output.WriteLine("Starting web app edit todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
-                await UiTestHelpers.FillEntryBox(TitleEntryBox, TodoTitle2);
-                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).ToBeVisibleAsync();
+                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle2);
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle2 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app edit todo flow successful.");
 
                 // Delete todo item
                 _output.WriteLine("Starting web app delete todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Delete" }).ClickAsync();
                 await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
-                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TodoTitle2 })).Not.ToBeVisibleAsync();
+                await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle2 })).Not.ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app delete todo flow successful.");
             }
             catch (Exception ex)
@@ -124,7 +136,7 @@ namespace WebAppUiTests
             }
             finally
             {
-                // Add the following to make sure all processes and their children are stopped 
+                // Add the following to make sure all processes and their children are stopped.
                 Queue<Process> processes = new Queue<Process>();
                 processes.Enqueue(serviceProcess!);
                 processes.Enqueue(clientProcess!);
@@ -132,7 +144,7 @@ namespace WebAppUiTests
                 UiTestHelpers.KillProcessTrees(processes);
 
                 // Stop tracing and export it into a zip archive.
-                string path = UiTestHelpers.GetTracePath(_uiTestAssemblyLocation, TraceFileName);
+                string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
                 await context.Tracing.StopAsync(new() { Path = path });
                 _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
 

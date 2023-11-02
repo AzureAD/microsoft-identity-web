@@ -15,6 +15,10 @@ using Xunit.Abstractions;
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+
+// since this test changes environment variables we'd prefer it not run at the same time as other tests
+[CollectionDefinition(nameof(TestingWebAppLocally), DisableParallelization = true)]
+[Collection("WebAppUiTests")]
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
@@ -43,7 +47,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
+        if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
 
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
@@ -57,11 +61,11 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
             await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-        } 
+        }
         catch (Exception ex)
         {
             Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
-        } 
+        }
         finally
         {
             // Cleanup the web app process and any child processes
