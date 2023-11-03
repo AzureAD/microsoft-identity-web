@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -45,9 +44,9 @@ namespace Microsoft.Identity.Web
             bool forceSdk = !services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Authentication.IAuthenticationService");
 #endif
 
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(ICredentialsLoader)) == null)
+            if (services.FirstOrDefault(s => s.ImplementationType == typeof(DefaultCertificateLoader)) == null)
             {
-                services.AddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
+                services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
 
             if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
