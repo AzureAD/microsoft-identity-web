@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web.Test
 
             ServiceDescriptor[] orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToArray();
 
-            Assert.Single(orderedServices.Where(s => s.ServiceType ==  typeof(ICredentialsLoader)));
+            Assert.Single(orderedServices.Where(s => s.ServiceType == typeof(ICredentialsLoader)));
         }
 
         [Fact]
