@@ -53,13 +53,12 @@ namespace Microsoft.Identity.Web
         /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
-        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
             HttpResponse? httpResponse = null)
         {
-            ReplyForbiddenWithWwwAuthenticateHeader(scopes, msalServiceException, null, httpResponse);
-            return Task.CompletedTask;
+            await ReplyForbiddenWithWwwAuthenticateHeaderAsync(scopes, msalServiceException, null, httpResponse);
         }
 
         /// <summary>
@@ -72,7 +71,8 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        public void ReplyForbiddenWithWwwAuthenticateHeader(
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.
+        public async Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
             string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
@@ -88,24 +88,46 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             string consentUrl = $"{application.Authority}/oauth2/v2.0/authorize?client_id={mergedOptions.ClientId}"
-                + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
-                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
+                                + $"&response_type=code&redirect_uri={application.AppConfig.RedirectUri}"
+                                + $"&response_mode=query&scope=offline_access%20{string.Join("%20", scopes)}";
 
             Dictionary<string, string> parameters = new()
-                {
-                    { Constants.ConsentUrl, consentUrl },
-                    { Constants.Claims, msalServiceException.Claims },
-                    { Constants.Scopes, string.Join(",", scopes) },
-                    { Constants.ProposedAction, proposedAction },
-                };
+            {
+                { Constants.ConsentUrl, consentUrl },
+                { Constants.Claims, msalServiceException.Claims },
+                { Constants.Scopes, string.Join(",", scopes) },
+                { Constants.ProposedAction, proposedAction },
+            };
 
             string parameterString = string.Join(", ", parameters.Select(p => $"{p.Key}=\"{p.Value}\""));
 
             // TODO: change the mechanism to Challenge.
             _tokenAcquisitionHost.SetHttpResponse(HttpStatusCode.Forbidden, new StringValues($"{Constants.Bearer} {parameterString}")!);
+        }
+
+        /// <summary>
+        /// Used in web APIs (no user interaction).
+        /// Replies to the client through the HTTP response by sending a 403 (forbidden) and populating the 'WWW-Authenticate' header so that
+        /// the client, in turn, can trigger a user interaction so that the user consents to more scopes.
+        /// </summary>
+        /// <param name="scopes">Scopes to consent to.</param>
+        /// <param name="msalServiceException">The <see cref="MsalUiRequiredException"/> that triggered the challenge.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
+        [Obsolete(IDWebErrorMessage.ReplyForbiddenWithWwwAuthenticateHeaderIsObsolete, false)]
+        public void ReplyForbiddenWithWwwAuthenticateHeader(
+            IEnumerable<string> scopes,
+            MsalUiRequiredException msalServiceException,
+            string? authenticationScheme = JwtBearerDefaults.AuthenticationScheme,
+            HttpResponse? httpResponse = null)
+        {
+            ReplyForbiddenWithWwwAuthenticateHeaderAsync(scopes, msalServiceException, authenticationScheme, httpResponse)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <summary>

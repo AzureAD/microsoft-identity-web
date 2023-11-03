@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -12,7 +13,19 @@ namespace Microsoft.Identity.Web
 {
     internal static partial class ConfidentialClientApplicationBuilderExtension
     {
+        [Obsolete(IDWebErrorMessage.WithClientCredentialsIsObsolete, false)]
         public static ConfidentialClientApplicationBuilder WithClientCredentials(
+            this ConfidentialClientApplicationBuilder builder,
+            IEnumerable<CredentialDescription> clientCredentials,
+            ILogger logger,
+            ICredentialsLoader credentialsLoader,
+            CredentialSourceLoaderParameters credentialSourceLoaderParameters)
+        {
+            return WithClientCredentialsAsync(builder, clientCredentials, logger, credentialsLoader,
+                credentialSourceLoaderParameters).GetAwaiter().GetResult();
+        }
+
+        public static async Task<ConfidentialClientApplicationBuilder> WithClientCredentialsAsync(
             this ConfidentialClientApplicationBuilder builder,
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
@@ -27,7 +40,7 @@ namespace Microsoft.Identity.Web
                     string errorMessage = string.Empty;
                     try
                     {
-                        credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters).GetAwaiter().GetResult();
+                        await credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
                     }
                     catch(Exception ex)
                     {

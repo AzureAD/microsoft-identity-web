@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web
 #endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private readonly object _applicationSyncObj = new();
+        private SemaphoreSlim _applicationSync = new (1, 1);
 
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication? application=null;
             try
             {
-                application = GetOrBuildConfidentialClientApplication(mergedOptions);
+                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -239,7 +239,7 @@ namespace Microsoft.Identity.Web
 
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             try
             {
@@ -359,7 +359,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             var builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
@@ -539,7 +539,7 @@ namespace Microsoft.Identity.Web
             {
                 MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-                IConfidentialClientApplication app = GetOrBuildConfidentialClientApplication(mergedOptions);
+                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -573,26 +573,37 @@ namespace Microsoft.Identity.Web
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked));
 #endif
         }
-
-        internal /* for testing */ IConfidentialClientApplication GetOrBuildConfidentialClientApplication(
+        
+        internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
            MergedOptions mergedOptions)
         {
             if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
             {
-                lock (_applicationSyncObj)
+                await _applicationSync.WaitAsync();
+                
+                try
                 {
-                    application = BuildConfidentialClientApplication(mergedOptions);
-                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
+                    if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) ||
+                            application == null)
+                    {
+                        application = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                        _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = application;
+                    }
                 }
+                finally
+                {
+                    _applicationSync.Release();
+                }           
+                
             }
-
+            
             return application;
         }
 
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private IConfidentialClientApplication BuildConfidentialClientApplication(MergedOptions mergedOptions)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
         {
             string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
             mergedOptions.PrepareAuthorityInstanceForMsal();
@@ -634,7 +645,7 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
-                    builder.WithClientCredentials(
+                    await builder.WithClientCredentialsAsync(
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,

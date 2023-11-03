@@ -230,6 +230,17 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
+            IEnumerable<string> scopes, 
+            MsalUiRequiredException msalServiceException,
+            string? authenticationScheme, 
+            HttpResponse? httpResponse = null)
+        {
+            // Not supported for the moment
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
         public void ReplyForbiddenWithWwwAuthenticateHeader(
             IEnumerable<string> scopes,
             MsalUiRequiredException msalServiceException,
