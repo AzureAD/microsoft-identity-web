@@ -68,7 +68,6 @@ namespace Microsoft.Identity.Web
         public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
         public const string AadIssuerValidatorIsObsolete = "IDW10804: Use MicrosoftIdentityIssuerValidator. ";
         
-        public const string ReplyForbiddenWithWwwAuthenticateHeaderIsObsolete = "Use ReplyForbiddenWithWwwAuthenticateHeaderAsync instead.";
         public const string WithClientCredentialsIsObsolete = "Use WithClientCredentialsAsync instead.";
     }
 }

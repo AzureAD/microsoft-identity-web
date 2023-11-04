@@ -231,7 +231,6 @@ namespace Microsoft.Identity.Web
         /// <param name="scopes">Scopes to consent to.</param>
         /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        [Obsolete(IDWebErrorMessage.ReplyForbiddenWithWwwAuthenticateHeaderIsObsolete, false)]
         void ReplyForbiddenWithWwwAuthenticateHeader(
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
@@ -254,7 +253,6 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        [Obsolete(IDWebErrorMessage.ReplyForbiddenWithWwwAuthenticateHeaderIsObsolete, false)]
         void ReplyForbiddenWithWwwAuthenticateHeader(
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
@@ -285,22 +283,6 @@ namespace Microsoft.Identity.Web
         IEnumerable<string> scopes,
         MsalUiRequiredException msalServiceException,
         HttpResponse? httpResponse = null);
-        
-        /// <summary>
-        /// Used in web APIs (which therefore cannot have an interaction with the user).
-        /// Replies to the client through the HttpResponse by sending a 403 (forbidden) and populating wwwAuthenticateHeaders so that
-        /// the client can trigger an interaction with the user so the user can consent to more scopes.
-        /// </summary>
-        /// <param name="scopes">Scopes to consent to.</param>
-        /// <param name="msalServiceException"><see cref="MsalUiRequiredException"/> triggering the challenge.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
-        /// <param name="httpResponse">The <see cref="HttpResponse"/> to update.</param>
-        Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(
-            IEnumerable<string> scopes,
-            MsalUiRequiredException msalServiceException,
-            string? authenticationScheme,
-            HttpResponse? httpResponse = null);
 #endif
     }
 }
