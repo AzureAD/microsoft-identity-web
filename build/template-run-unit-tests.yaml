@@ -5,11 +5,20 @@ steps:
 
 - task: DotNetCoreCLI@2
   inputs:
+    command: 'build'
+    projects: |
+        Tests/**/*.csproj
+        !Tests/DevApps/**/*.csproj 
+    arguments: '-m'
+    continueOnError: 'true'
+
+- task: DotNetCoreCLI@2
+  inputs:
     command: 'test'
     projects: |
         Tests/**/*.csproj
         !Tests/DevApps/**/*.csproj 
-    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
+    arguments: '--nobuild --collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
     continueOnError: 'true'
     
 - task: PublishBuildArtifacts@1
