@@ -1,9 +1,13 @@
 <Project>
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.0.0-localbuild</ClientSemVer>
+    <!-- This needs to be greater than or equal to the validation baseline version -->
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.7.0-localbuild</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(ClientSemVer)</Version>
+
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>2.7.0</PackageValidationBaselineVersion>
 
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <RepositoryType>git</RepositoryType>
