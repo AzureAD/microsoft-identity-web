@@ -105,32 +105,30 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>7.0.1</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>7.0.1</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>7.*</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>7.*</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>7.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>7.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>7.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>7.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!--CVE-2023-29331-->
-    <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>7.*</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>7.*</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>7.*</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>7.*</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>7.*</MicrosoftExtensionsDependencyInjectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>7.0.3</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>7.0.1</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>7.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>7.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>7.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.0.12</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.12</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>6.*</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>6.*</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>6.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
     <!--CVE-2023-29331-->
-    <SystemSecurityCryptographyPkcsVersion>6.0.3</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyPkcsVersion>6.0.4</SystemSecurityCryptographyPkcsVersion>
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
-    <MicrosoftExtensionsLoggingVersion>6.*</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>6.*</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>6.*</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>6.*</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>6.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
