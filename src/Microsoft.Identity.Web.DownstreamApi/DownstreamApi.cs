@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-#if NET6_0_OR_GREATER               
+#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
 #endif
         public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(

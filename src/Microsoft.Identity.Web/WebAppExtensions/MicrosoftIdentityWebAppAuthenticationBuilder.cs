@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
 #endif
         internal MicrosoftIdentityWebAppAuthenticationBuilder(
@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
 #endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(IServiceCollection, IEnumerable<string>, Action<MicrosoftIdentityOptions>, string, Action<ConfidentialClientApplicationOptions>.")]
 #endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(

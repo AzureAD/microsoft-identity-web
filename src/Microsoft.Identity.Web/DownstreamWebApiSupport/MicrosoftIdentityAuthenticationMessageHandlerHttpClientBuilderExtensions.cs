@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
 #endif
         public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web
         /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
 #endif
         public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
