@@ -30,8 +30,6 @@
     <!--<PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="3.1.1" />-->
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
-    <!--CVE-2021-24112-->
-    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />  
   </ItemGroup>
 
   <ItemGroup>
