@@ -13,7 +13,6 @@
     <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="$(MicrosoftApplicationInsightsEventCounterCollectionVersion)" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftExtensionsCachingStackExchangeRedisVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="StackExchange.Redis" Version="$(StackExchangeRedisVersion)" />
   </ItemGroup>
 
   <ItemGroup>

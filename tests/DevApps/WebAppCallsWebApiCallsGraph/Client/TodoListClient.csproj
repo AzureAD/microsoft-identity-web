@@ -28,7 +28,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!--<PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="3.1.1" />-->
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.13" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
   </ItemGroup>
 
