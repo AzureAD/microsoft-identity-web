@@ -1,0 +1,21 @@
+
+parameters:
+  BuildConfiguration: 'release'
+  NoBuild: 'true'
+  ProjectRootPath: ''
+  AssemblyName: ''
+
+steps:
+
+# Pack a nuget
+- task: DotNetCoreCLI@2
+  displayName: 'Pack ${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+  inputs:
+    command: pack
+    projects: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+    nobuild: '${{parameters.NoBuild}}'
+    packagesToPack: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
+    IncludeSymbols: true
+    verbosityPack: normal
+    packDirectory:
+    arguments: '--configuration ${{ parameters.BuildConfiguration }}'
