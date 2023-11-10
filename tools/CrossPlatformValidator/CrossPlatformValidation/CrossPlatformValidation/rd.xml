@@ -1,0 +1,31 @@
+﻿<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+
+    <Assembly Name="System.Diagnostics.DiagnosticSource" Dynamic="Required All"/>
+    <Assembly Name="System.Text.Json" Dynamic="Required All">
+      <Type Name="System.Text.Json.Serialization.Metadata.IJsonTypeInfoResolver" Dynamic="Required All"/>
+    </Assembly>
+
+    <Assembly Name="Microsoft.IdentityModel.Abstractions" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.Validators" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.JsonWebTokens" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.Protocols.OpenIdConnect" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.Tokens" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.Logging" Dynamic="Required All" />
+    <Assembly Name="Microsoft.IdentityModel.Protocols" Dynamic="Required All" />
+    <Assembly Name="System.IdentityModel.Tokens.Jwt" Dynamic="Required All" />
+    <Assembly Name="System.Text.Json" Dynamic="Required All" />
+
+    <Assembly Name="System.Private.CoreLib" Dynamic="Required All"/>
+
+    // https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/rd-xml-format.md
+    <Assembly Name="System.Private.CoreLib">
+      <Type Name="System.Collections.Generic.Dictionary`2[[System.String,System.Private.CoreLib],[System.Object,System.Private.CoreLib]]" Dynamic="Required All">
+      </Type>
+      <Type Name="System.Collections.Generic.IDictionary`2[[System.String,System.Private.CoreLib],[System.Object,System.Private.CoreLib]]" Dynamic="Required All">
+      </Type>
+      <Type Name="System.ArgumentNullException" Dynamic="Required All"></Type>
+    </Assembly>
+
+  </Application>
+</Directives>
