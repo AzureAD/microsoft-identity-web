@@ -7,16 +7,28 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
+using CrossPlatformValidation;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Lab.Api;
 
-namespace Brenchmark
+namespace BenchmarkCSharp
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            DisplayTestSubject();
             BenchmarkRunner.Run<ValidateBenchmark>();
+            DisplayTestSubject();
+        }
+
+        private static void DisplayTestSubject()
+        {
+#if JWT_TOKEN
+            Console.WriteLine($"JwtSecurityToken for {typeof(Program).Assembly.Location}");
+#else
+            Console.WriteLine($"JsonWebToken for {typeof(Program).Assembly.Location}");
+#endif
         }
     }
 
@@ -27,10 +39,13 @@ namespace Brenchmark
         private static IPublicClientApplication msalPublicClient;
         private static LabResponse labResponse;
         private static string authorizationHeader;
+        private static RequestValidator _requestValidator;
+
 
         static ValidateBenchmark()
         {
-            Initialize("https://login.microsoftonline.com/organizations", "f4aa5217-e87c-42b2-82af-5624dd14ee72");
+            _requestValidator = new RequestValidator();
+            _requestValidator.Initialize("https://login.microsoftonline.com/organizations", "f4aa5217-e87c-42b2-82af-5624dd14ee72");
             labResponse = LabUserHelper.GetSpecificUserAsync(OBOUser).GetAwaiter().GetResult();
             msalPublicClient = PublicClientApplicationBuilder
                .Create(OBOClientSideClientId)
@@ -45,19 +60,13 @@ namespace Brenchmark
         public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
         public int numberValidations = 1000000;
 
-        [DllImport("CrossPlatformValidation.dll")]
-        static extern void Initialize(string authority, string audience);
-
-        [DllImport("CrossPlatformValidation.dll")]
-        static extern string Validate(string authorizationHeader);
-
         [Benchmark]
-        public void ValidateAuthRequestNativeBenchmark()
+        public void ValidateAuthRequestCSharpBenchmark()
         {
-            if (Validate(authorizationHeader) == null)
-        {
-            string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
-                if (Validate(authorizationHeader) == null)
+            if (_requestValidator.Validate(authorizationHeader) == null)
+            {
+                string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
+                if (_requestValidator.Validate(authorizationHeader) == null)
                 {
                     throw new ArgumentException("Validation failed");
                 }
@@ -97,3 +106,4 @@ namespace Brenchmark
         }
     }
 }
+
