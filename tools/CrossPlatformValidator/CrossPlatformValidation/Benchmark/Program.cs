@@ -55,8 +55,8 @@ namespace Brenchmark
         public void ValidateAuthRequestNativeBenchmark()
         {
             if (Validate(authorizationHeader) == null)
-            {
-                string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
+        {
+            string authorizationHeader = ValidateBenchmark.AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
                 if (Validate(authorizationHeader) == null)
                 {
                     throw new ArgumentException("Validation failed");
