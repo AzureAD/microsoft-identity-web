@@ -8,14 +8,27 @@
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>6.0.0</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>7.0.0</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>8.0.0-rc.2.23479.14</SystemDrawingCommon>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="$(MicrosoftApplicationInsightsAspNetCoreVersion)" />
     <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="$(MicrosoftApplicationInsightsEventCounterCollectionVersion)" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftExtensionsCachingStackExchangeRedisVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="StackExchange.Redis" Version="$(StackExchangeRedisVersion)" />
-
-    <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommonVersion)" />
+    <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommon)" />
   </ItemGroup>
 
   <ItemGroup>
