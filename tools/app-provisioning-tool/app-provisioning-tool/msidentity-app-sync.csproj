@@ -2,16 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Version>1.1.1</Version>
-    <TargetFrameworks>net7.0</TargetFrameworks>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Microsoft.Identity.App</RootNamespace>
-
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>msidentity-app-sync</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
     <Title>Microsoft identity platform auto-sync app registration tool</Title>
     <Authors>Microsoft</Authors>
