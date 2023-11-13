@@ -6,6 +6,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -31,6 +32,17 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         private string Instance { get; set; }
         private string? Username { get; set; }
 
+        // OSX Token Cache 
+        private const string MacOSAccountName = "MSALCache";
+        private const string MacOSServiceName = "Microsoft.Developer.IdentityService";
+
+        // Linux Token Cache 
+        private const string LinuxKeyRingSchema = "com.microsoft.identity.tokencache";
+        private const string LinuxKeyRingCollection = "default";
+        private const string LinuxKeyRingLabel = "MSAL token cache";
+        private static KeyValuePair<string, string> LinuxKeyRingAttr1 = new KeyValuePair<string, string>("Version", "1");
+        private static KeyValuePair<string, string> LinuxKeyRingAttr2 = new KeyValuePair<string, string>("ProductGroup", "Microsoft Develoepr Tools");
+
         public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
             return GetTokenAsync(requestContext, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -40,27 +52,24 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         {
             if (App == null)
             {
-                // On Windows, USERPROFILE is guaranteed to be set
-                string userProfile = Environment.GetEnvironmentVariable("USERPROFILE")!;
-                string cacheDir = Path.Combine(userProfile, @"AppData\Local\.IdentityService");
 
-                // TODO: what about the other platforms?
+                string cacheDir = Path.Combine(MsalCacheHelper.UserRootDirectory, @"AppData\Local\.IdentityService");
+
+                // TODO: Review token cache config. 
                 string clientId = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
                 var storageProperties =
                      new StorageCreationPropertiesBuilder(
                          "msal.cache",
                          cacheDir)
-                     /*
                      .WithLinuxKeyring(
-                         Config.LinuxKeyRingSchema,
-                         Config.LinuxKeyRingCollection,
-                         Config.LinuxKeyRingLabel,
-                         Config.LinuxKeyRingAttr1,
-                         Config.LinuxKeyRingAttr2)
+                         LinuxKeyRingSchema,
+                         LinuxKeyRingCollection,
+                         LinuxKeyRingLabel,
+                         LinuxKeyRingAttr1,
+                         LinuxKeyRingAttr2)
                      .WithMacKeyChain(
-                         Config.KeyChainServiceName,
-                         Config.KeyChainAccountName)
-                     */
+                         MacOSServiceName,
+                         MacOSAccountName)
                      .Build();
 
                 App = PublicClientApplicationBuilder.Create(clientId)
