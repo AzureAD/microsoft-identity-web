@@ -91,17 +91,17 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <IdentityModelVersion>7.0.3</IdentityModelVersion>
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>8.0.0-rc.2.23479.6</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.0-rc.2.23479.6</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>8.0.0-rc.2.23479.6</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>8.0.0</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.0</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup> 
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
