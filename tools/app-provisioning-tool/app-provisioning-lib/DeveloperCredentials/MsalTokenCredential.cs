@@ -53,10 +53,7 @@ namespace Microsoft.Identity.App.DeveloperCredentials
         {
             if (App == null)
             {
-                string cachePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? @"AppData\Local\.IdentityService"
-                    : @".IdentityService";
-                string cacheDir = Path.Combine(MsalCacheHelper.UserRootDirectory, cachePath);
+                string cacheDir = Path.Combine(MsalCacheHelper.UserRootDirectory, @".IdentityService");
 
                 // TODO: Review token cache config. 
                 string clientId = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
