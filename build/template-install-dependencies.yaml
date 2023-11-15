@@ -22,7 +22,6 @@ steps:
   displayName: 'Use .Net Core SDK 8'
   inputs:
     version: 8.x  
-    includePreviewVersions: true
   condition: eq(variables['TargetNet8'], 'True')
 
 # Run Nuget Tool Installer
