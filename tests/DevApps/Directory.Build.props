@@ -20,7 +20,7 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
-    <SystemDrawingCommon>8.0.0-rc.2.23479.14</SystemDrawingCommon>
+    <SystemDrawingCommon>8.0.0</SystemDrawingCommon>
   </PropertyGroup>
 
 </Project>
