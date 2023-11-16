@@ -47,6 +47,7 @@
     <MicrosoftAspNetCoreMvcTestingVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
