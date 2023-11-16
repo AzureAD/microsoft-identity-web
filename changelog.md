@@ -1,6 +1,6 @@
 2.15.4
 =========
-- Update to .NET 8
+- Update to .NET 8 GA
 - Update to Microsoft.Graph 5.34.0
 
 ### Bug Fixes
