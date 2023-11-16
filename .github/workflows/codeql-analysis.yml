@@ -50,6 +50,11 @@ jobs:
       with:
         dotnet-version: 7.0.x
 
+    - name: Setup .NET 8.0.x
+      uses: actions/setup-dotnet@v2.1.0
+      with:
+        dotnet-version: 8.0.x
+
    # Install workload
     - name: Setup wasm-tools
       run: dotnet workload install wasm-tools
