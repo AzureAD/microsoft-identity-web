@@ -1,6 +1,6 @@
 2.15.4
 =========
-- Update to .NET 8
+- Update to .NET 8 GA
 - Update to Microsoft.Graph 5.34.0
 - Enable baseline package validation, see [#2572](https://github.com/AzureAD/microsoft-identity-web/issues/2572) for details.
 - Improve trimmability on .NET 8, see [#2574](https://github.com/AzureAD/microsoft-identity-web/issues/2574) for details.
