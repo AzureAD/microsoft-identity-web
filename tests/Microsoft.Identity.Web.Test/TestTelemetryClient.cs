@@ -3,22 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Abstractions;
 
 namespace Microsoft.Identity.Web.Test
 {
     internal class TestTelemetryClient : ITelemetryClient
     {
-        private const string _eventName = "acquire_token";
+        private const string EventName = "acquire_token";
         public TelemetryEventDetails TestTelemetryEventDetails { get; set; }
 
         public TestTelemetryClient(string clientId)
         {
             ClientId = clientId;
-            TestTelemetryEventDetails = new MsalTelemetryEventDetails(_eventName);
+            TestTelemetryEventDetails = new MsalTelemetryEventDetails(EventName);
         }
 
         public string ClientId { get; set; }
@@ -35,7 +32,7 @@ namespace Microsoft.Identity.Web.Test
 
         public bool IsEnabled(string eventName)
         {
-            return _eventName.Equals(eventName, StringComparison.Ordinal);
+            return EventName.Equals(eventName, StringComparison.Ordinal);
         }
 
         public void TrackEvent(TelemetryEventDetails eventDetails)
@@ -43,7 +40,9 @@ namespace Microsoft.Identity.Web.Test
             TestTelemetryEventDetails = eventDetails;
         }
 
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         public void TrackEvent(string eventName, IDictionary<string, string> stringProperties, IDictionary<string, long> longProperties, IDictionary<string, bool> boolProperties, IDictionary<string, DateTime> dateTimeProperties, IDictionary<string, double> doubleProperties, IDictionary<string, Guid> guidProperties)
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         {
             throw new NotImplementedException();
         }
