@@ -488,7 +488,11 @@ namespace Microsoft.Identity.Web
             options.SignOutScheme = mergedOptions.SignOutScheme;
             options.StateDataFormat = mergedOptions.StateDataFormat;
             options.StringDataFormat = mergedOptions.StringDataFormat;
+#if NET8_0_OR_GREATER
+            options.TokenHandler = mergedOptions.TokenHandler;
+#else
             options.SecurityTokenValidator = mergedOptions.SecurityTokenValidator;
+#endif
             options.TokenValidationParameters = mergedOptions.TokenValidationParameters;
             options.UseTokenLifetime = mergedOptions.UseTokenLifetime;
             options.SkipUnrecognizedRequests = mergedOptions.SkipUnrecognizedRequests;
