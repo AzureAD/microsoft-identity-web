@@ -3,10 +3,12 @@
 
 using Microsoft.Identity.App.AuthenticationParameters;
 using Microsoft.Identity.App.Project;
+using Microsoft.Identity.Client.Extensions.Msal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -136,26 +138,25 @@ namespace Microsoft.Identity.App.CodeReaderWriter
                     string? password = reconciledApplicationParameters.PasswordCredentials.LastOrDefault();
                     if (!string.IsNullOrEmpty(reconciledApplicationParameters.SecretsId))
                     {
-                        // TODO: adapt for Linux: https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows#how-the-secret-manager-tool-works
-                        string? envVariable = Environment.GetEnvironmentVariable("UserProfile");
-                        if (!string.IsNullOrEmpty(envVariable))
+                        string userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                        string secretsPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                            ? @"AppData\Roaming\Microsoft\UserSecrets\"
+                            : @".microsoft/usersecrets/";
+                        string path = Path.Combine(
+                            userHome,
+                            secretsPath,
+                            reconciledApplicationParameters.SecretsId,
+                            "secrets.json")!;
+                        if (!File.Exists(path))
                         {
-                            string path = Path.Combine(
-                                envVariable,
-                                @"AppData\Roaming\Microsoft\UserSecrets\",
-                                reconciledApplicationParameters.SecretsId,
-                                "secrets.json")!;
-                            if (!File.Exists(path))
-                            {
-                                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                                string section = reconciledApplicationParameters.IsB2C ? "AzureADB2C" : "AzureAD";
-                                File.WriteAllText(path, $"{{\n    \"{section}:ClientSecret\": \"{password}\"\n}}");
-                                replacement = "See user secrets";
-                            }
-                            else
-                            {
-                                replacement = password;
-                            }
+                            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                            string section = reconciledApplicationParameters.IsB2C ? "AzureADB2C" : "AzureAD";
+                            File.WriteAllText(path, $"{{\n    \"{section}:ClientSecret\": \"{password}\"\n}}");
+                            replacement = "See user secrets";
+                        }
+                        else
+                        {
+                            replacement = password;
                         }
                     }
                     else
