@@ -12,9 +12,12 @@
     <PackageValidationBaselineVersion>2.12.2</PackageValidationBaselineVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Graph.Beta" Version="5.55.0-preview" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != 'NET8_0_OR_GREATER'">
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.52.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
