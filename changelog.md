@@ -1,4 +1,4 @@
-2.15.4
+2.15.5
 =========
 - Update to .NET 8 GA
 - Update to Microsoft.Graph 5.34.0
