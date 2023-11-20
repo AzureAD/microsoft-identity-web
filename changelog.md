@@ -1,3 +1,18 @@
+2.15.5
+=========
+- Update to .NET 8 GA
+- Update to Microsoft.Graph 5.34.0
+
+### Bug Fixes
+- Fixes an issue where users were not able to override ICredentialsLoader. See [#2564](https://github.com/AzureAD/microsoft-identity-web/issues/2564) for details.
+- The latest patch version is no longer used in dependencies, as it made builds non-deterministic. See [#2569](https://github.com/AzureAD/microsoft-identity-web/issues/2569) for details.
+- Removed dependencies that were no longer needed. See [#2577](https://github.com/AzureAD/microsoft-identity-web/issues/2577) for details.
+- Fixes an issue where the build did not look up project names as package dependencies. See [#2579](https://github.com/AzureAD/microsoft-identity-web/issues/2579) for more details.
+
+### Fundamentals
+- Enable baseline package validation, see [#2572](https://github.com/AzureAD/microsoft-identity-web/issues/2572) for details.
+- Improve trimmability on .NET 8, see [#2574](https://github.com/AzureAD/microsoft-identity-web/issues/2574) for details.
+
 2.15.3
 =========
 - Update Azure.Identity library to 1.10.2 for CVE-2023-36414.
