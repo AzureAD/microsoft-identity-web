@@ -30,7 +30,7 @@ namespace WebAppUiTests
         private const uint TodoListServicePort = 44332;
         private const string TraceClassName = "B2CWebAppCallsWebApiLocally";
         private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
-        private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "B2CWebAppCallsWebApi";
+        private readonly string _devAppPath = Path.Join("DevApps", "B2CWebAppCallsWebApi");
         private readonly Uri _keyvaultUri = new("https://webappsapistests.vault.azure.net");
         private readonly ITestOutputHelper _output;
         private readonly string _testAssemblyPath = typeof(B2CWebAppCallsWebApiLocally).Assembly.Location;
@@ -60,9 +60,9 @@ namespace WebAppUiTests
 
             // Start the web app and api processes.
             // Five second delay prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
-            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+            Process serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
             Thread.Sleep(5000);
-            Process? clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+            Process clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
             // Get email and password from keyvault.
             string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName);
@@ -77,9 +77,9 @@ namespace WebAppUiTests
 
             try
             {
-                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess!, serviceProcess! }))
+                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                 {
-                    Assert.Fail($"Could not run web app locally.");
+                    Assert.Fail(TC.WebAppCrashedString);
                 }
 
                 // Navigate to web app

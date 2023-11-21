@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -38,7 +39,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         // Arrange
-        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+        Process p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -47,7 +48,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-        if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
+            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
@@ -70,7 +71,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            processes.Enqueue(p!);
+            processes.Enqueue(p);
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright

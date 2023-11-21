@@ -11,8 +11,8 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using Castle.Core.Internal;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
 using Xunit.Abstractions;
 
@@ -142,7 +142,7 @@ namespace WebAppUiTests
         /// <param name="portNumber">The port for the process to listen on</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
         /// <returns>The started process</returns>
-        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)// uint? portNumber = null, bool isHttp = false, 
+        public static Process StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new(applicationWorkingDirectory + executableName)
@@ -161,7 +161,16 @@ namespace WebAppUiTests
                 }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
-            return Process.Start(processStartInfo);
+            Process? process = Process.Start(processStartInfo);
+
+            if (process == null)
+            {
+                throw new Exception($"Could not start process {executableName}");
+            } else
+            {
+                return process;
+            }
+
         }
 
         /// <summary>
@@ -266,9 +275,9 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">Process to check</param>
         /// <returns>True if alive false if not</returns>
-        public static bool ProcessIsAlive(Process? process)
+        public static bool ProcessIsAlive(Process process)
         {
-            return !(process == null || process.HasExited);
+            return !process.HasExited;
         }
 
         /// <summary>
@@ -299,8 +308,7 @@ namespace WebAppUiTests
             }
 
             SecretClient client = new(keyvaultUri, new DefaultAzureCredential());
-            string key = (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
-            return key;
+            return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
 
         }
     }

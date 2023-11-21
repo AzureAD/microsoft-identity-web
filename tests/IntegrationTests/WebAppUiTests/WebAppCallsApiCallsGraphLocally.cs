@@ -62,10 +62,10 @@ namespace WebAppUiTests
 
             // Start the web app and api processes.
             // Five second delay before starting client prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
-            Process? grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
-            Process? serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+            Process grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
+            Process serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
             Thread.Sleep(5000); 
-            Process? clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+            Process clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
@@ -76,9 +76,9 @@ namespace WebAppUiTests
 
             try
             {
-                if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess!, serviceProcess!, grpcProcess! }))
+                if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess, grpcProcess }))
                     {
-                        Assert.Fail($"Could not run web app locally.");
+                        Assert.Fail(TC.WebAppCrashedString);
                     }
 
                 // Navigate to web app

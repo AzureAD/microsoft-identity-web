@@ -179,6 +179,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string KestrelEndpointEnvVar = "Kestrel:Endpoints:Http:Url";
         public const string HttpStarColon = "http://*:";
         public const string HttpsStarColon = "https://*:";
+        public const string WebAppCrashedString = $"The web app process has exited prematurely.";
         public static readonly string s_todoListClientExe = Path.DirectorySeparatorChar.ToString() + "TodoListClient.exe";
         public static readonly string s_todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
         public static readonly string s_todoListServiceExe = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
