@@ -9,7 +9,7 @@ using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Azure.Identity;
+using Azure.Core;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.Tokens;
@@ -300,13 +300,13 @@ namespace WebAppUiTests
         /// <param name="keyvaultSecretName">The name of the secret</param>
         /// <returns>The value of the secret from key vault</returns>
         /// <exception cref="ArgumentNullException">Throws if no secret name is provided</exception>
-        internal static async Task<string> GetValueFromKeyvaultWitDefaultCreds(Uri keyvaultUri, string keyvaultSecretName)
+        internal static async Task<string> GetValueFromKeyvaultWitDefaultCreds(Uri keyvaultUri, string keyvaultSecretName, TokenCredential creds)
         {
             if (string.IsNullOrEmpty(keyvaultSecretName))
             {
                 throw new ArgumentNullException(nameof(keyvaultSecretName));
             }
-            SecretClient client = new(keyvaultUri, new DefaultAzureCredential());
+            SecretClient client = new(keyvaultUri, creds);
             return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
         }
     }

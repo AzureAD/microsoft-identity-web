@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
 using Xunit;
@@ -45,7 +46,8 @@ namespace WebAppUiTests
         public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectly()
         {
             // Web app and api environmental variable setup.
-            string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName);
+            DefaultAzureCredential azureCred = new();
+            string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName, azureCred);
             var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development" },
@@ -65,8 +67,8 @@ namespace WebAppUiTests
             Process clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
             // Get email and password from keyvault.
-            string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName);
-            string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName);
+            string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName, azureCred);
+            string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName, azureCred);
 
             // Playwright setup. To see browser UI, set 'Headless = false'.
             const string TraceFileName = TraceClassName + "_TodoAppFunctionsCorrectly";
