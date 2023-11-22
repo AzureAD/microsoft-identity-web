@@ -9,7 +9,10 @@ using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
+using Azure.Core;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
 using Xunit.Abstractions;
 
@@ -28,7 +31,6 @@ namespace WebAppUiTests
         public static async Task FirstLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
-
             WriteLine(output, $"Logging in ... Entering and submitting user name: {email}.");
             ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
             await FillEntryBox(emailInputLocator, email);
@@ -140,26 +142,35 @@ namespace WebAppUiTests
         /// <param name="portNumber">The port for the process to listen on</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
         /// <returns>The started process</returns>
-        public static Process? StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, uint? portNumber = null, bool isHttp = false)
+        public static Process StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName);
-            processStartInfo.WorkingDirectory = applicationWorkingDirectory;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-
-            if (portNumber.HasValue && portNumber > 0)
+            ProcessStartInfo processStartInfo = new(applicationWorkingDirectory + executableName)
             {
-                if (isHttp)
+                WorkingDirectory = applicationWorkingDirectory,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            if (!environmentVariables.IsNullOrEmpty())
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                foreach (KeyValuePair<string, string> kvp in environmentVariables)
                 {
-                    processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Http:Url"] = "http://*:" + portNumber;
+                    processStartInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
                 }
-                else
-                {
-                    processStartInfo.EnvironmentVariables["Kestrel:Endpoints:Https:Url"] = "https://*:" + portNumber;
-                }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
-            return Process.Start(processStartInfo);
+            Process? process = Process.Start(processStartInfo);
+
+            if (process == null)
+            {
+                throw new Exception($"Could not start process {executableName}");
+            }
+            else
+            {
+                return process;
+            }
         }
 
         /// <summary>
@@ -264,9 +275,9 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">Process to check</param>
         /// <returns>True if alive false if not</returns>
-        public static bool ProcessIsAlive(Process? process)
+        public static bool ProcessIsAlive(Process process)
         {
-            return !(process == null || process.HasExited);
+            return !process.HasExited;
         }
 
         /// <summary>
@@ -280,6 +291,23 @@ namespace WebAppUiTests
             {
                 throw new Exception($"Playwright exited with code {exitCode}");
             }
+        }
+
+        /// <summary>
+        /// Requests a secret from keyvault using the default azure credentials
+        /// </summary>
+        /// <param name="keyvaultUri">The URI including path to the secret directory in keyvault</param>
+        /// <param name="keyvaultSecretName">The name of the secret</param>
+        /// <returns>The value of the secret from key vault</returns>
+        /// <exception cref="ArgumentNullException">Throws if no secret name is provided</exception>
+        internal static async Task<string> GetValueFromKeyvaultWitDefaultCreds(Uri keyvaultUri, string keyvaultSecretName, TokenCredential creds)
+        {
+            if (string.IsNullOrEmpty(keyvaultSecretName))
+            {
+                throw new ArgumentNullException(nameof(keyvaultSecretName));
+            }
+            SecretClient client = new(keyvaultUri, creds);
+            return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
         }
     }
     /// <summary>
