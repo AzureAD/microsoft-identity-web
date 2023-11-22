@@ -20,8 +20,6 @@ namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
-        private static readonly DefaultAzureCredential DefaultAzureCred = new();
-
         /// <summary>
         /// Login flow for the first time in a given browsing session.
         /// </summary>
@@ -308,7 +306,7 @@ namespace WebAppUiTests
             {
                 throw new ArgumentNullException(nameof(keyvaultSecretName));
             }
-            SecretClient client = new(keyvaultUri, DefaultAzureCred);
+            SecretClient client = new(keyvaultUri, new DefaultAzureCredential());
             return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
         }
     }

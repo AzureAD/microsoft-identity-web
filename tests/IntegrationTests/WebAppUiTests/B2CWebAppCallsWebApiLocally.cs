@@ -42,7 +42,7 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task ChallengeUser_B2cFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
+        public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectly()
         {
             // Web app and api environmental variable setup.
             string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName);
