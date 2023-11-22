@@ -10,9 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Xunit;
 using Xunit.Abstractions;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION

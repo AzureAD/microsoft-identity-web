@@ -20,6 +20,8 @@ namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
+        private static readonly DefaultAzureCredential DefaultAzureCred = new();
+
         /// <summary>
         /// Login flow for the first time in a given browsing session.
         /// </summary>
@@ -166,11 +168,11 @@ namespace WebAppUiTests
             if (process == null)
             {
                 throw new Exception($"Could not start process {executableName}");
-            } else
+            }
+            else
             {
                 return process;
             }
-
         }
 
         /// <summary>
@@ -306,10 +308,8 @@ namespace WebAppUiTests
             {
                 throw new ArgumentNullException(nameof(keyvaultSecretName));
             }
-
-            SecretClient client = new(keyvaultUri, new DefaultAzureCredential());
+            SecretClient client = new(keyvaultUri, DefaultAzureCred);
             return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
-
         }
     }
     /// <summary>
