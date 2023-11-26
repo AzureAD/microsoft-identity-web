@@ -75,6 +75,7 @@ namespace TokenAcquirerTests
             };
 
             // Use the token acquirer factory to run the app and acquire a token
+            TokenAcquirerFactory.ResetDefaultInstance();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
