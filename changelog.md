@@ -1,3 +1,7 @@
+2.16.0
+=========
+- Leverage IdentityModel 7.x on all .NET core frameworks.
+
 2.15.5
 =========
 - Update to .NET 8 GA
