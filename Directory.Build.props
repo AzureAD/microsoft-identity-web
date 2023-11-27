@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
     <!-- This needs to be greater than or equal to the validation baseline version -->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.15.4-localbuild</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.16.0-localbuild</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(ClientSemVer)</Version>
 
@@ -177,5 +177,6 @@
     <MicrosoftExtensionsDependencyInjectionVersion>3.1.30</MicrosoftExtensionsDependencyInjectionVersion>
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
     <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
+    <SystemSecurityCryptographyPkcsVersion>4.7.0</SystemSecurityCryptographyPkcsVersion>
   </PropertyGroup>
 </Project>
