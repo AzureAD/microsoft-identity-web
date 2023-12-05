@@ -388,7 +388,6 @@ namespace Microsoft.Identity.Web
                     Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                     throw;
                 }
-                
             }
 
             // Use MSAL to get the right token to call the API
