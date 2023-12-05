@@ -24,6 +24,7 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
@@ -321,9 +322,10 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
-        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// using either a client credentials or managed identity flow. See https://aka.ms/msal-net-client-credentials for client credentials or
+        /// https://aka.ms/Entra/ManagedIdentityOverview for managed identity.
         /// </summary>
-        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+        /// <param name="scope">The scope requested to access a protected API. For these flows (client credentials or managed identity), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
@@ -358,10 +360,41 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
             }
 
-            // Use MSAL to get the right token to call the API
-            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
+            // If using managed identity 
+            if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
+            {
+                IManagedIdentityApplication miApplication;
 
-            var builder = application
+                if (tokenAcquisitionOptions.ManagedIdentity.ManagedIdentityType == ManagedIdentityType.UserAssigned &&
+                    !tokenAcquisitionOptions.ManagedIdentity.ClientId.IsNullOrEmpty()
+                )
+                {
+                    // use user-assigned managed identity
+                    miApplication = ManagedIdentityApplicationBuilder.Create(
+                        ManagedIdentityId.WithUserAssignedClientId(tokenAcquisitionOptions.ManagedIdentity.ClientId)
+                    ).Build();
+                }
+                else
+                {
+                    // use system-assigned managed identity
+                    miApplication = ManagedIdentityApplicationBuilder.Create(ManagedIdentityId.SystemAssigned).Build();
+                }
+                try
+                {
+                    return await miApplication.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+                }
+                catch(Exception ex)
+                {
+                    Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                    throw;
+                }
+                
+            }
+
+            // Use MSAL to get the right token to call the API
+            IConfidentialClientApplication application = GetOrBuildConfidentialClientApplication(mergedOptions);
+
+            AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
