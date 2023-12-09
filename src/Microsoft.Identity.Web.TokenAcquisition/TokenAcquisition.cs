@@ -18,13 +18,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
+using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Identity.Web.Experimental;
-using Microsoft.Identity.Client.AppConfig;
 
 namespace Microsoft.Identity.Web
 {
@@ -51,6 +51,8 @@ namespace Microsoft.Identity.Web
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
+        private readonly ConcurrentDictionary<string, IManagedIdentityApplication?> _managedIdentityApplicationsByClientId = new ConcurrentDictionary<string, IManagedIdentityApplication?>();
+        private const string SystemAssignedManagedIdentityKey = "SYSTEM";
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -363,25 +365,10 @@ namespace Microsoft.Identity.Web
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
-                IManagedIdentityApplication miApplication;
-
-                if (tokenAcquisitionOptions.ManagedIdentity.ManagedIdentityType == ManagedIdentityType.UserAssigned &&
-                    !tokenAcquisitionOptions.ManagedIdentity.ClientId.IsNullOrEmpty()
-                )
-                {
-                    // use user-assigned managed identity
-                    miApplication = ManagedIdentityApplicationBuilder.Create(
-                        ManagedIdentityId.WithUserAssignedClientId(tokenAcquisitionOptions.ManagedIdentity.ClientId)
-                    ).Build();
-                }
-                else
-                {
-                    // use system-assigned managed identity
-                    miApplication = ManagedIdentityApplicationBuilder.Create(ManagedIdentityId.SystemAssigned).Build();
-                }
                 try
                 {
-                    return await miApplication.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+                    IManagedIdentityApplication managedIdApp = GetOrBuildManagedIdentityApplication(mergedOptions, tokenAcquisitionOptions.ManagedIdentity);
+                    return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
                 }
                 catch(Exception ex)
                 {
@@ -614,11 +601,74 @@ namespace Microsoft.Identity.Web
                 lock (_applicationSyncObj)
                 {
                     application = BuildConfidentialClientApplication(mergedOptions);
-                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
+                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application); // why is this inside a lock? It is a concurrent dictionary.
                 }
             }
-
             return application;
+        }
+
+        /// <summary>
+        /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
+        /// </summary>
+        /// <param name="mergedOptions"></param>
+        /// <param name="managedIdentityOptions"></param>
+        /// <returns></returns>
+        internal IManagedIdentityApplication GetOrBuildManagedIdentityApplication(
+            MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
+        {
+            IManagedIdentityApplication? application;
+            string key = managedIdentityOptions.UserAssignedClientId ?? SystemAssignedManagedIdentityKey;
+
+            // Check if the application is already built and not null, if so return it
+            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+            {
+                return application;
+            }
+
+            // If not yet created set managedIdentityId to the correct value for either system or user assigned
+            ManagedIdentityId managedIdentityId;
+            if (key == SystemAssignedManagedIdentityKey)
+            {
+                managedIdentityId = ManagedIdentityId.SystemAssigned;
+            }
+            else
+            {
+                managedIdentityId = ManagedIdentityId.WithUserAssignedClientId(key);
+            }
+
+            // Lock and build the application
+            lock (_applicationSyncObj)
+            {
+                application = BuildManagedIdentityApplication(
+                    managedIdentityId,
+                    mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging
+                );
+            }
+
+            // Add the application to the cache then return it
+            _managedIdentityApplicationsByClientId.TryAdd(key, application);
+            return application;
+        }
+
+        /// <summary>
+        /// Creates a managed identity client application.
+        /// </summary>
+        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used</param>
+        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled</param>
+        /// <returns>A managed identity application </returns>
+        private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
+        {
+            return ManagedIdentityApplicationBuilder
+                .Create(managedIdentityId)
+                .WithHttpClientFactory(_httpClientFactory)
+                .WithLogging
+                (
+                    Log,
+                    ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
+                    enablePiiLogging: enablePiiLogging
+                )
+                .WithExperimentalFeatures()
+                .Build();
         }
 
         /// <summary>
