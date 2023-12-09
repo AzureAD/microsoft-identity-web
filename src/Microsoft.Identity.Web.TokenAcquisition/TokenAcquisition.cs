@@ -651,27 +651,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Creates a managed identity client application.
-        /// </summary>
-        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used</param>
-        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled</param>
-        /// <returns>A managed identity application </returns>
-        private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
-        {
-            return ManagedIdentityApplicationBuilder
-                .Create(managedIdentityId)
-                .WithHttpClientFactory(_httpClientFactory)
-                .WithLogging
-                (
-                    Log,
-                    ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                    enablePiiLogging: enablePiiLogging
-                )
-                .WithExperimentalFeatures()
-                .Build();
-        }
-
-        /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
         private IConfidentialClientApplication BuildConfidentialClientApplication(MergedOptions mergedOptions)
@@ -754,6 +733,27 @@ namespace Microsoft.Identity.Web
                     ex);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Creates a managed identity client application.
+        /// </summary>
+        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used</param>
+        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled</param>
+        /// <returns>A managed identity application </returns>
+        private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
+        {
+            return ManagedIdentityApplicationBuilder
+                .Create(managedIdentityId)
+                .WithHttpClientFactory(_httpClientFactory)
+                .WithLogging
+                (
+                    Log,
+                    ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
+                    enablePiiLogging: enablePiiLogging
+                )
+                .WithExperimentalFeatures()
+                .Build();
         }
 
         /// <summary>
