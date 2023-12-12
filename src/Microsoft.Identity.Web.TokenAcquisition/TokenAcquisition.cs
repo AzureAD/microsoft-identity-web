@@ -599,8 +599,26 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                IList<string> AddContinuousAccessEvaluationCapability(IEnumerable<string> clientCapabilities)
+                {
+                    if (clientCapabilities == null)
+                    {
+                        return new[] { Constants.CaeCapability };
+                    }
+                    else
+                    {
+                        var finalClientCapabilities = new List<string>(clientCapabilities);
+                        if (!finalClientCapabilities.Contains(Constants.CaeCapability))
+                        {
+                            finalClientCapabilities.Add(Constants.CaeCapability);
+                        }
+                        return finalClientCapabilities;
+                    }
+                }
+
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
+                        .WithClientCapabilities(AddContinuousAccessEvaluationCapability(mergedOptions.ConfidentialClientApplicationOptions.ClientCapabilities))
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
                             Log,
