@@ -304,7 +304,7 @@ namespace Microsoft.Identity.Web
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
 
-            // Creation of the Http Request message with the right HTTP Method
+            // Creation of the HTTP Request message with the right HTTP Method
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
@@ -313,8 +313,7 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
-            // Obtention of the authorization header (except when calling an anonymous endpoint
-            // which is done by not specifying any scopes
+            // Acquire an access token and create an authorization header
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
                 string authorizationHeader = appToken ?
@@ -338,6 +337,42 @@ namespace Microsoft.Identity.Web
 
             // Send the HTTP message
             using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
+            
+            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+            
+            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                var headers = downstreamApiResult.Headers; // Parse www-auth headers to get wwwAuthClaims
+                var wwwAuthClaims = "";
+
+                effectiveOptions.AcquireTokenOptions.Claims = wwwAuthClaims;
+
+                // Acquire an access token and create an authorization header
+                if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
+                {
+                    string authorizationHeader = appToken ?
+                        await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                                                effectiveOptions.Scopes.FirstOrDefault()!,
+                                                effectiveOptions,
+                                                cancellationToken).ConfigureAwait(false) :
+                        await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                                                effectiveOptions.Scopes,
+                                                effectiveOptions,
+                                                user,
+                                                cancellationToken).ConfigureAwait(false);
+                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                }
+                else
+                {
+                    Logger.UnauthenticatedApiCall(_logger, null);
+                }
+
+
+            } else
+            {
+                return downstreamApiResult;
+            }
+
             return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
