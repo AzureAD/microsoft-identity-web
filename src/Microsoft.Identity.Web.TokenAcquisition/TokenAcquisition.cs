@@ -46,9 +46,10 @@ namespace Microsoft.Identity.Web
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new();
+        private SemaphoreSlim _managedIdSemaphore = new SemaphoreSlim(1, 1);
 
         /// <summary>
-        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
         private readonly ConcurrentDictionary<string, IManagedIdentityApplication?> _managedIdentityApplicationsByClientId = new ConcurrentDictionary<string, IManagedIdentityApplication?>();
@@ -367,7 +368,7 @@ namespace Microsoft.Identity.Web
             {
                 try
                 {
-                    IManagedIdentityApplication managedIdApp = GetOrBuildManagedIdentityApplication(mergedOptions, tokenAcquisitionOptions.ManagedIdentity);
+                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(mergedOptions, tokenAcquisitionOptions.ManagedIdentity);
                     return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
                 }
                 catch(Exception ex)
@@ -601,7 +602,7 @@ namespace Microsoft.Identity.Web
                 lock (_applicationSyncObj)
                 {
                     application = BuildConfidentialClientApplication(mergedOptions);
-                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application); // why is this inside a lock? It is a concurrent dictionary.
+                    _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
                 }
             }
             return application;
@@ -613,40 +614,45 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions"></param>
         /// <param name="managedIdentityOptions"></param>
         /// <returns></returns>
-        internal IManagedIdentityApplication GetOrBuildManagedIdentityApplication(
+        internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
             MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
         {
             IManagedIdentityApplication? application;
             string key = managedIdentityOptions.UserAssignedClientId ?? SystemAssignedManagedIdentityKey;
 
-            // Check if the application is already built and not null, if so return it
-            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+            // Lock the potential write of the dictionary to prevent multiple threads from creating the same application.
+            await _managedIdSemaphore.WaitAsync();
+            try
             {
-                return application;
-            }
+                // Check if the application is already built and not null, if so return it
+                if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+                {
+                    return application;
+                }
 
-            // If not yet created set managedIdentityId to the correct value for either system or user assigned
-            ManagedIdentityId managedIdentityId;
-            if (key == SystemAssignedManagedIdentityKey)
-            {
-                managedIdentityId = ManagedIdentityId.SystemAssigned;
-            }
-            else
-            {
-                managedIdentityId = ManagedIdentityId.WithUserAssignedClientId(key);
-            }
+                // Set managedIdentityId to the correct value for either system or user assigned
+                ManagedIdentityId managedIdentityId;
+                if (key == SystemAssignedManagedIdentityKey)
+                {
+                    managedIdentityId = ManagedIdentityId.SystemAssigned;
+                }
+                else
+                {
+                    managedIdentityId = ManagedIdentityId.WithUserAssignedClientId(key);
+                }
 
-            // Lock and build the application
-            lock (_applicationSyncObj)
-            {
+                // Build the application
                 application = BuildManagedIdentityApplication(
                     managedIdentityId,
                     mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging
                 );
+                // Add the application to the cache
+                _managedIdentityApplicationsByClientId.TryAdd(key, application);
+            } finally
+            {
+                // Now that the dictionary is updated, release the semaphore
+                _managedIdSemaphore.Release();
             }
-
-            // Add the application to the cache then return it
-            _managedIdentityApplicationsByClientId.TryAdd(key, application);
             return application;
         }
 
@@ -660,14 +666,13 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                var builder = ConfidentialClientApplicationBuilder
+                ConfidentialClientApplicationBuilder builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
-                        .WithExperimentalFeatures();
+                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging);
 
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
                 {
