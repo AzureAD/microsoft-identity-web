@@ -183,7 +183,11 @@ namespace Microsoft.Identity.Web
             }
 
             mergedOptions.SaveTokens |= microsoftIdentityOptions.SaveTokens;
+#if NET8_0_OR_GREATER
+            mergedOptions.TokenHandler ??= microsoftIdentityOptions.TokenHandler;
+#else
             mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
+#endif
             mergedOptions.SendX5C |= microsoftIdentityOptions.SendX5C;
             mergedOptions.WithSpaAuthCode |= microsoftIdentityOptions.WithSpaAuthCode;
             mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;

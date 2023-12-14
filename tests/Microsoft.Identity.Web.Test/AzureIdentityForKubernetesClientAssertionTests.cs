@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Xunit;
 
@@ -13,22 +13,21 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 {
     public class AzureIdentityForKubernetesClientAssertionTests
     {
-        string token;
-        private const string FilePath = "signedAssertion.txt";
-        private const string FilePath2 = "signedAssertion2.txt";
+        readonly string _token;
+        private readonly string _filePath = "signedAssertion" + Environment.CurrentManagedThreadId.ToString(CultureInfo.InvariantCulture) + ".txt";
 
         public AzureIdentityForKubernetesClientAssertionTests()
         {
             JsonWebTokenHandler handler = new JsonWebTokenHandler();
-            token = handler.CreateToken("{}");
+            _token = handler.CreateToken("{}");
         }
 
         [Fact]
         public async Task GetAksClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion()
         {
             // Arrange
-            File.WriteAllText(FilePath, token.ToString());
-            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(FilePath);
+            File.WriteAllText(_filePath, _token.ToString());
+            AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(_filePath);
 
             // Act
             string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertion(CancellationToken.None);
@@ -41,8 +40,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         public async Task GetAksClientAssertion_WhenEnvironmentVariablePointsToSignedAssertionFileExists_ReturnsClientAssertion()
         {
             // Arrange
-            File.WriteAllText(FilePath2, token.ToString());
-            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", FilePath2);
+            File.WriteAllText(_filePath, _token.ToString());
+            Environment.SetEnvironmentVariable("AZURE_FEDERATED_TOKEN_FILE", _filePath);
             AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion();
 
             // Act

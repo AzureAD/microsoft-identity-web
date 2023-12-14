@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
 
         // Authorization IDW10200 = "IDW10200:"
-        public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope or roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";
+        public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope nor roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";
         public const string MissingRoles = "IDW10202: The 'roles' or 'role' claim does not contain roles '{0}' or was not found. ";
         public const string MissingScopes = "IDW10203: The 'scope' or 'scp' claim does not contain scopes '{0}' or was not found. ";
         public const string UnauthenticatedUser = "IDW10204: The user is unauthenticated. The HttpContext does not contain any claims. ";

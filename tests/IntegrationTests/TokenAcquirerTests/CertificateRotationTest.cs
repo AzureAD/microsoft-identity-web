@@ -21,25 +21,22 @@ namespace TokenAcquirerTests
     public sealed class CertificateRotationTest : ICertificatesObserver
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
-        const string tenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
-        const double validityFirstCertInMinutes = 1.5;
-        const double validitySecondCertInMinutes = 10;
-        //     Application? _application;
+        const string TenantId = "7f58f645-c190-4ce5-9de4-e2b7acd2a6ab";
+        const double ValidityFirstCertInMinutes = 1.5;
+        const double ValiditySecondCertInMinutes = 10;
         ServicePrincipal? _servicePrincipal;
-        GraphServiceClient graphServiceClient;
-
+        readonly GraphServiceClient _graphServiceClient;
+        X509Certificate? _currentCertificate = null;
 
         public CertificateRotationTest()
         {
             // Instantiate a Graph client
-            DefaultAzureCredential credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions()
+            DefaultAzureCredential credential = new(new DefaultAzureCredentialOptions()
             {
-                VisualStudioTenantId = tenantId,
+                VisualStudioTenantId = TenantId,
             });
-            graphServiceClient = new GraphServiceClient(credential);
+            _graphServiceClient = new GraphServiceClient(credential);
         }
-
-        X509Certificate? currentCertificate = null;
 
         [IgnoreOnAzureDevopsFact]
         public async Task TestCertificateRotation()
@@ -53,13 +50,13 @@ namespace TokenAcquirerTests
             // Create a certificate expiring in 3 mins, add it to the local cert store
             X509Certificate2 firstCertificate = CreateSelfSignedCertificateAddAddToCertStore(
                 "MySelfSignedCert",
-                now.AddMinutes(validityFirstCertInMinutes));
+                now.AddMinutes(ValidityFirstCertInMinutes));
 
             // Create a cert active in 2 mins, and expiring in 10 mins, and add it to the cert store
             X509Certificate2 secondCertificate = CreateSelfSignedCertificateAddAddToCertStore(
                 "MySelfSignedCert",
-                 now.AddMinutes(validitySecondCertInMinutes),
-                 now.AddMinutes(validityFirstCertInMinutes - 0.25));
+                 now.AddMinutes(ValiditySecondCertInMinutes),
+                 now.AddMinutes(ValidityFirstCertInMinutes - 0.25));
 
             // and add it as client creds to the app registration
             await AddClientCertificatesToApp(aadApplication!, firstCertificate, secondCertificate);
@@ -78,12 +75,13 @@ namespace TokenAcquirerTests
             };
 
             // Use the token acquirer factory to run the app and acquire a token
+            TokenAcquirerFactory.ResetDefaultInstance();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = $"https://login.microsoftonline.com/";
                 options.ClientId = aadApplication!.AppId;
-                options.TenantId = tenantId;
+                options.TenantId = TenantId;
                 options.ClientCredentials = clientCertificates;
             });
             tokenAcquirerFactory.Services.AddSingleton<ICertificatesObserver>(this);
@@ -133,8 +131,8 @@ namespace TokenAcquirerTests
                     Assert.NotNull(authorizationHeader);
                     Assert.NotEqual(string.Empty, authorizationHeader);
 
-                    // If the token acquisition was successful and the cert use is the second one, the test can terminate.
-                    if (currentCertificate != null && currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString())
+                    // If the token acquisition was successful and the cert used is the second one, the test can terminate.
+                    if (_currentCertificate != null && _currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString())
                     {
                         break;
                     }
@@ -148,7 +146,7 @@ namespace TokenAcquirerTests
             }
 
             // Check the last certificate used is the second one.
-            Assert.True(currentCertificate != null && currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString());
+            Assert.True(_currentCertificate != null && _currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString());
 
             // Delete both certs from the cert store and remove the app registration
             await RemoveAppAndCertificates(firstCertificate, secondCertificate);
@@ -161,7 +159,7 @@ namespace TokenAcquirerTests
             ServicePrincipal? servicePrincipal = null)
         {
             // Delete the cert from the cert store
-            X509Store x509Store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            X509Store x509Store = new(StoreName.My, StoreLocation.CurrentUser);
             x509Store.Open(OpenFlags.ReadWrite);
             x509Store.Remove(firstCertificate);
             if (secondCertificate != null)
@@ -173,20 +171,19 @@ namespace TokenAcquirerTests
             // Delete the app registration
             if (application != null)
             {
-                await graphServiceClient.Applications[$"{application!.Id}"]
+                await _graphServiceClient.Applications[$"{application!.Id}"]
                     .DeleteAsync();
             }
             if (servicePrincipal != null)
             {
-                await graphServiceClient.ServicePrincipals[$"{_servicePrincipal!.Id}"]
+                await _graphServiceClient.ServicePrincipals[$"{_servicePrincipal!.Id}"]
                     .DeleteAsync();
             }
         }
 
-
         private async Task<Application?> CreateDaemonAppRegistrationIfNeeded()
         {
-            var application = (await graphServiceClient
+            var application = (await _graphServiceClient
                 .Applications
                 .GetAsync(options => options.QueryParameters.Filter = $"DisplayName eq 'Daemon app to test cert rotation'"))
                 ?.Value?.FirstOrDefault();
@@ -201,24 +198,24 @@ namespace TokenAcquirerTests
         private async Task<Application?> CreateDaemonAppRegistration()
         {
             // Get the Microsoft Graph service principal and the user.read.all role.
-            ServicePrincipal graphSp = (await graphServiceClient.ServicePrincipals
+            ServicePrincipal graphSp = (await _graphServiceClient.ServicePrincipals
                 .GetAsync(options => options.QueryParameters.Filter = $"AppId eq '{MicrosoftGraphAppId}'"))!.Value!.First();
             AppRole userReadAllRole = graphSp!.AppRoles!.First(r => r.Value == "User.Read.All");
 
             // Create an app with API permissions to user.read.all
-            Application application = new Application()
+            Application application = new()
             {
                 DisplayName = "Daemon app to test cert rotation",
                 SignInAudience = "AzureADMyOrg",
                 Description = "Daemon to test cert rotation",
                 RequiredResourceAccess = new System.Collections.Generic.List<RequiredResourceAccess>
                     {
-                        new RequiredResourceAccess()
+                        new()
                         {
                             ResourceAppId = MicrosoftGraphAppId,
                             ResourceAccess = new System.Collections.Generic.List<ResourceAccess>()
                          {
-                             new ResourceAccess()
+                             new()
                              {
                                  Id = userReadAllRole.Id,
                                  Type = "Role",
@@ -227,7 +224,7 @@ namespace TokenAcquirerTests
                         }
                 }
             };
-            Application createdApp = (await graphServiceClient.Applications
+            Application createdApp = (await _graphServiceClient.Applications
                 .PostAsync(application))!;
 
             // Create a service principal for the app
@@ -235,7 +232,7 @@ namespace TokenAcquirerTests
             {
                 AppId = createdApp!.AppId,
             };
-            _servicePrincipal = await graphServiceClient.ServicePrincipals
+            _servicePrincipal = await _graphServiceClient.ServicePrincipals
                 .PostAsync(servicePrincipal).ConfigureAwait(false);
 
             // Grant admin consent to user.read.all
@@ -250,7 +247,7 @@ namespace TokenAcquirerTests
 
             try
             {
-                var effectivePermissionGrant = await graphServiceClient.Oauth2PermissionGrants
+                var effectivePermissionGrant = await _graphServiceClient.Oauth2PermissionGrants
                     .PostAsync(oAuth2PermissionGrant);
             }
             catch (Exception)
@@ -274,10 +271,10 @@ namespace TokenAcquirerTests
             var cert = req.CreateSelfSigned(notBefore.HasValue ? notBefore.Value : DateTimeOffset.Now, expiry);
 
             byte[] bytes = cert.Export(X509ContentType.Pfx, (string?)null);
-            X509Certificate2 certWithPrivateKey = new X509Certificate2(bytes);
+            X509Certificate2 certWithPrivateKey = new(bytes);
 
             // Add it to the local cert store.
-            X509Store x509Store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            X509Store x509Store = new(StoreName.My, StoreLocation.CurrentUser);
             x509Store.Open(OpenFlags.ReadWrite);
             x509Store.Add(certWithPrivateKey);
             x509Store.Close();
@@ -286,11 +283,11 @@ namespace TokenAcquirerTests
 
         private async Task<Application> AddClientCertificatesToApp(Application application, X509Certificate2 firstCertificate, X509Certificate2 secondCertificate2)
         {
-            Application update = new Application
+            Application update = new()
             {
                 KeyCredentials = new System.Collections.Generic.List<KeyCredential>()
                 {
-                         new KeyCredential()
+                         new()
                          {
                              DisplayName = GetDisplayName(firstCertificate),
                              EndDateTime = firstCertificate.NotAfter,
@@ -299,7 +296,7 @@ namespace TokenAcquirerTests
                              Usage = "Verify",
                              Key = firstCertificate.Export(X509ContentType.Cert)
                          },
-                        new KeyCredential()
+                        new()
                         {
                             DisplayName = GetDisplayName(secondCertificate2),
                             EndDateTime = secondCertificate2.NotAfter,
@@ -310,7 +307,7 @@ namespace TokenAcquirerTests
                         }
                   }
             };
-            return (await graphServiceClient.Applications[application.Id].PatchAsync(update))!;
+            return (await _graphServiceClient.Applications[application.Id].PatchAsync(update))!;
         }
 
         private static string GetDisplayName(X509Certificate2 cert)
@@ -325,11 +322,11 @@ namespace TokenAcquirerTests
             switch (e.Action)
             {
                 case CerticateObserverAction.Selected:
-                    currentCertificate = e.Certificate;
+                    _currentCertificate = e.Certificate;
                     break;
 
                 case CerticateObserverAction.Deselected:
-                    currentCertificate = null;
+                    _currentCertificate = null;
                     break;
             }
         }

@@ -1,9 +1,13 @@
 <Project>
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.0.0-localbuild</ClientSemVer>
+    <!-- This needs to be greater than or equal to the validation baseline version -->
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.16.0-localbuild</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(ClientSemVer)</Version>
+
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>2.7.0</PackageValidationBaselineVersion>
 
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <RepositoryType>git</RepositoryType>
@@ -22,14 +26,14 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net7.0; net462; net472; netstandard2.0; netcoreapp3.1; net6.0; net8.0;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net7.0; net462; net472; netstandard2.0; netcoreapp3.1; net6.0;</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472; netstandard2.0; netcoreapp3.1</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET6_0_OR_GREATER'">
@@ -72,68 +76,64 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <IdentityModelVersion>6.33.0</IdentityModelVersion>
+    <IdentityModelVersion>7.0.3</IdentityModelVersion>
     <MicrosoftIdentityClientVersion>4.57.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
-    <AzureSecurityKeyVaultSecretsVersion>4.1.0</AzureSecurityKeyVaultSecretsVersion>
-    <AzureIdentityVersion>1.10.2</AzureIdentityVersion>
-    <AzureSecurityKeyVaultCertificatesVersion>4.1.0</AzureSecurityKeyVaultCertificatesVersion>
-    <MicrosoftGraphVersion>4.34.0</MicrosoftGraphVersion>
-    <MicrosoftGraphBetaVersion>4.50.0-preview</MicrosoftGraphBetaVersion>
+    <AzureSecurityKeyVaultSecretsVersion>4.5.0</AzureSecurityKeyVaultSecretsVersion>
+    <AzureIdentityVersion>1.10.4</AzureIdentityVersion>
+    <AzureSecurityKeyVaultCertificatesVersion>4.5.1</AzureSecurityKeyVaultCertificatesVersion>
+    <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
+    <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
-    <MicrosoftIdentityAbstractions>5.0.0</MicrosoftIdentityAbstractions>
-    <!--CVE-2021-24112-->
-    <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
+    <MicrosoftIdentityAbstractions>5.0.0</MicrosoftIdentityAbstractions>    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <IdentityModelVersion>7.0.3</IdentityModelVersion>
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0-rc.2.23480.2</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>8.0.0-rc.2.23479.6</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.0-rc.2.23479.6</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>8.0.0-rc.2.23479.6</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-rc.2.23479.6</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>8.0.0</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.0</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup> 
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>7.0.1</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>7.0.1</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>7.*</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>7.*</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>7.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>7.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>7.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>7.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!--CVE-2023-29331-->
-    <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>7.*</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>7.*</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>7.*</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>7.*</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>7.*</MicrosoftExtensionsDependencyInjectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>7.0.3</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>7.0.1</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>7.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>7.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>7.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.0.12</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.12</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>6.*</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>6.*</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>6.*</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
     <!--CVE-2023-29331-->
-    <SystemSecurityCryptographyPkcsVersion>6.0.3</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyPkcsVersion>6.0.4</SystemSecurityCryptographyPkcsVersion>
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
-    <MicrosoftExtensionsLoggingVersion>6.*</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>6.*</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>6.*</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>6.*</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>6.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <IdentityModelVersion>6.33.0</IdentityModelVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
@@ -153,6 +153,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net472'">
+    <IdentityModelVersion>6.33.0</IdentityModelVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>2.1.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!-- CVE-2022-34716 due to DataProtection 2.1.0 -->
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
@@ -174,5 +175,8 @@
     <MicrosoftExtensionsLoggingVersion>3.1.30</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>3.1.30</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>3.1.30</MicrosoftExtensionsDependencyInjectionVersion>
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>4.7.2</SystemDrawingCommon>
+    <SystemSecurityCryptographyPkcsVersion>4.7.0</SystemSecurityCryptographyPkcsVersion>
   </PropertyGroup>
 </Project>

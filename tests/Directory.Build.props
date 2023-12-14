@@ -2,10 +2,10 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net6.0; net7.0; net462; net472</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
@@ -31,6 +31,7 @@
     <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
+    <SystemManagementVersion>8.0.0</SystemManagementVersion>
     <MicrosoftIdentityLabApiVersion>0.12.1</MicrosoftIdentityLabApiVersion>
 	</PropertyGroup>
 

@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -112,9 +113,43 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public void AddTokenAcquisition_AbleToOverrideICredentialsLoader()
+        {
+            var services = new ServiceCollection();
+
+            services.AddSingleton<ICredentialsLoader, MockCredentialsLoader>();
+
+            services.AddTokenAcquisition();
+
+            ServiceDescriptor[] orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToArray();
+
+            Assert.Single(orderedServices.Where(s => s.ServiceType == typeof(ICredentialsLoader)));
+        }
+
+        [Fact]
         public void AddHttpContextAccessor_ThrowsWithoutServices()
         {
             Assert.Throws<ArgumentNullException>("services", () => ServiceCollectionExtensions.AddTokenAcquisition(null!));
+        }
+    }
+
+    internal class MockCredentialsLoader : ICredentialsLoader
+    {
+        public IDictionary<CredentialSource, ICredentialSourceLoader> CredentialSourceLoaders => throw new NotImplementedException();
+
+        public Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CredentialDescription?> LoadFirstValidCredentialsAsync(IEnumerable<CredentialDescription> credentialDescriptions, CredentialSourceLoaderParameters? parameters = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ResetCredentials(IEnumerable<CredentialDescription> credentialDescriptions)
+        {
+            throw new NotImplementedException();
         }
     }
 }

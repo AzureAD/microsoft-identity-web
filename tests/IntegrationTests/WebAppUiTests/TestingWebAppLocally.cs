@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,6 +16,10 @@ using Xunit.Abstractions;
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+
+// since this test changes environment variables we'd prefer it not run at the same time as other tests
+[CollectionDefinition(nameof(TestingWebAppLocally), DisableParallelization = true)]
+[Collection("WebAppUiTests")]
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
@@ -34,7 +39,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         // Arrange
-        Process? p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+        Process p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -43,7 +48,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail($"Could not run web app locally."); }
+            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
@@ -57,16 +62,16 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
             await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-        } 
+        }
         catch (Exception ex)
         {
             Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
-        } 
+        }
         finally
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            processes.Enqueue(p!);
+            processes.Enqueue(p);
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright

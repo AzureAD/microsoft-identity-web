@@ -1,14 +1,14 @@
 ---
 name: 🤔 Design proposal
 about: Collaborate on a design for a feature/fix or other change
-labels: design-proposal
+labels: ✏️design proposal, needs attention, untriaged
 ---
 
 <!--
 This template is useful to build consensus about whether work should be done, and if so, the high-level shape of how it should be approached. Use this before fixating on a particular implementation.
 -->
 
-## Summary
+# Summary
 
 1-2 sentences. Say what this is about.
 

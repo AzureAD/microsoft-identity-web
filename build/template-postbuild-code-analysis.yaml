@@ -4,15 +4,13 @@
 steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-roslynanalyzers.RoslynAnalyzers@3
   displayName: 'Run Roslyn Analyzers'
-  condition: eq(variables['TargetNet8'], 'False')
   inputs:
-    userProvideBuildInfo: auto
+    copyLogsOnly: true
   env:
     system_accesstoken: $(System.AccessToken)
   continueOnError: true
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
   displayName: 'Check Roslyn Results '
-  condition: eq(variables['TargetNet8'], 'False')
   inputs:
     RoslynAnalyzers: true

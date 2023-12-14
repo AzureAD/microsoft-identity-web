@@ -1,11 +1,25 @@
 <Project>
 
   <PropertyGroup>
-     <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0</TargetFrameworks>
-     <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net6.0; net7.0</TargetFrameworks>
-     <UseWip>true</UseWip>
-     <IsPackable>false</IsPackable>
-     <LangVersion>11</LangVersion>
+    <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
+    <UseWip>true</UseWip>
+    <IsPackable>false</IsPackable>
+    <LangVersion>11</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>6.0.0</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>7.0.0</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
+    <SystemDrawingCommon>8.0.0</SystemDrawingCommon>
   </PropertyGroup>
 
 </Project>

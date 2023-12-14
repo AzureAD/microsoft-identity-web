@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net472;netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0'">
+    <PublishAot>true</PublishAot>
+
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.32.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="6.32.3" />
+    <RdXmlFile Include="rd.xml" />
+  </ItemGroup>
+
+</Project>

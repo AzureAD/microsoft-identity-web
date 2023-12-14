@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TargetNet8)' == 'True'">net6.0; net7.0; net8.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet8)' != 'True'">net6.0; net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -12,7 +11,7 @@
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="$(MicrosoftIdentityLabApiVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Microsoft.Playwright" Version="$(MicrosoftPlaywrightVersion)" />
-    <PackageReference Include="System.Management" Version="7.0.2" />
+    <PackageReference Include="System.Management" Version="$(SystemManagementVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -25,6 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DevApps\B2CWebAppCallsWebApi\Client\TodoListClient.csproj" />
+    <ProjectReference Include="..\..\DevApps\B2CWebAppCallsWebApi\TodoListService\TodoListService.csproj" />
     <ProjectReference Include="..\..\DevApps\WebAppCallsMicrosoftGraph\WebAppCallsMicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\Client\TodoListClient.csproj" />
     <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\gRPC\grpc.csproj" />

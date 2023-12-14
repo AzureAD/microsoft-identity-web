@@ -1,9 +1,13 @@
 <Project>
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../'))" />
+  <!-- <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../'))" /> -->
   <PropertyGroup>
      <TargetFrameworks>net7.0</TargetFrameworks>
-     <SignAssembly>True</SignAssembly>
+     <Version>1.1.1</Version>
+     <Nullable>enable</Nullable>
+     <SignAssembly>true</SignAssembly>
      <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+     <EnablePackageValidation>false</EnablePackageValidation>
+     <RootNamespace>Microsoft.Identity.App</RootNamespace>
   </PropertyGroup>
 
  <ItemGroup>
