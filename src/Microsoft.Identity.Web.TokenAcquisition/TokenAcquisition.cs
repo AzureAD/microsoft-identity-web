@@ -841,7 +841,7 @@ namespace Microsoft.Identity.Web
         /// <param name="subAssertion">The sub_assertion.</param>
         private static void CheckAssertionsForInjectionAttempt(string assertion, string subAssertion)
         {
-            if (assertion.IsNullOrEmpty() || subAssertion.IsNullOrEmpty())
+            if (!assertion.IsNullOrEmpty() || !subAssertion.IsNullOrEmpty())
             {
                 if (assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
                 else if (subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
