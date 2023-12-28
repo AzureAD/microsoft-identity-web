@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -308,6 +309,34 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Null(mergedDict);
+        }
+
+        [Fact]
+        public void ContinuousAccessEvaluationEnabledByDefault_Test()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AuthorityCommonTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                ClientSecret = TestConstants.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
+
+            Assert.Contains(Constants.CaeCapability, app.AppConfig.ClientCapabilities);
         }
     }
 }
