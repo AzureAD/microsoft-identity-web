@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -98,7 +99,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
 #if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")]
 #endif
         public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
             string? serviceName,
@@ -125,7 +126,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if NET6_0_OR_GREATER               
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")]
 #endif
         public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
             string? serviceName,
@@ -150,7 +151,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")] 
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")]
 #endif
         public async Task<TOutput?> CallApiForAppAsync<TOutput>(string serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
@@ -304,48 +305,14 @@ namespace Microsoft.Identity.Web
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
 
-            // Creation of the HTTP Request message with the right HTTP Method
-            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
-                new HttpMethod(effectiveOptions.HttpMethod),
-                apiUrl);
-            if (content != null)
-            {
-                httpRequestMessage.Content = content;
-            }
-
-            // Acquire an access token and create an authorization header
-            if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
-            {
-                string authorizationHeader = appToken ?
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                                            effectiveOptions.Scopes.FirstOrDefault()!,
-                                            effectiveOptions,
-                                            cancellationToken).ConfigureAwait(false) :
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                            effectiveOptions.Scopes,
-                                            effectiveOptions,
-                                            user,
-                                            cancellationToken).ConfigureAwait(false);
-                httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-            }
-            else
-            {
-                Logger.UnauthenticatedApiCall(_logger, null);
-            }
-            // Opportunity to change the request message
-            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-
-            // Send the HTTP message
             using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
-            
-            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
-            
-            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                var headers = downstreamApiResult.Headers; // Parse www-auth headers to get wwwAuthClaims
-                var wwwAuthClaims = "";
 
-                effectiveOptions.AcquireTokenOptions.Claims = wwwAuthClaims;
+            async Task UpdateRequestAsync(HttpRequestMessage request)
+            {
+                if (content != null)
+                {
+                    request.Content = content;
+                }
 
                 // Acquire an access token and create an authorization header
                 if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
@@ -360,20 +327,43 @@ namespace Microsoft.Identity.Web
                                                 effectiveOptions,
                                                 user,
                                                 cancellationToken).ConfigureAwait(false);
-                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                    request.Headers.Add(Authorization, authorizationHeader);
                 }
                 else
                 {
                     Logger.UnauthenticatedApiCall(_logger, null);
                 }
+                // Opportunity to change the request message
+                effectiveOptions.CustomizeHttpRequestMessage?.Invoke(request);
+            }
 
+            // Create an HTTP request message
+            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+                new HttpMethod(effectiveOptions.HttpMethod),
+                apiUrl);
 
-            } else
+            await UpdateRequestAsync(httpRequestMessage);
+
+            // Send the HTTP message           
+            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+
+            if (downstreamApiResult.StatusCode != System.Net.HttpStatusCode.Unauthorized)
             {
                 return downstreamApiResult;
             }
 
-            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+            // Retry if the resource send 401 Unauthorized with WWW-Authenticate header and claims
+            effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
+
+            effectiveOptions.AcquireTokenOptions.ForceRefresh = appToken;
+
+            using HttpRequestMessage retryHttpRequestMessage = new(
+                new HttpMethod(effectiveOptions.HttpMethod),
+                apiUrl);
+
+            await UpdateRequestAsync(retryHttpRequestMessage);
+
+            return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
 }
