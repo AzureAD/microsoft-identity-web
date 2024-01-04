@@ -116,6 +116,10 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
         public const string LabVaultAppId = "LabVaultAppID";
         public const string LabVaultAppSecret = "LabVaultAppSecret";
+        public const string UserAssignedManagedIdentityClientId = "3b57c42c-3201-4295-ae27-d6baec5b7027";
+        public const string UserAssignedManagedIdentityResourceId = "/subscriptions/c1686c51-b717-4fe0-9af3-24a20a41fb0c/" +
+            "resourcegroups/MSAL_MSI/providers/Microsoft.ManagedIdentity/userAssignedIdentities/" +
+            "MSAL_MSI_USERID";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj

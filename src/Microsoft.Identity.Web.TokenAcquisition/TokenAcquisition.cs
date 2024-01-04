@@ -368,7 +368,10 @@ namespace Microsoft.Identity.Web
             {
                 try
                 {
-                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(mergedOptions, tokenAcquisitionOptions.ManagedIdentity);
+                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(
+                        mergedOptions, 
+                        tokenAcquisitionOptions.ManagedIdentity
+                    );
                     return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
                 }
                 catch(Exception ex)
@@ -640,7 +643,7 @@ namespace Microsoft.Identity.Web
                 {
                     managedIdentityId = ManagedIdentityId.WithUserAssignedClientId(key);
                 }
-
+    
                 // Build the application
                 application = BuildManagedIdentityApplication(
                     managedIdentityId,

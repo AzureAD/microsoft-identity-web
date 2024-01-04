@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
@@ -106,7 +107,6 @@ namespace Microsoft.Identity.Web.Test
                     ClientId = TestConstants.ConfidentialClientId,
                     ClientSecret = TestConstants.ClientSecret,
                 });
-                BuildTheRequiredServices();
             }
             else
             {
@@ -116,10 +116,9 @@ namespace Microsoft.Identity.Web.Test
                     ClientId = TestConstants.ConfidentialClientId,
                     ClientSecret = TestConstants.ClientSecret,
                 });
-
-                BuildTheRequiredServices();
             }
 
+            BuildTheRequiredServices();
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
@@ -308,6 +307,45 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Null(mergedDict);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData(TestConstants.UserAssignedManagedIdentityClientId)]
+        public void GetOrBuildManagedIdentity_Test(string clientId)
+        {
+            // Arrange
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = clientId
+            };
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            InitializeTokenAcquisitionObjects();
+
+#pragma warning disable CS8600, CS8602 // Possible null reference/dereference argument.
+            string key = managedIdentityOptions.UserAssignedClientId 
+                ?? typeof(TokenAcquisition).GetProperty("SystemAssignedManagedIdentityKey").GetValue(_tokenAcquisition)
+                as string;
+
+            ConcurrentDictionary<string, IManagedIdentityApplication?> cacheDict =
+                typeof(TokenAcquisition).GetProperty("_managedIdentityApplicationsByClientId").GetValue(_tokenAcquisition)
+                as ConcurrentDictionary<string, IManagedIdentityApplication?>;
+#pragma warning restore CS8600, CS8602 // Possible null reference/dereference argument.
+
+            // Act
+            IManagedIdentityApplication app = 
+                _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions).Result;
+
+#pragma warning disable CS8602, CS8604 // Possible null reference/dereference argument.
+            cacheDict.TryGetValue(key, out IManagedIdentityApplication? cachedApp);
+#pragma warning restore CS8602, CS8604 // Possible null reference/dereference argument.
+
+            // Assert
+            Assert.Equal(app, cachedApp);
         }
     }
 }
