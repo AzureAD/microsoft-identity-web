@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new();
-        private SemaphoreSlim _managedIdSemaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _managedIdSemaphore = new(1, 1);
 
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
@@ -621,7 +621,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
         {
             IManagedIdentityApplication? application;
-            string key = managedIdentityOptions.UserAssignedClientId ?? SystemAssignedManagedIdentityKey;
+            string key = GetCacheKeyForManagedId(managedIdentityOptions);
 
             // Lock the potential write of the dictionary to prevent multiple threads from creating the same application.
             await _managedIdSemaphore.WaitAsync();
@@ -657,6 +657,24 @@ namespace Microsoft.Identity.Web
                 _managedIdSemaphore.Release();
             }
             return application;
+        }
+
+        /// <summary>
+        /// Gets the key value for the ManagedIdentity cache, the default key for system-assigned identity is used if there is no
+        /// clientId for a user-assigned identity specified.
+        /// </summary>
+        /// <param name="managedIdOptions">Holds the clientId for managed identity if none is present</param>
+        /// <returns></returns>
+        private static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
+        {
+            if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
+            {
+                return SystemAssignedManagedIdentityKey;
+            }
+            else
+            {
+                return managedIdOptions.UserAssignedClientId!;
+            }
         }
 
         /// <summary>
