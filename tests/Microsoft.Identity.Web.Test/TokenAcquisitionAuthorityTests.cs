@@ -316,7 +316,7 @@ namespace Microsoft.Identity.Web.Test
         public void ManagedIdCacheKey_Test(string clientId)
         {
             // Arrange
-            string defaultKey = "SYSTEM";
+            string defaultKey = ;
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
@@ -342,7 +342,6 @@ namespace Microsoft.Identity.Web.Test
         public void GetOrBuildManagedIdentity_Test(string clientId)
         {
             // Arrange
-            string cacheVariableName = "_managedIdentityApplicationsByClientId";
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
@@ -350,10 +349,7 @@ namespace Microsoft.Identity.Web.Test
             BuildTheRequiredServices();
             MergedOptions mergedOptions = new();
             InitializeTokenAcquisitionObjects();
-
-            // using reflection to access the key
             string key = GetCacheKeyForManagedIdReflection(managedIdentityOptions);
-
             ConcurrentDictionary<string, IManagedIdentityApplication?> cacheDict = GetManagedIdCacheReflection();
 
             // Act
