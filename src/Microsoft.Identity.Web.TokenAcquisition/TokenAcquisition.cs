@@ -623,11 +623,17 @@ namespace Microsoft.Identity.Web
             IManagedIdentityApplication? application;
             string key = GetCacheKeyForManagedId(managedIdentityOptions);
 
+            // Check if the application is already built, if so return it without grabbing the key
+            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+            {
+                return application;
+            }
+
             // Lock the potential write of the dictionary to prevent multiple threads from creating the same application.
             await _managedIdSemaphore.WaitAsync();
             try
             {
-                // Check if the application is already built and not null, if so return it
+                // Check if the application is already built (could happen between previous check and obtaining the key)
                 if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
                 {
                     return application;
@@ -649,6 +655,7 @@ namespace Microsoft.Identity.Web
                     managedIdentityId,
                     mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging
                 );
+
                 // Add the application to the cache
                 _managedIdentityApplicationsByClientId.TryAdd(key, application);
             } finally

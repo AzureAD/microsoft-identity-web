@@ -21,6 +21,7 @@ using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -316,7 +317,9 @@ namespace Microsoft.Identity.Web.Test
         public void ManagedIdCacheKey_Test(string clientId)
         {
             // Arrange
-            string defaultKey = ;
+            BuildTheRequiredServices();
+            InitializeTokenAcquisitionObjects();
+            string defaultKey = GetDefaultKey();
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
@@ -339,25 +342,25 @@ namespace Microsoft.Identity.Web.Test
 
         [Theory]
         [MemberData(nameof(ManagedIdClientIdCases))]
-        public void GetOrBuildManagedIdentity_Test(string clientId)
+        public async Task GetOrBuildManagedIdentity_TestAsync(string clientId)
         {
             // Arrange
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
             };
-            BuildTheRequiredServices();
             MergedOptions mergedOptions = new();
+            BuildTheRequiredServices();
             InitializeTokenAcquisitionObjects();
-            string key = GetCacheKeyForManagedIdReflection(managedIdentityOptions);
-            ConcurrentDictionary<string, IManagedIdentityApplication?> cacheDict = GetManagedIdCacheReflection();
 
             // Act
-            IManagedIdentityApplication app = 
-                _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions).Result;
+            IManagedIdentityApplication app1 = 
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+            IManagedIdentityApplication app2 = 
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
 
             // Assert
-            Assert.Equal(app, cacheDict[key]);
+            Assert.Same(app1, app2);
         }
 
 
@@ -372,11 +375,11 @@ namespace Microsoft.Identity.Web.Test
                 CultureInfo.InvariantCulture)!;
         }
 
-        private ConcurrentDictionary<string, IManagedIdentityApplication?> GetManagedIdCacheReflection()
+        private string GetDefaultKey()
         {
-            return (ConcurrentDictionary<string, IManagedIdentityApplication?>)typeof(TokenAcquisition).InvokeMember(
-            "_managedIdentityApplicationsByClientId",
-            TC.InstancePrivateFieldFlags,
+            return (string)typeof(TokenAcquisition).InvokeMember(
+            "SystemAssignedManagedIdentityKey",
+            TC.StaticPrivateFieldFlags,
             null,
             _tokenAcquisition,
             null,
