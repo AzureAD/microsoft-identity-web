@@ -193,12 +193,12 @@ namespace Microsoft.Identity.Web
                             httpContext.Session.Remove(ClaimConstants.ClientInfo);
                         }
 
-                        Claim nameClaim = context.AuthenticationTicket.Identity.FindFirst("preferred_username")
+                        Claim? nameClaim = context.AuthenticationTicket.Identity.FindFirst("preferred_username")
                                           ?? context.AuthenticationTicket.Identity.FindFirst("name");
 
                         if (!string.IsNullOrEmpty(nameClaim?.Value))
                         {
-                            context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, nameClaim.Value, string.Empty));
+                            context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, nameClaim?.Value, string.Empty));
                         }
                         
                         return Task.CompletedTask;
