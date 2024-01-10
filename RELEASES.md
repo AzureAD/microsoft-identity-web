@@ -31,7 +31,7 @@ version="[1.1,1.2)"
 When we release a new MINOR version, the previous MINOR version is abandoned.
 
 When we release a new MAJOR version, we will continue to apply bug fixes to the existing features in the previous MAJOR version for up to the 2 year support cycle for Azure.
-Example: We release MSALiOS 2.0 in the future which supports unified Auth for AAD and MSA. Later, we then have a fix in Conditional Access for MSALiOS. Since that feature exists both in MSALiOS 1.1 and MSALiOS 2.0, we will fix both. It will roll up in a PATCH number for each. Customers that are still locked down on MSALiOS 1.1 will receive the benefit of this fix.
+Example: We release MSAL for iOS 2.0 in the future which supports unified Auth for AAD and MSA. Later, we then have a fix in Conditional Access for MSAL for iOS. Since that feature exists both in MSAL for iOS 1.1 and MSAL for iOS 2.0, we will fix both. It will roll up in a PATCH number for each. Customers that are still locked down on MSAL for iOS 1.1 will receive the benefit of this fix.
 
 ## Microsoft Authentication SDKs and Azure Active Directory
 
