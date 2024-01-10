@@ -1,3 +1,10 @@
+2.16.1
+=========
+- Update Microsoft.Identity.Abstractions 5.1.0 and Microsoft.IdentityModel.* 7.1.2
+ 
+### Bug Fixes
+- In OWIN, Id Web now respects the passed in user argument. See issue [#2585](https://github.com/AzureAD/microsoft-identity-web/issues/2585) for details.
+
 2.16.0
 =========
 - Leverage IdentityModel 7.x on all .NET core frameworks.
