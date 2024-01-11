@@ -784,6 +784,7 @@ namespace Microsoft.Identity.Web
                             if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
 
+                                // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
                                 CheckAssertionsForInjectionAttempt(dict[assertionConstant], dict[subAssertionConstant]);
 
                                 builder.OnBeforeTokenRequest((data) =>
@@ -843,8 +844,8 @@ namespace Microsoft.Identity.Web
         {
             if (!assertion.IsNullOrEmpty() || !subAssertion.IsNullOrEmpty())
             {
-                if (assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                else if (subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
+                if (!subAssertion.IsNullOrEmpty() && (subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
             }
         }
 
