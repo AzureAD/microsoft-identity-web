@@ -844,8 +844,13 @@ namespace Microsoft.Identity.Web
         {
             if (!assertion.IsNullOrEmpty() || !subAssertion.IsNullOrEmpty())
             {
+#if NETSTANDARD2_0 || NET462 || NET472
+                if (!assertion.IsNullOrEmpty() && assertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
+                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+#else
                 if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                if (!subAssertion.IsNullOrEmpty() && (subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+#endif
             }
         }
 
