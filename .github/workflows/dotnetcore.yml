@@ -42,7 +42,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: 'Build solution'
+    - name: 'Setup msbuild'
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
@@ -54,21 +54,21 @@ jobs:
     - name: Build IdWeb for release
       run: msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
 
-    - name: Build with .NET 6.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+    - name: Test with all frameworks
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
 
-    - name: Build with .NET 7.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    # - name: Build with .NET 7.0.x
+    #   run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
     
-    - name: Build with .NET 8.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    # - name: Build with .NET 8.0.x
+    #   run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
-    - name: Build with .NET 462
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net462 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    # - name: Build with .NET 462
+    #   run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net462 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
-    - name: Build with .NET 472
-      run: dotnet test Microsoft.Identity.Web.sln -f net472 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    # - name: Build with .NET 472
+    #   run: dotnet test Microsoft.Identity.Web.sln -f net472 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
-    - name: Build with .NET standard2.0
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    # - name: Build with .NET standard2.0
+    #   run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
