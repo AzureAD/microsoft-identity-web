@@ -182,7 +182,7 @@ namespace WebAppUiTests
         private static string GetApplicationWorkingDirectory(string testAssemblyLocation, string appLocation)
         {
             string testedAppLocation = Path.GetDirectoryName(testAssemblyLocation)!;
-            // e.g. microsoft-identity-web\tests\IntegrationTests\WebAppUiTests\bin\Debug\net6.0
+            // e.g. microsoft-identity-web\tests\E2E Tests\WebAppUiTests\bin\Debug\net6.0
             string[] segments = testedAppLocation.Split(Path.DirectorySeparatorChar);
             int numberSegments = segments.Length;
             int startLastSegments = numberSegments - 3;
@@ -202,7 +202,7 @@ namespace WebAppUiTests
         /// <returns>An absolute path to a Playwright Trace zip folder</returns>
         public static string GetTracePath(string testAssemblyLocation, string traceName)
         {
-            const string traceParentFolder = "IntegrationTests";
+            const string traceParentFolder = "E2E Tests";
             const string traceFolder = "PlaywrightTraces";
             const string zipExtension = ".zip";
             const int netVersionNumberLength = 3;
@@ -211,7 +211,7 @@ namespace WebAppUiTests
             string substring = testAssemblyLocation[..(parentFolderIndex + traceParentFolder.Length)];
             string netVersion = "_net" + Environment.Version.ToString()[..netVersionNumberLength];
 
-            // e.g. [absolute path to repo root]\tests\IntegrationTests\PlaywrightTraces\[traceName]_net[versionNum].zip
+            // e.g. [absolute path to repo root]\tests\E2E Tests\PlaywrightTraces\[traceName]_net[versionNum].zip
             return Path.Combine(
                 substring,
                 traceFolder,

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\IntegrationTests\IntegrationTestService\IntegrationTestService.csproj" />
+    <ProjectReference Include="..\..\E2E Tests\IntegrationTestService\IntegrationTestService.csproj" />
   </ItemGroup>
 
 </Project>

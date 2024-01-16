@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
-    <ProjectReference Include="..\IntegrationTests\IntegrationTestService\IntegrationTestService.csproj" />
+    <ProjectReference Include="..\E2E Tests\IntegrationTestService\IntegrationTestService.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
   </ItemGroup>
 
