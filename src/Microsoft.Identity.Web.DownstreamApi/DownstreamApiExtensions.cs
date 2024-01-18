@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -33,7 +35,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(services);
 
             services.Configure<DownstreamApiOptions>(serviceName, configuration);
-            services.AddScoped<IDownstreamApi, DownstreamApi>();
+            RegisterDownstreamApi(services);
             return services;
         }
 
@@ -52,12 +54,48 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure<DownstreamApiOptions>(serviceName, configureOptions);
-
-            // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            services.AddScoped<IDownstreamApi, DownstreamApi>();
             services.Configure(serviceName, configureOptions);
+            RegisterDownstreamApi(services);
+
             return services;
+        }
+
+        private static void RegisterDownstreamApi(IServiceCollection services)
+        {
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            ServiceDescriptor? downstreamApi = services.FirstOrDefault(s => s.ServiceType == typeof(IDownstreamApi));
+
+            if (tokenAcquisitionService != null)
+            {
+                if (downstreamApi != null)
+                {
+                    if (downstreamApi.Lifetime != tokenAcquisitionService.Lifetime)
+                    {
+                        services.Remove(downstreamApi);
+                        AddDownstreamApiWithLifetime(services, tokenAcquisitionService.Lifetime);
+                    }
+                }
+                else
+                {
+                    AddDownstreamApiWithLifetime(services, tokenAcquisitionService.Lifetime);
+                }
+            }
+            else
+            {
+                services.AddScoped<IDownstreamApi, DownstreamApi>();
+            }
+        }
+
+        private static void AddDownstreamApiWithLifetime(IServiceCollection services, ServiceLifetime lifetime)
+        {
+            if (lifetime == ServiceLifetime.Singleton)
+            {
+                services.AddSingleton<IDownstreamApi, DownstreamApi>();
+            }
+            else
+            {
+                services.AddScoped<IDownstreamApi, DownstreamApi>();
+            }
         }
 
 #if NETCOREAPP
