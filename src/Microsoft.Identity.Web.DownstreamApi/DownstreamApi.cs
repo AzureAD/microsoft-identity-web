@@ -355,15 +355,14 @@ namespace Microsoft.Identity.Web
             // Retry if the resource send 401 Unauthorized with WWW-Authenticate header and claims
             effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
 
-            effectiveOptions.AcquireTokenOptions.ForceRefresh = appToken;
-
             using HttpRequestMessage retryHttpRequestMessage = new(
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
             await UpdateRequestAsync(retryHttpRequestMessage);
 
-            return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+            var finalResult = await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+            return finalResult;
         }
     }
 }
