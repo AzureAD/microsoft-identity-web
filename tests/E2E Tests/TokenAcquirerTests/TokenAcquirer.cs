@@ -308,19 +308,19 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireTokenWithManagedIdentity_UserAssigned()
         {
-            //const string instance = "https://login.microsoftonline.com/";
-            //const string tenantId = "microsoft.onmicrosoft.com";
+            const string instance = "https://login.microsoftonline.com/";
+            const string tenantId = "microsoft.onmicrosoft.com";
             const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            _ = tokenAcquirerFactory.Services;
+            ServiceCollection services = tokenAcquirerFactory.Services;
             tokenAcquirerFactory.Build();
 
             // Add the config options that would otherwise live in an appsettings.json file
-/*            services.Configure<MicrosoftIdentityApplicationOptions>("", option =>
+            services.Configure<MicrosoftIdentityApplicationOptions>("", option =>
             {
                 option.Instance = instance;
                 option.TenantId = tenantId;
-            });*/
+            });
 
             // Get the authorization header provider and add the options to tell it to use Managed Identity
             IAuthorizationHeaderProvider? authorizationHeaderProvider = tokenAcquirerFactory.ServiceProvider?
