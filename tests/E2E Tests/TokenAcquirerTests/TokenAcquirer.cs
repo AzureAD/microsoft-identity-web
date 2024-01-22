@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
@@ -297,6 +299,56 @@ namespace TokenAcquirerTests
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.NotNull(result.AccessToken);
+        }
+    }
+
+    public class AcquireTokenManagedIdentity 
+    {
+        [OnlyOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireTokenWithManagedIdentity_SystemAssigned()
+        {
+            const string instance = "https://login.microsoftonline.com/";
+            const string tenantId = "microsoft.onmicrosoft.com";
+            const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            // Add the config options that would otherwise live in an appsettings.json file
+            services.Configure<MicrosoftIdentityApplicationOptions>("", option =>
+            {
+                option.Instance = instance;
+                option.TenantId = tenantId;
+                option.ClientId = clientId;
+            });
+
+            // Get the authorization header provider and add the options to tell it to use Managed Identity
+            IAuthorizationHeaderProvider? authorizationHeaderProvider = tokenAcquirerFactory.ServiceProvider?
+                .GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
+            Assert.NotNull(authorizationHeaderProvider);
+            string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "/.default",
+                MakeAuthHeaderOptionsForManagedIdentity(null));
+
+            // Make sure we got a token
+            Assert.False(string.IsNullOrEmpty(authorizationHeader));
+        }
+
+        private static AuthorizationHeaderProviderOptions MakeAuthHeaderOptionsForManagedIdentity(string? userAssignedClientId) 
+        {
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = userAssignedClientId
+            };
+            AcquireTokenOptions aquireTokenOptions = new()
+            {
+                ManagedIdentity = managedIdentityOptions
+            };
+            return new AuthorizationHeaderProviderOptions()
+            {
+                BaseUrl = "https://vault.azure.net",
+                AcquireTokenOptions = aquireTokenOptions
+            };
         }
     }
 #endif //FROM_GITHUB_ACTION
