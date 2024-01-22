@@ -614,9 +614,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
         /// </summary>
-        /// <param name="mergedOptions"></param>
-        /// <param name="managedIdentityOptions"></param>
-        /// <returns></returns>
+        /// <param name="mergedOptions">The configuration options for the app</param>
+        /// <param name="managedIdentityOptions">The configuration specific to managed identity</param>
+        /// <returns>The application object used to request a token with managed identity</returns>
         internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
             MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
         {
