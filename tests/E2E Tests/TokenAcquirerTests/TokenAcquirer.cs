@@ -312,7 +312,8 @@ namespace TokenAcquirerTests
             //const string tenantId = "microsoft.onmicrosoft.com";
             const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
+            _ = tokenAcquirerFactory.Services;
+            tokenAcquirerFactory.Build();
 
             // Add the config options that would otherwise live in an appsettings.json file
 /*            services.Configure<MicrosoftIdentityApplicationOptions>("", option =>

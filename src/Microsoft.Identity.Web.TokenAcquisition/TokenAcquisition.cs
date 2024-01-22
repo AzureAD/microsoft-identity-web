@@ -699,7 +699,8 @@ namespace Microsoft.Identity.Web
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging);
+                            enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
+                        .WithExperimentalFeatures();
 
                 if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
                 {
@@ -784,7 +785,6 @@ namespace Microsoft.Identity.Web
                     ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
                     enablePiiLogging: enablePiiLogging
                 )
-                .WithExperimentalFeatures()
                 .Build();
         }
 
