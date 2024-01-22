@@ -51,8 +51,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
         /// </summary>
-        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
-        private readonly ConcurrentDictionary<string, IManagedIdentityApplication?> _managedIdentityApplicationsByClientId = new ConcurrentDictionary<string, IManagedIdentityApplication?>();
+        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
+        private readonly ConcurrentDictionary<string, IManagedIdentityApplication?> _managedIdentityApplicationsByClientId = new();
         private const string SystemAssignedManagedIdentityKey = "SYSTEM";
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
@@ -620,11 +620,10 @@ namespace Microsoft.Identity.Web
         internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
             MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
         {
-            IManagedIdentityApplication? application;
             string key = GetCacheKeyForManagedId(managedIdentityOptions);
 
             // Check if the application is already built, if so return it without grabbing the key
-            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out IManagedIdentityApplication? application) && application != null)
             {
                 return application;
             }
@@ -667,11 +666,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets the key value for the ManagedIdentity cache, the default key for system-assigned identity is used if there is no
+        /// Gets the key value for the Managed Identity cache, the default key for system-assigned identity is used if there is no
         /// clientId for a user-assigned identity specified.
         /// </summary>
         /// <param name="managedIdOptions">Holds the clientId for managed identity if none is present</param>
-        /// <returns></returns>
+        /// <returns>A key value for the Managed Identity cache</returns>
         private static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
         {
             if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
@@ -771,9 +770,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates a managed identity client application.
         /// </summary>
-        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used</param>
-        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled</param>
-        /// <returns>A managed identity application </returns>
+        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used.</param>
+        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled.</param>
+        /// <returns>A managed identity application.</returns>
         private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
         {
             return ManagedIdentityApplicationBuilder

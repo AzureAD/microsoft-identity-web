@@ -313,8 +313,10 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [MemberData(nameof(ManagedIdClientIdCases))]
-        public void ManagedIdCacheKey_Test(string clientId)
+        [InlineData("https://localhost:1234")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void ManagedIdCacheKey_Test(string? clientId)
         {
             // Arrange
             BuildTheRequiredServices();
@@ -339,10 +341,11 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-
         [Theory]
-        [MemberData(nameof(ManagedIdClientIdCases))]
-        public async Task GetOrBuildManagedIdentity_TestAsync(string clientId)
+        [InlineData("https://localhost:1234")]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task GetOrBuildManagedIdentity_TestAsync(string? clientId)
         {
             // Arrange
             ManagedIdentityOptions managedIdentityOptions = new()
@@ -363,7 +366,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(app1, app2);
         }
 
-
         private string GetCacheKeyForManagedIdReflection(ManagedIdentityOptions managedIdentityOptions)
         {
             return (string)typeof(TokenAcquisition).InvokeMember(
@@ -378,21 +380,12 @@ namespace Microsoft.Identity.Web.Test
         private string GetDefaultKey()
         {
             return (string)typeof(TokenAcquisition).InvokeMember(
-            "SystemAssignedManagedIdentityKey",
-            TC.StaticPrivateFieldFlags,
-            null,
-            _tokenAcquisition,
-            null,
-            CultureInfo.InvariantCulture)!;
-        }
-
-        public static IEnumerable<object[]?> ManagedIdClientIdCases()
-        {
-            yield return new object[] { "" };
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            yield return new object[] { null };
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-            yield return new object[] { TC.UserAssignedManagedIdentityClientId };
+                "SystemAssignedManagedIdentityKey",
+                TC.StaticPrivateFieldFlags,
+                null,
+                _tokenAcquisition,
+                null,
+                CultureInfo.InvariantCulture)!;
         }
     }
 }
