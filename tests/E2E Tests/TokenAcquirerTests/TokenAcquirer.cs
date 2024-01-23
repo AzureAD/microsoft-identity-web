@@ -308,33 +308,23 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireTokenWithManagedIdentity_UserAssigned()
         {
-            const string instance = "https://login.microsoftonline.com/";
-            const string tenantId = "microsoft.onmicrosoft.com";
+            const string scope = "https://vault.azure.net/.default";
+            const string baseUrl = "https://vault.azure.net";
             const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            ServiceCollection services = tokenAcquirerFactory.Services;
-            tokenAcquirerFactory.Build();
-
-            // Add the config options that would otherwise live in an appsettings.json file
-            services.Configure<MicrosoftIdentityApplicationOptions>("", option =>
-            {
-                option.Instance = instance;
-                option.TenantId = tenantId;
-            });
+            _ = tokenAcquirerFactory.Services;
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 
             // Get the authorization header provider and add the options to tell it to use Managed Identity
-            IAuthorizationHeaderProvider? authorizationHeaderProvider = tokenAcquirerFactory.ServiceProvider?
-                .GetService(typeof(IAuthorizationHeaderProvider)) as IAuthorizationHeaderProvider;
-            Assert.NotNull(authorizationHeaderProvider);
-            string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                "/.default",
-                MakeAuthHeaderOptionsForManagedIdentity(clientId));
+            IAuthorizationHeaderProvider? api = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.NotNull(api);
+            string result = await api.CreateAuthorizationHeaderForAppAsync(scope, GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
 
             // Make sure we got a token
-            Assert.False(string.IsNullOrEmpty(authorizationHeader));
+            Assert.False(string.IsNullOrEmpty(result));
         }
 
-        private static AuthorizationHeaderProviderOptions MakeAuthHeaderOptionsForManagedIdentity(string? userAssignedClientId) 
+        private static AuthorizationHeaderProviderOptions GetAuthHeaderOptions_ManagedId(string baseUrl, string? userAssignedClientId=null) 
         {
             ManagedIdentityOptions managedIdentityOptions = new()
             {
@@ -346,7 +336,7 @@ namespace TokenAcquirerTests
             };
             return new AuthorizationHeaderProviderOptions()
             {
-                BaseUrl = "https://vault.azure.net",
+                BaseUrl = baseUrl,
                 AcquireTokenOptions = aquireTokenOptions
             };
         }
