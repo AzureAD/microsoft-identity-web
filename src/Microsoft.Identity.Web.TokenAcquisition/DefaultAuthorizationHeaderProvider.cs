@@ -49,19 +49,9 @@ namespace Microsoft.Identity.Web
 
         private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(AuthorizationHeaderProviderOptions? downstreamApiOptions, CancellationToken cancellationToken)
         {
-            return new TokenAcquisitionOptions()
-            {
-                AuthenticationOptionsName = downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                CancellationToken = cancellationToken,
-                Claims = downstreamApiOptions?.AcquireTokenOptions.Claims,
-                CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
-                ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,
-                ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
-                LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
-                Tenant = downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                UserFlow = downstreamApiOptions?.AcquireTokenOptions.UserFlow,
-                PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
-            };
+            TokenAcquisitionOptions tokenAcquisitionOptions = TokenAcquisitionOptions.CloneFromBaseClass(downstreamApiOptions?.AcquireTokenOptions);
+            tokenAcquisitionOptions.CancellationToken = cancellationToken;
+            return tokenAcquisitionOptions;
         }
     }
 }
