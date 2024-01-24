@@ -671,7 +671,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="managedIdOptions">Holds the clientId for managed identity if none is present</param>
         /// <returns>A key value for the Managed Identity cache</returns>
-        private static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
+        internal /* for testing */ static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
         {
             if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
             {

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,13 +15,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
-using System.Threading.Tasks;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -319,16 +317,14 @@ namespace Microsoft.Identity.Web.Test
         public void ManagedIdCacheKey_Test(string? clientId)
         {
             // Arrange
-            BuildTheRequiredServices();
-            InitializeTokenAcquisitionObjects();
-            string defaultKey = GetDefaultKey();
+            string defaultKey = "SYSTEM";
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
             };
 
             // Act
-            string key = GetCacheKeyForManagedIdReflection(managedIdentityOptions);
+            string key = TokenAcquisition.GetCacheKeyForManagedId(managedIdentityOptions);
 
             // Assert
             if (string.IsNullOrEmpty(clientId))
@@ -345,7 +341,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("https://localhost:1234")]
         [InlineData("")]
         [InlineData(null)]
-        public async Task GetOrBuildManagedIdentity_TestAsync(string? clientId)
+        public async void GetOrBuildManagedIdentity_TestAsync(string? clientId)
         {
             // Arrange
             ManagedIdentityOptions managedIdentityOptions = new()
@@ -366,26 +362,62 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(app1, app2);
         }
 
-        private string GetCacheKeyForManagedIdReflection(ManagedIdentityOptions managedIdentityOptions)
+        [Theory]
+        [InlineData("https://localhost:1234")]
+        [InlineData(null)]
+        public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
         {
-            return (string)typeof(TokenAcquisition).InvokeMember(
-                "GetCacheKeyForManagedId",
-                TC.StaticPrivateMethodFlags,
-                null,
-                _tokenAcquisition,
-                new object[] { managedIdentityOptions },
-                CultureInfo.InvariantCulture)!;
-        }
+            // Arrange
+            int numThreads = 20;
+            ConcurrentBag<IManagedIdentityApplication> appsBag = new();
+            CountdownEvent taskStartGate = new(numThreads);
+            CountdownEvent threadsDone = new(numThreads);
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = clientId
+            };
+            MergedOptions mergedOptions = new();
+            BuildTheRequiredServices();
+            InitializeTokenAcquisitionObjects();
 
-        private string GetDefaultKey()
-        {
-            return (string)typeof(TokenAcquisition).InvokeMember(
-                "SystemAssignedManagedIdentityKey",
-                TC.StaticPrivateFieldFlags,
-                null,
-                _tokenAcquisition,
-                null,
-                CultureInfo.InvariantCulture)!;
+            Task AddManagedIdentityAppToBag = new(async () =>
+                {
+
+                }
+            );
+
+            // Act
+            for (int i = 0; i < numThreads; i++)
+            {
+                Thread thread = new(async () =>
+                    {
+                        try
+                        {
+                            // Signal that the thread is ready to start and wait for the other threads to be ready.
+                            taskStartGate.Signal();
+                            taskStartGate.Wait();
+
+                            // Add the application to the bag
+                            appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions));
+                        }
+                        finally
+                        {
+                            // No matter what happens, signal that the thread is done so the test doesn't get stuck.
+                            threadsDone.Signal();
+                        }
+                    }
+                );
+                thread.Start();
+            }
+            threadsDone.Wait();
+            IManagedIdentityApplication testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+
+            // Assert
+            Assert.True(appsBag.Count == numThreads, "Not all threads put objects in the concurrent bag");
+            foreach (IManagedIdentityApplication app in appsBag)
+            {
+                Assert.Same(testApp, app);
+            }
         }
     }
 }
