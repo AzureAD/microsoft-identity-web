@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
-        private readonly ConcurrentDictionary<string, IManagedIdentityApplication?> _managedIdentityApplicationsByClientId = new();
+        private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();
         private const string SystemAssignedManagedIdentityKey = "SYSTEM";
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
@@ -614,16 +614,16 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
         /// </summary>
-        /// <param name="mergedOptions">The configuration options for the app</param>
-        /// <param name="managedIdentityOptions">The configuration specific to managed identity</param>
-        /// <returns>The application object used to request a token with managed identity</returns>
+        /// <param name="mergedOptions">The configuration options for the app.</param>
+        /// <param name="managedIdentityOptions">The configuration specific to managed identity.</param>
+        /// <returns>The application object used to request a token with managed identity.</returns>
         internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
             MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
         {
             string key = GetCacheKeyForManagedId(managedIdentityOptions);
 
-            // Check if the application is already built, if so return it without grabbing the key
-            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out IManagedIdentityApplication? application) && application != null)
+            // Check if the application is already built, if so return it without grabbing the lock
+            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out IManagedIdentityApplication? application))
             {
                 return application;
             }
@@ -633,7 +633,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 // Check if the application is already built (could happen between previous check and obtaining the key)
-                if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application) && application != null)
+                if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application))
                 {
                     return application;
                 }
@@ -657,7 +657,8 @@ namespace Microsoft.Identity.Web
 
                 // Add the application to the cache
                 _managedIdentityApplicationsByClientId.TryAdd(key, application);
-            } finally
+            }
+            finally
             {
                 // Now that the dictionary is updated, release the semaphore
                 _managedIdSemaphore.Release();
@@ -666,12 +667,12 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets the key value for the Managed Identity cache, the default key for system-assigned identity is used if there is no
-        /// clientId for a user-assigned identity specified.
+        /// Gets the key value for the Managed Identity cache, the default key for system-assigned identity is used if there is
+        /// no clientId for a user-assigned identity specified. The method is internal rather than private for testing purposes.
         /// </summary>
         /// <param name="managedIdOptions">Holds the clientId for managed identity if none is present</param>
         /// <returns>A key value for the Managed Identity cache</returns>
-        internal /* for testing */ static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
+        internal static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
         {
             if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
             {

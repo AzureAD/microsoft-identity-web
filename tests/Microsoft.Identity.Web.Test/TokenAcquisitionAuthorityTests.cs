@@ -380,12 +380,6 @@ namespace Microsoft.Identity.Web.Test
             BuildTheRequiredServices();
             InitializeTokenAcquisitionObjects();
 
-            Task AddManagedIdentityAppToBag = new(async () =>
-                {
-
-                }
-            );
-
             // Act
             for (int i = 0; i < numThreads; i++)
             {
