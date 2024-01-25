@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
@@ -368,7 +367,7 @@ namespace Microsoft.Identity.Web.Test
         public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
         {
             // Arrange
-            int numThreads = 20;
+            const int numThreads = 20;
             ConcurrentBag<IManagedIdentityApplication> appsBag = new();
             CountdownEvent taskStartGate = new(numThreads);
             CountdownEvent threadsDone = new(numThreads);

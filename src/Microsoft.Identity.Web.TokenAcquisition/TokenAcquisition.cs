@@ -18,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
-using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TokenCacheProviders;
@@ -46,14 +45,11 @@ namespace Microsoft.Identity.Web
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
         private readonly object _applicationSyncObj = new();
-        private readonly SemaphoreSlim _managedIdSemaphore = new(1, 1);
 
         /// <summary>
         ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
-        private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();
-        private const string SystemAssignedManagedIdentityKey = "SYSTEM";
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -119,7 +115,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
-            IConfidentialClientApplication? application=null;
+            IConfidentialClientApplication? application = null;
             try
             {
                 application = GetOrBuildConfidentialClientApplication(mergedOptions);
@@ -369,12 +365,12 @@ namespace Microsoft.Identity.Web
                 try
                 {
                     IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(
-                        mergedOptions, 
+                        mergedOptions,
                         tokenAcquisitionOptions.ManagedIdentity
                     );
                     return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                     throw;
@@ -612,79 +608,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
-        /// </summary>
-        /// <param name="mergedOptions">The configuration options for the app.</param>
-        /// <param name="managedIdentityOptions">The configuration specific to managed identity.</param>
-        /// <returns>The application object used to request a token with managed identity.</returns>
-        internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
-            MergedOptions mergedOptions, ManagedIdentityOptions managedIdentityOptions)
-        {
-            string key = GetCacheKeyForManagedId(managedIdentityOptions);
-
-            // Check if the application is already built, if so return it without grabbing the lock
-            if (_managedIdentityApplicationsByClientId.TryGetValue(key, out IManagedIdentityApplication? application))
-            {
-                return application;
-            }
-
-            // Lock the potential write of the dictionary to prevent multiple threads from creating the same application.
-            await _managedIdSemaphore.WaitAsync();
-            try
-            {
-                // Check if the application is already built (could happen between previous check and obtaining the key)
-                if (_managedIdentityApplicationsByClientId.TryGetValue(key, out application))
-                {
-                    return application;
-                }
-
-                // Set managedIdentityId to the correct value for either system or user assigned
-                ManagedIdentityId managedIdentityId;
-                if (key == SystemAssignedManagedIdentityKey)
-                {
-                    managedIdentityId = ManagedIdentityId.SystemAssigned;
-                }
-                else
-                {
-                    managedIdentityId = ManagedIdentityId.WithUserAssignedClientId(key);
-                }
-    
-                // Build the application
-                application = BuildManagedIdentityApplication(
-                    managedIdentityId,
-                    mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging
-                );
-
-                // Add the application to the cache
-                _managedIdentityApplicationsByClientId.TryAdd(key, application);
-            }
-            finally
-            {
-                // Now that the dictionary is updated, release the semaphore
-                _managedIdSemaphore.Release();
-            }
-            return application;
-        }
-
-        /// <summary>
-        /// Gets the key value for the Managed Identity cache, the default key for system-assigned identity is used if there is
-        /// no clientId for a user-assigned identity specified. The method is internal rather than private for testing purposes.
-        /// </summary>
-        /// <param name="managedIdOptions">Holds the clientId for managed identity if none is present</param>
-        /// <returns>A key value for the Managed Identity cache</returns>
-        internal static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions) 
-        {
-            if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
-            {
-                return SystemAssignedManagedIdentityKey;
-            }
-            else
-            {
-                return managedIdOptions.UserAssignedClientId!;
-            }
-        }
-
-        /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
         private IConfidentialClientApplication BuildConfidentialClientApplication(MergedOptions mergedOptions)
@@ -767,26 +690,6 @@ namespace Microsoft.Identity.Web
                     ex);
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Creates a managed identity client application.
-        /// </summary>
-        /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used.</param>
-        /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information should be enabled.</param>
-        /// <returns>A managed identity application.</returns>
-        private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
-        {
-            return ManagedIdentityApplicationBuilder
-                .Create(managedIdentityId)
-                .WithHttpClientFactory(_httpClientFactory)
-                .WithLogging
-                (
-                    Log,
-                    ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                    enablePiiLogging: enablePiiLogging
-                )
-                .Build();
         }
 
         /// <summary>
@@ -963,8 +866,10 @@ namespace Microsoft.Identity.Web
                 if (!assertion.IsNullOrEmpty() && assertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
                 if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #else
-                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
+                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #endif
             }
         }
