@@ -14,7 +14,6 @@ namespace TokenAcquirerTests
             {
                 return;
             }
-
             Skip = "Ignored when not on Azure DevOps";
         }
     }
