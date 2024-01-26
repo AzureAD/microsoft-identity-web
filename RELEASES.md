@@ -10,12 +10,7 @@ The semantics are: MAJOR.MINOR.PATCH (example 1.1.5)
 
 We will update our code distributions to use the latest PATCH semantic version number in order to make sure our customers and partners get the latest bug fixes. Downstream partner needs to pull the latest PATCH version. Most partners should try lock on the latest MINOR version number in their builds and accept any updates in the PATCH number.
 
-Examples:
-Using Cocapods, the following in the podfile will take the latest MSALiOS build that is > 1.1 but not 1.2.
-```
-pod 'MSALiOS', '~> 1.1'
-```
-
+Example:
 Using NuGet, this ensures all 1.1.0 to 1.1.x updates are included when building your code, but not 1.2. 
 
 ```
@@ -36,7 +31,6 @@ version="[1.1,1.2)"
 When we release a new MINOR version, the previous MINOR version is abandoned.
 
 When we release a new MAJOR version, we will continue to apply bug fixes to the existing features in the previous MAJOR version for up to the 2 year support cycle for Azure.
-Example: We release MSALiOS 2.0 in the future which supports unified Auth for AAD and MSA. Later, we then have a fix in Conditional Access for MSALiOS. Since that feature exists both in MSALiOS 1.1 and MSALiOS 2.0, we will fix both. It will roll up in a PATCH number for each. Customers that are still locked down on MSALiOS 1.1 will receive the benefit of this fix.
 
 ## Microsoft Authentication SDKs and Azure Active Directory
 

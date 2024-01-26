@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="wwwroot\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Properties\openid-configuration" />
   </ItemGroup>
 
@@ -28,10 +35,6 @@
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

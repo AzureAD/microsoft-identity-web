@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
 
         // Authorization IDW10200 = "IDW10200:"
-        public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope or roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";
+        public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope nor roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";
         public const string MissingRoles = "IDW10202: The 'roles' or 'role' claim does not contain roles '{0}' or was not found. ";
         public const string MissingScopes = "IDW10203: The 'scope' or 'scp' claim does not contain scopes '{0}' or was not found. ";
         public const string UnauthenticatedUser = "IDW10204: The user is unauthenticated. The HttpContext does not contain any claims. ";
@@ -51,6 +51,8 @@ namespace Microsoft.Identity.Web
         public const string MicrosoftIdentityWebChallengeUserException = "IDW10502: An MsalUiRequiredException was thrown due to a challenge for the user. " +
            "See https://aka.ms/ms-id-web/ca_incremental-consent. ";
         public const string ProvidedAuthenticationSchemeIsIncorrect = "IDW10503: Cannot determine the cloud Instance. The provided authentication scheme was '{0}'. Microsoft.Identity.Web inferred '{1}' as the authentication scheme. Available authentication schemes are '{2}'. See https://aka.ms/id-web/authSchemes. ";
+        public const string InvalidAssertion = "IDW10504: Invalid assertion: contains unsupported character(s).";
+        public const string InvalidSubAssertion = "IDW10505: Invalid sub_assertion: contains unsupported character(s).";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";

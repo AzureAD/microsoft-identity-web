@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Hosts
 
         public Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user)
         {
-            return Task.FromResult<ClaimsPrincipal?>(HttpContext.Current.User as ClaimsPrincipal);
+            return Task.FromResult(user ?? HttpContext.Current.User as ClaimsPrincipal);
         }
 
         public string? GetCurrentRedirectUri(MergedOptions mergedOptions)
