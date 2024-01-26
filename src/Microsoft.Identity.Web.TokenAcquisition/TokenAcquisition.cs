@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
-            IConfidentialClientApplication? application=null;
+            IConfidentialClientApplication? application = null;
             try
             {
                 application = GetOrBuildConfidentialClientApplication(mergedOptions);
@@ -599,21 +599,19 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                IList<string> AddContinuousAccessEvaluationCapability(IEnumerable<string> clientCapabilities)
+                static IList<string> AddContinuousAccessEvaluationCapability(IEnumerable<string> clientCapabilities)
                 {
                     if (clientCapabilities == null)
                     {
                         return new[] { Constants.CaeCapability };
                     }
-                    else
+
+                    var finalClientCapabilities = new List<string>(clientCapabilities);
+                    if (!finalClientCapabilities.Contains(Constants.CaeCapability))
                     {
-                        var finalClientCapabilities = new List<string>(clientCapabilities);
-                        if (!finalClientCapabilities.Contains(Constants.CaeCapability))
-                        {
-                            finalClientCapabilities.Add(Constants.CaeCapability);
-                        }
-                        return finalClientCapabilities;
+                        finalClientCapabilities.Add(Constants.CaeCapability);
                     }
+                    return finalClientCapabilities;
                 }
 
                 var builder = ConfidentialClientApplicationBuilder
@@ -866,8 +864,10 @@ namespace Microsoft.Identity.Web
                 if (!assertion.IsNullOrEmpty() && assertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
                 if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #else
-                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase)) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
+                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #endif
             }
         }
