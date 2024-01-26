@@ -19,7 +19,7 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
-    [CollectionDefinition(nameof(WebAppCallsApiCallsGraphLocally), DisableParallelization = true)]
+    [CollectionDefinition(nameof(B2CWebAppCallsWebApiLocally), DisableParallelization = true)]
     [Collection("WebAppUiTests")]
     public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
