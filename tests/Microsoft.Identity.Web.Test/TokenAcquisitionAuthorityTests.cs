@@ -352,9 +352,9 @@ namespace Microsoft.Identity.Web.Test
             InitializeTokenAcquisitionObjects();
 
             // Act
-            IManagedIdentityApplication app1 = 
+            var app1 = 
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
-            IManagedIdentityApplication app2 = 
+            var app2 = 
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
 
             // Assert
@@ -367,10 +367,10 @@ namespace Microsoft.Identity.Web.Test
         public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
         {
             // Arrange
-            const int numThreads = 20;
-            ConcurrentBag<IManagedIdentityApplication> appsBag = new();
-            CountdownEvent taskStartGate = new(numThreads);
-            CountdownEvent threadsDone = new(numThreads);
+            ThreadPool.GetMaxThreads(out int maxThreads, out int _);
+            ConcurrentBag<IManagedIdentityApplication> appsBag = [];
+            CountdownEvent taskStartGate = new(maxThreads);
+            CountdownEvent threadsDone = new(maxThreads);
             ManagedIdentityOptions managedIdentityOptions = new()
             {
                 UserAssignedClientId = clientId
@@ -380,7 +380,7 @@ namespace Microsoft.Identity.Web.Test
             InitializeTokenAcquisitionObjects();
 
             // Act
-            for (int i = 0; i < numThreads; i++)
+            for (int i = 0; i < maxThreads; i++)
             {
                 Thread thread = new(async () =>
                     {
@@ -403,10 +403,10 @@ namespace Microsoft.Identity.Web.Test
                 thread.Start();
             }
             threadsDone.Wait();
-            IManagedIdentityApplication testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+            var testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
 
             // Assert
-            Assert.True(appsBag.Count == numThreads, "Not all threads put objects in the concurrent bag");
+            Assert.True(appsBag.Count == maxThreads, "Not all threads put objects in the concurrent bag");
             foreach (IManagedIdentityApplication app in appsBag)
             {
                 Assert.Same(testApp, app);

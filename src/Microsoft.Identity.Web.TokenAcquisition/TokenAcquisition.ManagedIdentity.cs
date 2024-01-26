@@ -14,11 +14,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Portion of the TokenAcquisition class that handles logic unique to managed identity.
     /// </summary>
-#if NETSTANDARD2_0 || NET462 || NET472
-        internal partial class TokenAcquisition : ITokenAcquisitionInternal
-#else
     internal partial class TokenAcquisition
-    #endif
     {
         private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();
         private readonly SemaphoreSlim _managedIdSemaphore = new(1, 1);
@@ -90,7 +86,6 @@ namespace Microsoft.Identity.Web
         {
             return ManagedIdentityApplicationBuilder
                 .Create(managedIdentityId)
-                .WithHttpClientFactory(_httpClientFactory)
                 .WithLogging(
                     Log,
                     ConvertMicrosoftExtensionsLogLevelToMsal(_logger),

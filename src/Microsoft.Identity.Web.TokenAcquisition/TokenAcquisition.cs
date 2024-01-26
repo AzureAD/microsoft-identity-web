@@ -378,7 +378,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Use MSAL to get the right token to call the API
-            IConfidentialClientApplication application = GetOrBuildConfidentialClientApplication(mergedOptions);
+            var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
