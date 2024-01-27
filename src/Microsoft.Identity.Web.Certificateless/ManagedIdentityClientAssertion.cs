@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
                     ManagedIdentityClientId = managedIdentityClientId,
                     WorkloadIdentityClientId = managedIdentityClientId,
                     ExcludeAzureCliCredential = true,
-                    ExcludeAzureDeveloperCliCredential = true
+                    ExcludeAzureDeveloperCliCredential = true,
                     ExcludeAzurePowerShellCredential = true,
                     ExcludeInteractiveBrowserCredential = true,
                     ExcludeSharedTokenCacheCredential = true,
