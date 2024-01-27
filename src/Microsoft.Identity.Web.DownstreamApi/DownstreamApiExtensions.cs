@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -24,9 +22,6 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOptions>(IServiceCollection, String, IConfiguration).")]
-#endif
         public static IServiceCollection AddDownstreamApi(
             this IServiceCollection services,
             string serviceName,
@@ -60,7 +55,7 @@ namespace Microsoft.Identity.Web
             return services;
         }
 
-        private static void RegisterDownstreamApi(IServiceCollection services)
+        internal /* for unit tests*/ static void RegisterDownstreamApi(IServiceCollection services)
         {
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? downstreamApi = services.FirstOrDefault(s => s.ServiceType == typeof(IDownstreamApi));
@@ -86,7 +81,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private static void AddDownstreamApiWithLifetime(IServiceCollection services, ServiceLifetime lifetime)
+        internal static /* for unit tests*/ void AddDownstreamApiWithLifetime(IServiceCollection services, ServiceLifetime lifetime)
         {
             if (lifetime == ServiceLifetime.Singleton)
             {
@@ -107,9 +102,6 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Microsoft.Identity.Web.DownstreamApiExtensions.AddDownstreamApi(IServiceCollection, String, IConfiguration).")]
-#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
