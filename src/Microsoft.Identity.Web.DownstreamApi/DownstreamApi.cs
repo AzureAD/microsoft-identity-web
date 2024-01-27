@@ -361,8 +361,7 @@ namespace Microsoft.Identity.Web
 
             await UpdateRequestAsync(retryHttpRequestMessage);
 
-            var finalResult = await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
-            return finalResult;
+            return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
 }
