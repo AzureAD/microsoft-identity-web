@@ -17,10 +17,11 @@ public class Worker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            var result = await _downstreamApi.CallApiAsync("MyWebApi");
+
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                var result = await _downstreamApi.CallApiAsync("MyWebApi");
             }
             await Task.Delay(1000, stoppingToken);
         }
