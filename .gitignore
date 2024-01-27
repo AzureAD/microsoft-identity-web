@@ -352,4 +352,5 @@ MigrationBackup/
 /tools/app-provisioning-tool/testwebapp
 
 # Playwright e2e testing trace files
-tests/E2E Tests/PlaywrightTraces
+/tests/E2E Tests/PlaywrightTraces
+/tests/IntegrationTests/PlaywrightTraces
