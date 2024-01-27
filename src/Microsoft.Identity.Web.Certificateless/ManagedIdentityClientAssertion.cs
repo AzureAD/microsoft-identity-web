@@ -25,7 +25,14 @@ namespace Microsoft.Identity.Web
                 new DefaultAzureCredentialOptions
                 {
                     ManagedIdentityClientId = managedIdentityClientId,
-                    WorkloadIdentityClientId = managedIdentityClientId
+                    WorkloadIdentityClientId = managedIdentityClientId,
+                    ExcludeAzureCliCredential = true,
+                    ExcludeAzureDeveloperCliCredential = true
+                    ExcludeAzurePowerShellCredential = true,
+                    ExcludeInteractiveBrowserCredential = true,
+                    ExcludeSharedTokenCacheCredential = true,
+                    ExcludeVisualStudioCodeCredential = true,
+                    ExcludeVisualStudioCredential = true
                 });
         }
 
