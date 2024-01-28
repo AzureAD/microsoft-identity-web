@@ -13,16 +13,28 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
     {
+        private readonly TokenCredential _credential;
+
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        /// <param name="managedIdentityClientId"></param>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
-            _managedIdentityClientId = managedIdentityClientId;
+            _credential = new DefaultAzureCredential(
+                new DefaultAzureCredentialOptions
+                {
+                    ManagedIdentityClientId = managedIdentityClientId,
+                    WorkloadIdentityClientId = managedIdentityClientId,
+                    ExcludeAzureCliCredential = true,
+                    ExcludeAzureDeveloperCliCredential = true,
+                    ExcludeAzurePowerShellCredential = true,
+                    ExcludeInteractiveBrowserCredential = true,
+                    ExcludeSharedTokenCacheCredential = true,
+                    ExcludeVisualStudioCodeCredential = true,
+                    ExcludeVisualStudioCredential = true
+                });
         }
-
-        private readonly string? _managedIdentityClientId;
 
         /// <summary>
         /// Prototype of certificate-less authentication using a signed assertion
@@ -31,10 +43,8 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
-            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = _managedIdentityClientId });
-
-            var result = await credential.GetTokenAsync(
-                new TokenRequestContext(new[] { "api://AzureADTokenExchange/.default" }, null),
+            var result = await _credential.GetTokenAsync(
+                new TokenRequestContext(["api://AzureADTokenExchange/.default"], null),
                 cancellationToken).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }

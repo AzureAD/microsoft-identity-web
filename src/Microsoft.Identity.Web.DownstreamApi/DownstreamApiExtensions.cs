@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -22,9 +22,6 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOptions>(IServiceCollection, String, IConfiguration).")]
-#endif
         public static IServiceCollection AddDownstreamApi(
             this IServiceCollection services,
             string serviceName,
@@ -33,7 +30,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(services);
 
             services.Configure<DownstreamApiOptions>(serviceName, configuration);
-            services.AddScoped<IDownstreamApi, DownstreamApi>();
+            RegisterDownstreamApi(services);
             return services;
         }
 
@@ -52,12 +49,48 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure<DownstreamApiOptions>(serviceName, configureOptions);
-
-            // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-            services.AddScoped<IDownstreamApi, DownstreamApi>();
             services.Configure(serviceName, configureOptions);
+            RegisterDownstreamApi(services);
+
             return services;
+        }
+
+        internal /* for unit tests*/ static void RegisterDownstreamApi(IServiceCollection services)
+        {
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
+            ServiceDescriptor? downstreamApi = services.FirstOrDefault(s => s.ServiceType == typeof(IDownstreamApi));
+
+            if (tokenAcquisitionService != null)
+            {
+                if (downstreamApi != null)
+                {
+                    if (downstreamApi.Lifetime != tokenAcquisitionService.Lifetime)
+                    {
+                        services.Remove(downstreamApi);
+                        AddDownstreamApiWithLifetime(services, tokenAcquisitionService.Lifetime);
+                    }
+                }
+                else
+                {
+                    AddDownstreamApiWithLifetime(services, tokenAcquisitionService.Lifetime);
+                }
+            }
+            else
+            {
+                services.AddScoped<IDownstreamApi, DownstreamApi>();
+            }
+        }
+
+        internal static /* for unit tests*/ void AddDownstreamApiWithLifetime(IServiceCollection services, ServiceLifetime lifetime)
+        {
+            if (lifetime == ServiceLifetime.Singleton)
+            {
+                services.AddSingleton<IDownstreamApi, DownstreamApi>();
+            }
+            else
+            {
+                services.AddScoped<IDownstreamApi, DownstreamApi>();
+            }
         }
 
 #if NETCOREAPP
@@ -69,9 +102,6 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Microsoft.Identity.Web.DownstreamApiExtensions.AddDownstreamApi(IServiceCollection, String, IConfiguration).")]
-#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,
