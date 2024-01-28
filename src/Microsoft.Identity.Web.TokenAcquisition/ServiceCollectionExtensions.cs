@@ -90,7 +90,6 @@ namespace Microsoft.Identity.Web
             {
 #if NETCOREAPP3_1_OR_GREATER
                 // ASP.NET Core
-                services.AddHttpContextAccessor();
                 if (forceSdk)
                 {
                     services.AddSingleton<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
@@ -98,6 +97,7 @@ namespace Microsoft.Identity.Web
                 else
                 {
                     services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
+                    services.AddHttpContextAccessor();
                 }
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
                 services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
@@ -114,8 +114,6 @@ namespace Microsoft.Identity.Web
             else
             {
 #if NETCOREAPP3_1_OR_GREATER
-                // ASP.NET Core
-                services.AddHttpContextAccessor();
 
                 if (forceSdk)
                 {
@@ -124,6 +122,7 @@ namespace Microsoft.Identity.Web
                 else
                 {
                     services.AddScoped<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
+                    services.AddHttpContextAccessor();
                 }
                 services.AddScoped<ITokenAcquisition, TokenAcquisitionAspNetCore>();
                 services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
