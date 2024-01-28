@@ -1,0 +1,62 @@
+name: Run benchmark
+on:
+  workflow_dispatch: # Allows manual triggering of workflow
+  push:
+    branches:
+      - master
+
+permissions:
+  # Deployments permission to deploy GitHub pages website
+  deployments: write
+  # Contents permission to update benchmark contents in gh-pages branch
+  contents: write
+
+jobs:
+  benchmark:
+    name: Performance regression check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      - name: Run benchmark
+        run: cd benchmark/Benchmarks && dotnet run -c release -f net8.0 --exporters json 
+
+      - name: Download previous benchmark data
+        uses: actions/cache@v3
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+
+      - name: Store CreateAuthorizationHeader result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: CreateAuthorizationHeader
+          tool: 'benchmarkdotnet'
+          output-file-path: benchmark/Benchmarks/BenchmarkDotNet.Artifacts/results/Benchmarks.CreateAuthorizationHeader-report-full-compressed.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '130%'
+          comment-on-alert: true
+          fail-on-alert: true
+          summary-always: true
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: benchmarks
+
+      - name: Store GetTokenAcquirer result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: GetTokenAcquirer
+          tool: 'benchmarkdotnet'
+          output-file-path: benchmark/Benchmarks/BenchmarkDotNet.Artifacts/results/Benchmarks.GetTokenAcquirer-report-full-compressed.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '130%'
+          comment-on-alert: true
+          fail-on-alert: true
+          summary-always: true
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: benchmarks

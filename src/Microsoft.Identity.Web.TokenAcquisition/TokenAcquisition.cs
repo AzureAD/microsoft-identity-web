@@ -715,7 +715,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+        private async ValueTask<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string? tenantId,
            IEnumerable<string> scopes,
@@ -906,7 +906,7 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+        private async ValueTask<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
@@ -941,7 +941,6 @@ namespace Microsoft.Identity.Web
                 mergedOptions,
                 userFlow,
                 tokenAcquisitionOptions).ConfigureAwait(false);
-
         }
 
         /// <summary>

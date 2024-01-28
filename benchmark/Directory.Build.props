@@ -1,0 +1,20 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <SignAssembly>True</SignAssembly>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+    <AssemblyOriginatorKeyFile>../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Common dependency versions">
+    <MicrosoftIdentityLabApiVersion>0.12.1</MicrosoftIdentityLabApiVersion>
+    <BenchmarkDotNetVersion>0.13.12</BenchmarkDotNetVersion>
+    <BenchmarkDotNetDiagnosticsWindowsVersion>0.13.12</BenchmarkDotNetDiagnosticsWindowsVersion>
+	</PropertyGroup>
+
+</Project>
