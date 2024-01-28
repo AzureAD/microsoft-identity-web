@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
-using Microsoft.AspNetCore.Authentication;
+using System.Threading;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,11 +14,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -84,18 +85,18 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.B2CInstance)]
-        [InlineData(TestConstants.B2CLoginMicrosoft)]
-        [InlineData(TestConstants.B2CInstance, true)]
-        [InlineData(TestConstants.B2CLoginMicrosoft, true)]
+        [InlineData(TC.B2CInstance)]
+        [InlineData(TC.B2CLoginMicrosoft)]
+        [InlineData(TC.B2CInstance, true)]
+        [InlineData(TC.B2CLoginMicrosoft, true)]
         public void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTests(
             string authorityInstance,
             bool withTfp = false)
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
-                SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
-                Domain = TestConstants.B2CTenant,
+                SignUpSignInPolicyId = TC.B2CSignUpSignInUserFlow,
+                Domain = TC.B2CTenant,
             });
 
             if (withTfp)
@@ -103,23 +104,21 @@ namespace Microsoft.Identity.Web.Test
                 _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
                 {
                     Instance = authorityInstance + "/tfp/",
-                    ClientId = TestConstants.ConfidentialClientId,
-                    ClientSecret = TestConstants.ClientSecret,
+                    ClientId = TC.ConfidentialClientId,
+                    ClientSecret = TC.ClientSecret,
                 });
-                BuildTheRequiredServices();
             }
             else
             {
                 _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
                 {
                     Instance = authorityInstance,
-                    ClientId = TestConstants.ConfidentialClientId,
-                    ClientSecret = TestConstants.ClientSecret,
+                    ClientId = TC.ConfidentialClientId,
+                    ClientSecret = TC.ClientSecret,
                 });
-
-                BuildTheRequiredServices();
             }
 
+            BuildTheRequiredServices();
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
@@ -132,8 +131,8 @@ namespace Microsoft.Identity.Web.Test
                 CultureInfo.InvariantCulture,
                 "{0}/tfp/{1}/{2}/",
                 authorityInstance,
-                TestConstants.B2CTenant,
-                TestConstants.B2CSignUpSignInUserFlow);
+                TC.B2CTenant,
+                TC.B2CSignUpSignInUserFlow);
 
             Assert.Equal(expectedAuthority, app.Authority);
         }
@@ -146,16 +145,16 @@ namespace Microsoft.Identity.Web.Test
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
-                Authority = TestConstants.AuthorityCommonTenant,
-                ClientId = TestConstants.ConfidentialClientId,
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
                 CallbackPath = string.Empty,
             });
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TestConstants.AadInstance,
+                Instance = TC.AadInstance,
                 RedirectUri = redirectUri,
-                ClientSecret = TestConstants.ClientSecret,
+                ClientSecret = TC.ClientSecret,
             });
 
             BuildTheRequiredServices();
@@ -185,15 +184,15 @@ namespace Microsoft.Identity.Web.Test
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
-                Authority = TestConstants.AuthorityCommonTenant,
-                ClientId = TestConstants.ConfidentialClientId,
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
                 SendX5C = sendx5c,
             });
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TestConstants.AadInstance,
-                ClientSecret = TestConstants.ClientSecret,
+                Instance = TC.AadInstance,
+                ClientSecret = TC.ClientSecret,
             });
 
             BuildTheRequiredServices();
@@ -219,18 +218,18 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             MergedOptions mergedOptions = new()
             {
-                Authority = TestConstants.AuthorityWithTenantSpecified,
-                TenantId = TestConstants.TenantIdAsGuid,
-                Instance = TestConstants.AadInstance
+                Authority = TC.AuthorityWithTenantSpecified,
+                TenantId = TC.TenantIdAsGuid,
+                Instance = TC.AadInstance
             };
 
             // Act
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
 
             // Assert
-            Assert.Equal(TestConstants.AuthorityWithTenantSpecified, mergedOptions.Authority);
-            Assert.Equal(TestConstants.AadInstance, mergedOptions.Instance);
-            Assert.Equal(TestConstants.TenantIdAsGuid, mergedOptions.TenantId);
+            Assert.Equal(TC.AuthorityWithTenantSpecified, mergedOptions.Authority);
+            Assert.Equal(TC.AadInstance, mergedOptions.Instance);
+            Assert.Equal(TC.TenantIdAsGuid, mergedOptions.TenantId);
         }
 
         [Fact]
@@ -308,6 +307,110 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Null(mergedDict);
+        }
+
+        [Theory]
+        [InlineData("https://localhost:1234")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void ManagedIdCacheKey_Test(string? clientId)
+        {
+            // Arrange
+            string defaultKey = "SYSTEM";
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = clientId
+            };
+
+            // Act
+            string key = TokenAcquisition.GetCacheKeyForManagedId(managedIdentityOptions);
+
+            // Assert
+            if (string.IsNullOrEmpty(clientId))
+            {
+                Assert.Equal(defaultKey, key);
+            }
+            else
+            {
+                Assert.Equal(clientId, key);
+            }
+        }
+
+        [Theory]
+        [InlineData("https://localhost:1234")]
+        [InlineData("")]
+        [InlineData(null)]
+        public async void GetOrBuildManagedIdentity_TestAsync(string? clientId)
+        {
+            // Arrange
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = clientId
+            };
+            MergedOptions mergedOptions = new();
+            BuildTheRequiredServices();
+            InitializeTokenAcquisitionObjects();
+
+            // Act
+            var app1 = 
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+            var app2 = 
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+
+            // Assert
+            Assert.Same(app1, app2);
+        }
+
+        [Theory]
+        [InlineData("https://localhost:1234")]
+        [InlineData(null)]
+        public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
+        {
+            // Arrange
+            ThreadPool.GetMaxThreads(out int maxThreads, out int _);
+            ConcurrentBag<IManagedIdentityApplication> appsBag = [];
+            CountdownEvent taskStartGate = new(maxThreads);
+            CountdownEvent threadsDone = new(maxThreads);
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = clientId
+            };
+            MergedOptions mergedOptions = new();
+            BuildTheRequiredServices();
+            InitializeTokenAcquisitionObjects();
+
+            // Act
+            for (int i = 0; i < maxThreads; i++)
+            {
+                Thread thread = new(async () =>
+                    {
+                        try
+                        {
+                            // Signal that the thread is ready to start and wait for the other threads to be ready.
+                            taskStartGate.Signal();
+                            taskStartGate.Wait();
+
+                            // Add the application to the bag
+                            appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions));
+                        }
+                        finally
+                        {
+                            // No matter what happens, signal that the thread is done so the test doesn't get stuck.
+                            threadsDone.Signal();
+                        }
+                    }
+                );
+                thread.Start();
+            }
+            threadsDone.Wait();
+            var testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+
+            // Assert
+            Assert.True(appsBag.Count == maxThreads, "Not all threads put objects in the concurrent bag");
+            foreach (IManagedIdentityApplication app in appsBag)
+            {
+                Assert.Same(testApp, app);
+            }
         }
     }
 }

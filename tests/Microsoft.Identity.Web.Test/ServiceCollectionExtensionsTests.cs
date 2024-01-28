@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Test
     public class ServiceCollectionExtensionsTests
     {
         [Fact]
-        public void AddTokenAcquisition_AddsWithCorrectLifetime()
+        public void AddTokenAcquisition_Sdk_AddsWithCorrectLifetime()
         {
             var services = new ServiceCollection();
 
@@ -26,14 +26,6 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Collection(
                 orderedServices,
-                actual =>
-                {
-                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
-                    Assert.Equal(typeof(IHttpContextAccessor), actual.ServiceType);
-                    Assert.Equal(typeof(HttpContextAccessor), actual.ImplementationType);
-                    Assert.Null(actual.ImplementationInstance);
-                    Assert.Null(actual.ImplementationFactory);
-                },
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
