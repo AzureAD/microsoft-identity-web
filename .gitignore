@@ -350,3 +350,7 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /tools/app-provisioning-tool/testwebapp
+
+# Playwright e2e testing trace files
+/tests/E2E Tests/PlaywrightTraces
+/tests/IntegrationTests/PlaywrightTraces

@@ -45,6 +45,7 @@ namespace Microsoft.Identity.Web
                 PopClaim = PopClaim,
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
+                ManagedIdentity = ManagedIdentity,
             };
         }
     }

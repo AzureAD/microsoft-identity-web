@@ -3,9 +3,11 @@
 
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
@@ -297,6 +299,47 @@ namespace TokenAcquirerTests
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.NotNull(result.AccessToken);
+        }
+    }
+
+    public class AcquireTokenManagedIdentity 
+    {
+        [OnlyOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireTokenWithManagedIdentity_UserAssigned()
+        {
+            // Arrange
+            const string scope = "https://vault.azure.net/.default";
+            const string baseUrl = "https://vault.azure.net";
+            const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            _ = tokenAcquirerFactory.Services;
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+
+            // Act: Get the authorization header provider and add the options to tell it to use Managed Identity
+            IAuthorizationHeaderProvider? api = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.NotNull(api);
+            string result = await api.CreateAuthorizationHeaderForAppAsync(scope, GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
+
+            // Assert: Make sure we got a token
+            Assert.False(string.IsNullOrEmpty(result));
+        }
+
+        private static AuthorizationHeaderProviderOptions GetAuthHeaderOptions_ManagedId(string baseUrl, string? userAssignedClientId=null) 
+        {
+            ManagedIdentityOptions managedIdentityOptions = new()
+            {
+                UserAssignedClientId = userAssignedClientId
+            };
+            AcquireTokenOptions aquireTokenOptions = new()
+            {
+                ManagedIdentity = managedIdentityOptions
+            };
+            return new AuthorizationHeaderProviderOptions()
+            {
+                BaseUrl = baseUrl,
+                AcquireTokenOptions = aquireTokenOptions
+            };
         }
     }
 #endif //FROM_GITHUB_ACTION
