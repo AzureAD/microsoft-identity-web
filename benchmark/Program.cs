@@ -23,16 +23,4 @@ namespace daemon_console
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, benchmarkConfig);
         }
     }
-
-    //public class AntiVirusFriendlyConfig : ManualConfig
-    //{
-    //    public AntiVirusFriendlyConfig()
-    //    {
-    //        AddColumn(StatisticColumn.P90);
-    //        AddColumn(StatisticColumn.P95);
-    //        AddColumn(StatisticColumn.P100);
-
-    //        AddJob(Job.MediumRun
-    //            .WithToolchain(InProcessNoEmitToolchain.Instance));
-    //    }
 }
