@@ -1,0 +1,21 @@
+---
+name: Weekly dependabot checks
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '3 2 1 * *'
+
+permissions:
+  issues: write
+
+jobs:
+  evergreen:
+    name: evergreen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run evergreen action
+        uses: github/evergreen@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION: <YOUR_ORGANIZATION_GOES_HERE>
