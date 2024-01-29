@@ -15,6 +15,9 @@ jobs:
   benchmark:
     name: Performance regression check
     runs-on: ubuntu-latest
+    env:
+      AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
+      AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
