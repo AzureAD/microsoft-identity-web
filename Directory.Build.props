@@ -76,7 +76,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <IdentityModelVersion>7.1.2</IdentityModelVersion>
+    <IdentityModelVersion>7.3.0</IdentityModelVersion>
     <MicrosoftIdentityClientVersion>4.59.0</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>

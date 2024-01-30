@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
@@ -180,8 +181,14 @@ namespace Microsoft.Identity.Web.Test.Common
         public static readonly string s_todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
 
 
-        // TokenAcqusitionOptions
+        // TokenAcqusitionOptions and ManagedIdentityOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
+        public const string UserAssignedManagedIdentityClientId = "3b57c42c-3201-4295-ae27-d6baec5b7027";
+        public const string UserAssignedManagedIdentityResourceId = "/subscriptions/c1686c51-b717-4fe0-9af3-24a20a41fb0c/" +
+            "resourcegroups/MSAL_MSI/providers/Microsoft.ManagedIdentity/userAssignedIdentities/" + "MSAL_MSI_USERID";
+        public const BindingFlags StaticPrivateFieldFlags = BindingFlags.GetField | BindingFlags.Static | BindingFlags.NonPublic;
+        public const BindingFlags InstancePrivateFieldFlags = BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic;
+        public const BindingFlags StaticPrivateMethodFlags = BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic;
 
         // AadIssuerValidation
         public const string AadAuthority = "aadAuthority";

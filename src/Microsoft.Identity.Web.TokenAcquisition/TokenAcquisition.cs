@@ -19,11 +19,11 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Identity.Web.Experimental;
 
 namespace Microsoft.Identity.Web
 {
@@ -47,9 +47,9 @@ namespace Microsoft.Identity.Web
         private readonly object _applicationSyncObj = new();
 
         /// <summary>
-        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing this field directly.
+        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
         /// </summary>
-        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new ConcurrentDictionary<string, IConfidentialClientApplication?>();
+        private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -321,9 +321,10 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
-        /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
+        /// using either a client credentials or managed identity flow. See https://aka.ms/msal-net-client-credentials for client credentials or
+        /// https://aka.ms/Entra/ManagedIdentityOverview for managed identity.
         /// </summary>
-        /// <param name="scope">The scope requested to access a protected API. For this flow (client credentials), the scope
+        /// <param name="scope">The scope requested to access a protected API. For these flows (client credentials or managed identity), the scope
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are defined statically with the application registration
         /// in the portal, and cannot be overridden in the application, as you can request a token for only one resource at a time (use
@@ -358,10 +359,28 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
             }
 
+            // If using managed identity 
+            if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
+            {
+                try
+                {
+                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(
+                        mergedOptions,
+                        tokenAcquisitionOptions.ManagedIdentity
+                    );
+                    return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                    throw;
+                }
+            }
+
             // Use MSAL to get the right token to call the API
             var application = GetOrBuildConfidentialClientApplication(mergedOptions);
 
-            var builder = application
+            AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
@@ -585,7 +604,6 @@ namespace Microsoft.Identity.Web
                     _applicationsByAuthorityClientId.TryAdd(GetApplicationKey(mergedOptions), application);
                 }
             }
-
             return application;
         }
 
@@ -713,7 +731,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
+        private async ValueTask<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string? tenantId,
            IEnumerable<string> scopes,
@@ -904,7 +922,7 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow to target.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-        private async Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
+        private async ValueTask<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             ClaimsPrincipal? claimsPrincipal,
             IEnumerable<string> scopes,
@@ -939,7 +957,6 @@ namespace Microsoft.Identity.Web
                 mergedOptions,
                 userFlow,
                 tokenAcquisitionOptions).ConfigureAwait(false);
-
         }
 
         /// <summary>
