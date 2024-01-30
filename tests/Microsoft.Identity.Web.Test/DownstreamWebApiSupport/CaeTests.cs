@@ -26,11 +26,13 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
             "errorDescription=\"Continuous access evaluation resulted in challenge with result: InteractionRequired and code: TokenIssuedBeforeRevocationTimestamp\", " +
             "error=\"insufficient_claims\", " +
             "claims=\"eyJhY2Nlc3NfdG9rZW4iOnsibmJmIjp7ImVzc2VudGlhbCI6dHJ1ZSwgInZhbHVlIjoiMTcwMjY4MjE4MSJ9fX0=\"";
-        private const string _parsedClaims = @"{""access_token"":{""nbf"":{""essential"":true, ""value"":""1702682181""}}}";
+        private const string ParsedClaims = @"{""access_token"":{""nbf"":{""essential"":true, ""value"":""1702682181""}}}";
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private ServiceProvider _provider;
         private IDownstreamApi _downstreamApi;
         private IAuthorizationHeaderProvider _authorizationHeaderProvider;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
         public async Task DownstreamApi_GetForApp_Retries401ResponseOnce()
@@ -45,7 +47,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
 
             await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderForAppAsync(string.Empty);
             await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderForAppAsync(
-                Arg.Any<string>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(_parsedClaims, StringComparison.Ordinal)));
+                Arg.Any<string>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(ParsedClaims, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -61,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
 
             await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderForUserAsync(Enumerable.Empty<string>());
             await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderForUserAsync(
-                Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(_parsedClaims, StringComparison.Ordinal)));
+                Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(ParsedClaims, StringComparison.Ordinal)));
         }
 
         [Fact]

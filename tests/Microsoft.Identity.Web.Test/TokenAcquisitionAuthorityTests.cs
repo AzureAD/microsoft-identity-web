@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test
                 _credentialsLoader);
         }
 
-        private void BuildRequiredServices()
+        private void BuildTheRequiredServices()
         {
             var services = new ServiceCollection();
             services.AddTransient(
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(null)]
         public void VerifyCorrectSchemeTests(string scheme)
         {
-            BuildRequiredServices();
+            BuildTheRequiredServices();
             InitializeTokenAcquisitionObjects();
 
             if (!string.IsNullOrEmpty(scheme))
@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web.Test
                     ClientId = TestConstants.ConfidentialClientId,
                     ClientSecret = TestConstants.ClientSecret,
                 });
-                BuildRequiredServices();
+                BuildTheRequiredServices();
             }
             else
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Web.Test
                     ClientSecret = TestConstants.ClientSecret,
                 });
 
-                BuildRequiredServices();
+                BuildTheRequiredServices();
             }
 
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web.Test
                 ClientSecret = TestConstants.ClientSecret,
             });
 
-            BuildRequiredServices();
+            BuildTheRequiredServices();
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
@@ -195,7 +195,7 @@ namespace Microsoft.Identity.Web.Test
                 ClientSecret = TestConstants.ClientSecret,
             });
 
-            BuildRequiredServices();
+            BuildTheRequiredServices();
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
@@ -330,7 +330,7 @@ namespace Microsoft.Identity.Web.Test
                 ClientCapabilities = initialCapabilities,
             });
 
-            BuildRequiredServices();
+            BuildTheRequiredServices();
             MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
