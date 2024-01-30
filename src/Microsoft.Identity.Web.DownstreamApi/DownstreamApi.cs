@@ -97,9 +97,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
-#endif
         public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -124,9 +121,6 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER               
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput, DownstreamApiOptions)")] 
-#endif
         public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -149,9 +143,6 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")] 
-#endif
         public async Task<TOutput?> CallApiForAppAsync<TOutput>(string serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
             CancellationToken cancellationToken = default) where TOutput : class
@@ -164,9 +155,6 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(HttpResponseMessage, DownstreamApiOptions)")]
-#endif
         public async Task<TOutput?> CallApiForUserAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
@@ -230,9 +218,6 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-#endif
         private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
         {
             HttpContent? effectiveInput;
@@ -254,9 +239,6 @@ namespace Microsoft.Identity.Web
             return effectiveInput;
         }
 
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-#endif
         private static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {

@@ -56,9 +56,6 @@ namespace Microsoft.Identity.Web
      firstMethod = false; 
 #>
         /// <inheritdoc/>
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamApi.DeserializeOutput<TOutput>(response, effectiveOptions)")]
-#endif
         public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
             string? serviceName,
 <# if (hasInput){ #>

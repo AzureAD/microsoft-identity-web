@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             string authority = "http://localhost:1234";
             Process? p = ExternalApp.Start(
                 typeof(AcquireTokenForUserIntegrationTests),
-                @"tests\IntegrationTests\SimulateOidc\", 
+                @"tests\E2E Tests\SimulateOidc\", 
                 "SimulateOidc.exe",
                 $"--urls={authority}");
             if (p != null && !p.HasExited)
