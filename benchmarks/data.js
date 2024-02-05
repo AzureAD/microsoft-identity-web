@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706936162008,
+  "lastUpdate": 1707156788777,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -180,6 +180,42 @@ window.BENCHMARK_DATA = {
             "value": 10976.24651862835,
             "unit": "ns",
             "range": "± 62.76531113982403"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "397fce764ad436a68934baa545f2b8884e70ae8c",
+          "message": "Changelog for IdWeb 2.17.0 (#2668)\n\n* Changelog for IdWeb 2.17.0\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-02-05T10:09:35-08:00",
+          "tree_id": "f161f557a5169b48ef5b3b698f2943e3584c1d59",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/397fce764ad436a68934baa545f2b8884e70ae8c"
+        },
+        "date": 1707156787760,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10652.318398339408,
+            "unit": "ns",
+            "range": "± 63.05199550463583"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11061.285594545561,
+            "unit": "ns",
+            "range": "± 64.90310093067599"
           }
         ]
       }
