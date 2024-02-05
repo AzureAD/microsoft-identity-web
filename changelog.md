@@ -1,3 +1,20 @@
+2.17.0
+=========
+- Updated to Microsoft.IdentityModel.* 7.3.0 and MSAL.NET 4.59.0
+
+### New features
+- Added support for Microsoft.NET.Sdk.Worker. See [Worker calling APIs](https://github.com/AzureAD/microsoft-identity-web/wiki/worker%E2%80%90app%E2%80%90calling%E2%80%90downstream%E2%80%90apis)
+- Added support for Managed identity when calling a downstream API on behalf of the app. See [Calling APIs with Managed Identity](https://github.com/AzureAD/microsoft-identity-web/wiki/calling-apis-with-managed-identity) and [PR 2650](https://github.com/AzureAD/microsoft-identity-web/pull/2650). For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645)
+
+### Bug fixes
+- In OWIN applications, GetTokenForUserAsync now respects the ClaimsPrincipal. See issue [#2629](https://github.com/AzureAD/microsoft-identity-web/issues/2629) for details.
+- After setting `AddTokenAcquisition(useSingleton:true)` to use token acquisition as a singleton, if you use `.AddMicrosoftGraph` and/or `.AddDownstreamApi` after this call, 
+  the GraphServiceClient and IDownstreamApis are now registered as a singleton service. For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645)
+- Added check Against Injection Attacks. For details see [PR 2619](https://github.com/AzureAD/microsoft-identity-web/issues/2619)
+
+### Engineering excellence
+- Added a benchmark running on PR merges, available from [https://azuread.github.io/microsoft-identity-web/benchmarks](https://azuread.github.io/microsoft-identity-web/benchmarks) on GitHub pages
+
 2.16.1
 =========
 - Update Microsoft.Identity.Abstractions 5.1.0 and Microsoft.IdentityModel.* 7.1.2
