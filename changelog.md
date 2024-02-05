@@ -1,6 +1,6 @@
 2.17.0
 =========
-- Updated to Microsoft.IdentityModel.* 7.3.0 and MSAL.NET 4.59.0
+- Updated to Microsoft.IdentityModel.* 7.3.1 and MSAL.NET 4.59.0
 
 ### New features
 - Added support for Microsoft.NET.Sdk.Worker. See [Worker calling APIs](https://github.com/AzureAD/microsoft-identity-web/wiki/worker%E2%80%90app%E2%80%90calling%E2%80%90downstream%E2%80%90apis)
