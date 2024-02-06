@@ -20,7 +20,7 @@ namespace WebAppUiTests;
 // since this test changes environment variables we'd prefer it not run at the same time as other tests
 [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
 [Collection("WebAppUiTests")]
-public class TestingWebAppLocally
+public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
@@ -30,7 +30,7 @@ public class TestingWebAppLocally
     private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
     private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
 
-    public TestingWebAppLocally(ITestOutputHelper output)
+    public TestingWebAppLocally(ITestOutputHelper output) 
     {
         _output = output;
     }
