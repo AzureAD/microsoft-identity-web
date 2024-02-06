@@ -28,6 +28,7 @@ public class TestingWebAppLocally
     private readonly string _devAppExecutable = Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph.exe";
     private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph";
     private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
+    private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
 
     public TestingWebAppLocally(ITestOutputHelper output)
     {
@@ -39,7 +40,7 @@ public class TestingWebAppLocally
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         // Arrange
-        Process p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+        Process? p = null;
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -48,6 +49,9 @@ public class TestingWebAppLocally
 
         try
         {
+            p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+            await Task.Delay(5000); // Allow the web app time to start up.
+
             if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
@@ -60,8 +64,8 @@ public class TestingWebAppLocally
             await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
 
             // Assert
-            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
-            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
+            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
         }
         catch (Exception ex)
         {
@@ -71,7 +75,7 @@ public class TestingWebAppLocally
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            processes.Enqueue(p);
+            if (p != null) { processes.Enqueue(p); }
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright
