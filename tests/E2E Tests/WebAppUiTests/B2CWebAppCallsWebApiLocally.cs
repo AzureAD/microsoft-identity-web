@@ -20,7 +20,6 @@ namespace WebAppUiTests
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-    [Collection("WebAppUiTests")]
     public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const string KeyvaultEmailName = "IdWeb-B2C-user";
