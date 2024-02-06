@@ -39,6 +39,7 @@ namespace TokenAcquirerTests
         [Fact]
         public void TokenAcquirerFactoryDoesNotUseAspNetCoreHost()
         {
+            TokenAcquirerFactory.ResetDefaultInstance();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             var serviceProvider = tokenAcquirerFactory.Build();
             var service = serviceProvider.GetService<ITokenAcquisitionHost>();
@@ -312,8 +313,8 @@ namespace TokenAcquirerTests
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
             const string clientId = "9c5896db-a74a-4b1a-a259-74c5080a3a6a";
+            TokenAcquirerFactory.ResetDefaultInstance();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            //_ = tokenAcquirerFactory.Services;
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 
             // Act: Get the authorization header provider and add the options to tell it to use Managed Identity
