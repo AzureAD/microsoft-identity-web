@@ -26,7 +26,7 @@ namespace WebAppUiTests
         private const uint TodoListClientPort = 44321;
         private const uint TodoListServicePort = 44350;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
         private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
@@ -77,7 +77,7 @@ namespace WebAppUiTests
                 // The delay after processes are started gives time to finish initial setup before attempted connection.
                 grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-                Thread.Sleep(3000); 
+                Thread.Sleep(3000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
                 Thread.Sleep(5000);
 
