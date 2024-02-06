@@ -18,9 +18,9 @@ namespace WebAppUiTests;
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 
 // since this test changes environment variables we'd prefer it not run at the same time as other tests
-[CollectionDefinition(nameof(TestingWebAppLocally), DisableParallelization = true)]
+[CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
 [Collection("WebAppUiTests")]
-public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
+public class TestingWebAppLocally
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
