@@ -6,7 +6,7 @@ using Xunit;
 namespace WebAppUiTests
 {
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-    public class UiTestNoParallelization
+    public class UiTestNoParallelization : ICollectionFixture<InstallPlaywrightBrowserFixture>
     {
     }
 }

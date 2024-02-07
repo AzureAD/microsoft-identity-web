@@ -19,7 +19,7 @@ namespace WebAppUiTests
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-    public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
+    public class WebAppCallsApiCallsGraphLocally
     {
         private const uint GrpcPort = 5001;
         private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";

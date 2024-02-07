@@ -19,7 +19,7 @@ namespace WebAppUiTests;
 
 // since this test changes environment variables we'd prefer it not run at the same time as other tests
 [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
+public class TestingWebAppLocally
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
