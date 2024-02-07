@@ -39,7 +39,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         // Arrange
-        Process? p = null;
+        Process? process = null;
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -48,10 +48,10 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-            p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
             await Task.Delay(5000); // Allow the web app time to start up.
 
-            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail(TC.WebAppCrashedString); }
+            if (!UiTestHelpers.ProcessIsAlive(process)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
@@ -74,7 +74,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            if (p != null) { processes.Enqueue(p); }
+            if (process != null) { processes.Enqueue(process); }
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright
