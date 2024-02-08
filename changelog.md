@@ -4,7 +4,7 @@
 
 ### New features
 - Added support for Microsoft.NET.Sdk.Worker. See [Worker calling APIs](https://github.com/AzureAD/microsoft-identity-web/wiki/worker%E2%80%90app%E2%80%90calling%E2%80%90downstream%E2%80%90apis)
-- Added support for Managed identity when calling a downstream API on behalf of the app. See [Calling APIs with Managed Identity](https://github.com/AzureAD/microsoft-identity-web/wiki/calling-apis-with-managed-identity) and [PR 2650](https://github.com/AzureAD/microsoft-identity-web/pull/2650). For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645)
+- Added support for Managed identity when calling a downstream API on behalf of the app. See [Calling APIs with Managed Identity](https://github.com/AzureAD/microsoft-identity-web/wiki/calling-apis-with-managed-identity) and [PR 2650](https://github.com/AzureAD/microsoft-identity-web/pull/2650). For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645) and https://github.com/AzureAD/microsoft-identity-web/wiki/calling-apis-with-managed-identity
 
 ### Bug fixes
 - In OWIN applications, GetTokenForUserAsync now respects the ClaimsPrincipal. See issue [#2629](https://github.com/AzureAD/microsoft-identity-web/issues/2629) for details.
