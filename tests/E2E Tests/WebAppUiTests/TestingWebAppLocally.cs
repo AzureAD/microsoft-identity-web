@@ -12,6 +12,7 @@ using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
+using System.Threading;
 
 namespace WebAppUiTests;
 
@@ -49,12 +50,28 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         try
         {
             process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
-            await Task.Delay(5000); // Allow the web app time to start up.
 
             if (!UiTestHelpers.ProcessIsAlive(process)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
-            await page.GotoAsync(UrlString);
+
+            // The retry logic ensures the web app has time to start up to establish a connection.
+            uint InitialConnectionRetryCount = 5;
+            while (InitialConnectionRetryCount > 0)
+            {
+                try
+                {
+                    await page.GotoAsync(UrlString);
+                    break;
+                }
+                catch (PlaywrightException ex)
+                {
+                    Thread.Sleep(1000);
+                    InitialConnectionRetryCount--;
+                    if (InitialConnectionRetryCount == 0) { throw ex; }
+                }
+            }
+
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
             // Act

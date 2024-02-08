@@ -88,9 +88,23 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString);
                 }
 
-                // Navigate to web app
+                // Navigate to web app the retry logic ensures the web app has time to start up to establish a connection.
                 IPage page = await context.NewPageAsync();
-                await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                uint InitialConnectionRetryCount = 5;
+                while (InitialConnectionRetryCount > 0)
+                {
+                    try
+                    {
+                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                        break;
+                    }
+                    catch (PlaywrightException ex)
+                    {
+                        Thread.Sleep(1000);
+                        InitialConnectionRetryCount--;
+                        if (InitialConnectionRetryCount == 0) { throw ex; }
+                    }
+                }
                 LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync().ConfigureAwait(false);
 
                 // Initial sign in

@@ -97,10 +97,11 @@ namespace WebAppUiTests
                         await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
                         break;
                     }
-                    catch (PlaywrightException)
+                    catch (PlaywrightException ex)
                     {
                         Thread.Sleep(1000);
                         InitialConnectionRetryCount--;
+                        if (InitialConnectionRetryCount == 0) { throw ex; }
                     }
                 }
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
