@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection("SerializeTestsUsingDefaultTokenAcquirerFactory")]
     public class TestTokenAcquisitionHost
     {
         [Fact]

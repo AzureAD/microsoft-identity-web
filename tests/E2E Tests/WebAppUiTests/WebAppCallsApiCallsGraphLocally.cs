@@ -19,7 +19,7 @@ namespace WebAppUiTests
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-    public class WebAppCallsApiCallsGraphLocally
+    public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const uint GrpcPort = 5001;
         private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
@@ -79,7 +79,6 @@ namespace WebAppUiTests
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 Thread.Sleep(3000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
-                Thread.Sleep(5000);
 
                 if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess, grpcProcess }))
                     {
@@ -88,7 +87,22 @@ namespace WebAppUiTests
 
                 // Navigate to web app
                 IPage page = await context.NewPageAsync();
-                await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+
+                // The retry logic ensures the web app has time to start up to establish a connection.
+                uint InitialConnectionRetryCount = 5;
+                while (InitialConnectionRetryCount > 0)
+                {
+                    try
+                    {
+                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                        break;
+                    }
+                    catch (PlaywrightException)
+                    {
+                        Thread.Sleep(1000);
+                        InitialConnectionRetryCount--;
+                    }
+                }
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
