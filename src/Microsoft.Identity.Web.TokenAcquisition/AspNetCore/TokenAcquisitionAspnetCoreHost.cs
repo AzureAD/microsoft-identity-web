@@ -130,6 +130,11 @@ namespace Microsoft.Identity.Web
             var request = httpContext?.Request;
             string? currentUri = null;
 
+            if (!mergedOptions.RedirectUri.IsNullOrEmpty())
+            {
+                currentUri = mergedOptions.RedirectUri;
+            }
+            else
             if (!string.IsNullOrEmpty(mergedOptions.ConfidentialClientApplicationOptions.RedirectUri))
             {
                 currentUri = mergedOptions.ConfidentialClientApplicationOptions.RedirectUri;
