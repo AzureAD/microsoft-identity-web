@@ -20,7 +20,8 @@ namespace Microsoft.Identity.Web.Test.Integration
         /// <summary>
         /// Login with a user; the cache should have a user token.
         /// Call DownstreamApi.GetForUserAsync to Graph's /me endpoint. Internally:
-        /// - Gets a token from AAD.
+        /// - Gets a token from the cache.
+
         /// - Calls Graph with the token; should receive a successful response.
         /// Revoke the user's session and wait until the changes propagate to Graph.
         /// Call DownstreamApi.GetForUserAsync again. Internally:
