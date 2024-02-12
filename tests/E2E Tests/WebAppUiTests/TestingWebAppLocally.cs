@@ -66,7 +66,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
                 }
                 catch (PlaywrightException ex)
                 {
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                     InitialConnectionRetryCount--;
                     if (InitialConnectionRetryCount == 0) { throw ex; }
                 }

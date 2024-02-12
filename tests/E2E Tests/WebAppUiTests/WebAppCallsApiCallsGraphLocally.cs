@@ -77,7 +77,7 @@ namespace WebAppUiTests
                 // The delay after processes are started gives time to finish initial setup before attempted connection.
                 grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-                Thread.Sleep(3000);
+                await Task.Delay(3000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
                 if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess, grpcProcess }))
@@ -99,7 +99,7 @@ namespace WebAppUiTests
                     }
                     catch (PlaywrightException ex)
                     {
-                        Thread.Sleep(1000);
+                        await Task.Delay(1000);
                         InitialConnectionRetryCount--;
                         if (InitialConnectionRetryCount == 0) { throw ex; }
                     }

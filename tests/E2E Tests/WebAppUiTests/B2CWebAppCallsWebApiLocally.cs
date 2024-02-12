@@ -78,7 +78,7 @@ namespace WebAppUiTests
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-                Thread.Sleep(3000);
+                await Task.Delay(3000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
                 if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
@@ -98,7 +98,7 @@ namespace WebAppUiTests
                     }
                     catch (PlaywrightException ex)
                     {
-                        Thread.Sleep(1000);
+                        await Task.Delay(1000);
                         InitialConnectionRetryCount--;
                         if (InitialConnectionRetryCount == 0) { throw ex; }
                     }
