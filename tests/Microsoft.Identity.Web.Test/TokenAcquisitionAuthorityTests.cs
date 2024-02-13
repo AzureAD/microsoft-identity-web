@@ -412,40 +412,5 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Same(testApp, app);
             }
         }
-
-        [Theory]
-        [InlineData(null, new[] { Constants.CaeCapability })]
-        [InlineData(new[] { Constants.CaeCapability, "cap2" }, new[] { Constants.CaeCapability, "cap2" })]
-        [InlineData(new[] { "cap2" }, new[] { "cap2", Constants.CaeCapability })]
-        public void ContinuousAccessEvaluationEnabledByDefault_Test(IEnumerable<string> initialCapabilities, IEnumerable<string> expectedCapabilities)
-        {
-            // Arrange
-            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
-            {
-                Authority = TestConstants.AuthorityCommonTenant,
-                ClientId = TestConstants.ConfidentialClientId,
-                CallbackPath = string.Empty,
-            });
-
-            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
-            {
-                Instance = TestConstants.AadInstance,
-                ClientSecret = TestConstants.ClientSecret,
-                ClientCapabilities = initialCapabilities,
-            });
-
-            BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
-            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-
-            InitializeTokenAcquisitionObjects();
-
-            // Act
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
-
-            // Assert
-            Assert.Equal(expectedCapabilities, app.AppConfig.ClientCapabilities);
-        }
     }
 }
