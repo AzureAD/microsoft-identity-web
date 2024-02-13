@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1707156788777,
+  "lastUpdate": 1707868138178,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -216,6 +216,42 @@ window.BENCHMARK_DATA = {
             "value": 11061.285594545561,
             "unit": "ns",
             "range": "± 64.90310093067599"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JoshLozensky",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7ca44be6d15310594d7ad2dcffea3e3c0747e7e7",
+          "message": "Stabilize UI and Unit Tests (#2669)\n\n* Moved UI test process start logic inside the try block to ensure hitting the finally block anytime a process start is attempted.\r\n* Added retry logic for initial connection to the app to allow for variance in app launch time\r\n* More explicitly defined XUnit collection for preventing UI tests from running in parallel\r\n* Increased Playwright timeout lengths\r\n* Reduced UI tests to running only on .Net 8",
+          "timestamp": "2024-02-13T15:45:10-08:00",
+          "tree_id": "17084ab7b95ddd99abc6674dfedc30f05ea5b8b0",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/7ca44be6d15310594d7ad2dcffea3e3c0747e7e7"
+        },
+        "date": 1707868137005,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10456.568317482688,
+            "unit": "ns",
+            "range": "± 75.62271192306774"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10976.058866500854,
+            "unit": "ns",
+            "range": "± 93.74417517499555"
           }
         ]
       }
