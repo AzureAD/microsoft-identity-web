@@ -21,7 +21,6 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 namespace TokenAcquirerTests
 {
 #if !FROM_GITHUB_ACTION
-    [Collection("SerializeTestsUsingDefaultTokenAcquirerFactory")]
     public class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
@@ -40,7 +39,6 @@ namespace TokenAcquirerTests
         [Fact]
         public void TokenAcquirerFactoryDoesNotUseAspNetCoreHost()
         {
-            TokenAcquirerFactory.ResetDefaultInstance();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             var serviceProvider = tokenAcquirerFactory.Build();
             var service = serviceProvider.GetService<ITokenAcquisitionHost>();
