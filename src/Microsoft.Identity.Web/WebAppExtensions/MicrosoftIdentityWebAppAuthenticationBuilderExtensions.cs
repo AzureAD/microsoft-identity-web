@@ -238,7 +238,11 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(builder);
             _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
-            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            if (builder.Services.FirstOrDefault(s =>
+#if NET8_0_OR_GREATER
+                s.ServiceKey is null &&
+#endif
+                s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {
                 builder.Services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }

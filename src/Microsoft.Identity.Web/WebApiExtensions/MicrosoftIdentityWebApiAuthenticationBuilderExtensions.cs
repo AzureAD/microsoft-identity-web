@@ -148,11 +148,11 @@ namespace Microsoft.Identity.Web
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
-            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            if (!HasImplementationType(builder.Services, typeof(MicrosoftIdentityOptionsMerger)))
             {
                 builder.Services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }
-            if (builder.Services.FirstOrDefault(s => s.ImplementationType == typeof(JwtBearerOptionsMerger)) == null)
+            if (!HasImplementationType(builder.Services, typeof(JwtBearerOptionsMerger)))
             {
                 builder.Services.TryAddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerOptionsMerger>();
             }
@@ -307,6 +307,15 @@ namespace Microsoft.Identity.Web
 
                 await tokenValidatedHandler(context).ConfigureAwait(false);
             };
+        }
+
+        private static bool HasImplementationType(IServiceCollection services, Type implementationType)
+        {
+            return services.Any(s =>
+#if NET8_0_OR_GREATER
+                s.ServiceKey is null &&
+#endif
+                s.ImplementationType == implementationType);
         }
     }
 }
