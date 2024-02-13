@@ -74,7 +74,6 @@ namespace WebAppUiTests
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
-                // The delay after processes are started gives time to finish initial setup before attempted connection.
                 grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 await Task.Delay(3000);
