@@ -18,8 +18,7 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
-    [CollectionDefinition(nameof(WebAppCallsApiCallsGraphLocally), DisableParallelization = true)]
-    [Collection("WebAppUiTests")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const uint GrpcPort = 5001;
@@ -27,7 +26,7 @@ namespace WebAppUiTests
         private const uint TodoListClientPort = 44321;
         private const uint TodoListServicePort = 44350;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
         private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
@@ -60,12 +59,9 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
             };
 
-            // Start the web app and api processes.
-            // Five second delay before starting client prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
-            Process grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
-            Process serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-            Thread.Sleep(5000); 
-            Process clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+            Process? grpcProcess = null;
+            Process? serviceProcess = null;
+            Process? clientProcess = null;
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
@@ -76,6 +72,13 @@ namespace WebAppUiTests
 
             try
             {
+                // Start the web app and api processes.
+                // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
+                grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
+                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+                await Task.Delay(3000);
+                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+
                 if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess, grpcProcess }))
                     {
                         Assert.Fail(TC.WebAppCrashedString);
@@ -83,7 +86,23 @@ namespace WebAppUiTests
 
                 // Navigate to web app
                 IPage page = await context.NewPageAsync();
-                await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+
+                // The retry logic ensures the web app has time to start up to establish a connection.
+                uint InitialConnectionRetryCount = 5;
+                while (InitialConnectionRetryCount > 0)
+                {
+                    try
+                    {
+                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                        break;
+                    }
+                    catch (PlaywrightException ex)
+                    {
+                        await Task.Delay(1000);
+                        InitialConnectionRetryCount--;
+                        if (InitialConnectionRetryCount == 0) { throw ex; }
+                    }
+                }
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -137,10 +156,10 @@ namespace WebAppUiTests
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                Queue<Process> processes = new Queue<Process>();
-                processes.Enqueue(serviceProcess!);
-                processes.Enqueue(clientProcess!);
-                processes.Enqueue(grpcProcess!);
+                Queue<Process> processes = new();
+                if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
+                if (clientProcess != null) { processes.Enqueue(clientProcess); }
+                if (grpcProcess != null) { processes.Enqueue(grpcProcess); }
                 UiTestHelpers.KillProcessTrees(processes);
 
                 // Stop tracing and export it into a zip archive.

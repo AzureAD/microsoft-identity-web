@@ -80,12 +80,12 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// 
+        /// The set of steps to take when given a password to enter and submit when logging in via Microsoft.
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="password"></param>
-        /// <param name="staySignedInText"></param>
-        /// <param name="output"></param>
+        /// <param name="page">The browser page instance.</param>
+        /// <param name="password">The password for the account you're logging into.</param>
+        /// <param name="staySignedInText">"Yes" or "No" to stay signed in for the given browsing session.</param>
+        /// <param name="output">The writer for output to the test's console.</param>
         public static async Task EnterPassword_MicrosoftIdFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
         {
             // If using an account that has other non-password validation options, the below code should be uncommented
@@ -120,9 +120,9 @@ namespace WebAppUiTests
 
         /// <summary>
         /// This starts the recording of playwright trace files. The corresponsing EndAndWritePlaywrightTrace method will also need to be used.
-        /// This is not used anywhere by default and will need to be added to the code if desired
+        /// This is not used anywhere by default and will need to be added to the code if desired.
         /// </summary>
-        /// <param name="page">The page object whose context the trace will record</param>
+        /// <param name="page">The page object whose context the trace will record.</param>
         public static async Task StartPlaywrightTrace(IPage page)
         {
             await page.Context.Tracing.StartAsync(new()
@@ -134,14 +134,14 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// Starts a process from an executable, sets its working directory, and redirects its output to the test's output
+        /// Starts a process from an executable, sets its working directory, and redirects its output to the test's output.
         /// </summary>
-        /// <param name="testAssemblyLocation">The path to the test's directory</param>
-        /// <param name="appLocation">The path to the processes directory</param>
-        /// <param name="executableName">The name of the executable that launches the process</param>
-        /// <param name="portNumber">The port for the process to listen on</param>
+        /// <param name="testAssemblyLocation">The path to the test's directory.</param>
+        /// <param name="appLocation">The path to the processes directory.</param>
+        /// <param name="executableName">The name of the executable that launches the process.</param>
+        /// <param name="portNumber">The port for the process to listen on.</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
-        /// <returns>The started process</returns>
+        /// <returns>The started process.</returns>
         public static Process StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
