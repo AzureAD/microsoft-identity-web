@@ -21,6 +21,7 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 namespace TokenAcquirerTests
 {
 #if !FROM_GITHUB_ACTION
+    [Collection("TokenAcquirerSerialized")]
     public class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
@@ -302,6 +303,7 @@ namespace TokenAcquirerTests
         }
     }
 
+    [Collection("TokenAcquirerSerialized")]
     public class AcquireTokenManagedIdentity 
     {
         [OnlyOnAzureDevopsFact]
