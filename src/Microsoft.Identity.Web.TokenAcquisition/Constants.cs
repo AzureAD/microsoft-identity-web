@@ -132,7 +132,6 @@ namespace Microsoft.Identity.Web
         internal const string CertificateHasBeenRevoked = "AADSTS7000214";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
-        internal const string CaeCapability = "cp1"; // Continuous Access Evaluation client capability
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

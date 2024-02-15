@@ -617,7 +617,7 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                var builder = ConfidentialClientApplicationBuilder
+                ConfidentialClientApplicationBuilder builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
                         .WithLogging(
