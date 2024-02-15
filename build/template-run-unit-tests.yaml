@@ -15,6 +15,6 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/IntegrationTests/PlaywrightTraces/'
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
   condition: failed()

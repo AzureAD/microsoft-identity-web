@@ -19,8 +19,7 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
-    [CollectionDefinition(nameof(B2CWebAppCallsWebApiLocally), DisableParallelization = true)]
-    [Collection("WebAppUiTests")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const string KeyvaultEmailName = "IdWeb-B2C-user";
@@ -30,7 +29,7 @@ namespace WebAppUiTests
         private const uint TodoListClientPort = 5000;
         private const uint TodoListServicePort = 44332;
         private const string TraceClassName = "B2CWebAppCallsWebApiLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = Path.Join("DevApps", "B2CWebAppCallsWebApi");
         private readonly Uri _keyvaultUri = new("https://webappsapistests.vault.azure.net");
         private readonly ITestOutputHelper _output;
@@ -60,12 +59,6 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
             };
 
-            // Start the web app and api processes.
-            // Five second delay prevents transient issue where client fails to load on devbox the first time the test is run in VS after rebuilding.
-            Process serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-            Thread.Sleep(5000);
-            Process clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
-
             // Get email and password from keyvault.
             string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName, azureCred);
             string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName, azureCred);
@@ -77,16 +70,39 @@ namespace WebAppUiTests
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
+            Process? serviceProcess= null;
+            Process? clientProcess = null;
+
             try
             {
+                // Start the web app and api processes.
+                // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
+                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+                await Task.Delay(3000);
+                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+
                 if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                 {
                     Assert.Fail(TC.WebAppCrashedString);
                 }
 
-                // Navigate to web app
+                // Navigate to web app the retry logic ensures the web app has time to start up to establish a connection.
                 IPage page = await context.NewPageAsync();
-                await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                uint InitialConnectionRetryCount = 5;
+                while (InitialConnectionRetryCount > 0)
+                {
+                    try
+                    {
+                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                        break;
+                    }
+                    catch (PlaywrightException ex)
+                    {
+                        await Task.Delay(1000);
+                        InitialConnectionRetryCount--;
+                        if (InitialConnectionRetryCount == 0) { throw ex; }
+                    }
+                }
                 LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -150,8 +166,8 @@ namespace WebAppUiTests
             {
                 // Add the following to make sure all processes and their children are stopped.
                 Queue<Process> processes = new Queue<Process>();
-                processes.Enqueue(serviceProcess!);
-                processes.Enqueue(clientProcess!);
+                if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
+                if (clientProcess != null) { processes.Enqueue(clientProcess); }
                 UiTestHelpers.KillProcessTrees(processes);
 
                 // Stop tracing and export it into a zip archive.
