@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [CollectionDefinition("TokenAcquirerSerialized")]
     public class TestTokenAcquisitionHost
     {
         [Fact]
@@ -28,7 +29,6 @@ namespace Microsoft.Identity.Web.Test
             var host = builder.Services.First(s => s.ServiceType.FullName == "Microsoft.Identity.Web.ITokenAcquisitionHost");
             Assert.True(host.ImplementationType!.FullName == "Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost");
         }
-
 
         [Fact]
         public void TestTokenAcquisitionAspNetCoreBuilderAuth()
