@@ -13,6 +13,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [CollectionDefinition("TokenAcquirerSerialized")]
     public class MsalTokenCacheProviderTests
     {
         [Fact]
