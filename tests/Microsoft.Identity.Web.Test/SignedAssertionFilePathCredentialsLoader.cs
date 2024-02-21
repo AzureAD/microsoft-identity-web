@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Xunit;
 

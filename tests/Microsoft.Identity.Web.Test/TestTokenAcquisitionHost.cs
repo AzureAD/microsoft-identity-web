@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
