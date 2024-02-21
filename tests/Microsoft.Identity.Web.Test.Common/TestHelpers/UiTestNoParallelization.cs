@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace WebAppUiTests
+namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class UiTestNoParallelization

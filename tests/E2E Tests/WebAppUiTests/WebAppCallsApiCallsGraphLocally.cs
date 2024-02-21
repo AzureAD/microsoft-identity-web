@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION

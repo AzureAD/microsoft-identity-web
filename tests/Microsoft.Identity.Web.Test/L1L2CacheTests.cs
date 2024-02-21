@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class L1L2CacheTests
     {
         private const string DefaultCacheKey = "default-key";

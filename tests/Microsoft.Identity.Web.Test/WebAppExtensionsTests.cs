@@ -38,7 +38,7 @@ using TokenValidatedContext = Microsoft.AspNetCore.Authentication.OpenIdConnect.
 
 namespace Microsoft.Identity.Web.Test
 {
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class WebAppExtensionsTests
     {
         private const string OidcScheme = "OpenIdConnect-Custom";

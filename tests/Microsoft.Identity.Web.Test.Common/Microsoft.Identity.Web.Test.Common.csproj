@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="$(MicrosoftIdentityLabApiVersion)" />
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
+    <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.assert" Version="$(XunitAssertVersion)" />
   </ItemGroup>
 

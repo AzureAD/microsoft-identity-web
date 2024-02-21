@@ -15,13 +15,14 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Xunit;
 using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
 #if !FROM_GITHUB_ACTION
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
@@ -303,7 +304,7 @@ namespace TokenAcquirerTests
         }
     }
 
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class AcquireTokenManagedIdentity 
     {
         [OnlyOnAzureDevopsFact]

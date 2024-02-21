@@ -18,7 +18,7 @@ using Xunit;
 
 namespace TokenAcquirerTests
 {
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public sealed class CertificateRotationTest : ICertificatesObserver
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";

@@ -12,6 +12,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class L1L2CacheOptionsTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

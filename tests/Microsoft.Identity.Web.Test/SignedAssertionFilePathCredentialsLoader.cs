@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
-    [CollectionDefinition("TokenAcquirerSerialized")]
+    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class SignedAssertionFilePathCredentialsLoaderTests
     {
         private const string FilePath = "signedAssertion.txt";
