@@ -299,21 +299,21 @@ namespace Microsoft.Identity.Web
             // Send the HTTP message           
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
-            if (downstreamApiResult.StatusCode != System.Net.HttpStatusCode.Unauthorized)
-            {
-                return downstreamApiResult;
-            }
-
-            // Retry if the resource send 401 Unauthorized with WWW-Authenticate header and claims
             effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
 
-            using HttpRequestMessage retryHttpRequestMessage = new(
-                new HttpMethod(effectiveOptions.HttpMethod),
-                apiUrl);
+            // Retry if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
+            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
+            {
+                using HttpRequestMessage retryHttpRequestMessage = new(
+                    new HttpMethod(effectiveOptions.HttpMethod),
+                    apiUrl);
 
-            await UpdateRequestAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+                await UpdateRequestAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
 
-            return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+                return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+            }
+
+            return downstreamApiResult;
         }
 
         private async Task UpdateRequestAsync(

@@ -35,13 +35,13 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_Retries401ResponseOnce()
+        public async Task DownstreamApi_GetForApp_Retries401WithClaimsResponseOnce()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
                 downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
                 downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
-            }, addFailedResponse: true);
+            }, addUnauthorizedResponse: true, withClaims: true);
 
             var appVal = await _downstreamApi.GetForAppAsync<EmptyClass>("GraphApp");
 
@@ -51,13 +51,13 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForUser_Retries401ResponseOnce()
+        public async Task DownstreamApi_GetForUser_Retries401WithClaimsResponseOnce()
         {
             BuildRequiredServices("GraphUser", downstreamApiOptions =>
             {
                 downstreamApiOptions.Scopes = TestConstants.s_userReadScope;
                 downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
-            }, addFailedResponse: true);
+            }, addUnauthorizedResponse: true, withClaims: true);
 
             var userVal = await _downstreamApi.GetForUserAsync<EmptyClass>("GraphUser");
 
@@ -67,13 +67,13 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_SendsOnlyOneRequest()
+        public async Task DownstreamApi_GetForApp_DoesntRetrySucessfullResponse()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
                 downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
                 downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
-            }, addFailedResponse: false);
+            }, addUnauthorizedResponse: false, withClaims: false);
 
             var appVal = await _downstreamApi.GetForAppAsync<EmptyClass>("GraphApp");
 
@@ -83,13 +83,13 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForUser_SendsOnlyOneRequest()
+        public async Task DownstreamApi_GetForUser_DoesntRetrySucessfullResponse()
         {
             BuildRequiredServices("GraphUser", downstreamApiOptions =>
             {
                 downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
                 downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
-            }, addFailedResponse: false);
+            }, addUnauthorizedResponse: false, withClaims: false);
 
             var userVal = await _downstreamApi.GetForUserAsync<EmptyClass>("GraphUser");
 
@@ -98,7 +98,39 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
                 Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims == null));
         }
 
-        private void BuildRequiredServices(string serviceName, Action<DownstreamApiOptions> configureOptions, bool addFailedResponse)
+        [Fact]
+        public async Task DownstreamApi_GetForApp_DoesntRetryDoesntRetry401WithoutClaimsResponse()
+        {
+            BuildRequiredServices("GraphApp", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            }, addUnauthorizedResponse: true, withClaims: false);
+
+            await Assert.ThrowsAsync<HttpRequestException>(() => _downstreamApi.GetForAppAsync<EmptyClass>("GraphApp"));
+
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(1).CreateAuthorizationHeaderForAppAsync(string.Empty);
+            await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderForAppAsync(
+                Arg.Any<string>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims == null));
+        }
+
+        [Fact]
+        public async Task DownstreamApi_GetForUser_DoesntRetry401WithoutClaimsResponse()
+        {
+            BuildRequiredServices("GraphUser", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            }, addUnauthorizedResponse: true, withClaims: false);
+
+            await Assert.ThrowsAsync<HttpRequestException>(() => _downstreamApi.GetForUserAsync<EmptyClass>("GraphUser"));
+
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(1).CreateAuthorizationHeaderForUserAsync(Enumerable.Empty<string>());
+            await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderForUserAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims == null));
+        }
+
+        private void BuildRequiredServices(string serviceName, Action<DownstreamApiOptions> configureOptions, bool addUnauthorizedResponse, bool withClaims)
         {
             _authorizationHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
             _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string.Empty).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
@@ -106,13 +138,18 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
 
             var httpMessageHandler = new QueueHttpMessageHandler();
 
-            if (addFailedResponse)
+            if (addUnauthorizedResponse)
             {
                 var unauthorizedResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized)
                 {
                     Content = new StringContent("{}"),
                 };
-                unauthorizedResponse.Headers.Add(HeaderNames.WWWAuthenticate, WwwAuthenticateValue);
+                
+                if (withClaims)
+                {
+                    unauthorizedResponse.Headers.Add(HeaderNames.WWWAuthenticate, WwwAuthenticateValue);
+                }
+
                 httpMessageHandler.AddHttpResponseMessage(unauthorizedResponse);
             }
 
