@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1708833161759,
+  "lastUpdate": 1708833950111,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -288,6 +288,42 @@ window.BENCHMARK_DATA = {
             "value": 10982.17180633545,
             "unit": "ns",
             "range": "± 49.867500928694426"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "github@progz.nl",
+            "name": "Rogier Reedijk",
+            "username": "xs4free"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ced85916355687036db43eac47ef98beefb42790",
+          "message": "Make ConfidentialClientApplicationBuilderExtension.WithClientCredentials async (#2567)\n\n* Make ConfidentialClientApplicationBuilderExtension.WithClientCredentials fully async\r\n\r\n* Remove breaking changes in ITokenAcquisition\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-02-24T20:02:15-08:00",
+          "tree_id": "5d1c59210951e15fe81b58af76dbb2c76338e7f3",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ced85916355687036db43eac47ef98beefb42790"
+        },
+        "date": 1708833949496,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10418.806186609101,
+            "unit": "ns",
+            "range": "± 95.27972167611522"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11036.02295132341,
+            "unit": "ns",
+            "range": "± 43.42447059806415"
           }
         ]
       }
