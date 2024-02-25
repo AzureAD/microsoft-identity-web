@@ -12,14 +12,14 @@ using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
+using System.Threading;
 
 namespace WebAppUiTests;
 
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 
-// since this test changes environment variables we'd prefer it not run at the same time as other tests
-[CollectionDefinition(nameof(TestingWebAppLocally), DisableParallelization = true)]
-[Collection("WebAppUiTests")]
+// Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
+[CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
@@ -28,8 +28,9 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     private readonly string _devAppExecutable = Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph.exe";
     private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph";
     private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
+    private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
 
-    public TestingWebAppLocally(ITestOutputHelper output)
+    public TestingWebAppLocally(ITestOutputHelper output) 
     {
         _output = output;
     }
@@ -39,7 +40,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
         // Arrange
-        Process p = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+        Process? process = null;
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
@@ -48,10 +49,29 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-            if (!UiTestHelpers.ProcessIsAlive(p)) { Assert.Fail(TC.WebAppCrashedString); }
+            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+
+            if (!UiTestHelpers.ProcessIsAlive(process)) { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
-            await page.GotoAsync(UrlString);
+
+            // The retry logic ensures the web app has time to start up to establish a connection.
+            uint InitialConnectionRetryCount = 5;
+            while (InitialConnectionRetryCount > 0)
+            {
+                try
+                {
+                    await page.GotoAsync(UrlString);
+                    break;
+                }
+                catch (PlaywrightException ex)
+                {
+                    await Task.Delay(1000);
+                    InitialConnectionRetryCount--;
+                    if (InitialConnectionRetryCount == 0) { throw ex; }
+                }
+            }
+
             LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
             // Act
@@ -60,8 +80,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
 
             // Assert
-            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
-            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
+            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
         }
         catch (Exception ex)
         {
@@ -71,7 +91,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            processes.Enqueue(p);
+            if (process != null) { processes.Enqueue(process); }
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright
