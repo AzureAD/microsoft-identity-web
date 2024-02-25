@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1707868138178,
+  "lastUpdate": 1708833161759,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -252,6 +252,42 @@ window.BENCHMARK_DATA = {
             "value": 10976.058866500854,
             "unit": "ns",
             "range": "± 93.74417517499555"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "203839+ReubenBond@users.noreply.github.com",
+            "name": "Reuben Bond",
+            "username": "ReubenBond"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b6cc9eb4314ffd248cc3c966e1d0e1711811c468",
+          "message": "Fix ServiceDescriptor access when Keyed Services are present (#2676)\n\n* Fix ServiceDescriptor access when Keyed Services are present\r\n\r\n* Add unit test\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-02-24T19:49:05-08:00",
+          "tree_id": "486555add226e16fd27d8068615c9ab7da2b8bb0",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/b6cc9eb4314ffd248cc3c966e1d0e1711811c468"
+        },
+        "date": 1708833161107,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10442.373985678463,
+            "unit": "ns",
+            "range": "± 88.4331509863249"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10982.17180633545,
+            "unit": "ns",
+            "range": "± 49.867500928694426"
           }
         ]
       }
