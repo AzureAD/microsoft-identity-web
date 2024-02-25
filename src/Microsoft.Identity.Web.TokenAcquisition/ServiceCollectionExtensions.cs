@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -44,20 +45,20 @@ namespace Microsoft.Identity.Web
             bool forceSdk = !services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Authentication.IAuthenticationService");
 #endif
 
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(DefaultCertificateLoader)) == null)
+            if (!HasImplementationType(services, typeof(DefaultCertificateLoader)))
             {
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
 
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
+            if (!HasImplementationType(services, typeof(MicrosoftIdentityOptionsMerger)))
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(MicrosoftIdentityApplicationOptionsMerger)) == null)
+            if (!HasImplementationType(services, typeof(MicrosoftIdentityApplicationOptionsMerger)))
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityApplicationOptions>, MicrosoftIdentityApplicationOptionsMerger>();
             }
-            if (services.FirstOrDefault(s => s.ImplementationType == typeof(ConfidentialClientApplicationOptionsMerger)) == null)
+            if (!HasImplementationType(services, typeof(ConfidentialClientApplicationOptionsMerger)))
             {
                 services.TryAddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
             }
@@ -138,6 +139,15 @@ namespace Microsoft.Identity.Web
 
             services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             return services;
+        }
+
+        private static bool HasImplementationType(IServiceCollection services, Type implementationType)
+        {
+            return services.Any(s =>
+#if NET8_0_OR_GREATER
+                s.ServiceKey is null &&
+#endif
+                s.ImplementationType == implementationType);
         }
     }
 }
