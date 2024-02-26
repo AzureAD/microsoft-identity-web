@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1708833950111,
+  "lastUpdate": 1708982778026,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -324,6 +324,42 @@ window.BENCHMARK_DATA = {
             "value": 11036.02295132341,
             "unit": "ns",
             "range": "± 43.42447059806415"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "34331512+pmaytak@users.noreply.github.com",
+            "name": "Peter",
+            "username": "pmaytak"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "407db827e421f499ea4a0f321083577f30e60e56",
+          "message": "IDownstreamApi handles Continuous Access Evaluation (CAE) (#2616)\n\n* Add CAE flag to TokenAcquisition.\r\n\r\n* Add retry in downstream API\r\n\r\n* Refactor.\r\n\r\n* Add test.\r\n\r\n* Add test\r\n\r\n* Remove int tests.\r\n\r\n* Feedback. Add CCA unit test cases.\r\n\r\n* Add unit tests.\r\n\r\n* PR feedback.\r\n\r\n* Don't add CAE flag in TokenAcqusition.\r\n\r\n* Undo.\r\n\r\n* Refactor. Add tests.\r\n\r\n* Feedback.\r\n\r\n* Typo.",
+          "timestamp": "2024-02-26T13:22:41-08:00",
+          "tree_id": "4761f192ad46919ce017f41e54baf27635b2f785",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/407db827e421f499ea4a0f321083577f30e60e56"
+        },
+        "date": 1708982777370,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10247.629884174892,
+            "unit": "ns",
+            "range": "± 88.84455776263972"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10743.133264374315,
+            "unit": "ns",
+            "range": "± 42.1172835395799"
           }
         ]
       }
