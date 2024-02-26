@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1708982778026,
+  "lastUpdate": 1708985625567,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -360,6 +360,42 @@ window.BENCHMARK_DATA = {
             "value": 10743.133264374315,
             "unit": "ns",
             "range": "± 42.1172835395799"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "847304540bbe6c6825861bf52155567c5bda575f",
+          "message": "changelog for 2.17.1 (#2682)\n\n* changelog for 2.17.1\r\n\r\n* PR feedback",
+          "timestamp": "2024-02-26T14:10:03-08:00",
+          "tree_id": "a9064683135fa3ad3aa374492d1f67b2dab3481f",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/847304540bbe6c6825861bf52155567c5bda575f"
+        },
+        "date": 1708985624416,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10286.485127857753,
+            "unit": "ns",
+            "range": "± 66.88392063115684"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10913.206292879784,
+            "unit": "ns",
+            "range": "± 100.83342553102366"
           }
         ]
       }
