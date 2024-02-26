@@ -3,10 +3,13 @@
 - Updated to Microsoft.IdentityModel.* 7.4.0
 
 ### New features
-- Calls to `ConfidentialClientApplicationBuilderExtension.WithClientCredentials` are fully async. See issue [#2566](https://github.com/AzureAD/microsoft-identity-web/issues/2566) for details.
+- DownstreamApi now automatically processes claims challenge from web APIs which are CAE enabled, provided you set "ClientCapablities" : ["cp1"] in the configuation. See issue [#2550](https://github.com/AzureAD/microsoft-identity-web/pull/2550).
 
 ### Bug fixes
 - Fixes the use of `ServiceDescriptor` for containers which have keyed services present. This can be an issue on .NET 8.0. See issue [#2676](https://github.com/AzureAD/microsoft-identity-web/pull/2676) for details.
+
+### Engineering excellence
+- Calls to `ConfidentialClientApplicationBuilderExtension.WithClientCredentials` are fully async. See issue [#2566](https://github.com/AzureAD/microsoft-identity-web/issues/2566) for details.
 
 2.17.0
 =========
