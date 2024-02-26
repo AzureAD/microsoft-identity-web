@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_DoesntRetryDoesntRetry401WithoutClaimsResponse()
+        public async Task DownstreamApi_GetForApp_DoesntRetry401WithoutClaimsResponse()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
