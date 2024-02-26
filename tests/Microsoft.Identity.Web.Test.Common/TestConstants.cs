@@ -53,6 +53,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
         public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
+        public const string GraphBaseUrl = "https://graph.microsoft.com/v1.0";
 
         // B2C
         public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
@@ -85,18 +86,11 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string ClaimNameIss = "iss";
         public const string ClaimNameTfp = "tfp"; // Trust Framework Policy for B2C (aka userflow/policy)
 
-        public static readonly IEnumerable<string> s_aliases = new[]
-        {
-            ProductionPrefNetworkEnvironment,
-            ProductionNotPrefEnvironmentAlias,
-        };
+        public static readonly IEnumerable<string> s_aliases = [ProductionPrefNetworkEnvironment, ProductionNotPrefEnvironmentAlias];
 
         public static readonly string s_scopeForApp = "https://graph.microsoft.com/.default";
 
-        public static readonly IEnumerable<string> s_userReadScope = new[]
-        {
-            "user.read",
-        };
+        public static readonly IEnumerable<string> s_userReadScope = ["user.read"];
 
         public const string InvalidScopeError = "The scope user.read is not valid.";
         public const string InvalidScopeErrorcode = "AADSTS70011";

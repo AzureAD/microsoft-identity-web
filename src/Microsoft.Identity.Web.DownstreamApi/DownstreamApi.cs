@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -286,10 +287,46 @@ namespace Microsoft.Identity.Web
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
 
-            // Creation of the Http Request message with the right HTTP Method
-            using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(
+            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
+
+            // Create an HTTP request message
+            using HttpRequestMessage httpRequestMessage = new(
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
+
+            await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+
+            // Send the HTTP message           
+            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+
+            // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
+            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
+
+                if (!string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
+                {
+                    using HttpRequestMessage retryHttpRequestMessage = new(
+                        new HttpMethod(effectiveOptions.HttpMethod),
+                        apiUrl);
+
+                    await UpdateRequestAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+
+                    return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            return downstreamApiResult;
+        }
+
+        private async Task UpdateRequestAsync(
+            HttpRequestMessage httpRequestMessage,
+            HttpContent? content,
+            DownstreamApiOptions effectiveOptions,
+            bool appToken,
+            ClaimsPrincipal? user,
+            CancellationToken cancellationToken)
+        {
             if (content != null)
             {
                 httpRequestMessage.Content = content;
@@ -317,10 +354,6 @@ namespace Microsoft.Identity.Web
             }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-
-            // Send the HTTP message
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
-            return await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
     }
 }
