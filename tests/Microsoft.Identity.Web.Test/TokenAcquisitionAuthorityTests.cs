@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
@@ -89,7 +90,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(TC.B2CLoginMicrosoft)]
         [InlineData(TC.B2CInstance, true)]
         [InlineData(TC.B2CLoginMicrosoft, true)]
-        public void VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTests(
+        public async Task VerifyCorrectAuthorityUsedInTokenAcquisition_B2CAuthorityTestsAsync(
             string authorityInstance,
             bool withTfp = false)
         {
@@ -125,7 +126,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -140,7 +141,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("https://localhost:1234")]
         [InlineData("")]
-        public void VerifyCorrectRedirectUriAsync(
+        public async Task VerifyCorrectRedirectUriAsync(
             string redirectUri)
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
@@ -164,7 +165,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = _tokenAcquisition.GetOrBuildConfidentialClientApplication(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             if (!string.IsNullOrEmpty(redirectUri))
             {
