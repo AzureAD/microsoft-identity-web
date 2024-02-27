@@ -602,7 +602,6 @@ namespace Microsoft.Identity.Web
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
-                        //.WithInstanceDiscovery(false) // TODO: bogavril - disable instance discovery
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),

@@ -424,9 +424,9 @@ namespace Microsoft.Identity.Web
                 // generic authority - ignore all tenant information
                 if (mergedOptions.IsOidcAuthority)
                 {
-                    mergedOptions.Instance = (new Uri(mergedOptions.Authority)).Host;
+                    mergedOptions.Instance = mergedOptions.Authority;
                 }
-                else if (string.IsNullOrEmpty(mergedOptions.TenantId)) // TODO: bogavril - this is very brittle, probably won't work for dSTS etc. MSAL should have a helper for this
+                else if (string.IsNullOrEmpty(mergedOptions.TenantId))
                 {
                     string authority = mergedOptions.Authority!.TrimEnd('/');
                     int indexTenant = authority.LastIndexOf('/');

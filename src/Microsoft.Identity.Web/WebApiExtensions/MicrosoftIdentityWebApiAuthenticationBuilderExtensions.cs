@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -191,6 +192,9 @@ namespace Microsoft.Identity.Web
 
                     // This is a Microsoft identity platform web API
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+
+                    // TODO: bogavril - hardcoded
+                    options.MetadataAddress = "https://sammyciam.ciamextensibility.com/4710d5e4-43bb-4ff9-89af-30ed8fe31c6d/v2.0/.well-known/openid-configuration?dc=ESTS-PUB-SCUS-LZ1-FD000-TEST1";
 
                     if (options.TokenValidationParameters.AudienceValidator == null
                      && options.TokenValidationParameters.ValidAudience == null
