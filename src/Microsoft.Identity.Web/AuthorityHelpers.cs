@@ -34,9 +34,9 @@ namespace Microsoft.Identity.Web
             return authority;
         }
 
-        internal static string? BuildCiamAuthorityIfNeeded(string? authority)
+        internal static string BuildCiamAuthorityIfNeeded(string authority)
         {
-            if (authority != null && authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
+            if (authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
             {
                 Uri baseUri = new Uri(authority);
                 string host = baseUri.Host;

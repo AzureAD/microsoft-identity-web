@@ -49,7 +49,8 @@ namespace Microsoft.Identity.Web
 #endif
 
     /// <summary>
-    /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
+    /// Options for configuring authentication using Azure Active Directory. It supports several Identity Providers, 
+    /// including AAD, B2C and CIAM configuration attributes.
     /// </summary>
     public class MicrosoftIdentityOptions : OpenIdConnectOptions
     {
@@ -99,9 +100,18 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Is considered B2C if the attribute SignUpSignInPolicyId is defined.
         /// </summary>
-        internal bool IsB2C
+        internal bool IsB2C // TODO: bogavril - how about an enum AuthorityType { AAD, B2C, CIAM, Oidc } instead?
         {
             get => !string.IsNullOrWhiteSpace(DefaultUserFlow);
+        }
+
+        /// <summary>
+        /// Is considered OIDC generic authority if Instance or Tenant are not defined. 
+        /// Hint to use MSAL's WithOidcAuthority API. Otherwise, WithAuthority API can be used.
+        /// </summary>
+        internal bool IsOidcAuthority // TODO: bogavril - how can we be more explicit here? These options are mutable.
+        {
+            get => string.IsNullOrWhiteSpace(TenantId);
         }
 
         /// <summary>

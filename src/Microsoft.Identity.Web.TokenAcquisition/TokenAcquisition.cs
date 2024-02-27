@@ -602,6 +602,7 @@ namespace Microsoft.Identity.Web
                 var builder = ConfidentialClientApplicationBuilder
                         .CreateWithApplicationOptions(mergedOptions.ConfidentialClientApplicationOptions)
                         .WithHttpClientFactory(_httpClientFactory)
+                        //.WithInstanceDiscovery(false) // TODO: bogavril - disable instance discovery
                         .WithLogging(
                             Log,
                             ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
@@ -625,6 +626,11 @@ namespace Microsoft.Identity.Web
                 {
                     authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
+                }
+                else if (mergedOptions.IsOidcAuthority)
+                {
+                    authority = mergedOptions.Authority;
+                    builder.WithGenericAuthority(mergedOptions.Authority);
                 }
                 else
                 {

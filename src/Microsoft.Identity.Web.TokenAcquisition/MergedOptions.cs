@@ -419,17 +419,28 @@ namespace Microsoft.Identity.Web
 
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions)
         {
-            if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
+            if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
-                string authority = mergedOptions.Authority!.TrimEnd('/');
-                int indexTenant = authority.LastIndexOf('/');
-                if (indexTenant >= 0)
+                // generic authority - ignore all tenant information
+                if (mergedOptions.IsOidcAuthority)
                 {
-                    mergedOptions.Instance = authority.Substring(0, indexTenant);
-                    mergedOptions.TenantId = authority.Substring(indexTenant + 1);
+                    mergedOptions.Instance = (new Uri(mergedOptions.Authority)).Host;
+                }
+                else if (string.IsNullOrEmpty(mergedOptions.TenantId)) // TODO: bogavril - this is very brittle, probably won't work for dSTS etc. MSAL should have a helper for this
+                {
+                    string authority = mergedOptions.Authority!.TrimEnd('/');
+                    int indexTenant = authority.LastIndexOf('/');
+                    if (indexTenant >= 0)
+                    {
+                        mergedOptions.Instance = authority.Substring(0, indexTenant);
+                        mergedOptions.TenantId = authority.Substring(indexTenant + 1);
+                    }
                 }
             }
         }
+
+
+        
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
         internal static void UpdateMergedOptionsFromJwtBearerOptions(JwtBearerOptions jwtBearerOptions, MergedOptions mergedOptions)

@@ -306,34 +306,29 @@ namespace Microsoft.Identity.Web
 
                     MergedOptionsValidation.Validate(mergedOptions);
 
-                    if (mergedOptions.Authority != null)
-                    {
-                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
-                        if (mergedOptions.ExtraQueryParameters != null)
-                        {
-                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-                        }
-                    }
+                    HandleAuthorityAndMetadataAddress(mergedOptions);
 
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
-
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
-                        openIdConnectScheme,
-                        mergedOptions,
-                        serviceProvider.GetRequiredService<ILoginErrorAccessor>());
+                       openIdConnectScheme,
+                       mergedOptions,
+                       serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
                     {
                         options.SignInScheme = cookieScheme;
                     }
 
+                    // TODO: bogavril - need to be more explicit here, by having an authority type
+                    // which will be AAD, B2C, CIAM and generic to handle all these cases.
+
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
                         options.Authority = AuthorityHelpers.BuildAuthority(mergedOptions);
                     }
-
-                    // This is a Microsoft identity platform web app
-                    options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
+                    
+                    // This is a Microsoft identity platform web app                    
+                    options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority); // TODO: bogavril - works only because CIAM CUD ends in v2.0
 
                     // B2C doesn't have preferred_username claims
                     if (mergedOptions.IsB2C)
@@ -434,6 +429,32 @@ namespace Microsoft.Identity.Web
                         diagnostics.Subscribe(options.Events);
                     }
                 });
+        }
+
+        /// <summary>
+        /// Handles OIDC authority (e.g. CIAM custom user domain) or CIAM authority (e.g. https://cats.ciamlogin.com)
+        /// Should not be used with AAD and other tenanted authorities - those continue to reply on Instance + TenantID                    
+        /// Hints at using MSAL's WithOidcAuthority or MSAL's WithAuthority
+        /// </summary>
+        /// <param name="mergedOptions"></param>
+        private static void HandleAuthorityAndMetadataAddress(MergedOptions mergedOptions)
+        {      
+            if (mergedOptions.Authority != null)
+            {
+                // TODO: bogavril - can I just assume CIAM non-CUD authority is "generic oidc" ?
+                mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+
+                // preserve the extra query parameters in the config
+                UriBuilder builder = new UriBuilder(mergedOptions.Authority);
+                string existingPath = builder.Path;
+                builder.Path = existingPath.TrimEnd('/') + "/.well-known/openid-configuration";
+                mergedOptions.MetadataAddress = builder.Uri.AbsoluteUri;
+
+                if (mergedOptions.ExtraQueryParameters != null)
+                {
+                    mergedOptions.MetadataAddress += string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                }
+            }
         }
 
         internal static void PopulateOpenIdOptionsFromMergedOptions(
