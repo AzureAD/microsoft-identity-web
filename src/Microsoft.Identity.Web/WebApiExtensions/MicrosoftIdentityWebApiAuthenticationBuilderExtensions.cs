@@ -176,7 +176,9 @@ namespace Microsoft.Identity.Web
                     // Process CIAM tenants
                     if (mergedOptions.Authority != null)
                     {
-                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                        bool preserveAuthority;
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out preserveAuthority);
+                        mergedOptions.PreserveAuthority = preserveAuthority;
                         options.Authority = mergedOptions.Authority;
                     }
 

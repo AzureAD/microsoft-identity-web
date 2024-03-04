@@ -49,6 +49,7 @@ namespace Microsoft.Identity.Web
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
         internal bool MergedWithCca { get; set; }
+        internal bool PreserveAuthority { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -426,7 +427,7 @@ namespace Microsoft.Identity.Web
                 if (indexTenant >= 0)
                 {
                     mergedOptions.Instance = authority.Substring(0, indexTenant);
-                    mergedOptions.TenantId = authority.Substring(indexTenant + 1);
+                    mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authority.Substring(indexTenant + 1);
                 }
             }
         }

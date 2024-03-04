@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
             return authority;
         }
 
-        internal static string? BuildCiamAuthorityIfNeeded(string? authority)
+        internal static string? BuildCiamAuthorityIfNeeded(string? authority, out bool preserveAuthority)
         {
             if (authority != null && authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
             {
@@ -43,10 +43,12 @@ namespace Microsoft.Identity.Web
                 if (host.EndsWith(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)
                     && baseUri.AbsolutePath == "/")
                 {
+                    preserveAuthority = false;
                     string tenantId = host.Substring(0, host.IndexOf(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
                     return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}")).ToString();
                 }
             }
+            preserveAuthority = true;
             return authority;
         }
     }
