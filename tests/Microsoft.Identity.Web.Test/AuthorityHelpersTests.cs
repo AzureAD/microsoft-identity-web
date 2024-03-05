@@ -76,10 +76,12 @@ namespace Microsoft.Identity.Web.Test
             };
             string expectedResult = options.Authority + TestConstants.Domain;
 
-            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
+            bool preserveAuthority;
+            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority, out preserveAuthority);
 
             Assert.NotNull(result);
             Assert.Equal(expectedResult, result);
+            Assert.False(preserveAuthority);
         }
 
         [Fact]
@@ -91,10 +93,12 @@ namespace Microsoft.Identity.Web.Test
             };
             string expectedResult = options.Authority ;
 
-            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority);
+            bool preserveAuthority;
+            string? result = AuthorityHelpers.BuildCiamAuthorityIfNeeded(options.Authority, out preserveAuthority);
 
             Assert.NotNull(result);
             Assert.Equal(expectedResult, result);
+            Assert.True(preserveAuthority);
         }
 
         [Theory]
