@@ -722,7 +722,6 @@ namespace Microsoft.Identity.Web
                         Certificate = app.AppConfig.ClientCredentialCertificate,
                         CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate)
                     });
-                ;
             }
         }
 
