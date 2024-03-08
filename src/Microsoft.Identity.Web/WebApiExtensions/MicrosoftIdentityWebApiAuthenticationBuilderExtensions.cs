@@ -255,38 +255,6 @@ namespace Microsoft.Identity.Web
                 });
         }
 
-        /*
-        private static void UpdateOptionsMetadata(JwtBearerOptions options, MergedOptions mergedOptions)
-        {
-            if (mergedOptions.ExtraQueryParameters != null)
-            {
-                if (options.MetadataAddress == null)
-                {
-                    options.MetadataAddress = options.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-
-                }
-                else
-                {
-                    if (options.MetadataAddress.Contains('?', StringComparison.OrdinalIgnoreCase))
-                    {
-                        options.MetadataAddress += "&" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-                    }
-                    else
-                    {
-                        options.MetadataAddress += "?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
-                    }
-                }
-            }
-            else
-            {
-                if (options.MetadataAddress == null)
-                {
-                    options.MetadataAddress = options.Authority + "/.well-known/openid-configuration";
-                }
-            }
-        }
-        */
-
         /// <summary>
         /// In order to ensure that the Web API only accepts tokens from tenants where it has been consented and provisioned, a token that
         /// has neither Roles nor Scopes claims should be rejected. To enforce that rule, add an event handler to the beginning of the
