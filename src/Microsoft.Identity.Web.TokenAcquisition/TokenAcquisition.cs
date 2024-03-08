@@ -650,9 +650,9 @@ namespace Microsoft.Identity.Web
 
                 string authority;
 
-                if (mergedOptions.PreserveAuthority && mergedOptions.Authority != null)
+                if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
                 {
-                    authority = mergedOptions.Authority;
+                    authority = mergedOptions.Authority!;
                     builder.WithOidcAuthority(authority);
                 }
                 else if (mergedOptions.IsB2C)
