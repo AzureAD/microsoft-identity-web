@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1709710155000,
+  "lastUpdate": 1710192628186,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -468,6 +468,42 @@ window.BENCHMARK_DATA = {
             "value": 11095.883821684738,
             "unit": "ns",
             "range": "± 80.02187520402697"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "518d671dabfc8c1842fcf08c3af7b371ff3d43d9",
+          "message": "stop using obsolete downstreamwebapi, use the latest id web (#2699)",
+          "timestamp": "2024-03-11T14:26:49-07:00",
+          "tree_id": "57892728fd6348787e647a4e9a3effb1855906b8",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/518d671dabfc8c1842fcf08c3af7b371ff3d43d9"
+        },
+        "date": 1710192627688,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 11502.285924491236,
+            "unit": "ns",
+            "range": "± 254.43796452477966"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11905.059123229981,
+            "unit": "ns",
+            "range": "± 121.05845026655696"
           }
         ]
       }
