@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710192628186,
+  "lastUpdate": 1710274814369,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -504,6 +504,42 @@ window.BENCHMARK_DATA = {
             "value": 11905.059123229981,
             "unit": "ns",
             "range": "± 121.05845026655696"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5da1f6ad3b636fd618b07e4708fd4713bc2384cf",
+          "message": "Add support for custom user domains (#2696)\n\n* add support for preserved authority\r\n\r\n* msal 4.60.0-preview, Ciam CUD devapp\r\n\r\n* edit directory.build.props\r\n\r\n* remove extra ciam devapp\r\n\r\n* improve strig comparison\r\n\r\n* back to msal 4.59.0\r\n\r\n* inline variable declaration\r\n\r\n* Comment improvements per PR feedback\r\n\r\n* add test per PR feedback\r\n\r\n* fix test\r\n\r\n* set instance to authority when authority is preserved",
+          "timestamp": "2024-03-12T14:15:07-06:00",
+          "tree_id": "032f0520073d89d2a476eb63cbe7efc2f1ea7c0c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/5da1f6ad3b636fd618b07e4708fd4713bc2384cf"
+        },
+        "date": 1710274813195,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10340.039963839346,
+            "unit": "ns",
+            "range": "± 86.7160899130643"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11058.143331654866,
+            "unit": "ns",
+            "range": "± 108.58378037991133"
           }
         ]
       }
