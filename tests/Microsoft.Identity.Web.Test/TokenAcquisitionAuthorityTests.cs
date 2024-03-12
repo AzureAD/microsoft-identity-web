@@ -244,8 +244,8 @@ namespace Microsoft.Identity.Web.Test
 
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
 
-            // CIAM users do nto use Instance, no need to check it
             Assert.Equal(TC.CIAMAuthority, mergedOptions.Authority);
+            Assert.Equal(TC.CIAMAuthority, mergedOptions.Instance);
             Assert.Null(mergedOptions.TenantId);
         }
 
