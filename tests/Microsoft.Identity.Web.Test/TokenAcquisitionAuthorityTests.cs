@@ -238,7 +238,8 @@ namespace Microsoft.Identity.Web.Test
         {
             MergedOptions mergedOptions = new()
             {
-                Authority = TC.CIAMAuthority
+                Authority = TC.CIAMAuthority,
+                PreserveAuthority = true
             };
 
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
