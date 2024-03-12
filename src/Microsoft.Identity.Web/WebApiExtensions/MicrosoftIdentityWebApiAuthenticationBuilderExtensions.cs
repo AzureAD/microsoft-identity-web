@@ -173,10 +173,11 @@ namespace Microsoft.Identity.Web
                     msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
-                    // Process CIAM tenants
+                    // Process OIDC compliant tenants
                     if (mergedOptions.Authority != null)
                     {
-                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority);
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
+                        mergedOptions.PreserveAuthority = preserveAuthority;
                         options.Authority = mergedOptions.Authority;
                     }
 

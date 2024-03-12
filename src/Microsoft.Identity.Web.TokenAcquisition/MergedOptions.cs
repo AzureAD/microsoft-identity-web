@@ -49,6 +49,8 @@ namespace Microsoft.Identity.Web
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
         internal bool MergedWithCca { get; set; }
+        // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
+        internal bool PreserveAuthority { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -425,8 +427,9 @@ namespace Microsoft.Identity.Web
                 int indexTenant = authority.LastIndexOf('/');
                 if (indexTenant >= 0)
                 {
-                    mergedOptions.Instance = authority.Substring(0, indexTenant);
-                    mergedOptions.TenantId = authority.Substring(indexTenant + 1);
+                    // In CIAM and B2C, customers will use "authority", not Instance and TenantId
+                    mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authority.Substring(0, indexTenant);
+                    mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authority.Substring(indexTenant + 1);
                 }
             }
         }

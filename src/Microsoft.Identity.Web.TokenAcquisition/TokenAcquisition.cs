@@ -650,7 +650,12 @@ namespace Microsoft.Identity.Web
 
                 string authority;
 
-                if (mergedOptions.IsB2C)
+                if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
+                {
+                    authority = mergedOptions.Authority!;
+                    builder.WithGenericAuthority(authority);
+                }
+                else if (mergedOptions.IsB2C)
                 {
                     authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
