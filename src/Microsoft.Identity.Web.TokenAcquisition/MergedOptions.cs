@@ -427,6 +427,7 @@ namespace Microsoft.Identity.Web
                 int indexTenant = authority.LastIndexOf('/');
                 if (indexTenant >= 0)
                 {
+                    // In CIAM and B2C, customers will use "authority", not Instance and TenantId
                     mergedOptions.Instance = authority.Substring(0, indexTenant);
                     mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authority.Substring(indexTenant + 1);
                 }

@@ -81,6 +81,11 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CCustomDomainTenant = "cpimtestpartners.onmicrosoft.com";
         public const string B2CCustomDomainUserFlow = "B2C_1_signupsignin_userflow";
 
+        // CIAM
+        public const string CIAMInstance = "https://catsareawesome.ciamlogin.com";
+        public const string CIAMTenant = "aaaaaa-43bb-4ff9-89af-30ed8fe31c6d";
+        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+
         // Claims
         public const string ClaimNameTid = "tid";
         public const string ClaimNameIss = "iss";

@@ -234,6 +234,21 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public void TestParseAuthorityIfNecessary_CIAM()
+        {
+            MergedOptions mergedOptions = new()
+            {
+                Authority = TC.CIAMAuthority
+            };
+
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            // CIAM users do nto use Instance, no need to check it
+            Assert.Equal(TC.CIAMAuthority, mergedOptions.Authority);
+            Assert.Null(mergedOptions.TenantId);
+        }
+
+        [Fact]
         public void MergeExtraQueryParametersTest()
         {
             // Arrange
