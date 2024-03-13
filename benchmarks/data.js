@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710274814369,
+  "lastUpdate": 1710370357778,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -540,6 +540,42 @@ window.BENCHMARK_DATA = {
             "value": 11058.143331654866,
             "unit": "ns",
             "range": "± 108.58378037991133"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4345be713a98f73a2af57882fb97843b526da387",
+          "message": "Update changelog for rel/2.17.2 (#2700)\n\n* add 2.17.2 section\r\n\r\n* Update changelog.md\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-03-13T15:49:10-07:00",
+          "tree_id": "1f423c9a6c6b843e943291e43d52364ca8964f58",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/4345be713a98f73a2af57882fb97843b526da387"
+        },
+        "date": 1710370356587,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10325.90040699352,
+            "unit": "ns",
+            "range": "± 90.43176663493773"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10944.923621699496,
+            "unit": "ns",
+            "range": "± 57.80171037234449"
           }
         ]
       }
