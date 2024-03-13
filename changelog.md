@@ -2,7 +2,7 @@
 =========
 
 ### New features
-- Added support for CIAM custom user domains. See issue [#2690](https://github.com/AzureAD/microsoft-identity-web/issues/2690) for details. 
+- Added support for CIAM custom user domains. You can now use an Open ID connect authority in the "Authority" property of the configuration instead of using "Instance" and "Tenant". See issue [#2690](https://github.com/AzureAD/microsoft-identity-web/issues/2690) for details. 
 
 2.17.1
 =========
