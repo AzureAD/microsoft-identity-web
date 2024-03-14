@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710370357778,
+  "lastUpdate": 1710384170733,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -576,6 +576,42 @@ window.BENCHMARK_DATA = {
             "value": 10944.923621699496,
             "unit": "ns",
             "range": "± 57.80171037234449"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "73967733+sruke@users.noreply.github.com",
+            "name": "sruthikeerthi",
+            "username": "sruke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b5100023bc3276e3e27e53311100c4775ea0c2e8",
+          "message": "Moves NuGet.Config into root folder (#2701)\n\n* Move NuGet.config to root folder\r\n* Delete src/Microsoft.Identity.Web/NuGet.Config",
+          "timestamp": "2024-03-13T19:39:23-07:00",
+          "tree_id": "6bea2dfd2a11fe3d223d5052b07d57c91a3478ac",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/b5100023bc3276e3e27e53311100c4775ea0c2e8"
+        },
+        "date": 1710384170115,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10324.285933645147,
+            "unit": "ns",
+            "range": "± 77.88217986368116"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11030.252922459653,
+            "unit": "ns",
+            "range": "± 78.67144480557623"
           }
         ]
       }
