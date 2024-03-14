@@ -31,7 +31,7 @@ public class IndexModel : PageModel
         else
         {
             var error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}");
+            ViewData["ApiResult"] = $"Invalid status code in the HttpResponseMessage: {response.StatusCode}: {error}";
         }
     }
 }
