@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710384170733,
+  "lastUpdate": 1710384215455,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -612,6 +612,42 @@ window.BENCHMARK_DATA = {
             "value": 11030.252922459653,
             "unit": "ns",
             "range": "± 78.67144480557623"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fc5d24a4f54a57e2e58762e760474fc3effc659e",
+          "message": "Improve the Ciam sample (#2703)\n\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-03-13T19:40:10-07:00",
+          "tree_id": "63d874679c0cd3b6c744ded44568cbf3a2929365",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/fc5d24a4f54a57e2e58762e760474fc3effc659e"
+        },
+        "date": 1710384214797,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10467.713973999023,
+            "unit": "ns",
+            "range": "± 110.69838576303862"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11134.592104547673,
+            "unit": "ns",
+            "range": "± 66.63488322317767"
           }
         ]
       }
