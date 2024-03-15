@@ -3,7 +3,7 @@ name: Build and run Id Web tests
 on:
   push:
     branches:
-      - master
+      - rel/v2
   pull_request:
     types:
       - opened
@@ -11,7 +11,7 @@ on:
       - reopened
       - ready_for_review
     branches:
-      - master
+      - rel/v2
 
 jobs:
   build:
