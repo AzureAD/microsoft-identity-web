@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710384215455,
+  "lastUpdate": 1710541810360,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -648,6 +648,42 @@ window.BENCHMARK_DATA = {
             "value": 11134.592104547673,
             "unit": "ns",
             "range": "± 66.63488322317767"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ca6077cd9f2f4b396180c408b513b05f398a2204",
+          "message": "update from master to rel/v2 branch (#2704)",
+          "timestamp": "2024-03-15T15:26:06-07:00",
+          "tree_id": "0e8eef247fe41d240120cdfa102259cf5f3f5f19",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ca6077cd9f2f4b396180c408b513b05f398a2204"
+        },
+        "date": 1710541809483,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10231.515092606978,
+            "unit": "ns",
+            "range": "± 77.10820709780883"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10795.57137145996,
+            "unit": "ns",
+            "range": "± 77.30037796270216"
           }
         ]
       }
