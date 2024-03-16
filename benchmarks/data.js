@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710541810360,
+  "lastUpdate": 1710551547011,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -684,6 +684,42 @@ window.BENCHMARK_DATA = {
             "value": 10795.57137145996,
             "unit": "ns",
             "range": "± 77.30037796270216"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2867baa0472c0c5186cb4b9c0f9343bc75cebfc8",
+          "message": "Replace the user assigned managed identity in tests, by another one (#2708)",
+          "timestamp": "2024-03-15T18:09:00-07:00",
+          "tree_id": "c1e717d24dd3cf98e08f02cec0b8f59a96dc961b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/2867baa0472c0c5186cb4b9c0f9343bc75cebfc8"
+        },
+        "date": 1710551546388,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10547.318793296814,
+            "unit": "ns",
+            "range": "± 103.30645084343344"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11035.686051232475,
+            "unit": "ns",
+            "range": "± 78.7421987223776"
           }
         ]
       }
