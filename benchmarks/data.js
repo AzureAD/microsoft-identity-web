@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710551547011,
+  "lastUpdate": 1710789660853,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -720,6 +720,42 @@ window.BENCHMARK_DATA = {
             "value": 11035.686051232475,
             "unit": "ns",
             "range": "± 78.7421987223776"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c274062276da806c253764be9b9acc51d2784646",
+          "message": "Fix user assigned MSI in tests (#2709)",
+          "timestamp": "2024-03-18T12:17:39-07:00",
+          "tree_id": "ee43f75dab1dad875192e3f80a4e029aa36eeb3e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/c274062276da806c253764be9b9acc51d2784646"
+        },
+        "date": 1710789660046,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10207.94384511312,
+            "unit": "ns",
+            "range": "± 51.101599509772136"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10812.05415395963,
+            "unit": "ns",
+            "range": "± 108.0321127343108"
           }
         ]
       }
