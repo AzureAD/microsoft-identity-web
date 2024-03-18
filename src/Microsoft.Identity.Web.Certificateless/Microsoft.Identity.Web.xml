@@ -16,7 +16,7 @@
             </summary>
             The default is <c>false.</c>
         </member>
-        <member name="P:Microsoft.Identity.Web.CertificatelessOptions.ManagedIdentityObjectId">
+        <member name="P:Microsoft.Identity.Web.CertificatelessOptions.ManagedIdentityClientId">
             <summary>
             The value is used to establish a connection between external workload identities
             and Azure Active Directory. If Azure AD is the issuer, this value should be the object

@@ -122,7 +122,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get headers from environment to help debugging App Services authentication.
         /// </summary>
-        internal static string? SimulateGetttingHeaderFromDebugEnvironmentVariable(string header)
+        internal static string? SimulateGettingHeaderFromDebugEnvironmentVariable(string header)
         {
             string? headerPlusValue = Environment.GetEnvironmentVariable(AppServicesAuthDebugHeadersEnvironmentVariable)
                 ?.Split(';')
@@ -138,17 +138,14 @@ namespace Microsoft.Identity.Web
         /// <returns>The ID Token.</returns>
         internal static string? GetIdToken(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdTokenHeader, out var idToken);
 
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+                idToken = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;
@@ -161,16 +158,13 @@ namespace Microsoft.Identity.Web
         /// <returns>The IDP.</returns>
         internal static string? GetIdp(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdpTokenHeader, out var idp);
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+                idp = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -195,7 +189,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimsIdentity.DefaultRoleClaimType));
+                    ClaimConstants.Roles));
             }
             else
             {

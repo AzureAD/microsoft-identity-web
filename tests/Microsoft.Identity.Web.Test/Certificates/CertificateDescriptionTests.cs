@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateName, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificateName, certificateDescription.KeyVaultCertificateName);
             Assert.Equal(keyVaultUrl, certificateDescription.KeyVaultUrl);
-#if DOTNET_462
+#if NET462
             Assert.Equal(X509KeyStorageFlags.MachineKeySet, certificateDescription.X509KeyStorageFlags);
 #else
             Assert.Equal(X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet, certificateDescription.X509KeyStorageFlags);
@@ -78,11 +78,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [Fact]
         public void TestFromCertificate()
         {
-            using (X509Certificate2 certificate2 = new X509Certificate2())
-            {
-                CertificateDescription certificateDescription =
-                    CertificateDescription.FromCertificate(certificate2);
-            }
+            using X509Certificate2 certificate2 = new X509Certificate2(new byte[0]);
+            CertificateDescription certificateDescription =
+                CertificateDescription.FromCertificate(certificate2);
         }
     }
 }

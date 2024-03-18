@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -89,8 +90,16 @@ namespace Microsoft.Identity.Web
                                     IDWebErrorMessage.ScopeKeySectionIsProvidedButNotPresentInTheServicesCollection,
                                     nameof(ScopeKeySection)));
                         }
+                        string? scopeKeySectionValue = configuration[ScopeKeySection];
 
-                        incrementalConsentScopes = new string[] { configuration.GetValue<string>(ScopeKeySection) };
+                        if (!string.IsNullOrEmpty(scopeKeySectionValue))
+                        {
+                            incrementalConsentScopes = new[] { scopeKeySectionValue };
+                        }
+                        else
+                        {
+                            incrementalConsentScopes = new string[0];
+                        }
 
                         if (Scopes != null && Scopes.Length > 0 && incrementalConsentScopes.Length > 0)
                         {
@@ -121,7 +130,7 @@ namespace Microsoft.Identity.Web
                     if (IsAjaxRequest(httpRequest) && (!string.IsNullOrEmpty(httpRequest.Headers[Constants.XReturnUrl])
                         || !string.IsNullOrEmpty(httpRequest.Query[Constants.XReturnUrl])))
                     {
-                        string redirectUri = !string.IsNullOrEmpty(httpRequest.Headers[Constants.XReturnUrl]) ? httpRequest.Headers[Constants.XReturnUrl]
+                        string? redirectUri = !string.IsNullOrEmpty(httpRequest.Headers[Constants.XReturnUrl]) ? httpRequest.Headers[Constants.XReturnUrl]
                             : httpRequest.Query[Constants.XReturnUrl];
 
                         UrlHelper urlHelper = new UrlHelper(context);
@@ -142,7 +151,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            base.OnException(context);
+            base.OnException(context!);
         }
 
         /// <summary>

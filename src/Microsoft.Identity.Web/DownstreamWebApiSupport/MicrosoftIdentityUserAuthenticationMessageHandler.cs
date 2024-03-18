@@ -38,10 +38,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // validate arguments
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+            _ = Throws.IfNull(request);
 
             // authenticate
             var options = GetOptionsForRequest(request);

@@ -10,11 +10,13 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
     /// </summary>
     public class MsalMemoryTokenCacheOptions
     {
+        internal static TimeSpan DefaultAbsoluteExpirationRelativeToNow = TimeSpan.FromDays(14);
+
         /// <summary>Initializes a new instance of the <see cref="MsalMemoryTokenCacheOptions"/> class.
         /// By default, the sliding expiration is set for 14 days.</summary>
         public MsalMemoryTokenCacheOptions()
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(14);
+            AbsoluteExpirationRelativeToNow = DefaultAbsoluteExpirationRelativeToNow;
         }
 
         /// <summary>

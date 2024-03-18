@@ -18,7 +18,16 @@
   ],
   "ConfigurationProperties": [
     {
-      "FileRelativePath": "Startup.cs",
+        "FileRelativePath": "Startup.cs",
+        "Properties": [
+            {
+                "MatchAny": [ ".AddAzureAD", ".AddMicrosoftIdentityWebApp", ".AddMicrosoftIdentityWebAppAuthentication" ],
+                "Sets": "HasAuthentication"
+            }
+        ]
+    },
+   {
+      "FileRelativePath": "Program.cs",
       "Properties": [
         {
           "MatchAny": [ ".AddAzureAD", ".AddMicrosoftIdentityWebApp", ".AddMicrosoftIdentityWebAppAuthentication" ],

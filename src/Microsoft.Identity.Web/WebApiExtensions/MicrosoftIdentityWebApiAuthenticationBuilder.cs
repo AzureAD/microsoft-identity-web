@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Internal;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -27,6 +28,9 @@ namespace Microsoft.Identity.Web
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Configuration section from which to
         /// get parameters.</param>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+#endif
         internal MicrosoftIdentityWebApiAuthenticationBuilder(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
@@ -36,40 +40,26 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             JwtBearerAuthenticationScheme = jwtBearerAuthenticationScheme;
-            ConfigureJwtBearerOptions = configureJwtBearerOptions;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
-
-            if (ConfigureJwtBearerOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            _ = Throws.IfNull(configureJwtBearerOptions);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
             Services.Configure(jwtBearerAuthenticationScheme, configureMicrosoftIdentityOptions);
         }
 
-        private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
-
         private string JwtBearerAuthenticationScheme { get; set; }
-
-        private Action<JwtBearerOptions> ConfigureJwtBearerOptions { get; set; }
 
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(IServiceCollection, string, Action<ConfidentialClientApplicationOptions>, IConfigurationSection).")]
+#endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
-            if (configureConfidentialClientApplicationOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureConfidentialClientApplicationOptions));
-            }
+            _ = Throws.IfNull(configureConfidentialClientApplicationOptions);
 
             CallsWebApiImplementation(
                 Services,
@@ -82,6 +72,9 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
+#endif
         internal static void CallsWebApiImplementation(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
@@ -107,7 +100,8 @@ namespace Microsoft.Identity.Web
 
                     options.Events.OnTokenValidated = async context =>
                     {
-                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken as JwtSecurityToken);
+                        // Only pass through a token if it is of an expected type
+                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken is JwtSecurityToken or JsonWebToken ? context.SecurityToken : null);
                         await onTokenValidatedHandler(context).ConfigureAwait(false);
                     };
                 });

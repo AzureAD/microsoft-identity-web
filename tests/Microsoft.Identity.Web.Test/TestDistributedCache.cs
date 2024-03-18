@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
         internal readonly ConcurrentDictionary<string, Entry> _dict = new ConcurrentDictionary<string, Entry>();
         internal static ManualResetEventSlim ResetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
 
-        public byte[] Get(string key)
+        public byte[]? Get(string key)
         {
             if (_dict.TryGetValue(key, out var value))
             {
@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Test
             return null;
         }
 
-        public DistributedCacheEntryOptions GetDistributedCacheEntryOptions(string key)
+        public DistributedCacheEntryOptions? GetDistributedCacheEntryOptions(string key)
         {
             if (_dict.TryGetValue(key, out var value))
             {
@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Test
             return null;
         }
 
-        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        public Task<byte[]?> GetAsync(string key, CancellationToken token = default)
         {
             return Task.FromResult(Get(key));
         }

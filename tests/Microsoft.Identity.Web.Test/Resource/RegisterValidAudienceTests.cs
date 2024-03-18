@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
@@ -19,12 +21,14 @@ namespace Microsoft.Identity.Web.Test.Resource
         private const string V1 = "1.0";
         private const string V2 = "2.0";
         private const string V3 = "3.0";
-        private JwtSecurityToken _token;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private SecurityToken _token;
         private RegisterValidAudience _registerValidAudience;
         private TokenValidationParameters _validationParams;
         private IEnumerable<string> _validAudiences;
         private MicrosoftIdentityOptions _options;
         private string _expectedAudience;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Theory]
         [InlineData(false, V1)]
@@ -34,7 +38,19 @@ namespace Microsoft.Identity.Web.Test.Resource
             bool isB2C,
             string tokenVersion)
         {
-            InitializeTests(isB2C, tokenVersion);
+            InitializeTests(isB2C, tokenVersion, claims => new JwtSecurityToken(null, null, claims));
+            AssertAudienceFromToken();
+        }
+
+        [Theory]
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_FromToken_JsonWeb(
+            bool isB2C,
+            string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion, claims => new TestJsonWebToken(claims));
             AssertAudienceFromToken();
         }
 
@@ -46,7 +62,19 @@ namespace Microsoft.Identity.Web.Test.Resource
            bool isB2C,
            string tokenVersion)
         {
-            InitializeTests(isB2C, tokenVersion);
+            InitializeTests(isB2C, tokenVersion, claims => new JwtSecurityToken(null, null, claims));
+            AssertAudienceProvidedInValidAudience();
+        }
+
+        [Theory]
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_ProvidedInValidAudience_JsonWeb(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion, claims => new TestJsonWebToken(claims));
             AssertAudienceProvidedInValidAudience();
         }
 
@@ -58,7 +86,19 @@ namespace Microsoft.Identity.Web.Test.Resource
            bool isB2C,
            string tokenVersion)
         {
-            InitializeTests(isB2C, tokenVersion);
+            InitializeTests(isB2C, tokenVersion, claims => new JwtSecurityToken(null, null, claims));
+            AssertAudienceProvidedInValidAudiences();
+        }
+
+        [Theory]
+        [InlineData(false, V1)]
+        [InlineData(false, V2)]
+        [InlineData(true, V1)]
+        public void ValidateAudience_ProvidedInValidAudiences_JsonWeb(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion, claims => new TestJsonWebToken(claims));
             AssertAudienceProvidedInValidAudiences();
         }
 
@@ -68,13 +108,24 @@ namespace Microsoft.Identity.Web.Test.Resource
            bool isB2C,
            string tokenVersion)
         {
-            InitializeTests(isB2C, tokenVersion);
+            InitializeTests(isB2C, tokenVersion, claims => new JwtSecurityToken(null, null, claims));
+            AssertFailureOnInvalidAudienceInToken();
+        }
+
+        [Theory]
+        [InlineData(false, V3)]
+        public void InvalidAudience_AssertFails_JsonWeb(
+           bool isB2C,
+           string tokenVersion)
+        {
+            InitializeTests(isB2C, tokenVersion, claims => new TestJsonWebToken(claims));
             AssertFailureOnInvalidAudienceInToken();
         }
 
         private void InitializeTests(
             bool isB2C,
-            string tokenVersion)
+            string tokenVersion,
+            Func<IEnumerable<Claim>, SecurityToken> tokenGenerator)
         {
             _options = new MicrosoftIdentityOptions
             {
@@ -101,7 +152,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                   new Claim(Audience, _expectedAudience),
             };
 
-            _token = new JwtSecurityToken(null, null, claims);
+            _token = tokenGenerator(claims);
             _validationParams = new TokenValidationParameters();
             _registerValidAudience = new RegisterValidAudience();
             _registerValidAudience.RegisterAudienceValidation(_validationParams, _options);
@@ -114,8 +165,8 @@ namespace Microsoft.Identity.Web.Test.Resource
                        _validAudiences,
                        _token,
                        _validationParams));
-            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
-            Assert.Single(_token.Audiences);
+            Assert.Equal(_expectedAudience, Audiences.FirstOrDefault());
+            Assert.Single(Audiences);
         }
 
         private void AssertAudienceProvidedInValidAudience()
@@ -125,12 +176,14 @@ namespace Microsoft.Identity.Web.Test.Resource
                 _validAudiences,
                 _token,
                 _validationParams));
-            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
-            Assert.Single(_token.Audiences);
+            Assert.Equal(_expectedAudience, Audiences.FirstOrDefault());
+            Assert.Single(Audiences);
         }
 
         private void AssertAudienceProvidedInValidAudiences()
         {
+            Assert.NotNull(_options);
+            Assert.NotNull(_options.ClientId);
             _validationParams.ValidAudiences = new List<string>
                     {
                          $"api://{_options.ClientId}",
@@ -140,9 +193,16 @@ namespace Microsoft.Identity.Web.Test.Resource
                 _validAudiences,
                 _token,
                 _validationParams));
-            Assert.Equal(_expectedAudience, _token.Audiences.FirstOrDefault());
-            Assert.Single(_token.Audiences);
+            Assert.Equal(_expectedAudience, Audiences.FirstOrDefault());
+            Assert.Single(Audiences);
         }
+
+        private IEnumerable<string> Audiences => _token switch
+        {
+            JwtSecurityToken s => s.Audiences,
+            TestJsonWebToken w => w.Audiences,
+            _ => throw new System.NotImplementedException(),
+        };
 
         private void AssertFailureOnInvalidAudienceInToken()
         {
@@ -150,6 +210,21 @@ namespace Microsoft.Identity.Web.Test.Resource
                    _validAudiences,
                    _token,
                    _validationParams));
+        }
+
+        private class TestJsonWebToken : JsonWebToken
+        {
+            private const string TestJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+            public TestJsonWebToken(IEnumerable<Claim> claims)
+                : base(TestJwt)
+            {
+                Claims = claims;
+            }
+
+            public override IEnumerable<Claim> Claims { get; }
+
+            public new IEnumerable<string> Audiences => Claims.Where(c => c.Type == Audience).Select(c => c.Value);
         }
     }
 }

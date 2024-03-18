@@ -5,8 +5,10 @@ using System.Diagnostics;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders
 {
-    internal struct MeasureDurationResult
+    internal readonly struct MeasureDurationResult
     {
+        private const double Thousand = 1000.0;
+
         public MeasureDurationResult(long ticks)
         {
             Ticks = ticks;
@@ -18,12 +20,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         {
             get
             {
-                return (double)Ticks / (double)Stopwatch.Frequency * 1000.0;
+                return (double)Ticks / (double)Stopwatch.Frequency * Thousand;
             }
         }
     }
 
-    internal struct MeasureDurationResult<TResult>
+    internal readonly struct MeasureDurationResult<TResult>
     {
         public MeasureDurationResult(TResult result, long ticks)
         {

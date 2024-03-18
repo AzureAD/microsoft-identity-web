@@ -18,10 +18,7 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddAppServicesAuthentication(
              this AuthenticationBuilder builder)
         {
-            if (builder is null)
-            {
-                throw new System.ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.AddScheme<AppServicesAuthenticationOptions, AppServicesAuthenticationHandler>(
                 AppServicesAuthenticationDefaults.AuthenticationScheme,

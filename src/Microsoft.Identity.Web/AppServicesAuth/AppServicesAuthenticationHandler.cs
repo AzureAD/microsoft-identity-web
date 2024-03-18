@@ -15,20 +15,19 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class AppServicesAuthenticationHandler : AuthenticationHandler<AppServicesAuthenticationOptions>
     {
-        /// <summary>
-        /// Constructor for the AppServiceAuthenticationHandler.
-        /// Note the parameters are required by the base class.
-        /// </summary>
-        /// <param name="options">App service authentication options.</param>
-        /// <param name="logger">Logger factory.</param>
-        /// <param name="encoder">URL encoder.</param>
-        /// <param name="clock">System clock.</param>
+        /// <inheritdoc/>
+        ///<remarks>Note the parameters are required by the base class.</remarks>
         public AppServicesAuthenticationHandler(
               IOptionsMonitor<AppServicesAuthenticationOptions> options,
               ILoggerFactory logger,
+#if NET8_0_OR_GREATER
+              UrlEncoder encoder)
+              : base(options, logger, encoder)
+#else
               UrlEncoder encoder,
               ISystemClock clock)
               : base(options, logger, encoder, clock)
+#endif
         {
         }
 
@@ -42,7 +41,7 @@ namespace Microsoft.Identity.Web
                 {
                     AuthenticationTicket ticket = new AuthenticationTicket(claimsPrincipal, AppServicesAuthenticationDefaults.AuthenticationScheme);
                     AuthenticateResult success = AuthenticateResult.Success(ticket);
-                    return Task<AuthenticateResult>.FromResult<AuthenticateResult>(success);
+                    return Task.FromResult(success);
                 }
             }
 

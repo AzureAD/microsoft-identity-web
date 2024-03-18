@@ -2,17 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Microsoft.Identity.App</RootNamespace>
-
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>msidentity-app-sync</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <!-- Copyright needs to be in the form of © not (c) to be compliant -->
     <Title>Microsoft identity platform auto-sync app registration tool</Title>
     <Authors>Microsoft</Authors>
@@ -26,20 +18,12 @@
       For details see https://aka.ms/ms-identity-app-registration.
     </Description>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web/blob/master/tools/app-provisioning-tool/README.md</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
     <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
     <PackageTags>Microsoft Identity Web;Microsoft identity platform;Microsoft.Identity.Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization;Application registration;app registration</PackageTags>
 
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="nupkg\**" />
@@ -54,8 +38,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
-    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20574.7" />
+    <None Remove="..\..\LICENSE" />
+    <None Include="..\..\..\..\LICENSE" Link="LICENSE" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.4.0-alpha.22272.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,6 +64,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

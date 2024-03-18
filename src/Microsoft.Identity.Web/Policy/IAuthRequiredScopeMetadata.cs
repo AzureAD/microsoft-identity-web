@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-
 namespace Microsoft.Identity.Web
 {
     /// <summary>
@@ -15,7 +13,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        IEnumerable<string>? AcceptedScope { get; }
+        string[]? AcceptedScope { get; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated

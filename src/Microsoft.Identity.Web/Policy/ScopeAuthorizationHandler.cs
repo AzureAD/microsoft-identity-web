@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
@@ -39,15 +39,9 @@ namespace Microsoft.Identity.Web
             AuthorizationHandlerContext context,
             ScopeAuthorizationRequirement requirement)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            _ = Throws.IfNull(context);
 
-            if (requirement is null)
-            {
-                throw new ArgumentNullException(nameof(requirement));
-            }
+            _ = Throws.IfNull(requirement);
 
             // The resource is either the HttpContext or the Endpoint directly when used with the
             // authorization middleware
@@ -66,7 +60,7 @@ namespace Microsoft.Identity.Web
 
             if (configurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(configurationKey)?.Split(' ');
+                scopes = _configuration[configurationKey]?.Split(' ');
             }
 
             if (scopes is null)

@@ -33,5 +33,23 @@ namespace Microsoft.Identity.Web
 
             return authority;
         }
+
+        internal static string? BuildCiamAuthorityIfNeeded(string authority, out bool preserveAuthority)
+        {
+            if (!string.IsNullOrEmpty(authority) && authority.Contains(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase))
+            {
+                Uri baseUri = new Uri(authority);
+                string host = baseUri.Host;
+                if (host.EndsWith(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)
+                    && baseUri.AbsolutePath == "/")
+                {
+                    preserveAuthority = false;
+                    string tenantId = host.Substring(0, host.IndexOf(Constants.CiamAuthoritySuffix, StringComparison.OrdinalIgnoreCase)) + ".onmicrosoft.com";
+                    return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}")).ToString();
+                }
+            }
+            preserveAuthority = true;
+            return authority;
+        }
     }
 }

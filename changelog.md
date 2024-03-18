@@ -1,3 +1,378 @@
+2.17.2
+=========
+
+### New features
+- Added support for CIAM custom user domains. You can now use an Open ID connect authority in the "Authority" property of the configuration instead of using "Instance" and "Tenant". See issue [#2690](https://github.com/AzureAD/microsoft-identity-web/issues/2690) for details. 
+
+2.17.1
+=========
+- Updated to Microsoft.IdentityModel.* 7.4.0
+
+### New features
+- DownstreamApi now automatically processes claims challenge from web APIs which are CAE enabled, provided you set "ClientCapablities" : ["cp1"] in the configuation. See issue [#2550](https://github.com/AzureAD/microsoft-identity-web/pull/2550).
+
+### Bug fixes
+- Fixes the use of `ServiceDescriptor` for containers which have keyed services present. This can be an issue on .NET 8.0. See issue [#2676](https://github.com/AzureAD/microsoft-identity-web/pull/2676) for details.
+
+### Engineering excellence
+- Calls to `ConfidentialClientApplicationBuilderExtension.WithClientCredentials` are fully async. See issue [#2566](https://github.com/AzureAD/microsoft-identity-web/issues/2566) for details.
+
+2.17.0
+=========
+- Updated to Microsoft.IdentityModel.* 7.3.1 and MSAL.NET 4.59.0
+
+### New features
+- Added support for Microsoft.NET.Sdk.Worker. See [Worker calling APIs](https://github.com/AzureAD/microsoft-identity-web/wiki/worker%E2%80%90app%E2%80%90calling%E2%80%90downstream%E2%80%90apis)
+- Added support for Managed identity when calling a downstream API on behalf of the app. See [Calling APIs with Managed Identity](https://github.com/AzureAD/microsoft-identity-web/wiki/calling-apis-with-managed-identity) and [PR 2650](https://github.com/AzureAD/microsoft-identity-web/pull/2650). For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645)
+
+### Bug fixes
+- In OWIN applications, GetTokenForUserAsync now respects the ClaimsPrincipal. See issue [#2629](https://github.com/AzureAD/microsoft-identity-web/issues/2629) for details.
+- After setting `AddTokenAcquisition(useSingleton:true)` to use token acquisition as a singleton, if you use `.AddMicrosoftGraph` and/or `.AddDownstreamApi` after this call, 
+  the GraphServiceClient and IDownstreamApis are now registered as a singleton service. For details see [PR #2645](https://github.com/AzureAD/microsoft-identity-web/issues/2645)
+- Added check Against Injection Attacks. For details see [PR 2619](https://github.com/AzureAD/microsoft-identity-web/issues/2619)
+
+### Engineering excellence
+- Added a benchmark running on PR merges, available from [https://azuread.github.io/microsoft-identity-web/benchmarks](https://azuread.github.io/microsoft-identity-web/benchmarks) on GitHub pages
+
+2.16.1
+=========
+- Update Microsoft.Identity.Abstractions 5.1.0 and Microsoft.IdentityModel.* 7.1.2
+ 
+### Bug Fixes
+- In OWIN, Id Web now respects the passed in user argument. See issue [#2585](https://github.com/AzureAD/microsoft-identity-web/issues/2585) for details.
+
+2.16.0
+=========
+- Leverage IdentityModel 7.x on all .NET core frameworks.
+
+2.15.5
+=========
+- Update to .NET 8 GA
+- Update to Microsoft.Graph 5.34.0
+
+### Bug Fixes
+- Fixes an issue where users were not able to override ICredentialsLoader. See [#2564](https://github.com/AzureAD/microsoft-identity-web/issues/2564) for details.
+- The latest patch version is no longer used in dependencies, as it made builds non-deterministic. See [#2569](https://github.com/AzureAD/microsoft-identity-web/issues/2569) for details.
+- Removed dependencies that were no longer needed. See [#2577](https://github.com/AzureAD/microsoft-identity-web/issues/2577) for details.
+- Fixes an issue where the build did not look up project names as package dependencies. See [#2579](https://github.com/AzureAD/microsoft-identity-web/issues/2579) for more details.
+
+### Fundamentals
+- Enable baseline package validation, see [#2572](https://github.com/AzureAD/microsoft-identity-web/issues/2572) for details.
+- Improve trimmability on .NET 8, see [#2574](https://github.com/AzureAD/microsoft-identity-web/issues/2574) for details.
+
+2.15.3
+=========
+- Update Azure.Identity library to 1.10.2 for CVE-2023-36414.
+
+### Bug Fixes:
+- Microsoft.Identity.Web honors the user-provided value for the cache expiry for in-memory cache. See [#2466](https://github.com/AzureAD/microsoft-identity-web/issues/2466) for details.
+
+2.15.2
+=========
+- For the .NET 8 rc2 target framework, the IdentityModel dependencies have been updated to Identity.Model.*.7.0.3.
+
+### Bug Fixes
+- Fixes a regression introduced in 2.15.0 where the OnTokenValidated delegates were no longer chained with an await. See issue[#2513](https://github.com/AzureAD/microsoft-identity-web/issues/2513).
+
+2.15.1
+=========
+- Updated IdentityModel dependencies to Identity.Model.*.6.33.0 for all target frameworks other than .NET 8 rc1, for which Microsoft,Identity.Web leverages Identity.Model 7.0.2
+
+2.15.0
+=========
+### New features
+- TokenAcquirerFactory now adds support for reading the configuration from environment variables. See issue [#2480](https://github.com/AzureAD/microsoft-identity-web/issues/2480)
+
+#### Experimental API
+(to get feedback, could change without bumping-up the major version)
+- It's now possible for an application to observe the client certificate selected by Token acquirer from the ClientCredentials properties, and when the certicate is un-selected (because it's rejected by the Identity Provider, as expired, or revoked). See [Observing client certificates](https://github.com/AzureAD/microsoft-identity-web/wiki/Certificates#observing-client-certificates). PR [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496)
+
+### Bug Fixes
+- Fixes a resiliency issue where the client certificate rotation wasn't always happening (from KeyKeyVault, or certificate store with same distinguished name). See [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496) for details.
+- In the override of AddMicrosoftIdentityWebApp taking a delegate, the delegate is now called only once (it was called twice causing the TokenValidated event to be called twice as well). Fixes [#2328](https://github.com/AzureAD/microsoft-identity-web/issues/2328)
+- Fixes a regression introduced in 2.13.3, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder with AddMicroosftIdentityWebApp/Api, unless you provided an empty authentication scheme when acquiring a token. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
+
+
+2.14.0
+=========
+- Update to Abstractions 5.0.0
+- Include new `OpenIdConnect` options from net 8. See PR [#2462](https://github.com/AzureAD/microsoft-identity-web/pull/2462) 
+
+### Bug Fixes
+- Chain the OnMessageReceived event. See PR [#2468](https://github.com/AzureAD/microsoft-identity-web/pull/2468)
+
+2.13.4
+=========
+- Update to IdentityModel 7.0.0-preview5 on .NET 8 and IdentityModel 6.32.3 for the other target frameworks.
+- Update to MSAL [4.56.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.56.0), which now
+  enables the cache synchronization by default
+- Support for .NET 8 preview 7. See PR [#2430](https://github.com/AzureAD/microsoft-identity-web/pull/2430)
+
+
+### Bug fixes
+- In Microsoft.Identity.Web.Owin, removed un-needed reference to Microsoft.Aspnet.WebApi.HelpPage. See issue [#2417](https://github.com/AzureAD/microsoft-identity-web/issues/2417)
+- Fix to accomodate for breaking change in ASP.NET Core on .NET 8 that the SecurityToken is now a JsonWebToken. See issue [#2420](https://github.com/AzureAD/microsoft-identity-web/issues/2420) 
+- Improved the usability of IDownstreamApi by checking all `HttpResponse` for success before returning to the caller, instead of swallowing issues. This is a change of behavior. See issue [#2426](https://github.com/AzureAD/microsoft-identity-web/issues/2426)
+- Improvement/Fix of OWIN scenarios, especially the session with B2C: [#2388](https://github.com/AzureAD/microsoft-identity-web/issues/2388)
+- Fix an issue with CIAM web APIs and added two CIAM test apps. See PR [#2411](https://github.com/AzureAD/microsoft-identity-web/pull/2411)
+- Fix a bug that is now surfaced by the .NET 8 runtime. See issue [#2448](https://github.com/AzureAD/microsoft-identity-web/issues/2448)
+- Added a lock while loading credentials. See issue [#2439](https://github.com/AzureAD/microsoft-identity-web/issues/2439)
+
+### Fundamentals
+- performance improvements: [#2414](https://github.com/AzureAD/microsoft-identity-web/pull/2414)
+- Replaced Selenim with Playwright for more reliable faster UI tests. See issue [#2354](https://github.com/AzureAD/microsoft-identity-web/issues/2354)
+- Added MSAL telemetry about the kind of token cache used (L1/L2). See issue [#1900](https://github.com/AzureAD/microsoft-identity-web/issues/1900)
+- Resilience improvement: IdWeb now attempts to reload a certificate from its description when AAD returns "certificate revoked" error. See issue [#244](https://github.com/AzureAD/microsoft-identity-web/issues/2444)
+
+2.13.3
+=========
+- Update to IdentityModel 7.0.0-preview2 on .NET 8.
+
+### New features:
+- Support langversion 11, which as fewer allocations compared to 10. See issue [#2351](https://github.com/AzureAD/microsoft-identity-web/issues/2351).
+- In AspNET Core 3.1 and Net 5+, Microsoft.Identity.Web now use the DefaultTokenAcquisitionHost (the host for SDK apps) instead of the
+Asp.NET Core one, when the service collection was not initialized by ASP.NET Core (that is the `IWebHostEnvironment` is not present in the collection. If you want the ASP.NET Core host, you would need to use the `WebApplication.CreateBuilder().Services` instead
+of instantiating a simple service collection.
+- In web APIs, `GetAuthenticationResultForUserAsync` tries to find the inbound token from `user.Identity.BootstrapContext` first (if not null), and then from the token acquisition host. This will help for non-asp.NET Core Azure functions for instance.
+See issue [#2371](https://github.com/AzureAD/microsoft-identity-web/issues/2371) for details.
+
+2.13.2
+=========
+### Bug fixes:
+- **Fix bug found in usage of AzureAD key issuer validator,** see issue [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323).
+- **Improved performance in downstreamAPI**, see issue [#2355](https://github.com/AzureAD/microsoft-identity-web/issues/2355) for details.
+- **Address duplicate cache entries,** with singleton token acquisition, which was causing much larger cache size than needed. See issue [#2349](https://github.com/AzureAD/microsoft-identity-web/issues/2349).
+- **Distributed cache logger now prints correct cache entry size,** see issue [#2348](https://github.com/AzureAD/microsoft-identity-web/issues/2349)
+
+2.13.1
+=========
+- Update to MSAL 4.55.0
+
+### New Features:
+- Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default in Owin. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
+- **Microsoft.Identity.Web now supports .NET 8 with conditional compilation**, see [#2309](https://github.com/AzureAD/microsoft-identity-web/issues/2309).
+  
+2.13.0
+=========
+- Update to Wilson 6.32.0 and Microsoft.Identity.Abstractions 4.0.0
+
+### New Feature:
+Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by default. See [#2323](https://github.com/AzureAD/microsoft-identity-web/issues/2323) for details.
+
+2.12.4
+==========
+- fix for CVE-2023-29331 in `System.Security.Cryptography.Pkcs`
+
+2.12.2
+==========
+### New Feature:
+- **Id Web now supports the MS Graph v5 SDK,** see issue [#2097](https://github.com/AzureAD/microsoft-identity-web/issues/2097) for details.
+
+2.11.1
+==========
+- Update to MSAL 4.54.1
+
+### Bug Fix:
+- **Fix bug with signed assertion for AKS**, see issue [#2252](https://github.com/AzureAD/microsoft-identity-web/pull/2252) for details.
+
+2.11.0
+==========
+- Update to MSAL 4.54.0
+
+### New Features
+- **Id Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
+
+2.10.0
+==========
+- Update to Wilson 6.30.0
+
+### New features:
+- **Microsoft.Identity.Web now provides more logging in DownstreamAPI**, see [#2148](https://github.com/AzureAD/microsoft-identity-web/issues/2148) for details.
+- **OBO support for composite tokens** based assertion and sub_assertion extra query parameters. See issue [#2222](https://github.com/AzureAD/microsoft-identity-web/issues/2222) for details.
+
+### Bug fixes:
+- **Fix a regex issue** relating to same site, see [#1811](https://github.com/AzureAD/microsoft-identity-web/issues/1811) for details.
+- Bug fixes for CIAM support, see [#2218](https://github.com/AzureAD/microsoft-identity-web/pull/2218) for details.
+
+2.9.0
+==========
+- Update to Wilson 6.29.0 and MSAL.NET 4.53.0
+
+### Bug Fix:
+- **The [ASP.NET Core regression](https://github.com/dotnet/razor/issues/7577) between .NET 5 and 6 with Razor Pages**, is now addressed with Microsoft.Identity.Web.UI targeting .NET 5 until a more permanent solution is found. See issues [#2111](https://github.com/AzureAD/microsoft-identity-web/issues/2111), [#2095](https://github.com/AzureAD/microsoft-identity-web/issues/2095) and [#2183](https://github.com/AzureAD/microsoft-identity-web/issues/2183) for details.
+
+2.8.0
+==========
+### New features:
+- ID Web works with Authority in place of Tenant ID and Domain. See [#2160](https://github.com/AzureAD/microsoft-identity-web/pull/2160)
+- ID Web now supports CIAM authorities.
+- Abstractions is now updated to version 3.1.0
+### Bug fixes:
+- Fixed a bug causing ClaimsIdentity.RoleClaimType to always be "roles" when using App Service Authentication. See [#2166](https://github.com/AzureAD/microsoft-identity-web/pull/2166)
+
+2.7.0
+==========
+### New Feature:
+- **`MicrosoftIdentityAppCallsWebApiAuthenticationBuilder` is now available on netstandard2.0**
+- **Id Web now supports expressing the cache key used for serializing/deserializing**. See [#2156](https://github.com/AzureAD/microsoft-identity-web/pull/2156)
+
+### Bug Fixes:
+- Make `GetClientAssertion` protected.
+
+2.6.1 
+========== 
+- Update to Wilson 6.27.0 and MSAL.NET 4.51.0
+
+### New Features:
+- **`GetClientAssertion` is now public, which enables inheritance of `ClientAssertionProviderBase`**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2112) for details. 
+- **Id Web now uses `TryAdd` instead of `Add` in the InMemory and Distributed caches,** this is to not overwrite previously added caches. See [issue](https://github.com/AzureAD/microsoft-identity-web/issues/2090) for details.
+- **Id Web now supports MsAuth10ATPop**. See [PR](https://github.com/AzureAD/microsoft-identity-web/pull/2109) for details.
+
+### Bug Fixes:
+- **Fix a regression from v1.16.x to v2.5.0 with auth code redemption** when the `ResponseType == "code"`. See issue [#2096](https://github.com/AzureAD/microsoft-identity-web/issues/2096) for details.
+
+### Fundamentals:
+- Address compliance and build issues: [#2113](https://github.com/AzureAD/microsoft-identity-web/issues/2113), [#2116](https://github.com/AzureAD/microsoft-identity-web/issues/2116), [#2120](https://github.com/AzureAD/microsoft-identity-web/issues/2120), [#2121](https://github.com/AzureAD/microsoft-identity-web/issues/2121), [#2122](https://github.com/AzureAD/microsoft-identity-web/issues/2122), [#2128](https://github.com/AzureAD/microsoft-identity-web/issues/2128), [#2125](https://github.com/AzureAD/microsoft-identity-web/issues/2125), and [#2137](https://github.com/AzureAD/microsoft-identity-web/issues/2137). 
+
+2.5.0
+==========
+- Make ClientAssertion public, see [for details](https://github.com/AzureAD/microsoft-identity-web/pull/2079).
+
+2.4.0
+==========
+- Fix for #2035
+
+2.3.0
+==========
+- TokenAcquirerFactory.GetDefaultInstance now takes the default configuration section `AzureAd` from where to get the application configuration.
+
+2.2.0
+==========
+- Re-add netcoreapp3.1 target framework.
+- Update to Microsoft.Identity.Abstractions 2.0.1 which includes API change moving from `IDownstreamRestApi` to `IDownstreamApi`.
+
+2.1.0
+==========
+[Id Web v2.1.0](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0) brings a varity of new higher-level APIs, including support for .NET Framework (Owin), Daemon scenarios, and the new DownstreamRestApi.
+
+2.0.8-preview
+==========
+- Update [Microsoft.Identity.Abstractions 1.0.5-preview](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/1.0.5-preview), which has breaking changes.
+
+2.0.7-preview
+==========
+- Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+1.25.10
+==========
+- Merge the PR for #1957.
+- Update to Wilson 6.25.1
+
+1.25.9
+==========
+Use ConcurrentDictionary for MergedOptions to resolve [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+2.0.6-preview
+==========
+### New Feature:
+- Enable using the TokenAcquireFactory default instance from anywhere in an ASP.NET Core application [#1958](https://github.com/AzureAD/microsoft-identity-web/pull/1958)
+
+### Bug Fixes:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+- Fix from @rvplauborg to DownstreamWebApiOptions.Clone, which was missing two properties. [#1970](https://github.com/AzureAD/microsoft-identity-web/issues/1970)
+- Updates to OWIN and 1P extensibility
+
+1.25.8
+==========
+### Bug Fix:
+- Fix from @rvplauborg to DownstreamWebApiOptions.Clone, which was missing two properties. [#1970](https://github.com/AzureAD/microsoft-identity-web/issues/1970)
+
+1.25.7
+==========
+### Bug Fix:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+1.25.6
+==========
+### Bug Fix:
+- Fixes a race condition only present in .NET 7 - [#1957](https://github.com/AzureAD/microsoft-identity-web/issues/1957)
+
+1.25.5
+==========
+- Update to latest IdentityModel 6.25.0
+
+2.0.4-preview
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf and CVE-2022-34716 for netcoreapp3.1, cve-2022-29117 for OWIN and cve-2021-24112 for data protection.
+
+### New Features:
+- Add support for [private keys in certificates](https://github.com/AzureAD/microsoft-identity-web/pull/1923).
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
+
+### Perf improvements:
+- [Use Throws.cs from R9](https://github.com/AzureAD/microsoft-identity-web/pull/1928), [use high-perf logging for new log messages](https://github.com/AzureAD/microsoft-identity-web/pull/1927), [take suggestions from R9 analyzers](https://github.com/AzureAD/microsoft-identity-web/pull/1924).
+
+2.0.3-preview
+==========
+### New Features:
+- Leverage new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) library, version 1.0.0-preview.
+
+### Bug fixes:
+- Bug fixes in the credential loader to use the cached value and make `LoadCredentialsIfNeeded` public.
+- Integrate `TokenAcquirerFactory` with ASP NET core.
+- Add `ClientSecret` to Owin config #1911.
+- Finish the E2E for Owin.
+
+2.0.2-preview
+==========
+### New Features:
+- Support for Proof-of-possession (PoP) as introduced by MSAL.NET 4.47.2.
+- Support for .NET 6.
+
+Leverages new [Microsoft.Identity.Abstractions](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet) repo.
+
+2.0.0-preview
+==========
+Detailed released notes [here](https://github.com/AzureAD/microsoft-identity-web/wiki/v2.0).
+
+1.25.4
+==========
+- Fix Component Governance alerts due to dependent packages. CVE-2022-1941 in Google.Protobuf, CVE-2022-34716 for netcoreapp3.1, CVE-2021-24112 in System.Drawing.Common.
+
+### Bug Fix:
+- [#749](https://github.com/AzureAD/microsoft-identity-web/issues/749)
+
+1.25.3
+==========
+- Update to latest IdentityModel 6.23.1, which has 20% perf improvements.
+
+1.25.2
+==========
+- Fix Component Governance issues due to dependent packages. CVE-2022-34716 - in DataProtection 5.0.8
+
+1.25.1
+==========
+### New Features:
+**Microsoft.Identity.Web now surfaces the Microsoft.IdentityModel.* logs via the `IIdentityLogger`**. Developers will see an increase in logging, with insight into the request validation logs, especially for web APIs. See issue [#1730](https://github.com/AzureAD/microsoft-identity-web/issues/1730) for details.
+
+### Bug Fixes:
+**Regression fix where `AddMicrosoftIdentityUserAuthenticationHandler` needs a scoped service, not a singleton**. See issue [#1757](https://github.com/AzureAD/microsoft-identity-web/issues/1757) for details.
+
+1.25.0
+==========
+### New Features:
+**Microsoft.Identity.Web now supports checking for scopes or app permissions,** via the `RequestedScopeOrAppPermissionAttribute`. See issue [#1641](https://github.com/AzureAD/microsoft-identity-web/issues/1641) for details.
+
+**Extend TokenAcquisitionTokenCredential concept to support tokens as app**. See issue [#1723](https://github.com/AzureAD/microsoft-identity-web/issues/1723) for details.
+
+### Bug Fixes:
+**IJwtBearerMiddlewareDiagnostics is now transient and not a singleton**. See issue [#1710](https://github.com/AzureAD/microsoft-identity-web/issues/1710) for details.
+
+**In web API scenario, use the `tid` claim of the incoming assertion, unless overridden**. See issue [#1738](https://github.com/AzureAD/microsoft-identity-web/issues/1738) for details.
+
 1.24.1
 ==========
 ### Bug Fixes:

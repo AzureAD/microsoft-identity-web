@@ -33,10 +33,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             IMemoryCache memoryCache,
             IOptions<MsalMemoryTokenCacheOptions> cacheOptions)
         {
-            if (cacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(cacheOptions));
-            }
+            _ = Throws.IfNull(cacheOptions);
 
             _memoryCache = memoryCache;
             _cacheOptions = cacheOptions.Value;
@@ -59,9 +56,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         /// </summary>
         /// <param name="cacheKey">Token cache key.</param>
         /// <returns>Read Bytes.</returns>
-        protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
-            byte[] tokenCacheBytes = (byte[])_memoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
+            return Task.FromResult(tokenCacheBytes);
+        }
+
+        /// <summary>
+        /// Method to be overridden by concrete cache serializers to Read the cache bytes.
+        /// </summary>
+        /// <param name="cacheKey">Cache key.</param>
+        /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
+        /// <returns>Read bytes.</returns>
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+            byte[]? tokenCacheBytes = (byte[]?)_memoryCache.Get(cacheKey);
+
+            if (tokenCacheBytes != null && cacheSerializerHints.TelemetryData != null)
+            {
+                cacheSerializerHints.TelemetryData.CacheLevel = Client.Cache.CacheLevel.L1Cache;
+            }
+
             return Task.FromResult(tokenCacheBytes);
         }
 
@@ -88,8 +103,24 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
             byte[] bytes,
             CacheSerializerHints cacheSerializerHints)
         {
+            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = DetermineCacheEntryExpiry(cacheSerializerHints),
+                Size = bytes?.Length,
+            };
+
+            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// _cacheOptions.AbsoluteExpirationRelativeToNow represents either a user-provided expiration or the default, if not set.
+        /// Between the suggested expiry and expiry from options, the shorter one takes precedence.
+        /// </summary>
+        internal TimeSpan DetermineCacheEntryExpiry(CacheSerializerHints cacheSerializerHints)
+        {
             TimeSpan? cacheExpiry = null;
-            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
+            if (cacheSerializerHints != null && cacheSerializerHints.SuggestedCacheExpiry != null)
             {
                 cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
                 if (cacheExpiry < TimeSpan.Zero)
@@ -98,14 +129,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
                 }
             }
 
-            MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
-            {
-                AbsoluteExpirationRelativeToNow = cacheExpiry ?? _cacheOptions.AbsoluteExpirationRelativeToNow,
-                Size = bytes?.Length,
-            };
-
-            _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-            return Task.CompletedTask;
+            return cacheExpiry is null || _cacheOptions.AbsoluteExpirationRelativeToNow < cacheExpiry
+                ? _cacheOptions.AbsoluteExpirationRelativeToNow
+                : cacheExpiry.Value;
         }
     }
 }

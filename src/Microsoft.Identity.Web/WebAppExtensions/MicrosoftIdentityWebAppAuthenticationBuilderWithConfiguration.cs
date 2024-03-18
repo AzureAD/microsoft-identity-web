@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,9 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.MicrosoftIdentityWebAppAuthenticationBuilder(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         internal MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
             IServiceCollection services,
             string openIdConnectScheme,
@@ -29,10 +33,7 @@ namespace Microsoft.Identity.Web
             IConfigurationSection configurationSection)
             : base(services, openIdConnectScheme, configureMicrosoftIdentityOptions, configurationSection)
         {
-            if (configurationSection == null)
-            {
-                throw new ArgumentNullException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(configurationSection);
         }
 
         /// <summary>
@@ -40,21 +41,24 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Optional initial scopes to request.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
         public new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             IEnumerable<string>? initialScopes = null)
         {
+            Services.AddHttpClient();
+
             return EnableTokenAcquisitionToCallDownstreamApi(
                 options =>
                 {
-                    ConfigurationSection.Bind(options);
+                    ConfigurationSection?.Bind(options);
                     if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
                     {
                         options.ClientId = AppServicesAuthenticationInformation.ClientId;
                         options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
                         options.Instance = AppServicesAuthenticationInformation.Issuer;
                     }
-
-                    Services.AddHttpClient();
                 },
                 initialScopes);
         }

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using static Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition;
 
 namespace Microsoft.Identity.Web
 {
@@ -14,6 +15,14 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class CookiePolicyOptionsExtensions
     {
+        private const int Two = 2;
+        private const int SixtySeven = 67;
+        private const int FiftyOne = 51;
+        private const int Thirteen = 13;
+        private const int Twelve = 12;
+        private const int Ten = 10;
+        private const int Fourteen = 14;
+
         /// <summary>
         /// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
         /// The default list of user agents that disallow "SameSite=None",
@@ -37,10 +46,7 @@ namespace Microsoft.Identity.Web
         /// <returns><see cref="CookiePolicyOptions"/> to chain.</returns>
         public static CookiePolicyOptions HandleSameSiteCookieCompatibility(this CookiePolicyOptions options, Func<string, bool> disallowsSameSiteNone)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            _ = Throws.IfNull(options);
 
             options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
             options.OnAppendCookie = cookieContext =>
@@ -83,25 +89,25 @@ namespace Microsoft.Identity.Web
                 DropsUnrecognizedSameSiteCookies();
 
             bool HasWebKitSameSiteBug() =>
-                IsIosVersion(12) ||
-                (IsMacosxVersion(10, 14) &&
+                IsIosVersion(Twelve) ||
+                (IsMacosxVersion(Ten, Fourteen) &&
                 (IsSafari() || IsMacEmbeddedBrowser()));
 
             bool DropsUnrecognizedSameSiteCookies()
             {
                 if (IsUcBrowser())
                 {
-                    return !IsUcBrowserVersionAtLeast(12, 13, 2);
+                    return !IsUcBrowserVersionAtLeast(Twelve, Thirteen, Two);
                 }
 
                 return IsChromiumBased() &&
-                    IsChromiumVersionAtLeast(51) &&
-                    !IsChromiumVersionAtLeast(67);
+                    IsChromiumVersionAtLeast(FiftyOne) &&
+                    !IsChromiumVersionAtLeast(SixtySeven);
             }
 
             bool IsIosVersion(int major)
             {
-                string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
+                const string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
 
                 // Extract digits from first capturing group.
                 Match match = Regex.Match(userAgent, regex);
@@ -110,17 +116,17 @@ namespace Microsoft.Identity.Web
 
             bool IsMacosxVersion(int major, int minor)
             {
-                string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
+                const string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
 
                 // Extract digits from first and second capturing groups.
                 Match match = Regex.Match(userAgent, regex);
                 return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture) &&
-                    match.Groups[2].Value == minor.ToString(CultureInfo.CurrentCulture);
+                    match.Groups[Two].Value == minor.ToString(CultureInfo.CurrentCulture);
             }
 
             bool IsSafari()
             {
-                string regex = @"Version\/.* Safari\/";
+                const string regex = @"Version\/.* Safari\/";
 
                 return Regex.IsMatch(userAgent, regex) &&
                        !IsChromiumBased();
@@ -128,21 +134,21 @@ namespace Microsoft.Identity.Web
 
             bool IsMacEmbeddedBrowser()
             {
-                string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
+                const string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
 
                 return Regex.IsMatch(userAgent, regex);
             }
 
             bool IsChromiumBased()
             {
-                string regex = "Chrom(e|ium)";
+                const string regex = "Chrom(e|ium)";
 
                 return Regex.IsMatch(userAgent, regex);
             }
 
             bool IsChromiumVersionAtLeast(int major)
             {
-                string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]* ";
+                const string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]*";
 
                 // Extract digits from first capturing group.
                 Match match = Regex.Match(userAgent, regex);
@@ -152,14 +158,14 @@ namespace Microsoft.Identity.Web
 
             bool IsUcBrowser()
             {
-                string regex = @"UCBrowser\/";
+                const string regex = @"UCBrowser\/";
 
                 return Regex.IsMatch(userAgent, regex);
             }
 
             bool IsUcBrowserVersionAtLeast(int major, int minor, int build)
             {
-                string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
+                const string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
 
                 // Extract digits from three capturing groups.
                 Match match = Regex.Match(userAgent, regex);

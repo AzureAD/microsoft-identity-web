@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
@@ -47,10 +46,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="tokenCache">Token cache to serialize/deserialize.</param>
         public void Initialize(ITokenCache tokenCache)
         {
-            if (tokenCache == null)
-            {
-                throw new ArgumentNullException(nameof(tokenCache));
-            }
+            _ = Throws.IfNull(tokenCache);
 
             tokenCache.SetBeforeAccessAsync(OnBeforeAccessAsync);
             tokenCache.SetAfterAccessAsync(OnAfterAccessAsync);
@@ -84,12 +80,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
                 if (args.HasTokens)
                 {
-                    await WriteCacheBytesAsync(args.SuggestedCacheKey, ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
+                    await WriteCacheBytesAsync(GetSuggestedCacheKey(args), ProtectBytes(args.TokenCache.SerializeMsalV3()), cacheSerializerHints).ConfigureAwait(false);
                 }
                 else
                 {
                     // No token in the cache. we can remove the cache entry
-                    await RemoveKeyAsync(args.SuggestedCacheKey, cacheSerializerHints).ConfigureAwait(false);
+                    await RemoveKeyAsync(GetSuggestedCacheKey(args), cacheSerializerHints).ConfigureAwait(false);
                 }
             }
         }
@@ -104,16 +100,20 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return msalBytes!;
         }
 
-        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry };
+        private static CacheSerializerHints CreateHintsFromArgs(TokenCacheNotificationArgs args) => new CacheSerializerHints 
+        { CancellationToken = args.CancellationToken, SuggestedCacheExpiry = args.SuggestedCacheExpiry, TelemetryData = args.TelemetryData };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)
         {
-            if (!string.IsNullOrEmpty(args.SuggestedCacheKey))
+            if (!string.IsNullOrEmpty(GetSuggestedCacheKey(args)))
             {
-                byte[] tokenCacheBytes = await ReadCacheBytesAsync(args.SuggestedCacheKey, CreateHintsFromArgs(args)).ConfigureAwait(false);
+                byte[]? tokenCacheBytes = await ReadCacheBytesAsync(GetSuggestedCacheKey(args), CreateHintsFromArgs(args)).ConfigureAwait(false);
 
                 try
                 {
+                    // Must call Deserialize, even if the L2 read operation returned nothing.
+                    // Deserialize with null value will ensure that the cache in MSAL is properly initialized.
+                    // This will also ensure that the cache in MSAL is cleared if the cache entry in L2 was empty.
                     args.TokenCache.DeserializeMsalV3(UnprotectBytes(tokenCacheBytes), shouldClearExistingCache: true);
                 }
                 catch (MsalClientException exception)
@@ -122,7 +122,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                     {
                         Logger.CacheDeserializationError(
                           _logger,
-                          args.SuggestedCacheKey,
+                          GetSuggestedCacheKey(args),
                           _protector != null,
                           exception.Message,
                           exception);
@@ -137,7 +137,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             }
         }
 
-        private byte[] UnprotectBytes(byte[] msalBytes)
+        // Tries to unprotect the bytes if protection is enabled and the cache is encrypted.
+        // If the cache is unencrypted, returns the same bytes.
+        // Returns null, if the bytes are null.
+        private byte[]? UnprotectBytes(byte[]? msalBytes)
         {
             if (msalBytes != null && _protector != null)
             {
@@ -152,7 +155,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
                 }
             }
 
-            return msalBytes!;
+            return msalBytes;
         }
 
         /// <summary>
@@ -204,7 +207,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// </summary>
         /// <param name="cacheKey">Cache key.</param>
         /// <returns>Read bytes.</returns>
-        protected abstract Task<byte[]> ReadCacheBytesAsync(string cacheKey);
+        protected abstract Task<byte[]?> ReadCacheBytesAsync(string cacheKey);
 
         /// <summary>
         /// Method to be overridden by concrete cache serializers to Read the cache bytes.
@@ -212,7 +215,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <param name="cacheKey">Cache key.</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read bytes.</returns>
-        protected virtual Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected virtual Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return ReadCacheBytesAsync(cacheKey); // default implementation avoids a breaking change.
         }
@@ -233,6 +236,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         protected virtual Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
             return RemoveKeyAsync(cacheKey); // default implementation avoids a breaking change.
+        }
+
+        /// <summary>
+        /// Method to be overridden by concrete cache serializers to express the suggested key.
+        /// </summary>
+        /// <param name="args">Parameters used by MSAL call</param>
+        /// <returns>A string that contains the cache key suggested by MSAL.NET.</returns>
+        public virtual string GetSuggestedCacheKey(TokenCacheNotificationArgs args)
+        {
+            return args.SuggestedCacheKey;
         }
     }
 }

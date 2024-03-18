@@ -7,26 +7,40 @@ parameters:
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
 
 steps:
+- script: |
+    dotnet workload restore tests\DevApps\blazorwasm-b2c\blazorwasm2-b2c.csproj
+  displayName: 'Install wasm-tools'
+  
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
   inputs:
     command: test
     projects: 'Microsoft.Identity.Web.sln'
-    arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
 # The previous task does the restore
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
   inputs:
-    solution: Microsoft.Identity.Web.sln
-    vsVersion: '16.0'
-    msbuildArgs: '/p:RunCodeAnalysis=false /p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} /p:SourceLinkCreate=true'
-    platform: ${{ parameters.BuildPlatform }}
-    configuration: ${{ parameters.BuildConfiguration }}
+    command: custom
+    custom: msbuild
+    project: Microsoft.Identity.Web.sln
+    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+
+# Run the dotnet daemon app
+# This requires that the build machine has a user assigned managed identity that can access the KeyVault.
+- task: DotNetCoreCLI@2
+  displayName: 'Build and run dotnet daemon app'
+  inputs:
+    command: run
+    projects: 'tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
+    arguments: '-f net7.0'    
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
   inputs:
     failOnAlert: true
-  
+    scanType: 'Register'
+    verbosity: 'Verbose'
+    alertWarningLevel: 'High'

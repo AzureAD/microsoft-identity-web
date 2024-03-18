@@ -49,7 +49,7 @@ namespace ConfigureGeneratedApplications
             builder.AppendLine("2. Test the following projects: ");
             foreach (Project p in configuration.Projects)
             {
-                builder.AppendLine($"   - [ ] {p.ProjectRelativeFolder}");
+                builder.AppendLine(CultureInfo.InvariantCulture, $"   - [ ] {p.ProjectRelativeFolder}");
             }
 
             System.IO.File.WriteAllText(Path.Combine(folder, "issue.md"), builder.ToString());
@@ -77,7 +77,7 @@ namespace ConfigureGeneratedApplications
         {
             Console.WriteLine($"{filePath}");
 
-            if (filePath.EndsWith(".json"))
+            if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 if (System.IO.File.Exists(filePath))
                 {
@@ -148,7 +148,7 @@ namespace ConfigureGeneratedApplications
                 {
                     if (r.ReplaceFrom != "")
                     {
-                        fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy);
+                        fileContent = fileContent.Replace(r.ReplaceFrom, r.ReplaceBy, StringComparison.OrdinalIgnoreCase);
                     }
                 }
 

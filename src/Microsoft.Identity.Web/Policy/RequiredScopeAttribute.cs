@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Identity.Web.Resource
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <summary>
         /// Scopes accepted by this web API.
         /// </summary>
-        public IEnumerable<string>? AcceptedScope { get; set; }
+        public string[]? AcceptedScope { get; set; }
 
         /// <summary>
         /// Fully qualified name of the configuration key containing the required scopes (separated
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.Resource
         /// if you want to express the required scopes from the configuration.
         public RequiredScopeAttribute(params string[] acceptedScopes)
         {
-            AcceptedScope = acceptedScopes ?? throw new ArgumentNullException(nameof(acceptedScopes));
+            AcceptedScope = Throws.IfNull(acceptedScopes);
         }
 
         /// <summary>

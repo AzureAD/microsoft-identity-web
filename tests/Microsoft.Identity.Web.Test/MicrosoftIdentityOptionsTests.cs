@@ -3,10 +3,12 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using NSubstitute.Extensions;
@@ -18,8 +20,10 @@ namespace Microsoft.Identity.Web.Test
     {
         private const string AzureAd = Constants.AzureAd;
         private const string AzureAdB2C = Constants.AzureAdB2C;
-        private ServiceProvider _provider;
+        private ServiceProvider? _provider;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
         public void IsB2C_NotNullOrEmptyUserFlow_ReturnsTrue()
@@ -45,20 +49,23 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, AzureAd, null)]
-        [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData("", TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.ClientId)]
-        [InlineData(TestConstants.ClientId, null, TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
-        [InlineData(TestConstants.ClientId, "", TestConstants.GuestTenantId, null, null, AzureAd, MissingParam.Instance)]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, null, null, null, AzureAd, MissingParam.TenantId)]
-        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, "", null, null, AzureAd, MissingParam.TenantId)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, null, AzureAdB2C, MissingParam.Domain)]
-        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, null)]
+        [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData("", TestConstants.AadInstance, TestConstants.GuestTenantId, null,  null, null, AzureAd, MissingParam.ClientId)]
+        [InlineData(TestConstants.ClientId, null, TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, "", TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.Instance)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, null, null, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(TestConstants.ClientId, TestConstants.AadInstance, "", null, null, null, AzureAd, MissingParam.TenantId)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, TestConstants.B2CTenant, AzureAdB2C)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, null, AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
+        [InlineData(TestConstants.ClientId, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd)]
+        [InlineData(null, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd, MissingParam.ClientId)]
         public void ValidateRequiredMicrosoftIdentityOptions(
            string clientId,
            string instance,
            string tenantid,
+           string authority,
            string signUpSignInPolicyId,
            string domain,
            string optionsName,
@@ -82,11 +89,12 @@ namespace Microsoft.Identity.Web.Test
                     ClientId = clientId,
                     Instance = instance,
                     TenantId = tenantid,
+                    Authority = authority,
                 });
             }
 
             BuildTheRequiredServices();
-            MergedOptions mergedOptions = _provider.GetRequiredService<IOptionsMonitor<MergedOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
@@ -100,6 +108,40 @@ namespace Microsoft.Identity.Web.Test
             {
                 MergedOptionsValidation.Validate(mergedOptions);
             }
+        }
+
+        [Fact]
+        public void TestMergedOptions_ContainsClaimsActions()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                ClaimActions =
+                {
+                    new UniqueJsonKeyClaimAction(ClaimTypes.Gender, "string", "theGender"),
+                },
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            // Verify that the mergedOptions.ClaimActions has claims
+            // It should contain some default ones along with our added one
+            Assert.NotEmpty(mergedOptions.ClaimActions.AsEnumerable());
+
+            // See if we can find the ClaimAction that we added
+            Assert.Contains(mergedOptions.ClaimActions, action => action.ClaimType == ClaimTypes.Gender);
+
+            // Select the single ClaimAction from the collection
+            var genderClaim = mergedOptions.ClaimActions.Single(x => x.ClaimType == ClaimTypes.Gender);
+
+            // Assert its a type of UniqueJsonKeyClaimAction
+            Assert.IsType<UniqueJsonKeyClaimAction>(genderClaim);
+
+            // Ensure gender has the value of sex
+            var jsonKeyClaim = (genderClaim as UniqueJsonKeyClaimAction)!;
+            Assert.Equal("theGender", jsonKeyClaim.JsonKey);
         }
 
         private void BuildTheRequiredServices()

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -11,6 +13,9 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Interface used to call a downstream web API, for instance from controllers.
     /// </summary>
+    [Obsolete("Use IDownstreamApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public interface IDownstreamWebApi
     {
         /// <summary>
@@ -114,6 +119,9 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
+#endif
         public Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
@@ -177,6 +185,9 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
+#endif
         Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,

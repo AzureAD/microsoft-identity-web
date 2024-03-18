@@ -1,0 +1,120 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Identity.Abstractions;
+
+namespace Microsoft.Identity.Web
+{
+    /// <inheritdoc/>
+    internal partial class DownstreamApi : IDownstreamApi
+    {
+<#
+  bool firstMethod = true;
+  foreach(string httpMethod in new string[]{  "Get", "Post", "Put", "Patch", "Delete"} )
+  {
+   if (httpMethod == "Patch")
+   {
+#>
+
+#if !NETFRAMEWORK && !NETSTANDARD2_0
+<#
+   }
+
+   foreach(string token in new string[] {"User", "App"})
+   {
+    foreach(string template in new string[] {"<TInput>", "<TOutput>", "<TInput, TOutput>"} )
+    {
+     bool hasOutput =  template.Contains("TOutput");
+     bool hasInput = template.Contains("TInput");
+
+     if (httpMethod == "Get" && !hasOutput)
+      continue;
+
+     if ((httpMethod == "Post" || httpMethod == "Put" || httpMethod == "Delete" || httpMethod == "Patch") && !hasInput)
+      continue;
+
+     bool hasApp = (token == "App");
+     string returnType = hasOutput ? "Task<TOutput?>" : "Task";
+     string content = hasInput ? "effectiveInput" : "null";
+     string user = !hasApp ? "user" : "null";
+     if (!firstMethod) {
+#>
+
+<#   }
+     firstMethod = false; 
+#>
+        /// <inheritdoc/>
+        public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
+            string? serviceName,
+<# if (hasInput){ #>
+            TInput input,
+<# } #>
+            Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
+<# if (!hasApp){ #>
+            ClaimsPrincipal? user = null,
+<# } #>
+            CancellationToken cancellationToken = default)
+<# if (hasOutput){ #>
+            where TOutput : class
+<# } #>
+        {
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.<#=httpMethod#>);
+<# if (hasInput){ #>
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+<# } #>
+            try
+            {
+                HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
+<# if (hasInput){ #>
+
+                // Only dispose the HttpContent if was created here, not provided by the caller.
+                if (input is not HttpContent)
+                {
+                    effectiveInput?.Dispose();
+                }
+                response.EnsureSuccessStatusCode();
+<# }
+   if (hasOutput)
+   { #>
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+<# } #>
+            }
+            catch(Exception ex) when (
+                ex is InvalidOperationException
+                || ex is HttpRequestException)
+            {
+                Logger.HttpRequestError(
+                    _logger, 
+                    serviceName!,
+                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.RelativePath!, ex);
+                throw;
+            }
+        }
+<#
+    }
+   }
+#>
+<#
+     if (httpMethod == "Patch")
+     {
+#>
+
+#endif // !NETFRAMEWORK && !NETSTANDARD2_0
+<#
+    }
+  }
+#>    }
+}

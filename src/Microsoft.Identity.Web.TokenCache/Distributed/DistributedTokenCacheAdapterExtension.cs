@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -18,13 +18,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         public static IServiceCollection AddDistributedTokenCaches(
             this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.AddDistributedMemoryCache();
-            services.AddSingleton<IMsalTokenCacheProvider, MsalDistributedTokenCacheAdapter>();
+            services.TryAddSingleton<IMsalTokenCacheProvider, MsalDistributedTokenCacheAdapter>();
             return services;
         }
     }

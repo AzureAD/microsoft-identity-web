@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Microsoft.Identity.App.Project
     {
         public string? FileRelativePath
         {
-            get { return _fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)); }
+            get { return _fileRelativePath?.Replace("\\", Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase); }
             set { _fileRelativePath = value; }
         }
         private string? _fileRelativePath;

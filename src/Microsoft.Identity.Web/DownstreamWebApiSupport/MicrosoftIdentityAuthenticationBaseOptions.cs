@@ -8,8 +8,14 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Base options passed-in to authenticate with Microsoft Identity.
     /// </summary>
-    public abstract class MicrosoftIdentityAuthenticationBaseOptions
+    public class MicrosoftIdentityAuthenticationBaseOptions
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        protected MicrosoftIdentityAuthenticationBaseOptions()
+        { }
+
         /// <summary>
         /// Space separated scopes required to call the downstream web API.
         /// For instance "user.read mail.read".

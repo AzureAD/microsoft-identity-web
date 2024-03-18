@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <RootNamespace Condition="'$(name)' != '$(name{-VALUE-FORMS-}safe_namespace)'">Company.FunctionApp1</RootNamespace>
   </PropertyGroup>

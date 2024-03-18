@@ -15,23 +15,26 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(options.ClientId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
             }
 
-            if (string.IsNullOrEmpty(options.Instance))
+            if (string.IsNullOrEmpty(options.Authority))
             {
-                throw new ArgumentNullException(options.Instance, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
-            }
-
-            if (options.IsB2C)
-            {
-                if (string.IsNullOrEmpty(options.Domain))
+                if (string.IsNullOrEmpty(options.Instance))
                 {
-                    throw new ArgumentNullException(options.Domain, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
+                    throw new ArgumentNullException(options.Instance, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
                 }
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(options.TenantId))
+
+                if (options.IsB2C)
                 {
-                    throw new ArgumentNullException(options.TenantId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
+                    if (string.IsNullOrEmpty(options.Domain))
+                    {
+                        throw new ArgumentNullException(options.Domain, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(options.TenantId))
+                    {
+                        throw new ArgumentNullException(options.TenantId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
+                    }
                 }
             }
         }

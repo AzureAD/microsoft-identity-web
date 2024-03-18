@@ -22,6 +22,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     /// https://github.com/nsubstitute/NSubstitute/issues/597
     /// https://github.com/moq/moq4/issues/918.
     /// </remarks>
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
+#pragma warning disable CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
+#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     public class LoggerMock<T> : ILogger<T>
     {
         private ILogger<T> _logger;
@@ -35,4 +40,9 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             => _logger.Log<object>(logLevel, eventId, state, exception, (s, e) => string.Empty);
     }
+#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
+#pragma warning restore CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
 }

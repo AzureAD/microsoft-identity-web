@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Test
         {
             MsalUiRequiredException msalUiRequiredException = new MsalUiRequiredException("code", "message");
 
-            MsalUiRequiredException result = AuthorizeForScopesAttribute.FindMsalUiRequiredExceptionIfAny(msalUiRequiredException);
+            MsalUiRequiredException? result = AuthorizeForScopesAttribute.FindMsalUiRequiredExceptionIfAny(msalUiRequiredException);
             Assert.Equal(result, msalUiRequiredException);
 
             Exception ex = new Exception("message", msalUiRequiredException);

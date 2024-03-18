@@ -1,61 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-
-    <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.0.0-localbuild</ClientSemVer>
-    <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
-    <Version>$(ClientSemVer)</Version>
-
-    <DefineConstants>$(DefineConstants);WEB</DefineConstants>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Authors>Microsoft</Authors>
-    <Company>Microsoft</Company>
+    <Title>Microsoft Identity Web UI</Title>
+    <Product>Microsoft Identity Web UI</Product>
     <Description>This package enables UI for ASP.NET Core Web apps that use Microsoft.Identity.Web.</Description>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
-    <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
-    <PackageTags>Microsoft Identity Web UI;Microsoft identity platform;Microsoft Identity Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization</PackageTags>
     <ProjectGuid>{20535D28-C2F4-4975-9982-A18E7141DA53}</ProjectGuid>
   </PropertyGroup>
 
-  <PropertyGroup Label="Source Link">
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1; net5.0</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
-    <CodeAnalysisRuleSet>..\..\.sonarlint\azuread_microsoft-identity-webcsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>Microsoft.Identity.Web.UI.xml</DocumentationFile>
   </PropertyGroup>
 
@@ -64,22 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
 
 </Project>

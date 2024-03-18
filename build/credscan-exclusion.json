@@ -4,7 +4,14 @@
       {
         "file": "ErrorCodes.cs",
         "_justification": "Constant contains the word Password as it is for the B2C password reset string value constant."
-    }
+      },
+      {
+        "file": "TestConstants.cs",
+        "_justification": "Constant contains a certificate that is not used for anything other than running tests and has a private key."
+      },
+      {
+        "file": "SelfSignedTestCert.pfx",
+        "_justification": "Cert used for running tests."
+      }
     ]
   }
-  

@@ -21,10 +21,10 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             var featureCollection = new FeatureCollection();
             featureCollection.Set<IHttpResponseFeature>(new HttpResponseFeature());
             featureCollection.Set<IHttpRequestFeature>(new HttpRequestFeature());
+            featureCollection.Set<IHttpResponseBodyFeature>(new StreamResponseBodyFeature(new MemoryStream()));
 
             HttpContext httpContext = contextFactory.Create(featureCollection);
-            httpContext.Response.Body = new MemoryStream();
-            httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+            
             return httpContext;
         }
 

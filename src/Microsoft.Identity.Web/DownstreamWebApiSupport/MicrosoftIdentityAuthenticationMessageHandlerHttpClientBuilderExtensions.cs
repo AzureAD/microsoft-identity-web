@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,9 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
+#endif
         public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
             this IHttpClientBuilder builder,
             IConfiguration configuration)
@@ -42,10 +46,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateUserHandler(serviceName));
@@ -79,10 +80,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure(serviceName, configureOptions);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateUserHandler(serviceName));
@@ -96,6 +94,9 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
+#endif
         public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
             this IHttpClientBuilder builder,
             IConfiguration configuration)
@@ -116,10 +117,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             IConfiguration configuration)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure<MicrosoftIdentityAuthenticationMessageHandlerOptions>(serviceName, configuration);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateAppHandler(serviceName));
@@ -153,10 +151,7 @@ namespace Microsoft.Identity.Web
             string serviceName,
             Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.Configure(serviceName, configureOptions);
             builder.AddMicrosoftIdentityAuthenticationHandlerCore(factory => factory.CreateAppHandler(serviceName));
@@ -179,7 +174,7 @@ namespace Microsoft.Identity.Web
             this IHttpClientBuilder builder,
             Func<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DelegatingHandler> configureHandler)
         {
-            builder.Services.TryAddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            builder.Services.TryAddScoped<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
             builder.AddHttpMessageHandler(services =>
             {
                 var factory = services.GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();

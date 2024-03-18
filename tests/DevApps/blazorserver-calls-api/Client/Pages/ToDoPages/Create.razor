@@ -1,0 +1,22 @@
+﻿@page "/create"
+
+@using ToDoListModel
+@using Microsoft.Identity.Abstractions
+
+@inject NavigationManager Navigation
+@inject IDownstreamApi _downstreamApi
+
+<h3>Create Task</h3>
+
+<CommonForm ButtonText="Add Task" ToDoItem="@toDo"
+            OnValidSubmit="@AddTask" />
+
+@code {
+    protected ToDo toDo = new ToDo();
+
+    protected async Task AddTask()
+    {
+        await _downstreamApi.PostForUserAsync("TodoList", toDo);
+        Navigation.NavigateTo("todolist");
+    }
+}

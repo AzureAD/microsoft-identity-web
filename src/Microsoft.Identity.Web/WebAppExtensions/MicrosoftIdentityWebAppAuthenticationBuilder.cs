@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -27,6 +30,9 @@ namespace Microsoft.Identity.Web
         /// <param name="configureMicrosoftIdentityOptions">Action called to configure
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+#endif
         internal MicrosoftIdentityWebAppAuthenticationBuilder(
             IServiceCollection services,
             string openIdConnectScheme,
@@ -35,12 +41,7 @@ namespace Microsoft.Identity.Web
             : base(services, configurationSection)
         {
             OpenIdConnectScheme = openIdConnectScheme;
-            ConfigureMicrosoftIdentityOptions = configureMicrosoftIdentityOptions;
-
-            if (ConfigureMicrosoftIdentityOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
-            }
+            ConfigureMicrosoftIdentityOptions = Throws.IfNull(configureMicrosoftIdentityOptions);
         }
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
@@ -52,6 +53,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+#endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             IEnumerable<string>? initialScopes = null)
         {
@@ -66,6 +70,9 @@ namespace Microsoft.Identity.Web
         /// MSAL.NET confidential client application options.</param>
         /// <param name="initialScopes">Initial scopes.</param>
         /// <returns>The builder itself for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.WebAppCallsWebApiImplementation(IServiceCollection, IEnumerable<string>, Action<MicrosoftIdentityOptions>, string, Action<ConfidentialClientApplicationOptions>.")]
+#endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions,
             IEnumerable<string>? initialScopes = null)
@@ -73,7 +80,7 @@ namespace Microsoft.Identity.Web
             WebAppCallsWebApiImplementation(
                 Services,
                 initialScopes,
-                ConfigureMicrosoftIdentityOptions,
+                null, /* to avoid calling the delegate twice */
                 OpenIdConnectScheme,
                 configureConfidentialClientApplicationOptions);
             return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
@@ -81,17 +88,27 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(string).")]
+#endif
         internal static void WebAppCallsWebApiImplementation(
             IServiceCollection services,
             IEnumerable<string>? initialScopes,
-            Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
+            Action<MicrosoftIdentityOptions>? configureMicrosoftIdentityOptions,
             string openIdConnectScheme,
             Action<ConfidentialClientApplicationOptions>? configureConfidentialClientApplicationOptions)
         {
-            // Ensure that configuration options for MSAL.NET, HttpContext accessor and the Token acquisition service
-            // (encapsulating MSAL.NET) are available through dependency injection
-            services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
-
+            // When called from MISE, ensure that configuration options for MSAL.NET, HttpContext accessor
+            // and the Token acquisition service (encapsulating MSAL.NET) are available through dependency injection.
+            // When called from AddMicrosoftIdentityWebApp(delegate), should not be re-configured otherwise
+            // the delegate would be called twice.
+            if (configureMicrosoftIdentityOptions != null)
+            {
+                // Won't be null in the case where the caller is MISE (to ensure that the configuration for MSAL.NET
+                // is available through DI).
+                // Will be null when called from AddMicrosoftIdentityWebApp(delegate) to avoid calling the delegate twice.
+                services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
+            }
             if (configureConfidentialClientApplicationOptions != null)
             {
                 services.Configure(openIdConnectScheme, configureConfidentialClientApplicationOptions);
@@ -102,15 +119,16 @@ namespace Microsoft.Identity.Web
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
             {
                 services.AddScoped<ITokenAcquisition, AppServicesAuthenticationTokenAcquisition>();
+                services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
             }
             else
             {
                 services.AddTokenAcquisition();
 
-                services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                   .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
+                _ = services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                   .Configure<IMergedOptionsStore, IOptionsMonitor<ConfidentialClientApplicationOptions>, IOptions<ConfidentialClientApplicationOptions>>((
                        options,
-                       serviceProvider,
                        mergedOptionsMonitor,
                        ccaOptionsMonitor,
                        ccaOptions) =>
@@ -162,7 +180,6 @@ namespace Microsoft.Identity.Web
                                    context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                }
                            }
-
                            await onTokenValidatedHandler(context).ConfigureAwait(false);
                        };
 
@@ -172,7 +189,7 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context, openIdConnectScheme).ConfigureAwait(false);
+                           await tokenAcquisition.RemoveAccountAsync(context!.HttpContext.User, openIdConnectScheme).ConfigureAwait(false);
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

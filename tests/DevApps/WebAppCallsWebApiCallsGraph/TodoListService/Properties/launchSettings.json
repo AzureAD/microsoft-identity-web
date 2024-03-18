@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+
+  "profiles": {
+    "TodoListService": {
+        "commandName": "Project",
+        "launchBrowser": true,
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "applicationUrl": "https://localhost:44351;http://localhost:44350/"
+    }
+  }
+}

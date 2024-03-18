@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -16,7 +18,12 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Implementation for the downstream web API.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
+    [Obsolete("Use DownstreamApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class DownstreamWebApi : IDownstreamWebApi
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly HttpClient _httpClient;
@@ -45,7 +52,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForUserAsync(
             string serviceName,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? calledDownstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null,
             StringContent? content = null)
@@ -101,10 +108,13 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
+#endif
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             ClaimsPrincipal? user = null)
             where TOutput : class
@@ -124,7 +134,11 @@ namespace Microsoft.Identity.Web
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
             }
 
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -140,7 +154,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public async Task<HttpResponseMessage> CallWebApiForAppAsync(
             string serviceName,
-            string? authenticationScheme = null,
+            string? authenticationScheme,
             Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
             StringContent? content = null)
         {

@@ -1,17 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -31,10 +21,7 @@ namespace Microsoft.Identity.Web
         public static IServerSideBlazorBuilder AddMicrosoftIdentityConsentHandler(
             this IServerSideBlazorBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, MicrosoftIdentityServiceHandler>());
             builder.Services.TryAddScoped<MicrosoftIdentityConsentAndConditionalAccessHandler>();
@@ -50,10 +37,7 @@ namespace Microsoft.Identity.Web
         public static IServiceCollection AddMicrosoftIdentityConsentHandler(
             this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            _ = Throws.IfNull(services);
 
             services.TryAddEnumerable(ServiceDescriptor.Scoped<CircuitHandler, MicrosoftIdentityServiceHandler>());
             services.TryAddScoped<MicrosoftIdentityConsentAndConditionalAccessHandler>();

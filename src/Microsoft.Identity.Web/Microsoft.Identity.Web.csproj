@@ -1,150 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-
-    <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">1.0.0-localbuild</ClientSemVer>
-    <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
-    <Version>$(ClientSemVer)</Version>
-
-    <DefineConstants>$(DefineConstants);WEB</DefineConstants>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <!-- Copyright needs to be in the form of © not (c) to be compliant -->
     <Title>Microsoft Identity Web</Title>
-    <Authors>Microsoft</Authors>
-    <Company>Microsoft Corporation</Company>
     <Product>Microsoft Identity Web</Product>
     <Description>
       This package enables ASP.NET Core web apps and web APIs to use the Microsoft identity platform (formerly Azure AD v2.0).
       This package is specifically used for web applications, which sign-in users, and protected web APIs, which optionally call downstream web APIs.
     </Description>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
-    <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
-    <PackageTags>Microsoft Identity Web;Microsoft identity platform;Microsoft.Identity.Web;.NET;ASP.NET Core;Web App;Web API;B2C;Azure Active Directory;AAD;Identity;Authentication;Authorization</PackageTags>
     <ProjectGuid>{FD55C071-48D1-4FE8-8B1D-773E067FEC91}</ProjectGuid>
-    <IdentityModelVersion>6.17.0</IdentityModelVersion>
   </PropertyGroup>
-  <PropertyGroup Label="Source Link">
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\.sonarlint\azuread_microsoft-identity-web\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1; net462; net472; net5.0</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <DefineConstants>$(DefineConstants);DOTNET_50_AND_ABOVE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
-    <DefineConstants>$(DefineConstants);DOTNET_472</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
-    <DefineConstants>$(DefineConstants);DOTNET_462</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- The MSAL.snk has both private and public keys -->
-    <DelaySign>false</DelaySign>
-    <CodeAnalysisRuleSet>..\..\.sonarlint\azuread_microsoft-identity-webcsharp.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>Microsoft.Identity.Web.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12-*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.12-*" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.18" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NET' Or '$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
+    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
     <Compile Remove="*.cs" />
-    <Compile Include="LoggingEventId.cs" />
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="AzureSdkSupport\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
-    <Compile Remove="InstanceDiscovery\**" />
     <Compile Remove="Resource\**" />
     <Compile Remove="Policy\**" />
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />
     <Compile Remove="TokenCacheProviders\Session\**" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsCachingMemoryVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="$(MicrosoftAspNetCoreDataProtectionVersion)" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
+    <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
-  
 </Project>
