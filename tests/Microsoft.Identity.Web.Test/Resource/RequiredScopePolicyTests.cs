@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Test.Resource
     [RequiredScope("access_as_user", RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     public class RequiredScopePolicyTests
     {
-        private IServiceProvider _provider;
+        private IServiceProvider? _provider;
         private const string ConfigSectionName = "AzureAd";
         private const string MultipleScopes = "access_as_user user.read";
         private const string SingleScope = "access_as_user";
@@ -132,10 +132,10 @@ namespace Microsoft.Identity.Web.Test.Resource
 
         private IAuthorizationService BuildAuthorizationService(
         string policy,
-        string scopes,
+        string? scopes,
         bool withConfig = false)
         {
-            var configAsDictionary = new Dictionary<string, string>()
+            var configAsDictionary = new Dictionary<string, string?>()
             {
                 { ConfigSectionName, null },
                 { $"{ConfigSectionName}:Instance", TestConstants.AadInstance },
@@ -163,7 +163,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                         }
                         else
                         {
-                            policyBuilder.RequireScope(scopes?.Split(' '));
+                            policyBuilder.RequireScope(scopes?.Split(' ')!);
                         }
                     });
                 });

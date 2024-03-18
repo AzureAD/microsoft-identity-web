@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(SameSiteMode.Strict, SameSiteMode.Strict, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
         public void HandleSameSiteCookieCompatibility_Default_ExecutesSuccessfully(SameSiteMode initialSameSiteMode, SameSiteMode expectedSameSiteMode, string userAgent)
         {
-            _httpContext.Request.Headers.Add(Constants.UserAgent, userAgent);
+            _httpContext.Request.Headers.Append(Constants.UserAgent, userAgent);
             var appendCookieOptions = new CookieOptions() { SameSite = initialSameSiteMode };
             var deleteCookieOptions = new CookieOptions() { SameSite = initialSameSiteMode };
             var appendCookieContext = new AppendCookieContext(_httpContext, appendCookieOptions, _cookieName, _cookieValue);
@@ -40,10 +40,12 @@ namespace Microsoft.Identity.Web.Test
             _cookiePolicyOptions.HandleSameSiteCookieCompatibility();
 
             Assert.Equal(SameSiteMode.Unspecified, _cookiePolicyOptions.MinimumSameSitePolicy);
-
+            Assert.NotNull(_cookiePolicyOptions);
+            Assert.NotNull(_cookiePolicyOptions.OnAppendCookie);
             _cookiePolicyOptions.OnAppendCookie(appendCookieContext);
             Assert.Equal(expectedSameSiteMode, appendCookieOptions.SameSite);
 
+            Assert.NotNull(_cookiePolicyOptions.OnDeleteCookie);
             _cookiePolicyOptions.OnDeleteCookie(deleteCookieContext);
             Assert.Equal(expectedSameSiteMode, deleteCookieOptions.SameSite);
         }
@@ -54,7 +56,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(SameSiteMode.Strict, SameSiteMode.Strict, false, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
         public void HandleSameSiteCookieCompatibility_CustomFilter_ExecutesSuccessfully(SameSiteMode initialSameSiteMode, SameSiteMode expectedSameSiteMode, bool expectedEventCalled, string userAgent)
         {
-            _httpContext.Request.Headers.Add(Constants.UserAgent, userAgent);
+            _httpContext.Request.Headers.Append(Constants.UserAgent, userAgent);
             var appendCookieOptions = new CookieOptions() { SameSite = initialSameSiteMode };
             var deleteCookieOptions = new CookieOptions() { SameSite = initialSameSiteMode };
             var appendCookieContext = new AppendCookieContext(_httpContext, appendCookieOptions, _cookieName, _cookieValue);
@@ -70,6 +72,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(SameSiteMode.Unspecified, _cookiePolicyOptions.MinimumSameSitePolicy);
 
+            Assert.NotNull(_cookiePolicyOptions.OnAppendCookie);
             _cookiePolicyOptions.OnAppendCookie(appendCookieContext);
             Assert.Equal(expectedSameSiteMode, appendCookieOptions.SameSite);
             Assert.Equal(expectedEventCalled, appendEventCalled);
@@ -80,6 +83,7 @@ namespace Microsoft.Identity.Web.Test
                 return CookiePolicyOptionsExtensions.DisallowsSameSiteNone(userAgent);
             });
 
+            Assert.NotNull(_cookiePolicyOptions.OnDeleteCookie);
             _cookiePolicyOptions.OnDeleteCookie(deleteCookieContext);
             Assert.Equal(expectedSameSiteMode, deleteCookieOptions.SameSite);
             Assert.Equal(expectedEventCalled, deleteEventCalled);

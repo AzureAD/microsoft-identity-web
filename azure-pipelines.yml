@@ -8,38 +8,11 @@ pr:
       - master
 
 jobs:
-- job: "Sonar"
+- job: "PR_build"
   pool:
-    vmImage: 'windows-latest'
+    name: MwWilson1EsHostedPool
     demands:
     - msbuild
   steps:
-    - template: build/template-install-dotnet-core.yaml
-    - template: build/template-install-keyvault-secrets.yaml
-    - task: SonarCloudPrepare@1
-      inputs:
-        SonarCloud: 'SonarCloud-microsoft_identity_web'
-        organization: 'azuread'
-        scannerMode: 'MSBuild'
-        projectKey: 'AzureAD_microsoft-identity-web'
-        projectName: 'microsoft-identity-web'
-        extraProperties: |
-          sonar.exclusions=tests\**
-    - task: DotNetCoreCLI@2
-      inputs:
-        projects: 'Microsoft.Identity.Web.sln'
-        command: 'restore'
-    - task: VSBuild@1
-      inputs:
-        solution: Microsoft.Identity.Web.sln
-        vsVersion: '16.0'
-    - task: DotNetCoreCLI@2
-      displayName: 'Run unit tests'
-      inputs:
-        command: test
-        projects: 'tests/**/Microsoft.Identity.Web.Test*.csproj'
-        arguments: '--collect "Code coverage"'
-    - task: SonarCloudAnalyze@1
-    - task: SonarCloudPublish@1
-      inputs:
-        pollingTimeoutSec: '300'
+    - template: build/template-install-dependencies.yaml
+    - template: build/template-run-unit-tests.yaml

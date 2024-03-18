@@ -3,58 +3,175 @@
 
 parameters:
   BuildConfiguration: 'release'
+  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\packages\*.nupkg'
 
 steps:
 
-# Pack and sign Microsoft.Identity.Web
-- template: template-pack-and-sign-nuget.yaml
+# The signing task requires dotnet core 2.x
+- task: UseDotNet@2
+  displayName: 'Use .Net Core sdk 2.x'
+  inputs:
+    version: 2.x
+
+- task: EsrpCodeSigning@4
+  inputs:
+    ConnectedServiceName: 'IDDP Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)\src'
+    Pattern: 'Microsoft.Identity.Web*.dll'
+    signConfigType: 'inlineSignParams'
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolSign",
+         "parameters": [
+         {
+           "parameterName": "OpusName",
+           "parameterValue": "Microsoft.Identity.Web"
+         },
+         {
+           "parameterName": "OpusInfo",
+           "parameterValue": "http://www.microsoft.com"
+         },
+         {
+           "parameterName": "PageHash",
+           "parameterValue": "/NPH"
+         },
+         {
+           "parameterName": "FileDigest",
+           "parameterValue": "/fd sha256"
+         },
+         {
+           "parameterName": "TimeStamp",
+           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+         }
+         ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       },
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolVerify",
+         "parameters": [ ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       }
+     ]
+    SessionTimeout: '60'
+    MaxConcurrency: '50'
+    MaxRetryAttempts: '5'
+    PendingAnalysisWaitTimeoutMinutes: '5'
+
+- task: BinSkim@4
+  inputs:
+    InputType: Basic
+    AnalyzeTargetGlob: '$(Build.SourcesDirectory)\src\**\bin\**\Microsoft.Identity.Web*.dll'
+    AnalyzeVerbose: true
+    AnalyzeHashes: true
+    toolVersion: Exact
+
+- task: PostAnalysis@2
+  displayName: 'Check BinSkim Results'
+  inputs:
+    GdnBreakGdnToolBinSkim: true    
+
+# Pack Microsoft.Identity.Web
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web'
     AssemblyName: 'Microsoft.Identity.Web'
-    HasRefAssembly: 'false'
 
-# Pack and sign Microsoft.Identity.Web.UI
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.UI
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI'
     AssemblyName: 'Microsoft.Identity.Web.UI*'
 
-# Pack and sign Microsoft.Identity.Web.MicrosoftGraph
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.MicrosoftGraph
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraph'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraph*'
 
-# Pack and sign Microsoft.Identity.Web.MicrosoftGraphBeta
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.MicrosoftGraphBeta
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraphBeta*'
 
-# Pack and sign Microsoft.Identity.TokenCache
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.GraphServiceClient
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClient'
+    AssemblyName: 'Microsoft.Identity.Web.GraphServiceClient*'
+
+# Pack Microsoft.Identity.Web.GraphServiceClientBeta
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClientBeta'
+    AssemblyName: 'Microsoft.Identity.Web.GraphServiceClientBeta*'
+
+# Pack Microsoft.Identity.Web.TokenCache
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache'
     AssemblyName: 'Microsoft.Identity.Web.TokenCache*'
 
-# Pack and sign Microsoft.Identity.Certificate
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.TokenAcquisition
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition'
+    AssemblyName: 'Microsoft.Identity.Web.TokenAcquisition*'
+
+# Pack Microsoft.Identity.Web.Certificate
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate'
     AssemblyName: 'Microsoft.Identity.Web.Certificate*'
 
-# Pack and sign Microsoft.Identity.Web.ProjectTemplates
-- template: template-pack-and-sign-nuget.yaml
+# Pack Microsoft.Identity.Web.Certificateless
+- template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\ProjectTemplates'
-    AssemblyName: 'AspNetCoreMicrosoftIdentityWebProjectTemplates'
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
+    AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
+
+# Pack Microsoft.Identity.Web.OWIN
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN'
+    AssemblyName: 'Microsoft.Identity.Web.OWIN*'
+
+# Pack Microsoft.Identity.Web.DownstreamApi
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamApi'
+    AssemblyName: 'Microsoft.Identity.Web.DownstreamApi*'
+
+# Pack Microsoft.Identity.Web.Diagnostics
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Diagnostics'
+    AssemblyName: 'Microsoft.Identity.Web.Diagnostics*'
+
+# Pack Microsoft.Identity.Web.Diagnostics
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Azure'
+    AssemblyName: 'Microsoft.Identity.Web.Azure*'
 
 # Copy all packages out to staging
 - task: CopyFiles@2
@@ -66,7 +183,7 @@ steps:
     flattenFolders: true
 
 # Sign all final nuget packages in the staging directory
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: EsrpCodeSigning@4
   displayName: 'Sign Packages'
   inputs:
     ConnectedServiceName: 'IDDP Code Signing'
@@ -90,6 +207,14 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-    SessionTimeout: 20
-    VerboseLogin: true
-  timeoutInMinutes: 5
+    SessionTimeout: '60'
+    MaxConcurrency: '50'
+    MaxRetryAttempts: '5'
+    PendingAnalysisWaitTimeoutMinutes: '5'
+
+- task: NuGetCommand@2
+  displayName: 'Verify packages are signed'
+  inputs:
+    command: custom
+    arguments: 'verify -Signature ${{ parameters.NugetPackagesWildcard }}'
+  continueOnError: true

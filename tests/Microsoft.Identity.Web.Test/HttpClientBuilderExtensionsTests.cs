@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var builder = new ConfigurationBuilder();
             builder.AddInMemoryCollection(
-                new Dictionary<string, string>()
+                new Dictionary<string, string?>()
                 {
                     { $"{key}:Scopes", TestConstants.Scopes },
                     { $"{key}:Tenant", TestConstants.TenantIdAsGuid },
@@ -38,6 +39,27 @@ namespace Microsoft.Identity.Web.Test
                 });
 
             return builder.Build().GetSection(key);
+        }
+
+        protected internal class CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory : IMicrosoftIdentityAuthenticationDelegatingHandlerFactory
+        {
+            protected internal class CustomMicrosoftIdentityAuthenticationAppHandler : DelegatingHandler
+            {
+            }
+
+            protected internal class CustomMicrosoftIdentityAuthenticationUserHandler : DelegatingHandler
+            {
+            }
+
+            public DelegatingHandler CreateAppHandler(string? serviceName)
+            {
+                return new CustomMicrosoftIdentityAuthenticationAppHandler();
+            }
+
+            public DelegatingHandler CreateUserHandler(string? serviceName)
+            {
+                return new CustomMicrosoftIdentityAuthenticationUserHandler();
+            }
         }
 
         [Theory]
@@ -112,6 +134,49 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(TestConstants.B2CResetPasswordUserFlow, options.Get(ServiceName).UserFlow);
             Assert.True(options.Get(ServiceName).IsProofOfPossessionRequest);
             Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(ServiceName).AuthenticationScheme);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityAuthenticationHandler_WithCustomFactory(bool useApp)
+        {
+            // arrange
+            var services = new ServiceCollection();
+            Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions = options =>
+            {
+                options.Scopes = TestConstants.GraphScopes;
+                options.Tenant = TestConstants.TenantIdAsGuid;
+                options.UserFlow = TestConstants.B2CResetPasswordUserFlow;
+                options.IsProofOfPossessionRequest = true;
+                options.AuthenticationScheme = JwtBearerDefaults.AuthenticationScheme;
+            };
+
+            // act
+            // Register our custom type first to ensure our extension methods don't override user behavior
+            services.AddSingleton<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory, CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            if (useApp)
+            {
+                services.AddHttpClient(HttpClientName)
+                    .AddMicrosoftIdentityAppAuthenticationHandler(ServiceName, configureOptions);
+            }
+            else
+            {
+                services.AddHttpClient(HttpClientName)
+                    .AddMicrosoftIdentityUserAuthenticationHandler(ServiceName, configureOptions);
+            }
+
+            // assert
+
+            var provider = services.BuildServiceProvider();
+            var factory = provider.GetRequiredService<IMicrosoftIdentityAuthenticationDelegatingHandlerFactory>();
+            Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory), factory.GetType());
+
+            var appHandler = factory.CreateAppHandler(string.Empty);
+            Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CustomMicrosoftIdentityAuthenticationAppHandler), appHandler.GetType());
+
+            var userHandler = factory.CreateUserHandler(string.Empty);
+            Assert.Equal(typeof(CustomMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CustomMicrosoftIdentityAuthenticationUserHandler), userHandler.GetType());
         }
     }
 }

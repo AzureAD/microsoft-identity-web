@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,14 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
+        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public MockHttpMessageHandler()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+
+        }
         public HttpResponseMessage ResponseMessage { get; set; }
 
         public string ExpectedUrl { get; set; }
@@ -34,6 +43,26 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             }
 
             var uri = request.RequestUri;
+            Assert.NotNull(uri);
+
+            //Intercept instance discovery requests and serve a response. 
+            //Also, requeue the current mock handler for MSAL's next request.
+#if NET6_0_OR_GREATER
+            if (uri.AbsoluteUri.Contains("/discovery/instance", StringComparison.OrdinalIgnoreCase))
+#else
+            if (uri.AbsoluteUri.Contains("/discovery/instance"))
+#endif
+            {
+                ReplaceMockHttpMessageHandler(this);
+
+                var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(TestConstants.DiscoveryJsonResponse),
+                };
+
+                return Task.FromResult(responseMessage);
+            }
+
             if (!string.IsNullOrEmpty(ExpectedUrl))
             {
                 Assert.Equal(
@@ -52,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 string postData = request.Content.ReadAsStringAsync().Result;
             }
 
-            return new TaskFactory().StartNew(() => ResponseMessage, cancellationToken);
+            return Task.FromResult(ResponseMessage);
         }
     }
 }

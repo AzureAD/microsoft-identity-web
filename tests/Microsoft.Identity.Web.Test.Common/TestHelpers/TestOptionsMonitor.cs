@@ -7,29 +7,32 @@ using NSubstitute;
 
 namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 {
-    public class TestOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>
+    public class TestOptionsMonitor<T> : IOptionsMonitor<T>
+        where T : class, new()
     {
-        private Action<TOptions, string> _listener;
+        private Action<T, string>? _listener;
 
-        public TestOptionsMonitor(TOptions currentValue)
+        public TestOptionsMonitor(T currentValue)
         {
             CurrentValue = currentValue;
         }
 
-        public TOptions CurrentValue { get; private set; }
+        public T CurrentValue { get; private set; }
 
-        public TOptions Get(string name)
+        public T Get(string? name)
         {
             return CurrentValue;
         }
 
-        public void Set(TOptions value)
+        public void Set(T value)
         {
             CurrentValue = value;
-            _listener.Invoke(value, null);
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _listener?.Invoke(value, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
-        public IDisposable OnChange(Action<TOptions, string> listener)
+        public IDisposable OnChange(Action<T, string> listener)
         {
             _listener = listener;
             return Substitute.For<IDisposable>();

@@ -43,7 +43,7 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         {
             get
             {
-                return Domain?.Replace(".onmicrosoft.com", string.Empty);
+                return Domain?.Replace(".onmicrosoft.com", string.Empty, StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -82,6 +82,10 @@ namespace Microsoft.Identity.App.AuthenticationParameters
         /// </summary>
         public bool IsB2C { get; set; }
 
+        /// <summary>
+        /// Is the tenant a CIAM tenant?
+        /// </summary>
+        public bool IsCiam { get; set; }
 
         // TODO: propose a fix for the blazorwasm project template
         

@@ -2,20 +2,18 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Microsoft.Identity.Web\Constants\IDWebErrorMessage.cs" Link="IDWebErrorMessage.cs" />
+    <Compile Include="..\..\src\Microsoft.Identity.Web.Certificateless\ClientAssertion.cs" Link="ClientAssertion.cs" />
     <Compile Include="..\..\src\Microsoft.Identity.Web\JwtBearerMergedOptions.cs" Link="JwtBearerMergedOptions.cs" />
-    <Compile Include="..\..\src\Microsoft.Identity.Web\MergedOptions.cs" Link="OptionClasses\MergedOptions.cs" />
-    <Compile Include="..\..\src\Microsoft.Identity.Web\MicrosoftIdentityOptions.cs" Link="OptionClasses\MicrosoftIdentityOptions.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0-*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0-*" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
@@ -30,11 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.38.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
   
 </Project>

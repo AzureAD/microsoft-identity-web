@@ -130,15 +130,6 @@
             <param name="cacheSize">Cache size in bytes, or 0 if empty.</param>
             <param name="ex">Exception.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheNegativeExpiry(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.Exception)">
-            <summary>
-            Memory cache negative expiry.
-            </summary>
-            <param name="logger">ILogger.</param>
-            <param name="cacheType">Distributed or Memory.</param>
-            <param name="operation">Cache operation (Read, Write, etc...).</param>
-            <param name="ex">Exception.</param>
-        </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.Logger.MemoryCacheRemove(Microsoft.Extensions.Logging.ILogger,System.String,System.String,System.String,System.Exception)">
             <summary>
             Memory cache remove.
@@ -267,6 +258,14 @@
             </summary>
             The default is <c>false.</c>
         </member>
+        <member name="P:Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.EnableAsyncL2Write">
+            <summary>
+            Enable writing to the L2 cache to be async (fire and forget).
+            This improves performance as the MSAL.NET will not have to wait
+            for the write to complete.
+            </summary>
+            The default is <c>false.</c>
+        </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider">
             <summary>
             MSAL token cache provider interface.
@@ -381,6 +380,9 @@
             Token cache provider with default implementation.
             </summary>
             <seealso cref="T:Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider" />
+            <summary>
+            LoggingMessage class for MsalAbstractTokenCacheProvider.
+            </summary>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.AspNetCore.DataProtection.IDataProtector)">
             <summary>
@@ -388,6 +390,14 @@
             </summary>
             <param name="dataProtector">Service provider. Can be null, in which case the token cache
             will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.#ctor(Microsoft.AspNetCore.DataProtection.IDataProtector,Microsoft.Extensions.Logging.ILogger{Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider})">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="dataProtector">Service provider. Can be null, in which case the token cache
+            will not be encrypted. See https://aka.ms/ms-id-web/token-cache-encryption.</param>
+            <param name="logger">MsalDistributedTokenCacheAdapter logger.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache)">
             <summary>
@@ -471,6 +481,21 @@
             <param name="cacheKey">Cache key.</param>
             <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
             <returns>A <see cref="T:System.Threading.Tasks.Task"/> that represents a completed remove key operation.</returns>
+        </member>
+        <member name="T:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Logger">
+            <summary>
+            LoggingMessage class for MsalAbstractTokenCacheProvider.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Logger.CacheDeserializationError(Microsoft.Extensions.Logging.ILogger,System.String,System.Boolean,System.String,System.Exception)">
+            <summary>
+            Cache deserialization error.
+            </summary>
+            <param name="logger">ILogger.</param>
+            <param name="cacheKey">MSAL.NET cache key.</param>
+            <param name="encryptionEnabled">Whether cache is encrypted or not.</param>
+            <param name="errorMessage">Error message.</param>
+            <param name="ex">Exception.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.TokenCacheProviders.Utility">
             <summary>

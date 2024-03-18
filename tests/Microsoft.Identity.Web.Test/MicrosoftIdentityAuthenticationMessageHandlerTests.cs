@@ -75,14 +75,14 @@ namespace Microsoft.Identity.Web.Test
 
             if (useApp)
             {
-                tokenAcquisition.GetAuthenticationResultForAppAsync(default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForAppAsync(default!, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 builder.AddHttpMessageHandler(() => new MicrosoftIdentityAppAuthenticationMessageHandler(tokenAcquisition, options));
             }
             else
             {
-                tokenAcquisition.GetAuthenticationResultForUserAsync(default, default, default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForUserAsync(default!, default, default, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 var identityOptions = Substitute.For<IOptionsMonitor<MicrosoftIdentityOptions>>();
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Test
             if (useApp)
             {
                 await tokenAcquisition.Received().GetAuthenticationResultForAppAsync(
-                    _handlerOptions.Scopes,
+                    _handlerOptions.Scopes!,
                     _handlerOptions.AuthenticationScheme,
                     _handlerOptions.Tenant,
                     Arg.Any<TokenAcquisitionOptions>() /* options are cloned */)
@@ -142,14 +142,14 @@ namespace Microsoft.Identity.Web.Test
 
             if (useApp)
             {
-                tokenAcquisition.GetAuthenticationResultForAppAsync(default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForAppAsync(default!, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 builder.AddHttpMessageHandler(() => new MicrosoftIdentityAppAuthenticationMessageHandler(tokenAcquisition, options));
             }
             else
             {
-                tokenAcquisition.GetAuthenticationResultForUserAsync(default, default, default, default, default, default)
+                tokenAcquisition.GetAuthenticationResultForUserAsync(default!, default, default, default, default, default)
                     .ReturnsForAnyArgs(_authenticationResult);
 
                 var identityOptions = Substitute.For<IOptionsMonitor<MicrosoftIdentityOptions>>();
@@ -173,6 +173,73 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal($"Bearer {_authenticationResult.AccessToken}", _mockedMessageHandler.Requests[0].Headers.GetValues(Constants.Authorization).ElementAt(0));
         }
 
+        [Fact]
+        public void CreateProofOfPossessionConfiguration_WithProofOfPossessionRequest_SetsTokenAcquisitionOptions()
+        {
+            // Arrange
+            var options = new MicrosoftIdentityAuthenticationMessageHandlerOptions
+            {
+                IsProofOfPossessionRequest = true
+            };
+            var httpPath = new Uri("https://api.example.com");
+            var method = HttpMethod.Post;
+
+            // Act
+            MicrosoftIdentityAuthenticationBaseMessageHandler.CreateProofOfPossessionConfiguration(options, httpPath, method);
+
+            // Assert
+            Assert.NotNull(options.TokenAcquisitionOptions);
+            Assert.NotNull(options.TokenAcquisitionOptions.PoPConfiguration);
+            Assert.Equal(httpPath.AbsolutePath, options.TokenAcquisitionOptions.PoPConfiguration.HttpPath);
+            Assert.Equal(method, options.TokenAcquisitionOptions.PoPConfiguration.HttpMethod);
+        }
+
+        [Fact]
+        public void CreateProofOfPossessionConfiguration_WithoutProofOfPossessionRequest_DoesNotSetTokenAcquisitionOptions()
+        {
+            // Arrange
+            var options = new MicrosoftIdentityAuthenticationMessageHandlerOptions
+            {
+                IsProofOfPossessionRequest = false
+            };
+            var httpPath = new Uri("https://api.example.com");
+            var method = HttpMethod.Post;
+
+            // Act
+            MicrosoftIdentityAuthenticationBaseMessageHandler.CreateProofOfPossessionConfiguration(options, httpPath, method);
+
+            // Assert
+            Assert.NotNull(options.TokenAcquisitionOptions);
+            Assert.Null(options.TokenAcquisitionOptions.PoPConfiguration);
+        }
+
+        [Fact]
+        public void Clone_ClonesOptionsSuccessfully()
+        {
+            // Arrange
+            var options = new MicrosoftIdentityAuthenticationMessageHandlerOptions
+            {
+                Scopes = TestConstants.Scopes,
+                Tenant = TestConstants.TenantIdAsGuid,
+                UserFlow = TestConstants.B2CSignUpSignInUserFlow,
+                IsProofOfPossessionRequest = true,
+                TokenAcquisitionOptions = new TokenAcquisitionOptions { Tenant = TestConstants.B2CTenant },
+                AuthenticationScheme = "Bearer",
+            };
+
+            // Act
+            var clonedOptions = options.Clone();
+
+            // Assert
+            Assert.NotSame(clonedOptions, options);
+            Assert.Equal(options.Scopes, clonedOptions.Scopes);
+            Assert.Equal(options.Tenant, clonedOptions.Tenant);
+            Assert.Equal(options.UserFlow, clonedOptions.UserFlow);
+            Assert.Equal(options.IsProofOfPossessionRequest, clonedOptions.IsProofOfPossessionRequest);
+            Assert.Equal(options.TokenAcquisitionOptions.Tenant, clonedOptions.TokenAcquisitionOptions.Tenant);
+            Assert.Equal(options.AuthenticationScheme, clonedOptions.AuthenticationScheme);
+        }
+
         private class MockHttpMessageHandler : HttpMessageHandler
         {
             private readonly HttpStatusCode _statusCode;
@@ -182,7 +249,7 @@ namespace Microsoft.Identity.Web.Test
 
             public IReadOnlyList<HttpRequestMessage> Requests => _requests;
 
-            public MockHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK, HttpContent content = default, string reason = default)
+            public MockHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK, HttpContent content = default!, string reason = default!)
             {
                 _statusCode = statusCode;
                 _reason = reason;

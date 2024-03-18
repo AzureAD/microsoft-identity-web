@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -33,6 +35,12 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
+#endif
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -42,19 +50,59 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
                 serviceName,
                 authenticationScheme,
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
-                user,
-                null).ConfigureAwait(false);
+                user).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Call a web API with a strongly typed input, with an HttpGet.
+        /// </summary>
+        /// <typeparam name="TInput">Input type.</typeparam>
+        /// <param name="downstreamWebApi">The downstream web API.</param>
+        /// <param name="serviceName">Name of the service describing the downstream web API. There can
+        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
+        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
+        /// needs to be set.</param>
+        /// <param name="inputData">Input data.</param>
+        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
+        /// by <paramref name="serviceName"/>.</param>
+        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
+        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
+        /// will find the user from the HttpContext.</param>
+        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
+        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
+        /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
+#endif
+        public static async Task GetForUserAsync<TInput>(
+            this IDownstreamWebApi downstreamWebApi,
+            string serviceName,
+            TInput inputData,
+            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
+            ClaimsPrincipal? user = null,
+            string? authenticationScheme = null)
+        {
+            _ = Throws.IfNull(downstreamWebApi);
+
+            using StringContent? input = ConvertFromInput(inputData);
+
+            await downstreamWebApi.CallWebApiForUserAsync(
+             serviceName,
+             authenticationScheme,
+             downstreamWebApiOptionsOverride,
+             user,
+             input).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -78,6 +126,12 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamApi.PostForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
+#endif
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -88,10 +142,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -124,6 +175,12 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
+#endif
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -133,10 +190,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             string? authenticationScheme = null)
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -169,6 +223,12 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>A strongly typed response from the web API.</returns>
+        [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
+#endif
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -179,10 +239,7 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             using StringContent? input = ConvertFromInput(inputData);
 
@@ -214,6 +271,12 @@ namespace Microsoft.Identity.Web
         /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
         /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
         /// <returns>The value returned by the downstream web API.</returns>
+        [Obsolete("Use IDownstreamApi.CallWebApiForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
+        "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
+#endif
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -222,67 +285,28 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme = null)
             where TOutput : class
         {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
+            _ = Throws.IfNull(downstreamWebApi);
 
             HttpResponseMessage response = await downstreamWebApi.CallWebApiForUserAsync(
               serviceName,
               authenticationScheme,
               downstreamWebApiOptionsOverride,
-              user,
-              null).ConfigureAwait(false);
+              user).ConfigureAwait(false);
 
             return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Call a web API with a strongly typed input, with an HttpGet.
-        /// </summary>
-        /// <typeparam name="TInput">Input type.</typeparam>
-        /// <param name="downstreamWebApi">The downstream web API.</param>
-        /// <param name="serviceName">Name of the service describing the downstream web API. There can
-        /// be several configuration named sections mapped to a <see cref="DownstreamWebApiOptions"/>,
-        /// each for one downstream web API. You can pass-in null, but in that case <paramref name="downstreamWebApiOptionsOverride"/>
-        /// needs to be set.</param>
-        /// <param name="inputData">Input data.</param>
-        /// <param name="downstreamWebApiOptionsOverride">Overrides the options proposed in the configuration described
-        /// by <paramref name="serviceName"/>.</param>
-        /// <param name="user">[Optional] Claims representing a user. This is useful in platforms like Blazor
-        /// or Azure Signal R, where the HttpContext is not available. In other platforms, the library
-        /// will find the user from the HttpContext.</param>
-        /// <param name="authenticationScheme">Authentication scheme. If null, will use OpenIdConnectDefault.AuthenticationScheme
-        /// if called from a web app, and JwtBearerDefault.AuthenticationScheme if called from a web API.</param>
-        /// <returns>The value returned by the downstream web API.</returns>
-        public static async Task GetForUserAsync<TInput>(
-            this IDownstreamWebApi downstreamWebApi,
-            string serviceName,
-            TInput inputData,
-            Action<DownstreamWebApiOptions>? downstreamWebApiOptionsOverride = null,
-            ClaimsPrincipal? user = null,
-            string? authenticationScheme = null)
-        {
-            if (downstreamWebApi is null)
-            {
-                throw new ArgumentNullException(nameof(downstreamWebApi));
-            }
-
-            using StringContent? input = ConvertFromInput(inputData);
-
-            await downstreamWebApi.CallWebApiForUserAsync(
-             serviceName,
-             authenticationScheme,
-             downstreamWebApiOptionsOverride,
-             user,
-             input).ConfigureAwait(false);
-        }
-
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
+#endif
         private static StringContent ConvertFromInput<TInput>(TInput input)
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
         }
 
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif
         private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response)
             where TOutput : class
         {
@@ -294,7 +318,11 @@ namespace Microsoft.Identity.Web
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
             }
 
             string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

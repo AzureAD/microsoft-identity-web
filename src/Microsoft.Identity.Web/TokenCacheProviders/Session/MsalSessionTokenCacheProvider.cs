@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// </code>
     /// </remarks>
     /// <seealso>https://aka.ms/msal-net-token-cache-serialization</seealso>
-    public partial class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider
+    public partial class MsalSessionTokenCacheProvider : MsalAbstractTokenCacheProvider, IDisposable
     {
         private readonly ILogger _logger;
         private readonly ISession _session;
@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         public MsalSessionTokenCacheProvider(
             ISession session,
             ILogger<MsalSessionTokenCacheProvider> logger)
-            : base(null)
+            : base(null, logger)
         {
             _session = session;
             _logger = logger;
@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <param name="cacheKey">Key representing the token cache
         /// (account or app).</param>
         /// <returns>Read blob.</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// (account or app).</param>
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob.</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
 #pragma warning disable CA1062 // Validate arguments of public methods
             await _session.LoadAsync(cacheSerializerHints.CancellationToken).ConfigureAwait(false);
@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             _sessionLock.EnterReadLock();
             try
             {
-                if (_session.TryGetValue(cacheKey, out byte[] blob))
+                if (_session.TryGetValue(cacheKey, out byte[]? blob))
                 {
                     Logger.SessionCache(_logger, "Read", _session.Id, cacheKey, null);
                 }
@@ -135,6 +135,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
             {
                 _sessionLock.ExitWriteLock();
             }
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _sessionLock.Dispose();
         }
 
         private readonly ReaderWriterLockSlim _sessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);

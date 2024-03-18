@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
@@ -18,7 +19,7 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             : base(null)
         {
             MemoryCache = memoryCache;
-            _cacheOptions = cacheOptions?.Value;
+            _cacheOptions = cacheOptions.Value;
         }
 
         public IMemoryCache MemoryCache { get; }
@@ -27,9 +28,9 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 
         private readonly MsalMemoryTokenCacheOptions _cacheOptions;
 
-        protected override Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
-            byte[] tokenCacheBytes = (byte[])MemoryCache.Get(cacheKey);
+            byte[]? tokenCacheBytes = (byte[]?)MemoryCache.Get(cacheKey);
             return Task.FromResult(tokenCacheBytes);
         }
 
@@ -45,6 +46,11 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             MemoryCache.Set(cacheKey, bytes, _cacheOptions.AbsoluteExpirationRelativeToNow);
             Count++;
             return Task.CompletedTask;
+        }
+
+        public override string GetSuggestedCacheKey(TokenCacheNotificationArgs args)
+        {
+            return args.SuggestedCacheKey;
         }
     }
 }

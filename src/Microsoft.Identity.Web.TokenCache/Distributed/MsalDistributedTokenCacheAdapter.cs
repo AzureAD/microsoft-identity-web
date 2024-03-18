@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         internal /*for tests*/ readonly IDistributedCache _distributedCache;
         internal /*for tests*/ readonly MemoryCache? _memoryCache;
         private readonly ILogger<MsalDistributedTokenCacheAdapter> _logger;
-        private readonly TimeSpan? _expirationTime;
+        private readonly TimeSpan? _memoryCacheExpirationTime;
         private readonly string _distributedCacheType = "DistributedCache"; // for logging
         private readonly string _memoryCacheType = "MemoryCache"; // for logging
         private const string DefaultPurpose = "msal_cache";
@@ -48,19 +48,16 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                                             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
                                             ILogger<MsalDistributedTokenCacheAdapter> logger,
                                             IServiceProvider? serviceProvider = null)
-            : base(GetDataProtector(distributedCacheOptions, serviceProvider))
+            : base(GetDataProtector(distributedCacheOptions, serviceProvider), logger)
         {
-            if (distributedCacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(distributedCacheOptions));
-            }
+            _ = Throws.IfNull(distributedCacheOptions);
 
             _distributedCache = distributedCache;
             _distributedCacheOptions = distributedCacheOptions.Value;
 
             if (!_distributedCacheOptions.DisableL1Cache)
             {
-                _memoryCache = new MemoryCache(_distributedCacheOptions.L1CacheOptions ?? new MemoryCacheOptions { SizeLimit = 500 * 1024 * 1024 });
+                _memoryCache = new MemoryCache(_distributedCacheOptions.L1CacheOptions ?? new MemoryCacheOptions { SizeLimit = MsalDistributedTokenCacheAdapterOptions.FiveHundredMb });
             }
 
             _logger = logger;
@@ -72,7 +69,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     throw new ArgumentOutOfRangeException(nameof(_distributedCacheOptions.L1ExpirationTimeRatio), "L1ExpirationTimeRatio must be greater than 0, less than 1. ");
                 }
 
-                _expirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
+                _memoryCacheExpirationTime = TimeSpan.FromMilliseconds(_distributedCacheOptions.AbsoluteExpirationRelativeToNow.Value.TotalMilliseconds * _distributedCacheOptions.L1ExpirationTimeRatio);
             }
         }
 
@@ -80,10 +77,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             IOptions<MsalDistributedTokenCacheAdapterOptions> distributedCacheOptions,
             IServiceProvider? serviceProvider)
         {
-            if (distributedCacheOptions == null)
-            {
-                throw new ArgumentNullException(nameof(distributedCacheOptions));
-            }
+            _ = Throws.IfNull(distributedCacheOptions);
 
             if (serviceProvider != null && distributedCacheOptions.Value.Encrypt)
             {
@@ -114,7 +108,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <returns>A <see cref="Task"/> that completes when key removal has completed.</returns>
         protected override async Task RemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            string remove = "Remove";
+            const string remove = "Remove";
 
             if (_memoryCache != null)
             {
@@ -136,7 +130,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="cacheKey">Key of the cache item to retrieve.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints()).ConfigureAwait(false);
         }
@@ -149,16 +143,17 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// <param name="cacheSerializerHints">Hints for the cache serialization implementation optimization.</param>
         /// <returns>Read blob representing a token cache for the cache key
         /// (account or app).</returns>
-        protected override async Task<byte[]> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        protected override async Task<byte[]?> ReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
         {
-            string read = "Read";
+            const string read = "Read";
             byte[]? result = null;
+            var telemetryData = cacheSerializerHints.TelemetryData;
 
             if (_memoryCache != null)
             {
                 // check memory cache first
-                result = (byte[])_memoryCache.Get(cacheKey);
-                Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0, null);
+                result = (byte[]?)_memoryCache.Get(cacheKey);
+                Logger.MemoryCacheRead(_logger, _memoryCacheType, read, cacheKey, result?.Length ?? 0);
             }
 
             if (result == null)
@@ -175,22 +170,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 }, cacheSerializerHints.CancellationToken).Measure().ConfigureAwait(false);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
-                Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds, null);
+                if (result != null && telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L2Cache;
+                }
+
+                Logger.DistributedCacheReadTime(_logger, _distributedCacheType, read, measure.MilliSeconds);
 
                 if (_memoryCache != null)
                 {
                     // back propagate to memory cache
                     if (result != null)
                     {
-                        MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+                        MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
                         {
-                            AbsoluteExpirationRelativeToNow = _expirationTime,
+                            AbsoluteExpirationRelativeToNow = _memoryCacheExpirationTime,
                             Size = result?.Length,
                         };
 
-                        Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0, null);
+                        Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0);
                         _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
-                        Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count, null);
+                        Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count);
                     }
                 }
             }
@@ -201,6 +201,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                        (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
                        cacheKey,
                        result!).ConfigureAwait(false);
+
+                if (telemetryData != null)
+                {
+                    telemetryData.CacheLevel = Client.Cache.CacheLevel.L1Cache;
+                }
             }
 
 #pragma warning disable CS8603 // Possible null reference return.
@@ -229,43 +234,66 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         protected override async Task WriteCacheBytesAsync(
             string cacheKey,
             byte[] bytes,
-            CacheSerializerHints cacheSerializerHints)
+            CacheSerializerHints? cacheSerializerHints)
         {
-            string write = "Write";
+            const string write = "Write";
 
-            TimeSpan? cacheExpiry = null;
-            if (cacheSerializerHints != null && cacheSerializerHints?.SuggestedCacheExpiry != null)
-            {
-                cacheExpiry = cacheSerializerHints.SuggestedCacheExpiry.Value.UtcDateTime - DateTime.UtcNow;
-                if (cacheExpiry < TimeSpan.Zero)
-                {
-                    cacheExpiry = TimeSpan.FromMilliseconds(1);
-                    Logger.MemoryCacheNegativeExpiry(_logger, _memoryCacheType, write, null);
-                }
-            }
+            DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
 
             if (_memoryCache != null)
             {
-                MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+                MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = cacheExpiry ?? _expirationTime,
+                    AbsoluteExpiration = cacheExpiry ?? _distributedCacheOptions.AbsoluteExpiration,
+                    AbsoluteExpirationRelativeToNow = _memoryCacheExpirationTime,
                     Size = bytes?.Length,
                 };
 
                 // write in both
                 _memoryCache.Set(cacheKey, bytes, memoryCacheEntryOptions);
-                Logger.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0, null);
-                Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count, null);
+                Logger.MemoryCacheRead(_logger, _memoryCacheType, write, cacheKey, bytes?.Length ?? 0);
+                Logger.MemoryCacheCount(_logger, _memoryCacheType, write, _memoryCache.Count);
             }
 
-            await L2OperationWithRetryOnFailureAsync(
-            write,
-            (cacheKey) => _distributedCache.SetAsync(
-                cacheKey,
-                bytes,
-                _distributedCacheOptions,
-                cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-            cacheKey).Measure().ConfigureAwait(false);
+            if ((cacheExpiry != null && _distributedCacheOptions.AbsoluteExpiration != null && _distributedCacheOptions.AbsoluteExpiration < cacheExpiry)
+               || (cacheExpiry == null && _distributedCacheOptions.AbsoluteExpiration != null))
+            {
+                cacheExpiry = _distributedCacheOptions.AbsoluteExpiration;
+            }
+
+            DistributedCacheEntryOptions distributedCacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = cacheExpiry,
+                AbsoluteExpirationRelativeToNow = _distributedCacheOptions.AbsoluteExpirationRelativeToNow,
+                SlidingExpiration = _distributedCacheOptions.SlidingExpiration,
+            };
+
+            if (_distributedCacheOptions.DisableL1Cache || !_distributedCacheOptions.EnableAsyncL2Write)
+            {
+                await L2OperationWithRetryOnFailureAsync(
+                    write,
+                    (cacheKey) => _distributedCache.SetAsync(
+                        cacheKey,
+                        bytes!, // We know that in the Write case, the bytes won't be null 
+                                // the parent class 
+                        distributedCacheEntryOptions,
+                        cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                    cacheKey,
+                    bytes!).Measure().ConfigureAwait(false);
+            }
+            else
+            {
+                _ = Task.Run(async () => await
+                 L2OperationWithRetryOnFailureAsync(
+                 write,
+                 (cacheKey) => _distributedCache.SetAsync(
+                     cacheKey,
+                     bytes!,
+                     distributedCacheEntryOptions,
+                     cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                 cacheKey,
+                 bytes!).Measure().ConfigureAwait(false));
+            }
         }
 
         private async Task L2OperationWithRetryOnFailureAsync(
@@ -285,8 +313,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     cacheKey,
                     bytes?.Length ?? 0,
                     inRetry,
-                    measure.MilliSeconds,
-                    null);
+                    measure.MilliSeconds);
             }
             catch (Exception ex)
             {
@@ -313,7 +340,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
         private async Task<byte[]?> L2OperationWithRetryOnFailureAsync(
             string operation,
-            Func<string, Task<byte[]>> cacheOperation,
+            Func<string, Task<byte[]?>> cacheOperation,
             string cacheKey,
             bool inRetry = false)
         {
@@ -327,8 +354,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     operation,
                     cacheKey,
                     result?.Length ?? 0,
-                    inRetry,
-                    null);
+                    inRetry);
             }
             catch (Exception ex)
             {

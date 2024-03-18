@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.Test
     public class AppServicesAuthenticationInformationTests
     {
         [Fact]
-        public void SimulateGetttingHeaderFromDebugEnvironmentVariable()
+        public void SimulateGettingHeaderFromDebugEnvironmentVariable()
         {
             try
             {

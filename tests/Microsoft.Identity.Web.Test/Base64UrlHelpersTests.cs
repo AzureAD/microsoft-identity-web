@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void Encode_NullByteArray_ReturnsNull()
         {
-            byte[] byteArrayToEncode = null;
+            byte[]? byteArrayToEncode = null;
             Assert.Null(Base64UrlHelpers.Encode(byteArrayToEncode));
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void Encode_NullString_ReturnsNull()
         {
-            string stringToEncode = null;
+            string? stringToEncode = null;
             Assert.Null(Base64UrlHelpers.Encode(stringToEncode));
         }
 
@@ -91,6 +91,29 @@ namespace Microsoft.Identity.Web.Test
 
             var exception = Assert.Throws<ArgumentException>(decodeAction);
             Assert.Equal(IDWebErrorMessage.InvalidBase64UrlString + " (Parameter 'str')", exception.Message);
+        }
+
+        [Fact]
+        public void EncodeString_TakesStringArgument_ReturnsEncodedString()
+        {
+            // Arrange
+            var input = "Hello, world!";
+
+            // Act
+            string? result = Base64UrlHelpers.EncodeString(input);
+
+            // Assert
+            Assert.NotEmpty(result!);
+        }
+
+        [Fact]
+        public void DecodeBytes_TakesNullArgument_ReturnsNull()
+        {
+            // Arrange & Act
+            var result = Base64UrlHelpers.DecodeBytes(null);
+
+            // Assert
+            Assert.Null(result);
         }
     }
 }

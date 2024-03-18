@@ -20,6 +20,7 @@ namespace Microsoft.Identity.Web
         internal const string AppServicesAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER"; // for instance https://sts.windows.net/<tenantId>/
         internal const string AppServicesAuthClientIdEnvironmentVariable = "WEBSITE_AUTH_CLIENT_ID";         // A GUID
         internal const string AppServicesAuthClientSecretEnvironmentVariable = "WEBSITE_AUTH_CLIENT_SECRET"; // A string
+        internal const string AppServicesAuthClientSecretSettingName = "WEBSITE_AUTH_CLIENT_SECRET_SETTING_NAME"; // A string
         internal const string AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH";    // /.auth/logout
         internal const string AppServicesAuthIdentityProviderEnvironmentVariable = "WEBSITE_AUTH_DEFAULT_PROVIDER"; // AzureActiveDirectory
         internal const string AppServicesAuthAzureActiveDirectory = "AzureActiveDirectory";
@@ -101,7 +102,8 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                return Environment.GetEnvironmentVariable(AppServicesAuthClientSecretEnvironmentVariable);
+                var settingName = Environment.GetEnvironmentVariable(AppServicesAuthClientSecretSettingName) ?? AppServicesAuthClientSecretEnvironmentVariable;
+                return Environment.GetEnvironmentVariable(settingName);
             }
         }
 
@@ -120,7 +122,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get headers from environment to help debugging App Services authentication.
         /// </summary>
-        internal static string? SimulateGetttingHeaderFromDebugEnvironmentVariable(string header)
+        internal static string? SimulateGettingHeaderFromDebugEnvironmentVariable(string header)
         {
             string? headerPlusValue = Environment.GetEnvironmentVariable(AppServicesAuthDebugHeadersEnvironmentVariable)
                 ?.Split(';')
@@ -136,17 +138,14 @@ namespace Microsoft.Identity.Web
         /// <returns>The ID Token.</returns>
         internal static string? GetIdToken(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdTokenHeader, out var idToken);
 
 #if DEBUG
             if (string.IsNullOrEmpty(idToken))
             {
-                idToken = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
+                idToken = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdTokenHeader);
             }
 #endif
             return idToken;
@@ -159,16 +158,13 @@ namespace Microsoft.Identity.Web
         /// <returns>The IDP.</returns>
         internal static string? GetIdp(IDictionary<string, StringValues> headers)
         {
-            if (headers is null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            _ = Throws.IfNull(headers);
 
             headers.TryGetValue(AppServicesAuthIdpTokenHeader, out var idp);
 #if DEBUG
             if (string.IsNullOrEmpty(idp))
             {
-                idp = SimulateGetttingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
+                idp = SimulateGettingHeaderFromDebugEnvironmentVariable(AppServicesAuthIdpTokenHeader);
             }
 #endif
             return idp;
@@ -193,7 +189,7 @@ namespace Microsoft.Identity.Web
                     jsonWebToken.Claims,
                     idp,
                     isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimsIdentity.DefaultRoleClaimType));
+                    ClaimConstants.Roles));
             }
             else
             {

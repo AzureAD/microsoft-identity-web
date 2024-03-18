@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
@@ -51,6 +53,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
         public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
+        public const string GraphBaseUrl = "https://graph.microsoft.com/v1.0";
 
         // B2C
         public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
@@ -78,23 +81,21 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string B2CCustomDomainTenant = "cpimtestpartners.onmicrosoft.com";
         public const string B2CCustomDomainUserFlow = "B2C_1_signupsignin_userflow";
 
+        // CIAM
+        public const string CIAMInstance = "https://catsareawesome.ciamlogin.com";
+        public const string CIAMTenant = "aaaaaa-43bb-4ff9-89af-30ed8fe31c6d";
+        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+
         // Claims
         public const string ClaimNameTid = "tid";
         public const string ClaimNameIss = "iss";
         public const string ClaimNameTfp = "tfp"; // Trust Framework Policy for B2C (aka userflow/policy)
 
-        public static readonly IEnumerable<string> s_aliases = new[]
-        {
-            ProductionPrefNetworkEnvironment,
-            ProductionNotPrefEnvironmentAlias,
-        };
+        public static readonly IEnumerable<string> s_aliases = [ProductionPrefNetworkEnvironment, ProductionNotPrefEnvironmentAlias];
 
         public static readonly string s_scopeForApp = "https://graph.microsoft.com/.default";
 
-        public static readonly IEnumerable<string> s_userReadScope = new[]
-        {
-            "user.read",
-        };
+        public static readonly IEnumerable<string> s_userReadScope = ["user.read"];
 
         public const string InvalidScopeError = "The scope user.read is not valid.";
         public const string InvalidScopeErrorcode = "AADSTS70011";
@@ -102,13 +103,19 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
-        public const string OBOClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/TodoListServiceV2-OBO/";
+        public const string OBOClientKeyVaultUri = "TodoListServiceV2-OBO";
         public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
         public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
         public const string OBOUser = "fIDLAB@msidlab4.com";
         public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
-        public static string[] OBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
+        public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
+        public const string LabClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
+        public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
+        public const string AzureADIdentityDivisionTestAgentSecret = "AzureADIdentityDivisionTestAgentSecret";
+        public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
+        public const string LabVaultAppId = "LabVaultAppID";
+        public const string LabVaultAppSecret = "LabVaultAppSecret";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj
@@ -120,6 +127,10 @@ namespace Microsoft.Identity.Web.Test.Common
             gBOkSdYjXgOvcJGgE4FJkKAMQzAhkdYq5+stfUotG6vZNL3nVOOA6aELMq/ENhrJLC3rTwLOIgj4Cy+B7BxUS9GxTPphneuZCBzjvqhzP5DmLBs8l8qu10XAsh
             y1NFZmB24rMoq8C+HPOpuVLzkwBr+qcCq7ry2326auogvVMGaxhHlwSLR4Q1OhRjKs8JctCk2+5Qs1NHfawa7jWHxdAK6cLm7Rv/c0ig2Jow7wRaI5ciAcEjX7
             m1t9gRT1mNeeluL4cZa6WyVXqXc6U2wfR5DY6GOMUubN5Nr1n8Czew8TPfab4OG37BuEMNmBpqoRrRgFnDzVtItOnhuFTa0=";
+
+        // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests and has a private key.
+        public const string CertificateX5cWithPrivateKey = @"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";
+        public const string CertificateX5cWithPrivateKeyPassword = "SelfSignedTestCert";
 
         public static string DecryptTokenCertificateDescriptionJson = "{" +
             "\"SourceType\": \"Base64Encoded\"," +
@@ -151,7 +162,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string CustomJwtScheme = "customJwt";
         public const string CustomJwtScheme2 = "customJwt2";
 
-        // Selenium Automation
+        // UI Testing Automation
         public const string WebSubmitId = "idSIButton9";
         public const string WebUPNInputId = "i0116";
         public const string WebPasswordId = "i0118";
@@ -159,9 +170,30 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string StaySignedInNoId = "idBtn_Back";
         public const string PhotoLabel = "photo";
         public const string Headless = "headless";
+        public const string HeaderText = "Header";
+        public const string EmailText = "Email";
+        public const string PasswordText = "Password";
+        public const string TodoTitle1 = "Testing create todo item";
+        public const string TodoTitle2 = "Testing edit todo item";
+        public const string LocalhostUrl = @"https://localhost:";
+        public const string KestrelEndpointEnvVar = "Kestrel:Endpoints:Http:Url";
+        public const string HttpStarColon = "http://*:";
+        public const string HttpsStarColon = "https://*:";
+        public const string WebAppCrashedString = $"The web app process has exited prematurely.";
+        public static readonly string s_todoListClientExe = Path.DirectorySeparatorChar.ToString() + "TodoListClient.exe";
+        public static readonly string s_todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
+        public static readonly string s_todoListServiceExe = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
+        public static readonly string s_todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
 
-        // TokenAcqusitionOptions
+
+        // TokenAcqusitionOptions and ManagedIdentityOptions
         public static Guid s_correlationId = new Guid("6347d33d-941a-4c35-9912-a9cf54fb1b3e");
+        public const string UserAssignedManagedIdentityClientId = "3b57c42c-3201-4295-ae27-d6baec5b7027";
+        public const string UserAssignedManagedIdentityResourceId = "/subscriptions/c1686c51-b717-4fe0-9af3-24a20a41fb0c/" +
+            "resourcegroups/MSAL_MSI/providers/Microsoft.ManagedIdentity/userAssignedIdentities/" + "MSAL_MSI_USERID";
+        public const BindingFlags StaticPrivateFieldFlags = BindingFlags.GetField | BindingFlags.Static | BindingFlags.NonPublic;
+        public const BindingFlags InstancePrivateFieldFlags = BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic;
+        public const BindingFlags StaticPrivateMethodFlags = BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic;
 
         // AadIssuerValidation
         public const string AadAuthority = "aadAuthority";
@@ -206,5 +238,7 @@ namespace Microsoft.Identity.Web.Test.Common
                                 ""login-us.microsoftonline.com""]}
                         ]
                 }";
+
+        public const string signedAssertionFilePath = "signedAssertion.txt";
     }
 }

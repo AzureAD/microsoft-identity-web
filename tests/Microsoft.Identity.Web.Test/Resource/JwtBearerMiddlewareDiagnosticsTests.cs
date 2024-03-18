@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public async void Subscribe_OnAuthenticationFailedDefault_CompletesSuccessfully()
         {
-            _jwtEvents = _jwtDiagnostics.Subscribe(null);
+            _jwtEvents = _jwtDiagnostics.Subscribe(null!);
             await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
 
             AssertSuccess(false);
@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         private void AssertSuccess(bool expectedCustomEventWasRaised = true)
         {
             Assert.Equal(expectedCustomEventWasRaised, _customEventWasRaised);
-            _logger.Received().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>());
+            _logger.Received().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception?, string>>());
         }
     }
 }

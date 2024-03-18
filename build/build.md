@@ -7,8 +7,8 @@
   - 'Post Analysis'
 - [template-bootstrap-build.yaml](template-bootstrap-build.yaml)
   - [template-install-dotnet-core.yaml](template-install-dotnet-core.yaml)
-    - 'Use .Net Core SDK 5.0.100'
-    - 'Use .Net Core SDK 3.1.404'
+    - 'Use .Net Core SDK 6'
+    - 'Use .Net Core SDK 7'
   - [template-install-nuget.yaml](template-install-nuget.yaml)
 - [template-install-keyvault-secrets.yaml](template-install-keyvault-secrets.yaml)
   - 'Azure Key Vault: buildautomation'
@@ -23,14 +23,19 @@
   - 'Check Roslyn Results '
 - [template-sign-binary.yaml](template-sign-binary.yaml) - Sign the binaries, requires dotnet core 2.x.
 - [template-pack-and-sign-all-nugets.yaml](template-pack-and-sign-all-nugets.yaml)
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraph')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\ProjectTemplates')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache')`
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate')
-  - [template-pack-and-sign-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Certificate')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraph')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\ProjectTemplates')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamApi')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClient')`
+  - [template-pack-nuget.yaml](template-pack-and-sign-nuget.yaml) `('$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClientBeta')`
   - 'Copy Files from `$(Build.SourcesDirectory)` to: `$(Build.ArtifactStagingDirectory)\packages'`
   - Sign Packages `'('$(Build.ArtifactStagingDirectory)\packages')`
 - [template-publish-packages-and-symbols.yaml](template-publish-packages-and-symbols.yaml)

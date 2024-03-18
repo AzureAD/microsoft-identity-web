@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void ToClaimsPrincipal_NullAccount_ReturnsNull()
         {
-            IAccount account = null;
+            IAccount account = null!; // Forcing null to test the argument null exception
 
             Assert.Throws<ArgumentNullException>("account", () => account.ToClaimsPrincipal());
         }
@@ -29,7 +29,8 @@ namespace Microsoft.Identity.Web.Test
 
             IAccount account = Substitute.For<IAccount>();
             account.Username.Returns(username);
-            account.HomeAccountId.Returns(new AccountId("identifier", oid, tid));
+            // AccountId is in the x.y format, MSAL has some DEBUG only checks on that format
+            account.HomeAccountId.Returns(new AccountId($"{oid}.{tid}", oid, tid)); 
 
             var claimsIdentityResult = account.ToClaimsPrincipal().Identity as ClaimsIdentity;
 

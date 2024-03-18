@@ -13,6 +13,17 @@
                 "Default": "11111111-1111-1111-11111111111111111"
             },
             {
+                "Property": "AzureAd:Instance",
+                "Represents": "Application.Instance",
+                "Sets": "IsAAD",
+                "Default": "https://login.microsoftonline.com/"
+            },
+            {
+                "Property": "AzureAd:Authority",
+                "Represents": "Application.Authority",
+                "Sets": "IsCiam"
+            },
+            {
                 "Property": "AzureAd:Domain",
                 "Represents": "Directory.Domain",
                 "Sets": "IsAAD",
@@ -87,7 +98,30 @@
         ]
     },
     {
-      "FileRelativePath": "Startup.cs",
+        "FileRelativePath": "Startup.cs",
+        "Properties": [
+            {
+                "MatchAny": [ ".AddMicrosoftGraph", ".AddMicrosoftGraphBeta" ],
+                "Sets": "CallsMicrosoftGraph"
+            },
+            {
+                "MatchAny": [ ".EnableTokenAcquisitionToCallDownstreamApi", ".AddDownstreamWebApi" ],
+                "Sets": "CallsDownstreamApi"
+            },
+            {
+                "Property": "\"AzureAdB2C\"",
+                "Represents": "Application.ConfigurationSection",
+                "Sets": "IsB2C"
+            },
+            {
+                "Property": "\"AzureAd\"",
+                "Represents": "Application.ConfigurationSection",
+                "Sets": "IsAAD"
+            }
+        ]
+    },
+    {
+      "FileRelativePath": "Program.cs",
         "Properties": [
             {
                 "MatchAny": [ ".AddMicrosoftGraph", ".AddMicrosoftGraphBeta" ],

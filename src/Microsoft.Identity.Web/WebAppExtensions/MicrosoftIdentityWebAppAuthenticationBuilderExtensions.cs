@@ -14,13 +14,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Extensions for the <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
-    public static partial class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
+    public static class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Add authentication to a web app with Microsoft identity platform.
@@ -35,6 +37,9 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The <see cref="MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration"/> builder for chaining.</returns>
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls a trim-incompatible AddMicrosoftIdentityWebApp.")]
+#endif
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
@@ -75,6 +80,9 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
@@ -83,15 +91,8 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (configurationSection == null)
-            {
-                throw new ArgumentException(nameof(configurationSection));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configurationSection);
 
             return builder.AddMicrosoftIdentityWebAppWithConfiguration(
                 options => configurationSection.Bind(options),
@@ -114,6 +115,9 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftWebAppWithoutConfiguration(AuthenticationBuilder, Action<MicrosoftIdentityOptions>, Action<CookieAuthenticationOptions>, String, String, Boolean, String).")]
+#endif
         public static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftIdentityWebApp(
             this AuthenticationBuilder builder,
             Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -123,10 +127,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents = false,
             string? displayName = null)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
 
             return builder.AddMicrosoftWebAppWithoutConfiguration(
                 configureMicrosoftIdentityOptions,
@@ -149,6 +150,9 @@ namespace Microsoft.Identity.Web
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         private static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebAppWithConfiguration(
                 this AuthenticationBuilder builder,
                 Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -186,6 +190,9 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenID Connect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder for chaining.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.MicrosoftIdentityWebAppAuthenticationBuilder(IServiceCollection, String, Action<MicrosoftIdentityOptions>, IConfigurationSection)")]
+#endif
         private static MicrosoftIdentityWebAppAuthenticationBuilder AddMicrosoftWebAppWithoutConfiguration(
         this AuthenticationBuilder builder,
         Action<MicrosoftIdentityOptions> configureMicrosoftIdentityOptions,
@@ -228,17 +235,20 @@ namespace Microsoft.Identity.Web
             bool subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
             string? displayName)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureMicrosoftIdentityOptions);
 
-            if (configureMicrosoftIdentityOptions == null)
+            if (builder.Services.FirstOrDefault(s =>
+#if NET8_0_OR_GREATER
+                s.ServiceKey is null &&
+#endif
+                s.ImplementationType == typeof(MicrosoftIdentityOptionsMerger)) == null)
             {
-                throw new ArgumentNullException(nameof(configureMicrosoftIdentityOptions));
+                builder.Services.AddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
             }
 
             builder.Services.Configure(openIdConnectScheme, configureMicrosoftIdentityOptions);
+            builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             builder.Services.AddHttpClient();
 
             if (!string.IsNullOrEmpty(cookieScheme))
@@ -286,19 +296,30 @@ namespace Microsoft.Identity.Web
             }
 
             builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
-                .Configure<IServiceProvider, IOptionsMonitor<MergedOptions>, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
+                .Configure<IServiceProvider, IMergedOptionsStore, IOptionsMonitor<MicrosoftIdentityOptions>, IOptions<MicrosoftIdentityOptions>>((
                 options,
                 serviceProvider,
                 mergedOptionsMonitor,
                 msIdOptionsMonitor,
                 msIdOptions) =>
                 {
+                    MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
+
+                    msIdOptionsMonitor.Get(openIdConnectScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
 
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptions.Value, mergedOptions);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(msIdOptionsMonitor.Get(openIdConnectScheme), mergedOptions);
-
                     MergedOptionsValidation.Validate(mergedOptions);
+
+                    if (mergedOptions.Authority != null)
+                    {
+                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
+                        mergedOptions.PreserveAuthority = preserveAuthority;
+                        if (mergedOptions.ExtraQueryParameters != null)
+                        {
+                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                        }
+                    }
+
                     PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
@@ -379,6 +400,14 @@ namespace Microsoft.Identity.Web
                                 additionClaims);
                         }
 
+                        if (mergedOptions.ExtraQueryParameters != null)
+                        {
+                            foreach (var ExtraQP in mergedOptions.ExtraQueryParameters)
+                            {
+                                context.ProtocolMessage.SetParameter(ExtraQP.Key, ExtraQP.Value);
+                            }
+                        }
+
                         if (mergedOptions.IsB2C)
                         {
                             // When a new Challenge is returned using any B2C user flow different than susi, we must change
@@ -412,19 +441,27 @@ namespace Microsoft.Identity.Web
                 });
         }
 
-        private static void PopulateOpenIdOptionsFromMergedOptions(
+        internal static void PopulateOpenIdOptionsFromMergedOptions(
             OpenIdConnectOptions options,
             MergedOptions mergedOptions)
         {
             options.Authority = mergedOptions.Authority;
             options.ClientId = mergedOptions.ClientId;
-            options.ClientSecret = mergedOptions.ClientSecret;
+            options.ClientSecret = mergedOptions.ClientSecret ?? mergedOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == Abstractions.CredentialType.Secret)?.ClientSecret;
             options.Configuration = mergedOptions.Configuration;
             options.ConfigurationManager = mergedOptions.ConfigurationManager;
             options.GetClaimsFromUserInfoEndpoint = mergedOptions.GetClaimsFromUserInfoEndpoint;
-            foreach (ClaimAction c in mergedOptions.ClaimActions)
+
+            if (options.ClaimActions != mergedOptions.ClaimActions)
             {
-                options.ClaimActions.Add(c);
+                var claimActionArray = options.ClaimActions.ToArray();
+                foreach (ClaimAction claimAction in mergedOptions.ClaimActions)
+                {
+                    if (!claimActionArray.Any((c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType)))
+                    {
+                        options.ClaimActions.Add(claimAction);
+                    }
+                }
             }
 
             options.RequireHttpsMetadata = mergedOptions.RequireHttpsMetadata;
@@ -440,23 +477,34 @@ namespace Microsoft.Identity.Web
             options.ResponseType = mergedOptions.ResponseType;
             options.Prompt = mergedOptions.Prompt;
 
-            foreach (string scope in mergedOptions.Scope)
+            if (options.Scope != mergedOptions.Scope)
             {
-                options.Scope.Add(scope);
+                var scopeArray = options.Scope.ToArray();
+                foreach (string scope in mergedOptions.Scope)
+                {
+                    if (!string.IsNullOrWhiteSpace(scope) && !scopeArray.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        options.Scope.Add(scope);
+                    }
+                }
             }
 
             options.RemoteSignOutPath = mergedOptions.RemoteSignOutPath;
             options.SignOutScheme = mergedOptions.SignOutScheme;
             options.StateDataFormat = mergedOptions.StateDataFormat;
             options.StringDataFormat = mergedOptions.StringDataFormat;
+#if NET8_0_OR_GREATER
+            options.TokenHandler = mergedOptions.TokenHandler;
+#else
             options.SecurityTokenValidator = mergedOptions.SecurityTokenValidator;
+#endif
             options.TokenValidationParameters = mergedOptions.TokenValidationParameters;
             options.UseTokenLifetime = mergedOptions.UseTokenLifetime;
             options.SkipUnrecognizedRequests = mergedOptions.SkipUnrecognizedRequests;
             options.DisableTelemetry = mergedOptions.DisableTelemetry;
             options.NonceCookie = mergedOptions.NonceCookie;
             options.UsePkce = mergedOptions.UsePkce;
-#if DOTNET_50_AND_ABOVE
+#if NET5_0_OR_GREATER
             options.AutomaticRefreshInterval = mergedOptions.AutomaticRefreshInterval;
             options.RefreshInterval = mergedOptions.RefreshInterval;
             options.MapInboundClaims = mergedOptions.MapInboundClaims;
@@ -482,6 +530,11 @@ namespace Microsoft.Identity.Web
             options.ForwardSignIn = mergedOptions.ForwardSignIn;
             options.ForwardSignOut = mergedOptions.ForwardSignOut;
             options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
+#if NET8_0_OR_GREATER
+            options.TimeProvider = mergedOptions.TimeProvider;
+            options.UseSecurityTokenValidator = mergedOptions.UseSecurityTokenValidator;
+            options.TokenHandler = mergedOptions.TokenHandler;
+#endif
         }
     }
 }

@@ -1,0 +1,20 @@
+# template-run-unit-tests.yaml
+# Run all unit tests across the IdWeb project
+
+steps:
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: |
+        Tests/**/*.csproj
+        !Tests/DevApps/**/*.csproj 
+    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
+    continueOnError: 'true'
+    
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish traces after test'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
+    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+  condition: failed()

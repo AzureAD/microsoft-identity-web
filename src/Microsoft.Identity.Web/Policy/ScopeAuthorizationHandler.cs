@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
@@ -39,15 +39,9 @@ namespace Microsoft.Identity.Web
             AuthorizationHandlerContext context,
             ScopeAuthorizationRequirement requirement)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            _ = Throws.IfNull(context);
 
-            if (requirement is null)
-            {
-                throw new ArgumentNullException(nameof(requirement));
-            }
+            _ = Throws.IfNull(requirement);
 
             // The resource is either the HttpContext or the Endpoint directly when used with the
             // authorization middleware
@@ -61,9 +55,12 @@ namespace Microsoft.Identity.Web
             var data = endpoint?.Metadata.GetMetadata<IAuthRequiredScopeMetadata>();
 
             IEnumerable<string>? scopes = null;
-            if (requirement.RequiredScopesConfigurationKey != null)
+
+            var configurationKey = requirement.RequiredScopesConfigurationKey ?? data?.RequiredScopesConfigurationKey;
+
+            if (configurationKey != null)
             {
-                scopes = _configuration.GetValue<string>(requirement.RequiredScopesConfigurationKey)?.Split(' ');
+                scopes = _configuration[configurationKey]?.Split(' ');
             }
 
             if (scopes is null)
@@ -78,14 +75,18 @@ namespace Microsoft.Identity.Web
                 return Task.CompletedTask;
             }
 
-            Claim? scopeClaim = context.User.FindFirst(ClaimConstants.Scp) ?? context.User.FindFirst(ClaimConstants.Scope);
+            var scopeClaims = context.User.FindAll(ClaimConstants.Scp)
+              .Union(context.User.FindAll(ClaimConstants.Scope))
+              .ToList();
 
-            if (scopeClaim is null)
+            if (!scopeClaims.Any())
             {
                 return Task.CompletedTask;
             }
 
-            if (scopeClaim != null && scopeClaim.Value.Split(' ').Intersect(scopes).Any())
+            var hasScope = scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
+
+            if (hasScope)
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

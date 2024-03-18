@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Session
 {
@@ -37,29 +38,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionAppTokenCache(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            services.AddHttpContextAccessor();
-            services.AddSession(option =>
-            {
-                option.Cookie.IsEssential = true;
-            });
-            services.AddScoped<IMsalTokenCacheProvider, MsalSessionTokenCacheProvider>();
-            services.TryAddScoped(provider =>
-            {
-                var httpContext = provider.GetRequiredService<IHttpContextAccessor>().HttpContext;
-                if (httpContext == null)
-                {
-                    throw new InvalidOperationException(IDWebErrorMessage.HttpContextIsNull);
-                }
-
-                return httpContext.Session;
-            });
-
-            return services;
+            return CreateSessionTokenCache(services);
         }
 
         /// <summary>
@@ -86,10 +65,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddSessionPerUserTokenCache(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            return CreateSessionTokenCache(services);
+        }
+
+        private static IServiceCollection CreateSessionTokenCache(IServiceCollection services)
+        {
+            _ = Throws.IfNull(services);
 
             services.AddHttpContextAccessor();
             services.AddSession(option =>

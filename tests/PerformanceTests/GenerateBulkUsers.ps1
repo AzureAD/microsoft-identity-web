@@ -1,4 +1,8 @@
-﻿param(
+﻿# To run this script make sure you execute the following first:
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+# Install-Module AzureAD -Scope CurrentUser
+
+param(
     [Parameter(Mandatory=$true)] 
     $TenantId,
     [Parameter(Mandatory=$true, HelpMessage="Ex: domain.microsoft.com")] 
@@ -6,9 +10,9 @@
     [Parameter(Mandatory=$true)] 
     $Password,
     [Parameter(Mandatory=$true, HelpMessage="First user created will start with this suffix")] 
-    $StartAtUserSuffix,
+    $StartAtUserSuffix =1,
     [Parameter(Mandatory=$true, HelpMessage="Number of users to create")] 
-    $UsersToCreate,
+    $UsersToCreate = 100,
     [Parameter(HelpMessage="Prefix for each username")] 
     $UsernamePrefix = "MIWTestUser"
     )
@@ -21,8 +25,8 @@ $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordPro
 $PasswordProfile.Password = $password
 $PasswordProfile.ForceChangePasswordNextLogin = $false
 
-$lastSuffix  = $StartAtUserSuffix + $UsersToCreate
-for ($i = $StartAtUserSuffix ; $i -lt $lastSuffix ; $i++)
+$lastSuffix  = ($StartAtUserSuffix -as [int]) + ($UsersToCreate -as [int]) -as [int]
+for ($i = $StartAtUserSuffix -as [int]; $i -lt ($lastSuffix -as [int]); $i++)
 {
     $username = "${UsernamePrefix}${i}"
     $displayName = "${username}FName ${username}LName"

@@ -78,7 +78,7 @@ namespace Microsoft.Identity.App.Project
                                     string fileContent = File.ReadAllText(filePath);
                                     foreach (string match in matchesForProjectType.MatchAny!) // Valid project => 
                                     {
-                                        if (fileContent.Contains(match))
+                                        if (fileContent.Contains(match, StringComparison.OrdinalIgnoreCase))
                                         {
                                             return projectDescription.Identifier!;
                                         }

@@ -1,0 +1,31 @@
+﻿@page "/edit/{Id:int}"
+
+@using ToDoListModel
+@using Microsoft.Identity.Abstractions
+
+@inject NavigationManager Navigation
+@inject IDownstreamApi _downstreamApi
+
+<h3>Edit Task</h3>
+
+<CommonForm ButtonText="Edit Task" ToDoItem="@toDo"
+            OnValidSubmit="@EditTask" />
+
+@code {
+    [Parameter] public int Id { get; set; }
+    ToDo toDo = new ToDo();
+    protected async override Task OnParametersSetAsync()
+    {
+        toDo = await _downstreamApi.GetForUserAsync<ToDo>(
+                "TodoList",
+                options => options.RelativePath = $"api/todolist/{Id}");
+    }
+
+    protected async Task EditTask()
+    {
+        await _downstreamApi.PatchForUserAsync<ToDo, ToDo>(
+                 "TodoList", toDo,
+                 options => options.RelativePath = $"api/todolist/{Id}");
+        Navigation.NavigateTo("todolist");
+    }
+}
