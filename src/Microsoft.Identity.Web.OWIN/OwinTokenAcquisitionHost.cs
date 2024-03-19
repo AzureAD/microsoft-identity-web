@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web.Hosts
             _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
             _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme); // force the PostConfigure
 
-            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
+            //DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 

@@ -98,15 +98,16 @@ namespace Microsoft.Identity.Web.Test
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
+            var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
             if (missingParam != MissingParam.None)
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => MergedOptionsValidation.Validate(mergedOptions));
+                var exception = Assert.Throws<ArgumentNullException>(() => MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions));
 
                 CheckReturnValueAgainstExpectedMissingParam(missingParam, exception);
             }
             else
             {
-                MergedOptionsValidation.Validate(mergedOptions);
+                MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
             }
         }
 
@@ -125,16 +126,16 @@ namespace Microsoft.Identity.Web.Test
             MergedOptions mergedOptions = _provider!.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-
+            var microsoftIdentityOptions = _microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme);
             // Verify that the mergedOptions.ClaimActions has claims
             // It should contain some default ones along with our added one
-            Assert.NotEmpty(mergedOptions.ClaimActions.AsEnumerable());
+            Assert.NotEmpty(microsoftIdentityOptions.ClaimActions.AsEnumerable());
 
             // See if we can find the ClaimAction that we added
-            Assert.Contains(mergedOptions.ClaimActions, action => action.ClaimType == ClaimTypes.Gender);
+            Assert.Contains(microsoftIdentityOptions.ClaimActions, action => action.ClaimType == ClaimTypes.Gender);
 
             // Select the single ClaimAction from the collection
-            var genderClaim = mergedOptions.ClaimActions.Single(x => x.ClaimType == ClaimTypes.Gender);
+            var genderClaim = microsoftIdentityOptions.ClaimActions.Single(x => x.ClaimType == ClaimTypes.Gender);
 
             // Assert its a type of UniqueJsonKeyClaimAction
             Assert.IsType<UniqueJsonKeyClaimAction>(genderClaim);

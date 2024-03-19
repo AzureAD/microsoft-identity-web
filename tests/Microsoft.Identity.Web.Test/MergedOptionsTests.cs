@@ -191,53 +191,53 @@ namespace Microsoft.Identity.Web.Test
             }
 
             // Assert
-            Assert.Equal(_msIdentityOptionsAccessDeniedPath, mergedOptions.AccessDeniedPath);
+            Assert.Equal(_msIdentityOptionsAccessDeniedPath, microsoftIdentityOptions.AccessDeniedPath);
             Assert.Equal(_msIdentityOptionsAuthority, mergedOptions.Authority);
             Assert.Equal(_msIdentityCallbackPath, mergedOptions.CallbackPath);
-            Assert.Equal(_msIdentityClaimsIssuer, mergedOptions.ClaimsIssuer);
-            Assert.Null(mergedOptions.ClientCertificates);
+            Assert.Equal(_msIdentityClaimsIssuer, microsoftIdentityOptions.ClaimsIssuer);
+            Assert.Null(microsoftIdentityOptions.ClientCertificates);
             Assert.Equal(_msIdentityClientCredentials, mergedOptions.ClientCredentials!);
-            Assert.Equal(_msIdentityClientCredsUsingMI, mergedOptions.ClientCredentialsUsingManagedIdentity);
+            Assert.Equal(_msIdentityClientCredsUsingMI, microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity);
             Assert.Equal(_msIdentityClientId, mergedOptions.ClientId);
-            Assert.Null(mergedOptions.ClientSecret); // client secret no longer used directly, but through clientCredentials
+            Assert.Null(microsoftIdentityOptions.ClientSecret); // client secret no longer used directly, but through clientCredentials
             Assert.Equal(_msIdentityDomain, mergedOptions.Domain);
             Assert.Equal(_msIdentityEditProfile, mergedOptions.EditProfilePolicyId);
-            Assert.Equal(_msIdentityForwardAuth, mergedOptions.ForwardAuthenticate);
-            Assert.Equal(_msIdentityForwardChallenge, mergedOptions.ForwardChallenge);
-            Assert.Equal(_msIdentityForwardDefault, mergedOptions.ForwardDefault);
-            Assert.Equal(_msIdentityForwardForbid, mergedOptions.ForwardForbid);
-            Assert.Equal(_msIdentityForwardSignIn, mergedOptions.ForwardSignIn);
-            Assert.Equal(_msIdentityForwardSignOut, mergedOptions.ForwardSignOut);
+            Assert.Equal(_msIdentityForwardAuth, microsoftIdentityOptions.ForwardAuthenticate);
+            Assert.Equal(_msIdentityForwardChallenge, microsoftIdentityOptions.ForwardChallenge);
+            Assert.Equal(_msIdentityForwardDefault, microsoftIdentityOptions.ForwardDefault);
+            Assert.Equal(_msIdentityForwardForbid, microsoftIdentityOptions.ForwardForbid);
+            Assert.Equal(_msIdentityForwardSignIn, microsoftIdentityOptions.ForwardSignIn);
+            Assert.Equal(_msIdentityForwardSignOut, microsoftIdentityOptions.ForwardSignOut);
             Assert.Equal(_msIdentityInstance, mergedOptions.Instance);
-            Assert.Equal(_msIdentityMetadata, mergedOptions.MetadataAddress);
-            Assert.Equal(_msIdentityPrompt, mergedOptions.Prompt);
-            Assert.Equal(_msIdentityRemoteSignOutPath, mergedOptions.RemoteSignOutPath);
+            Assert.Equal(_msIdentityMetadata, microsoftIdentityOptions.MetadataAddress);
+            Assert.Equal(_msIdentityPrompt, microsoftIdentityOptions.Prompt);
+            Assert.Equal(_msIdentityRemoteSignOutPath, microsoftIdentityOptions.RemoteSignOutPath);
             Assert.Equal(_msIdentityResetPasswordId, mergedOptions.ResetPasswordPolicyId);
-            Assert.Equal(_msIdentityResource, mergedOptions.Resource);
-            Assert.Equal(_msIdentityResponseMode, mergedOptions.ResponseMode);
-            Assert.Equal(_msIdentityResponseType, mergedOptions.ResponseType);
-            Assert.Equal(_msIdentityReturnUrlParameter, mergedOptions.ReturnUrlParameter);
-            Assert.Equal(_msIdentitySignedOutCallbackPath, mergedOptions.SignedOutCallbackPath);
-            Assert.Equal(_msIdentitySignedOutRedirectUri, mergedOptions.SignedOutRedirectUri);
-            Assert.Equal(_msIdentitySignedInScheme, mergedOptions.SignInScheme);
-            Assert.Equal(_msIdentitySignedOutScheme, mergedOptions.SignOutScheme);
+            Assert.Equal(_msIdentityResource, microsoftIdentityOptions.Resource);
+            Assert.Equal(_msIdentityResponseMode, microsoftIdentityOptions.ResponseMode);
+            Assert.Equal(_msIdentityResponseType, microsoftIdentityOptions.ResponseType);
+            Assert.Equal(_msIdentityReturnUrlParameter, microsoftIdentityOptions.ReturnUrlParameter);
+            Assert.Equal(_msIdentitySignedOutCallbackPath, microsoftIdentityOptions.SignedOutCallbackPath);
+            Assert.Equal(_msIdentitySignedOutRedirectUri, microsoftIdentityOptions.SignedOutRedirectUri);
+            Assert.Equal(_msIdentitySignedInScheme, microsoftIdentityOptions.SignInScheme);
+            Assert.Equal(_msIdentitySignedOutScheme, microsoftIdentityOptions.SignOutScheme);
             Assert.Equal(_msIdentitySuSiPolicyId, mergedOptions.SignUpSignInPolicyId);
             Assert.Equal(_msIdentityTenantId, mergedOptions.TenantId);
-            Assert.Equal(_msIdentityTokenDecryptCertificates, mergedOptions.TokenDecryptionCertificates!);
+            Assert.Equal(_msIdentityTokenDecryptCertificates, microsoftIdentityOptions.TokenDecryptionCertificates!);
             Assert.Equal(_msIdentityTokenDecryptCertificates!.First(), mergedOptions.TokenDecryptionCredentials!.First());
             Assert.True(mergedOptions.AllowWebApiToBeAuthorizedByACL);
-            Assert.True(mergedOptions.DisableTelemetry);
-            Assert.True(mergedOptions.GetClaimsFromUserInfoEndpoint);
-            Assert.True(mergedOptions.LegacyCacheCompatibilityEnabled);
-            Assert.True(mergedOptions.MapInboundClaims);
-            Assert.True(mergedOptions.RefreshOnIssuerKeyNotFound);
-            Assert.True(mergedOptions.RequireHttpsMetadata);
-            Assert.True(mergedOptions.SaveTokens);
-            Assert.True(mergedOptions.SendX5C);
-            Assert.True(mergedOptions.SkipUnrecognizedRequests);
-            Assert.True(mergedOptions.UsePkce);
-            Assert.True(mergedOptions.UseTokenLifetime);
-            Assert.True(mergedOptions.WithSpaAuthCode);
+            Assert.True(microsoftIdentityOptions.DisableTelemetry);
+            Assert.True(microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint);
+            Assert.True(microsoftIdentityOptions.LegacyCacheCompatibilityEnabled);
+            Assert.True(microsoftIdentityOptions.MapInboundClaims);
+            Assert.True(microsoftIdentityOptions.RefreshOnIssuerKeyNotFound);
+            Assert.True(microsoftIdentityOptions.RequireHttpsMetadata);
+            Assert.True(microsoftIdentityOptions.SaveTokens);
+            Assert.True(microsoftIdentityOptions.SendX5C);
+            Assert.True(microsoftIdentityOptions.SkipUnrecognizedRequests);
+            Assert.True(microsoftIdentityOptions.UsePkce);
+            Assert.True(microsoftIdentityOptions.UseTokenLifetime);
+            Assert.True(microsoftIdentityOptions.WithSpaAuthCode);
         }
     }
 }

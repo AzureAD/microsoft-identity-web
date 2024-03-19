@@ -10,11 +10,13 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 
@@ -170,7 +172,8 @@ namespace Microsoft.Identity.Web
                 msIdOptionsMonitor) =>
                 {
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
-                    msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
+                    
+                    MicrosoftIdentityOptions microsoftIdentityOptions = msIdOptionsMonitor.Get(jwtBearerScheme); // needed for firing the PostConfigure.
                     MergedOptions mergedOptions = mergedOptionsMonitor.Get(jwtBearerScheme);
 
                     // Process OIDC compliant tenants
@@ -182,12 +185,12 @@ namespace Microsoft.Identity.Web
                     }
 
                     // Validate the configuration of the web API
-                    MergedOptionsValidation.Validate(mergedOptions);
+                    MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
 
                     // Ensure a well-formed authority was provided
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
-                        options.Authority = AuthorityHelpers.BuildAuthority(mergedOptions);
+                        options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
                     }
 
                     // This is a Microsoft identity platform web API
@@ -197,10 +200,10 @@ namespace Microsoft.Identity.Web
                      && options.TokenValidationParameters.ValidAudience == null
                      && options.TokenValidationParameters.ValidAudiences == null)
                     {
-                        RegisterValidAudience registerAudience = new RegisterValidAudience();
+                        RegisterValidAudience registerAudience = new();
                         registerAudience.RegisterAudienceValidation(
                             options.TokenValidationParameters,
-                            mergedOptions);
+                            microsoftIdentityOptions);
                     }
 
                     // If the developer registered an IssuerValidator, do not overwrite it
@@ -219,7 +222,7 @@ namespace Microsoft.Identity.Web
                     // TODO use the credential loader
                     if (mergedOptions.TokenDecryptionCredentials != null)
                     {
-                        DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
+                        //DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
                         IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(mergedOptions.TokenDecryptionCredentials.OfType<CertificateDescription>());
                         IEnumerable<X509SecurityKey> keys = certificates.Select(c => new X509SecurityKey(c));
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;

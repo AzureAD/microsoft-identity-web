@@ -6,9 +6,9 @@ using System.Globalization;
 
 namespace Microsoft.Identity.Web
 {
-    internal class MergedOptionsValidation
+    internal class MicrosoftIdentityOptionsValidation
     {
-        public static void Validate(MergedOptions options)
+        public static void Validate(MicrosoftIdentityOptions options)
         {
             if (string.IsNullOrEmpty(options.ClientId))
             {

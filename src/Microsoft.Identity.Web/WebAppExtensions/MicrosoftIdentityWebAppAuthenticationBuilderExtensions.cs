@@ -305,26 +305,26 @@ namespace Microsoft.Identity.Web
                 {
                     MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
 
-                    msIdOptionsMonitor.Get(openIdConnectScheme); // needed for firing the PostConfigure.
-                    MergedOptions mergedOptions = mergedOptionsMonitor.Get(openIdConnectScheme);
+                    MicrosoftIdentityOptions microsoftIdentityOptions = msIdOptionsMonitor.Get(openIdConnectScheme);
+                    MergedOptions mergedOptions =  mergedOptionsMonitor.Get(openIdConnectScheme);
 
-                    MergedOptionsValidation.Validate(mergedOptions);
+                    MicrosoftIdentityOptionsValidation.Validate(microsoftIdentityOptions);
 
-                    if (mergedOptions.Authority != null)
+                    if (microsoftIdentityOptions.Authority != null)
                     {
-                        mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
+                        microsoftIdentityOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(microsoftIdentityOptions.Authority, out bool preserveAuthority);
                         mergedOptions.PreserveAuthority = preserveAuthority;
-                        if (mergedOptions.ExtraQueryParameters != null)
+                        if (microsoftIdentityOptions.ExtraQueryParameters != null)
                         {
-                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                            options.MetadataAddress = microsoftIdentityOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", microsoftIdentityOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
                         }
                     }
 
-                    PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
+                    PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions);
 
                     var b2cOidcHandlers = new AzureADB2COpenIDConnectEventHandlers(
                         openIdConnectScheme,
-                        mergedOptions,
+                        microsoftIdentityOptions,
                         serviceProvider.GetRequiredService<ILoginErrorAccessor>());
 
                     if (!string.IsNullOrEmpty(cookieScheme))
@@ -334,14 +334,14 @@ namespace Microsoft.Identity.Web
 
                     if (string.IsNullOrWhiteSpace(options.Authority))
                     {
-                        options.Authority = AuthorityHelpers.BuildAuthority(mergedOptions);
+                        options.Authority = AuthorityHelpers.BuildAuthority(microsoftIdentityOptions);
                     }
 
                     // This is a Microsoft identity platform web app
                     options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(options.Authority);
 
                     // B2C doesn't have preferred_username claims
-                    if (mergedOptions.IsB2C)
+                    if (microsoftIdentityOptions.IsB2C)
                     {
                         options.TokenValidationParameters.NameClaimType = ClaimConstants.Name;
                     }
@@ -400,15 +400,15 @@ namespace Microsoft.Identity.Web
                                 additionClaims);
                         }
 
-                        if (mergedOptions.ExtraQueryParameters != null)
+                        if (microsoftIdentityOptions.ExtraQueryParameters != null)
                         {
-                            foreach (var ExtraQP in mergedOptions.ExtraQueryParameters)
+                            foreach (var ExtraQP in microsoftIdentityOptions.ExtraQueryParameters)
                             {
                                 context.ProtocolMessage.SetParameter(ExtraQP.Key, ExtraQP.Value);
                             }
                         }
 
-                        if (mergedOptions.IsB2C)
+                        if (microsoftIdentityOptions.IsB2C)
                         {
                             // When a new Challenge is returned using any B2C user flow different than susi, we must change
                             // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
@@ -418,7 +418,7 @@ namespace Microsoft.Identity.Web
                         await redirectToIdpHandler(context).ConfigureAwait(false);
                     };
 
-                    if (mergedOptions.IsB2C)
+                    if (microsoftIdentityOptions.IsB2C)
                     {
                         var remoteFailureHandler = options.Events.OnRemoteFailure;
                         options.Events.OnRemoteFailure = async context =>
@@ -441,21 +441,21 @@ namespace Microsoft.Identity.Web
                 });
         }
 
-        internal static void PopulateOpenIdOptionsFromMergedOptions(
+        internal static void PopulateOpenIdOptionsFromMicrosoftIdentityOptions(
             OpenIdConnectOptions options,
-            MergedOptions mergedOptions)
+            MicrosoftIdentityOptions microsoftIdentityOptions)
         {
-            options.Authority = mergedOptions.Authority;
-            options.ClientId = mergedOptions.ClientId;
-            options.ClientSecret = mergedOptions.ClientSecret ?? mergedOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == Abstractions.CredentialType.Secret)?.ClientSecret;
-            options.Configuration = mergedOptions.Configuration;
-            options.ConfigurationManager = mergedOptions.ConfigurationManager;
-            options.GetClaimsFromUserInfoEndpoint = mergedOptions.GetClaimsFromUserInfoEndpoint;
+            options.Authority = microsoftIdentityOptions.Authority;
+            options.ClientId = microsoftIdentityOptions.ClientId;
+            options.ClientSecret = microsoftIdentityOptions.ClientSecret ?? microsoftIdentityOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == Abstractions.CredentialType.Secret)?.ClientSecret;
+            options.Configuration = microsoftIdentityOptions.Configuration;
+            options.ConfigurationManager = microsoftIdentityOptions.ConfigurationManager;
+            options.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
 
-            if (options.ClaimActions != mergedOptions.ClaimActions)
+            if (options.ClaimActions != microsoftIdentityOptions.ClaimActions)
             {
                 var claimActionArray = options.ClaimActions.ToArray();
-                foreach (ClaimAction claimAction in mergedOptions.ClaimActions)
+                foreach (ClaimAction claimAction in microsoftIdentityOptions.ClaimActions)
                 {
                     if (!claimActionArray.Any((c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType)))
                     {
@@ -464,23 +464,23 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            options.RequireHttpsMetadata = mergedOptions.RequireHttpsMetadata;
-            options.MetadataAddress = mergedOptions.MetadataAddress;
-            options.MaxAge = mergedOptions.MaxAge;
-            options.ProtocolValidator = mergedOptions.ProtocolValidator;
-            options.SignedOutCallbackPath = mergedOptions.SignedOutCallbackPath;
-            options.SignedOutRedirectUri = mergedOptions.SignedOutRedirectUri;
-            options.RefreshOnIssuerKeyNotFound = mergedOptions.RefreshOnIssuerKeyNotFound;
-            options.AuthenticationMethod = mergedOptions.AuthenticationMethod;
-            options.Resource = mergedOptions.Resource;
-            options.ResponseMode = mergedOptions.ResponseMode;
-            options.ResponseType = mergedOptions.ResponseType;
-            options.Prompt = mergedOptions.Prompt;
+            options.RequireHttpsMetadata = microsoftIdentityOptions.RequireHttpsMetadata;
+            options.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
+            options.MaxAge = microsoftIdentityOptions.MaxAge;
+            options.ProtocolValidator = microsoftIdentityOptions.ProtocolValidator;
+            options.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
+            options.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
+            options.RefreshOnIssuerKeyNotFound = microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
+            options.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
+            options.Resource = microsoftIdentityOptions.Resource;
+            options.ResponseMode = microsoftIdentityOptions.ResponseMode;
+            options.ResponseType = microsoftIdentityOptions.ResponseType;
+            options.Prompt = microsoftIdentityOptions.Prompt;
 
-            if (options.Scope != mergedOptions.Scope)
+            if (options.Scope != microsoftIdentityOptions.Scope)
             {
                 var scopeArray = options.Scope.ToArray();
-                foreach (string scope in mergedOptions.Scope)
+                foreach (string scope in microsoftIdentityOptions.Scope)
                 {
                     if (!string.IsNullOrWhiteSpace(scope) && !scopeArray.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -489,51 +489,51 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            options.RemoteSignOutPath = mergedOptions.RemoteSignOutPath;
-            options.SignOutScheme = mergedOptions.SignOutScheme;
-            options.StateDataFormat = mergedOptions.StateDataFormat;
-            options.StringDataFormat = mergedOptions.StringDataFormat;
+            options.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
+            options.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
+            options.StateDataFormat = microsoftIdentityOptions.StateDataFormat;
+            options.StringDataFormat = microsoftIdentityOptions.StringDataFormat;
 #if NET8_0_OR_GREATER
-            options.TokenHandler = mergedOptions.TokenHandler;
+            options.TokenHandler = microsoftIdentityOptions.TokenHandler;
 #else
-            options.SecurityTokenValidator = mergedOptions.SecurityTokenValidator;
+            options.SecurityTokenValidator = microsoftIdentityOptions.SecurityTokenValidator;
 #endif
-            options.TokenValidationParameters = mergedOptions.TokenValidationParameters;
-            options.UseTokenLifetime = mergedOptions.UseTokenLifetime;
-            options.SkipUnrecognizedRequests = mergedOptions.SkipUnrecognizedRequests;
-            options.DisableTelemetry = mergedOptions.DisableTelemetry;
-            options.NonceCookie = mergedOptions.NonceCookie;
-            options.UsePkce = mergedOptions.UsePkce;
+            options.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters;
+            options.UseTokenLifetime = microsoftIdentityOptions.UseTokenLifetime;
+            options.SkipUnrecognizedRequests = microsoftIdentityOptions.SkipUnrecognizedRequests;
+            options.DisableTelemetry = microsoftIdentityOptions.DisableTelemetry;
+            options.NonceCookie = microsoftIdentityOptions.NonceCookie;
+            options.UsePkce = microsoftIdentityOptions.UsePkce;
 #if NET5_0_OR_GREATER
-            options.AutomaticRefreshInterval = mergedOptions.AutomaticRefreshInterval;
-            options.RefreshInterval = mergedOptions.RefreshInterval;
-            options.MapInboundClaims = mergedOptions.MapInboundClaims;
+            options.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
+            options.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
+            options.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
 #endif
-            options.BackchannelTimeout = mergedOptions.BackchannelTimeout;
-            options.BackchannelHttpHandler = mergedOptions.BackchannelHttpHandler;
-            options.Backchannel = mergedOptions.Backchannel;
-            options.DataProtectionProvider = mergedOptions.DataProtectionProvider;
-            options.CallbackPath = mergedOptions.CallbackPath;
-            options.AccessDeniedPath = mergedOptions.AccessDeniedPath;
-            options.ReturnUrlParameter = mergedOptions.ReturnUrlParameter;
-            options.SignInScheme = mergedOptions.SignInScheme;
-            options.RemoteAuthenticationTimeout = mergedOptions.RemoteAuthenticationTimeout;
-            options.SaveTokens = mergedOptions.SaveTokens;
-            options.CorrelationCookie = mergedOptions.CorrelationCookie;
-            options.ClaimsIssuer = mergedOptions.ClaimsIssuer;
-            options.Events = mergedOptions.Events;
-            options.EventsType = mergedOptions.EventsType;
-            options.ForwardDefault = mergedOptions.ForwardDefault;
-            options.ForwardAuthenticate = mergedOptions.ForwardAuthenticate;
-            options.ForwardChallenge = mergedOptions.ForwardChallenge;
-            options.ForwardForbid = mergedOptions.ForwardForbid;
-            options.ForwardSignIn = mergedOptions.ForwardSignIn;
-            options.ForwardSignOut = mergedOptions.ForwardSignOut;
-            options.ForwardDefaultSelector = mergedOptions.ForwardDefaultSelector;
+            options.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
+            options.BackchannelHttpHandler = microsoftIdentityOptions.BackchannelHttpHandler;
+            options.Backchannel = microsoftIdentityOptions.Backchannel;
+            options.DataProtectionProvider = microsoftIdentityOptions.DataProtectionProvider;
+            options.CallbackPath = microsoftIdentityOptions.CallbackPath;
+            options.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
+            options.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
+            options.SignInScheme = microsoftIdentityOptions.SignInScheme;
+            options.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
+            options.SaveTokens = microsoftIdentityOptions.SaveTokens;
+            options.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
+            options.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
+            options.Events = microsoftIdentityOptions.Events;
+            options.EventsType = microsoftIdentityOptions.EventsType;
+            options.ForwardDefault = microsoftIdentityOptions.ForwardDefault;
+            options.ForwardAuthenticate = microsoftIdentityOptions.ForwardAuthenticate;
+            options.ForwardChallenge = microsoftIdentityOptions.ForwardChallenge;
+            options.ForwardForbid = microsoftIdentityOptions.ForwardForbid;
+            options.ForwardSignIn = microsoftIdentityOptions.ForwardSignIn;
+            options.ForwardSignOut = microsoftIdentityOptions.ForwardSignOut;
+            options.ForwardDefaultSelector = microsoftIdentityOptions.ForwardDefaultSelector;
 #if NET8_0_OR_GREATER
-            options.TimeProvider = mergedOptions.TimeProvider;
-            options.UseSecurityTokenValidator = mergedOptions.UseSecurityTokenValidator;
-            options.TokenHandler = mergedOptions.TokenHandler;
+            options.TimeProvider = microsoftIdentityOptions.TimeProvider;
+            options.UseSecurityTokenValidator = microsoftIdentityOptions.UseSecurityTokenValidator;
+            options.TokenHandler = microsoftIdentityOptions.TokenHandler;
 #endif
         }
     }

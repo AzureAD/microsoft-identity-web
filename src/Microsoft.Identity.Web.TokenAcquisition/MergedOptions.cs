@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// Merges the MicrosoftIdentityWebOptions and the ConfidentialClientApplicationOptions.
     /// </summary>
-    internal sealed class MergedOptions : MicrosoftIdentityOptions
+    internal sealed class MergedOptions : MicrosoftIdentityApplicationOptions
     {
         private ConfidentialClientApplicationOptions? _confidentialClientApplicationOptions;
 
@@ -51,190 +51,18 @@ namespace Microsoft.Identity.Web
         internal bool MergedWithCca { get; set; }
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
         internal bool PreserveAuthority { get; set; }
+        public string? CallbackPath { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
-
-#if NET5_0_OR_GREATER
-            mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
-#endif
-
-#if !NETSTANDARD2_0 && !NET462 && !NET472
-            // ASP.NET Core specific
-            mergedOptions.AccessDeniedPath = microsoftIdentityOptions.AccessDeniedPath;
-            mergedOptions.AuthenticationMethod = microsoftIdentityOptions.AuthenticationMethod;
-            mergedOptions.Backchannel ??= microsoftIdentityOptions.Backchannel;
-            mergedOptions.BackchannelHttpHandler ??= microsoftIdentityOptions.BackchannelHttpHandler;
-            mergedOptions.BackchannelTimeout = microsoftIdentityOptions.BackchannelTimeout;
-            mergedOptions.CallbackPath = microsoftIdentityOptions.CallbackPath;
-
-            if (mergedOptions.ClaimActions != microsoftIdentityOptions.ClaimActions)
-            {
-                var claimActionsArray = mergedOptions.ClaimActions.ToArray();
-                foreach (var claimAction in microsoftIdentityOptions.ClaimActions)
-                {
-                    if (!claimActionsArray.Any(c => c.ClaimType == claimAction.ClaimType && c.ValueType == claimAction.ValueType))
-                    {
-                        mergedOptions.ClaimActions.Add(claimAction);
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ClaimsIssuer) && !string.IsNullOrEmpty(microsoftIdentityOptions.ClaimsIssuer))
-            {
-                mergedOptions.ClaimsIssuer = microsoftIdentityOptions.ClaimsIssuer;
-            }
-            mergedOptions.Configuration ??= microsoftIdentityOptions.Configuration;
-            mergedOptions.ConfigurationManager ??= microsoftIdentityOptions.ConfigurationManager;
-            mergedOptions.CorrelationCookie = microsoftIdentityOptions.CorrelationCookie;
-            mergedOptions.DataProtectionProvider ??= microsoftIdentityOptions.DataProtectionProvider;
-            mergedOptions.DisableTelemetry |= microsoftIdentityOptions.DisableTelemetry;
-
-            mergedOptions.Events.OnAccessDenied += microsoftIdentityOptions.Events.OnAccessDenied;
-            mergedOptions.Events.OnAuthenticationFailed += microsoftIdentityOptions.Events.OnAuthenticationFailed;
-            mergedOptions.Events.OnAuthorizationCodeReceived += microsoftIdentityOptions.Events.OnAuthorizationCodeReceived;
-            mergedOptions.Events.OnMessageReceived += microsoftIdentityOptions.Events.OnMessageReceived;
-            mergedOptions.Events.OnRedirectToIdentityProvider += microsoftIdentityOptions.Events.OnRedirectToIdentityProvider;
-            mergedOptions.Events.OnRedirectToIdentityProviderForSignOut += microsoftIdentityOptions.Events.OnRedirectToIdentityProviderForSignOut;
-            mergedOptions.Events.OnRemoteFailure += microsoftIdentityOptions.Events.OnRemoteFailure;
-            mergedOptions.Events.OnRemoteSignOut += microsoftIdentityOptions.Events.OnRemoteSignOut;
-            mergedOptions.Events.OnSignedOutCallbackRedirect += microsoftIdentityOptions.Events.OnSignedOutCallbackRedirect;
-            mergedOptions.Events.OnTicketReceived += microsoftIdentityOptions.Events.OnTicketReceived;
-            mergedOptions.Events.OnTokenResponseReceived += microsoftIdentityOptions.Events.OnTokenResponseReceived;
-            mergedOptions.Events.OnTokenValidated += microsoftIdentityOptions.Events.OnTokenValidated;
-            mergedOptions.Events.OnUserInformationReceived += microsoftIdentityOptions.Events.OnUserInformationReceived;
-
-            mergedOptions.EventsType ??= microsoftIdentityOptions.EventsType;
-            if (string.IsNullOrEmpty(mergedOptions.ForwardAuthenticate) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardAuthenticate))
-            {
-                mergedOptions.ForwardAuthenticate = microsoftIdentityOptions.ForwardAuthenticate;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardChallenge) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardChallenge))
-            {
-                mergedOptions.ForwardChallenge = microsoftIdentityOptions.ForwardChallenge;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardDefault) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardDefault))
-            {
-                mergedOptions.ForwardDefault = microsoftIdentityOptions.ForwardDefault;
-            }
-
-            mergedOptions.ForwardDefaultSelector ??= microsoftIdentityOptions.ForwardDefaultSelector;
-            if (string.IsNullOrEmpty(mergedOptions.ForwardForbid) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardForbid))
-            {
-                mergedOptions.ForwardForbid = microsoftIdentityOptions.ForwardForbid;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardSignIn) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardSignIn))
-            {
-                mergedOptions.ForwardSignIn = microsoftIdentityOptions.ForwardSignIn;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ForwardSignOut) && !string.IsNullOrEmpty(microsoftIdentityOptions.ForwardSignOut))
-            {
-                mergedOptions.ForwardSignOut = microsoftIdentityOptions.ForwardSignOut;
-            }
-
-            mergedOptions.GetClaimsFromUserInfoEndpoint = microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint;
-
-            mergedOptions.MaxAge = microsoftIdentityOptions.MaxAge;
-            if (string.IsNullOrEmpty(mergedOptions.MetadataAddress) && !string.IsNullOrEmpty(microsoftIdentityOptions.MetadataAddress))
-            {
-                mergedOptions.MetadataAddress = microsoftIdentityOptions.MetadataAddress;
-            }
-
-            mergedOptions.NonceCookie = microsoftIdentityOptions.NonceCookie;
-            if (string.IsNullOrEmpty(mergedOptions.Prompt) && !string.IsNullOrEmpty(microsoftIdentityOptions.Prompt))
-            {
-                mergedOptions.Prompt = microsoftIdentityOptions.Prompt;
-            }
-
-            mergedOptions.ProtocolValidator ??= microsoftIdentityOptions.ProtocolValidator;
-
-#if NET5_0_OR_GREATER
-            mergedOptions.RefreshInterval = microsoftIdentityOptions.RefreshInterval;
-#endif
-            mergedOptions.RefreshOnIssuerKeyNotFound |= microsoftIdentityOptions.RefreshOnIssuerKeyNotFound;
-            mergedOptions.RemoteAuthenticationTimeout = microsoftIdentityOptions.RemoteAuthenticationTimeout;
-            mergedOptions.RemoteSignOutPath = microsoftIdentityOptions.RemoteSignOutPath;
-            mergedOptions.RequireHttpsMetadata |= microsoftIdentityOptions.RequireHttpsMetadata;
             if (string.IsNullOrEmpty(mergedOptions.ResetPasswordPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.ResetPasswordPolicyId))
             {
                 mergedOptions.ResetPasswordPolicyId = microsoftIdentityOptions.ResetPasswordPolicyId;
             }
 
-            if (string.IsNullOrEmpty(mergedOptions.Resource) && !string.IsNullOrEmpty(microsoftIdentityOptions.Resource))
-            {
-                mergedOptions.Resource = microsoftIdentityOptions.Resource;
-            }
-
-            if (microsoftIdentityOptions.ResponseMode != OpenIdConnectResponseMode.FormPost)
-            {
-                mergedOptions.ResponseMode = microsoftIdentityOptions.ResponseMode;
-            }
-
-            if (microsoftIdentityOptions.ResponseType != OpenIdConnectResponseType.IdToken)
-            {
-                mergedOptions.ResponseType = microsoftIdentityOptions.ResponseType;
-            }
-
-            if (microsoftIdentityOptions.ReturnUrlParameter != Constants.ReturnUrl)
-            {
-                mergedOptions.ReturnUrlParameter = microsoftIdentityOptions.ReturnUrlParameter;
-            }
-
-            mergedOptions.SaveTokens |= microsoftIdentityOptions.SaveTokens;
-#if NET8_0_OR_GREATER
-            mergedOptions.TokenHandler ??= microsoftIdentityOptions.TokenHandler;
-#else
-            mergedOptions.SecurityTokenValidator ??= microsoftIdentityOptions.SecurityTokenValidator;
-#endif
             mergedOptions.SendX5C |= microsoftIdentityOptions.SendX5C;
             mergedOptions.WithSpaAuthCode |= microsoftIdentityOptions.WithSpaAuthCode;
-            mergedOptions.SignedOutCallbackPath = microsoftIdentityOptions.SignedOutCallbackPath;
-            if (microsoftIdentityOptions.SignedOutRedirectUri != "/")
-            {
-                mergedOptions.SignedOutRedirectUri = microsoftIdentityOptions.SignedOutRedirectUri;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.SignInScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignInScheme))
-            {
-                mergedOptions.SignInScheme = microsoftIdentityOptions.SignInScheme;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.SignOutScheme) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignOutScheme))
-            {
-                mergedOptions.SignOutScheme = microsoftIdentityOptions.SignOutScheme;
-            }
-
-            mergedOptions.SkipUnrecognizedRequests |= microsoftIdentityOptions.SkipUnrecognizedRequests;
-            mergedOptions.StateDataFormat ??= microsoftIdentityOptions.StateDataFormat;
-            mergedOptions.StringDataFormat ??= microsoftIdentityOptions.StringDataFormat;
-#if NET8_0_OR_GREATER
-            mergedOptions.TimeProvider = microsoftIdentityOptions.TimeProvider;
-#endif
-            mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
-            mergedOptions.UsePkce |= microsoftIdentityOptions.UsePkce;
-
-            mergedOptions.UseTokenLifetime |= microsoftIdentityOptions.UseTokenLifetime;
-
-            mergedOptions.Scope.Clear();
-            if (mergedOptions.Scope != microsoftIdentityOptions.Scope)
-            {
-                var temp = mergedOptions.Scope.ToArray();
-                foreach (var scope in microsoftIdentityOptions.Scope)
-                {
-                    if (!string.IsNullOrWhiteSpace(scope) && !temp.Any(s => string.Equals(s, scope, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        mergedOptions.Scope.Add(scope);
-                    }
-                }
-            }
-#if NET5_0_OR_GREATER
-            mergedOptions.AutomaticRefreshInterval = microsoftIdentityOptions.AutomaticRefreshInterval;
-#endif
-#endif
+            
             // Non ASP.NET Core specific
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
             {
@@ -287,8 +115,6 @@ namespace Microsoft.Identity.Web
                 mergedOptions.EditProfilePolicyId = microsoftIdentityOptions.EditProfilePolicyId;
             }
 
-            mergedOptions.LegacyCacheCompatibilityEnabled |= microsoftIdentityOptions.LegacyCacheCompatibilityEnabled;
-
             if (string.IsNullOrEmpty(mergedOptions.SignUpSignInPolicyId) && !string.IsNullOrEmpty(microsoftIdentityOptions.SignUpSignInPolicyId))
             {
                 mergedOptions.SignUpSignInPolicyId = microsoftIdentityOptions.SignUpSignInPolicyId;
@@ -298,10 +124,6 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
             }
-
-            mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
-
-            mergedOptions.ClientCredentialsUsingManagedIdentity ??= microsoftIdentityOptions.ClientCredentialsUsingManagedIdentity;
 
             mergedOptions._confidentialClientApplicationOptions = null;
 
@@ -330,11 +152,6 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.ClientName) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientName))
             {
                 mergedOptions.ClientName = confidentialClientApplicationOptions.ClientName;
-            }
-
-            if (string.IsNullOrEmpty(mergedOptions.ClientSecret) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientSecret))
-            {
-                mergedOptions.ClientSecret = confidentialClientApplicationOptions.ClientSecret;
             }
 
             if (string.IsNullOrEmpty(mergedOptions.ClientVersion) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientVersion))
@@ -385,11 +202,6 @@ namespace Microsoft.Identity.Web
                 confidentialClientApplicationOptions.ClientName = mergedOptions.ClientName;
             }
 
-            if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientSecret) && !string.IsNullOrEmpty(mergedOptions.ClientSecret))
-            {
-                confidentialClientApplicationOptions.ClientSecret = mergedOptions.ClientSecret;
-            }
-
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.ClientVersion) && !string.IsNullOrEmpty(mergedOptions.ClientVersion))
             {
                 confidentialClientApplicationOptions.ClientVersion = mergedOptions.ClientVersion;
@@ -405,7 +217,6 @@ namespace Microsoft.Identity.Web
             }
 
             confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled = mergedOptions.IsDefaultPlatformLoggingEnabled;
-            confidentialClientApplicationOptions.LegacyCacheCompatibilityEnabled = mergedOptions.LegacyCacheCompatibilityEnabled;
             confidentialClientApplicationOptions.EnableCacheSynchronization = mergedOptions.EnableCacheSynchronization;
             confidentialClientApplicationOptions.LogLevel = mergedOptions.LogLevel;
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.RedirectUri) && !string.IsNullOrEmpty(mergedOptions.RedirectUri))
@@ -446,7 +257,7 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
-            if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(DefaultUserFlow) && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
 #if !NETSTANDARD2_0 && !NET462 && !NET472
                 Instance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
@@ -459,6 +270,8 @@ namespace Microsoft.Identity.Web
                 Instance = Instance.TrimEnd('/') + "/";
             }
         }
+
+        public bool IsB2C { get => !string.IsNullOrEmpty(DefaultUserFlow); }
 
         public static void UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions, MergedOptions mergedOptions)
         {
@@ -537,7 +350,6 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.ExtraQueryParameters = microsoftIdentityApplicationOptions.ExtraQueryParameters;
             }
-
         }
 
         private static IEnumerable<CredentialDescription> ComputeFromLegacyClientCredentials(MicrosoftIdentityOptions microsoftIdentityOptions)

@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test
         {         
             // Arrange
             var options = new OpenIdConnectOptions();
-            var mergedOptions = new MergedOptions
+            var microsoftIdentityOptions = new MicrosoftIdentityOptions
             {
                 Authority = TestConstants.AuthorityCommonTenant,
                 ClientId = TestConstants.ClientId,
@@ -33,27 +33,27 @@ namespace Microsoft.Identity.Web.Test
                     ClientSecret = TestConstants.ClientSecret
                 };
 
-                mergedOptions.ClientCredentials = new CredentialDescription[] { credentialDescription };
+                microsoftIdentityOptions.ClientCredentials = [credentialDescription];
             }
             else
             {
-                mergedOptions.ClientSecret = TestConstants.ClientSecret;
+                microsoftIdentityOptions.ClientSecret = TestConstants.ClientSecret;
             }
 
             // Act
-            MicrosoftIdentityWebAppAuthenticationBuilderExtensions.PopulateOpenIdOptionsFromMergedOptions(options, mergedOptions);
+            MicrosoftIdentityWebAppAuthenticationBuilderExtensions.PopulateOpenIdOptionsFromMicrosoftIdentityOptions(options, microsoftIdentityOptions);
 
             // Assert
-            Assert.Equal(options.Authority, mergedOptions.Authority);
-            Assert.Equal(options.ClientId, mergedOptions.ClientId);
-            Assert.Equal(options.GetClaimsFromUserInfoEndpoint, mergedOptions.GetClaimsFromUserInfoEndpoint);
+            Assert.Equal(options.Authority, microsoftIdentityOptions.Authority);
+            Assert.Equal(options.ClientId, microsoftIdentityOptions.ClientId);
+            Assert.Equal(options.GetClaimsFromUserInfoEndpoint, microsoftIdentityOptions.GetClaimsFromUserInfoEndpoint);
             if (withCredentialDescription)
             {
-                Assert.Equal(options.ClientSecret, mergedOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == CredentialType.Secret)?.ClientSecret);
+                Assert.Equal(options.ClientSecret, microsoftIdentityOptions.ClientCredentials?.FirstOrDefault(c => c.CredentialType == CredentialType.Secret)?.ClientSecret);
             }
             else
             {
-                Assert.Equal(options.ClientSecret, mergedOptions.ClientSecret);
+                Assert.Equal(options.ClientSecret, microsoftIdentityOptions.ClientSecret);
             }
         }
     }

@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException(msg);
             }
 
-            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
+            //DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.Identity.Web
                     request.Scheme,
                     request.Host,
                     request.PathBase,
-                    mergedOptions.CallbackPath.Value ?? string.Empty);
+                    mergedOptions.CallbackPath ?? string.Empty);
             }
         }
 

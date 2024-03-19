@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web.Hosts
             _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
             _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme);
 
-            DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
+            //DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
         }
 
