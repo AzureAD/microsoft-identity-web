@@ -2,7 +2,7 @@
                                // Licensed to the .NET Foundation under one or more agreements.
 #pragma warning restore IDE0073 // The file header does not match the required text
                                // The .NET Foundation licenses this file to you under the MIT license.
-#if !NETCOREAPP3_1_OR_GREATER
+#if !NET6_0_OR_GREATER
 namespace System.Diagnostics.CodeAnalysis
 {
 #if !NETSTANDARD2_1
