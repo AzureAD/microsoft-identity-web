@@ -19,14 +19,6 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.18" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.*" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.*" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
