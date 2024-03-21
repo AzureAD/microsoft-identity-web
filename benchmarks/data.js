@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1710789660853,
+  "lastUpdate": 1711049551147,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -756,6 +756,42 @@ window.BENCHMARK_DATA = {
             "value": 10812.05415395963,
             "unit": "ns",
             "range": "± 108.0321127343108"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e85d9c977195a05bf061fb005255b0eeb72c0ff8",
+          "message": "remove netcoreapp 3.1 (#2713)\n\n* remove netcoreapp 3.1\r\n\r\n* regenerate compat suppressions\r\n\r\n* update github flow\r\n\r\n* remove azure functions sample\r\n\r\n* remove netcoreapp3.1\r\n\r\n* rmv more references",
+          "timestamp": "2024-03-21T12:29:02-07:00",
+          "tree_id": "01a78c1817dd5445f4a6a5940014abc17087e733",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e85d9c977195a05bf061fb005255b0eeb72c0ff8"
+        },
+        "date": 1711049550298,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10492.042806478647,
+            "unit": "ns",
+            "range": "± 44.31011204260813"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11025.960687308476,
+            "unit": "ns",
+            "range": "± 54.87967275606601"
           }
         ]
       }
