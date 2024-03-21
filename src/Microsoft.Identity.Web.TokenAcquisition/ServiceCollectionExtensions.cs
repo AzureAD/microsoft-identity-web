@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web
             // Token acquisition service
             if (isTokenAcquisitionSingleton)
             {
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
                 // ASP.NET Core
                 if (forceSdk)
                 {
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
 
                 if (forceSdk)
                 {
