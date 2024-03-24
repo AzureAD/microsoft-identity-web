@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711049551147,
+  "lastUpdate": 1711317651795,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -792,6 +792,42 @@ window.BENCHMARK_DATA = {
             "value": 11025.960687308476,
             "unit": "ns",
             "range": "± 54.87967275606601"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4d58560a5bfe21e6eecf08827fa81f51786d9b08",
+          "message": "Update the appId (#2715)\n\n* Update the appId\r\n\r\n* Fixing tests due to directory clean-up\r\nDisabling UI tests that require MFA until we find a solution to https://github.com/AzureAD/microsoft-identity-web/issues/2716",
+          "timestamp": "2024-03-24T14:57:20-07:00",
+          "tree_id": "da323ed3a63e763072744f66afa50c9170e5e002",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/4d58560a5bfe21e6eecf08827fa81f51786d9b08"
+        },
+        "date": 1711317648709,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10413.996824030291,
+            "unit": "ns",
+            "range": "± 91.61877803917272"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11033.594647591573,
+            "unit": "ns",
+            "range": "± 68.49393668647406"
           }
         ]
       }
