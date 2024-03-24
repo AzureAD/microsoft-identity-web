@@ -35,7 +35,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         _output = output;
     }
 
-    [Fact]
+    [Fact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2716")]
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {

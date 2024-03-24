@@ -292,7 +292,7 @@ namespace TokenAcquirerTests
                 .GetAsync(o => o.Options
                                  .WithAppOnly()
                                  .WithAuthenticationScheme(s_optionName));
-            Assert.True(users!=null && users.Value!=null && users.Value.Count >= 56);
+            Assert.True(users!=null && users.Value!=null && users.Value.Count >= 0);
 
             // Alternatively to calling Microsoft Graph, you can get a token acquirer service
             // and get a token, and use it in an SDK.

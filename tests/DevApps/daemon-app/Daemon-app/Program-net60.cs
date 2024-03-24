@@ -47,7 +47,7 @@ namespace daemon_console
             // Get the token acquisition service
             ITokenAcquirerFactory tokenAcquirerFactory = app.Services.GetRequiredService<ITokenAcquirerFactory>();
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
-            var result = await tokenAcquirer.GetTokenForAppAsync("api://a4c2469b-cf84-4145-8f5f-cb7bacf814bc/.default");
+            var result = await tokenAcquirer.GetTokenForAppAsync("api://e2fb196-50ce-4652-a4f9-26c1bf2e826b/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif
