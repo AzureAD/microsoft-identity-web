@@ -35,7 +35,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         _output = output;
     }
 
-    [Fact]
+    [Fact (Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2716")]
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
@@ -43,7 +43,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         Process? process = null;
         const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
         IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
