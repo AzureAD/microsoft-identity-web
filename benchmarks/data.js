@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711324070313,
+  "lastUpdate": 1711329996043,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -864,6 +864,42 @@ window.BENCHMARK_DATA = {
             "value": 10955.509318598995,
             "unit": "ns",
             "range": "± 115.36327019898627"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "03f4973d8f497af92071c0de481ca42733834771",
+          "message": "Jmprieur/fix tests in rel v2 (#2718)\n\n* Same as https://github.com/AzureAD/microsoft-identity-web/pull/2715, but for rel/v2\r\n\r\n* Fix GUID",
+          "timestamp": "2024-03-24T18:23:07-07:00",
+          "tree_id": "a175f77a3f11e013027d7f766c182716108e3eda",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/03f4973d8f497af92071c0de481ca42733834771"
+        },
+        "date": 1711329995395,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10354.303324946652,
+            "unit": "ns",
+            "range": "± 71.23186081476148"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10976.365484167029,
+            "unit": "ns",
+            "range": "± 66.00417616995577"
           }
         ]
       }
