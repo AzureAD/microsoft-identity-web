@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711329996043,
+  "lastUpdate": 1711332447819,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -900,6 +900,42 @@ window.BENCHMARK_DATA = {
             "value": 10976.365484167029,
             "unit": "ns",
             "range": "± 66.00417616995577"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8b851c749990ec43042204a979df387ce113a791",
+          "message": "update M.IdentityWeb.UI (#2714)\n\n* update M.IdentityWeb.UI\r\n\r\n* add net6 & 7 target frameworks\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-03-24T19:03:55-07:00",
+          "tree_id": "f6c01e148c756ca32ae98d23c8e17645f0cf70f3",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/8b851c749990ec43042204a979df387ce113a791"
+        },
+        "date": 1711332447194,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10509.58914973818,
+            "unit": "ns",
+            "range": "± 84.95963969058369"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10949.16805125091,
+            "unit": "ns",
+            "range": "± 63.55979229318634"
           }
         ]
       }
