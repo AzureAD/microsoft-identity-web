@@ -387,7 +387,7 @@ namespace Microsoft.Identity.Web
             // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
             // not be cross tenant operations with such an authority.
             if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
                 ))

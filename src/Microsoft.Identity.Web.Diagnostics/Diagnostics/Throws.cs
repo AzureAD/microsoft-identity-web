@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Web
         [return: NotNull]
         public static string IfNullOrWhitespace([NotNull] string? argument, [CallerArgumentExpression("argument")] string paramName = "")
         {
-#if !NETCOREAPP3_1_OR_GREATER
+#if !NET6_0_OR_GREATER
         if (argument == null)
         {
             ArgumentNullException(paramName);
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web
         [return: NotNull]
         public static string IfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression("argument")] string paramName = "")
         {
-#if !NETCOREAPP3_1_OR_GREATER
+#if !NET6_0_OR_GREATER
         if (argument == null)
         {
             ArgumentNullException(paramName);
