@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
   <PropertyGroup>
     <Title>Microsoft Identity Web UI</Title>
     <Product>Microsoft Identity Web UI</Product>
     <Description>This package enables UI for ASP.NET Core Web apps that use Microsoft.Identity.Web.</Description>
-    <ProjectGuid>{20535D28-C2F4-4975-9982-A18E7141DA53}</ProjectGuid>
-  </PropertyGroup>
-
-  <PropertyGroup>
+    <ProjectGuid>{C6CB0D5B-917A-4127-9984-7592C757BBDE}</ProjectGuid>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -22,5 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
+
+
 
 </Project>
