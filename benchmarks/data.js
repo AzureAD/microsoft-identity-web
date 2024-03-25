@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711332447819,
+  "lastUpdate": 1711384110888,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -936,6 +936,42 @@ window.BENCHMARK_DATA = {
             "value": 10949.16805125091,
             "unit": "ns",
             "range": "± 63.55979229318634"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f96deac4c6c71d8df9bcf08aa10efd1efe5fdd54",
+          "message": "Fix supression file (#2720)",
+          "timestamp": "2024-03-25T09:25:01-07:00",
+          "tree_id": "aef3766a8c758e1c8976f95630c8b8eb6ebd3fa2",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/f96deac4c6c71d8df9bcf08aa10efd1efe5fdd54"
+        },
+        "date": 1711384109666,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10490.997765771273,
+            "unit": "ns",
+            "range": "± 99.58807471269188"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11017.059636166221,
+            "unit": "ns",
+            "range": "± 71.09684969985202"
           }
         ]
       }
