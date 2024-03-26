@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
+using TokenAcquirerTests;
 using Xunit;
 using Xunit.Abstractions;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
@@ -40,7 +40,7 @@ namespace WebAppUiTests
             _output = output;
         }
 
-        [Fact]
+        [IgnoreOnAzureDevopsFact]
         [SupportedOSPlatform("windows")]
         public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectly()
         {
