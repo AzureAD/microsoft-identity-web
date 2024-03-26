@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711384110888,
+  "lastUpdate": 1711484278842,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -972,6 +972,42 @@ window.BENCHMARK_DATA = {
             "value": 11017.059636166221,
             "unit": "ns",
             "range": "± 71.09684969985202"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c0facf53c756b3e5c466f5007bfbfbed695e9922",
+          "message": "b2c test is flaky (#2722)\n\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-03-26T13:12:46-07:00",
+          "tree_id": "2375970858cc4324e8989d9adc2da137a895d944",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/c0facf53c756b3e5c466f5007bfbfbed695e9922"
+        },
+        "date": 1711484277612,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10589.032120803307,
+            "unit": "ns",
+            "range": "± 87.92929705578564"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11118.466657218287,
+            "unit": "ns",
+            "range": "± 55.58113572714788"
           }
         ]
       }
