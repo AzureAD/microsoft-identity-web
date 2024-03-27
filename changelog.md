@@ -1,3 +1,7 @@
+2.17.3
+=========
+- Updated to Microsoft.IdentityModel.* 7.5.0
+  
 2.17.2
 =========
 
