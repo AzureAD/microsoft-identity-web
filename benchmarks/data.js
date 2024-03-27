@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711502838331,
+  "lastUpdate": 1711502841137,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1152,6 +1152,42 @@ window.BENCHMARK_DATA = {
             "value": 11072.649759165446,
             "unit": "ns",
             "range": "± 81.6594100243887"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a574aa6b30fa5eb2332784e6aa9be5ff52a82f0c",
+          "message": "Update M.IM 7.5.0 (#2726)",
+          "timestamp": "2024-03-26T18:23:50-07:00",
+          "tree_id": "14a7d452a454c705a68408057ef3c443fc769845",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a574aa6b30fa5eb2332784e6aa9be5ff52a82f0c"
+        },
+        "date": 1711502840375,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10512.958116765607,
+            "unit": "ns",
+            "range": "± 138.0899632114274"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11061.592641934481,
+            "unit": "ns",
+            "range": "± 75.1310105562263"
           }
         ]
       }
