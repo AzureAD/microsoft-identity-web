@@ -25,12 +25,16 @@ namespace WebAppUiTests
         private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
         private const uint TodoListClientPort = 44321;
         private const uint TodoListServicePort = 44350;
+        private const uint WebAppCiamPort = 7082;
+        private const uint WebApiCiamPort = 44332;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
         private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
+        private readonly string _devAppPathCiam = Path.Join("DevApps", "ciam");
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
         private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
         private readonly string _testAssemblyLocation = typeof(WebAppCallsApiCallsGraphLocally).Assembly.Location;
+        private readonly string _clientSecret = "...";
         private readonly ITestOutputHelper _output;
 
         public WebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
@@ -38,7 +42,7 @@ namespace WebAppUiTests
             _output = output;
         }
 
-        [Fact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2716")]
+        [Fact]
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
         {
@@ -66,7 +70,7 @@ namespace WebAppUiTests
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
             using IPlaywright playwright = await Playwright.CreateAsync();
-            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
@@ -160,6 +164,120 @@ namespace WebAppUiTests
                 if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
                 if (clientProcess != null) { processes.Enqueue(clientProcess); }
                 if (grpcProcess != null) { processes.Enqueue(grpcProcess); }
+                UiTestHelpers.KillProcessTrees(processes);
+
+                // Stop tracing and export it into a zip archive.
+                string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
+                await context.Tracing.StopAsync(new() { Path = path });
+                _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
+
+                // Close the browser and stop Playwright.
+                await browser.CloseAsync();
+                playwright.Dispose();
+            }
+        }
+
+        [Fact]
+        [SupportedOSPlatform("windows")]
+        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyWithCiam()
+        {
+            // Setup web app and api environmental variables.
+            var serviceEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {"AzureAd__ClientId", "f7834b72-64f7-4919-a944-7b89d213b1a4"},
+                {"AzureAd__Authority", "https://nativeauthasampleapp.ciamlogin.com"},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
+            };
+            var clientEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {"AzureAd__ClientId", "16ee75bf-ebbe-42a8-9474-caa0fe856bc7"},
+                {"AzureAd__Authority", "https://nativeauthasampleapp.ciamlogin.com"},
+                {"DownstreamApi__Scopes__0", "api://f7834b72-64f7-4919-a944-7b89d213b1a4/.default"},
+                {"AzureAd__ClientSecret", _clientSecret},
+                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
+            };
+
+            Process? serviceProcess = null;
+            Process? clientProcess = null;
+
+            // Arrange Playwright setup, to see the browser UI set Headless = false.
+            const string TraceFileName = TraceFileClassName + "_CiamWebApp_WebApiFunctionsCorrectly";
+            using IPlaywright playwright = await Playwright.CreateAsync();
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+            IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+            await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
+
+            try
+            {
+                // Start the web app and api processes.
+                // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
+                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
+                await Task.Delay(3000);
+                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
+
+                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                {
+                    Assert.Fail(TC.WebAppCrashedString);
+                }
+
+                // Navigate to web app
+                IPage page = await context.NewPageAsync();
+
+                // The retry logic ensures the web app has time to start up to establish a connection.
+                uint InitialConnectionRetryCount = 5;
+                while (InitialConnectionRetryCount > 0)
+                {
+                    try
+                    {
+                        await page.GotoAsync(TC.LocalhostUrl + WebAppCiamPort);
+                        break;
+                    }
+                    catch (PlaywrightException ex)
+                    {
+                        await Task.Delay(1000);
+                        InitialConnectionRetryCount--;
+                        if (InitialConnectionRetryCount == 0)
+                        { throw ex; }
+                    }
+                }
+                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+
+                // Initial sign in
+                _output.WriteLine("Starting web app sign-in flow.");
+                string email = "...";
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, "...", _output);
+                await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
+                _output.WriteLine("Web app sign-in flow successful.");
+
+                // Sign out
+                _output.WriteLine("Starting web app sign-out flow.");
+                await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
+                _output.WriteLine("Web app sign out successful.");
+
+                // Sign in again using Todo List button
+                _output.WriteLine("Starting web app sign-in flow using sign in button after sign out.");
+                await page.GetByRole(AriaRole.Link, new() { Name = "Sign in" }).ClickAsync();
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, "...", _output);
+                await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
+                _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.");
+            }
+            finally
+            {
+                // Add the following to make sure all processes and their children are stopped.
+                Queue<Process> processes = new();
+                if (serviceProcess != null)
+                { processes.Enqueue(serviceProcess); }
+                if (clientProcess != null)
+                { processes.Enqueue(clientProcess); }
                 UiTestHelpers.KillProcessTrees(processes);
 
                 // Stop tracing and export it into a zip archive.
