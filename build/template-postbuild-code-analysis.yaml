@@ -4,6 +4,7 @@
 steps:
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-roslynanalyzers.RoslynAnalyzers@3
   displayName: 'Run Roslyn Analyzers'
+  condition: eq(variables['TargetNet9'], 'False')
   inputs:
     copyLogsOnly: true
   env:
@@ -12,5 +13,6 @@ steps:
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
   displayName: 'Check Roslyn Results '
+  condition: eq(variables['TargetNet9'], 'False')
   inputs:
     RoslynAnalyzers: true
