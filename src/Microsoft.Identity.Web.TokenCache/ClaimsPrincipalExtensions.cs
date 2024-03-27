@@ -68,6 +68,21 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private const string NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
+        /// <summary>
+        /// Issuer claim: "iss".
+        /// </summary>
+        private const string Iss = "iss";
+
+        /// <summary>
+        /// Identity Provider claim: "idp".
+        /// </summary>
+        private const string Idp = "idp";
+
+        /// <summary>
+        /// Old Identity Provider claim: "http://schemas.microsoft.com/identity/claims/identityprovider".
+        /// </summary>
+        private const string IdentityProvider = "http://schemas.microsoft.com/identity/claims/identityprovider";
+
         private const string MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
         private const string Consumers = "consumers";
         private const string Organizations = "organizations";
@@ -114,6 +129,17 @@ namespace Microsoft.Identity.Web
         public static string? GetTenantId(this ClaimsPrincipal claimsPrincipal)
         {
             return GetClaimValue(claimsPrincipal, Tid, TenantId);
+        }
+
+        /// <summary>
+        /// Gets the Identity Provider associated with the <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="claimsPrincipal">The <see cref="ClaimsPrincipal"/> from which to retrieve the tenant ID.</param>
+        /// <returns>Tenant Identity Provider used to log in the user, or <c>null</c> if it cannot be found.</returns>
+        /// <remarks>This method returns the Identity Provider both in case the developer has enabled or not claims mapping, and if none is present, it returns the Issuer.</remarks>
+        public static string? GetIdentityProvider(this ClaimsPrincipal claimsPrincipal)
+        {
+            return GetClaimValue(claimsPrincipal, Idp, IdentityProvider, Iss);
         }
 
         /// <summary>
