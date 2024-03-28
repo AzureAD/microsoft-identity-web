@@ -31,6 +31,13 @@ namespace TokenAcquirerTests
                 "Self-Signed-5-5-22")
         };
 
+        private static readonly CredentialDescription[] s_ciamClientCredentials = new[]
+{
+            CertificateDescription.FromKeyVault(
+                "https://buildautomation.vault.azure.net",
+                "AzureADIdentityDivisionTestAgentCert")
+        };
+
         public TokenAcquirer()
         {
             TokenAcquirerFactory.ResetDefaultInstance(); // Test only
@@ -87,6 +94,24 @@ namespace TokenAcquirerTests
                 option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
                 option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
                 option.ClientCredentials = s_clientCredentials;
+            });
+
+            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
+        {
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Instance = "https://MSIDLABCIAM6.ciamlogin.com";
+                option.TenantId = "fe362aec-5d43-45d1-b730-9755e60dc3b9";
+                option.ClientId = "b244c86f-ed88-45bf-abda-6b37aa482c79";
+                option.ClientCredentials = s_ciamClientCredentials;
             });
 
             await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
