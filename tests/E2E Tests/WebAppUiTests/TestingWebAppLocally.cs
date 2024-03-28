@@ -103,5 +103,86 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             playwright.Dispose();
         }
     }
+
+    [Fact]
+    [SupportedOSPlatform("windows")]
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword()
+    {
+        // Arrange
+        const string _clientSecret = "...";
+        Process? process = null;
+        const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+        IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+        await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
+
+        try
+        {
+            var clientEnvVars = new Dictionary<string, string>
+            {
+                {"AzureAd__ClientId", "16ee75bf-ebbe-42a8-9474-caa0fe856bc7"},//"Authority": "https://nativeauthasampleapp.ciamlogin.com"
+                {"AzureAd__Instance", "https://nativeauthasampleapp.ciamlogin.com"},
+                {"AzureAd__TenantId", "4710d5e4-43bb-4ff9-89af-30ed8fe31c6d"},
+                {"AzureAd__ClientCredentials__0__ClientSecret", _clientSecret},
+            };
+
+            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable, clientEnvVars);
+
+            if (!UiTestHelpers.ProcessIsAlive(process))
+            { Assert.Fail(TC.WebAppCrashedString); }
+
+            IPage page = await browser.NewPageAsync();
+
+            // The retry logic ensures the web app has time to start up to establish a connection.
+            uint InitialConnectionRetryCount = 5;
+            while (InitialConnectionRetryCount > 0)
+            {
+                try
+                {
+                    await page.GotoAsync(UrlString);
+                    break;
+                }
+                catch (PlaywrightException ex)
+                {
+                    await Task.Delay(1000);
+                    InitialConnectionRetryCount--;
+                    if (InitialConnectionRetryCount == 0)
+                    { throw ex; }
+                }
+            }
+
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+
+            // Act
+            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph.");
+            string email = "...";
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, "...", _output);
+
+            // Assert
+            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
+            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}");
+        }
+        finally
+        {
+            // Cleanup the web app process and any child processes
+            Queue<Process> processes = new();
+            if (process != null)
+            { processes.Enqueue(process); }
+            UiTestHelpers.KillProcessTrees(processes);
+
+            // Cleanup Playwright
+            // Stop tracing and export it into a zip archive.
+            string path = UiTestHelpers.GetTracePath(_uiTestAssemblyLocation, TraceFileName);
+            await context.Tracing.StopAsync(new() { Path = path });
+            _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
+            await browser.DisposeAsync();
+            playwright.Dispose();
+        }
+    }
 }
 #endif //FROM_GITHUB_ACTION
