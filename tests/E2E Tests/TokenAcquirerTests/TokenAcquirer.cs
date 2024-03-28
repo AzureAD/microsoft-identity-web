@@ -99,7 +99,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
         {
@@ -108,10 +108,9 @@ namespace TokenAcquirerTests
 
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
-                option.Instance = "https://MSIDLABCIAM6.ciamlogin.com";
-                option.TenantId = "fe362aec-5d43-45d1-b730-9755e60dc3b9";
+                option.Authority = "https://MSIDLABCIAM6.ciamlogin.com";
                 option.ClientId = "b244c86f-ed88-45bf-abda-6b37aa482c79";
-                option.ClientCredentials = s_ciamClientCredentials;
+                option.ClientCredentials = s_clientCredentials;
             });
 
             await CreateGraphClientAndAssert(tokenAcquirerFactory, services);

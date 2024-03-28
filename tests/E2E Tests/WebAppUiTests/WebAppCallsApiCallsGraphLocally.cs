@@ -34,7 +34,6 @@ namespace WebAppUiTests
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
         private readonly string _grpcPath = Path.DirectorySeparatorChar.ToString() + "gRPC";
         private readonly string _testAssemblyLocation = typeof(WebAppCallsApiCallsGraphLocally).Assembly.Location;
-        private readonly string _clientSecret = "...";
         private readonly ITestOutputHelper _output;
 
         public WebAppCallsApiCallsGraphLocally(ITestOutputHelper output)
@@ -42,7 +41,7 @@ namespace WebAppUiTests
             _output = output;
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2716")]
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
         {
@@ -179,23 +178,22 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyWithCiam()
+        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiam()
         {
             // Setup web app and api environmental variables.
             var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {"AzureAd__ClientId", "f7834b72-64f7-4919-a944-7b89d213b1a4"},
-                {"AzureAd__Authority", "https://nativeauthasampleapp.ciamlogin.com"},
+                {"AzureAd__ClientId", "634de702-3173-4a71-b336-a4fab786a479"},
+                {"AzureAd__Authority", "https://MSIDLABCIAM6.ciamlogin.com"},
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
             };
             var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {"AzureAd__ClientId", "16ee75bf-ebbe-42a8-9474-caa0fe856bc7"},
-                {"AzureAd__Authority", "https://nativeauthasampleapp.ciamlogin.com"},
-                {"DownstreamApi__Scopes__0", "api://f7834b72-64f7-4919-a944-7b89d213b1a4/.default"},
-                {"AzureAd__ClientSecret", _clientSecret},
+                {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
+                {"AzureAd__Authority", "https://MSIDLABCIAM6.ciamlogin.com"},
+                {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
             };
 
@@ -242,12 +240,11 @@ namespace WebAppUiTests
                         { throw ex; }
                     }
                 }
-                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
-                string email = "...";
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, "...", _output);
+                string email = "idlab@msidlabciam6.onmicrosoft.com";
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -261,7 +258,7 @@ namespace WebAppUiTests
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using sign in button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign in" }).ClickAsync();
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, "...", _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
