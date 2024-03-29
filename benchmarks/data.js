@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1711502841137,
+  "lastUpdate": 1711677824260,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1188,6 +1188,42 @@ window.BENCHMARK_DATA = {
             "value": 11061.592641934481,
             "unit": "ns",
             "range": "± 75.1310105562263"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9dd40bdf26b3a6d9061662f5d36a73dd4fd6c11b",
+          "message": "fix assertions being removed from dict before callback is executed (#2733)",
+          "timestamp": "2024-03-28T19:00:13-07:00",
+          "tree_id": "59bdff13bf678dae6f9e82bb39f1c78c29add487",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/9dd40bdf26b3a6d9061662f5d36a73dd4fd6c11b"
+        },
+        "date": 1711677823633,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10492.284242301152,
+            "unit": "ns",
+            "range": "± 93.2884813242652"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11040.73277508771,
+            "unit": "ns",
+            "range": "± 55.034904104411524"
           }
         ]
       }
