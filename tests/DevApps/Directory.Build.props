@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
     <LangVersion>11</LangVersion>
@@ -20,6 +21,10 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
     <SystemDrawingCommon>8.0.0</SystemDrawingCommon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <SystemDrawingCommon>9.0.100-preview.2.24157.14</SystemDrawingCommon>
   </PropertyGroup>
 
 </Project>

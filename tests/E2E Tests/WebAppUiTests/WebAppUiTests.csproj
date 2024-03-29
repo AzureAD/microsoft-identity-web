@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

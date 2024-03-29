@@ -27,6 +27,7 @@
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
     <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -57,7 +58,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFramework)' != 'net8.0'">
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -89,6 +90,20 @@
     <MicrosoftIdentityAbstractions>5.1.0</MicrosoftIdentityAbstractions>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>9.0.0-preview.2.24128.5</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>9.0.0-preview.2.24128.5</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>9.0.0-preview.2.24128.5</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>9.0.0-preview.2.24128.5</MicrosoftExtensionsLoggingVersion>
+    <SystemTextEncodingsWebVersion>9.0.100-preview.2.24157.14</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion> 9.0.0-preview.2.24128.5</MicrosoftExtensionsDependencyInjectionVersion>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
