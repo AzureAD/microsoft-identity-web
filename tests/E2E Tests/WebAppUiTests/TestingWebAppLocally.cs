@@ -25,6 +25,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
+    private const string TraceFileClassNameCiam = "TestingWebAppLocallyCiam";
     private readonly ITestOutputHelper _output;
     private readonly string _devAppExecutable = Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph.exe";
     private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph";
@@ -44,7 +45,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         var clientEnvVars = new Dictionary<string, string>();
 
-        await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars).ConfigureAwait(false);
+        await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
     }
 
     [Fact]
@@ -59,14 +60,14 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             {"AzureAd__Domain", ""}
         };
 
-        await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars).ConfigureAwait(false);
+        await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
     }
 
-    private async Task ExecuteWebAppCallsGraphFlow(string upn, string credential, Dictionary<string, string>? clientEnvVars)
+    private async Task ExecuteWebAppCallsGraphFlow(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
     {
         // Arrange
         Process? process = null;
-        const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
+        string TraceFileName = traceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
         IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
         IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });

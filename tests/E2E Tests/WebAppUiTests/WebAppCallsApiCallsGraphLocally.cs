@@ -87,25 +87,7 @@ namespace WebAppUiTests
                         Assert.Fail(TC.WebAppCrashedString);
                     }
 
-                // Navigate to web app
-                IPage page = await context.NewPageAsync();
-
-                // The retry logic ensures the web app has time to start up to establish a connection.
-                uint InitialConnectionRetryCount = 5;
-                while (InitialConnectionRetryCount > 0)
-                {
-                    try
-                    {
-                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
-                        break;
-                    }
-                    catch (PlaywrightException ex)
-                    {
-                        await Task.Delay(1000);
-                        InitialConnectionRetryCount--;
-                        if (InitialConnectionRetryCount == 0) { throw ex; }
-                    }
-                }
+                var page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -203,7 +185,7 @@ namespace WebAppUiTests
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_CiamWebApp_WebApiFunctionsCorrectly";
             using IPlaywright playwright = await Playwright.CreateAsync();
-            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
@@ -220,26 +202,7 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString);
                 }
 
-                // Navigate to web app
-                IPage page = await context.NewPageAsync();
-
-                // The retry logic ensures the web app has time to start up to establish a connection.
-                uint InitialConnectionRetryCount = 5;
-                while (InitialConnectionRetryCount > 0)
-                {
-                    try
-                    {
-                        await page.GotoAsync(TC.LocalhostUrl + WebAppCiamPort);
-                        break;
-                    }
-                    catch (PlaywrightException ex)
-                    {
-                        await Task.Delay(1000);
-                        InitialConnectionRetryCount--;
-                        if (InitialConnectionRetryCount == 0)
-                        { throw ex; }
-                    }
-                }
+                var page = await NavigateToWebApp(context, WebAppCiamPort);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
@@ -286,6 +249,32 @@ namespace WebAppUiTests
                 await browser.CloseAsync();
                 playwright.Dispose();
             }
+        }
+
+        private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)
+        {
+            // Navigate to web app
+            IPage page = await context.NewPageAsync();
+
+            // The retry logic ensures the web app has time to start up to establish a connection.
+            uint InitialConnectionRetryCount = 5;
+            while (InitialConnectionRetryCount > 0)
+            {
+                try
+                {
+                    await page.GotoAsync(TC.LocalhostUrl + port);
+                    break;
+                }
+                catch (PlaywrightException ex)
+                {
+                    await Task.Delay(1000);
+                    InitialConnectionRetryCount--;
+                    if (InitialConnectionRetryCount == 0)
+                    { throw ex; }
+                }
+            }
+
+            return page;
         }
     }
 }
