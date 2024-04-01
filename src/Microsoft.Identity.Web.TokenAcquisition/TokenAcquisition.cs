@@ -816,15 +816,17 @@ namespace Microsoft.Identity.Web
                             // Special case when the OBO inbound token is composite (for instance PFT)
                             if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
+                                string assertion = dict[assertionConstant];
+                                string subAssertion = dict[subAssertionConstant];
 
                                 // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
-                                CheckAssertionsForInjectionAttempt(dict[assertionConstant], dict[subAssertionConstant]);
+                                CheckAssertionsForInjectionAttempt(assertion, subAssertion);
 
                                 builder.OnBeforeTokenRequest((data) =>
                                 {
                                     // Replace the assertion and adds sub_assertion with the values from the extra query parameters
-                                    data.BodyParameters[assertionConstant] = dict[assertionConstant];
-                                    data.BodyParameters.Add(subAssertionConstant, dict[subAssertionConstant]);
+                                    data.BodyParameters[assertionConstant] = assertion;
+                                    data.BodyParameters.Add(subAssertionConstant, subAssertion);
                                     return Task.CompletedTask;
                                 });
 
