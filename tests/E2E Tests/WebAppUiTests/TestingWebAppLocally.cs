@@ -49,8 +49,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     }
 
     [Theory]
-    [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] //Non CIAM CUD authority
-    [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] //CIAM CUD Authority
+    [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+    [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword(string authority)
     {
