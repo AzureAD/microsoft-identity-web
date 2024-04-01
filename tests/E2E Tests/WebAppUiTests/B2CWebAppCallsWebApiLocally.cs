@@ -17,7 +17,8 @@ using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
 {
-#if !FROM_GITHUB_ACTION
+#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
     public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowserFixture>
@@ -180,6 +181,6 @@ namespace WebAppUiTests
                 playwright.Dispose();
             }
         }
-#endif // !FROM_GITHUB_ACTION
     }
 }
+#endif // !FROM_GITHUB_ACTION
