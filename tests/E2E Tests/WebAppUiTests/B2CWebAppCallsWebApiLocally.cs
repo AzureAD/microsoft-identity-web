@@ -29,7 +29,7 @@ namespace WebAppUiTests
         private const uint TodoListClientPort = 5000;
         private const uint TodoListServicePort = 44332;
         private const string TraceClassName = "B2CWebAppCallsWebApiLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 35000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = Path.Join("DevApps", "B2CWebAppCallsWebApi");
         private readonly Uri _keyvaultUri = new("https://webappsapistests.vault.azure.net");
         private readonly ITestOutputHelper _output;

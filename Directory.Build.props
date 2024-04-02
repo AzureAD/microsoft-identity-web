@@ -58,7 +58,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFrameworkIdentifier)' != 'NET8_0_OR_GREATER'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
