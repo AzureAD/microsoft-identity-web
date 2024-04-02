@@ -16,7 +16,7 @@ using Xunit.Abstractions;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
-#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+#if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
