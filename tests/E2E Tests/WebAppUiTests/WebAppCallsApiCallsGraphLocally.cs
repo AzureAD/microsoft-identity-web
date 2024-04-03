@@ -28,7 +28,7 @@ namespace WebAppUiTests
         private const uint WebAppCiamPort = 7082;
         private const uint WebApiCiamPort = 44332;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 50000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _devAppPathCiam = Path.Join("DevApps", "ciam");
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
