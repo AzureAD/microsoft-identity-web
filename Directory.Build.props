@@ -58,7 +58,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFrameworkIdentifier)' != 'NET8_0_OR_GREATER'">
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and (('$(TargetFramework)' != 'net8.0') or ('$(TargetFramework)' != 'net9.0'))">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -88,20 +88,22 @@
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftIdentityAbstractions>5.1.0</MicrosoftIdentityAbstractions>
+    <NetNineRuntimeVersion> 9.0.0-preview.2.24128.5</NetNineRuntimeVersion>
+    <AspNetCoreNineRuntimeVersion> 9.0.0-preview.2.24128.4</AspNetCoreNineRuntimeVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>9.0.0-preview.2.24128.5</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>9.0.0-preview.2.24128.5</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>9.0.0-preview.2.24128.5</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>9.0.0-preview.2.24128.5</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>9.0.100-preview.2.24157.14</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion> 9.0.0-preview.2.24128.5</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">

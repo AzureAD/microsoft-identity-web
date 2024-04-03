@@ -51,7 +51,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <MicrosoftAspNetCoreMvcTestingVersion>9.0.0-preview.2.24128.4</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
   </PropertyGroup>

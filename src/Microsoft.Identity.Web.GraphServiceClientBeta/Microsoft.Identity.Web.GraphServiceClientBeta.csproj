@@ -19,7 +19,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.0-preview.2.24128.5" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(NetNineRuntimeVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != 'NET8_0_OR_GREATER'">
