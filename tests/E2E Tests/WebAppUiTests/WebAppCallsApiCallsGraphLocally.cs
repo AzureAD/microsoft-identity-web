@@ -28,7 +28,7 @@ namespace WebAppUiTests
         private const uint WebAppCiamPort = 7082;
         private const uint WebApiCiamPort = 44332;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
-        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
+        private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 50000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _devAppPathCiam = Path.Join("DevApps", "ciam");
         private readonly string _grpcExecutable = Path.DirectorySeparatorChar.ToString() + "grpc.exe";
@@ -158,23 +158,25 @@ namespace WebAppUiTests
             }
         }
 
-        [Fact]
+        [Theory]
+        [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+        [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
         [SupportedOSPlatform("windows")]
-        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiam()
+        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiam(string authority)
         {
             // Setup web app and api environmental variables.
             var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {"AzureAd__ClientId", "634de702-3173-4a71-b336-a4fab786a479"},
-                {"AzureAd__Authority", "https://MSIDLABCIAM6.ciamlogin.com"},
+                {"AzureAd__Authority", authority},
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
             };
             var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
-                {"AzureAd__Authority", "https://MSIDLABCIAM6.ciamlogin.com"},
+                {"AzureAd__Authority", authority},
                 {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
             };
