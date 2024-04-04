@@ -3,19 +3,8 @@
 
 steps:
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    projects: |
-        Tests/**/*.csproj
-        !Tests/DevApps/**/*.csproj
-        !Tests/**/WebAppUiTests.csproj
-    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
-  continueOnError: true
-
 - task: VSTest@2
   displayName: 'Run integration tests (.NET 8)'
-  condition: and(succeeded(), eq(variables['PipelineType'], 'legacy'))
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: 'Tests\**\WebAppUiTests\**\net8.0\WebAppUiTests.dll'
@@ -28,6 +17,23 @@ steps:
     minimumExpectedTests: '1'
   continueOnError: true
     
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish traces after test'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
+    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+  condition: failed()
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: |
+        Tests/**/*.csproj
+        !Tests/DevApps/**/*.csproj
+        !Tests/**/WebAppUiTests.csproj
+    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
+  continueOnError: true
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
   inputs:
