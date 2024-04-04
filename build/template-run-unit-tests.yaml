@@ -8,9 +8,25 @@ steps:
     command: 'test'
     projects: |
         Tests/**/*.csproj
-        !Tests/DevApps/**/*.csproj 
+        !Tests/DevApps/**/*.csproj
+        !Tests/**/WebAppUiTests.csproj
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
-    continueOnError: 'true'
+  continueOnError: true
+
+- task: VSTest@2
+  displayName: 'Run integration tests (.NET 8)'
+  condition: and(succeeded(), eq(variables['PipelineType'], 'legacy'))
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: 'Tests\**\WebAppUiTests\**\net8.0\WebAppUiTests.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    rerunFailedTests: true
+    rerunMaxAttempts: '3'
+    runInParallel: false
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: false
+    minimumExpectedTests: '1'
+  continueOnError: true
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
