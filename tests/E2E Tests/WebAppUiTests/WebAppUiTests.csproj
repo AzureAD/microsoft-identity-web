@@ -31,6 +31,11 @@
     <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\gRPC\grpc.csproj" />
     <ProjectReference Include="..\..\DevApps\WebAppCallsWebApiCallsGraph\TodoListService\TodoListService.csproj" />
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
+
+    <!-- Not used. Only here to ensure these are built first -->
+    <ProjectReference Include="..\..\DevApps\ciam\myWebApi\myWebApi.csproj" />
+    <ProjectReference Include="..\..\DevApps\ciam\myWebApp\myWebApp.csproj" />
+
   </ItemGroup>
 
 </Project>
