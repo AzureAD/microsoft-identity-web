@@ -33,7 +33,7 @@ steps:
 - task: AzureKeyVault@1
   displayName: 'Azure Key Vault: msidlabs'
   inputs:
-    azureSubscription: '.NET Keyvault'
+    azureSubscription: 'AuthSdkResourceManager'
     KeyVaultName: msidlabs
     SecretsFilter: 'LabVaultAccessCert'
 
