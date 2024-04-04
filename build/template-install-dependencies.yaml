@@ -34,7 +34,7 @@ steps:
   displayName: 'Azure Key Vault: msidlabs'
   inputs:
     azureSubscription: 'AuthSdkResourceManager'
-    KeyVaultName: msidlabs
+    KeyVaultName: 'msidlabs'
     SecretsFilter: 'LabVaultAccessCert'
 
 - powershell: |
