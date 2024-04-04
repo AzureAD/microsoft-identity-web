@@ -31,11 +31,11 @@ steps:
 # Install all secrets needed from KeyVault onto the build machine.
 
 - task: AzureKeyVault@1
-  displayName: 'Azure Key Vault: buildautomation'
+  displayName: 'Azure Key Vault: msidlabs'
   inputs:
     azureSubscription: '.NET Keyvault'
-    KeyVaultName: buildautomation
-    SecretsFilter: 'AzureADIdentityDivisionTestAgentCert'
+    KeyVaultName: msidlabs
+    SecretsFilter: 'LabVaultAccessCert'
 
 - powershell: |
    $kvSecretBytes = [System.Convert]::FromBase64String('$(AzureADIdentityDivisionTestAgentCert)')
