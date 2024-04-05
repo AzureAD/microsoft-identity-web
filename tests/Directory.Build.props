@@ -32,7 +32,7 @@
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
     <SystemManagementVersion>8.0.0</SystemManagementVersion>
-    <MicrosoftIdentityLabApiVersion>0.12.1</MicrosoftIdentityLabApiVersion>
+    <MicrosoftIdentityLabApiVersion>0.12.2</MicrosoftIdentityLabApiVersion>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
