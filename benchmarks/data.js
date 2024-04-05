@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712347825462,
+  "lastUpdate": 1712350653324,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1368,6 +1368,42 @@ window.BENCHMARK_DATA = {
             "value": 10966.247937386495,
             "unit": "ns",
             "range": "± 72.44402123659457"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "travis.walker@microsoft.com",
+            "name": "Travis Walker",
+            "username": "trwalke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9a576f7fb0c4ef2f829ba6f557760911f21a9118",
+          "message": "Update rel/v2 with lab api/lab app changes (#2746)\n\n* Updating lab api to 0.12.2 (#2744)\r\n\r\n* Updating to Lab.Api 0.12.2\r\n\r\n* Updating keyvault target\r\n\r\n* Updating lab service connection\r\n\r\n* Fixing typo\r\n\r\n* Update\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>\r\n\r\n* Updating constants for lab apps (#2745)\r\n\r\n* Updating constants\r\n\r\n* revert\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>",
+          "timestamp": "2024-04-05T13:53:56-07:00",
+          "tree_id": "32583d1ee16be541925b49ac5af630826e4ee30f",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/9a576f7fb0c4ef2f829ba6f557760911f21a9118"
+        },
+        "date": 1712350651992,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10259.70300462511,
+            "unit": "ns",
+            "range": "± 56.24653233692715"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10908.66882573908,
+            "unit": "ns",
+            "range": "± 56.680747757625724"
           }
         ]
       }
