@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712004299852,
+  "lastUpdate": 1712276689501,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1296,6 +1296,42 @@ window.BENCHMARK_DATA = {
             "value": 10821.970607253741,
             "unit": "ns",
             "range": "± 84.22612711146908"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "travis.walker@microsoft.com",
+            "name": "Travis Walker",
+            "username": "trwalke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "888f70affec9fa013c33f6c489e01b2d41175a5c",
+          "message": "Updating lab api to 0.12.2 (#2744)\n\n* Updating to Lab.Api 0.12.2\r\n\r\n* Updating keyvault target\r\n\r\n* Updating lab service connection\r\n\r\n* Fixing typo\r\n\r\n* Update\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>",
+          "timestamp": "2024-04-04T17:19:18-07:00",
+          "tree_id": "6b82d1e729ee3b3c0e7bd5f176f4e9b86050736b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/888f70affec9fa013c33f6c489e01b2d41175a5c"
+        },
+        "date": 1712276688308,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10444.790247791218,
+            "unit": "ns",
+            "range": "± 98.59653200793909"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11073.164100513124,
+            "unit": "ns",
+            "range": "± 152.25920170285212"
           }
         ]
       }
