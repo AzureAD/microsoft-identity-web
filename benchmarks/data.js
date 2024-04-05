@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712276689501,
+  "lastUpdate": 1712347825462,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1332,6 +1332,42 @@ window.BENCHMARK_DATA = {
             "value": 11073.164100513124,
             "unit": "ns",
             "range": "± 152.25920170285212"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "travis.walker@microsoft.com",
+            "name": "Travis Walker",
+            "username": "trwalke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "96e979d47b5c96e8854b5321ebefa07985d621ac",
+          "message": "Updating constants for lab apps (#2745)\n\n* Updating constants\r\n\r\n* revert\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>",
+          "timestamp": "2024-04-05T13:07:00-07:00",
+          "tree_id": "ddcffc3d53f8d244107ba3c2450b19f1d4dcb146",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/96e979d47b5c96e8854b5321ebefa07985d621ac"
+        },
+        "date": 1712347824824,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10443.456137673897,
+            "unit": "ns",
+            "range": "± 92.03878268344309"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10966.247937386495,
+            "unit": "ns",
+            "range": "± 72.44402123659457"
           }
         ]
       }
