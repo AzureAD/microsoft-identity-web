@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712350653324,
+  "lastUpdate": 1712359989972,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1404,6 +1404,42 @@ window.BENCHMARK_DATA = {
             "value": 10908.66882573908,
             "unit": "ns",
             "range": "± 56.680747757625724"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38921563+FuPingFranco@users.noreply.github.com",
+            "name": "Franco Fung",
+            "username": "FuPingFranco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e82a5253fb89db7725b48ab19b7565ea616b462e",
+          "message": "Conditionally Target NET 9  (#2739)\n\n* Test target NET9 preview\r\n\r\n* Fix NU1102's\r\n\r\n* Move directive condition for Skipping failining test\r\n\r\n* Fix app-provioning tool condition\r\n\r\n* Fix Typo\r\n\r\n* Try fix test\r\n\r\n* Undo unit test fix\r\n\r\n* Increase Time out\r\n\r\n* Revert timeout test change\r\n\r\n* Do not target net 9 in daemon apps\r\n\r\n* Add NET 9 condition to failing test\r\n\r\n* Update tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj\r\n\r\nCo-authored-by: Westin Musser <127992899+westin-m@users.noreply.github.com>\r\n\r\n* Update src/Microsoft.Identity.Web.TokenCache/Microsoft.Identity.Web.TokenCache.csproj\r\n\r\nCo-authored-by: Westin Musser <127992899+westin-m@users.noreply.github.com>\r\n\r\n* Update src/Microsoft.Identity.Web.TokenAcquisition/Microsoft.Identity.Web.TokenAcquisition.csproj\r\n\r\nCo-authored-by: Westin Musser <127992899+westin-m@users.noreply.github.com>\r\n\r\n* Address PR feedback\r\n\r\n* Un-Target Net 9 for flaky test\r\n\r\n* Use var to control Net 9 versions\r\n\r\n* Test using TargetFrameworkIdentifier condition\r\n\r\n* Update Directory.Build.props\r\n\r\nCo-authored-by: Peter <34331512+pmaytak@users.noreply.github.com>\r\n\r\n---------\r\n\r\nCo-authored-by: Franco Fung <francofung@microsoft.com>\r\nCo-authored-by: Westin Musser <127992899+westin-m@users.noreply.github.com>\r\nCo-authored-by: Peter <34331512+pmaytak@users.noreply.github.com>",
+          "timestamp": "2024-04-05T16:29:14-07:00",
+          "tree_id": "21e422b2a43f98d6387a5ada0b232be6cd0d3cd9",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e82a5253fb89db7725b48ab19b7565ea616b462e"
+        },
+        "date": 1712359989244,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10474.203301565987,
+            "unit": "ns",
+            "range": "± 64.12065637680782"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 11028.92262989391,
+            "unit": "ns",
+            "range": "± 74.44073907731114"
           }
         ]
       }
