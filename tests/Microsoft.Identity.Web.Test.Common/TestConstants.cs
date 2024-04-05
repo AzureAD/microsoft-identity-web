@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
         public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        public const string AzureADIdentityDivisionTestAgentSecret = "LabVaultAccessCert";
+        public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLABAccessSecret";
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
         public const string LabVaultAppId = "LabVaultAppID";
         public const string LabVaultAppSecret = "LabVaultAppSecret";
