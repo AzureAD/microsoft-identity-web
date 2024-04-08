@@ -1,19 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Runtime.InteropServices;
+
 namespace Microsoft.Identity.Abstractions
 {
     /// <summary>
     /// 
     /// </summary>
-    public class MicrosoftIdentityApplicationOptions
+    [StructLayout(LayoutKind.Sequential)]
+    public readonly struct MicrosoftIdentityApplicationOptionsC
     {
-        private string? _authority;
+        private readonly IntPtr _authority;
 
         /// <summary>
         /// Gets or sets the Azure Active Directory instance, e.g. <c>"https://login.microsoftonline.com/"</c>.
         /// </summary>
-        public string? Instance { get; set; }
+        private readonly IntPtr _instance;
 
         /// <summary>
         /// Gets or sets the tenant ID. If your application is multi-tenant, you can also use "common" if it supports
@@ -21,18 +24,29 @@ namespace Microsoft.Identity.Abstractions
         /// and school accounts. If your application is single tenant, set this property to the tenant ID or domain name.
         /// If your application works only for Microsoft personal accounts, use "consumers".
         /// </summary>
-        public string? TenantId { get; set; }
+        private readonly IntPtr _tenantId;
 
         /// <summary>
-        /// Gets or sets the Authority to use when making OpenIdConnect calls. By default the authority is computed
-        /// from the <see cref="Instance"/> and <see cref="TenantId"/> properties, by concatenating them, and appending "v2.0".
-        /// If your authority is not an Azure AD authority, you can set it directly here.
+        /// 
         /// </summary>
-        public string? Authority
-        {
-            get { return _authority ?? $"{Instance?.TrimEnd('/')}/{TenantId}/v2.0"; }
-            set { _authority = value; }
-        }
+        private readonly IntPtr _audience;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private readonly IntPtr _audiences;
+
+        private readonly uint _audiencesCount;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly string? Instance => Marshal.PtrToStringUTF8(_instance);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly string? TenantId => Marshal.PtrToStringUTF8(_tenantId);
 
         /// <summary>
         /// In a web API, audience of the tokens that will be accepted by the web API.
@@ -40,7 +54,30 @@ namespace Microsoft.Identity.Abstractions
         /// </summary>
         /// <remarks>If both Audience and <see cref="Audiences"/>, are expressed, the effective audiences is the
         /// union of these properties.</remarks>
-        public string? Audience { get; set; }
+        public readonly string? Audience => Marshal.PtrToStringUTF8(_audience);
+
+        private readonly unsafe int strlen(byte* inputString)
+        {
+            int len = 0;
+            while (*inputString != 0)
+            {
+                len++;
+                inputString++;
+            }
+            return len;
+        }
+
+        private readonly string? AuthorityInternal => Marshal.PtrToStringUTF8(_authority);
+
+        /// <summary>
+        /// Gets or sets the Authority to use when making OpenIdConnect calls. By default the authority is computed
+        /// from the <see cref="Instance"/> and <see cref="TenantId"/> properties, by concatenating them, and appending "v2.0".
+        /// If your authority is not an Azure AD authority, you can set it directly here.
+        /// </summary>
+        public readonly string? Authority
+        {
+            get { return AuthorityInternal ?? $"{Instance?.TrimEnd('/')}/{TenantId}/v2.0"; }
+        }
 
         /// <summary>
         /// In a web API, accepted audiences for the tokens received by the web API.
@@ -67,7 +104,21 @@ namespace Microsoft.Identity.Abstractions
         /// </example>
         /// <remarks>If both Audiences and <see cref="Audience"/>, are expressed, the effective audiences is the
         /// union of these properties.</remarks>
-        public IEnumerable<string>? Audiences { get; set; }
+        unsafe readonly public string[] Audiences
+        {
+            get
+            {
+                string[] audiences = new string[_audiencesCount];
 
+                // Iterate over each element of the byte[]* array
+                for (int i = 0; i < _audiencesCount; i++)
+                {
+                    // Convert each element to a string using Encoding.UTF8.GetString
+                    IntPtr head = Marshal.ReadIntPtr(_audiences, i * IntPtr.Size);
+                    audiences[i] = Marshal.PtrToStringUTF8(head);
+                }
+                return audiences;
+            }
+        }
     }
 }

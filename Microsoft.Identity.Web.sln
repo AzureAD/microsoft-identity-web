@@ -177,6 +177,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.Cros
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.C", "prototype\Microsoft.Identity.Web.C\Microsoft.Identity.Web.C.csproj", "{26A22EFF-5CFB-46FF-A537-1140A20BC384}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCrossPlatformFromManaged", "prototype\TestCrossPlatformFromManaged\TestCrossPlatformFromManaged.csproj", "{46F41A83-40D0-4EB4-938A-9ECB53CB4452}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -415,6 +417,10 @@ Global
 		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46F41A83-40D0-4EB4-938A-9ECB53CB4452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46F41A83-40D0-4EB4-938A-9ECB53CB4452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46F41A83-40D0-4EB4-938A-9ECB53CB4452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46F41A83-40D0-4EB4-938A-9ECB53CB4452}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -496,6 +502,7 @@ Global
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{779D5317-9DE5-45C9-B6E3-09D66ADF819E} = {48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}
 		{26A22EFF-5CFB-46FF-A537-1140A20BC384} = {48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}
+		{46F41A83-40D0-4EB4-938A-9ECB53CB4452} = {48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

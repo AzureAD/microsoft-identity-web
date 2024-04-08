@@ -21,6 +21,13 @@
 MICROSOFT_IDENTITY_WEB_EXTERN_C typedef struct _MicrosoftIdentityApplicationOptions
 {
     /**
+     * Gets or sets the Authority to use when making OpenIdConnect calls. By default the authority is computed
+     * from the <see cref="Instance"/> and <see cref="TenantId"/> properties, by concatenating them, and appending "v2.0".
+     * If your authority is not an Azure AD authority, you can set it directly here.
+    */
+    const char* authority;
+
+    /**
      * Gets or sets the Azure Active Directory instance, e.g. <c>"https://login.microsoftonline.com/"</c>.
     */
     const char* instance;
@@ -32,13 +39,6 @@ MICROSOFT_IDENTITY_WEB_EXTERN_C typedef struct _MicrosoftIdentityApplicationOpti
      * If your application works only for Microsoft personal accounts, use "consumers".
     */
     const char* tenantId;
-
-    /**
-     * Gets or sets the Authority to use when making OpenIdConnect calls. By default the authority is computed
-     * from the <see cref="Instance"/> and <see cref="TenantId"/> properties, by concatenating them, and appending "v2.0".
-     * If your authority is not an Azure AD authority, you can set it directly here.
-    */
-    const char* authority;
 
     /**
      * In a web API, audience of the tokens that will be accepted by the web API.
@@ -55,5 +55,40 @@ MICROSOFT_IDENTITY_WEB_EXTERN_C typedef struct _MicrosoftIdentityApplicationOpti
     unsigned int audiencesCount;
 
 } MicrosoftIdentityApplicationOptions;
+
+MICROSOFT_IDENTITY_WEB_EXTERN_C typedef struct _MicrosoftIdentityValidationInput
+{
+    /**
+    * Authorization header used to call the API.
+    */
+    const char* authorizationHeader;
+
+} MicrosoftIdentityValidationInput;
+
+MICROSOFT_IDENTITY_WEB_EXTERN_C typedef struct _MicrosoftIdentityValidationOutput
+{
+    /**
+    * HTTP response status code.
+    */
+    int httpResponseStatusCode;
+
+    /**
+    * Description of the error (for humans).
+    */
+    const char* errorDescription;
+
+    /**
+    * WWW-Authenticate header value.
+    */
+    const char* wwwAuthenticate;
+
+    /**
+    * Claims in the token.
+    */
+    const char* claims;
+    unsigned int claimsCount;
+
+} MicrosoftIdentityValidationOutput;
+
 
 #endif // !MICROSOFT_IDENTITY_WEB_DLL_H

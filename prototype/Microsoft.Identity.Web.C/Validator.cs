@@ -18,10 +18,17 @@ namespace Microsoft.Identity.Web.C
         /// </summary>
         /// <param name="microsoftIdentityApplicationOptionsPtr"></param>
         [UnmanagedCallersOnly(EntryPoint = "IdentityWebConfigure")]
-        public static unsafe void Configure(IntPtr microsoftIdentityApplicationOptionsPtr)
+        public static unsafe void Configure(MicrosoftIdentityApplicationOptionsC* microsoftIdentityApplicationOptionsPtr)
         {
-            MicrosoftIdentityApplicationOptions? msIdentityApplicationOptions = Marshal.PtrToStructure<MicrosoftIdentityApplicationOptions>(microsoftIdentityApplicationOptionsPtr);
-            s_crossPlatformValidator = new(msIdentityApplicationOptions);
+            Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Authority);
+            Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Audience);
+
+            s_crossPlatformValidator = new CrossPlatform.Validator(new MicrosoftIdentityApplicationOptions
+            {
+                Authority = microsoftIdentityApplicationOptionsPtr->Authority,
+                Audience = microsoftIdentityApplicationOptionsPtr->Audience,
+                Audiences = microsoftIdentityApplicationOptionsPtr->Audiences,
+            });
         }
 
         /// <summary>
@@ -36,11 +43,22 @@ namespace Microsoft.Identity.Web.C
                 return IntPtr.Zero;
             }
 
-            CrossPlatform.ValidationInput? validationInput = Marshal.PtrToStructure<CrossPlatform.ValidationInput>(validationInputPtr);
-            CrossPlatform.ValidationOutput? validationOutput = s_crossPlatformValidator.ValidateAsync(validationInput).Result;
-            IntPtr validationOutputPtr = Marshal.AllocHGlobal(Marshal.SizeOf<CrossPlatform.ValidationOutput>());
-            Marshal.StructureToPtr(validationOutput, validationOutputPtr, false);
-            return validationOutputPtr;
+            CrossPlatform.ValidationInputC? validationInput = Marshal.PtrToStructure<CrossPlatform.ValidationInputC>(validationInputPtr);
+            Console.WriteLine(validationInput.Value.AuthorizationHeader);
+            var result = s_crossPlatformValidator.ValidateAsync(validationInput.Value.ToValidationInput()).Result;
+            if (result == null)
+            {
+                Console.WriteLine("result is null");
+                return IntPtr.Zero;
+            }
+            else
+            {
+                Console.WriteLine(result.HttpResponseStatusCode);
+                CrossPlatform.ValidationOutputC? validationOutput = new CrossPlatform.ValidationOutputC(result);
+                IntPtr validationOutputPtr = Marshal.AllocHGlobal(Marshal.SizeOf<CrossPlatform.ValidationOutputC>());
+                Marshal.StructureToPtr(validationOutput, validationOutputPtr, false);
+                return validationOutputPtr;
+            }
         }
     }
 }
