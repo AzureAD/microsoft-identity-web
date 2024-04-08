@@ -169,7 +169,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "benchmark\Ben
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContosoWorker", "tests\DevApps\ContosoWorker\ContosoWorker.csproj", "{4A63EA63-5679-4498-BB4C-30E09F268E00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.UI", "src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{C6CB0D5B-917A-4127-9984-7592C757BBDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI", "src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{C6CB0D5B-917A-4127-9984-7592C757BBDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prototype", "prototype", "{48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.CrossPlatform", "prototype\Microsoft.Identity.Web.CrossPlatform\Microsoft.Identity.Web.CrossPlatform.csproj", "{779D5317-9DE5-45C9-B6E3-09D66ADF819E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.C", "prototype\Microsoft.Identity.Web.C\Microsoft.Identity.Web.C.csproj", "{26A22EFF-5CFB-46FF-A537-1140A20BC384}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -401,6 +407,14 @@ Global
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{779D5317-9DE5-45C9-B6E3-09D66ADF819E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{779D5317-9DE5-45C9-B6E3-09D66ADF819E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{779D5317-9DE5-45C9-B6E3-09D66ADF819E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{779D5317-9DE5-45C9-B6E3-09D66ADF819E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26A22EFF-5CFB-46FF-A537-1140A20BC384}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -480,6 +494,8 @@ Global
 		{8FB5433F-D625-464E-8957-FDD0AC20FBDE} = {A6799B45-E2FD-4ACA-86A2-D1AD5B1E2ECE}
 		{4A63EA63-5679-4498-BB4C-30E09F268E00} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
+		{779D5317-9DE5-45C9-B6E3-09D66ADF819E} = {48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}
+		{26A22EFF-5CFB-46FF-A537-1140A20BC384} = {48A3C86F-D0F4-4C5A-8404-14E5D109CA8F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}
