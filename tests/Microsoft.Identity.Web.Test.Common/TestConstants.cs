@@ -104,15 +104,15 @@ namespace Microsoft.Identity.Web.Test.Common
 
         // Constants for the lab
         public const string OBOClientKeyVaultUri = "TodoListServiceV2-OBO";
-        public const string ConfidentialClientKeyVaultUri = "https://buildautomation.vault.azure.net/secrets/AzureADIdentityDivisionTestAgentSecret/";
-        public const string ConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
+        public const string ConfidentialClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/LabVaultAccessCert/";
+        public const string ConfidentialClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string ConfidentialClientLabTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47";
         public const string OBOUser = "fIDLAB@msidlab4.com";
         public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
         public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
-        public const string LabClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
+        public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        public const string AzureADIdentityDivisionTestAgentSecret = "AzureADIdentityDivisionTestAgentSecret";
+        public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLABAccessSecret";
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
         public const string LabVaultAppId = "LabVaultAppID";
         public const string LabVaultAppSecret = "LabVaultAppSecret";
