@@ -48,22 +48,22 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
     }
 
-    //[Theory]
-    //[InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
-    //[InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
-    //[SupportedOSPlatform("windows")]
-    //public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword(string authority)
-    //{
-    //    var clientEnvVars = new Dictionary<string, string>
-    //    {
-    //        {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
-    //        {"AzureAd__Authority", authority},
-    //        {"AzureAd__TenantId", ""},
-    //        {"AzureAd__Domain", ""}
-    //    };
+    [Theory]
+    [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+    [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+    [SupportedOSPlatform("windows")]
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword(string authority)
+    {
+        var clientEnvVars = new Dictionary<string, string>
+        {
+            {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
+            {"AzureAd__Authority", authority},
+            {"AzureAd__TenantId", ""},
+            {"AzureAd__Domain", ""}
+        };
 
-    //    await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
-    //}
+        await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
+    }
 
     private async Task ExecuteWebAppCallsGraphFlow(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
     {
