@@ -198,10 +198,12 @@ namespace WebAppUiTests
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
                 await Task.Delay(3000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-
+                await Task.Delay(8000);
                 if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                 {
-                    Assert.Fail(TC.WebAppCrashedString);
+                    string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
+                        $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
+                    Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses);
                 }
 
                 var page = await NavigateToWebApp(context, WebAppCiamPort);
