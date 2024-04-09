@@ -25,14 +25,15 @@ namespace TestCrossPlatformFromManaged
             IntPtr ptr2 = Marshal.AllocCoTaskMem(Marshal.SizeOf<MicrosoftIdentityValidationInput>());
             Marshal.StructureToPtr(new MicrosoftIdentityValidationInput()
             {
-                AuthorizationHeader = Marshal.StringToCoTaskMemUTF8("Bearer token")
+                AuthorizationHeader = Marshal.StringToHGlobalAnsi("Bearer token")
             }, ptr2, false);
 
             IntPtr result = DllImports.Validate(ptr2);
+
             var output = Marshal.PtrToStructure<MicrosoftIdentityValidationOutput>(result);
             Console.WriteLine(output.HttpResponseStatusCode);
-            Console.WriteLine(Marshal.PtrToStringUni(output.ErrorDescription));
-            Console.WriteLine(Marshal.PtrToStringUni(output.WwwAuthenticate));
+            Console.WriteLine(Marshal.PtrToStringAnsi(output.ErrorDescription));
+            Console.WriteLine(Marshal.PtrToStringAnsi(output.WwwAuthenticate));
             Console.WriteLine(output.ClaimsCount);
         }
     }

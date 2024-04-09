@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web.CrossPlatform
 {
 
     /// <summary>
-    /// Result of <see cref="Validator.ValidateAsync(MiseValidationInput, System.Threading.CancellationToken)"/> method.
+    /// Result of Validate method.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct ValidationOutputC
@@ -18,11 +18,6 @@ namespace Microsoft.Identity.Web.CrossPlatform
         /// <param name="validationOutput"></param>
         public ValidationOutputC(ValidationOutput validationOutput)
         {
-            if (validationOutput == null)
-            {
-                Console.WriteLine("validationOUtput null");
-
-            }
             _httpResponseStatusCode = validationOutput.HttpResponseStatusCode;
 
             if (validationOutput.ErrorDescription != null)
@@ -43,9 +38,16 @@ namespace Microsoft.Identity.Web.CrossPlatform
                 _wwwAuthenticate = IntPtr.Zero;
             }
 
-            //_claims = Marshal.StringToHGlobalAnsi(validationOutput.Claims);
             _claims = IntPtr.Zero;
-            _claimsCount = (uint)validationOutput.Claims.Count;
+            if (validationOutput.Claims != null)
+            {
+                _claimsCount = (uint)validationOutput.Claims.Count;
+            }
+            else
+            {
+                _claimsCount = 0;
+            }
+            
         }
 
         /// <summary>

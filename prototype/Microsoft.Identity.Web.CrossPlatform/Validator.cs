@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.CrossPlatform
         public Validator(MicrosoftIdentityApplicationOptions msIdentityApplicationOptions)
         {
             _msIdentityApplicationOptions = msIdentityApplicationOptions;
-            s_configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(_msIdentityApplicationOptions.Authority.TrimEnd('/') + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever());
+            s_configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(_msIdentityApplicationOptions.Authority!.TrimEnd('/') + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever());
             s_tokenValidationParameters = new()
             {
                 ConfigurationManager = s_configurationManager,

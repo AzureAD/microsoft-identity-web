@@ -20,8 +20,8 @@ namespace Microsoft.Identity.Web.C
         [UnmanagedCallersOnly(EntryPoint = "IdentityWebConfigure")]
         public static unsafe void Configure(MicrosoftIdentityApplicationOptionsC* microsoftIdentityApplicationOptionsPtr)
         {
-            Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Authority);
-            Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Audience);
+            //Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Authority);
+            //Console.WriteLine(microsoftIdentityApplicationOptionsPtr->Audience);
 
             s_crossPlatformValidator = new CrossPlatform.Validator(new MicrosoftIdentityApplicationOptions
             {
@@ -48,12 +48,10 @@ namespace Microsoft.Identity.Web.C
             var result = s_crossPlatformValidator.ValidateAsync(validationInput.Value.ToValidationInput()).Result;
             if (result == null)
             {
-                Console.WriteLine("result is null");
                 return IntPtr.Zero;
             }
             else
             {
-                Console.WriteLine(result.HttpResponseStatusCode);
                 CrossPlatform.ValidationOutputC? validationOutput = new CrossPlatform.ValidationOutputC(result);
                 IntPtr validationOutputPtr = Marshal.AllocHGlobal(Marshal.SizeOf<CrossPlatform.ValidationOutputC>());
                 Marshal.StructureToPtr(validationOutput, validationOutputPtr, false);

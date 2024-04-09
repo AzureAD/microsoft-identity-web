@@ -5,7 +5,7 @@ namespace Microsoft.Identity.Web.CrossPlatform
 {
 
     /// <summary>
-    /// Result of <see cref="Validator.ValidateAsync(MiseValidationInput, System.Threading.CancellationToken)"/> method.
+    /// Result of Validate method.
     /// </summary>
     public class ValidationOutput
     {

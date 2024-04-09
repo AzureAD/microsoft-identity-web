@@ -4,7 +4,7 @@
 namespace Microsoft.Identity.Web.CrossPlatform
 {
     /// <summary>
-    /// Input to <see cref="Validator.ValidateAsync(ValidationInput, System.Threading.CancellationToken)"/> method.
+    /// Input to Validate method.
     /// </summary>
     public class ValidationInput
     {

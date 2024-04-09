@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Abstractions
                 {
                     // Convert each element to a string using Encoding.UTF8.GetString
                     IntPtr head = Marshal.ReadIntPtr(_audiences, i * IntPtr.Size);
-                    audiences[i] = Marshal.PtrToStringUTF8(head);
+                    audiences[i] = Marshal.PtrToStringUTF8(head)!;
                 }
                 return audiences;
             }
