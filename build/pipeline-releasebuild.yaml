@@ -15,7 +15,7 @@ schedules:
     - master
  
 pool:
-  vmImage: 'windows-2022'
+  name: MwWilson1EsHostedPool
   demands:
   - msbuild
   - visualstudio
