@@ -3,6 +3,7 @@
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
@@ -32,7 +33,7 @@
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
     <SystemManagementVersion>8.0.0</SystemManagementVersion>
-    <MicrosoftIdentityLabApiVersion>0.12.1</MicrosoftIdentityLabApiVersion>
+    <MicrosoftIdentityLabApiVersion>0.12.2</MicrosoftIdentityLabApiVersion>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
@@ -45,6 +46,12 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <MicrosoftAspNetCoreMvcTestingVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
+    <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <MicrosoftAspNetCoreMvcTestingVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
   </PropertyGroup>

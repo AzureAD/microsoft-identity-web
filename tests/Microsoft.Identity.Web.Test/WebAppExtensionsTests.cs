@@ -880,7 +880,9 @@ namespace Microsoft.Identity.Web.Test
             // needs to be updated. For this uncomment the 2 lines below, and run the test
             // then diff the files to find what are the new properties
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
-#if NET8_0_OR_GREATER
+#if NET9_0_OR_GREATER
+            int expectedNumberOfProperties = 61;
+#elif NET8_0
             int expectedNumberOfProperties = 60;
 #else
             int expectedNumberOfProperties = 57;
