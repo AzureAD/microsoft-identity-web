@@ -22,7 +22,6 @@ steps:
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
-  condition: failed()
 
 - task: DotNetCoreCLI@2
   inputs:
