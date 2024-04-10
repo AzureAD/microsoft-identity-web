@@ -23,11 +23,20 @@ steps:
     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
 
+# Copy all packages out to staging
+- task: CopyFiles@2
+  displayName: 'Copy screenshots to staging directory'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/tests/E2E Tests/'
+    Contents: '**\*nupkg'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)\screenshots'
+    flattenFolders: true
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Screenshot after test'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/'
-    ArtifactName: '**/*screenshotFail.png'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
+    ArtifactName: 'ScreenshotFail'
 
 - task: DotNetCoreCLI@2
   inputs:
