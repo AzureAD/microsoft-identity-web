@@ -204,6 +204,7 @@ namespace WebAppUiTests
                 {
 
                     //Attempt to restart process
+                    _output.WriteLine("Attempting to restart process once");
                     if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
                     {
                         clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
@@ -218,6 +219,7 @@ namespace WebAppUiTests
                     if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                     {
                         //Attempt to restart process
+                        _output.WriteLine("Attempting to restart process twice");
                         if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
                         {
                             clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
@@ -232,6 +234,7 @@ namespace WebAppUiTests
 
                     if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                     {
+                        _output.WriteLine("Process not started after 3 attempts.");
                         string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
                                                     $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
                         Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses);
@@ -264,7 +267,14 @@ namespace WebAppUiTests
             }
             catch (Exception ex)
             {var guid = Guid.NewGuid().ToString();
-                await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
+                try
+                {
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
+                }
+                catch {
+                    _output.WriteLine("No Screenshot.");
+                }
+                
                 string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
                                                     $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}");
