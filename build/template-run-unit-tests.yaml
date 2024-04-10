@@ -26,8 +26,8 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Screenshot after test'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/**/*'
-    ArtifactName: 'screenshotFail.png'
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/'
+    ArtifactName: '**/*screenshotFail.png'
 
 - task: DotNetCoreCLI@2
   inputs:

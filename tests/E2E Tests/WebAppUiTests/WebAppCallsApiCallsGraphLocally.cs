@@ -265,7 +265,9 @@ namespace WebAppUiTests
             catch (Exception ex)
             {var guid = Guid.NewGuid().ToString();
                 await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
-                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.");
+                string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
+                                                    $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
+                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}");
             }
             finally
             {
