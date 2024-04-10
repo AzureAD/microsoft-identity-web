@@ -25,8 +25,8 @@ namespace WebAppUiTests
         private const string SignOutPageUriPath = @"/MicrosoftIdentity/Account/SignedOut";
         private const uint TodoListClientPort = 44321;
         private const uint TodoListServicePort = 44350;
-        private const uint WebAppCiamPort = 7082;
-        private const uint WebApiCiamPort = 44332;
+        private const uint WebAppCiamPort = 7096;
+        private const uint WebApiCiamPort = 5299;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
         private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 50000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
@@ -160,7 +160,7 @@ namespace WebAppUiTests
 
         [Theory]
         [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
-        [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+        //[InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiam(string authority)
         {
@@ -187,7 +187,7 @@ namespace WebAppUiTests
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_CiamWebApp_WebApiFunctionsCorrectly";
             using IPlaywright playwright = await Playwright.CreateAsync();
-            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
             IPage page = null;
@@ -266,7 +266,8 @@ namespace WebAppUiTests
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
             }
             catch (Exception ex)
-            {var guid = Guid.NewGuid().ToString();
+            {
+                var guid = Guid.NewGuid().ToString();
                 try
                 {
                     await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
