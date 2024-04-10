@@ -23,6 +23,12 @@ steps:
     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
 
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Screenshot after test'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/**/*'
+    ArtifactName: 'screenshotFail.png'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'

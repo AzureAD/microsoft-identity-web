@@ -190,23 +190,55 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
+            IPage page = null;
 
             try
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
-                await Task.Delay(3000);
+                await Task.Delay(8000);
                 clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
                 await Task.Delay(8000);
                 if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
                 {
-                    string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
-                        $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
-                    Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses);
+
+                    //Attempt to restart process
+                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
+                    {
+                        clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
+                        await Task.Delay(8000);
+                    }
+                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess }))
+                    {
+                        serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
+                        await Task.Delay(8000);
+                    }
+
+                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                    {
+                        //Attempt to restart process
+                        if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
+                        {
+                            clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
+                            await Task.Delay(8000);
+                        }
+                        if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess }))
+                        {
+                            serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
+                            await Task.Delay(8000);
+                        }
+                    }
+
+                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                    {
+                        string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
+                                                    $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
+                        Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses);
+                    }
                 }
 
-                var page = await NavigateToWebApp(context, WebAppCiamPort);
+                page = await NavigateToWebApp(context, WebAppCiamPort);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
@@ -231,7 +263,8 @@ namespace WebAppUiTests
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
             }
             catch (Exception ex)
-            {
+            {var guid = Guid.NewGuid().ToString();
+                await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.");
             }
             finally
