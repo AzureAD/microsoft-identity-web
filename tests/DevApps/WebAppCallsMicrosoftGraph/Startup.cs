@@ -3,6 +3,9 @@
 
 // #define USE_SIGNED_ASSERTION
 using System;
+#if NET8_0
+using Microsoft.AspNetCore.Authentication.Certificate;
+#endif
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -37,6 +40,10 @@ namespace WebAppCallsMicrosoftGraph
 #endif
 
             int count = 0;
+#if NET8_0
+            services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
+                    .AddCertificate();
+#endif
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApp(options =>
                     {
