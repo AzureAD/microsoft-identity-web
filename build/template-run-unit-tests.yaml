@@ -66,5 +66,4 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
     ArtifactName: 'ScreenshotFail'
-  continueOnError: true
   condition: failed()
