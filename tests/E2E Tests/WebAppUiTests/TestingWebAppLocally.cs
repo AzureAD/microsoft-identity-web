@@ -17,7 +17,7 @@ using System.Net;
 
 namespace WebAppUiTests;
 
-#if !FROM_GITHUB_ACTION
+#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 
 // Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
 [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
@@ -59,7 +59,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
             {"AzureAd__Authority", authority},
             {"AzureAd__TenantId", ""},
-            {"AzureAd__Domain", ""}
+            {"AzureAd__Domain", ""},
+            {"AzureAd__Instance", "" }
         };
 
         await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
@@ -71,7 +72,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         Process? process = null;
         string TraceFileName = traceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
         IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 

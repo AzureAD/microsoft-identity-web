@@ -37,6 +37,7 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
     ArtifactName: 'ScreenshotFail'
+  continueOnError: true
 
 - task: DotNetCoreCLI@2
   inputs:
