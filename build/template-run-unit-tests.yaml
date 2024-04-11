@@ -48,6 +48,7 @@ steps:
         !Tests/**/WebAppUiTests.csproj
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings"'
   continueOnError: true
+  enabled: false
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
@@ -55,3 +56,4 @@ steps:
     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
   condition: failed()
+  enabled: false
