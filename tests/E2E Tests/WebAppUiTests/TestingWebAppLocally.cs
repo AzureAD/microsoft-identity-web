@@ -17,7 +17,7 @@ using System.Net;
 
 namespace WebAppUiTests;
 
-#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+#if !FROM_GITHUB_ACTION
 
 // Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
 [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
