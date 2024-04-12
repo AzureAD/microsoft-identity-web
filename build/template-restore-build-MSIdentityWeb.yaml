@@ -14,15 +14,17 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'Restore solution Microsoft.Identity.Web.sln'
   inputs:
-    command: restore
+    command: custom
+    custom: restore
     projects: 'Microsoft.Identity.Web.sln'
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
   enabled: false
-  
+
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln'
   inputs:
-    command: build
+    command: custom
+    custom: build
     projects: 'Microsoft.Identity.Web.sln'
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
