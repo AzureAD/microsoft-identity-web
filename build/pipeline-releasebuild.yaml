@@ -39,6 +39,7 @@ steps:
     BuildConfiguration: '$(BuildConfiguration)'
     MsIdentityWebSemVer: $(MsIdentityWebSemVer)
 
+# Run all tests
 - template: template-run-unit-tests.yaml
   parameters:
     BuildPlatform: '$(BuildPlatform)'
