@@ -12,8 +12,7 @@ steps:
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
-    minimumExpectedTests: '1'
-  enabled: false
+    minimumExpectedTests: '1261'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
@@ -21,7 +20,8 @@ steps:
     command: test
     projects: 'tests\Microsoft.Identity.Web.Test\Microsoft.Identity.Web.Test.csproj'
     arguments: '--no-restore --collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
-  
+  enabled: false
+
 - task: VSTest@2
   displayName: 'Run integration tests'
   inputs:
