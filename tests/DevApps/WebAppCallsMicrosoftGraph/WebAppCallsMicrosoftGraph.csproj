@@ -8,9 +8,4 @@
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate">
-      <Version>8.0.4</Version>
-    </PackageReference>
-  </ItemGroup>
 </Project>
