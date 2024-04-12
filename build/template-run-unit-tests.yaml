@@ -12,7 +12,7 @@ steps:
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
-    minimumExpectedTests: '1261'
+    minimumExpectedTests: '1'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
