@@ -3,22 +3,21 @@
 
 steps:
 
+- task: VisualStudioTestPlatformInstaller@1
+  inputs:
+    versionSelector: 'SpecificVersion'
+    testPlatformVersion: '17.2.0'
+
 - task: VSTest@2
   displayName: 'Run unit tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test\**\*Microsoft.Identity.Web.Test*.dll'
+    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test\**\Microsoft.Identity.Web.Test.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
     minimumExpectedTests: '1'
-  enabled: false
-
-- task: VisualStudioTestPlatformInstaller@1
-  inputs:
-    versionSelector: 'SpecificVersion'
-    testPlatformVersion: '17.2.0'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
@@ -26,6 +25,7 @@ steps:
     command: test
     projects: '**/*Microsoft.Identity.Web.Test.csproj'
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+  enabled: false
 
 - task: VSTest@2
   displayName: 'Run integration tests'
