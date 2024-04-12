@@ -38,6 +38,12 @@ steps:
     BuildPlatform: '$(BuildPlatform)'
     BuildConfiguration: '$(BuildConfiguration)'
     MsIdentityWebSemVer: $(MsIdentityWebSemVer)
+
+- template: template-run-unit-tests.yaml
+  parameters:
+    BuildPlatform: '$(BuildPlatform)'
+    BuildConfiguration: '$(BuildConfiguration)'
+    MsIdentityWebSemVer: $(MsIdentityWebSemVer)
  
 # Run Post-build code analysis (e.g. Roslyn)
 - template: template-postbuild-code-analysis.yaml

@@ -13,6 +13,8 @@ using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
+using System.Linq;
+using System.Text;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
@@ -181,8 +183,7 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
             };
 
-            Process? serviceProcess = null;
-            Process? clientProcess = null;
+            Dictionary<string, Process> processes = null;
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_CiamWebApp_WebApiFunctionsCorrectly";
@@ -196,49 +197,21 @@ namespace WebAppUiTests
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
-                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
-                await Task.Delay(8000);
-                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-                await Task.Delay(8000);
-                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
+                var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
+                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { serviceProcessOptions, clientProcessOptions }, out processes);
+
+                if (!areProcessesRunning)
                 {
-
-                    //Attempt to restart process
-                    _output.WriteLine("Attempting to restart process once");
-                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
+                    _output.WriteLine("Process not started after 3 attempts.");
+                    StringBuilder runningProcesses = new StringBuilder();
+                    foreach (var process in processes)
                     {
-                        clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-                        await Task.Delay(8000);
+#pragma warning disable CA1305 // Specify IFormatProvider
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { process.Value })}");
+#pragma warning restore CA1305 // Specify IFormatProvider
                     }
-                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess }))
-                    {
-                        serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
-                        await Task.Delay(8000);
-                    }
-
-                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
-                    {
-                        //Attempt to restart process
-                        _output.WriteLine("Attempting to restart process twice");
-                        if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess }))
-                        {
-                            clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-                            await Task.Delay(8000);
-                        }
-                        if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess }))
-                        {
-                            serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
-                            await Task.Delay(8000);
-                        }
-                    }
-
-                    if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
-                    {
-                        _output.WriteLine("Process not started after 3 attempts.");
-                        string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
-                                                    $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
-                        Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses);
-                    }
+                    Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
                 page = await NavigateToWebApp(context, WebAppCiamPort);
@@ -272,23 +245,37 @@ namespace WebAppUiTests
                 {
                     await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
                 }
-                catch {
+                catch
+                {
                     _output.WriteLine("No Screenshot.");
                 }
-                
-                string runningProcesses = $"\nIs Client Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess })} \n" +
-                                                    $"Is Service Running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { serviceProcess })}";
-                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}");
+
+                StringBuilder runningProcesses = new StringBuilder();
+                if (processes != null)
+                {
+
+                    foreach (var process in processes)
+                    {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { process.Value })}");
+#pragma warning restore CA1305 // Specify IFormatProvider
+                    }
+                }
+
+                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses.ToString()}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                Queue<Process> processes = new();
-                if (serviceProcess != null)
-                { processes.Enqueue(serviceProcess); }
-                if (clientProcess != null)
-                { processes.Enqueue(clientProcess); }
-                UiTestHelpers.KillProcessTrees(processes);
+                Queue<Process> processQueue = new();
+                if (processes != null)
+                {
+                    foreach (var process in processes)
+                    {
+                        processQueue.Enqueue(process.Value);
+                    }
+                }
+                UiTestHelpers.KillProcessTrees(processQueue);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
