@@ -3,35 +3,30 @@
 
 steps:
 
-- task: VisualStudioTestPlatformInstaller@1
-  inputs:
-    versionSelector: 'SpecificVersion'
-    testPlatformVersion: '17.2.0'
-
 - task: VSTest@2
   displayName: 'Run unit tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
+    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
     minimumExpectedTests: '1'
+  enabled: false
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
   inputs:
     command: test
-    projects: '**/*Microsoft.Identity.Web.Test.csproj'
-    arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
-  enabled: false
-
+    projects: 'tests\Microsoft.Identity.Web.TestMicrosoft.Identity.Web.Test.csproj'
+    arguments: '--no-restore --collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+  
 - task: VSTest@2
   displayName: 'Run integration tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test.Integration\bin\**\Microsoft.Identity.Web.Test.Integration.dll'
+    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test.Integration\bin\**\Microsoft.Identity.Web.Test.Integration.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
@@ -45,9 +40,9 @@ steps:
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
-        Tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
-        Tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
-        Tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
+        tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
+        tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
+        tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
@@ -55,7 +50,6 @@ steps:
     codeCoverageEnabled: true
     failOnMinTestsNotRun: false
     minimumExpectedTests: '1'
-  continueOnError: true
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
