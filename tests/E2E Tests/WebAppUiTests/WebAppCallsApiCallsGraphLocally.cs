@@ -64,9 +64,7 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
             };
 
-            Process? grpcProcess = null;
-            Process? serviceProcess = null;
-            Process? clientProcess = null;
+            Dictionary<string, Process> processes = null;
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
@@ -74,22 +72,32 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
+            IPage page = null;
 
             try
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
-                grpcProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
-                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
-                await Task.Delay(3000);
-                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+                var grpcProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + _grpcPath, _grpcExecutable, grpcEnvVars);
+                var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+                var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
-                if ( !UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess, grpcProcess }))
+                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { grpcProcessOptions, serviceProcessOptions, clientProcessOptions }, out processes);
+
+                if (!areProcessesRunning)
+                {
+                    _output.WriteLine("Process not started after 3 attempts.");
+                    StringBuilder runningProcesses = new StringBuilder();
+                    foreach (var process in processes)
                     {
-                        Assert.Fail(TC.WebAppCrashedString);
+#pragma warning disable CA1305 // Specify IFormatProvider
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
+#pragma warning restore CA1305 // Specify IFormatProvider
                     }
+                    Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
+                }
 
-                var page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
+                page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -138,16 +146,25 @@ namespace WebAppUiTests
             }
             catch (Exception ex)
             {
-                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.");
+                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
+                var guid = Guid.NewGuid().ToString();
+                try
+                {
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyScreenshotFail{guid}.png", FullPage = true });
+                }
+                catch
+                {
+                    _output.WriteLine("No Screenshot.");
+                }
+
+                string runningProcesses = GetRunningProcessAsString(processes);
+
+                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                Queue<Process> processes = new();
-                if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
-                if (clientProcess != null) { processes.Enqueue(clientProcess); }
-                if (grpcProcess != null) { processes.Enqueue(grpcProcess); }
-                UiTestHelpers.KillProcessTrees(processes);
+                EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
@@ -208,7 +225,7 @@ namespace WebAppUiTests
                     foreach (var process in processes)
                     {
 #pragma warning disable CA1305 // Specify IFormatProvider
-                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { process.Value })}");
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value )}");
 #pragma warning restore CA1305 // Specify IFormatProvider
                     }
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
@@ -240,42 +257,25 @@ namespace WebAppUiTests
             }
             catch (Exception ex)
             {
+                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"{guid}screenshotFail.png", FullPage = true });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamScreenshotFail{guid}.png", FullPage = true });
                 }
                 catch
                 {
                     _output.WriteLine("No Screenshot.");
                 }
 
-                StringBuilder runningProcesses = new StringBuilder();
-                if (processes != null)
-                {
+                string runningProcesses = GetRunningProcessAsString(processes);
 
-                    foreach (var process in processes)
-                    {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessesAreAlive(new List<Process>() { process.Value })}");
-#pragma warning restore CA1305 // Specify IFormatProvider
-                    }
-                }
-
-                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses.ToString()}");
+                Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                Queue<Process> processQueue = new();
-                if (processes != null)
-                {
-                    foreach (var process in processes)
-                    {
-                        processQueue.Enqueue(process.Value);
-                    }
-                }
-                UiTestHelpers.KillProcessTrees(processQueue);
+                EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
@@ -286,6 +286,34 @@ namespace WebAppUiTests
                 await browser.CloseAsync();
                 playwright.Dispose();
             }
+        }
+
+        private string GetRunningProcessAsString(Dictionary<string, Process>? processes)
+        {
+            StringBuilder runningProcesses = new StringBuilder();
+            if (processes != null)
+            {
+                foreach (var process in processes)
+                {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                    runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
+#pragma warning restore CA1305 // Specify IFormatProvider
+                }
+            }
+            return runningProcesses.ToString();
+        }
+
+        private void EndProcesses(Dictionary<string, Process>? processes)
+        {
+            Queue<Process> processQueue = new();
+            if (processes != null)
+            {
+                foreach (var process in processes)
+                {
+                    processQueue.Enqueue(process.Value);
+                }
+            }
+            UiTestHelpers.KillProcessTrees(processQueue);
         }
 
         private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)

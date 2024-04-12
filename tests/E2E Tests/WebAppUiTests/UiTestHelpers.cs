@@ -329,20 +329,17 @@ namespace WebAppUiTests
             }
 
             //Verify that processes are running
-            if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
+            for (int i = 0; i < 2; i++)
             {
-                RestartProcesses(processes, processDataEntries);
-
-                //Verify that processes are running
                 if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
                 {
                     RestartProcesses(processes, processDataEntries);
-
-                    if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
-                    {
-                        return false;
-                    }
                 }
+            }
+
+            if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
+            {
+                return false;
             }
 
             return true;
@@ -353,10 +350,10 @@ namespace WebAppUiTests
             //attempt to restart failed processes
             foreach (KeyValuePair<string, Process> processEntry in processes)
             {
-                if (!UiTestHelpers.ProcessesAreAlive(new List<Process> { processEntry.Value }))
+                if (!ProcessIsAlive(processEntry.Value))
                 {
                     var processDataEntry = processDataEntries.Where(x => x.ExecutableName == processEntry.Key).Single();
-                    var process = UiTestHelpers.StartProcessLocally(
+                    var process = StartProcessLocally(
                                                     processDataEntry.TestAssemblyLocation,
                                                     processDataEntry.AppLocation,
                                                     processDataEntry.ExecutableName,
@@ -369,6 +366,7 @@ namespace WebAppUiTests
             }
         }
     }
+
     /// <summary>
     /// Fixture class that installs Playwright browser once per xunit test class that implements it
     /// </summary>
