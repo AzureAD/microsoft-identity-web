@@ -12,7 +12,7 @@ steps:
   displayName: 'Run unit tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test\**\Microsoft.Identity.Web.Test.dll'
+    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
     runInParallel: true
     codeCoverageEnabled: true
@@ -31,7 +31,7 @@ steps:
   displayName: 'Run integration tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test.Integration\**\Microsoft.Identity.Web.Test.Integration.dll'
+    testAssemblyVer2: 'Tests\Microsoft.Identity.Web.Test.Integration\bin\**\Microsoft.Identity.Web.Test.Integration.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
@@ -45,9 +45,9 @@ steps:
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
-        Tests\E2E Tests\WebAppUiTests\**\WebAppUiTests.dll
-        Tests\E2E Tests\TokenAcquirerTests\**\TokenAcquirerTests.dll
-        Tests\E2E Tests\NET 7 tests\IntegrationTests\**\IntegrationTests.dll
+        Tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
+        Tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
+        Tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
