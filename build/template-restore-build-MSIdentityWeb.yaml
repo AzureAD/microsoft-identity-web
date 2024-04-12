@@ -23,8 +23,8 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln'
   inputs:
-    command: custom
-    custom: build
+    command: 'custom'
+    custom: 'build'
     projects: 'Microsoft.Identity.Web.sln'
     arguments: '--collect "Code coverage" --settings "build\CodeCoverage.runsettings" --configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
