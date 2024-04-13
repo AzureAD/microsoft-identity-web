@@ -51,7 +51,7 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers
             var channel = GrpcChannel.ForAddress("https://localhost:5001");
             var client = new Greeter.GreeterClient(channel);
 
-            string token = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "api://1e2fb196-50ce-4652-a4f9-26c1bf2e826b/access_as_user" }).ConfigureAwait(false);
+            string token = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user" }).ConfigureAwait(false);
 
             var headers = new Metadata();
             headers.Add("Authorization", $"Bearer {token}");
