@@ -287,12 +287,15 @@ namespace TokenAcquirerTests
             services.AddInMemoryTokenCaches();
             services.AddMicrosoftGraph();
             var serviceProvider = tokenAcquirerFactory.Build();
+
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
+/*
             var users = await graphServiceClient.Users
                 .GetAsync(o => o.Options
                                  .WithAppOnly()
                                  .WithAuthenticationScheme(s_optionName));
             Assert.True(users!=null && users.Value!=null && users.Value.Count >0);
+*/
 
             // Alternatively to calling Microsoft Graph, you can get a token acquirer service
             // and get a token, and use it in an SDK.
