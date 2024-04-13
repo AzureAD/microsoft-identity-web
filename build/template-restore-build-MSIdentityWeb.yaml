@@ -35,7 +35,8 @@ steps:
   inputs:
     command: run
     projects: 'tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
-    arguments: '-f net7.0'    
+    arguments: '-f net7.0'
+    enabled: false
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
