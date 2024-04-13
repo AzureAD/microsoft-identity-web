@@ -27,7 +27,7 @@ namespace blazorwasm2_singleOrg_hosted4.Client
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-                options.ProviderOptions.DefaultAccessTokenScopes.Add("api://1e2fb196-50ce-4652-a4f9-26c1bf2e826b/access_as_user");
+                options.ProviderOptions.DefaultAccessTokenScopes.Add("api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user");
             });
 
             await builder.Build().RunAsync();
