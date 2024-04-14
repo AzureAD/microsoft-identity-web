@@ -214,6 +214,9 @@ namespace Microsoft.Identity.Web
 #if NET8_0_OR_GREATER
             mergedOptions.TimeProvider = microsoftIdentityOptions.TimeProvider;
 #endif
+#if NET9_0_OR_GREATER
+            mergedOptions.AdditionalAuthorizationParameters = microsoftIdentityOptions.AdditionalAuthorizationParameters;
+#endif
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce |= microsoftIdentityOptions.UsePkce;
 
