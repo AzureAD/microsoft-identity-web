@@ -13,6 +13,7 @@ steps:
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
     minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'
 
 - task: VSTest@2
   displayName: 'Run integration tests'
@@ -26,6 +27,7 @@ steps:
     codeCoverageEnabled: true
     failOnMinTestsNotRun: false
     minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'
 
 - task: VSTest@2
   displayName: 'Run E2E tests'
@@ -42,6 +44,7 @@ steps:
     codeCoverageEnabled: true
     failOnMinTestsNotRun: false
     minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'
     
 - task: PublishBuildArtifacts@1
   displayName: 'Publish traces after test'
