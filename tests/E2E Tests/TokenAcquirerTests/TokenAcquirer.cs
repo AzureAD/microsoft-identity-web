@@ -32,7 +32,7 @@ namespace TokenAcquirerTests
         };
 
         private static readonly CredentialDescription[] s_ciamClientCredentials = new[]
-{
+        {
             CertificateDescription.FromKeyVault(
                 "https://buildautomation.vault.azure.net",
                 "AzureADIdentityDivisionTestAgentCert")
@@ -316,7 +316,7 @@ namespace TokenAcquirerTests
                 .GetAsync(o => o.Options
                                  .WithAppOnly()
                                  .WithAuthenticationScheme(s_optionName));
-            Assert.True(users!=null && users.Value!=null && users.Value.Count >0);
+            Assert.True(users != null && users.Value != null && users.Value.Count > 0);
 
             // Alternatively to calling Microsoft Graph, you can get a token acquirer service
             // and get a token, and use it in an SDK.
@@ -326,7 +326,7 @@ namespace TokenAcquirerTests
         }
     }
 
-    public class AcquireTokenManagedIdentity 
+    public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
         //[Fact]
@@ -348,7 +348,7 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result));
         }
 
-        private static AuthorizationHeaderProviderOptions GetAuthHeaderOptions_ManagedId(string baseUrl, string? userAssignedClientId=null) 
+        private static AuthorizationHeaderProviderOptions GetAuthHeaderOptions_ManagedId(string baseUrl, string? userAssignedClientId = null)
         {
             ManagedIdentityOptions managedIdentityOptions = new()
             {
