@@ -1,4 +1,4 @@
-#Release Build Flow
+# template-releasebuild.yaml
 
 parameters:
   BuildPlatform: 'any cpu'
@@ -6,8 +6,6 @@ parameters:
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
 
 steps:
-# Run pre-build code analysis (policheck, credscan, etc)
-- template: template-prebuild-code-analysis.yaml
  
 # Bootstrap the build
 - template: template-install-dependencies.yaml
