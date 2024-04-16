@@ -1,0 +1,29 @@
+#Release Build Flow
+
+parameters:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'debug'
+  MsIdentityWebSemVer: '1.0.0-devopsbuild'
+
+steps:
+# Run pre-build code analysis (policheck, credscan, etc)
+- template: template-prebuild-code-analysis.yaml
+ 
+# Bootstrap the build
+- template: template-install-dependencies.yaml
+ 
+# Nuget Restore and Build Microsoft.Identity.Web.sln
+- template: template-restore-build-MSIdentityWeb.yaml
+  parameters:
+    BuildPlatform: '$(BuildPlatform)'
+    BuildConfiguration: '$(BuildConfiguration)'
+    MsIdentityWebSemVer: $(MsIdentityWebSemVer)
+ 
+# Run Post-build code analysis (e.g. Roslyn)
+- template: template-postbuild-code-analysis.yaml
+ 
+# Pack and sign all of the nuget packages
+- template: template-pack-and-sign-all-nugets.yaml
+ 
+# Publish nuget packages and symbols to VSTS package manager.
+- template: template-publish-and-cleanup.yaml
