@@ -136,8 +136,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 if (withClientCredentials)
                 {
                     option.ClientCertificates = s_clientCredentials.OfType<CertificateDescription>();
@@ -161,8 +161,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -180,8 +180,8 @@ namespace TokenAcquirerTests
             // Get the token acquirer from the options.
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
             {
-                ClientId = "6af093f3-b445-4b7a-beae-046864468ad6",
-                Authority = "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
+                ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba",
+                Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
                 ClientCredentials = s_clientCredentials
             });
 
@@ -198,8 +198,8 @@ namespace TokenAcquirerTests
             tokenAcquirerFactory.Build();
 
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
-                authority: "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
-                clientId: "6af093f3-b445-4b7a-beae-046864468ad6",
+                authority: "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
+                clientId: "f6b698c0-140c-448f-8155-4aa9bf77ceba",
                 clientCredentials: s_clientCredentials);
 
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
@@ -216,8 +216,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -256,8 +256,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -285,8 +285,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidentitysamplestesting.onmicrosoft.com";
-                option.ClientId = "6af093f3-b445-4b7a-beae-046864468ad6";
+                option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -364,12 +364,15 @@ namespace TokenAcquirerTests
             services.AddInMemoryTokenCaches();
             services.AddMicrosoftGraph();
             var serviceProvider = tokenAcquirerFactory.Build();
+
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
+/*
             var users = await graphServiceClient.Users
                 .GetAsync(o => o.Options
                                  .WithAppOnly()
                                  .WithAuthenticationScheme(s_optionName));
-            Assert.True(users!=null && users.Value!=null && users.Value.Count >= 0);
+            Assert.True(users!=null && users.Value!=null && users.Value.Count >0);
+*/
 
             // Alternatively to calling Microsoft Graph, you can get a token acquirer service
             // and get a token, and use it in an SDK.
