@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +46,81 @@ namespace TokenAcquirerTests
             var service = serviceProvider.GetService<ITokenAcquisitionHost>();
             Assert.NotNull(service);
             Assert.Equal("Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost", service.GetType().FullName);
+        }
+
+        [Fact]
+        public void DefaultTokenAcquirer_GetKeyHandlesNulls()
+        {
+            var res = DefaultTokenAcquirerFactoryImplementation.GetKey("1", "2", "3");
+            Assert.Equal("123", res);
+
+            var no_region = DefaultTokenAcquirerFactoryImplementation.GetKey("1", "2", null);
+            Assert.Equal("12", no_region);
+        }
+
+        [Fact]
+        public void AcquireToken_WithMultipleRegions()
+        {
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            _ = tokenAcquirerFactory.Build();
+
+            ITokenAcquirer tokenAcquirerA = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
+               clientId: "6af093f3-b445-4b7a-beae-046864468ad6",
+               clientCredentials: s_clientCredentials,
+               "US");
+
+            ITokenAcquirer tokenAcquirerB = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
+               clientId: "6af093f3-b445-4b7a-beae-046864468ad6",
+               clientCredentials: s_clientCredentials,
+               "US");
+
+            ITokenAcquirer tokenAcquirerC = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
+               clientId: "6af093f3-b445-4b7a-beae-046864468ad6",
+               clientCredentials: s_clientCredentials,
+               "EU");
+
+            Assert.Equal(tokenAcquirerA, tokenAcquirerB);
+            Assert.NotEqual(tokenAcquirerA, tokenAcquirerC);
+        }
+
+        [Fact]
+        public void AcquireToken_SafeFromMultipleThreads()
+        {
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            _ = tokenAcquirerFactory.Build();
+
+            var count = new ConcurrentDictionary<ITokenAcquirer, bool>();
+
+            var action = () =>
+            {
+                for (int i = 0; i < 1000; i++)
+                {
+                    ITokenAcquirer res = tokenAcquirerFactory.GetTokenAcquirer(
+                      authority: "https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com",
+                      clientId: "6af093f3-b445-4b7a-beae-046864468ad6",
+                      clientCredentials: s_clientCredentials,
+                      "" + (i%11));
+
+                    count.TryAdd(res, true);
+                }
+            };
+
+            Thread[] threads = new Thread[16];
+            for (int i = 0; i < 16; i++)
+            {
+                threads[i] = new Thread(() => action());
+                threads[i].Start();
+            }
+
+            foreach (Thread thread in threads)
+            {
+                thread.Join();
+            }
+
+            Assert.Equal(11, count.Count);
         }
 
         [IgnoreOnAzureDevopsFact]
