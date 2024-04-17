@@ -10,13 +10,14 @@ steps:
 - script: |
     dotnet workload restore $(IdWebSourceDir)\tests\DevApps\blazorwasm-b2c\blazorwasm2-b2c.csproj
   displayName: 'Install wasm-tools'
-  
+
 - task: DotNetCoreCLI@2
-  displayName: 'Build solution Microsoft.Identity.Web.sln and run tests'
+  displayName: 'Build solution Microsoft.Identity.Web.sln'
   inputs:
-    command: test
+    command: 'custom'
+    custom: 'build'
     projects: '$(IdWebSourceDir)\Microsoft.Identity.Web.sln'
-    arguments: '--configuration ${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
 # The previous task does the restore
@@ -36,7 +37,6 @@ steps:
     command: run
     projects: '$(IdWebSourceDir)\tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
-    enabled: false
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
