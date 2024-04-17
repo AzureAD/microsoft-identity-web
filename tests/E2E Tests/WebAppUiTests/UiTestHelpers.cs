@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Security.KeyVault.Secrets;
@@ -309,7 +310,63 @@ namespace WebAppUiTests
             SecretClient client = new(keyvaultUri, creds);
             return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
         }
+
+        internal static bool StartAndVerifyProcessesAreRunning(List<ProcessStartOptions> processDataEntries, out Dictionary<string, Process> processes)
+        {
+            processes = new Dictionary<string, Process>();
+
+            //Start Processes
+            foreach (ProcessStartOptions processDataEntry in processDataEntries)
+            {
+                var process = UiTestHelpers.StartProcessLocally(
+                                                processDataEntry.TestAssemblyLocation,
+                                                processDataEntry.AppLocation,
+                                                processDataEntry.ExecutableName,
+                                                processDataEntry.EnvironmentVariables);
+
+                processes.Add(processDataEntry.ExecutableName, process);
+                Thread.Sleep(5000);
+            }
+
+            //Verify that processes are running
+            for (int i = 0; i < 2; i++)
+            {
+                if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
+                {
+                    RestartProcesses(processes, processDataEntries);
+                }
+            }
+
+            if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        static void RestartProcesses(Dictionary<string, Process> processes, List<ProcessStartOptions> processDataEntries)
+        {
+            //attempt to restart failed processes
+            foreach (KeyValuePair<string, Process> processEntry in processes)
+            {
+                if (!ProcessIsAlive(processEntry.Value))
+                {
+                    var processDataEntry = processDataEntries.Where(x => x.ExecutableName == processEntry.Key).Single();
+                    var process = StartProcessLocally(
+                                                    processDataEntry.TestAssemblyLocation,
+                                                    processDataEntry.AppLocation,
+                                                    processDataEntry.ExecutableName,
+                                                    processDataEntry.EnvironmentVariables);
+                    Thread.Sleep(5000);
+
+                    //Update process in collection
+                    processes[processEntry.Key] = process;
+                }
+            }
+        }
     }
+
     /// <summary>
     /// Fixture class that installs Playwright browser once per xunit test class that implements it
     /// </summary>
@@ -321,6 +378,29 @@ namespace WebAppUiTests
         }
         public void Dispose()
         {
+        }
+    }
+
+    public class ProcessStartOptions
+    {
+        public string TestAssemblyLocation { get; }
+
+        public string AppLocation { get; }
+
+        public string ExecutableName { get; }
+
+        public Dictionary<string, string>? EnvironmentVariables { get; }
+
+        public ProcessStartOptions(
+            string testAssemblyLocation,
+            string appLocation,
+            string executableName,
+            Dictionary<string, string>? environmentVariables = null)
+        {
+            TestAssemblyLocation = testAssemblyLocation;
+            AppLocation = appLocation;
+            ExecutableName = executableName;
+            EnvironmentVariables = environmentVariables;
         }
     }
 }
