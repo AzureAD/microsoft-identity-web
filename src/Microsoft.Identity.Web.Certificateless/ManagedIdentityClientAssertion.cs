@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
         /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
-        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string tokenExchangeUrl = "api://AzureADTokenExchange/.default")
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string tokenExchangeUrl = "api://AzureADTokenExchange")
         {
             _credential = new DefaultAzureCredential(
                 new DefaultAzureCredentialOptions
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var result = await _credential.GetTokenAsync(
-                new TokenRequestContext([_tokenExchangeUrl], null),
+                new TokenRequestContext([_tokenExchangeUrl+"./default"], null),
                 cancellationToken).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
