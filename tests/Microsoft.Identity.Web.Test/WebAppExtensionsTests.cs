@@ -877,19 +877,20 @@ namespace Microsoft.Identity.Web.Test
         {
             // If the number of public properties of OpenIdConnectOptions changes,
             // then, the PopulateOpenIdOptionsFromMergedOptions method
-            // needs to be updated. For this uncomment the System.IO.File.WriteAllLines() lines below, and run the test
-            // then diff the files to find what are the new properties
+            // needs to be updated. For this uncomment the variable "filePath" and line 893 below, then run the test
+            // and diff the files to find what are the new properties.
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 #if NET9_0_OR_GREATER
             int expectedNumberOfProperties = 61;
-            //System.IO.File.WriteAllLines(@"C:\temp\net9.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            //string filePath = @"C:\temp\net9.txt";
 #elif NET8_0
             int expectedNumberOfProperties = 60;
-            //System.IO.File.WriteAllLines(@"C:\temp\net8.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            //string filePath = @"C:\temp\net8.txt";
 #else
             int expectedNumberOfProperties = 57;
-            //System.IO.File.WriteAllLines(@"C:\temp\net7Below.txt", typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
+            //string filePath = @"C:\temp\net7Below.txt";
 #endif
+            //System.IO.File.WriteAllLines(filePath, typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
             Assert.Equal(expectedNumberOfProperties, numberOfProperties);
         }
 
