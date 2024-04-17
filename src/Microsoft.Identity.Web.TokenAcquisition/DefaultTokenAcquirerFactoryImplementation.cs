@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
         }
         private IServiceProvider ServiceProvider { get; set; }
 
-        readonly Dictionary<string, ITokenAcquirer> _authSchemes = new Dictionary<string, ITokenAcquirer>();
+        readonly ConcurrentDictionary<string, ITokenAcquirer> _authSchemes = new();
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(
@@ -26,39 +26,37 @@ namespace Microsoft.Identity.Web
             IEnumerable<CredentialDescription> clientCredentials,
             string? region = null)
         {
-            CheckServiceProviderNotNull();
+            string key = GetKey(authority, clientId, region);
 
-            ITokenAcquirer? tokenAcquirer;
-            // Compute the key
-            string key = GetKey(authority, clientId);
-            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
-            {
-                MicrosoftIdentityApplicationOptions MicrosoftIdentityApplicationOptions = new MicrosoftIdentityApplicationOptions
+            // GetOrAdd ONLY synchronizes the outcome. So, the factory might still be invoked multiple times.
+            // Therefore, all side-effects within this block must remain idempotent.
+            return _authSchemes.GetOrAdd(key, (key) =>
                 {
-                    ClientId = clientId,
-                    Authority = authority,
-                    ClientCredentials = clientCredentials,
-                    SendX5C = true
-                };
-                if (region != null)
-                {
-                    MicrosoftIdentityApplicationOptions.AzureRegion = region;
-                }
+                    MicrosoftIdentityApplicationOptions MicrosoftIdentityApplicationOptions = new()
+                    {
+                        ClientId = clientId,
+                        Authority = authority,
+                        ClientCredentials = clientCredentials,
+                        SendX5C = true
+                    };
 
-                var optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
-                var mergedOptions = optionsMonitor.Get(key);
-                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
-                tokenAcquirer = GetTokenAcquirer(key);
-            }
-            return tokenAcquirer;
+                    if (region != null)
+                    {
+                        MicrosoftIdentityApplicationOptions.AzureRegion = region;
+                    }
+
+                    IMergedOptionsStore optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
+                    MergedOptions mergedOptions = optionsMonitor.Get(key);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
+
+                    return MakeTokenAcquirer(key);
+                });
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(IdentityApplicationOptions IdentityApplicationOptions)
         {
             _ = Throws.IfNull(IdentityApplicationOptions);
-
-            CheckServiceProviderNotNull();
 
             // Compute the Azure region if the option is a MicrosoftIdentityApplicationOptions.
             MicrosoftIdentityApplicationOptions? MicrosoftIdentityApplicationOptions = IdentityApplicationOptions as MicrosoftIdentityApplicationOptions;
@@ -77,33 +75,36 @@ namespace Microsoft.Identity.Web
                 };
             }
 
-            // Compute the key
-            ITokenAcquirer? tokenAcquirer;
-            string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId);
-            if (!_authSchemes.TryGetValue(key, out tokenAcquirer))
+            string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId, MicrosoftIdentityApplicationOptions.AzureRegion);
+
+            return _authSchemes.GetOrAdd(key, (key) =>
             {
-                var optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
-                var mergedOptions = optionsMonitor.Get(key);
+                IMergedOptionsStore optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
+                MergedOptions mergedOptions = optionsMonitor.Get(key);
+
+       
                 MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
-                tokenAcquirer = GetTokenAcquirer(key);
-            }
-            return tokenAcquirer;
+                return MakeTokenAcquirer(key);
+            });
         }
 
         /// <inheritdoc/>
         public ITokenAcquirer GetTokenAcquirer(string authenticationScheme = "")
         {
+            return _authSchemes.GetOrAdd(authenticationScheme, (key) =>
+            {
+                return MakeTokenAcquirer(authenticationScheme);
+            });
+        }
+
+        private ITokenAcquirer MakeTokenAcquirer(string authenticationScheme = "")
+        {
             CheckServiceProviderNotNull();
 
-            ITokenAcquirer? acquirer;
-            if (!_authSchemes.TryGetValue(authenticationScheme, out acquirer))
-            {
-                var tokenAcquisition = ServiceProvider!.GetRequiredService<ITokenAcquisition>();
-                acquirer = new TokenAcquirer(tokenAcquisition, authenticationScheme);
-                _authSchemes.Add(authenticationScheme, acquirer);
-            }
-            return acquirer;
+            ITokenAcquisition tokenAcquisition = ServiceProvider!.GetRequiredService<ITokenAcquisition>();
+            return new TokenAcquirer(tokenAcquisition, authenticationScheme);
         }
+
         private void CheckServiceProviderNotNull()
         {
             if (ServiceProvider == null)
@@ -112,10 +113,9 @@ namespace Microsoft.Identity.Web
             }
         }
 
-
-        private static string GetKey(string? authority, string? clientId)
+        public static string GetKey(string? authority, string? clientId, string? region)
         {
-            return $"{authority}{clientId}";
+            return $"{authority}{clientId}{region}";
         }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
+using System.Net;
 
 namespace WebAppUiTests;
 
@@ -24,6 +25,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
+    private const string TraceFileClassNameCiam = "TestingWebAppLocallyCiam";
     private readonly ITestOutputHelper _output;
     private readonly string _devAppExecutable = Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph.exe";
     private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsMicrosoftGraph";
@@ -35,23 +37,51 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         _output = output;
     }
 
-    [Fact (Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2716")]
+    [Fact]
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
     {
+        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+
+        var clientEnvVars = new Dictionary<string, string>();
+
+        await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
+    }
+
+    [Theory]
+    [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+    [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+    [SupportedOSPlatform("windows")]
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword(string authority)
+    {
+        var clientEnvVars = new Dictionary<string, string>
+        {
+            {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
+            {"AzureAd__Authority", authority},
+            {"AzureAd__TenantId", ""},
+            {"AzureAd__Domain", ""},
+            {"AzureAd__Instance", "" }
+        };
+
+        await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
+    }
+
+    private async Task ExecuteWebAppCallsGraphFlow(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
+    {
         // Arrange
         Process? process = null;
-        const string TraceFileName = TraceFileClassName + "_ValidEmailPassword";
+        string TraceFileName = traceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
         IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
         try
         {
-            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable);
+            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable, clientEnvVars);
 
-            if (!UiTestHelpers.ProcessIsAlive(process)) { Assert.Fail(TC.WebAppCrashedString); }
+            if (!UiTestHelpers.ProcessIsAlive(process))
+            { Assert.Fail(TC.WebAppCrashedString); }
 
             IPage page = await browser.NewPageAsync();
 
@@ -68,16 +98,15 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
                 {
                     await Task.Delay(1000);
                     InitialConnectionRetryCount--;
-                    if (InitialConnectionRetryCount == 0) { throw ex; }
+                    if (InitialConnectionRetryCount == 0)
+                    { throw ex; }
                 }
             }
 
-            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
-
             // Act
             Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph.");
-            string email = labResponse.User.Upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+            string email = upn;
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, credential, _output);
 
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
@@ -91,7 +120,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         {
             // Cleanup the web app process and any child processes
             Queue<Process> processes = new();
-            if (process != null) { processes.Enqueue(process); }
+            if (process != null)
+            { processes.Enqueue(process); }
             UiTestHelpers.KillProcessTrees(processes);
 
             // Cleanup Playwright
