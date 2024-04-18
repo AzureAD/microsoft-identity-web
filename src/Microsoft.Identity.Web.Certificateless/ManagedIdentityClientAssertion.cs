@@ -21,8 +21,7 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
-        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
-        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl)
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
             _credential = new DefaultAzureCredential(
                 new DefaultAzureCredentialOptions
@@ -37,6 +36,16 @@ namespace Microsoft.Identity.Web
                     ExcludeVisualStudioCodeCredential = true,
                     ExcludeVisualStudioCredential = true
                 });
+            _tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl;
+        }
+
+        /// <summary>
+        /// See https://aka.ms/ms-id-web/certificateless.
+        /// </summary>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
+        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) : this (managedIdentityClientId)
+        {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
