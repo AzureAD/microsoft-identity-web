@@ -3,7 +3,7 @@
 
 parameters:
   BuildConfiguration: 'release'
-  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\packages\*.nupkg'
+  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\$(IdWebSourceDir)packages\*.nupkg'
 
 steps:
 
@@ -16,7 +16,7 @@ steps:
 - task: EsrpCodeSigning@4
   inputs:
     ConnectedServiceName: 'IDDP Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)\src'
+    FolderPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src'
     Pattern: 'Microsoft.Identity.Web*.dll'
     signConfigType: 'inlineSignParams'
     inlineOperation: |
@@ -65,7 +65,7 @@ steps:
 - task: BinSkim@4
   inputs:
     InputType: Basic
-    AnalyzeTargetGlob: '$(Build.SourcesDirectory)\src\**\bin\**\Microsoft.Identity.Web*.dll'
+    AnalyzeTargetGlob: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\**\bin\**\Microsoft.Identity.Web*.dll'
     AnalyzeVerbose: true
     AnalyzeHashes: true
     toolVersion: Exact
@@ -79,98 +79,98 @@ steps:
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web'
     AssemblyName: 'Microsoft.Identity.Web'
 
 # Pack Microsoft.Identity.Web.UI
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.UI'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.UI'
     AssemblyName: 'Microsoft.Identity.Web.UI*'
 
 # Pack Microsoft.Identity.Web.MicrosoftGraph
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraph'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.MicrosoftGraph'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraph*'
 
 # Pack Microsoft.Identity.Web.MicrosoftGraphBeta
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.MicrosoftGraphBeta'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.MicrosoftGraphBeta'
     AssemblyName: 'Microsoft.Identity.Web.MicrosoftGraphBeta*'
 
 # Pack Microsoft.Identity.Web.GraphServiceClient
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClient'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.GraphServiceClient'
     AssemblyName: 'Microsoft.Identity.Web.GraphServiceClient*'
 
 # Pack Microsoft.Identity.Web.GraphServiceClientBeta
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.GraphServiceClientBeta'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.GraphServiceClientBeta'
     AssemblyName: 'Microsoft.Identity.Web.GraphServiceClientBeta*'
 
 # Pack Microsoft.Identity.Web.TokenCache
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenCache'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.TokenCache'
     AssemblyName: 'Microsoft.Identity.Web.TokenCache*'
 
 # Pack Microsoft.Identity.Web.TokenAcquisition
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.TokenAcquisition'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.TokenAcquisition'
     AssemblyName: 'Microsoft.Identity.Web.TokenAcquisition*'
 
 # Pack Microsoft.Identity.Web.Certificate
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificate'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Certificate'
     AssemblyName: 'Microsoft.Identity.Web.Certificate*'
 
 # Pack Microsoft.Identity.Web.Certificateless
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Certificateless'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Certificateless'
     AssemblyName: 'Microsoft.Identity.Web.Certificateless*'
 
 # Pack Microsoft.Identity.Web.OWIN
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.OWIN'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.OWIN'
     AssemblyName: 'Microsoft.Identity.Web.OWIN*'
 
 # Pack Microsoft.Identity.Web.DownstreamApi
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.DownstreamApi'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.DownstreamApi'
     AssemblyName: 'Microsoft.Identity.Web.DownstreamApi*'
 
 # Pack Microsoft.Identity.Web.Diagnostics
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Diagnostics'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Diagnostics'
     AssemblyName: 'Microsoft.Identity.Web.Diagnostics*'
 
 # Pack Microsoft.Identity.Web.Diagnostics
 - template: template-pack-nuget.yaml
   parameters:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
-    ProjectRootPath: '$(Build.SourcesDirectory)\src\Microsoft.Identity.Web.Azure'
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Azure'
     AssemblyName: 'Microsoft.Identity.Web.Azure*'
 
 # Copy all packages out to staging
