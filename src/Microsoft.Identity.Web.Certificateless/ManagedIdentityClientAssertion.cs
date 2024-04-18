@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
+using Microsoft.Identity.Web.Certificateless;
 
 namespace Microsoft.Identity.Web
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
         /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
-        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string tokenExchangeUrl = "api://AzureADTokenExchange")
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl)
         {
             _credential = new DefaultAzureCredential(
                 new DefaultAzureCredentialOptions
@@ -36,7 +37,7 @@ namespace Microsoft.Identity.Web
                     ExcludeVisualStudioCodeCredential = true,
                     ExcludeVisualStudioCredential = true
                 });
-            _tokenExchangeUrl = tokenExchangeUrl;
+            _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
         /// <summary>

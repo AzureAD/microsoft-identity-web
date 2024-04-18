@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
                 ManagedIdentityClientAssertion? managedIdentityClientAssertion = credentialDescription.CachedValue as ManagedIdentityClientAssertion;
                 if (credentialDescription.CachedValue == null)
                 {
-                    managedIdentityClientAssertion = new ManagedIdentityClientAssertion(credentialDescription.ManagedIdentityClientId/*, credentialDescription.tokenExchangeUrl*/); // TODO: update value upon abstractions release
+                    managedIdentityClientAssertion = new ManagedIdentityClientAssertion(credentialDescription.ManagedIdentityClientId, credentialDescription.TokenExchangeUrl);
                 }
                 try
                 {

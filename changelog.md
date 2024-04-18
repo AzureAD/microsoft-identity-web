@@ -1,3 +1,7 @@
+Pending Next Release
+=========
+- Update to Microsoft.Identity.Abstractions 5.2.0
+
 2.17.2
 =========
 
