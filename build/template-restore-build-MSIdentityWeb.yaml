@@ -5,7 +5,7 @@ parameters:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'debug'
   MsIdentityWebSemVer: '1.0.0-devopsbuild'
-  
+
 steps:
 - script: |
     dotnet workload restore $(IdWebSourceDir)tests\DevApps\blazorwasm-b2c\blazorwasm2-b2c.csproj
@@ -38,6 +38,7 @@ steps:
     command: run
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
+  enabled: false
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
