@@ -1,4 +1,4 @@
-# template-releasebuild.yaml
+# template-onebranch-release-build.yaml
 
 parameters:
   BuildPlatform: 'any cpu'
@@ -16,9 +16,6 @@ steps:
     BuildPlatform: '$(BuildPlatform)'
     BuildConfiguration: '$(BuildConfiguration)'
     MsIdentityWebSemVer: $(MsIdentityWebSemVer)
- 
-# Run Post-build code analysis (e.g. Roslyn)
-- template: template-postbuild-code-analysis.yaml
  
 # Pack and sign all of the nuget packages
 - template: template-pack-and-sign-all-nugets.yaml

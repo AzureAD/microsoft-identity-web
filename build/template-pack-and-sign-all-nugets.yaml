@@ -3,7 +3,7 @@
 
 parameters:
   BuildConfiguration: 'release'
-  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\$(IdWebSourceDir)packages\*.nupkg'
+  NugetPackagesWildcard: '$(Build.ArtifactStagingDirectory)\packages\*.nupkg'
 
 steps:
 
