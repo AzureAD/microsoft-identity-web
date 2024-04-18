@@ -184,6 +184,10 @@ namespace Microsoft.Identity.Web.Test.Common
         public static readonly string s_todoListClientPath = Path.DirectorySeparatorChar.ToString() + "Client";
         public static readonly string s_todoListServiceExe = Path.DirectorySeparatorChar.ToString() + "TodoListService.exe";
         public static readonly string s_todoListServicePath = Path.DirectorySeparatorChar.ToString() + "TodoListService";
+        public static readonly string s_myWebAppExe = Path.DirectorySeparatorChar.ToString() + "myWebApp.exe";
+        public static readonly string s_myWebAppPath = Path.DirectorySeparatorChar.ToString() + "myWebApp";
+        public static readonly string s_myWebApiExe = Path.DirectorySeparatorChar.ToString() + "myWebApi.exe";
+        public static readonly string s_myWebApiPath = Path.DirectorySeparatorChar.ToString() + "myWebApi";
 
 
         // TokenAcqusitionOptions and ManagedIdentityOptions
