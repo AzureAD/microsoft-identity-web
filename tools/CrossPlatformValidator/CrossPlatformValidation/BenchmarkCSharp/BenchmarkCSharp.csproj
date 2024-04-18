@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.12.1" />
+    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.13.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWilson7)' == 'true'">

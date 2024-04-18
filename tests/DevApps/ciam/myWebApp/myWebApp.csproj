@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-myWebApp-23b8728b-775f-4796-8b63-e85cbaccc27c</UserSecretsId>
+    <UseWIP>true</UseWIP>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseWIP)' == 'false' ">

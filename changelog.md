@@ -5,6 +5,21 @@ Pending Next Release
 ### New features
 - Added support for Managed Identity Federated Identity Credential. See issue [2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
 
+2.17.5
+=========
+- Updated to MSAL 4.59.1.
+
+2.17.4
+=========
+
+### Bug fix
+
+- Fix assertions being removed from `dict` before callback is executed in TokenAcquisition. See issue [#2734](https://github.com/AzureAD/microsoft-identity-web/issues/2734) for details.
+
+2.17.3
+=========
+- Updated to Microsoft.IdentityModel.* 7.5.0
+
 2.17.2
 =========
 

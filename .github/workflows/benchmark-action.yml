@@ -3,7 +3,7 @@ on:
   workflow_dispatch: # Allows manual triggering of workflow
   push:
     branches:
-      - master
+      - rel/v2
 
 permissions:
   # Deployments permission to deploy GitHub pages website
