@@ -23,22 +23,22 @@ steps:
 # The previous task does the restore
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
+  condition: and(succeeded(), eq(variables['PipelineType'], ''))
   inputs:
     command: custom
     custom: msbuild
     project: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
-  enabled: false
 
 # Run the dotnet daemon app
 # This requires that the build machine has a user assigned managed identity that can access the KeyVault.
 - task: DotNetCoreCLI@2
   displayName: 'Build and run dotnet daemon app'
+  condition: and(succeeded(), eq(variables['PipelineType'], ''))
   inputs:
     command: run
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
-  enabled: false
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
