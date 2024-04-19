@@ -23,7 +23,7 @@ steps:
 # The previous task does the restore
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln for governance'
-  condition: and(succeeded(), eq(variables['PipelineType'], ''))
+  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
   inputs:
     command: custom
     custom: msbuild
@@ -34,7 +34,7 @@ steps:
 # This requires that the build machine has a user assigned managed identity that can access the KeyVault.
 - task: DotNetCoreCLI@2
   displayName: 'Build and run dotnet daemon app'
-  condition: and(succeeded(), eq(variables['PipelineType'], ''))
+  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
   inputs:
     command: run
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
