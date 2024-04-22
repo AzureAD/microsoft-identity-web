@@ -1,9 +1,11 @@
-Pending Next Release
+2.18.0
 =========
-- Update to Microsoft.Identity.Abstractions 5.2.0
+- Update to Microsoft.Identity.Abstractions 5.3.0
+- Update Azure.Security libraries to 4.6.0
 
 ### New features
-- Added support for Managed Identity Federated Identity Credential. See issue [2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
+- Added support for Managed Identity Federated Identity Credential. See issue [#2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
+- Added support to read a section to register multiple downstream APIs. See issue [#2255](https://github.com/AzureAD/microsoft-identity-web/issues/2255) for details.
 
 2.17.5
 =========
