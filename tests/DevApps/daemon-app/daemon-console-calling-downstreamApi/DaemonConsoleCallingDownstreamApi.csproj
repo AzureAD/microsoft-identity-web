@@ -5,6 +5,7 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseWip>true</UseWip>
   </PropertyGroup>
 
   <ItemGroup>
