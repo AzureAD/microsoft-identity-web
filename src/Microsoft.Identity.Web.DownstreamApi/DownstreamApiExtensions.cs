@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Adds named downstream APIs related to a specific configuration section.
         /// </summary>
-        /// <param name="services">services.</param>
+        /// <param name="services">
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder for chaining.</returns>
