@@ -7,6 +7,9 @@
 - Added support for Managed Identity Federated Identity Credential. See issue [#2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
 - Added support to read a section to register multiple downstream APIs. See issue [#2255](https://github.com/AzureAD/microsoft-identity-web/issues/2255) for details.
 
+### Bug fix
+- TokenAcquirer factory is now thread safe and can handle multiple azure regions. See issue [#2765](https://github.com/AzureAD/microsoft-identity-web/issues/2765) for details.
+
 2.17.5
 =========
 - Updated to MSAL 4.59.1.
