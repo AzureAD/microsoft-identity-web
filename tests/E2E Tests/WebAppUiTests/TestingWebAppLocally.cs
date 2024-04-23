@@ -8,12 +8,10 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
-using System.Threading;
-using System.Net;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests;
 
@@ -122,7 +120,17 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             Queue<Process> processes = new();
             if (process != null)
             { processes.Enqueue(process); }
+
+#if WINDOWS
             UiTestHelpers.KillProcessTrees(processes);
+#else
+            while (processes.Count > 0)
+            {
+                Process p = processes.Dequeue();
+                p.Kill();
+                p.WaitForExit();
+            }
+#endif
 
             // Cleanup Playwright
             // Stop tracing and export it into a zip archive.
