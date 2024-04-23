@@ -536,7 +536,13 @@ namespace Microsoft.Identity.Web
             options.TokenHandler = mergedOptions.TokenHandler;
 #endif
 #if NET9_0_OR_GREATER
-            options.AdditionalAuthorizationParameters = mergedOptions.AdditionalAuthorizationParameters;
+            if (mergedOptions.AdditionalAuthorizationParameters != null)
+            {
+                foreach (var parameter in mergedOptions.AdditionalAuthorizationParameters)
+                {
+                    options.AdditionalAuthorizationParameters.Add(parameter.Key, parameter.Value);
+                }
+            }
 #endif
         }
     }
