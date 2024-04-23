@@ -653,7 +653,7 @@ namespace Microsoft.Identity.Web
                 if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
                 {
                     authority = mergedOptions.Authority!;
-                    builder.WithGenericAuthority(authority);
+                    builder.WithOidcAuthority(authority);
                 }
                 else if (mergedOptions.IsB2C)
                 {
