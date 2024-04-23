@@ -2,8 +2,8 @@
 
 parameters:
   BuildPlatform: 'any cpu'
-  BuildConfiguration: 'debug'
-  MsIdentityWebSemVer: '1.0.0-devopsbuild'
+  BuildConfiguration: 'release'
+  MsIdentityWebSemVer: '1.0.0-internal$(Build.BuildNumber)'
 
 steps:
  
