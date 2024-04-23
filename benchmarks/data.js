@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1712359989972,
+  "lastUpdate": 1713837919202,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1440,6 +1440,42 @@ window.BENCHMARK_DATA = {
             "value": 11028.92262989391,
             "unit": "ns",
             "range": "± 74.44073907731114"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8102a906273da2aff7636f7edc9965d4184220d",
+          "message": "Clean-up warnings. they prented to see signal in the noise (#2790)",
+          "timestamp": "2024-04-22T17:03:24-07:00",
+          "tree_id": "066878d03087325f4d35c60c549bbbfca92c187c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/f8102a906273da2aff7636f7edc9965d4184220d"
+        },
+        "date": 1713837918553,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9650.350770950317,
+            "unit": "ns",
+            "range": "± 105.01135778137028"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10498.67790195398,
+            "unit": "ns",
+            "range": "± 71.07344390614216"
           }
         ]
       }
