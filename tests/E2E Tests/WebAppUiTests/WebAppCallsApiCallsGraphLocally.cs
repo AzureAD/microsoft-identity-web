@@ -64,7 +64,7 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
             };
 
-            Dictionary<string, Process> processes = null;
+            Dictionary<string, Process>? processes = null;
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_TodoAppFunctionsCorrectly";
@@ -72,7 +72,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage page = null;
+            IPage? page = null;
 
             try
             {
@@ -150,7 +150,10 @@ namespace WebAppUiTests
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyScreenshotFail{guid}.png", FullPage = true });
+                    if (page != null)
+                    {
+                        await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyScreenshotFail{guid}.png", FullPage = true });
+                    }
                 }
                 catch
                 {
@@ -200,7 +203,7 @@ namespace WebAppUiTests
                 {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
             };
 
-            Dictionary<string, Process> processes = null;
+            Dictionary<string, Process>? processes = null;
 
             // Arrange Playwright setup, to see the browser UI set Headless = false.
             const string TraceFileName = TraceFileClassName + "_CiamWebApp_WebApiFunctionsCorrectly";
@@ -208,7 +211,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage page = null;
+            IPage? page = null;
 
             try
             {
@@ -261,7 +264,10 @@ namespace WebAppUiTests
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamScreenshotFail{guid}.png", FullPage = true });
+                    if (page != null)
+                    {
+                        await page.ScreenshotAsync(new PageScreenshotOptions() { Path = $"ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamScreenshotFail{guid}.png", FullPage = true });
+                    }
                 }
                 catch
                 {
@@ -313,7 +319,17 @@ namespace WebAppUiTests
                     processQueue.Enqueue(process.Value);
                 }
             }
+
+#if WINDOWS
             UiTestHelpers.KillProcessTrees(processQueue);
+#else
+            while (processQueue.Count > 0)
+            {
+                Process p = processQueue.Dequeue();
+                p.Kill();
+                p.WaitForExit();
+            }
+#endif
         }
 
         private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)
