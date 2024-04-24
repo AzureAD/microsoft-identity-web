@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
-        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
+        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/".</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) : this (managedIdentityClientId)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var result = await _credential.GetTokenAsync(
-                new TokenRequestContext([_tokenExchangeUrl+"./default"], null),
+                new TokenRequestContext([_tokenExchangeUrl], null),
                 cancellationToken).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
