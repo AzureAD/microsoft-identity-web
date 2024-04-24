@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1713992365839,
+  "lastUpdate": 1713998265238,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1620,6 +1620,42 @@ window.BENCHMARK_DATA = {
             "value": 10659.881178738779,
             "unit": "ns",
             "range": "± 68.0006700280672"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0d46432a7a8242e0300c16653378084fad9c9f1b",
+          "message": "fix for fic (#2797)\n\n* fix for fic\r\n\r\n* Update src/Microsoft.Identity.Web.Certificateless/ManagedIdentityClientAssertion.cs",
+          "timestamp": "2024-04-24T15:34:23-07:00",
+          "tree_id": "3a02234ef59d71650ba14de4d44a5c18f9a93168",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/0d46432a7a8242e0300c16653378084fad9c9f1b"
+        },
+        "date": 1713998264617,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9526.089233130739,
+            "unit": "ns",
+            "range": "± 75.96121543127899"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10284.208192791855,
+            "unit": "ns",
+            "range": "± 58.70774556226842"
           }
         ]
       }
