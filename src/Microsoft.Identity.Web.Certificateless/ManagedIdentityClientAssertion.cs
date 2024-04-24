@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var result = await _credential.GetTokenAsync(
-                new TokenRequestContext([_tokenExchangeUrl+"./default"], null),
+                new TokenRequestContext([_tokenExchangeUrl], null),
                 cancellationToken).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
