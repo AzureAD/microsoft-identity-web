@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -219,28 +218,35 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-        private static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
+        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
         {
-            HttpContent? effectiveInput;
+            HttpContent? httpContent;
             if (input is HttpContent)
             {
-                effectiveInput = input as HttpContent;
-            }
-            else if (effectiveOptions.Serializer != null)
-            {
-                effectiveInput = effectiveOptions.Serializer(input);
+                httpContent = input as HttpContent;
             }
             else
             {
+                if (effectiveOptions.Serializer != null)
+                {
+                    httpContent = effectiveOptions.Serializer(input);
+                }
+                else
+                {
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                effectiveInput = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
+                    httpContent = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
 #pragma warning restore CA2000 // Dispose objects before losing scope
+                }
+                if (httpContent != null && !string.IsNullOrEmpty(effectiveOptions.ContentType))
+                {
+                    httpContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(effectiveOptions.ContentType);
+                }
             }
 
-            return effectiveInput;
+            return httpContent;
         }
 
-        private static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
+        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
             try
@@ -265,6 +271,13 @@ namespace Microsoft.Identity.Web
                 return default;
             }
 
+            if (typeof(TOutput).IsAssignableFrom(typeof(HttpContent)))
+            {
+                return content as TOutput;
+            }
+
+            string? mediaType = content.Headers.ContentType?.MediaType;
+
             if (effectiveOptions.Deserializer != null)
             {
                 return effectiveOptions.Deserializer(content) as TOutput;
@@ -272,11 +285,20 @@ namespace Microsoft.Identity.Web
             else
             {
                 string stringContent = await content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (mediaType == "application/json")
+                {
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Handle other content types here
+                    throw new NotSupportedException("Content type not supported. Provide your own deserializer. ");
+                }
+                return stringContent as TOutput;
             }
         }
 
-        private async Task<HttpResponseMessage> CallApiInternalAsync(
+        internal async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
             DownstreamApiOptions effectiveOptions,
             bool appToken,
@@ -286,15 +308,15 @@ namespace Microsoft.Identity.Web
         {
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
-
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
-
+           
             // Create an HTTP request message
-            using HttpRequestMessage httpRequestMessage = new(
+            HttpRequestMessage httpRequestMessage = new(
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
             await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+
+            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
 
             // Send the HTTP message           
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -319,7 +341,7 @@ namespace Microsoft.Identity.Web
             return downstreamApiResult;
         }
 
-        private async Task UpdateRequestAsync(
+        internal async Task UpdateRequestAsync(
             HttpRequestMessage httpRequestMessage,
             HttpContent? content,
             DownstreamApiOptions effectiveOptions,
@@ -347,6 +369,10 @@ namespace Microsoft.Identity.Web
                                             user,
                                             cancellationToken).ConfigureAwait(false);
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+            }            
+            if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
+            {
+                httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
             }
             else
             {
