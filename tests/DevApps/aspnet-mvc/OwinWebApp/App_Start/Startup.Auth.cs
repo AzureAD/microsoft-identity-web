@@ -1,13 +1,11 @@
-﻿using Microsoft.Owin.Security;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.OWIN;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.OWIN;
-using System.Web.Services.Description;
 
 namespace OwinWebApp
 {
@@ -21,7 +19,11 @@ namespace OwinWebApp
 
             OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
 
-            app.AddMicrosoftIdentityWebApp(factory);
+            app.AddMicrosoftIdentityWebApp(factory, updateOptions: (options) =>
+            {
+                options.RedirectUri = "https://localhost:44386/";
+            });
+            
             factory.Services
                 .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
                 .AddMicrosoftGraph()

@@ -136,10 +136,6 @@
     <Content Include="Views\Account\SignOutCallback.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr">
       <Version>3.5.0.2</Version>
     </PackageReference>
