@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -100,7 +101,98 @@ namespace Microsoft.Identity.Web.Tests
             Assert.IsType<StringContent>(result);
             Assert.Equal("application/json", result.Headers.ContentType?.MediaType);
         }
+
+        [Fact]
+        public async Task DeserializeOutput_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            var options = new DownstreamApiOptions();
+
+            // Act and Assert
+            await Assert.ThrowsAsync<HttpRequestException>(() => DownstreamApi.DeserializeOutput<HttpContent>(response, options));
+        }
+
+        [Fact]
+        public async Task DeserializeOutput_ReturnsDefault_WhenContentIsNull()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = null
+            };
+            var options = new DownstreamApiOptions();
+
+            // Act
+            var result = await DownstreamApi.DeserializeOutput<HttpContent>(response, options);
+
+            // Assert
+            Assert.Empty(result!.Headers);
+        }
+
+        [Fact]
+        public async Task DeserializeOutput_ReturnsContent_WhenOutputTypeIsHttpContent()
+        {
+            // Arrange
+            var content = new StringContent("test");
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = content
+            };
+            var options = new DownstreamApiOptions();
+
+            // Act
+            var result = await DownstreamApi.DeserializeOutput<HttpContent>(response, options);
+
+            // Assert
+            Assert.Equal(content, result);
+        }
+
+        [Fact]
+        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenDeserializerIsProvided()
+        {
+            // Arrange
+            var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = content
+            };
+            var options = new DownstreamApiOptions
+            {
+                Deserializer = c => JsonSerializer.Deserialize<Person>(c!.ReadAsStringAsync().Result)
+            };
+
+            // Act
+            var result = await DownstreamApi.DeserializeOutput<Person>(response, options);
+
+            // Assert
+            Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal("John", result?.Name);
+            Assert.Equal(30, result?.Age);
+        }
+
+        [Fact]
+        public async Task DeserializeOutput_ThrowsNotSupportedException_WhenContentTypeIsNotSupported()
+        {
+            // Arrange
+            var content = new StringContent("test", Encoding.UTF8, "application/xml");
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = content
+            };
+            var options = new DownstreamApiOptions();
+
+            // Act and Assert
+            await Assert.ThrowsAsync<NotSupportedException>(() => DownstreamApi.DeserializeOutput<string>(response, options));
+        }
     }
+
+    public class Person
+    {
+        public string? Name { get; set; }
+        public int? Age { get; set; }
+    }
+
     public class MyMonitor : IOptionsMonitor<DownstreamApiOptions>
     {
         public DownstreamApiOptions CurrentValue => new DownstreamApiOptions();
