@@ -1,7 +1,14 @@
+2.18.1
+=========
+- Updated to Microsoft.IdentityModel.* 7.5.1
+
+### Bug fix
+- Fix for FIC due to appending `./default`, see issue [#2796](https://github.com/AzureAD/microsoft-identity-web/issues/2796) for details.
+
 2.18.0
 =========
-- Update to Microsoft.Identity.Abstractions 5.3.0
-- Update Azure.Security libraries to 4.6.0
+- Updated to Microsoft.Identity.Abstractions 5.3.0
+- Updated Azure.Security libraries to 4.6.0
 
 ### New features
 - Added support for Managed Identity Federated Identity Credential. See issue [#2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
