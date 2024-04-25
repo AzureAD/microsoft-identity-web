@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
     <!-- This needs to be greater than or equal to the validation baseline version -->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.16.0-localbuild</ClientSemVer>
+    <ClientSemVer Condition="'$(ClientSemVer)' == ''">3.0.0-localbuild</ClientSemVer>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(ClientSemVer)</Version>
 
