@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1713998265238,
+  "lastUpdate": 1714019868918,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1656,6 +1656,42 @@ window.BENCHMARK_DATA = {
             "value": 10284.208192791855,
             "unit": "ns",
             "range": "± 58.70774556226842"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e7ee72119af055e41cabe45762106001f68f44a5",
+          "message": "Disable the Ciam CUD tests as they don't work any longer since today. (#2799)",
+          "timestamp": "2024-04-24T21:34:40-07:00",
+          "tree_id": "c2d4907ea82b088ff0b76783434eabd9965dc16e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e7ee72119af055e41cabe45762106001f68f44a5"
+        },
+        "date": 1714019868286,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9690.389251426413,
+            "unit": "ns",
+            "range": "± 65.62516904741906"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10490.34453109215,
+            "unit": "ns",
+            "range": "± 56.94142272472034"
           }
         ]
       }
