@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1714069195227,
+  "lastUpdate": 1714097359877,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1728,6 +1728,42 @@ window.BENCHMARK_DATA = {
             "value": 10660.090286527362,
             "unit": "ns",
             "range": "± 68.1891757936679"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "36cdd23f5c80f24d6ad96da59dc3171ede998211",
+          "message": "update clientSemVer to 3 (#2802)",
+          "timestamp": "2024-04-25T19:06:07-07:00",
+          "tree_id": "3630907c8d54a1c7ce18611f1182771c4d2268e9",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/36cdd23f5c80f24d6ad96da59dc3171ede998211"
+        },
+        "date": 1714097359319,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9779.999544455788,
+            "unit": "ns",
+            "range": "± 100.91424382089144"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10572.111704690116,
+            "unit": "ns",
+            "range": "± 63.61796040038257"
           }
         ]
       }
