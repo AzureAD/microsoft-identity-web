@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1714097359877,
+  "lastUpdate": 1714262399290,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1764,6 +1764,42 @@ window.BENCHMARK_DATA = {
             "value": 10572.111704690116,
             "unit": "ns",
             "range": "± 63.61796040038257"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a72a7218c9be388c4a6430a433e8f2525703c8b4",
+          "message": "Jennyf/new props (#2800)\n\n* initial commit to add properties to downstreamApi\r\n\r\n* more tests\r\n\r\n* PR feedback\r\n\r\n* PR feedback round2\r\n\r\n* handle serializer first.\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-04-27T16:56:47-07:00",
+          "tree_id": "13490b057c9c03f445cb88a8e9447f826ff0a1c6",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a72a7218c9be388c4a6430a433e8f2525703c8b4"
+        },
+        "date": 1714262398617,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9649.883889770508,
+            "unit": "ns",
+            "range": "± 61.78869165156573"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10673.19312812542,
+            "unit": "ns",
+            "range": "± 65.34215964072649"
           }
         ]
       }
