@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -88,9 +89,7 @@ namespace Microsoft.Identity.Web.Tests
             // Arrange
             var options = new DownstreamApiOptions
             {
-                Serializer = (obj) => new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json"),
-                ContentType = "application/json",
-                AcceptHeader = "application/json"
+                Serializer = (obj) => new StringContent(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json")
             };
 
             // Act
@@ -100,6 +99,91 @@ namespace Microsoft.Identity.Web.Tests
             Assert.NotNull(result);
             Assert.IsType<StringContent>(result);
             Assert.Equal("application/json", result.Headers.ContentType?.MediaType);
+        }
+
+        private readonly DownstreamApiOptions _options = new();
+
+        [Fact]
+        public void SerializeInput_WithHttpContent_ReturnsSameContent()
+        {
+            // Arrange
+            var content = new StringContent("test");
+
+            // Act
+            var result = DownstreamApi.SerializeInput(content, _options);
+
+            // Assert
+            Assert.Equal(content, result);
+        }
+
+        [Fact]
+        public void SerializeInput_WithSerializer_ReturnsSerializedContent()
+        {
+            // Arrange
+            var input = new Person();
+            _options.Serializer = o => new StringContent("serialized");
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options);
+
+            // Assert
+            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+        }
+
+        [Fact]
+        public void SerializeInput_WithStringAndContentType_ReturnsStringContent()
+        {
+            // Arrange
+            var input = "test";
+            _options.ContentType = "text/plain";
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options);
+
+            // Assert
+            Assert.IsType<StringContent>(result);
+            Assert.Equal(input, result.ReadAsStringAsync().Result);
+        }
+
+        [Fact]
+        public void SerializeInput_WithByteArray_ReturnsByteArrayContent()
+        {
+            // Arrange
+            var input = new byte[] { 1, 2, 3 };
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options);
+
+            // Assert
+            Assert.IsType<ByteArrayContent>(result);
+            Assert.Equal(input, result.ReadAsByteArrayAsync().Result);
+        }
+
+        [Fact]
+        public void SerializeInput_WithStream_ReturnsStreamContent()
+        {
+            // Arrange
+            var input = new MemoryStream(Encoding.UTF8.GetBytes("test"));
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options);
+
+            // Assert
+            Assert.IsType<StreamContent>(result);
+            Assert.Equal("test", new StreamReader(result.ReadAsStreamAsync().Result).ReadToEnd());
+        }
+
+        [Fact]
+        public void SerializeInput_WithNull_ReturnsNull()
+        {
+            // Arrange
+            object? input = null;
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options);
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact]
@@ -197,7 +281,7 @@ namespace Microsoft.Identity.Web.Tests
     {
         public DownstreamApiOptions CurrentValue => new DownstreamApiOptions();
 
-        public DownstreamApiOptions Get(string name)
+        public DownstreamApiOptions Get(string? name)
         {
             return new DownstreamApiOptions();
         }

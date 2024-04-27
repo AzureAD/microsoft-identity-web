@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -221,26 +222,38 @@ namespace Microsoft.Identity.Web
         internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
         {
             HttpContent? httpContent;
-            if (input is HttpContent)
+
+            // if the input is already an HttpContent, it's used as is, and should already contain a ContentType.
+            switch (input)
             {
-                httpContent = input as HttpContent;
-            }
-            else
-            {
-                if (effectiveOptions.Serializer != null)
-                {
-                    httpContent = effectiveOptions.Serializer(input);
-                }
-                else
-                {
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                    httpContent = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
-#pragma warning restore CA2000 // Dispose objects before losing scope
-                }
-                if (httpContent != null && !string.IsNullOrEmpty(effectiveOptions.ContentType))
-                {
-                    httpContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(effectiveOptions.ContentType);
-                }
+                case HttpContent content:
+                    httpContent = content;
+                    break;
+                case string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase):
+                    httpContent = new StringContent(str);
+                    break;
+                case string str:
+                    httpContent = new StringContent(JsonSerializer.Serialize(str), Encoding.UTF8, "application/json");
+                    break;
+                case byte[] bytes:
+                    httpContent = new ByteArrayContent(bytes);
+                    break;
+                case Stream stream:
+                    httpContent = new StreamContent(stream);
+                    break;
+                case null:
+                    httpContent = null;
+                    break;
+                default:
+                    if (effectiveOptions.Serializer != null)
+                    {
+                        httpContent = effectiveOptions.Serializer(input);
+                    }
+                    else
+                    {
+                        httpContent = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
+                    }
+                    break;
             }
 
             return httpContent;
@@ -310,7 +323,7 @@ namespace Microsoft.Identity.Web
             string apiUrl = effectiveOptions.GetApiUrl();
            
             // Create an HTTP request message
-            HttpRequestMessage httpRequestMessage = new(
+            using HttpRequestMessage httpRequestMessage = new(
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
