@@ -223,39 +223,24 @@ namespace Microsoft.Identity.Web
         {
             HttpContent? httpContent;
 
-            // if the input is already an HttpContent, it's used as is, and should already contain a ContentType.
-            switch (input)
+            if (effectiveOptions.Serializer != null)
             {
-                case HttpContent content:
-                    httpContent = content;
-                    break;
-                case string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase):
-                    httpContent = new StringContent(str);
-                    break;
-                case string str:
-                    httpContent = new StringContent(JsonSerializer.Serialize(str), Encoding.UTF8, "application/json");
-                    break;
-                case byte[] bytes:
-                    httpContent = new ByteArrayContent(bytes);
-                    break;
-                case Stream stream:
-                    httpContent = new StreamContent(stream);
-                    break;
-                case null:
-                    httpContent = null;
-                    break;
-                default:
-                    if (effectiveOptions.Serializer != null)
-                    {
-                        httpContent = effectiveOptions.Serializer(input);
-                    }
-                    else
-                    {
-                        httpContent = new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
-                    }
-                    break;
+                httpContent = effectiveOptions.Serializer(input);
             }
-
+            else
+            {
+                // if the input is already an HttpContent, it's used as is, and should already contain a ContentType.
+                httpContent = input switch
+                {
+                    HttpContent content => content,
+                    string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase) => new StringContent(str),
+                    string str => new StringContent(JsonSerializer.Serialize(str), Encoding.UTF8, "application/json"),
+                    byte[] bytes => new ByteArrayContent(bytes),
+                    Stream stream => new StreamContent(stream),
+                    null => null,
+                    _ => new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
+                };
+            }
             return httpContent;
         }
 
@@ -320,7 +305,7 @@ namespace Microsoft.Identity.Web
         {
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
-           
+
             // Create an HTTP request message
             using HttpRequestMessage httpRequestMessage = new(
                 new HttpMethod(effectiveOptions.HttpMethod),
@@ -381,7 +366,7 @@ namespace Microsoft.Identity.Web
                                             user,
                                             cancellationToken).ConfigureAwait(false);
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-            } 
+            }
             else
             {
                 Logger.UnauthenticatedApiCall(_logger, null);
