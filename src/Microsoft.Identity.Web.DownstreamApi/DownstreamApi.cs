@@ -284,16 +284,15 @@ namespace Microsoft.Identity.Web
                 return default;
             }
 
-            if (typeof(TOutput).IsAssignableFrom(typeof(HttpContent)))
-            {
-                return content as TOutput;
-            }
-
             string? mediaType = content.Headers.ContentType?.MediaType;
 
             if (effectiveOptions.Deserializer != null)
             {
                 return effectiveOptions.Deserializer(content) as TOutput;
+            }
+            else if (typeof(TOutput).IsAssignableFrom(typeof(HttpContent)))
+            {
+                return content as TOutput;
             }
             else
             {
@@ -382,14 +381,14 @@ namespace Microsoft.Identity.Web
                                             user,
                                             cancellationToken).ConfigureAwait(false);
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-            }            
-            if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
-            {
-                httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
-            }
+            } 
             else
             {
                 Logger.UnauthenticatedApiCall(_logger, null);
+            }
+            if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
+            {
+                httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
             }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);

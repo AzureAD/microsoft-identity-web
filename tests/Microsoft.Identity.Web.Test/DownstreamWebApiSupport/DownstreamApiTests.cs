@@ -55,6 +55,7 @@ namespace Microsoft.Identity.Web.Tests
             // Assert
             Assert.Equal(content, httpRequestMessage.Content);
             Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
+            Assert.Equal("text/plain", httpRequestMessage.Content?.Headers.ContentType?.MediaType);
         }
 
         [Theory]
