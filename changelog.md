@@ -7,6 +7,7 @@
 ### New features
 - Microsoft.Identity.Web can be conditionally built on `.net9.0-preview`, see issue [#2702](https://github.com/AzureAD/microsoft-identity-web/issues/2702) for details.
 - Microsoft.Identity.Web nows processes the `AcceptHeader` and `ContentType` if provided, see issue [#2806](https://github.com/AzureAD/microsoft-identity-web/issues/2806) for details.
+- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
 
 2.18.1
 =========
