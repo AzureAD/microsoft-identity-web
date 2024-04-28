@@ -133,7 +133,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
-    <IdentityModelVersion>6.35.0</IdentityModelVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
@@ -153,7 +152,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net472'">
-    <IdentityModelVersion>6.35.0</IdentityModelVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>2.1.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!-- CVE-2022-34716 due to DataProtection 2.1.0 -->
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
