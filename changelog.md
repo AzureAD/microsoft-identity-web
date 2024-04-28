@@ -1,3 +1,8 @@
+__for next release__
+
+### New feature
+- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
+
 2.18.1
 =========
 - Updated to Microsoft.IdentityModel.* 7.5.1
