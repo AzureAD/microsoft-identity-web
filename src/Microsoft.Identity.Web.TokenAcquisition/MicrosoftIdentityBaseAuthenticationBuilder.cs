@@ -40,11 +40,11 @@ namespace Microsoft.Identity.Web
 
         internal static void SetIdentityModelLogger(IServiceProvider serviceProvider)
         {
-            var config = serviceProvider.GetRequiredService<IConfiguration>();
-            var loglevel = config.GetValue<string>("Logging:LogLevel:Microsoft.Identity.Web");
-            
             if (serviceProvider != null)
             {
+                var config = serviceProvider.GetRequiredService<IConfiguration>();
+                var loglevel = config.GetValue<string>("Logging:LogLevel:Microsoft.Identity.Web");
+
                 // initialize logger only once
                 // If the user has configured LogLevel.None, don't initialize the logger
                 if (LogHelper.Logger != NullIdentityModelLogger.Instance ||
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
                 if (logger == null)
                 {
                     var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-                    if (loggerFactory != null) 
+                    if (loggerFactory != null)
                         logger = loggerFactory.CreateLogger<IdentityLoggerAdapter>();
                 }
 
