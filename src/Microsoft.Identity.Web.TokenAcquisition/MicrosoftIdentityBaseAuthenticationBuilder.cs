@@ -50,13 +50,13 @@ namespace Microsoft.Identity.Web
                 if (LogHelper.Logger != NullIdentityModelLogger.Instance ||
                     loglevel == LogLevel.None)
                     return;
-                
+
                 // check if an ILogger was already created by user
                 ILogger? logger = serviceProvider.GetService<ILogger<IdentityLoggerAdapter>>();
                 if (logger == null)
                 {
                     var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-                    if (loggerFactory != null) 
+                    if (loggerFactory != null)
                         logger = loggerFactory.CreateLogger<IdentityLoggerAdapter>();
                 }
 
