@@ -39,7 +39,7 @@ namespace Benchmarks
         public async Task CreateAuthorizationHeader()
         {
             // Get the authorization request creator service
-            IAuthorizationHeaderProvider authorizationHeaderProvider = s_serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            IAuthorizationHeaderProvider authorizationHeaderProvider = s_serviceProvider!.GetRequiredService<IAuthorizationHeaderProvider>();
             await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
         }
 
@@ -47,7 +47,7 @@ namespace Benchmarks
         public async Task GetTokenAcquirer()
         {
             // Get the token acquisition service
-            ITokenAcquirer tokenAcquirer = s_tokenAcquirerFactory.GetTokenAcquirer();
+            ITokenAcquirer tokenAcquirer = s_tokenAcquirerFactory!.GetTokenAcquirer();
             await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
         }
     }

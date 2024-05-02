@@ -5,9 +5,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.OWIN;
-using System.Web.Services.Description;
 
 namespace OwinWebApp
 {
