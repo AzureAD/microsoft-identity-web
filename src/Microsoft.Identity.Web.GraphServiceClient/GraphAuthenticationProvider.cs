@@ -79,8 +79,11 @@ namespace Microsoft.Identity.Web
                 authorizationHeaderProviderOptions = graphServiceClientOptions;
             }
 
+            AllowedHostsValidator allowedHostsValidator = new([
+                "graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"]);
+
             // Add the authorization header
-            if (!request.Headers.ContainsKey(AuthorizationHeaderKey))
+            if (allowedHostsValidator.IsUrlHostValid(request.URI) && !request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
                 string authorizationHeader;
                 if (authorizationHeaderProviderOptions!.RequestAppToken)
