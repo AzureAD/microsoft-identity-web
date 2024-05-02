@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1714269326390,
+  "lastUpdate": 1714616360301,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1944,6 +1944,42 @@ window.BENCHMARK_DATA = {
             "value": 10552.881931929154,
             "unit": "ns",
             "range": "± 62.48780324239717"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fcc98ec397b0fc806aec8702f5144c4586895d5f",
+          "message": "Update owin apps (#2810)\n\n* rmv M.IM 6x reference in OWIN\r\n\r\n* update owin apps",
+          "timestamp": "2024-05-01T19:16:01-07:00",
+          "tree_id": "7b2f302ca1a555fbac15f69562fe95a9627cd3c9",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/fcc98ec397b0fc806aec8702f5144c4586895d5f"
+        },
+        "date": 1714616359455,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9734.378294768158,
+            "unit": "ns",
+            "range": "± 97.74013274236832"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10467.596131733486,
+            "unit": "ns",
+            "range": "± 63.48615246364861"
           }
         ]
       }
