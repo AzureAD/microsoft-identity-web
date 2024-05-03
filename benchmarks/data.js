@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1714616360301,
+  "lastUpdate": 1714694871606,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -1980,6 +1980,42 @@ window.BENCHMARK_DATA = {
             "value": 10467.596131733486,
             "unit": "ns",
             "range": "± 63.48615246364861"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c6390b46bd6be14dbbf8fb76625f4ec5dc587f1",
+          "message": "add LogLevel.None predicate to logging decision (#2816)\n\n* add LogLevel.None predicate to logging decision\r\n\r\n* fix whitespace\r\n\r\n* string comparison\r\n\r\n* move call on servicerProvider inside null-checked block\r\n\r\n* remove whitesapce",
+          "timestamp": "2024-05-02T17:04:30-07:00",
+          "tree_id": "19bf5b3037c3bd613f2e3337e84e541b86c9c733",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/2c6390b46bd6be14dbbf8fb76625f4ec5dc587f1"
+        },
+        "date": 1714694870612,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9673.935825892857,
+            "unit": "ns",
+            "range": "± 101.2658930424918"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10647.191513837393,
+            "unit": "ns",
+            "range": "± 74.55692845997125"
           }
         ]
       }
