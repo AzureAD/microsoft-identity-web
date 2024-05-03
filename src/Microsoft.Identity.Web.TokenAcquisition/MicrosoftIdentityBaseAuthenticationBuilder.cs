@@ -42,8 +42,13 @@ namespace Microsoft.Identity.Web
         {
             if (serviceProvider != null)
             {
+                var config = serviceProvider.GetRequiredService<IConfiguration>();
+                var loglevel = config.GetValue<string>("Logging:LogLevel:Microsoft.Identity.Web");
+
                 // initialize logger only once
-                if (LogHelper.Logger != NullIdentityModelLogger.Instance)
+                // If the user has configured LogLevel.None, don't initialize the logger
+                if (LogHelper.Logger != NullIdentityModelLogger.Instance ||
+                    loglevel == LogLevel.None.ToString())
                     return;
 
                 // check if an ILogger was already created by user
