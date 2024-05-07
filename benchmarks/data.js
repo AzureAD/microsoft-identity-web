@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715041110324,
+  "lastUpdate": 1715041141794,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2088,6 +2088,42 @@ window.BENCHMARK_DATA = {
             "value": 10539.930465970721,
             "unit": "ns",
             "range": "± 74.66431290499405"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5c43a48ac94b7f9b451d95d237ef52db24e4ea2b",
+          "message": "Provide an env var to disable interactive auth for AKV (#2823)\n\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-05-06T17:15:40-07:00",
+          "tree_id": "700cecf7edd95c9c01652de2e8eba0be4135a3b9",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/5c43a48ac94b7f9b451d95d237ef52db24e4ea2b"
+        },
+        "date": 1715041141050,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9555.141269081518,
+            "unit": "ns",
+            "range": "± 58.46442509403004"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10335.307723181588,
+            "unit": "ns",
+            "range": "± 50.6967887619464"
           }
         ]
       }
