@@ -45,11 +45,40 @@ namespace Microsoft.Identity.Web
             string? managedIdentityClientId,
             X509KeyStorageFlags x509KeyStorageFlags)
         {
-            Uri keyVaultUri = new Uri(keyVaultUrl);
-            DefaultAzureCredentialOptions options = new()
+            Uri keyVaultUri = new(keyVaultUrl);
+
+            bool disableInteractiveCreds = false;
+            var disableInteractiveCredsEnvVar = Environment.GetEnvironmentVariable("IDWEB_DISABLE_INTERACTIVE_AKV_CREDENTIALS");
+
+            if (disableInteractiveCredsEnvVar != null && (disableInteractiveCredsEnvVar == "1" || disableInteractiveCredsEnvVar.Equals("true", StringComparison.OrdinalIgnoreCase)))
             {
-                ManagedIdentityClientId = managedIdentityClientId,
-            };
+                disableInteractiveCreds = true;
+            }
+
+            DefaultAzureCredentialOptions options;
+
+            if (disableInteractiveCreds)
+            {
+                options = new DefaultAzureCredentialOptions
+                {
+                    ManagedIdentityClientId = managedIdentityClientId,
+                    ExcludeAzureCliCredential = true,
+                    ExcludeAzureDeveloperCliCredential = true,
+                    ExcludeAzurePowerShellCredential = true,
+                    ExcludeInteractiveBrowserCredential = true,
+                    ExcludeSharedTokenCacheCredential = true,
+                    ExcludeVisualStudioCodeCredential = true,
+                    ExcludeVisualStudioCredential = true
+                };
+            }
+            else
+            {
+                options = new DefaultAzureCredentialOptions
+                {
+                    ManagedIdentityClientId = managedIdentityClientId,
+                };
+            }
+
             DefaultAzureCredential credential = new(options);
             CertificateClient certificateClient = new(keyVaultUri, credential);
             SecretClient secretClient = new(keyVaultUri, credential);
