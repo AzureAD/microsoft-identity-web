@@ -1,3 +1,53 @@
+Pending Next Release
+=========
+### Bug Fixes
+- If `Logging:LogLevel:Microsoft.Identity.Web` is assigned to `None`, no default logger is initialized and Microsoft.Identity.Web does not record any logs. See [#2816](https://github.com/AzureAD/microsoft-identity-web/pull/2816) for details. 
+
+3.0.0-preview1
+=========
+### Breaking changes
+- Remove netcoreapp3.1 support, see issue [#2262](https://github.com/AzureAD/microsoft-identity-web/issues/2262) for details.
+- Remove net5.0 support from Microsoft.Identity.Web.UI, see issue [#2711](https://github.com/AzureAD/microsoft-identity-web/issues/2711) for details.
+
+### New features
+- Microsoft.Identity.Web can be conditionally built on `.net9.0-preview`, see issue [#2702](https://github.com/AzureAD/microsoft-identity-web/issues/2702) for details.
+- Microsoft.Identity.Web nows processes the `AcceptHeader` and `ContentType` if provided, see issue [#2806](https://github.com/AzureAD/microsoft-identity-web/issues/2806) for details.
+- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
+
+2.18.1
+=========
+- Updated to Microsoft.IdentityModel.* 7.5.1
+
+### Bug fix
+- Fix for FIC due to appending `./default`, see issue [#2796](https://github.com/AzureAD/microsoft-identity-web/issues/2796) for details.
+
+2.18.0
+=========
+- Updated to Microsoft.Identity.Abstractions 5.3.0
+- Updated Azure.Security libraries to 4.6.0
+
+### New features
+- Added support for Managed Identity Federated Identity Credential. See issue [#2749](https://github.com/AzureAD/microsoft-identity-web/issues/2749) for details.
+- Added support to read a section to register multiple downstream APIs. See issue [#2255](https://github.com/AzureAD/microsoft-identity-web/issues/2255) for details.
+
+### Bug fix
+- TokenAcquirer factory is now thread safe and can handle multiple azure regions. See issue [#2765](https://github.com/AzureAD/microsoft-identity-web/issues/2765) for details.
+
+2.17.5
+=========
+- Updated to MSAL 4.59.1.
+
+2.17.4
+=========
+
+### Bug fix
+
+- Fix assertions being removed from `dict` before callback is executed in TokenAcquisition. See issue [#2734](https://github.com/AzureAD/microsoft-identity-web/issues/2734) for details.
+
+2.17.3
+=========
+- Updated to Microsoft.IdentityModel.* 7.5.0
+
 2.17.2
 =========
 

@@ -535,6 +535,15 @@ namespace Microsoft.Identity.Web
             options.UseSecurityTokenValidator = mergedOptions.UseSecurityTokenValidator;
             options.TokenHandler = mergedOptions.TokenHandler;
 #endif
+#if NET9_0_OR_GREATER
+            if (mergedOptions.AdditionalAuthorizationParameters != null)
+            {
+                foreach (var parameter in mergedOptions.AdditionalAuthorizationParameters)
+                {
+                    options.AdditionalAuthorizationParameters.Add(parameter.Key, parameter.Value);
+                }
+            }
+#endif
         }
     }
 }

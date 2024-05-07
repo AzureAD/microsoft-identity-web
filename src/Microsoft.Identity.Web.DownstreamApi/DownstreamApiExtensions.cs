@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,30 @@ namespace Microsoft.Identity.Web
             services.Configure(serviceName, configureOptions);
             RegisterDownstreamApi(services);
 
+            return services;
+        }
+
+        /// <summary>
+        /// Adds named downstream APIs related to a specific configuration section.
+        /// </summary>
+        /// <param name="services">
+        /// This is the name used when calling the service from controller/pages.</param>
+        /// <param name="configurationSection">Configuration section.</param>
+        /// <returns>The builder for chaining.</returns>
+        public static IServiceCollection AddDownstreamApis(
+            this IServiceCollection services,
+            IConfigurationSection configurationSection)
+        {
+            _ = Throws.IfNull(services);
+
+            Dictionary<string, DownstreamApiOptions> options = new();
+            configurationSection.Bind(options);
+           
+            foreach (var optionsForService in options.Keys)
+            {
+                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService).Bind);
+            }
+            RegisterDownstreamApi(services);
             return services;
         }
 

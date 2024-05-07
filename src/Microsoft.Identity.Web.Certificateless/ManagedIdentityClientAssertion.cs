@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
+using Microsoft.Identity.Web.Certificateless;
 
 namespace Microsoft.Identity.Web
 {
@@ -14,6 +15,7 @@ namespace Microsoft.Identity.Web
     public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
     {
         private readonly TokenCredential _credential;
+        private readonly string _tokenExchangeUrl;
 
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
@@ -34,6 +36,17 @@ namespace Microsoft.Identity.Web
                     ExcludeVisualStudioCodeCredential = true,
                     ExcludeVisualStudioCredential = true
                 });
+            _tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl;
+        }
+
+        /// <summary>
+        /// See https://aka.ms/ms-id-web/certificateless.
+        /// </summary>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
+        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
+        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) : this (managedIdentityClientId)
+        {
+            _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
         /// <summary>
@@ -44,7 +57,7 @@ namespace Microsoft.Identity.Web
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
             var result = await _credential.GetTokenAsync(
-                new TokenRequestContext(["api://AzureADTokenExchange/.default"], null),
+                new TokenRequestContext([_tokenExchangeUrl], null),
                 cancellationToken).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
