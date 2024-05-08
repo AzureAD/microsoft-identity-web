@@ -22,6 +22,7 @@ namespace Microsoft.Identity.Web
         private const string AuthorizationHeaderKey = "Authorization";
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
+        private readonly string[] _graphUris = ["graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"];
 
         /// <summary>
         /// Constructor from the authorization header provider.
@@ -79,9 +80,7 @@ namespace Microsoft.Identity.Web
                 authorizationHeaderProviderOptions = graphServiceClientOptions;
             }
 
-            AllowedHostsValidator allowedHostsValidator = new(
-                ["graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"]);
-
+            AllowedHostsValidator allowedHostsValidator = new(_graphUris);
             // Add the authorization header
             if (allowedHostsValidator.IsUrlHostValid(request.URI) && !request.Headers.ContainsKey(AuthorizationHeaderKey))
             {

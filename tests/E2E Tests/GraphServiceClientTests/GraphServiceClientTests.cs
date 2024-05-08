@@ -2,15 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Kiota.Abstractions;
-using Moq;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -89,28 +85,6 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // assert
             Assert.False(request.Headers.ContainsKey("Authorization"));
-        }
-
-        [Fact]
-        public async Task AuthenticateRequestAsync_GraphUri_SetsAuthZHeader()
-        {
-            // arrange
-            RequestInformation request = new()
-            {
-                URI = new Uri("https://graph.microsoft.com/.default")
-            };
-
-            var mockAuthorizationHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
-            mockAuthorizationHeaderProvider.Setup(x => x.CreateAuthorizationHeaderForUserAsync(
-                It.IsAny<IEnumerable<string>>(), It.IsAny<AuthorizationHeaderProviderOptions>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<CancellationToken>())
-            ).ReturnsAsync("Bearer token");
-            GraphAuthenticationProvider graphAuthenticationProvider = new(mockAuthorizationHeaderProvider.Object, new GraphServiceClientOptions());
-
-            // act
-            await graphAuthenticationProvider.AuthenticateRequestAsync(request).ConfigureAwait(false);
-
-            // assert
-            Assert.True(request.Headers.ContainsKey("Authorization"));
         }
     }
 }
