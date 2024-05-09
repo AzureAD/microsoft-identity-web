@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web.Test
                     { "queryParam2", "value2" },
                 }
             };
-            var expectedQuery = QueryString.Create(options.ExtraQueryParameters);
+            var expectedQuery = QueryString.Create(options.ExtraQueryParameters as IEnumerable<KeyValuePair<string, string?>>);
             string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0{expectedQuery}";
 
             // act

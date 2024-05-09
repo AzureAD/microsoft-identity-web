@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
@@ -13,7 +14,7 @@ namespace Microsoft.Identity.Web
             Uri baseUri = new Uri(options.Instance);
             var domain = options.Domain;
             var tenantId = options.TenantId;
-            var queryParams = options.ExtraQueryParameters == null ? QueryString.Empty : QueryString.Create(options.ExtraQueryParameters);
+            QueryString queryParams = options.ExtraQueryParameters == null ? QueryString.Empty : QueryString.Create(options.ExtraQueryParameters as IEnumerable<KeyValuePair<string, string?>>);
 
             if (options.IsB2C)
             {
