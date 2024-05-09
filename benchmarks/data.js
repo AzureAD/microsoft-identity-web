@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715041141794,
+  "lastUpdate": 1715249881151,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2124,6 +2124,42 @@ window.BENCHMARK_DATA = {
             "value": 10335.307723181588,
             "unit": "ns",
             "range": "± 50.6967887619464"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "travis.walker@microsoft.com",
+            "name": "Travis Walker",
+            "username": "trwalke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "edc8c503837fff2f07af2318f316f429367e360f",
+          "message": "OneBranch Migration (#2777)\n\n* Adding release build template\r\n\r\n* Disabled cred scan\r\n\r\n* Adding source location\r\n\r\n* clean up\r\n\r\n* Removing code coverage settings\r\n\r\n* Updating folder paths\r\n\r\n* Disabling deamon app\r\n\r\n* Updating SDL tasks\r\n\r\n* Disable TSA Upload\r\n\r\n* Updating variables\r\n\r\n* Updating pipeline variable\r\n\r\n* Template Update\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n* Update template-pack-and-sign-all-nugets.yaml\r\n\r\n---------\r\n\r\nCo-authored-by: trwalke <trwalke@microsoft.com>",
+          "timestamp": "2024-05-09T03:15:06-07:00",
+          "tree_id": "25fff26e924bb2619376b23ba74de229aa153980",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/edc8c503837fff2f07af2318f316f429367e360f"
+        },
+        "date": 1715249880429,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9851.44143371582,
+            "unit": "ns",
+            "range": "± 106.35624121421905"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10604.136264865681,
+            "unit": "ns",
+            "range": "± 47.885965404437435"
           }
         ]
       }
