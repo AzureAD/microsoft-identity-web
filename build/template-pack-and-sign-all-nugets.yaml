@@ -238,3 +238,4 @@ steps:
     command: custom
     arguments: 'verify -Signature ${{ parameters.NugetPackagesWildcard }}'
   continueOnError: true
+  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
