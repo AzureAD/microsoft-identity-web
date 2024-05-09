@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715249881151,
+  "lastUpdate": 1715296583874,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2160,6 +2160,42 @@ window.BENCHMARK_DATA = {
             "value": 10604.136264865681,
             "unit": "ns",
             "range": "± 47.885965404437435"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "38a0281fb3c08c2cb86aad9ec5a001891ff6cf87",
+          "message": "GraphAuthenticationProvider checks the RequestInformation.URI before appending the header (#2818)\n\n* add allowedHostsValidator & validate host in graph authentication provider\r\n\r\n* add tests\r\n\r\n* rm unnecessary test, small updates",
+          "timestamp": "2024-05-09T16:12:47-07:00",
+          "tree_id": "aab69a8e508dbd0caf8f33f9a8e0036771add6d5",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/38a0281fb3c08c2cb86aad9ec5a001891ff6cf87"
+        },
+        "date": 1715296583365,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9731.628150939941,
+            "unit": "ns",
+            "range": "± 75.07811995455394"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10547.472148895264,
+            "unit": "ns",
+            "range": "± 41.16642848459939"
           }
         ]
       }
