@@ -13,15 +13,15 @@ namespace Microsoft.Identity.Web
             Uri baseUri = new Uri(options.Instance);
             var domain = options.Domain;
             var tenantId = options.TenantId;
-            var queryParams = options.ExtraQueryParameters;
+            var queryParams = options.ExtraQueryParameters == null ? QueryString.Empty : QueryString.Create(options.ExtraQueryParameters);
 
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
-                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0{queryParams}")).ToString();
+                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0").Add(queryParams)).ToString();
             }
 
-            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0{queryParams}")).ToString();
+            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0").Add(queryParams)).ToString();
         }
 
         internal static string EnsureAuthorityIsV2(string authority)
