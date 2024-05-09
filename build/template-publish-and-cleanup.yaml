@@ -44,6 +44,7 @@ steps:
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-uploadtotsa.TSAUpload@2
   displayName: 'TSA upload to Codebase: Microsoft Identity Web .NET Stamp: Azure'
+  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
   inputs:
     GdnPublishTsaOnboard: false 
     GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/tsaConfig.json'
