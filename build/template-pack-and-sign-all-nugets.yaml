@@ -61,6 +61,16 @@ steps:
     MaxConcurrency: '50'
     MaxRetryAttempts: '5'
     PendingAnalysisWaitTimeoutMinutes: '5'
+    condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
+
+- task: onebranch.pipeline.signing@1
+  displayName: 'Sign ${{ parameters.LibraryName }} with OneBranch'
+  inputs:
+    command: 'sign'
+    signing_profile: 'external_distribution' #CP-230012 -> https://eng.ms/docs/products/onebranch/signing/containerbuildsigning#signing-using-onebranchpipelinesigning-ado-task
+    files_to_sign: 'Microsoft.Identity.Web*.dll'
+    search_root: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src'
+  condition: and(succeeded(), eq(variables['PipelineType'], 'OneBranch'))
 
 - task: BinSkim@4
   inputs:
@@ -211,6 +221,16 @@ steps:
     MaxConcurrency: '50'
     MaxRetryAttempts: '5'
     PendingAnalysisWaitTimeoutMinutes: '5'
+    condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
+
+- task: onebranch.pipeline.signing@1
+  displayName: 'Sign Packages with OneBranch'
+  inputs:
+    command: 'sign'
+    signing_profile: 'CP-401405'
+    files_to_sign: '**/*.nupkg'
+    search_root: '$(Build.SourcesDirectory)\artifacts'
+  condition: and(succeeded(), eq(variables['PipelineType'], 'OneBranch'))
 
 - task: NuGetCommand@2
   displayName: 'Verify packages are signed'
