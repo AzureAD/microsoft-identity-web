@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Kiota.Abstractions;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -66,6 +67,24 @@ namespace Microsoft.Identity.Web.Test.Integration
                 });
             });
 
+        }
+
+        [Fact]
+        public async Task AuthenticateRequestAsync_NonGraphUri_DoesNotSetAuthZHeader()
+        {
+            // arrange
+            RequestInformation request = new()
+            {
+                URI = new Uri("http://www.contoso.com/")
+            };
+
+            GraphAuthenticationProvider graphAuthenticationProvider = new(_authorizationHeaderProvider, new GraphServiceClientOptions());
+
+            // act
+            await graphAuthenticationProvider.AuthenticateRequestAsync(request).ConfigureAwait(false);
+
+            // assert
+            Assert.False(request.Headers.ContainsKey("Authorization"));
         }
     }
 }
