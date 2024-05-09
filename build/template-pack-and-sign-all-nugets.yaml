@@ -221,7 +221,7 @@ steps:
     MaxConcurrency: '50'
     MaxRetryAttempts: '5'
     PendingAnalysisWaitTimeoutMinutes: '5'
-    condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
+  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
 
 - task: onebranch.pipeline.signing@1
   displayName: 'Sign Packages with OneBranch'
