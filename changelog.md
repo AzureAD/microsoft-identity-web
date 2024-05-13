@@ -3,6 +3,9 @@ Pending Next Release
 ### Bug Fixes
 - If `Logging:LogLevel:Microsoft.Identity.Web` is assigned to `None`, no default logger is initialized and Microsoft.Identity.Web does not record any logs. See [#2816](https://github.com/AzureAD/microsoft-identity-web/pull/2816) for details. 
 
+### New features
+- Respect and propagate the query portion when present in the `Authority`, resolving [#2697](https://github.com/AzureAD/microsoft-identity-web/issues/2697). See PR [#2826](https://github.com/AzureAD/microsoft-identity-web/pull/2826) for details.
+
 3.0.0-preview1
 =========
 ### Breaking changes
