@@ -27,13 +27,15 @@ namespace Microsoft.Identity.Web
 
         internal static string EnsureAuthorityIsV2(string authority)
         {
-            authority = authority.Trim().TrimEnd('/');
-            if (!authority.EndsWith("v2.0", StringComparison.Ordinal))
-            {
-                authority += "/v2.0";
-            }
+            int index = authority.LastIndexOf("?", StringComparison.Ordinal);
+            var authorityWithoutQuery = index > 0 ? authority[..index] : authority;
+            authorityWithoutQuery = authorityWithoutQuery.Trim().TrimEnd('/');
 
-            return authority;
+            if (!authorityWithoutQuery.EndsWith("v2.0", StringComparison.Ordinal))
+                authorityWithoutQuery += "/v2.0";
+
+            var query = index > 0 ? authority[index..] : string.Empty;
+            return authorityWithoutQuery + query;
         }
 
         internal static string? BuildCiamAuthorityIfNeeded(string authority, out bool preserveAuthority)
