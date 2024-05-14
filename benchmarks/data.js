@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715718768127,
+  "lastUpdate": 1715720876422,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2484,6 +2484,42 @@ window.BENCHMARK_DATA = {
             "value": 10595.344804763794,
             "unit": "ns",
             "range": "± 46.63212477144989"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c1414bb2d0e331fc9fa8435070c8cba0a8b0b2d",
+          "message": "process error for expired cert (#2840) (#2841)",
+          "timestamp": "2024-05-14T14:04:43-07:00",
+          "tree_id": "5cf2a442d53c6e84643d17c2f90e68205777266f",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/2c1414bb2d0e331fc9fa8435070c8cba0a8b0b2d"
+        },
+        "date": 1715720875189,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9689.859545571464,
+            "unit": "ns",
+            "range": "± 71.57708967182019"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10540.209772210372,
+            "unit": "ns",
+            "range": "± 60.19368532151968"
           }
         ]
       }
