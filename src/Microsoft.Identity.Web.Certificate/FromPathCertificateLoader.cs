@@ -24,17 +24,12 @@ namespace Microsoft.Identity.Web
          string certificateFileName,
          string? password = null)
         {
-#if NET462 || NETSTANDARD2_0
+            X509KeyStorageFlags x509KeyStorageFlags = CertificateLoaderHelper.DetermineX509KeyStorageFlag();
+
             return new X509Certificate2(
                 certificateFileName,
                 password,
-                X509KeyStorageFlags.MachineKeySet);
-#else
-            return new X509Certificate2(
-                certificateFileName,
-                password,
-                X509KeyStorageFlags.EphemeralKeySet);
-#endif
+                x509KeyStorageFlags);
         }
     }
 }

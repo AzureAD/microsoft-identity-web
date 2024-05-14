@@ -153,17 +153,10 @@ namespace Microsoft.Identity.Web
             };
         }
 
-#if NET462 || NETSTANDARD2_0
         /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
         /// </summary>
-        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet;
-#else
-        /// <summary>
-        ///  Defines where and how to import the private key of an X.509 certificate.
-        /// </summary>
-        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
-#endif
+        public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = CertificateLoaderHelper.DetermineX509KeyStorageFlag();
 
         // Should Container and ReferenceOrValue be moved to
         // the tests (As extension methods)
