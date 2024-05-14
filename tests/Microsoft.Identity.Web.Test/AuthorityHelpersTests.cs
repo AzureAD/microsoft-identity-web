@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
@@ -99,6 +100,72 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(preserveAuthority);
         }
 
+        [Fact]
+        public void BuildAuthority_WithQueryParams_ReturnsValidAadAuthority()
+        {
+            // arrange
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance,
+                ExtraQueryParameters = new Dictionary <string, string>
+                {
+                    { "queryParam1", "value1" },
+                    { "queryParam2", "value2" },
+                }
+            };
+            var expectedQuery = QueryString.Create(options.ExtraQueryParameters as IEnumerable<KeyValuePair<string, string?>>);
+            string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0{expectedQuery}";
+
+            // act
+            string result = AuthorityHelpers.BuildAuthority(options);
+            
+            // assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void BuildAuthority_EmptyQueryParams_ReturnsValidAadAuthority()
+        {
+            // arrange
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance,
+                ExtraQueryParameters = new Dictionary<string, string>()
+            };
+
+            string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0";
+
+            // act
+            string result = AuthorityHelpers.BuildAuthority(options);
+
+            // assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void BuildAuthority_NullQueryParams_ReturnsValidAadAuthority()
+        {
+            // arrange
+            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            {
+                TenantId = TestConstants.TenantIdAsGuid,
+                Instance = TestConstants.AadInstance,
+                ExtraQueryParameters = null
+            };
+            string expectedResult = $"{options.Instance}/{options.TenantId}/v2.0";
+
+            // act
+            string result = AuthorityHelpers.BuildAuthority(options);
+
+            // assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedResult, result);
+        }
+
         [Theory]
         [InlineData(TestConstants.AuthorityCommonTenant, TestConstants.AuthorityCommonTenantWithV2)]
         [InlineData(TestConstants.AuthorityOrganizationsUSTenant, TestConstants.AuthorityOrganizationsUSWithV2)]
@@ -108,6 +175,30 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(TestConstants.B2CCustomDomainAuthorityWithV2, TestConstants.B2CCustomDomainAuthorityWithV2)]
         [InlineData(TestConstants.B2CAuthority, TestConstants.B2CAuthorityWithV2)]
         [InlineData(TestConstants.B2CCustomDomainAuthority, TestConstants.B2CCustomDomainAuthorityWithV2)]
+        [InlineData(TestConstants.AuthorityCommonTenant + "?key1=value1", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.AuthorityCommonTenant + "?key1=value1&key2=value2", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.AuthorityCommonTenant + "?", TestConstants.AuthorityCommonTenantWithV2 + "?")]
+        [InlineData(TestConstants.AuthorityOrganizationsUSTenant + "?key1=value1", TestConstants.AuthorityOrganizationsUSWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.AuthorityOrganizationsUSTenant + "?key1=value1&key2=value2", TestConstants.AuthorityOrganizationsUSWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.AuthorityOrganizationsUSTenant + "?", TestConstants.AuthorityOrganizationsUSWithV2 + "?")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1&key2=value2", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "?", TestConstants.AuthorityCommonTenantWithV2 + "?")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "/" + "?key1=value1", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "/" + "?key1=value1&key2=value2", TestConstants.AuthorityCommonTenantWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.AuthorityCommonTenantWithV2 + "/" + "?", TestConstants.AuthorityCommonTenantWithV2 + "?")]
+        [InlineData(TestConstants.B2CAuthorityWithV2 + "?key1=value1", TestConstants.B2CAuthorityWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.B2CAuthorityWithV2 + "?key1=value1&key2=value2", TestConstants.B2CAuthorityWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.B2CAuthorityWithV2 + "?", TestConstants.B2CAuthorityWithV2 + "?")]
+        [InlineData(TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1", TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1&key2=value2", TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.B2CCustomDomainAuthorityWithV2 + "?", TestConstants.B2CCustomDomainAuthorityWithV2 + "?")]
+        [InlineData(TestConstants.B2CAuthority + "?key1=value1", TestConstants.B2CAuthorityWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.B2CAuthority + "?key1=value1&key2=value2", TestConstants.B2CAuthorityWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.B2CAuthority + "?", TestConstants.B2CAuthorityWithV2 + "?")]
+        [InlineData(TestConstants.B2CCustomDomainAuthority + "?key1=value1", TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1")]
+        [InlineData(TestConstants.B2CCustomDomainAuthority + "?key1=value1&key2=value2", TestConstants.B2CCustomDomainAuthorityWithV2 + "?key1=value1&key2=value2")]
+        [InlineData(TestConstants.B2CCustomDomainAuthority + "?", TestConstants.B2CCustomDomainAuthorityWithV2 + "?")]
         public void EnsureAuthorityIsV2(string initialAuthority, string expectedAuthority)
         {
             OpenIdConnectOptions options = new OpenIdConnectOptions
