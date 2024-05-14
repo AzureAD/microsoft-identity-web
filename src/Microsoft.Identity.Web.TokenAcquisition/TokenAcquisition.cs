@@ -585,11 +585,13 @@ namespace Microsoft.Identity.Web
 #if !NETSTANDARD2_0 && !NET462 && !NET472
                 (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
                 || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase));
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase));
 #else
                 (exMsal.Message.Contains(Constants.InvalidKeyError) 
                 || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange) 
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked));
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
+                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
 #endif
         }
         
