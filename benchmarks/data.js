@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715720876422,
+  "lastUpdate": 1715730581156,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2520,6 +2520,42 @@ window.BENCHMARK_DATA = {
             "value": 10540.209772210372,
             "unit": "ns",
             "range": "± 60.19368532151968"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7602807099e2dc4e31e4195bc73cc147261c0f51",
+          "message": "add queryParams when building authority (#2826)\n\n* add queryParams when building authority\r\n\r\n* add tests\r\n\r\n* address warnings\r\n\r\n* add changelog info for this PR\r\n\r\n* fix EnsureAuthorityIsV2 and add tests\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-14T16:44:52-07:00",
+          "tree_id": "30869bf1f991cbb0d99f5501655acd62d232dc02",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/7602807099e2dc4e31e4195bc73cc147261c0f51"
+        },
+        "date": 1715730580350,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9777.11959571169,
+            "unit": "ns",
+            "range": "± 75.3289155612984"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10570.743989127022,
+            "unit": "ns",
+            "range": "± 59.445205847083805"
           }
         ]
       }
