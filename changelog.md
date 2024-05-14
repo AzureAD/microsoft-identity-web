@@ -3,6 +3,7 @@ Pending Next Release
 ### Bug Fixes
 - If `Logging:LogLevel:Microsoft.Identity.Web` is assigned to `None`, no default logger is initialized and Microsoft.Identity.Web does not record any logs. See [#2816](https://github.com/AzureAD/microsoft-identity-web/pull/2816) for details. 
 - `GraphAuthenticationProvider` checks that the `RequestInformation.URI` is a Graph URI before appending the authorization header, resolving [#2710](https://github.com/AzureAD/microsoft-identity-web/issues/2710). See PR [#2818](https://github.com/AzureAD/microsoft-identity-web/pull/2818) for details.
+- `TokenAcquisition` processes the error code `AADSTS1000502 (The provided certificate is not within its specified validity window)`. See PR [#2840](https://github.com/AzureAD/microsoft-identity-web/pull/2840) for details.
 
 3.0.0-preview1
 =========
