@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
 {
     internal sealed class CertificateLoaderHelper
     {
-        private static Lazy<X509KeyStorageFlags> s_x509KeyStorageFlags = 
+        private static Lazy<X509KeyStorageFlags> s_x509KeyStorageFlagsLazy = 
             new Lazy<X509KeyStorageFlags>(DetermineX509KeyStorageFlagLazy);
 
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag(CredentialDescription credentialDescription)
@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
         
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag()
         {
-            return s_x509KeyStorageFlags.Value;
+            return s_x509KeyStorageFlagsLazy.Value;
         }
 
         private static X509KeyStorageFlags DetermineX509KeyStorageFlagLazy()
