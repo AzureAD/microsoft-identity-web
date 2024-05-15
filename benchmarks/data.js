@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715730581156,
+  "lastUpdate": 1715770931559,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2556,6 +2556,42 @@ window.BENCHMARK_DATA = {
             "value": 10570.743989127022,
             "unit": "ns",
             "range": "± 59.445205847083805"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bb4ccbb0f770bda7dac651dc511dbebffde4f026",
+          "message": "Do not use EphemeralKey on MacOS for loading certs (#2839)\n\n* Fix for #1976 - do not use EphemeralKeySet on Mac when loading cert\r\n\r\n* Use Lazy\r\n\r\n* Rename\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-05-15T11:58:55+01:00",
+          "tree_id": "e54ac806b82f9ad4a14b16aba646289bac1cb604",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/bb4ccbb0f770bda7dac651dc511dbebffde4f026"
+        },
+        "date": 1715770930744,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9674.750902765447,
+            "unit": "ns",
+            "range": "± 93.94037829302872"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10512.89246868265,
+            "unit": "ns",
+            "range": "± 55.49740328729933"
           }
         ]
       }
