@@ -6,29 +6,46 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Diagnostics;
 
 namespace Microsoft.Identity.Web
 {
     internal sealed class CertificateLoaderHelper
     {
+        private static Lazy<X509KeyStorageFlags> s_x509KeyStorageFlagsLazy = 
+            new Lazy<X509KeyStorageFlags>(DetermineX509KeyStorageFlagLazy);
+
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag(CredentialDescription credentialDescription)
         {
-            X509KeyStorageFlags x509KeyStorageFlags;
-            var credDescription = credentialDescription as CertificateDescription;
-            if (credDescription != null)
+            if (credentialDescription is CertificateDescription credDescription)
             {
-                x509KeyStorageFlags = ((CertificateDescription)credentialDescription).X509KeyStorageFlags;
+                return ((CertificateDescription)credentialDescription).X509KeyStorageFlags;
             }
             else
             {
+                return DetermineX509KeyStorageFlag();
+            }
+        }
+        
+        internal static X509KeyStorageFlags DetermineX509KeyStorageFlag()
+        {
+            return s_x509KeyStorageFlagsLazy.Value;
+        }
+
+        private static X509KeyStorageFlags DetermineX509KeyStorageFlagLazy()
+        {
 #if NET462 || NETSTANDARD2_0
-                x509KeyStorageFlags = X509KeyStorageFlags.MachineKeySet;
+            return X509KeyStorageFlags.MachineKeySet;
 #else
-                x509KeyStorageFlags = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
-#endif
+            // This is for app developers using a Mac. MacOS does not support the EphemeralKeySet flag.
+            // See https://learn.microsoft.com/en-us/dotnet/standard/security/cross-platform-cryptography#write-a-pkcs12pfx
+            if (OsHelper.IsMacPlatform())
+            {
+                return X509KeyStorageFlags.DefaultKeySet;
             }
 
-            return x509KeyStorageFlags;
+            return X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
+#endif
         }
 
         internal static void ParseStoreLocationAndName(
