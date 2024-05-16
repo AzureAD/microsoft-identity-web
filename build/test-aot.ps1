@@ -48,9 +48,3 @@ if ($actualWarningCount -ne $expectedWarningCount)
 }
 
 Exit $testPassed
-
-
-
-
-
-
