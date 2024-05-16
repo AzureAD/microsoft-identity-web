@@ -24,9 +24,8 @@ if ($LastExitCode -ne 0)
     Write-Host $publishOutput
 }
 
-#$runtime = if ($IsWindows) {  "win-x64" } elseif ($IsMacOS) { "macos-x64"} else {"linux-x64"}
-$app = './$projectName.exe'
-#if ($IsWindows ) {"./Microsoft.IdentityModel.AotCompatibility.TestApp.exe" } else {"./Microsoft.IdentityModel.AotCompatibility.TestApp" }
+$runtime = if ($IsWindows) {  "win-x64" } elseif ($IsMacOS) { "macos-x64"} else {"linux-x64"}
+$app = if ($IsWindows ) {"./$projectName.exe" } else {"./$projectName" }
 
 Push-Location $rootDirectory/tests/$projectName/bin/Release/$targetNetFramework/win-x64
 

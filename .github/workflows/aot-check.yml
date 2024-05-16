@@ -2,31 +2,25 @@ name: "AOT Check"
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master", "rel/v2" ]
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
       - ready_for_review
-    branches:
-      - master
+    branches: [ "master", "rel/v2" ]
 
 jobs:
   analyze:
     runs-on: windows-latest
     name: AOT check
 
-    strategy:
-      matrix:
-        language: [ 'csharp' ]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 2
+        fetch-depth: 1
 
     - name: Runs powershell script
       id: aot-powershell
