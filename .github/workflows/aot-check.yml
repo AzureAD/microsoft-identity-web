@@ -2,19 +2,21 @@ name: "AOT Check"
 
 on:
   push:
-    branches: [ "dev", "dev6x" ]
+    branches:
+      - master
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
       - ready_for_review
-    branches: [ "dev", "dev6x" ]
+    branches:
+      - master
 
 jobs:
   analyze:
     runs-on: windows-latest
-    name: Wilson GitHub AOT check
+    name: AOT check
 
     strategy:
       matrix:
@@ -28,5 +30,5 @@ jobs:
 
     - name: Runs powershell script
       id: aot-powershell
-      run: build\test-aot.ps1
+      run: build\test-aot.ps1 'net8.0'
 
