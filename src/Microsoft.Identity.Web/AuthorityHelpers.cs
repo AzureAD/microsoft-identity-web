@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
@@ -14,28 +15,25 @@ namespace Microsoft.Identity.Web
             Uri baseUri = new Uri(options.Instance);
             var domain = options.Domain;
             var tenantId = options.TenantId;
-            QueryString queryParams = options.ExtraQueryParameters == null ? QueryString.Empty : QueryString.Create(options.ExtraQueryParameters as IEnumerable<KeyValuePair<string, string?>>);
 
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
-                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0").Add(queryParams)).ToString();
+                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0")).ToString();
             }
 
-            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0").Add(queryParams)).ToString();
+            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
         }
 
         internal static string EnsureAuthorityIsV2(string authority)
         {
-            int index = authority.LastIndexOf("?", StringComparison.Ordinal);
-            var authorityWithoutQuery = index > 0 ? authority[..index] : authority;
-            authorityWithoutQuery = authorityWithoutQuery.Trim().TrimEnd('/');
+            authority = authority.Trim().TrimEnd('/');
+            if (!authority.EndsWith("v2.0", StringComparison.Ordinal))
+            {
+                authority += "/v2.0";
+            }
 
-            if (!authorityWithoutQuery.EndsWith("v2.0", StringComparison.Ordinal))
-                authorityWithoutQuery += "/v2.0";
-
-            var query = index > 0 ? authority[index..] : string.Empty;
-            return authorityWithoutQuery + query;
+            return authority;
         }
 
         internal static string? BuildCiamAuthorityIfNeeded(string authority, out bool preserveAuthority)
@@ -54,6 +52,28 @@ namespace Microsoft.Identity.Web
             }
             preserveAuthority = true;
             return authority;
+        }
+         
+        internal static void AddAuthorityQueryToOptions(MicrosoftIdentityOptions options)
+        {
+            if (!string.IsNullOrEmpty(options.Authority))
+            {
+                int queryIndex = options.Authority.IndexOf('?', StringComparison.Ordinal);
+                if (queryIndex > -1)
+                {
+                    options.ExtraQueryParameters ??= new Dictionary<string, string>();
+                    var queryParams = HttpUtility.ParseQueryString(options.Authority[queryIndex..].TrimStart('?'));
+                    for (int i = 0; i < queryParams.Count; i++)
+                    {
+                        var key = queryParams.GetKey(i);
+                        var value = queryParams.Get(i);
+                        if (key != null && key != null)
+#pragma warning disable CS8601 // queryParams is not null. ParseQueryString returns a non-null NameValueCollection with non-null values.
+                            options.ExtraQueryParameters[key] = value;
+#pragma warning restore CS8601 // queryParams is not null. ParseQueryString returns a non-null NameValueCollection with non-null values.
+                    }
+                }
+            }
         }
     }
 }

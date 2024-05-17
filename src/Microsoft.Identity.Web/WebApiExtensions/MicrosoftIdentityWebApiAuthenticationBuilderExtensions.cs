@@ -178,6 +178,7 @@ namespace Microsoft.Identity.Web
                     {
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
                         mergedOptions.PreserveAuthority = preserveAuthority;
+                        AuthorityHelpers.AddAuthorityQueryToOptions(mergedOptions);
                         options.Authority = mergedOptions.Authority;
                     }
 
