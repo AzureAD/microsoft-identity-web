@@ -67,10 +67,8 @@ namespace Microsoft.Identity.Web
                     {
                         var key = queryParams.GetKey(i);
                         var value = queryParams.Get(i);
-                        if (key != null && key != null)
-#pragma warning disable CS8601 // queryParams is not null. ParseQueryString returns a non-null NameValueCollection with non-null values.
+                        if (key != null && value != null)
                             options.ExtraQueryParameters[key] = value;
-#pragma warning restore CS8601 // queryParams is not null. ParseQueryString returns a non-null NameValueCollection with non-null values.
                     }
                 }
             }
