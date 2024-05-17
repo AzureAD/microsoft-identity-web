@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715770931559,
+  "lastUpdate": 1715913518006,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2592,6 +2592,42 @@ window.BENCHMARK_DATA = {
             "value": 10512.89246868265,
             "unit": "ns",
             "range": "± 55.49740328729933"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eb70c5471a2647ae7d51ba599a4e9c67709c365a",
+          "message": "Revert \"add queryParams when building authority (#2826)\" (#2846)\n\nThis reverts commit 7602807099e2dc4e31e4195bc73cc147261c0f51.",
+          "timestamp": "2024-05-16T19:35:16-07:00",
+          "tree_id": "400aa674b0b1a40ec5f8198d03307598695212d8",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/eb70c5471a2647ae7d51ba599a4e9c67709c365a"
+        },
+        "date": 1715913517308,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9897.481778990548,
+            "unit": "ns",
+            "range": "± 219.57295574520793"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10762.616671425956,
+            "unit": "ns",
+            "range": "± 65.92756562561968"
           }
         ]
       }
