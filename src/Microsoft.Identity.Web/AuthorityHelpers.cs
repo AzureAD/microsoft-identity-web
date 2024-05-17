@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
@@ -14,28 +13,25 @@ namespace Microsoft.Identity.Web
             Uri baseUri = new Uri(options.Instance);
             var domain = options.Domain;
             var tenantId = options.TenantId;
-            QueryString queryParams = options.ExtraQueryParameters == null ? QueryString.Empty : QueryString.Create(options.ExtraQueryParameters as IEnumerable<KeyValuePair<string, string?>>);
 
             if (options.IsB2C)
             {
                 var userFlow = options.DefaultUserFlow;
-                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0").Add(queryParams)).ToString();
+                return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{domain}/{userFlow}/v2.0")).ToString();
             }
 
-            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0").Add(queryParams)).ToString();
+            return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
         }
 
         internal static string EnsureAuthorityIsV2(string authority)
         {
-            int index = authority.LastIndexOf("?", StringComparison.Ordinal);
-            var authorityWithoutQuery = index > 0 ? authority[..index] : authority;
-            authorityWithoutQuery = authorityWithoutQuery.Trim().TrimEnd('/');
+            authority = authority.Trim().TrimEnd('/');
+            if (!authority.EndsWith("v2.0", StringComparison.Ordinal))
+            {
+                authority += "/v2.0";
+            }
 
-            if (!authorityWithoutQuery.EndsWith("v2.0", StringComparison.Ordinal))
-                authorityWithoutQuery += "/v2.0";
-
-            var query = index > 0 ? authority[index..] : string.Empty;
-            return authorityWithoutQuery + query;
+            return authority;
         }
 
         internal static string? BuildCiamAuthorityIfNeeded(string authority, out bool preserveAuthority)
