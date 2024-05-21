@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -28,13 +29,13 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Get the signed assertion (and refreshes it if needed).
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="assertionRequestOptions">Input object which is populated by the SDK.</param>
         /// <returns>The signed assertion.</returns>
-        public async Task<string> GetSignedAssertion(CancellationToken cancellationToken)
+        public async Task<string> GetSignedAssertion(AssertionRequestOptions assertionRequestOptions)
         {
             if (_clientAssertion == null || (Expiry != null && DateTimeOffset.Now > Expiry))
             {
-                _clientAssertion = await GetClientAssertion(cancellationToken).ConfigureAwait(false);
+                _clientAssertion = await GetClientAssertion(assertionRequestOptions.CancellationToken).ConfigureAwait(false);
             }
 
             return _clientAssertion.SignedAssertion;
