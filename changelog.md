@@ -1,7 +1,11 @@
-__for next release__
-
+2.18.2
+=========
 ### New feature
-- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
+- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details.
+
+### Bug fixes
+- Id Web now accepts an env var to disable interactive auth for `KeyVaultCertificateLoader`, see issue [#2647](https://github.com/AzureAD/microsoft-identity-web/issues/2647) for details.
+- Id Web token acquisition on ASP.NET Core 2.x on net472 or net48 implements `ITokenAquirerFactory`, see issue [#2849](https://github.com/AzureAD/microsoft-identity-web/issues/2849) for details.
 
 2.18.1
 =========
