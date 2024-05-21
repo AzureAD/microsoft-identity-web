@@ -2,7 +2,7 @@ param([string]$targetNetFramework)
 
 $projectName='Microsoft.Identity.Web.AotCompatibiliy.TestApp'
 $rootDirectory = Split-Path $PSScriptRoot -Parent
-$publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj --self-contained -nodeReuse:false /p:UseSharedCompilation=false
+$publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj -nodeReuse:false /p:UseSharedCompilation=false --framework 'net8.0'
 
 $actualWarningCount = 0
 
@@ -44,7 +44,7 @@ $testPassed = 0
 if ($actualWarningCount -ne $expectedWarningCount)
 {
     $testPassed = 1
-    Write-Host "Actual warning count:", actualWarningCount, "is not as expected. Expected warning count is:", $expectedWarningCount
+    Write-Host "Actual warning count:", $actualWarningCount, "is not as expected. Expected warning count is:", $expectedWarningCount
 }
 
 Exit $testPassed

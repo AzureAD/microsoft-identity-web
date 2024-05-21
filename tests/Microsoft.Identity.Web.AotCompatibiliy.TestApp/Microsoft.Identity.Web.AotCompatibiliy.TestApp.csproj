@@ -1,14 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <TargetFrameworks Condition="'$(TargetNet9)' == 'True'">$(TargetFramework); net9.0</TargetFrameworks>
-    <OutputType>Exe</OutputType>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>full</TrimMode>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <IsPackable>false</IsPackable>
     <TargetFrameworks>net8.0;</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
