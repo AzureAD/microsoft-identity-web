@@ -78,6 +78,7 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
                     services.Remove(tokenAcquirerFactory);
+                    tokenAcquirerFactory = null;
                 }
                 else
                 {
@@ -108,6 +109,12 @@ namespace Microsoft.Identity.Web
                 // .NET FW.
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
                 services.AddSingleton<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
+
+                // To support ASP.NET Core 2.x on .NET FW. It won't use the TokenAcquirerFactory.GetDefaultInstance()
+                if (tokenAcquirerFactory == null)
+                {
+                    services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
+                }
 #endif
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
