@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1715913518006,
+  "lastUpdate": 1716257412339,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2628,6 +2628,42 @@ window.BENCHMARK_DATA = {
             "value": 10762.616671425956,
             "unit": "ns",
             "range": "± 65.92756562561968"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0a57985347279b3d32fe67332a1e09c80f614ceb",
+          "message": "In AddTokenAcquisition(singleton:true) an implementation of TokenAcquirerFactory (for ASP.NET Core 2.x on .NET FW) (#2850)",
+          "timestamp": "2024-05-20T19:06:47-07:00",
+          "tree_id": "9e80687e0d6e32d1ca8e2e7d96d3812fc0b154a6",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/0a57985347279b3d32fe67332a1e09c80f614ceb"
+        },
+        "date": 1716257411703,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9494.584886697623,
+            "unit": "ns",
+            "range": "± 42.19248334332723"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10355.254226943194,
+            "unit": "ns",
+            "range": "± 59.026000715938366"
           }
         ]
       }
