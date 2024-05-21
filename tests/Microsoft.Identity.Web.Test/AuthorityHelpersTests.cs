@@ -121,12 +121,15 @@ namespace Microsoft.Identity.Web.Test
 
         [Theory]
         [MemberData(nameof(AddAuthorityQueryToOptionsTheoryData))]
+        [MemberData(nameof(AddAuthorityQueryToOptionsExistingValuesTheoryData))]
+        [MemberData(nameof(AddAuthorityQueryToOptionsOverlappingExistingValuesTheoryData))]
         public void AddAuthorityQueryToOptions(AuthorityHelpersTheoryData theoryData)
         {
             // arrange
-            MicrosoftIdentityOptions options = new MicrosoftIdentityOptions
+            MicrosoftIdentityOptions options = new()
             {
                 Authority = theoryData.Authority,
+                ExtraQueryParameters = theoryData.ExtraQueryParameters
             };
 
             // act
@@ -182,26 +185,6 @@ namespace Microsoft.Identity.Web.Test
                 new("AuthorityCommonTenant_QueryNoValue")
                 {
                     Authority = TestConstants.AuthorityCommonTenant + queryNoValue,
-                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
-                },
-                new("AuthorityOrganizationsUSTenant_SingleQuery")
-                {
-                    Authority = TestConstants.AuthorityOrganizationsUSTenant + singleQuery,
-                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
-                },
-                new("AuthorityOrganizationsUSTenant_MultipleQueries")
-                {
-                    Authority = TestConstants.AuthorityOrganizationsUSTenant + multipleQueries,
-                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
-                },
-                new("AuthorityOrganizationsUSTenant_EmptyQuery")
-                {
-                    Authority = TestConstants.AuthorityOrganizationsUSTenant + emptyQuery,
-                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
-                },
-                new("AuthorityOrganizationsUSTenant_QueryNoValue")
-                {
-                    Authority = TestConstants.AuthorityOrganizationsUSTenant + queryNoValue,
                     ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
                 },
                 new("AuthorityCommonTenantWithV2_SingleQuery")
@@ -308,7 +291,363 @@ namespace Microsoft.Identity.Web.Test
 
             return theoryData;
         }
+
+        public static TheoryData<AuthorityHelpersTheoryData> AddAuthorityQueryToOptionsExistingValuesTheoryData()
+        {
+            var singleQuery = "?key1=value1";
+            var multipleQueries = "?key1=value1&key2=value2";
+            var emptyQuery = "?";
+            var queryNoValue = "?key1";
+
+            var singleExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key3", "value3" },
+                { "key4", "value4" }
+            };
+
+            var multipleExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" },
+                { "key3", "value3" },
+                { "key4", "value4" }
+            };
+
+            var emptyExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key3", "value3" },
+                { "key4", "value4" }
+            };
+
+            var theoryData = new TheoryData<AuthorityHelpersTheoryData>
+            {
+                new("AuthorityCommonTenant_SingleQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + singleQuery,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_MultipleQueries")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + multipleQueries,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_EmptyQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + emptyQuery,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_QueryNoValue")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + queryNoValue,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + singleQuery,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + multipleQueries,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + singleQuery,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + multipleQueries,
+                    ExtraQueryParameters = new Dictionary<string, string> { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthority_SingleQuery")
+                {
+                    Authority = TestConstants.B2CAuthority + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CAuthority_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CAuthority + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CAuthority_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CAuthority + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthority_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CAuthority + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_SingleQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key3", "value3" }, { "key4", "value4" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                }
+            };
+
+            return theoryData;
+        }
+
+        public static TheoryData<AuthorityHelpersTheoryData> AddAuthorityQueryToOptionsOverlappingExistingValuesTheoryData()
+        {
+            var singleQuery = "?key1=value1";
+            var multipleQueries = "?key1=value1&key2=value2";
+            var emptyQuery = "?";
+            var queryNoValue = "?key1";
+
+            var singleExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "existingValue2" }
+            };
+
+            var multipleExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
+
+            var emptyExpectedExtraQueryParams = new Dictionary<string, string>
+            {
+                { "key1", "existingValue1" },
+                { "key2", "existingValue2" }
+            };
+
+            var theoryData = new TheoryData<AuthorityHelpersTheoryData>
+            {
+                new("AuthorityCommonTenant_SingleQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_MultipleQueries")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_EmptyQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenant_QueryNoValue")
+                {
+                    Authority = TestConstants.AuthorityCommonTenant + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + singleQuery,
+                        ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + multipleQueries,
+                    ExtraQueryParameters =                  new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("AuthorityCommonTenantWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.AuthorityCommonTenantWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthorityWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CAuthorityWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_SingleQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthorityWithV2_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthorityWithV2 + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthority_SingleQuery")
+                {
+                    Authority = TestConstants.B2CAuthority + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CAuthority_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CAuthority + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CAuthority_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CAuthority + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },   
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CAuthority_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CAuthority + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_SingleQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + singleQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = singleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_MultipleQueries")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + multipleQueries,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = multipleExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_EmptyQuery")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + emptyQuery,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                },
+                new("B2CCustomDomainAuthority_QueryNoValue")
+                {
+                    Authority = TestConstants.B2CCustomDomainAuthority + queryNoValue,
+                    ExtraQueryParameters = new Dictionary < string, string > { { "key1", "existingValue1" }, { "key2", "existingValue2" } },
+                    ExpectedExtraQueryParameters = emptyExpectedExtraQueryParams
+                }
+            };
+
+            return theoryData;
+        }
     }
+
     public class AuthorityHelpersTheoryData : TheoryDataBase
     {
         public AuthorityHelpersTheoryData(string testId) : base(testId)
@@ -316,6 +655,8 @@ namespace Microsoft.Identity.Web.Test
         }
 
         public string Authority { get; set; } = string.Empty;
+
+        public IDictionary<string,string> ExtraQueryParameters { get; set; } = new Dictionary<string, string>();
 
         public IDictionary<string,string> ExpectedExtraQueryParameters { get; set; } = new Dictionary<string, string>();
     }
