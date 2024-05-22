@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
                 {
                     // Given that managed identity can be not available locally, we need to try to get a
                     // signed assertion, and if it fails, move to the next credentials
-                    _= await managedIdentityClientAssertion!.GetSignedAssertion(CancellationToken.None);
+                    _= await managedIdentityClientAssertion!.GetSignedAssertion(null);
                     credentialDescription.CachedValue = managedIdentityClientAssertion;
                 }
                 catch (AuthenticationFailedException)
