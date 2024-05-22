@@ -16,16 +16,28 @@
       Other referenced assemblies will only have code referenced from Program.cs analyzed.
       
     -->
-    <CompatibleReference Include="Microsoft.Identity.Web" FullAnalyze="true"/>
-    <CompatibleReference Include="Microsoft.Identity.Web.Azure" FullAnalyze="true" />
-    <CompatibleReference Update="@(CompatibleReference)" Path="..\..\src\%(Identity)\%(Identity).csproj" />
+    
+    
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Azure"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Certificate"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Certificateless"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Diagnostics"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.DownstreamApi"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClient"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClientBeta"/>
 
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="@(CompatibleReference->'%(Path)')" />
+    <!--
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraph"/>    
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraphBeta"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.OWIN"/>-->
 
-    <TrimmerRootAssembly Include="@(CompatibleReference-&gt;WithMetadataValue('FullAnalyze','true'))" />
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenAcquisition"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenCache"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.UI"/>
+    
+    <TrimmerRootAssembly Update="@(TrimmerRootAssembly)" Path="..\..\src\%(Identity)\%(Identity).csproj" />
+    <ProjectReference Include="@(TrimmerRootAssembly->'%(Path)')" />
   </ItemGroup>
 
 </Project>

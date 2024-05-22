@@ -16,7 +16,7 @@ foreach ($line in $($publishOutput -split "`r`n"))
 }
 
 Write-Host "Actual warning count is: ", $actualWarningCount
-$expectedWarningCount = 41
+$expectedWarningCount = 63
 
 if ($LastExitCode -ne 0)
 {
@@ -41,7 +41,7 @@ if ($LastExitCode -ne 0)
 Pop-Location
 
 $testPassed = 0
-if ($expectedWarningCount -lt $actualWarningCount)
+if ($expectedWarningCount -ne $actualWarningCount)
 {
     $testPassed = 1
     Write-Host "Actual warning count:", $actualWarningCount, "is not as expected. Expected warning count is:", $expectedWarningCount
