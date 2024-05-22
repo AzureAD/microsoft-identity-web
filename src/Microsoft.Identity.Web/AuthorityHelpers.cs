@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web
             return authority;
         }
          
-        internal static void AddAuthorityQueryToOptions(MicrosoftIdentityOptions options)
+        internal static string GetAuthorityWithoutQueryIfNeeded(MicrosoftIdentityOptions options)
         {
             if (!string.IsNullOrEmpty(options.Authority))
             {
@@ -70,8 +70,12 @@ namespace Microsoft.Identity.Web
                         if (key != null && value != null)
                             options.ExtraQueryParameters[key] = value;
                     }
+                    
+                    return options.Authority[..queryIndex];
                 }
             }
+
+            return options.Authority ?? string.Empty;
         }
     }
 }

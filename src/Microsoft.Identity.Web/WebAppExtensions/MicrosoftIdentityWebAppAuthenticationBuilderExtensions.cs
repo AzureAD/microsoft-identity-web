@@ -312,9 +312,9 @@ namespace Microsoft.Identity.Web
 
                     if (mergedOptions.Authority != null)
                     {
+                        mergedOptions.Authority = AuthorityHelpers.GetAuthorityWithoutQueryIfNeeded(mergedOptions);
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
                         mergedOptions.PreserveAuthority = preserveAuthority;
-                        AuthorityHelpers.AddAuthorityQueryToOptions(mergedOptions);
                         if (mergedOptions.ExtraQueryParameters != null)
                         {
                             options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
