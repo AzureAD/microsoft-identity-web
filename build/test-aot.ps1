@@ -1,6 +1,6 @@
 param([string]$targetNetFramework)
 
-$projectName='Microsoft.Identity.Web.AotCompatibiliy.TestApp'
+$projectName='Microsoft.Identity.Web.AotCompatibility.TestApp'
 $rootDirectory = Split-Path $PSScriptRoot -Parent
 $publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj --framework $targetNetFramework -nodeReuse:false /p:UseSharedCompilation=false
 
