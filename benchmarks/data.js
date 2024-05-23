@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716481515808,
+  "lastUpdate": 1716487649431,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2736,6 +2736,42 @@ window.BENCHMARK_DATA = {
             "value": 10657.691846650223,
             "unit": "ns",
             "range": "± 49.9893771789695"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1a5fd819497d8daf33c6e8937cb8738afa41d412",
+          "message": "Adding a base class for AuthorizationHeaderProvider for extensibility (#2857)\n\n* Adding a base class for AuthorizationHeaderProvider usable by\r\nextensions that want to leverage IdWeb for Bearer and Pop and process\r\ntheir own protocols\r\n\r\n* Update src/Microsoft.Identity.Web.TokenAcquisition/BaseAuthorizationHeaderProvider.cs\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-23T11:04:20-07:00",
+          "tree_id": "e9e12077f8e57a1e67cd3ac277bf6818a57d956a",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/1a5fd819497d8daf33c6e8937cb8738afa41d412"
+        },
+        "date": 1716487648612,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9641.099448612758,
+            "unit": "ns",
+            "range": "± 74.64441495331296"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10488.509553527832,
+            "unit": "ns",
+            "range": "± 65.75160142482336"
           }
         ]
       }
