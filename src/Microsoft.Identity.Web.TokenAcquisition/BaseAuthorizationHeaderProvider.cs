@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Extensibility
         /// <param name="serviceProvider"></param>
         public BaseAuthorizationHeaderProvider(IServiceProvider serviceProvider) 
         {
-            // We, exceptionnaly, use a locator pattern here, because we don't want to expose ITokenAcquisition
+            // We, intentionally, use a locator pattern here, because we don't want to expose ITokenAcquisition
             // in the public API as it's going to be deprecated in future versions of IdWeb. Here this
             // is an implementation detail.
             var _tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
