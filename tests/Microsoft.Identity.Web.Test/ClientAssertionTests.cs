@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private int _n = 0;
 
-        protected override Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions assertionRequestOptions)
+        protected override Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions? assertionRequestOptions)
         {
             _n++;
             return Task.FromResult(new ClientAssertion(
