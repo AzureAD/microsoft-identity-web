@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716257432455,
+  "lastUpdate": 1716481515808,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2700,6 +2700,42 @@ window.BENCHMARK_DATA = {
             "value": 10542.865272249494,
             "unit": "ns",
             "range": "± 89.882734202022"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106561208+SaurabhMSFT@users.noreply.github.com",
+            "name": "Saurabh Gautam",
+            "username": "SaurabhMSFT"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "800d959d1bd7921d4d5b0f316f729b20388d04d8",
+          "message": "Perform AOT check on repository (#2845)",
+          "timestamp": "2024-05-23T17:22:04+01:00",
+          "tree_id": "7c1cc5ce4c1d9d1cfae29c5db58092f378f726e2",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/800d959d1bd7921d4d5b0f316f729b20388d04d8"
+        },
+        "date": 1716481515085,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9709.473570112748,
+            "unit": "ns",
+            "range": "± 72.86306210981368"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10657.691846650223,
+            "unit": "ns",
+            "range": "± 49.9893771789695"
           }
         ]
       }
