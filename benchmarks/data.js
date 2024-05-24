@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716519471443,
+  "lastUpdate": 1716562931067,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2844,6 +2844,42 @@ window.BENCHMARK_DATA = {
             "value": 10426.715748539676,
             "unit": "ns",
             "range": "± 50.21447104546836"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3d33ee3a0d86cc3d2882e8563e38a10995fcf2fc",
+          "message": "Change GetSignedAssertion public API (#2854)\n\n* Change GetSignedAssertion public API\r\n\r\n* update\r\n\r\n* PR comments\r\n\r\n* Add Async suffix\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-24T15:59:03+01:00",
+          "tree_id": "752b26f79eb1fbd2d4a16b8a4ca3191e7ef47c8d",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/3d33ee3a0d86cc3d2882e8563e38a10995fcf2fc"
+        },
+        "date": 1716562930344,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9693.247327034933,
+            "unit": "ns",
+            "range": "± 59.54316492003486"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10450.312217310855,
+            "unit": "ns",
+            "range": "± 74.871365268034"
           }
         ]
       }
