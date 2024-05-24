@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <EventSourceSupport>true</EventSourceSupport>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Azure"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Certificate"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Certificateless"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.Diagnostics"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.DownstreamApi"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClient"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClientBeta"/>
+
+    <!--
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraph"/>    
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraphBeta"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.OWIN"/>-->
+
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenAcquisition"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenCache"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.UI"/>
+    
+    <TrimmerRootAssembly Update="@(TrimmerRootAssembly)" Path="..\..\src\%(Identity)\%(Identity).csproj" />
+    <ProjectReference Include="@(TrimmerRootAssembly->'%(Path)')" />
+  </ItemGroup>
+
+</Project>
