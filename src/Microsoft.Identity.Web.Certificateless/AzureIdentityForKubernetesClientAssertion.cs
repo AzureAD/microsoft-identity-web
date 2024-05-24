@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web
@@ -65,7 +66,7 @@ namespace Microsoft.Identity.Web
         /// Get the signed assertion from a file.
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        protected override Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             if (_filePath != null && !File.Exists(_filePath))
             {

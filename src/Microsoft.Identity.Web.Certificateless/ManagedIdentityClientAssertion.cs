@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Certificateless;
 
 namespace Microsoft.Identity.Web
@@ -54,11 +55,11 @@ namespace Microsoft.Identity.Web
         /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
+        protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             var result = await _credential.GetTokenAsync(
                 new TokenRequestContext([_tokenExchangeUrl], null),
-                cancellationToken).ConfigureAwait(false);
+                assertionRequestOptions?.CancellationToken ?? default).ConfigureAwait(false);
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
     }

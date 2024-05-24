@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
                             else
                             {
                                 Logger.UsingManagedIdentity(logger);
-                                return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertion);
+                                return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertionAsync);
                             }
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
                             if (!credential.Skip)
                             {
                                 Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
-                                return builder.WithClientAssertion((credential.CachedValue as AzureIdentityForKubernetesClientAssertion)!.GetSignedAssertion);
+                                return builder.WithClientAssertion((credential.CachedValue as AzureIdentityForKubernetesClientAssertion)!.GetSignedAssertionAsync);
                             }
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFromVault)
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
                             if (!credential.Skip)
                             {
                                 Logger.UsingSignedAssertionFromVault(logger, credential.KeyVaultUrl ?? "undefined");
-                                return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertion);
+                                return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
                             }
                         }
                     }
