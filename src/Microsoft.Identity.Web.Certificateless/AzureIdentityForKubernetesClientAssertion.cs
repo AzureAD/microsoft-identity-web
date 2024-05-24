@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web
         /// Get the signed assertion from a file.
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        protected override Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions? assertionRequestOptions)
+        protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             if (_filePath != null && !File.Exists(_filePath))
             {

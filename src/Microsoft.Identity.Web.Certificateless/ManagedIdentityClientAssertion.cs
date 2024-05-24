@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web
         /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        protected override async Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions? assertionRequestOptions)
+        protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             var result = await _credential.GetTokenAsync(
                 new TokenRequestContext([_tokenExchangeUrl], null),

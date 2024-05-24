@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="assertionRequestOptions"></param>
         /// <returns></returns>
-        protected abstract Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions? assertionRequestOptions);
+        protected abstract Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions);
 
         /// <summary>
         /// Client assertion.
@@ -31,11 +31,11 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="assertionRequestOptions">Input object which is populated by the SDK.</param>
         /// <returns>The signed assertion.</returns>
-        public async Task<string> GetSignedAssertion(AssertionRequestOptions? assertionRequestOptions)
+        public async Task<string> GetSignedAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             if (_clientAssertion == null || (Expiry != null && DateTimeOffset.Now > Expiry))
             {
-                _clientAssertion = await GetClientAssertion(assertionRequestOptions).ConfigureAwait(false);
+                _clientAssertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
             }
 
             return _clientAssertion.SignedAssertion;

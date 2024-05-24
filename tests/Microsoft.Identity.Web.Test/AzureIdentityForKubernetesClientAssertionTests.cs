@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(_filePath);
 
             // Act
-            string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertion(null);
+            string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertionAsync(null);
 
             // Assert
             Assert.NotNull(signedAssertion);
@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion();
 
             // Act
-            string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertion(null);
+            string signedAssertion = await azureIdentityForKubernetesClientAssertion.GetSignedAssertionAsync(null);
 
             // Assert
             Assert.NotNull(signedAssertion);
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             AzureIdentityForKubernetesClientAssertion azureIdentityForKubernetesClientAssertion = new AzureIdentityForKubernetesClientAssertion(filePath);
 
             // Act & Assert
-            var ex = await Assert.ThrowsAsync<FileNotFoundException>(() => azureIdentityForKubernetesClientAssertion.GetSignedAssertion(null));
+            var ex = await Assert.ThrowsAsync<FileNotFoundException>(() => azureIdentityForKubernetesClientAssertion.GetSignedAssertionAsync(null));
             Assert.Contains(filePath, ex.Message, System.StringComparison.OrdinalIgnoreCase);
         }
     }

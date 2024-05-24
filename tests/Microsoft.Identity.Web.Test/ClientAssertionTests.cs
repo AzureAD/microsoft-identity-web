@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private int _n = 0;
 
-        protected override Task<ClientAssertion> GetClientAssertion(AssertionRequestOptions? assertionRequestOptions)
+        protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
             _n++;
             return Task.FromResult(new ClientAssertion(
@@ -31,15 +31,15 @@ namespace Microsoft.Identity.Web.Test
             TestClientAssertion clientAssertionDescription = new TestClientAssertion();
             AssertionRequestOptions options = new AssertionRequestOptions();
 
-            string assertion = await clientAssertionDescription.GetSignedAssertion(options).ConfigureAwait(false);
+            string assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
 
             Assert.Equal("1", assertion);
-            assertion = await clientAssertionDescription.GetSignedAssertion(options).ConfigureAwait(false);
+            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
             Assert.Equal("1", assertion);
 
             Assert.NotNull(clientAssertionDescription.Expiry);
             await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-            assertion = await clientAssertionDescription.GetSignedAssertion(options).ConfigureAwait(false);
+            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
             Assert.Equal("2", assertion);
         }
 
