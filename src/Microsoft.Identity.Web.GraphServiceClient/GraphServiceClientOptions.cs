@@ -3,6 +3,7 @@
 
 using Microsoft.Identity.Abstractions;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace Microsoft.Identity.Web
 {
@@ -28,5 +29,11 @@ namespace Microsoft.Identity.Web
         /// should end in "./default")
         /// </summary>
         public IEnumerable<string> Scopes { get; set; }
+
+        /// <summary>
+        /// When calling Microsoft graph with delegated permissions offers a way to override the
+        /// user on whose behalf the call is made.
+        /// </summary>
+        public ClaimsPrincipal? User { get; set; }
     }
 }

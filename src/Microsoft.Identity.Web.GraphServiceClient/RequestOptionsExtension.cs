@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.Kiota.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -106,6 +107,25 @@ namespace Microsoft.Identity.Web
             graphAuthenticationOptions.AcquireTokenOptions.AuthenticationOptionsName = authenticationScheme;
             return options;
         }
-#endif 
+#endif
+
+        /// <summary>
+        /// Specifies to use app only permissions for Graph.
+        /// </summary>
+        /// <param name="options">Options to modify.</param>
+        /// <param name="user">Overrides the user on behalf of which Microsoft Graph is called
+        /// (for delegated permissions in some specific scenarios)</param>
+        /// <returns></returns>
+        public static IList<IRequestOption> WithUser(this IList<IRequestOption> options, ClaimsPrincipal user)
+        {
+            GraphAuthenticationOptions? graphAuthenticationOptions = options.OfType<GraphAuthenticationOptions>().FirstOrDefault();
+            if (graphAuthenticationOptions == null)
+            {
+                graphAuthenticationOptions = new GraphAuthenticationOptions();
+                options.Add(graphAuthenticationOptions);
+            }
+            graphAuthenticationOptions.User = user;
+            return options;
+        }
     }
 }

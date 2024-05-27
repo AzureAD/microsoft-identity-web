@@ -3,11 +3,10 @@
 
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -37,6 +36,7 @@ namespace Microsoft.Identity.Web
             bool appOnly = _initialOptions.AppOnly ?? false;
             string? tenant = _initialOptions.Tenant ?? null;
             string? scheme = _initialOptions.AuthenticationScheme ?? null;
+            ClaimsPrincipal? user = null;
             // Extract per-request options from the request if present
             TokenAcquisitionAuthenticationProviderOption? msalAuthProviderOption = GetMsalAuthProviderOption(request);
             if (msalAuthProviderOption != null) {
@@ -44,6 +44,7 @@ namespace Microsoft.Identity.Web
                 appOnly = msalAuthProviderOption.AppOnly ?? appOnly;
                 tenant = msalAuthProviderOption.Tenant ?? tenant;
                 scheme = msalAuthProviderOption.AuthenticationScheme ?? scheme;
+                user = msalAuthProviderOption.User ?? user;
             }
 
             if (!appOnly && scopes == null)
@@ -71,7 +72,8 @@ namespace Microsoft.Identity.Web
             {
                 authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     scopes!,
-                    downstreamOptions).ConfigureAwait(false);
+                    downstreamOptions,
+                    claimsPrincipal: user).ConfigureAwait(false);
             }
 
             // add or replace authorization header

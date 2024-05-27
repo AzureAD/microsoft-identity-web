@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
@@ -58,6 +59,7 @@ namespace Microsoft.Identity.Web
 
             scopes = authenticationOptions?.Scopes ?? _defaultAuthenticationOptions.Scopes;
             graphServiceClientOptions = authenticationOptions ?? _defaultAuthenticationOptions;
+            ClaimsPrincipal? user = authenticationOptions?.User;
 
             // Remove the authorization header if it exists
             if (request.Headers.ContainsKey(AuthorizationHeaderKey))
@@ -86,13 +88,16 @@ namespace Microsoft.Identity.Web
                 if (authorizationHeaderProviderOptions!.RequestAppToken)
                 {
                     authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
-                        authorizationHeaderProviderOptions);
+                        authorizationHeaderProviderOptions,
+                        cancellationToken);
                 }
                 else
                 {
                     authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                          scopes!,
-                         authorizationHeaderProviderOptions);
+                         authorizationHeaderProviderOptions,
+                         claimsPrincipal: user,
+                         cancellationToken);
                 }
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }
