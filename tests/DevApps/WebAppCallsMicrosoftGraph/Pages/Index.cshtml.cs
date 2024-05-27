@@ -29,7 +29,10 @@ namespace WebAppCallsMicrosoftGraph.Pages
 
         public async Task OnGet()
         {
-            var user = await _graphServiceClient.Me.GetAsync(r => r.Options.WithScopes("user.read"));
+            var user = await _graphServiceClient.Me.GetAsync(r => 
+            r.Options.WithScopes("user.read")
+            //.WithUser(User)
+            );
          
             try
             {

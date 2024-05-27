@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Security.Claims;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 
@@ -94,6 +95,20 @@ namespace Microsoft.Identity.Web
             baseRequest.MiddlewareOptions[authHandlerOptionKey] = authHandlerOptions;
 
             return baseRequest;
+        }
+
+        /// <summary>
+        /// Overrides authentication options for a given request.
+        /// </summary>
+        /// <typeparam name="T">Request</typeparam>
+        /// <param name="baseRequest">Request.</param>
+        /// <param name="user">Delegate to override
+        /// the authentication options</param>
+        /// <returns>Base request</returns>
+        public static T WithUser<T>(this T baseRequest,
+            ClaimsPrincipal user) where T : IBaseRequest
+        {
+            return SetParameter(baseRequest, options => options.User = user );
         }
     }
 }
