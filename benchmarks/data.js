@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716779719090,
+  "lastUpdate": 1716816377467,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2916,6 +2916,42 @@ window.BENCHMARK_DATA = {
             "value": 10514.47306435325,
             "unit": "ns",
             "range": "± 76.47397577484386"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8601843d2185985dabc84ce0407a4666a71078ae",
+          "message": "Cherry pick #2857 and 2859 (#2860)\n\n* Adding a base class for AuthorizationHeaderProvider for extensibility (#2857)\r\n\r\n* Adding a base class for AuthorizationHeaderProvider usable by\r\nextensions that want to leverage IdWeb for Bearer and Pop and process\r\ntheir own protocols\r\n\r\n* Update src/Microsoft.Identity.Web.TokenAcquisition/BaseAuthorizationHeaderProvider.cs\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>\r\n\r\n* Fixes #2855 (#2859)\r\n\r\nTested with End to end test\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-27T06:23:03-07:00",
+          "tree_id": "9ffea636ca87390215309e2277fbc4573a6373db",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/8601843d2185985dabc84ce0407a4666a71078ae"
+        },
+        "date": 1716816376307,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9573.06457219805,
+            "unit": "ns",
+            "range": "± 78.19246722158829"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10341.535200916636,
+            "unit": "ns",
+            "range": "± 71.86587622255371"
           }
         ]
       }
