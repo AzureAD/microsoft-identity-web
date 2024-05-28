@@ -176,6 +176,7 @@ namespace Microsoft.Identity.Web
                     // Process OIDC compliant tenants
                     if (mergedOptions.Authority != null)
                     {
+                        mergedOptions.Authority = AuthorityHelpers.GetAuthorityWithoutQueryIfNeeded(mergedOptions);
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
                         mergedOptions.PreserveAuthority = preserveAuthority;
                         options.Authority = mergedOptions.Authority;

@@ -312,6 +312,7 @@ namespace Microsoft.Identity.Web
 
                     if (mergedOptions.Authority != null)
                     {
+                        mergedOptions.Authority = AuthorityHelpers.GetAuthorityWithoutQueryIfNeeded(mergedOptions);
                         mergedOptions.Authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(mergedOptions.Authority, out bool preserveAuthority);
                         mergedOptions.PreserveAuthority = preserveAuthority;
                         if (mergedOptions.ExtraQueryParameters != null)

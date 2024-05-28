@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Identity.Web
@@ -50,6 +52,30 @@ namespace Microsoft.Identity.Web
             }
             preserveAuthority = true;
             return authority;
+        }
+         
+        internal static string GetAuthorityWithoutQueryIfNeeded(MicrosoftIdentityOptions options)
+        {
+            if (!string.IsNullOrEmpty(options.Authority))
+            {
+                int queryIndex = options.Authority.IndexOf('?', StringComparison.Ordinal);
+                if (queryIndex > -1)
+                {
+                    options.ExtraQueryParameters ??= new Dictionary<string, string>();
+                    var queryParams = HttpUtility.ParseQueryString(options.Authority[queryIndex..].TrimStart('?'));
+                    for (int i = 0; i < queryParams.Count; i++)
+                    {
+                        var key = queryParams.GetKey(i);
+                        var value = queryParams.Get(i);
+                        if (key != null && value != null)
+                            options.ExtraQueryParameters[key] = value;
+                    }
+                    
+                    return options.Authority[..queryIndex];
+                }
+            }
+
+            return options.Authority ?? string.Empty;
         }
     }
 }
