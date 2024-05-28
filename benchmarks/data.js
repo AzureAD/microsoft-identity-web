@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716858267761,
+  "lastUpdate": 1716858441194,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2988,6 +2988,42 @@ window.BENCHMARK_DATA = {
             "value": 10511.271326700846,
             "unit": "ns",
             "range": "± 90.77523961994906"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "jeferrie@microsoft.com",
+            "name": "Jenny Ferries",
+            "username": "jennyf19"
+          },
+          "distinct": true,
+          "id": "bdeba7ea50593417f69b9ddea5fc7f386f6c88c5",
+          "message": "Respect user-provided authority queries and add to options.ExtraQueryParams (#2848)\n\n* parse user provided authority queries into options.ExtraqueryParameters + tests\r\n\r\n* change requests\r\n\r\n* change requests\r\n\r\n* update authority to remove qp's and only add to EQP dictionary + tests\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-27T18:03:50-07:00",
+          "tree_id": "c2704b8c2986c93f1d78d8639b9d7da4da5a900c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/bdeba7ea50593417f69b9ddea5fc7f386f6c88c5"
+        },
+        "date": 1716858440571,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9445.476087812944,
+            "unit": "ns",
+            "range": "± 61.576749581034115"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10229.661086260263,
+            "unit": "ns",
+            "range": "± 99.24872125990036"
           }
         ]
       }
