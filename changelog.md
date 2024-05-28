@@ -1,6 +1,15 @@
 Pending Next Release
 =========
+2.19.0
+=========
+- Updated to Microsoft.IdentityModel.* 7.6.0
+
+### New features
+- Id Web now provides a `.WithUser()` modifier to the Microsoft Graph queries (like `WithAppOnly()`). See issue [#2855](https://github.com/AzureAD/microsoft-identity-web/issues/2855) for details.
+- Id Web now provides a base class for implementing a custom `IAuthorizationHeaderProvider`. See issue [#2856](https://github.com/AzureAD/microsoft-identity-web/issues/2856) for details.
+
 ### Bug Fixes
+- Id Web now processes the extra query parameters when included as part of the authority. See issue [#2697](https://github.com/AzureAD/microsoft-identity-web/issues/2697) for details.
 - If `Logging:LogLevel:Microsoft.Identity.Web` is assigned to `None`, no default logger is initialized and Microsoft.Identity.Web does not record any logs. See [#2816](https://github.com/AzureAD/microsoft-identity-web/pull/2816) for details. 
 - `GraphAuthenticationProvider` checks that the `RequestInformation.URI` is a Graph URI before appending the authorization header, resolving [#2710](https://github.com/AzureAD/microsoft-identity-web/issues/2710). See PR [#2818](https://github.com/AzureAD/microsoft-identity-web/pull/2818) for details.
 - `TokenAcquisition` processes the error code `AADSTS1000502 (The provided certificate is not within its specified validity window)`. See PR [#2840](https://github.com/AzureAD/microsoft-identity-web/pull/2840) for details.
