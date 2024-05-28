@@ -114,7 +114,7 @@ namespace TokenAcquirerTests
             result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["scope"],
                 new AuthorizationHeaderProviderOptions { }, null, CancellationToken.None);
             Assert.Equal("Bearer eXY", result);
-
+            TokenAcquirerFactory.ResetDefaultInstance(); // Test only
         }
     }
 }
