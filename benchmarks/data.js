@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716816377467,
+  "lastUpdate": 1716858267761,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -2952,6 +2952,42 @@ window.BENCHMARK_DATA = {
             "value": 10341.535200916636,
             "unit": "ns",
             "range": "± 71.86587622255371"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dcc72c8afd23ad8ea9f20b0ad07333e232d7ebe4",
+          "message": "Respect user-provided authority queries and add to options.ExtraQueryParams (#2848)\n\n* parse user provided authority queries into options.ExtraqueryParameters + tests\r\n\r\n* change requests\r\n\r\n* change requests\r\n\r\n* update authority to remove qp's and only add to EQP dictionary + tests\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-05-27T18:01:08-07:00",
+          "tree_id": "7c9cb1577d21adbfd2c96989d59e7bebb834bcdd",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/dcc72c8afd23ad8ea9f20b0ad07333e232d7ebe4"
+        },
+        "date": 1716858266614,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9777.355675680596,
+            "unit": "ns",
+            "range": "± 79.4762271382524"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10511.271326700846,
+            "unit": "ns",
+            "range": "± 90.77523961994906"
           }
         ]
       }
