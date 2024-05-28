@@ -1,6 +1,6 @@
 2.19.0
 =========
-- Updated to Microsoft.IdentityModel.* 7.6.0, and Microsoft.Identity.Client 4.60.3
+- Updated to Microsoft.IdentityModel.* 7.6.0
 
 ### New features
 - Id Web now provides a `.WithUser()` modifier to the Microsoft Graph queries (like `WithAppOnly()`). See issue [#2855](https://github.com/AzureAD/microsoft-identity-web/issues/2855) for details.
