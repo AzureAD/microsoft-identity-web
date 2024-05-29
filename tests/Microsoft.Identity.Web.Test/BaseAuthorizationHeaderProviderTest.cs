@@ -10,11 +10,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Extensibility;
 using Xunit;
 
-namespace TokenAcquirerTests
+namespace Microsoft.Identity.Web.Test
 {
     public class BaseAuthorizationHeaderProviderTest
     {
@@ -29,6 +28,7 @@ namespace TokenAcquirerTests
             public CustomAuthorizationHeaderProvider(IServiceProvider serviceProvider) : base(serviceProvider)
             {
             }
+
             public override Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
             {
                 if (downstreamApiOptions?.ProtocolScheme == "Custom")
@@ -114,7 +114,7 @@ namespace TokenAcquirerTests
             result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["scope"],
                 new AuthorizationHeaderProviderOptions { }, null, CancellationToken.None);
             Assert.Equal("Bearer eXY", result);
-
+            TokenAcquirerFactory.ResetDefaultInstance(); // Test only
         }
     }
 }
