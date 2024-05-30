@@ -103,14 +103,13 @@ namespace Microsoft.Identity.Web
         {
             var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             var options = serviceProvider.GetRequiredService<IOptions<GraphServiceClientOptions>>();
-            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
             var microsoftGraphOptions = options.Value;
             if (microsoftGraphOptions.Scopes == null)
             {
                 Throws.ArgumentNullException("scopes", IDWebErrorMessage.CalledApiScopesAreNull);
             }
 
-            var httpClient = httpClientFactory.CreateClient("GraphServiceClient");
+            var httpClient = GraphClientFactory.Create();
 
             GraphServiceClient graphServiceClient = new(httpClient,
                 new GraphAuthenticationProvider(authorizationHeaderProvider, microsoftGraphOptions), microsoftGraphOptions.BaseUrl);
