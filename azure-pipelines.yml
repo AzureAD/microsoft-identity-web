@@ -16,3 +16,4 @@ jobs:
   steps:
     - template: build/template-install-dependencies.yaml
     - template: build/template-run-unit-tests.yaml
+    - template: build/template-pack-all-nugets.yaml
