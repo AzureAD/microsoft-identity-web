@@ -74,3 +74,44 @@ jobs:
     - name: Test with .NET standard2.0
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
+    - name: Pack Microsoft.Identity.Web
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web
+
+    - name: Pack Microsoft.Identity.Web.UI
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.UI
+
+    - name: Pack Microsoft.Identity.Web.MicrosoftGraph
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.MicrosoftGraph
+      
+    - name: Pack Microsoft.Identity.Web.MicrosoftGraphBeta
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.MicrosoftGraphBeta
+      
+    - name: Pack Microsoft.Identity.Web.GraphServiceClient
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.GraphServiceClient
+      
+    - name: Pack Microsoft.Identity.Web.GraphServiceClientBeta
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.GraphServiceClientBeta
+      
+    - name: Pack Microsoft.Identity.Web.TokenCache
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.TokenCache
+      
+    - name: Pack Microsoft.Identity.Web.TokenAcquisition
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.TokenAcquisition
+
+    - name: Pack Microsoft.Identity.Web.Certificate
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.Certificate
+      
+    - name: Pack Microsoft.Identity.Web.Certificateless
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.Certificateless
+      
+    - name: Pack Microsoft.Identity.Web.OWIN
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.OWIN
+      
+    - name: Pack Microsoft.Identity.Web.DownstreamApi
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.DownstreamApi
+      
+    - name: Pack Microsoft.Identity.Web.Diagnostics
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.Diagnostics
+
+    - name: Pack Microsoft.Identity.Web.Azure
+      run: dotnet pack --no-restore --no-build --configuration Release src\Microsoft.Identity.Web.Azure
