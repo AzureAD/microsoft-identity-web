@@ -21,10 +21,7 @@ namespace SimulateOidc
             }
 
             app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.MapControllers(); // Fixes - warning ASP0014: Suggest using top level route registrations instead of UseEndpoints (https://aka.ms/aspnet/analyzers)
 
             app.Run();
         }
