@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1717094753720,
+  "lastUpdate": 1717461875074,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3348,6 +3348,42 @@ window.BENCHMARK_DATA = {
             "value": 10495.703331782901,
             "unit": "ns",
             "range": "± 73.8547095834989"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a03bd46a94f87e848f1e1ad0f65fda820fd9e966",
+          "message": "Fix suppression files (#2875)\n\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-06-03T17:41:18-07:00",
+          "tree_id": "3755db1a12228d4a33913bbe6533b830319eeee4",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a03bd46a94f87e848f1e1ad0f65fda820fd9e966"
+        },
+        "date": 1717461874408,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9679.805633822354,
+            "unit": "ns",
+            "range": "± 178.23389609182826"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10509.176698755335,
+            "unit": "ns",
+            "range": "± 52.75417701374846"
           }
         ]
       }
