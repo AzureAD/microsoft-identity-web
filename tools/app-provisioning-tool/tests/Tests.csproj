@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    // Test says that app-provisioning-lib is not compatible with net7.0!
     <TargetFrameworks>net7.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
