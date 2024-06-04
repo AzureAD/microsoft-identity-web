@@ -15,4 +15,25 @@
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ClientAssertionProviderBase.GetClientAssertion(System.Threading.CancellationToken)</Target>
+    <Left>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ClientAssertionProviderBase.GetSignedAssertion(System.Threading.CancellationToken)</Target>
+    <Left>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0005</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ClientAssertionProviderBase.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions)</Target>
+    <Left>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.Certificateless.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
 </Suppressions>
