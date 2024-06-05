@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1717461875074,
+  "lastUpdate": 1717545647090,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3384,6 +3384,42 @@ window.BENCHMARK_DATA = {
             "value": 10509.176698755335,
             "unit": "ns",
             "range": "± 52.75417701374846"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38921563+FuPingFranco@users.noreply.github.com",
+            "name": "Franco Fung",
+            "username": "FuPingFranco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "77df2a63d759beb5bbeb9c1260c8efdffd9fff94",
+          "message": "Update to Latest NET9 Preview (#2877)\n\n* Update to NET9 preview-4\r\n\r\n* Removed broken projects and fix warnings\r\n\r\n* Update to NET9 preview-4\r\n\r\n* Removed broken projects and fix warnings\r\n\r\n---------\r\n\r\nCo-authored-by: Franco Fung <francofung@microsoft.com>",
+          "timestamp": "2024-06-04T16:57:32-07:00",
+          "tree_id": "94060d6816c5634f1ccb3736385995cb683f4c78",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/77df2a63d759beb5bbeb9c1260c8efdffd9fff94"
+        },
+        "date": 1717545646238,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9557.964455398858,
+            "unit": "ns",
+            "range": "± 76.37207470791684"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10291.607262787995,
+            "unit": "ns",
+            "range": "± 70.63761053261253"
           }
         ]
       }
