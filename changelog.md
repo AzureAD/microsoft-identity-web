@@ -1,3 +1,12 @@
+3.0.0-preview2
+=========
+- Updated MSAL .Net to 4.61.3
+- Updated Azure.Identity to 1.11.4
+
+### New features:
+- Change GetSignedAssertion public API. See issue [#2853](https://github.com/AzureAD/microsoft-identity-web/issues/2853) for details.
+- Update to latest .NET 9 preview 4. See issue [#2877](https://github.com/AzureAD/microsoft-identity-web/pull/2877) for details.
+
 Pending Next Release
 =========
 2.19.0
