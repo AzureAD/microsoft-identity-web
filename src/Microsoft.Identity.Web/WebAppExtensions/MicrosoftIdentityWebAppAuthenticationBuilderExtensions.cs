@@ -317,7 +317,7 @@ namespace Microsoft.Identity.Web
                         mergedOptions.PreserveAuthority = preserveAuthority;
                         if (mergedOptions.ExtraQueryParameters != null)
                         {
-                            options.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
+                            mergedOptions.MetadataAddress = mergedOptions.Authority + "/.well-known/openid-configuration?" + string.Join("&", mergedOptions.ExtraQueryParameters.Select(p => $"{p.Key}={p.Value}"));
                         }
                     }
 
