@@ -184,6 +184,38 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public Task AddMicrosoftIdentityWebApp_WithConfigAuthority_TestCorrectMetadataAddress()
+        {
+            // Arrange
+            string authority = "https://login.microsoftonline.com/some-tenant-id/v2.0";
+            string appId = "some-client-id";
+            string expectedMetadataAddress = $"{authority}/.well-known/openid-configuration?appId={appId}";
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection()
+                .AddSingleton(configMock)
+                .PostConfigure<MicrosoftIdentityOptions>(OidcScheme, (options) =>
+                {
+                    options.Authority = authority;
+                    options.ExtraQueryParameters = new Dictionary<string, string>
+                        {
+                            {"appId", appId}
+                        };
+                });
+
+            // Act
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
+            var provider = services.BuildServiceProvider();
+            var providedOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+
+            // Assert
+            Assert.Equal(expectedMetadataAddress, providedOptions.MetadataAddress);
+            return Task.CompletedTask;
+        }
+
+        [Fact]
         public async Task AddMicrosoftIdentityWebApp_WithConfigNameParameters_TestRedirectToIdentityProviderEvent()
         {
             var configMock = Substitute.For<IConfiguration>();
