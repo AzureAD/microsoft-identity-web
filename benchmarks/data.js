@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1717545647090,
+  "lastUpdate": 1718041978208,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3420,6 +3420,42 @@ window.BENCHMARK_DATA = {
             "value": 10291.607262787995,
             "unit": "ns",
             "range": "± 70.63761053261253"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "65838639+yangt49@users.noreply.github.com",
+            "name": "Tiffany Yang",
+            "username": "yangt49"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4ab36e23471464215fa045aab03d3898ba0e7235",
+          "message": "Update Azure.Identity (#2886)\n\n* Update Azure.Identity\r\n\r\n* Update changelog.md",
+          "timestamp": "2024-06-10T10:49:46-07:00",
+          "tree_id": "7fa692842ff1296448b522df9a4259f31e5f9531",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/4ab36e23471464215fa045aab03d3898ba0e7235"
+        },
+        "date": 1718041977554,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9749.23774125841,
+            "unit": "ns",
+            "range": "± 84.8572870206842"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10493.35377091628,
+            "unit": "ns",
+            "range": "± 38.875618292471316"
           }
         ]
       }
