@@ -1,3 +1,8 @@
+2.19.1
+=========
+- Updated MSAL .Net to 4.61.3
+- Updated Azure.Identity to 1.11.4
+
 2.19.0
 =========
 - Updated to Microsoft.IdentityModel.* 7.6.0
