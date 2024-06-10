@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718043501767,
+  "lastUpdate": 1718050074009,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3492,6 +3492,42 @@ window.BENCHMARK_DATA = {
             "value": 10476.986612701416,
             "unit": "ns",
             "range": "± 104.67277207703445"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JoshLozensky",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "434473a938efa3ff02df50606144cec11afc44ed",
+          "message": "Fix metadata address creation when using AddMicrosoftIdentityWebApp (#2883)",
+          "timestamp": "2024-06-10T13:04:32-07:00",
+          "tree_id": "c5466eb4f12a89b6776480f635de39c4ecff0c33",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/434473a938efa3ff02df50606144cec11afc44ed"
+        },
+        "date": 1718050073290,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9879.552995501825,
+            "unit": "ns",
+            "range": "± 64.69049378358062"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10654.521145956856,
+            "unit": "ns",
+            "range": "± 63.933165952922934"
           }
         ]
       }
