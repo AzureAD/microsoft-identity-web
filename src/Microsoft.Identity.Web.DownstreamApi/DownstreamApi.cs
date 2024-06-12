@@ -22,6 +22,7 @@ namespace Microsoft.Identity.Web
     internal partial class DownstreamApi : IDownstreamApi
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
+        private readonly IAuthorizationHeaderProviderExtension _authorizationHeaderProviderExtension;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string Authorization = "Authorization";
@@ -39,8 +40,28 @@ namespace Microsoft.Identity.Web
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<DownstreamApi> logger)
+            : this(authorizationHeaderProvider, null, namedDownstreamApiOptions, httpClientFactory, logger)
+        {
+           
+        }
+
+        /// <summary>
+        /// Constructor with authorization header provider extension.
+        /// </summary>
+        /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
+        /// <param name="authorizationHeaderProviderExtension">Authorization header provider extension.</param>
+        /// <param name="namedDownstreamApiOptions">Named options provider.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="logger">Logger.</param>
+        public DownstreamApi(
+           IAuthorizationHeaderProvider authorizationHeaderProvider,
+           IAuthorizationHeaderProviderExtension authorizationHeaderProviderExtension,
+           IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
+           IHttpClientFactory httpClientFactory,
+           ILogger<DownstreamApi> logger)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
+            _authorizationHeaderProviderExtension = authorizationHeaderProviderExtension;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -355,16 +376,29 @@ namespace Microsoft.Identity.Web
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = appToken ?
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                                            effectiveOptions.Scopes.FirstOrDefault()!,
-                                            effectiveOptions,
-                                            cancellationToken).ConfigureAwait(false) :
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                            effectiveOptions.Scopes,
-                                            effectiveOptions,
-                                            user,
-                                            cancellationToken).ConfigureAwait(false);
+                string? authorizationHeader;
+                if (_authorizationHeaderProviderExtension != null)
+                {
+                     authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                     authorizationHeader = appToken ?
+                        await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                                                effectiveOptions.Scopes.FirstOrDefault()!,
+                                                effectiveOptions,
+                                                cancellationToken).ConfigureAwait(false) :
+                        await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                                                effectiveOptions.Scopes,
+                                                effectiveOptions,
+                                                user,
+                                                cancellationToken).ConfigureAwait(false);
+                }
+
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
             else

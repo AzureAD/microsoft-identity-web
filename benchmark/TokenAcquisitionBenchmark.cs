@@ -40,7 +40,7 @@ namespace Benchmarks
         {
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = s_serviceProvider!.GetRequiredService<IAuthorizationHeaderProvider>();
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
         }
 
         [Benchmark]

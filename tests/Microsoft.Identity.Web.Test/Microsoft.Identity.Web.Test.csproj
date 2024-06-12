@@ -6,6 +6,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <DefineConstants>$(DefineConstants);DOTNET_462</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup />
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
