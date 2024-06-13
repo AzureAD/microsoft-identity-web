@@ -380,6 +380,7 @@ namespace Microsoft.Identity.Web
                 if (_authorizationHeaderProviderExtension != null)
                 {
                      authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                        new RequestContext(),
                         effectiveOptions.Scopes,
                         effectiveOptions,
                         user,

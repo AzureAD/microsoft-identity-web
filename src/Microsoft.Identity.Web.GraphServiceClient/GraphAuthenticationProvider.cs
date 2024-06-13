@@ -115,6 +115,7 @@ namespace Microsoft.Identity.Web
                 if (_authorizationHeaderProviderExtension != null)
                 {
                     authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                        new RequestContext(),
                         authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes,
                         authorizationHeaderProviderOptions,
                         user,

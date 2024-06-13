@@ -77,6 +77,7 @@ namespace Microsoft.Identity.Web
             if (_authorizationHeaderProviderExtension != null)
             {
                 authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                    new RequestContext(),
                     appOnly ? _defaultGraphScope : scopes!,
                     downstreamOptions,
                     user).ConfigureAwait(false);

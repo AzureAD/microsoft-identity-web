@@ -52,6 +52,7 @@ namespace Microsoft.Identity.Web
         }
 
         public async Task<string> CreateAuthorizationHeaderAsync(
+            RequestContext requestContext,
             IEnumerable<string> scopes,
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,
