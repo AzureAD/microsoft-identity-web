@@ -23,19 +23,7 @@ namespace Microsoft.Identity.Web
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
-            _credential = new DefaultAzureCredential(
-                new DefaultAzureCredentialOptions
-                {
-                    ManagedIdentityClientId = managedIdentityClientId,
-                    WorkloadIdentityClientId = managedIdentityClientId,
-                    ExcludeAzureCliCredential = true,
-                    ExcludeAzureDeveloperCliCredential = true,
-                    ExcludeAzurePowerShellCredential = true,
-                    ExcludeInteractiveBrowserCredential = true,
-                    ExcludeSharedTokenCacheCredential = true,
-                    ExcludeVisualStudioCodeCredential = true,
-                    ExcludeVisualStudioCredential = true
-                });
+            _credential = new ManagedIdentityCredential(managedIdentityClientId);
             _tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
