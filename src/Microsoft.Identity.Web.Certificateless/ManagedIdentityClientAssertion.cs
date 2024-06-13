@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
             _credential = new ManagedIdentityCredential(managedIdentityClientId);
@@ -31,8 +31,8 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
-        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
-        /// <param name="tokenExchangeUrl">Optional token exchange resource url. Default value is "api://AzureADTokenExchange/.default".</param>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange/.default". This value is different on other clouds.</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) : this (managedIdentityClientId)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web
             var result = await _credential.GetTokenAsync(
                 new TokenRequestContext([_tokenExchangeUrl], null),
                 assertionRequestOptions?.CancellationToken ?? default).ConfigureAwait(false);
+
             return new ClientAssertion(result.Token, result.ExpiresOn);
         }
     }
