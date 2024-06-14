@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProviderExtension
     {
         private readonly ITokenAcquisition _tokenAcquisition;
 
@@ -48,6 +49,38 @@ namespace Microsoft.Identity.Web
                 downstreamApiOptions?.AcquireTokenOptions.Tenant,
                 CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
             return result.CreateAuthorizationHeader();
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> CreateAuthorizationHeaderAsync(
+            RequestContext requestContext,
+            IEnumerable<string> scopes,
+            AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
+        {
+            Client.AuthenticationResult result;
+
+            if (claimsPrincipal == null)
+            {
+                result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                    scopes.First(),
+                    downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                    downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                    CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
+                return result.CreateAuthorizationHeader();
+            }
+            else
+            {
+                result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                    scopes,
+                    downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                    downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                    downstreamApiOptions?.AcquireTokenOptions.UserFlow,
+                    claimsPrincipal,
+                    CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
+                return result.CreateAuthorizationHeader();
+            }
         }
 
         private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(

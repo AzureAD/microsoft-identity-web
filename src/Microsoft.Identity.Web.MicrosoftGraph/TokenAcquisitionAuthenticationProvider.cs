@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -16,13 +17,24 @@ namespace Microsoft.Identity.Web
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
         public TokenAcquisitionAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider, TokenAcquisitionAuthenticationProviderOption options)
+            : this(authorizationHeaderProvider, null, options)
+        {
+        }
+
+        public TokenAcquisitionAuthenticationProvider(
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
+            IAuthorizationHeaderProviderExtension? authorizationHeaderProviderExtension,
+            TokenAcquisitionAuthenticationProviderOption options)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
+            _authorizationHeaderProviderExtension = authorizationHeaderProviderExtension;
             _initialOptions = options;
         }
 
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
+        private readonly IAuthorizationHeaderProviderExtension _authorizationHeaderProviderExtension;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
+        private readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
         /// <summary>
         /// Adds an authorization header to an HttpRequestMessage.
@@ -62,18 +74,29 @@ namespace Microsoft.Identity.Web
             }
 
             string authorizationHeader;
-            if (appOnly)
+            if (_authorizationHeaderProviderExtension != null)
             {
-                authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                    Constants.DefaultGraphScope,
-                    downstreamOptions).ConfigureAwait(false);
+                authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                    new RequestContext(),
+                    appOnly ? _defaultGraphScope : scopes!,
+                    downstreamOptions,
+                    user).ConfigureAwait(false);
             }
             else
             {
-                authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                    scopes!,
-                    downstreamOptions,
-                    claimsPrincipal: user).ConfigureAwait(false);
+                if (appOnly)
+                {
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                        Constants.DefaultGraphScope,
+                        downstreamOptions).ConfigureAwait(false);
+                }
+                else
+                {
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                        scopes!,
+                        downstreamOptions,
+                        claimsPrincipal: user).ConfigureAwait(false);
+                }
             }
 
             // add or replace authorization header

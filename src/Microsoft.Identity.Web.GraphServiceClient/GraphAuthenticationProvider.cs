@@ -22,17 +22,33 @@ namespace Microsoft.Identity.Web
     {
         private const string AuthorizationHeaderKey = "Authorization";
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
+        readonly IAuthorizationHeaderProviderExtension _authorizationHeaderProviderExtension;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
+        readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
         /// <summary>
-        /// Constructor from the authorization header provider.
+        /// Constructor for the authorization header provider.
         /// </summary>
         /// <param name="authorizationHeaderProvider"></param>
         /// <param name="defaultAuthenticationOptions"></param>
         public GraphAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider,
             GraphServiceClientOptions defaultAuthenticationOptions)
+            : this(authorizationHeaderProvider, null, defaultAuthenticationOptions)
+        {
+        }
+
+        /// <summary>
+        /// Constructor with authorization header provider extension.
+        /// </summary>
+        /// <param name="authorizationHeaderProvider"></param>
+        /// <param name="defaultAuthenticationOptions"></param>
+        public GraphAuthenticationProvider(
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
+            IAuthorizationHeaderProviderExtension authorizationHeaderProviderExtension,
+            GraphServiceClientOptions defaultAuthenticationOptions)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
+            _authorizationHeaderProviderExtension = authorizationHeaderProviderExtension;
             _defaultAuthenticationOptions = defaultAuthenticationOptions;
         }
 
@@ -85,19 +101,31 @@ namespace Microsoft.Identity.Web
             if (!request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
                 string authorizationHeader;
-                if (authorizationHeaderProviderOptions!.RequestAppToken)
+                if (_authorizationHeaderProviderExtension != null)
                 {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                    authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
+                        new RequestContext(),
+                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes,
                         authorizationHeaderProviderOptions,
-                        cancellationToken);
+                        user,
+                        cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                         scopes!,
-                         authorizationHeaderProviderOptions,
-                         claimsPrincipal: user,
-                         cancellationToken);
+                    if (authorizationHeaderProviderOptions!.RequestAppToken)
+                    {
+                        authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                            authorizationHeaderProviderOptions,
+                            cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                             scopes!,
+                             authorizationHeaderProviderOptions,
+                             claimsPrincipal: user,
+                             cancellationToken).ConfigureAwait(false);
+                    }
                 }
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }
