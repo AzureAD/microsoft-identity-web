@@ -3,8 +3,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Identity;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Web.Certificateless;
@@ -25,7 +23,7 @@ namespace Microsoft.Identity.Web
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
-            ManagedIdentityId id = ManagedIdentityId.SystemAssigned;
+            var id = ManagedIdentityId.SystemAssigned;
             if (!string.IsNullOrEmpty(managedIdentityClientId))
             {
                 id = ManagedIdentityId.WithUserAssignedClientId(managedIdentityClientId);
