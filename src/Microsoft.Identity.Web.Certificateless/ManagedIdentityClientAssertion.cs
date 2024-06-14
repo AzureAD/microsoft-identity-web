@@ -31,9 +31,7 @@ namespace Microsoft.Identity.Web
                 id = ManagedIdentityId.WithUserAssignedClientId(managedIdentityClientId);
             }
 
-            _managedIdentityApplication = ManagedIdentityApplicationBuilder.Create(id).Build();
-
-
+            _managedIdentityApplication = ManagedIdentityApplicationBuilder.Create(id).Build();           
             _tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
@@ -41,7 +39,8 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
-        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". This value is different on other clouds.</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
+        /// This value is different on clouds other than Azure Public</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) : this (managedIdentityClientId)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
