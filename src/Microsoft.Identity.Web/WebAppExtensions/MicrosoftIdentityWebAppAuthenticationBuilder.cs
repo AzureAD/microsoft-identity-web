@@ -46,7 +46,10 @@ namespace Microsoft.Identity.Web
 
         private Action<MicrosoftIdentityOptions> ConfigureMicrosoftIdentityOptions { get; set; }
 
-        private string OpenIdConnectScheme { get; set; }
+        /// <summary>
+        /// The OpenID Connect scheme name to be used.
+        /// </summary>
+        public string OpenIdConnectScheme { get; private set; }
 
         /// <summary>
         /// The web app calls a web API.
