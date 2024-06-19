@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718815290213,
+  "lastUpdate": 1718834515127,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3600,6 +3600,42 @@ window.BENCHMARK_DATA = {
             "value": 10403.239428156072,
             "unit": "ns",
             "range": "± 61.47562948022827"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "507188c490969bac51751ba9b995a3a82feb277c",
+          "message": "Remove inbox DiagnosticSource (#2903)\n\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-06-19T14:58:18-07:00",
+          "tree_id": "715f4c80c93dda8121f876109475af9ef73afb28",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/507188c490969bac51751ba9b995a3a82feb277c"
+        },
+        "date": 1718834513924,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9636.810382917816,
+            "unit": "ns",
+            "range": "± 86.21163401769655"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10569.187186548266,
+            "unit": "ns",
+            "range": "± 93.8673137138298"
           }
         ]
       }
