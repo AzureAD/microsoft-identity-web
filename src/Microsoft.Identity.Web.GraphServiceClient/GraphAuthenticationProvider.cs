@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Web
     {
         private const string AuthorizationHeaderKey = "Authorization";
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
-        readonly IAuthorizationHeaderProviderExtension _authorizationHeaderProviderExtension;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
         readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
@@ -33,22 +32,8 @@ namespace Microsoft.Identity.Web
         /// <param name="defaultAuthenticationOptions"></param>
         public GraphAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider,
             GraphServiceClientOptions defaultAuthenticationOptions)
-            : this(authorizationHeaderProvider, null, defaultAuthenticationOptions)
-        {
-        }
-
-        /// <summary>
-        /// Constructor with authorization header provider extension.
-        /// </summary>
-        /// <param name="authorizationHeaderProvider"></param>
-        /// <param name="defaultAuthenticationOptions"></param>
-        public GraphAuthenticationProvider(
-            IAuthorizationHeaderProvider authorizationHeaderProvider,
-            IAuthorizationHeaderProviderExtension authorizationHeaderProviderExtension,
-            GraphServiceClientOptions defaultAuthenticationOptions)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
-            _authorizationHeaderProviderExtension = authorizationHeaderProviderExtension;
             _defaultAuthenticationOptions = defaultAuthenticationOptions;
         }
 
@@ -100,33 +85,12 @@ namespace Microsoft.Identity.Web
             // Add the authorization header
             if (!request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
-                string authorizationHeader;
-                if (_authorizationHeaderProviderExtension != null)
-                {
-                    authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
-                        new RequestContext(),
-                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes,
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes!,
                         authorizationHeaderProviderOptions,
                         user,
                         cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (authorizationHeaderProviderOptions!.RequestAppToken)
-                    {
-                        authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
-                            authorizationHeaderProviderOptions,
-                            cancellationToken).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                             scopes!,
-                             authorizationHeaderProviderOptions,
-                             claimsPrincipal: user,
-                             cancellationToken).ConfigureAwait(false);
-                    }
-                }
+                
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }
         }

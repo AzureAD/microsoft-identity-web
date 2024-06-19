@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Extensibility
     /// Base class for custom implementations of <see cref="IAuthorizationHeaderProvider"/> that
     /// would still want to leverage the default implementation for the bearer and Pop protocols.
     /// </summary>
-    public class BaseAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProviderExtension
+    public class BaseAuthorizationHeaderProvider : IAuthorizationHeaderProvider
     {
         /// <summary>
         /// Constructor from a service provider
@@ -28,13 +28,9 @@ namespace Microsoft.Identity.Web.Extensibility
             // is an implementation detail.
             var _tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
             _headerProvider = new DefaultAuthorizationHeaderProvider(_tokenAcquisition);
-            _headerProviderExtension = _headerProvider as IAuthorizationHeaderProviderExtension 
-                ?? throw new InvalidOperationException("The default implementation of IAuthorizationHeaderProvider does not implement IAuthorizationHeaderProviderExtension.");
-
         }
 
         private readonly IAuthorizationHeaderProvider _headerProvider;
-        private readonly IAuthorizationHeaderProviderExtension _headerProviderExtension;
 
         /// <inheritdoc/>
         public virtual Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
@@ -50,13 +46,16 @@ namespace Microsoft.Identity.Web.Extensibility
 
         /// <inheritdoc/>
         public virtual Task<string> CreateAuthorizationHeaderAsync(
-            RequestContext requestContext,
             IEnumerable<string> scopes, 
             AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, 
             ClaimsPrincipal? claimsPrincipal = null, 
             CancellationToken cancellationToken = default)
         {
-            return _headerProviderExtension.CreateAuthorizationHeaderAsync(requestContext, scopes, authorizationHeaderProviderOptions, claimsPrincipal, cancellationToken);
+            return _headerProvider.CreateAuthorizationHeaderAsync(
+                scopes, 
+                authorizationHeaderProviderOptions, 
+                claimsPrincipal, 
+                cancellationToken);
         }
     }
 }

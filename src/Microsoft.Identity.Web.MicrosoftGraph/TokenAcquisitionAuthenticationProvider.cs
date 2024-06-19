@@ -17,22 +17,12 @@ namespace Microsoft.Identity.Web
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
         public TokenAcquisitionAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider, TokenAcquisitionAuthenticationProviderOption options)
-            : this(authorizationHeaderProvider, null, options)
-        {
-        }
-
-        public TokenAcquisitionAuthenticationProvider(
-            IAuthorizationHeaderProvider authorizationHeaderProvider,
-            IAuthorizationHeaderProviderExtension? authorizationHeaderProviderExtension,
-            TokenAcquisitionAuthenticationProviderOption options)
-        {
+        { 
             _authorizationHeaderProvider = authorizationHeaderProvider;
-            _authorizationHeaderProviderExtension = authorizationHeaderProviderExtension;
             _initialOptions = options;
         }
 
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
-        private readonly IAuthorizationHeaderProviderExtension _authorizationHeaderProviderExtension;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
         private readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
@@ -67,37 +57,17 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions? downstreamOptions = new DownstreamApiOptions() { BaseUrl = "https://graph.microsoft.com", Scopes = scopes };
             downstreamOptions.AcquireTokenOptions.AuthenticationOptionsName = scheme;
             downstreamOptions.AcquireTokenOptions.Tenant = tenant;
+            downstreamOptions.RequestAppToken = appOnly;
 
             if (msalAuthProviderOption?.AuthorizationHeaderProviderOptions != null)
             {
                 msalAuthProviderOption.AuthorizationHeaderProviderOptions(downstreamOptions);
             }
 
-            string authorizationHeader;
-            if (_authorizationHeaderProviderExtension != null)
-            {
-                authorizationHeader = await _authorizationHeaderProviderExtension.CreateAuthorizationHeaderAsync(
-                    new RequestContext(),
+            string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                     appOnly ? _defaultGraphScope : scopes!,
                     downstreamOptions,
                     user).ConfigureAwait(false);
-            }
-            else
-            {
-                if (appOnly)
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                        Constants.DefaultGraphScope,
-                        downstreamOptions).ConfigureAwait(false);
-                }
-                else
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                        scopes!,
-                        downstreamOptions,
-                        claimsPrincipal: user).ConfigureAwait(false);
-                }
-            }
 
             // add or replace authorization header
             if (request.Headers.Contains(Constants.Authorization))

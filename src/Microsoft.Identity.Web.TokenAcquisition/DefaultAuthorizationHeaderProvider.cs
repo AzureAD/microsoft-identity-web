@@ -11,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProviderExtension
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
     {
         private readonly ITokenAcquisition _tokenAcquisition;
 
@@ -53,7 +53,6 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public async Task<string> CreateAuthorizationHeaderAsync(
-            RequestContext requestContext,
             IEnumerable<string> scopes,
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,
@@ -61,7 +60,16 @@ namespace Microsoft.Identity.Web
         {
             Client.AuthenticationResult result;
 
-            if (claimsPrincipal == null)
+            // Previously, with the API name we were able to distinguish between app and user token acquisition
+            // This context is missing in the new API, so can we enforce that downstreamApiOptions.RequestAppToken
+            // needs to be set to true to acquire a token for the app. We cannot rely on ClaimsPrincipal as it can be null for user token acquisition.
+            // DevEx Before:
+            // await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+            // DevEx with the new API:
+            // await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+            //  new [] { "https://graph.microsoft.com/.default" },
+            //  new AuthorizationHeaderProviderOptions { RequestAppToken = true }).ConfigureAwait(false);
+            if (downstreamApiOptions != null && downstreamApiOptions.RequestAppToken)
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                     scopes.First(),
