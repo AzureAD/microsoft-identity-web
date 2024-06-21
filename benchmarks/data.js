@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718834515127,
+  "lastUpdate": 1718987697301,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3636,6 +3636,42 @@ window.BENCHMARK_DATA = {
             "value": 10569.187186548266,
             "unit": "ns",
             "range": "± 93.8673137138298"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ebd1616f76f3257eaf569f40ce10e64f0c4a1430",
+          "message": "Stop non-OB build from running nightly (#2905)\n\nI am also happy to delete this.",
+          "timestamp": "2024-06-21T09:31:41-07:00",
+          "tree_id": "be26f0587bce788f7af11838ce06e1d8a48b0950",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ebd1616f76f3257eaf569f40ce10e64f0c4a1430"
+        },
+        "date": 1718987696579,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9937.961225676954,
+            "unit": "ns",
+            "range": "± 69.5757183567488"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10762.346553530011,
+            "unit": "ns",
+            "range": "± 62.26891640052401"
           }
         ]
       }
