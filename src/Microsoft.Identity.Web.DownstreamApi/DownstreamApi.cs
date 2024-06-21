@@ -337,7 +337,7 @@ namespace Microsoft.Identity.Web
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string? authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                        effectiveOptions.Scopes,
                        effectiveOptions,
                        user,

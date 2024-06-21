@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
             if (downstreamApiOptions != null && downstreamApiOptions.RequestAppToken)
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
-                    scopes.First(),
+                    scopes.FirstOrDefault()!,
                     downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                     downstreamApiOptions?.AcquireTokenOptions.Tenant,
                     CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
