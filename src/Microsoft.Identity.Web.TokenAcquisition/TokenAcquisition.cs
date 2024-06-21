@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Web
             ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalAspNetCoreHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
