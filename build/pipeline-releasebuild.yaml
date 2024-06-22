@@ -5,14 +5,7 @@
  
 trigger: none
 pr: none
- 
-# Create a daily midnight build for release builds on master to ensure our release builds function
-schedules:
-- cron: "0 0 * * *"
-  displayName: Daily midnight build
-  branches:
-    include:
-    - master
+
  
 pool:
   name: MwWilson1EsHostedPool
