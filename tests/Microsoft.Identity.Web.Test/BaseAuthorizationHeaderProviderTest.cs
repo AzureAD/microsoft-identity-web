@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.Test
             public override Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
             {
                 if (downstreamApiOptions?.ProtocolScheme == "Custom")
-                    return Task.FromResult("Custom");
+                    return Task.FromResult("CustomHeaderForApp");
                 else
                     return base.CreateAuthorizationHeaderForAppAsync(scopes, downstreamApiOptions, cancellationToken);
             }
@@ -40,9 +40,19 @@ namespace Microsoft.Identity.Web.Test
             public override Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
             {
                 if (authorizationHeaderProviderOptions?.ProtocolScheme == "Custom")
-                    return Task.FromResult("Custom");
+                    return Task.FromResult("CustomHeaderForUser");
                 else
                     return base.CreateAuthorizationHeaderForUserAsync(scopes, authorizationHeaderProviderOptions, claimsPrincipal, cancellationToken);
+            }
+
+            public override Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+            {
+                if (claimsPrincipal == null && authorizationHeaderProviderOptions?.ProtocolScheme == "Custom")
+                    return Task.FromResult("CustomHeaderForApp");
+                else if (claimsPrincipal != null && authorizationHeaderProviderOptions?.ProtocolScheme == "Custom")
+                    return Task.FromResult("CustomHeaderForUser");
+                else
+                    return base.CreateAuthorizationHeaderAsync(scopes, authorizationHeaderProviderOptions, claimsPrincipal, cancellationToken);
             }
         }
 
@@ -107,13 +117,31 @@ namespace Microsoft.Identity.Web.Test
             var serviceProvider = tokenAcquirerFactory.Build();
 
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            
+            // test acquiring a header on behalf of a user
             string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["scope"],
-                new AuthorizationHeaderProviderOptions { ProtocolScheme = "Custom" }, null, CancellationToken.None);
-            Assert.Equal("Custom", result);
+                new AuthorizationHeaderProviderOptions { ProtocolScheme = "Custom" }, new ClaimsPrincipal(), CancellationToken.None);
+            Assert.Equal("CustomHeaderForUser", result);
 
             result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["scope"],
-                new AuthorizationHeaderProviderOptions { }, null, CancellationToken.None);
+                new AuthorizationHeaderProviderOptions { }, new ClaimsPrincipal(), CancellationToken.None);
             Assert.Equal("Bearer eXY", result);
+
+            result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(["scope"],
+                new AuthorizationHeaderProviderOptions { ProtocolScheme = "Custom" }, new ClaimsPrincipal(), CancellationToken.None);
+            Assert.Equal("CustomHeaderForUser", result);
+
+            TokenAcquirerFactory.ResetDefaultInstance(); // Test only
+
+            // test acquiring a header on behalf of an app
+            result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("scope",
+                new AuthorizationHeaderProviderOptions { ProtocolScheme = "Custom" }, CancellationToken.None);
+            Assert.Equal("CustomHeaderForApp", result);
+
+            result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(["scope"],
+                new AuthorizationHeaderProviderOptions { ProtocolScheme = "Custom" }, null, CancellationToken.None);
+            Assert.Equal("CustomHeaderForApp", result);
+
             TokenAcquirerFactory.ResetDefaultInstance(); // Test only
         }
     }

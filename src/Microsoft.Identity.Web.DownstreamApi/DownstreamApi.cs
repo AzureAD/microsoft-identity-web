@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -332,26 +331,25 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
+            effectiveOptions.RequestAppToken = appToken;
+
             // Obtention of the authorization header (except when calling an anonymous endpoint
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = appToken ?
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                                            effectiveOptions.Scopes.FirstOrDefault()!,
-                                            effectiveOptions,
-                                            cancellationToken).ConfigureAwait(false) :
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                            effectiveOptions.Scopes,
-                                            effectiveOptions,
-                                            user,
-                                            cancellationToken).ConfigureAwait(false);
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                       effectiveOptions.Scopes,
+                       effectiveOptions,
+                       user,
+                       cancellationToken).ConfigureAwait(false);
+                
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
             else
             {
                 Logger.UnauthenticatedApiCall(_logger, null);
             }
+
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
         }

@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
@@ -426,6 +424,9 @@ namespace TokenAcquirerTests
             string result = await api.CreateAuthorizationHeaderForAppAsync(scope, GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
 
             // Assert: Make sure we got a token
+            Assert.False(string.IsNullOrEmpty(result));
+
+            result = await api.CreateAuthorizationHeaderAsync([scope], GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
             Assert.False(string.IsNullOrEmpty(result));
         }
 
