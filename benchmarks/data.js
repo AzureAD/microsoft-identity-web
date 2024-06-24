@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718987697301,
+  "lastUpdate": 1719250929260,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3672,6 +3672,42 @@ window.BENCHMARK_DATA = {
             "value": 10762.346553530011,
             "unit": "ns",
             "range": "± 62.26891640052401"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "73967733+sruke@users.noreply.github.com",
+            "name": "sruthikeerthi",
+            "username": "sruke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d242d0a8079caaa1b43e1b7329f8a0383f821892",
+          "message": "Implements GetAuthorizationHeaderAsync to support 1P specific scenarios (#2896)\n\n* Implements IAuthorizationHeaderProviderExtension\r\n\r\n* Use DownstreamApiOptions.RequestAppToken to check if header is for app or user\r\n\r\n* Updates Abstractions version\r\n\r\n* Updates CAE tests\r\n\r\n---------\r\n\r\nCo-authored-by: Sruthi Keerthi Rangavajhula (from Dev Box) <srangavajhul@microsoft.com>",
+          "timestamp": "2024-06-24T10:38:48-07:00",
+          "tree_id": "ab44d7b228b37b866efbbf8122bee45e2f14479e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/d242d0a8079caaa1b43e1b7329f8a0383f821892"
+        },
+        "date": 1719250927677,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9774.214011580856,
+            "unit": "ns",
+            "range": "± 109.54338861157488"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10441.142716271537,
+            "unit": "ns",
+            "range": "± 54.15364652388723"
           }
         ]
       }
