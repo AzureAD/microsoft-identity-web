@@ -23,9 +23,10 @@ namespace Microsoft.Identity.Web
         private const string AuthorizationHeaderKey = "Authorization";
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
+        readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
         /// <summary>
-        /// Constructor from the authorization header provider.
+        /// Constructor for the authorization header provider.
         /// </summary>
         /// <param name="authorizationHeaderProvider"></param>
         /// <param name="defaultAuthenticationOptions"></param>
@@ -84,21 +85,12 @@ namespace Microsoft.Identity.Web
             // Add the authorization header
             if (!request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
-                string authorizationHeader;
-                if (authorizationHeaderProviderOptions!.RequestAppToken)
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes!,
                         authorizationHeaderProviderOptions,
-                        cancellationToken);
-                }
-                else
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                         scopes!,
-                         authorizationHeaderProviderOptions,
-                         claimsPrincipal: user,
-                         cancellationToken);
-                }
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }
         }
