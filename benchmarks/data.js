@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719253663208,
+  "lastUpdate": 1719282148919,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3744,6 +3744,42 @@ window.BENCHMARK_DATA = {
             "value": 10332.675473076957,
             "unit": "ns",
             "range": "± 52.35466639353105"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "73967733+sruke@users.noreply.github.com",
+            "name": "sruthikeerthi",
+            "username": "sruke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "024f90e4703300a34ab5008ee5c64b69b324d36f",
+          "message": "Cherry picks PR #2896 (#2908)\n\n* Implements GetAuthorizationHeaderAsync to support 1P specific scenarios (#2896)\r\n\r\n* Implements IAuthorizationHeaderProviderExtension\r\n\r\n* Use DownstreamApiOptions.RequestAppToken to check if header is for app or user\r\n\r\n* Updates Abstractions version\r\n\r\n* Updates CAE tests\r\n\r\n---------\r\n\r\nCo-authored-by: Sruthi Keerthi Rangavajhula (from Dev Box) <srangavajhul@microsoft.com>\r\n\r\n* Add missing using\r\n\r\n* Update test\r\n\r\n---------\r\n\r\nCo-authored-by: Sruthi Keerthi Rangavajhula (from Dev Box) <srangavajhul@microsoft.com>",
+          "timestamp": "2024-06-24T19:19:10-07:00",
+          "tree_id": "2e4b5c1a9e0c1c86d201894a4c9dab84a928ba84",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/024f90e4703300a34ab5008ee5c64b69b324d36f"
+        },
+        "date": 1719282147759,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9716.772821497034,
+            "unit": "ns",
+            "range": "± 80.03902391093939"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10616.108261108398,
+            "unit": "ns",
+            "range": "± 72.67223019369636"
           }
         ]
       }
