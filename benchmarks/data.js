@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719282148919,
+  "lastUpdate": 1719339671224,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3780,6 +3780,42 @@ window.BENCHMARK_DATA = {
             "value": 10616.108261108398,
             "unit": "ns",
             "range": "± 72.67223019369636"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "85274586+ciaozhang@users.noreply.github.com",
+            "name": "Xiao Zhang",
+            "username": "ciaozhang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "05e6d747d851dee22b1757ae0b6af3ceb6cab53b",
+          "message": "get registered IMsalHttpClientFactory if it is exist (#2909)",
+          "timestamp": "2024-06-25T11:17:42-07:00",
+          "tree_id": "e95b5caaf9f0e023a58f42f01b96b714c2996682",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/05e6d747d851dee22b1757ae0b6af3ceb6cab53b"
+        },
+        "date": 1719339670058,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9858.977527073452,
+            "unit": "ns",
+            "range": "± 125.2825433536941"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10587.856654030937,
+            "unit": "ns",
+            "range": "± 53.44253568864074"
           }
         ]
       }
