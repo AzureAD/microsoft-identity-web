@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719370047720,
+  "lastUpdate": 1719371561953,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3852,6 +3852,42 @@ window.BENCHMARK_DATA = {
             "value": 10435.02665839761,
             "unit": "ns",
             "range": "± 95.51135568618596"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "NetherGranite@gmail.com",
+            "name": "NetherGranite",
+            "username": "NetherGranite"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3693193d6a7eb4be686ceb01f213fd086840d3dd",
+          "message": "Make MicrosoftIdentityWebAppAuthenticationBuilder.OpenIdConnectScheme publicly gettable (#2899)\n\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-06-25T20:09:19-07:00",
+          "tree_id": "9fb0933df563f15a570f8bee5fc4b1016e4e8a09",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/3693193d6a7eb4be686ceb01f213fd086840d3dd"
+        },
+        "date": 1719371560859,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9665.754487173897,
+            "unit": "ns",
+            "range": "± 68.24912298780558"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10418.266511588261,
+            "unit": "ns",
+            "range": "± 44.504236982443196"
           }
         ]
       }
