@@ -105,7 +105,7 @@
     <MicrosoftExtensionsConfigurationBinderVersion>9.0.100-preview.4.24267.66</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
