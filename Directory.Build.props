@@ -77,32 +77,32 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <IdentityModelVersion>7.6.0</IdentityModelVersion>
-    <MicrosoftIdentityClientVersion>4.60.3</MicrosoftIdentityClientVersion>
+    <IdentityModelVersion>8.0.0-preview1</IdentityModelVersion>
+    <MicrosoftIdentityClientVersion>4.61.3</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
-    <AzureIdentityVersion>1.11.1</AzureIdentityVersion>
+    <AzureIdentityVersion>1.11.4</AzureIdentityVersion>
     <AzureSecurityKeyVaultCertificatesVersion>4.6.0</AzureSecurityKeyVaultCertificatesVersion>
     <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
-    <MicrosoftIdentityAbstractions>5.3.0</MicrosoftIdentityAbstractions>
-    <NetNineRuntimeVersion> 9.0.0-preview.2.24128.5</NetNineRuntimeVersion>
-    <AspNetCoreNineRuntimeVersion> 9.0.0-preview.2.24128.4</AspNetCoreNineRuntimeVersion>
+    <MicrosoftIdentityAbstractions>6.0.0</MicrosoftIdentityAbstractions>
+    <NetNineRuntimeVersion> 9.0.0-preview.4.24266.19</NetNineRuntimeVersion>
+    <AspNetCoreNineRuntimeVersion> 9.0.0-preview.4.24267.6</AspNetCoreNineRuntimeVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsHostingVersion>
+    <MicrosoftExtensionsHostingVersion>9.0.100-preview.4.24267.66</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
-    <SystemTextEncodingsWebVersion>9.0.100-preview.2.24157.14</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>9.0.100-preview.2.24157.14</MicrosoftExtensionsConfigurationBinderVersion>
+    <SystemTextEncodingsWebVersion>9.0.100-preview.4.24267.66</SystemTextEncodingsWebVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>9.0.100-preview.4.24267.66</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
   

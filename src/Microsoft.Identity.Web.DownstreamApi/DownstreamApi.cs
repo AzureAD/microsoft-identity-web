@@ -351,20 +351,18 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.Content = content;
             }
 
+            effectiveOptions.RequestAppToken = appToken;
+
             // Obtention of the authorization header (except when calling an anonymous endpoint
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = appToken ?
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
-                                            effectiveOptions.Scopes.FirstOrDefault()!,
-                                            effectiveOptions,
-                                            cancellationToken).ConfigureAwait(false) :
-                    await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                            effectiveOptions.Scopes,
-                                            effectiveOptions,
-                                            user,
-                                            cancellationToken).ConfigureAwait(false);
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                       effectiveOptions.Scopes,
+                       effectiveOptions,
+                       user,
+                       cancellationToken).ConfigureAwait(false);
+                
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
             else
