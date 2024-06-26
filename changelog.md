@@ -1,3 +1,7 @@
+3.0.0-preview3
+=========
+- Updated to Microsoft.IdentityModel.* 8.0.0-preview3
+
 3.0.0-preview2
 =========
 - Updated MSAL .Net to 4.61.3

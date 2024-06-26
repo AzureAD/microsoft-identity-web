@@ -5,8 +5,6 @@ using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using BenchmarkDotNet.Diagnostics.Windows;
-using BenchmarkDotNet.Diagnostics.Windows.Configs;
 
 namespace Benchmarks
 {
@@ -40,7 +38,7 @@ namespace Benchmarks
         {
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = s_serviceProvider!.GetRequiredService<IAuthorizationHeaderProvider>();
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
         }
 
         [Benchmark]
