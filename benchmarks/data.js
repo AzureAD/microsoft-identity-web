@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719371561953,
+  "lastUpdate": 1719371565823,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3888,6 +3888,42 @@ window.BENCHMARK_DATA = {
             "value": 10418.266511588261,
             "unit": "ns",
             "range": "± 44.504236982443196"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "chriscott@hotmail.com",
+            "name": "Christopher Scott",
+            "username": "christothes"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e3a059f3576afe0a87dae7de66aff59a50c11c41",
+          "message": "Use ManagedIdentityCredential instead of DefaultAzureCredential for FIC scenario (PR for ID.Web 3.x) (#2813)\n\n* Use ManagedIdentityCredential instead of DefaultAzureCredential for MI scenarios\r\n\r\n* Address PR comments\r\n\r\n* Drop Azure.Identity and use just MSAL here.\r\n\r\n* PR comment\r\n\r\n* Fix\r\n\r\n---------\r\n\r\nCo-authored-by: Bogdan Gavril <bogavril@microsoft.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-06-25T20:09:38-07:00",
+          "tree_id": "085f97ab2719e3fdb0b614fc9ab42e39866436eb",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e3a059f3576afe0a87dae7de66aff59a50c11c41"
+        },
+        "date": 1719371565275,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9667.990945082445,
+            "unit": "ns",
+            "range": "± 100.39668212610096"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10441.10410027755,
+            "unit": "ns",
+            "range": "± 50.87790606436625"
           }
         ]
       }
