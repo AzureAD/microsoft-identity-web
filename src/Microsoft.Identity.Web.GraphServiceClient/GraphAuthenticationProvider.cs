@@ -24,9 +24,10 @@ namespace Microsoft.Identity.Web
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
         private readonly string[] _graphUris = ["graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"];
+        readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
         /// <summary>
-        /// Constructor from the authorization header provider.
+        /// Constructor for the authorization header provider.
         /// </summary>
         /// <param name="authorizationHeaderProvider"></param>
         /// <param name="defaultAuthenticationOptions"></param>
@@ -86,21 +87,12 @@ namespace Microsoft.Identity.Web
             // Add the authorization header
             if (allowedHostsValidator.IsUrlHostValid(request.URI) && !request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
-                string authorizationHeader;
-                if (authorizationHeaderProviderOptions!.RequestAppToken)
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes!,
                         authorizationHeaderProviderOptions,
-                        cancellationToken);
-                }
-                else
-                {
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                         scopes!,
-                         authorizationHeaderProviderOptions,
-                         claimsPrincipal: user,
-                         cancellationToken);
-                }
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
             }
         }

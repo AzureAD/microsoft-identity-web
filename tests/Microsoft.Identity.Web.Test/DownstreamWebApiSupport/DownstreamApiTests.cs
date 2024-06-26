@@ -309,6 +309,11 @@ namespace Microsoft.Identity.Web.Tests
         {
             return Task.FromResult("Bearer ey");
         }
+
+        public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("Bearer ey");
+        }
     }
 }
 
