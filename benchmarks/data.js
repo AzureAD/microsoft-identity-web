@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719339671224,
+  "lastUpdate": 1719370047720,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -3816,6 +3816,42 @@ window.BENCHMARK_DATA = {
             "value": 10587.856654030937,
             "unit": "ns",
             "range": "± 53.44253568864074"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "inglese.ignacio@gmail.com",
+            "name": "Ignacio Inglese",
+            "username": "iNinja"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "550a13554daffb9bed4b7eeac8134cb5bf85621e",
+          "message": "Replaced IHTTPClientFactory approach with GraphClientFactory which includes all the default middleware for MS Graph (#2872)\n\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-06-25T19:44:11-07:00",
+          "tree_id": "681b1e09703691b6aed7adc412f62d357889db0e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/550a13554daffb9bed4b7eeac8134cb5bf85621e"
+        },
+        "date": 1719370047025,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9628.537714455344,
+            "unit": "ns",
+            "range": "± 139.33428154626608"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10435.02665839761,
+            "unit": "ns",
+            "range": "± 95.51135568618596"
           }
         ]
       }
