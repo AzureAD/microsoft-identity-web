@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719523191925,
+  "lastUpdate": 1719524303740,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4032,6 +4032,42 @@ window.BENCHMARK_DATA = {
             "value": 10644.163414130777,
             "unit": "ns",
             "range": "± 64.17690226914924"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dfc26f1c05d432cd222be8d7112e5a8682f15cf5",
+          "message": "Fix for #2893 - do not attempt WorkloadIdentityCredential for MSI FIC (for Id.Web v2) (#2894)\n\n* Fix for #2893 - do not attempt WorkloadIdentityCredential for MSI FIC\r\n\r\n* Address PR comments\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-06-27T14:35:09-07:00",
+          "tree_id": "6255db987fdebea3979a4948b877456b93656307",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/dfc26f1c05d432cd222be8d7112e5a8682f15cf5"
+        },
+        "date": 1719524302593,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9939.757011829723,
+            "unit": "ns",
+            "range": "± 161.84079276590998"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10754.792559259588,
+            "unit": "ns",
+            "range": "± 84.51620142654397"
           }
         ]
       }
