@@ -3,8 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Identity;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Web.Certificateless;
 
 namespace Microsoft.Identity.Web
@@ -12,9 +12,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
+    public class ManagedIdentityClientAssertion 
+        : ClientAssertionProviderBase
     {
-        private readonly TokenCredential _credential;
+        private readonly IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
 
         /// <summary>
@@ -23,19 +24,13 @@ namespace Microsoft.Identity.Web
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity or Workload Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId)
         {
-            _credential = new DefaultAzureCredential(
-                new DefaultAzureCredentialOptions
-                {
-                    ManagedIdentityClientId = managedIdentityClientId,
-                    WorkloadIdentityClientId = managedIdentityClientId,
-                    ExcludeAzureCliCredential = true,
-                    ExcludeAzureDeveloperCliCredential = true,
-                    ExcludeAzurePowerShellCredential = true,
-                    ExcludeInteractiveBrowserCredential = true,
-                    ExcludeSharedTokenCacheCredential = true,
-                    ExcludeVisualStudioCodeCredential = true,
-                    ExcludeVisualStudioCredential = true
-                });
+            var id = ManagedIdentityId.SystemAssigned;
+            if (!string.IsNullOrEmpty(managedIdentityClientId))
+            {
+                id = ManagedIdentityId.WithUserAssignedClientId(managedIdentityClientId);
+            }
+
+            _managedIdentityApplication = ManagedIdentityApplicationBuilder.Create(id).Build();
             _tokenExchangeUrl = CertificatelessConstants.DefaultTokenExchangeUrl;
         }
 
@@ -56,10 +51,12 @@ namespace Microsoft.Identity.Web
         /// <returns>The signed assertion.</returns>
         protected override async Task<ClientAssertion> GetClientAssertion(CancellationToken cancellationToken)
         {
-            var result = await _credential.GetTokenAsync(
-                new TokenRequestContext([_tokenExchangeUrl], null),
-                cancellationToken).ConfigureAwait(false);
-            return new ClientAssertion(result.Token, result.ExpiresOn);
+            var result = await _managedIdentityApplication
+               .AcquireTokenForManagedIdentity(_tokenExchangeUrl)
+               .ExecuteAsync(cancellationToken)
+               .ConfigureAwait(false);
+
+            return new ClientAssertion(result.AccessToken, result.ExpiresOn);
         }
     }
 }
