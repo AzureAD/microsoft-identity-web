@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web
             // await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
             //  new [] { "https://graph.microsoft.com/.default" },
             //  new AuthorizationHeaderProviderOptions { RequestAppToken = true }).ConfigureAwait(false);
-            if (downstreamApiOptions != null && downstreamApiOptions.RequestAppToken)
+            if (downstreamApiOptions != null && (downstreamApiOptions.RequestAppToken || downstreamApiOptions.AcquireTokenOptions?.ManagedIdentity != null))
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                     scopes.FirstOrDefault()!,
