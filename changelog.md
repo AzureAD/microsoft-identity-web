@@ -1,3 +1,19 @@
+2.20.0
+=========
+- Updated to Microsoft.Identity.Abstractions 6.0.0 which adds one method to `IAuthorizationHeaderProvider`
+  
+### New features
+- Implements the updated `IAuthorizationHeaderProvider` interface (the new method  CreateAuthorizationHeaderForAppAsync). See issue [#2907](https://github.com/AzureAD/microsoft-identity-web/issues/2907)
+- If a IMsalHttpClientFactory is added to the service collection, it's not used by IdWeb token acquisition. See issue [#2911](https://github.com/AzureAD/microsoft-identity-web/issues/2911)
+  This will be use to enable some IPv6 scenarios.
+
+### Bug fixes
+- Fix metadata address creation when using AddMicrosoftIdentityWebApp. See issue [#2752](https://github.com/AzureAD/microsoft-identity-web/issues/2752)
+- Use MSAL.NET instead of DefaultAzureCredential for Federation identity credentials scenario. See [2894](https://github.com/AzureAD/microsoft-identity-web/pull/2894)
+
+### Fundamentals
+- Updating Lab Api to 0.13.3
+
 2.19.1
 =========
 - Updated MSAL .Net to 4.61.3
