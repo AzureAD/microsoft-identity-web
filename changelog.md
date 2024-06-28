@@ -4,7 +4,7 @@
   
 ### New features
 - Implements the updated `IAuthorizationHeaderProvider` interface (the new method  CreateAuthorizationHeaderForAppAsync). See issue [#2907](https://github.com/AzureAD/microsoft-identity-web/issues/2907)
-- If a IMsalHttpClientFactory is added to the service collection, it's not used by IdWeb token acquisition. See issue [#2911](https://github.com/AzureAD/microsoft-identity-web/issues/2911)
+- If an `IMsalHttpClientFactory` is added to the service collection, it's not used by IdWeb token acquisition. See issue [#2911](https://github.com/AzureAD/microsoft-identity-web/issues/2911)
   This will be use to enable some IPv6 scenarios.
 
 ### Bug fixes
