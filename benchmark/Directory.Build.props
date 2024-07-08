@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <MicrosoftIdentityLabApiVersion>0.13.3</MicrosoftIdentityLabApiVersion>
+    <MicrosoftIdentityLabApiVersion>1.0.1</MicrosoftIdentityLabApiVersion>
     <BenchmarkDotNetVersion>0.13.12</BenchmarkDotNetVersion>
     <BenchmarkDotNetDiagnosticsWindowsVersion>0.13.12</BenchmarkDotNetDiagnosticsWindowsVersion>
 	</PropertyGroup>
