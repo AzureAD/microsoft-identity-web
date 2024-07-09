@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720565198655,
+  "lastUpdate": 1720565271060,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4212,6 +4212,42 @@ window.BENCHMARK_DATA = {
             "value": 10525.75904056482,
             "unit": "ns",
             "range": "± 70.3254279488864"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a6cdceb5ffd3b9518d35c3046b7117b4b4844ec5",
+          "message": "Bump System.Text.Json in /tools/ConfigureGeneratedApplications (#2925)\n\nBumps System.Text.Json from 4.7.2 to 8.0.4.\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: System.Text.Json\r\n  dependency-type: direct:production\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-07-09T15:44:36-07:00",
+          "tree_id": "f15b45cfbad02477aedf77c0004ac7528b1ce0f0",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a6cdceb5ffd3b9518d35c3046b7117b4b4844ec5"
+        },
+        "date": 1720565270388,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9683.256508289684,
+            "unit": "ns",
+            "range": "± 67.6815049186291"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10432.835002430698,
+            "unit": "ns",
+            "range": "± 94.11617031680848"
           }
         ]
       }
