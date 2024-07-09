@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720470650739,
+  "lastUpdate": 1720565198655,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4176,6 +4176,42 @@ window.BENCHMARK_DATA = {
             "value": 10567.81691151745,
             "unit": "ns",
             "range": "± 26.71578941072239"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "73967733+sruke@users.noreply.github.com",
+            "name": "sruthikeerthi",
+            "username": "sruke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "31881065aa92d4031c4876bff5c55c5240a6b795",
+          "message": "Update Lab cert and Lab Version in use (#2923)\n\nCo-authored-by: Sruthi Keerthi Rangavajhula (from Dev Box) <srangavajhul@microsoft.com>",
+          "timestamp": "2024-07-09T15:43:19-07:00",
+          "tree_id": "de32cb0b41503a800ad6390d16e88f613b22dca4",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/31881065aa92d4031c4876bff5c55c5240a6b795"
+        },
+        "date": 1720565197517,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9815.720098035088,
+            "unit": "ns",
+            "range": "± 154.88917543968793"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10525.75904056482,
+            "unit": "ns",
+            "range": "± 70.3254279488864"
           }
         ]
       }
