@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="0.13.3" />
+    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
