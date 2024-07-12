@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1720820553103,
+  "lastUpdate": 1720820564510,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4284,6 +4284,42 @@ window.BENCHMARK_DATA = {
             "value": 10475.425199347028,
             "unit": "ns",
             "range": "± 76.13947592301884"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ed583a622b9a9c26dfde04584b1241a407a6b825",
+          "message": "update lab api 1.0.2 (#2927)",
+          "timestamp": "2024-07-12T14:39:25-07:00",
+          "tree_id": "71f13a5fe558b365973cf98b6a092fa0e5459b23",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ed583a622b9a9c26dfde04584b1241a407a6b825"
+        },
+        "date": 1720820563382,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9833.136989089679,
+            "unit": "ns",
+            "range": "± 81.65819051251142"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10673.473320810419,
+            "unit": "ns",
+            "range": "± 78.2822385620563"
           }
         ]
       }
