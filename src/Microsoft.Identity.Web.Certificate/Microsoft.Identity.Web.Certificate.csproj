@@ -11,6 +11,7 @@
     <PackageReference Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="$(AzureSecurityKeyVaultCertificatesVersion)" />
     <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractions)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemJsonTextVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">

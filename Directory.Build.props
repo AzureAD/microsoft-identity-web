@@ -90,6 +90,8 @@
     <MicrosoftIdentityAbstractions>6.0.0</MicrosoftIdentityAbstractions>
     <NetNineRuntimeVersion> 9.0.0-preview.4.24266.19</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion> 9.0.0-preview.4.24267.6</AspNetCoreNineRuntimeVersion>
+    <!--CVE-2024-30105-->
+    <SystemJsonTextVersion>8.0.4</SystemJsonTextVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
@@ -118,6 +120,8 @@
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <!--CVE-2024-38095-->
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
@@ -132,6 +136,8 @@
     <MicrosoftExtensionsLoggingVersion>7.0.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>7.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>7.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <!--CVE-2024-38095-->
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
@@ -147,6 +153,8 @@
     <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>6.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <!--CVE-2024-38095-->
+    <SystemFormatsAsn1Version>6.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">

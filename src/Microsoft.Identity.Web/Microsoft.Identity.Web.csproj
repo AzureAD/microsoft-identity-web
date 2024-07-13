@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
+    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemJsonTextVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">

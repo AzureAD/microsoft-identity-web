@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="$(MicrosoftIdentityLabApiVersion)" />
     <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
     <PackageReference Include="xunit.assert" Version="$(XunitAssertVersion)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemJsonTextVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">

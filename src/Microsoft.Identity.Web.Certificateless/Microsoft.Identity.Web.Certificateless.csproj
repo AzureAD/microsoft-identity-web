@@ -15,5 +15,6 @@
     <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens " Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemJsonTextVersion)" />
   </ItemGroup>
 </Project>
