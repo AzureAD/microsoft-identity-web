@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721063144168,
+  "lastUpdate": 1721081826439,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4356,6 +4356,42 @@ window.BENCHMARK_DATA = {
             "value": 10498.485029740767,
             "unit": "ns",
             "range": "± 46.20681481357873"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9cf5dc3e4bb5aacb38510ffd73166ef434b753c8",
+          "message": "[cherry-pick] fix CVEs (#2929) (#2931)\n\n* fix CVEs (#2929)\r\n\r\n* resolve NU1107 errors\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-07-15T15:13:49-07:00",
+          "tree_id": "f9e62dd8a11d72fd0e3fda339f83a8565d474ef7",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/9cf5dc3e4bb5aacb38510ffd73166ef434b753c8"
+        },
+        "date": 1721081825738,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9670.426683533866,
+            "unit": "ns",
+            "range": "± 75.90961091352301"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10571.099303654262,
+            "unit": "ns",
+            "range": "± 89.8760371880098"
           }
         ]
       }
