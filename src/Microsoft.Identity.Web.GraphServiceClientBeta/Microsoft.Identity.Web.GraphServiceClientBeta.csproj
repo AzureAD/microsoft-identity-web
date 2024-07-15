@@ -20,6 +20,10 @@
   <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.52.0-preview" />
   </ItemGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />

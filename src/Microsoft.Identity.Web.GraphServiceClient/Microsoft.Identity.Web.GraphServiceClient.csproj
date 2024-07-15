@@ -20,6 +20,10 @@
   <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
     <PackageReference Include="Microsoft.Graph" Version="5.31.0" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
