@@ -11,10 +11,7 @@
     <PackageReference Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="$(AzureSecurityKeyVaultCertificatesVersion)" />
     <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractions)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
   </ItemGroup>
 
   <ItemGroup>

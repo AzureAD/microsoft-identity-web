@@ -22,10 +22,8 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">

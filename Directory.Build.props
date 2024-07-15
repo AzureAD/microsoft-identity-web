@@ -86,7 +86,11 @@
     <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
-    <MicrosoftIdentityAbstractions>6.0.0</MicrosoftIdentityAbstractions>    
+    <MicrosoftIdentityAbstractions>6.0.0</MicrosoftIdentityAbstractions>
+    <!--CVE-2024-30105-->
+    <SystemTextJsonVersion>8.0.4</SystemTextJsonVersion>
+    <!--CVE-2023-29331-->
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
@@ -94,9 +98,9 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.0</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>8.0.0</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>8.0.0</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.0</SystemSecurityCryptographyXmlVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.1</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
@@ -124,6 +128,8 @@
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
+    <!--CVE-2023-29331-->
+    <SystemFormatsAsn1Version>6.0.1</SystemFormatsAsn1Version>
     <!--CVE-2023-29331-->
     <SystemSecurityCryptographyPkcsVersion>6.0.4</SystemSecurityCryptographyPkcsVersion>
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->

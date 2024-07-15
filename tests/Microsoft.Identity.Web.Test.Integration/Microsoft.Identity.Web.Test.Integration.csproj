@@ -27,6 +27,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
   </ItemGroup>
 
   <ItemGroup>
