@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
+    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">
