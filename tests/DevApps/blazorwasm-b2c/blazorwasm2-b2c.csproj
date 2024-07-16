@@ -14,12 +14,12 @@
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.7" />
     <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="8.0.7" />
-    <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="8.0.4" />
   </ItemGroup>
 
 </Project>
