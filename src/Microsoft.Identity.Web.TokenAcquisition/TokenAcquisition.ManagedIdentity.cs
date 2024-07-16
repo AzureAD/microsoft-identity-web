@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Web
         /// <returns>A key value for the Managed Identity cache.</returns>
         internal static string GetCacheKeyForManagedId(ManagedIdentityOptions managedIdOptions)
         {
-            if (managedIdOptions.UserAssignedClientId.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(managedIdOptions.UserAssignedClientId))
             {
                 return SystemAssignedManagedIdentityKey;
             }
