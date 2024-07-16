@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721081826439,
+  "lastUpdate": 1721099138431,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4392,6 +4392,42 @@ window.BENCHMARK_DATA = {
             "value": 10571.099303654262,
             "unit": "ns",
             "range": "± 89.8760371880098"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a53065d6ee07d204ca972029ffaabbbc8446e001",
+          "message": "updated dependency versions for b2c webapp (#2933)",
+          "timestamp": "2024-07-15T20:02:21-07:00",
+          "tree_id": "c632de08bcd97e75f8d1efcb687ccd7384275550",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a53065d6ee07d204ca972029ffaabbbc8446e001"
+        },
+        "date": 1721099137836,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9788.843499970018,
+            "unit": "ns",
+            "range": "± 58.225547162868764"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10629.270961025304,
+            "unit": "ns",
+            "range": "± 73.57115444772178"
           }
         ]
       }
