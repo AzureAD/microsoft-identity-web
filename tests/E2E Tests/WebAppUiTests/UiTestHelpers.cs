@@ -146,22 +146,21 @@ namespace WebAppUiTests
         public static Process StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
-            ProcessStartInfo processStartInfo = new(applicationWorkingDirectory + executableName)
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName)
             {
                 WorkingDirectory = applicationWorkingDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
 
-            if (!environmentVariables.IsNullOrEmpty())
+            if (environmentVariables != null)
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                foreach (KeyValuePair<string, string> kvp in environmentVariables)
+                foreach (var kvp in environmentVariables)
                 {
                     processStartInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
                 }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
+
             Process? process = Process.Start(processStartInfo);
 
             if (process == null)
