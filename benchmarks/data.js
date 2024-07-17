@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721177674373,
+  "lastUpdate": 1721182300277,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4536,6 +4536,42 @@ window.BENCHMARK_DATA = {
             "value": 10723.921299121997,
             "unit": "ns",
             "range": "± 113.24030377724709"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f6c19af40ca7f18511cb45e86bab04598066d550",
+          "message": "fix .net 9 package issue (#2937)",
+          "timestamp": "2024-07-16T19:08:34-07:00",
+          "tree_id": "0dbb160484d12ec55c1cd8cc10cc5ee7df7e0b26",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/f6c19af40ca7f18511cb45e86bab04598066d550"
+        },
+        "date": 1721182299872,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9778.567317397506,
+            "unit": "ns",
+            "range": "± 68.46271174862194"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10512.473065129032,
+            "unit": "ns",
+            "range": "± 60.847557993520724"
           }
         ]
       }
