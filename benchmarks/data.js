@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721169363391,
+  "lastUpdate": 1721177674373,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4500,6 +4500,42 @@ window.BENCHMARK_DATA = {
             "value": 10757.783909847862,
             "unit": "ns",
             "range": "± 58.21692496627091"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5a67761d9a54b65e6855a321d8255b3d7c244b80",
+          "message": "Lozensky/update deps for CVE (#2936)\n\n* updated dependency versions for b2c webapp\r\n\r\n* added specific target of .NET 8 to blazorwasm project\r\n\r\n* trying to add the correct system.text.json independently from the packages depending on it\r\n\r\n* updating to preview deps where needed to satisfy CG reqs",
+          "timestamp": "2024-07-16T17:51:16-07:00",
+          "tree_id": "f36ca7b1086ac28a356509b7e3c70c7887047e88",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/5a67761d9a54b65e6855a321d8255b3d7c244b80"
+        },
+        "date": 1721177673650,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9729.257113138834,
+            "unit": "ns",
+            "range": "± 128.27383629848458"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10723.921299121997,
+            "unit": "ns",
+            "range": "± 113.24030377724709"
           }
         ]
       }
