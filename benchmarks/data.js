@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721190662702,
+  "lastUpdate": 1721248767535,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4680,6 +4680,42 @@ window.BENCHMARK_DATA = {
             "value": 10626.561978614936,
             "unit": "ns",
             "range": "± 76.23699010838294"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2273ffb28b05448b7e8e6421f6f1296901f81be7",
+          "message": "cve updates (#2942)\n\n* cve updates\r\n\r\n* fix CVE in tool\r\n\r\n* fix tool\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-07-17T13:36:10-07:00",
+          "tree_id": "3fb1fbf28b265d90c6e787160a442fe923b03614",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/2273ffb28b05448b7e8e6421f6f1296901f81be7"
+        },
+        "date": 1721248766948,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9715.312958893952,
+            "unit": "ns",
+            "range": "± 61.125654599996935"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10510.992918831962,
+            "unit": "ns",
+            "range": "± 73.83464430160686"
           }
         ]
       }
