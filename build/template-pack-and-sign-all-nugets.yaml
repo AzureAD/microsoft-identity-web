@@ -13,56 +13,6 @@ steps:
   inputs:
     version: 2.x
 
-- task: EsrpCodeSigning@4
-  inputs:
-    ConnectedServiceName: 'IDDP Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src'
-    Pattern: 'Microsoft.Identity.Web*.dll'
-    signConfigType: 'inlineSignParams'
-    inlineOperation: |
-     [
-       {
-         "keyCode": "CP-230012",
-         "operationSetCode": "SigntoolSign",
-         "parameters": [
-         {
-           "parameterName": "OpusName",
-           "parameterValue": "Microsoft.Identity.Web"
-         },
-         {
-           "parameterName": "OpusInfo",
-           "parameterValue": "http://www.microsoft.com"
-         },
-         {
-           "parameterName": "PageHash",
-           "parameterValue": "/NPH"
-         },
-         {
-           "parameterName": "FileDigest",
-           "parameterValue": "/fd sha256"
-         },
-         {
-           "parameterName": "TimeStamp",
-           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-         }
-         ],
-         "toolName": "signtool.exe",
-         "toolVersion": "6.2.9304.0"
-       },
-       {
-         "keyCode": "CP-230012",
-         "operationSetCode": "SigntoolVerify",
-         "parameters": [ ],
-         "toolName": "signtool.exe",
-         "toolVersion": "6.2.9304.0"
-       }
-     ]
-    SessionTimeout: '60'
-    MaxConcurrency: '50'
-    MaxRetryAttempts: '5'
-    PendingAnalysisWaitTimeoutMinutes: '5'
-  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
-
 - task: onebranch.pipeline.signing@1
   displayName: 'Sign ${{ parameters.LibraryName }} with OneBranch'
   inputs:
@@ -192,37 +142,6 @@ steps:
     TargetFolder: '$(Build.ArtifactStagingDirectory)\packages'
     flattenFolders: true
 
-# Sign all final nuget packages in the staging directory
-- task: EsrpCodeSigning@4
-  displayName: 'Sign Packages'
-  inputs:
-    ConnectedServiceName: 'IDDP Code Signing'
-    FolderPath: '$(Build.ArtifactStagingDirectory)\packages'
-    Pattern: '*nupkg'
-    signConfigType: inlineSignParams
-    inlineOperation: |
-     [
-         {
-             "keyCode": "CP-401405",
-             "operationSetCode": "NuGetSign",
-             "parameters": [ ],
-             "toolName": "sign",
-             "toolVersion": "1.0"
-         },
-         {
-             "keyCode": "CP-401405",
-             "operationSetCode": "NuGetVerify",
-             "parameters": [ ],
-             "toolName": "sign",
-             "toolVersion": "1.0"
-         }
-     ]
-    SessionTimeout: '60'
-    MaxConcurrency: '50'
-    MaxRetryAttempts: '5'
-    PendingAnalysisWaitTimeoutMinutes: '5'
-  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
-
 - task: onebranch.pipeline.signing@1
   displayName: 'Sign Packages with OneBranch'
   inputs:
@@ -231,11 +150,3 @@ steps:
     files_to_sign: '*nupkg'
     search_root: '$(Build.ArtifactStagingDirectory)\packages'
   condition: and(succeeded(), eq(variables['PipelineType'], 'OneBranch'))
-
-- task: NuGetCommand@2
-  displayName: 'Verify packages are signed'
-  inputs:
-    command: custom
-    arguments: 'verify -Signature ${{ parameters.NugetPackagesWildcard }}'
-  continueOnError: true
-  condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
