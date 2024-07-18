@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721338208481,
+  "lastUpdate": 1721338682207,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4752,6 +4752,42 @@ window.BENCHMARK_DATA = {
             "value": 10429.520574020127,
             "unit": "ns",
             "range": "± 63.54769068493146"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "travis.walker@microsoft.com",
+            "name": "Travis Walker",
+            "username": "trwalke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8d2fd8d6d6ab0b6dd6f2cc631ab0c304309087d6",
+          "message": "Removing reference to Iddp Code Signing (#2943)\n\nCo-authored-by: trwalke <trwalke@microsoft.com>",
+          "timestamp": "2024-07-18T14:34:45-07:00",
+          "tree_id": "51331fd0af96608eac9625605ac4bd8f8fecc818",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/8d2fd8d6d6ab0b6dd6f2cc631ab0c304309087d6"
+        },
+        "date": 1721338681071,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9663.309141263095,
+            "unit": "ns",
+            "range": "± 97.05246464501246"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10536.5350856781,
+            "unit": "ns",
+            "range": "± 68.1996215357903"
           }
         ]
       }
