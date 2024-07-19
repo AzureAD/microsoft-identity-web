@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -12,7 +13,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler { get; set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MockHttpMessageHandler()
@@ -32,8 +33,9 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         /// Once the http message is executed, this property holds the request message.
         /// </summary>
         public HttpRequestMessage ActualRequestMessage { get; private set; }
+        public Dictionary<string, string> ActualRequestPostData { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             ActualRequestMessage = request;
 
@@ -53,14 +55,17 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             if (uri.AbsoluteUri.Contains("/discovery/instance"))
 #endif
             {
-                ReplaceMockHttpMessageHandler(this);
-
-                var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                if (ReplaceMockHttpMessageHandler != null)
                 {
-                    Content = new StringContent(TestConstants.DiscoveryJsonResponse),
-                };
+                    ReplaceMockHttpMessageHandler(this);
 
-                return Task.FromResult(responseMessage);
+                    var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(TestConstants.DiscoveryJsonResponse),
+                    };
+
+                    return responseMessage;
+                }
             }
 
             if (!string.IsNullOrEmpty(ExpectedUrl))
@@ -78,10 +83,12 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             if (request.Method != HttpMethod.Get && request.Content != null)
             {
-                string postData = request.Content.ReadAsStringAsync().Result;
+                string postData = await request.Content.ReadAsStringAsync();
+                ActualRequestPostData = QueryStringParser.ParseKeyValueList(postData, '&', true, false);
+
             }
 
-            return Task.FromResult(ResponseMessage);
+            return ResponseMessage;
         }
     }
 }

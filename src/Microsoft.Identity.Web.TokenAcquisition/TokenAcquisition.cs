@@ -435,7 +435,8 @@ namespace Microsoft.Identity.Web
                             application.AppConfig.ClientCredentialCertificate,
                             tokenAcquisitionOptions.PopPublicKey!,
                             tokenAcquisitionOptions.PopClaim!,
-                            application.AppConfig.ClientId);
+                            application.AppConfig.ClientId,
+                            mergedOptions.SendX5C);
                     }
                 }
             }
