@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
@@ -19,7 +20,8 @@ namespace Microsoft.Identity.Web
             X509Certificate2 clientCertificate,
             string popPublicKey,
             string jwkClaim,
-            string clientId)
+            string clientId,
+            bool sendX5C)
         {
             _ = Throws.IfNull(popPublicKey);
             _ = Throws.IfNull(jwkClaim);
@@ -31,10 +33,12 @@ namespace Microsoft.Identity.Web
                      clientCertificate,
                      data.RequestUri.AbsoluteUri,
                      jwkClaim,
-                     clientId);
+                     clientId, 
+                     sendX5C);
 
                  data.BodyParameters.Remove("client_assertion");
                  data.BodyParameters.Add("request", signedAssertion);
+
                  return Task.CompletedTask;
              });
 
@@ -45,7 +49,8 @@ namespace Microsoft.Identity.Web
             X509Certificate2 certificate,
             string audience,
             string jwkClaim,
-            string clientId)
+            string clientId,
+            bool sendX5C)
         {
             // no need to add exp, nbf as JsonWebTokenHandler will add them by default
             var claims = new Dictionary<string, object>()
@@ -57,14 +62,26 @@ namespace Microsoft.Identity.Web
                 { "pop_jwk", jwkClaim }
             };
 
+            var signingCredentials = new X509SigningCredentials(certificate);
             var securityTokenDescriptor = new SecurityTokenDescriptor
-            {
+            { 
                 Claims = claims,
-                SigningCredentials = new X509SigningCredentials(certificate)
+                SigningCredentials = signingCredentials
             };
 
-            var handler = new JsonWebTokenHandler();
-            return handler.CreateToken(securityTokenDescriptor);
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityToken token = (JwtSecurityToken)tokenHandler.CreateToken(securityTokenDescriptor);
+
+            if (sendX5C)
+            {
+                string exportedCertificate = Convert.ToBase64String(certificate.Export(X509ContentType.Cert));
+                token.Header.Add(
+                    IdentityModel.JsonWebTokens.JwtHeaderParameterNames.X5c, 
+                    new List<string> { exportedCertificate });
+            }
+
+            string stringToken =  tokenHandler.WriteToken(token);
+            return stringToken;
         }
     }
 }
