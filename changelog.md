@@ -1,3 +1,10 @@
+2.21.0
+========
+- Updated to Microsoft.IdentityModel 7.7.0
+  
+### CVE package updates
+[CVE-2024-30105](https://github.com/advisories/GHSA-hh2w-p6rv-4g7w)
+  
 2.20.0
 =========
 - Updated to Microsoft.Identity.Abstractions 6.0.0 which adds one method to `IAuthorizationHeaderProvider`
