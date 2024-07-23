@@ -419,6 +419,8 @@ namespace Microsoft.Identity.Web
                 }
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.PopPublicKey))
                 {
+                    _logger.LogInformation("Regular SHR POP with server nonce configured");
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions.PopClaim))
                     {
                         builder.WithProofOfPosessionKeyId(tokenAcquisitionOptions.PopPublicKey, "pop");
@@ -431,6 +433,15 @@ namespace Microsoft.Identity.Web
                     }
                     else
                     {
+                        if (mergedOptions.SendX5C)
+                        {
+                            _logger.LogInformation("MSAuth POP configured with SN/I");
+                        }
+                        else
+                        {
+                            _logger.LogWarning("MSAuth POP configured with pinned certificate. This configuration is being deprecated.");
+                        }
+
                         builder.WithAtPop(
                             application.AppConfig.ClientCredentialCertificate,
                             tokenAcquisitionOptions.PopPublicKey!,

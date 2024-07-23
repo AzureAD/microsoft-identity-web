@@ -21,9 +21,9 @@ namespace Microsoft.Identity.Web.Test
         public async Task MsAuth10AtPop_WithAtPop_ShouldPopulateBuilderWithProofOfPosessionKeyIdAndOnBeforeTokenRequestTestAsync()
         {
             // Arrange
-            MockHttpClientFactory mockHttpClientFactory = new MockHttpClientFactory();
-            var httpTokenRequest = MockHttpCreator.CreateClientCredentialTokenHandler();
-            mockHttpClientFactory.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
+            using MockHttpClientFactory mockHttpClientFactory = new MockHttpClientFactory();
+            using var httpTokenRequest = MockHttpCreator.CreateClientCredentialTokenHandler();
+            //mockHttpClientFactory.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
             mockHttpClientFactory.AddMockHandler(httpTokenRequest);
 
             var certificateDescription = CertificateDescription.FromBase64Encoded(
