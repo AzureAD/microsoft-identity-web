@@ -1,3 +1,7 @@
+3.0.1
+=========
+- Updated to Microsoft.IdentityModel.* 8.0.1
+
 3.0.0
 =========
 ### CVE package updates
