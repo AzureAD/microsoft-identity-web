@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721435041206,
+  "lastUpdate": 1721694758204,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4932,6 +4932,42 @@ window.BENCHMARK_DATA = {
             "value": 10562.468672943116,
             "unit": "ns",
             "range": "± 67.95063682184048"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "449cbcb09a411bbc4910acf7e95f0d4c6d532bff",
+          "message": "M.IM to 8.01 (#2949)\n\n* M.IM to 8.01\r\n\r\n* Update changelog.md",
+          "timestamp": "2024-07-22T17:29:23-07:00",
+          "tree_id": "b450e3ddd113a026e37b12bfa90170a1d966359b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/449cbcb09a411bbc4910acf7e95f0d4c6d532bff"
+        },
+        "date": 1721694757051,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9650.948838097709,
+            "unit": "ns",
+            "range": "± 87.71176935934083"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10571.082765278063,
+            "unit": "ns",
+            "range": "± 64.69871216261862"
           }
         ]
       }
