@@ -69,19 +69,17 @@ namespace Microsoft.Identity.Web
                 SigningCredentials = signingCredentials
             };
 
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken token = (JwtSecurityToken)tokenHandler.CreateToken(securityTokenDescriptor);
-
             if (sendX5C)
             {
-                string exportedCertificate = Convert.ToBase64String(certificate.Export(X509ContentType.Cert));
-                token.Header.Add(
-                    IdentityModel.JsonWebTokens.JwtHeaderParameterNames.X5c, 
-                    new List<string> { exportedCertificate });
+                string x5cValue = Convert.ToBase64String(certificate.GetRawCertData());
+                securityTokenDescriptor.AdditionalHeaderClaims = 
+                    new Dictionary<string, object>() { { "x5c", new List<string> { x5cValue } } };
             }
+            
+            JsonWebTokenHandler tokenHandler = new JsonWebTokenHandler();
+            string token = tokenHandler.CreateToken(securityTokenDescriptor);
 
-            string stringToken =  tokenHandler.WriteToken(token);
-            return stringToken;
+            return token;
         }
     }
 }

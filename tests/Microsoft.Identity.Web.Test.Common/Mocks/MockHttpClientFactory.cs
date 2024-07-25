@@ -66,8 +66,6 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public HttpClient GetHttpClient()
         {
-          
-                
             HttpMessageHandler messageHandler;
 
             Assert.NotEmpty(_httpMessageHandlerQueue);
