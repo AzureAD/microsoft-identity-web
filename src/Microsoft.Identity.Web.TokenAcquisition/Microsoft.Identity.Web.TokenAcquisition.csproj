@@ -31,10 +31,6 @@
     <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractions)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <PackageReference Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />

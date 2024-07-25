@@ -1,3 +1,19 @@
+3.0.1
+=========
+- Updated to Microsoft.IdentityModel.* 8.0.1
+
+3.0.0
+=========
+### CVE package updates
+[CVE-2024-30105](https://github.com/advisories/GHSA-hh2w-p6rv-4g7w)
+- See PR [#2929](https://github.com/AzureAD/microsoft-identity-web/pull/2929) for details.
+
+- Updated to Microsoft.IdentityModel.* 8.0.0, Microsoft.Identity.Lab API 1.0.2, Microsoft.Identity.Abstractions 6.0.0
+- See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for full list of added features to 3.0.0.
+  
+### Fundamentals:
+- Update lab cert and lab version. See PR [#2923](https://github.com/AzureAD/microsoft-identity-web/pull/2923) for details.
+
 3.0.0-preview3
 =========
 - Updated to Microsoft.IdentityModel.* 8.0.0-preview3
@@ -11,8 +27,23 @@
 - Change GetSignedAssertion public API. See issue [#2853](https://github.com/AzureAD/microsoft-identity-web/issues/2853) for details.
 - Update to latest .NET 9 preview 4. See issue [#2877](https://github.com/AzureAD/microsoft-identity-web/pull/2877) for details.
 
-Pending Next Release
+3.0.0-preview1
 =========
+### Breaking changes
+- Remove netcoreapp3.1 support, see issue [#2262](https://github.com/AzureAD/microsoft-identity-web/issues/2262) for details.
+- Remove net5.0 support from Microsoft.Identity.Web.UI, see issue [#2711](https://github.com/AzureAD/microsoft-identity-web/issues/2711) for details.
+
+### New features
+- Microsoft.Identity.Web can be conditionally built on `.net9.0-preview`, see issue [#2702](https://github.com/AzureAD/microsoft-identity-web/issues/2702) for details.
+- Microsoft.Identity.Web nows processes the `AcceptHeader` and `ContentType` if provided, see issue [#2806](https://github.com/AzureAD/microsoft-identity-web/issues/2806) for details.
+- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
+
+========
+
+**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for full list of added features to 3.0.0**.
+  
+========
+
 2.19.0
 =========
 - Updated to Microsoft.IdentityModel.* 7.6.0

@@ -891,15 +891,15 @@ namespace Microsoft.Identity.Web
         /// <param name="subAssertion">The sub_assertion.</param>
         private static void CheckAssertionsForInjectionAttempt(string assertion, string subAssertion)
         {
-            if (!assertion.IsNullOrEmpty() || !subAssertion.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(assertion) || string.IsNullOrEmpty(subAssertion))
             {
 #if NETSTANDARD2_0 || NET462 || NET472
-                if (!assertion.IsNullOrEmpty() && assertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
+                if (string.IsNullOrEmpty(assertion) && assertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
+                if (string.IsNullOrEmpty(subAssertion) && subAssertion.Contains('&')) throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #else
-                if (!assertion.IsNullOrEmpty() && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                if (string.IsNullOrEmpty(assertion) && assertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
                     throw new ArgumentException(IDWebErrorMessage.InvalidAssertion, nameof(assertion));
-                if (!subAssertion.IsNullOrEmpty() && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
+                if (!string.IsNullOrEmpty(subAssertion) && subAssertion.Contains('&', StringComparison.InvariantCultureIgnoreCase))
                     throw new ArgumentException(IDWebErrorMessage.InvalidSubAssertion, nameof(subAssertion));
 #endif
             }
