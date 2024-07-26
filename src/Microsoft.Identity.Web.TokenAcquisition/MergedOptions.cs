@@ -436,11 +436,13 @@ namespace Microsoft.Identity.Web
                 ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
 
                 int indexTenant = authoritySpan.Slice(StartingIndex).IndexOf('/') + StartingIndex;
-                int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/') + indexTenant + 1;
-                int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion;
-
-                mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authoritySpan.Slice(0, indexTenant).ToString();
-                mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1).ToString();
+                if (indexTenant >= 0)
+                {
+                    int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/') + indexTenant + 1;
+                    int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion;
+                    mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authoritySpan.Slice(0, indexTenant).ToString();
+                    mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1).ToString();
+                }
             }
         }
 
