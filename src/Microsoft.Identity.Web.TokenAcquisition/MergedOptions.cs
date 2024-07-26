@@ -432,14 +432,15 @@ namespace Microsoft.Identity.Web
         {
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
-                string authority = mergedOptions.Authority!.TrimEnd('/');
-                int indexTenant = authority.LastIndexOf('/');
-                if (indexTenant >= 0)
-                {
-                    // In CIAM and B2C, customers will use "authority", not Instance and TenantId
-                    mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authority.Substring(0, indexTenant);
-                    mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authority.Substring(indexTenant + 1);
-                }
+                const int StartingIndex = 8; // length of "https://"
+                ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
+
+                int indexTenant = authoritySpan.Slice(StartingIndex).IndexOf('/') + StartingIndex;
+                int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/') + indexTenant + 1;
+                int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion;
+
+                mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authoritySpan.Slice(0, indexTenant).ToString();
+                mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1).ToString();
             }
         }
 
