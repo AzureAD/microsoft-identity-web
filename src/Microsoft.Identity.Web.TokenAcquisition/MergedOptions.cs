@@ -215,7 +215,7 @@ namespace Microsoft.Identity.Web
             mergedOptions.TimeProvider = microsoftIdentityOptions.TimeProvider;
 #endif
 #if NET9_0_OR_GREATER
-            if (microsoftIdentityOptions.AdditionalAuthorizationParameters != null)
+            if (microsoftIdentityOptions.AdditionalAuthorizationParameters is not null)
             {
                 foreach (var parameter in microsoftIdentityOptions.AdditionalAuthorizationParameters)
                 {
