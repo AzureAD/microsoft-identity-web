@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -12,13 +13,13 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+        private readonly bool _ignoreInstanceDiscovery;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public MockHttpMessageHandler()
+        public MockHttpMessageHandler(bool ignoreInstanceDiscovery = true)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-
+            _ignoreInstanceDiscovery = ignoreInstanceDiscovery;
         }
         public HttpResponseMessage ResponseMessage { get; set; }
 
@@ -32,9 +33,12 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         /// Once the http message is executed, this property holds the request message.
         /// </summary>
         public HttpRequestMessage ActualRequestMessage { get; private set; }
+        public Dictionary<string, string> ActualRequestPostData { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            var uri = request.RequestUri;
+
             ActualRequestMessage = request;
 
             if (ExceptionToThrow != null)
@@ -42,26 +46,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 throw ExceptionToThrow;
             }
 
-            var uri = request.RequestUri;
             Assert.NotNull(uri);
-
-            //Intercept instance discovery requests and serve a response. 
-            //Also, requeue the current mock handler for MSAL's next request.
-#if NET6_0_OR_GREATER
-            if (uri.AbsoluteUri.Contains("/discovery/instance", StringComparison.OrdinalIgnoreCase))
-#else
-            if (uri.AbsoluteUri.Contains("/discovery/instance"))
-#endif
-            {
-                ReplaceMockHttpMessageHandler(this);
-
-                var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(TestConstants.DiscoveryJsonResponse),
-                };
-
-                return Task.FromResult(responseMessage);
-            }
 
             if (!string.IsNullOrEmpty(ExpectedUrl))
             {
@@ -76,12 +61,17 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.Equal(ExpectedMethod, request.Method);
 
+
+
+
             if (request.Method != HttpMethod.Get && request.Content != null)
             {
-                string postData = request.Content.ReadAsStringAsync().Result;
+                string postData = await request.Content.ReadAsStringAsync();
+                ActualRequestPostData = QueryStringParser.ParseKeyValueList(postData, '&', true, false);
+
             }
 
-            return Task.FromResult(ResponseMessage);
+            return ResponseMessage;
         }
     }
 }
