@@ -8,6 +8,7 @@
       This package is specifically used for web applications, which sign-in users and call Microsoft Graph Beta, and for protected web APIs
       that call Microsoft Graph Beta.
     </Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   
   <ItemGroup>
@@ -17,6 +18,13 @@
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\MicrosoftGraphOptions.cs" Link="MicrosoftGraphOptions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionAuthenticationProvider.cs" Link="TokenAcquisitionAuthenticationProvider.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\TokenAcquisitionAuthenticationProviderOption.cs" Link="TokenAcquisitionAuthenticationProviderOption.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

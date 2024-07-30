@@ -5,7 +5,14 @@
     <Product>Microsoft Identity Web Token Cache</Product>
     <Description>This package bring token cache serializers for MSAL.NET confidential client applications.</Description>
     <ProjectGuid>{7885DFBB-0D20-4115-86E2-709C2E12253B}</ProjectGuid>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />

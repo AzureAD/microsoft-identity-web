@@ -4,7 +4,14 @@
     <Product>Microsoft Identity Web Certificate</Product>
     <Description>This package brings certificate management for MSAL.NET.</Description>
     <ProjectGuid>{1E0B96CD-FDBF-482C-996A-775F691D984E}</ProjectGuid>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="$(AzureSecurityKeyVaultSecretsVersion)" />
