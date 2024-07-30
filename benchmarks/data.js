@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721694758204,
+  "lastUpdate": 1722355798864,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -4968,6 +4968,42 @@ window.BENCHMARK_DATA = {
             "value": 10571.082765278063,
             "unit": "ns",
             "range": "± 64.69871216261862"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "21347303658e2836563c988df31a6dcd6af938ab",
+          "message": "Add X5C to MSAuth POP (#2950)\n\n* Fix MSAuth + x5c\r\n\r\n* Fix some tests\r\n\r\n* Fix MSAuth + x5c\r\n\r\n* Fix some tests\r\n\r\n* Address PR comments",
+          "timestamp": "2024-07-30T09:05:56-07:00",
+          "tree_id": "4c292c0434258276db0ad6d56de21546da13b768",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/21347303658e2836563c988df31a6dcd6af938ab"
+        },
+        "date": 1722355798115,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9882.222446374726,
+            "unit": "ns",
+            "range": "± 55.07192181497498"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10687.91481968142,
+            "unit": "ns",
+            "range": "± 38.142397695184556"
           }
         ]
       }
