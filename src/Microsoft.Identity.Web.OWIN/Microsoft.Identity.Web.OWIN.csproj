@@ -9,11 +9,19 @@
     </Description>
     <ProjectGuid>{2467D9A0-045B-4B45-8CCB-1AA229093F9F}</ProjectGuid>
     <TargetFrameworks>net472</TargetFrameworks>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>Microsoft.Identity.Web.OWIN.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />

@@ -10,7 +10,14 @@
     </Description>
     <ProjectGuid>{4DF02DF7-D092-4F45-8892-8A1D3E612706}</ProjectGuid>
     <PackageValidationBaselineVersion>2.12.2</PackageValidationBaselineVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph" Version="5.40.0" />
