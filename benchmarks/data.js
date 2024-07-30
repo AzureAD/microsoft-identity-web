@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1722355798864,
+  "lastUpdate": 1722358765614,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5004,6 +5004,42 @@ window.BENCHMARK_DATA = {
             "value": 10687.91481968142,
             "unit": "ns",
             "range": "± 38.142397695184556"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "53200638+localden@users.noreply.github.com",
+            "name": "Den Delimarsky",
+            "username": "localden"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e9d8a5c3021b788630b8ee98c64db334a1ecf5d7",
+          "message": "Update CSPROJ with README (#2956)\n\n* Update Microsoft.Identity.Web.csproj\r\n\r\n* Update Microsoft.Identity.Web.UI.csproj\r\n\r\n* README inclusion",
+          "timestamp": "2024-07-30T09:56:11-07:00",
+          "tree_id": "18d0b9ab40531a39acaa962992618cf4d61b692d",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e9d8a5c3021b788630b8ee98c64db334a1ecf5d7"
+        },
+        "date": 1722358764830,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9674.797109153054,
+            "unit": "ns",
+            "range": "± 108.22968404669237"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10631.752356167497,
+            "unit": "ns",
+            "range": "± 53.9007341683504"
           }
         ]
       }
