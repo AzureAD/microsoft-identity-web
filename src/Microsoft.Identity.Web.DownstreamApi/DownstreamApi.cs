@@ -169,6 +169,88 @@ namespace Microsoft.Identity.Web
             return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
+#if NET8_0_OR_GREATER
+        /// <inheritdoc/>
+        public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
+            string? serviceName,
+            TInput input,
+            JsonTypeInfo<TInput> inputJsonTypeInfo,
+            JsonTypeInfo<TOutput> outputJsonTypeInfo,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            ClaimsPrincipal? user = default,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
+                                                                          effectiveInput, user, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+
+            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> CallApiForUserAsync<TOutput>(
+            string serviceName,
+            JsonTypeInfo<TOutput> outputJsonTypeInfo,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            ClaimsPrincipal? user = default,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
+                                                                          null, user, cancellationToken).ConfigureAwait(false);
+            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
+            string? serviceName,
+            TInput input,
+            JsonTypeInfo<TInput> inputJsonTypeInfo,
+            JsonTypeInfo<TOutput> outputJsonTypeInfo,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
+                                                                          effectiveInput, null, cancellationToken).ConfigureAwait(false);
+
+            // Only dispose the HttpContent if was created here, not provided by the caller.
+            if (input is not HttpContent)
+            {
+                effectiveInput?.Dispose();
+            }
+
+            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task<TOutput?> CallApiForAppAsync<TOutput>(
+            string serviceName,
+            JsonTypeInfo<TOutput> outputJsonTypeInfo,
+            Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
+            CancellationToken cancellationToken = default)
+            where TOutput : class
+        {
+            DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
+            HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
+                                                                          null, null, cancellationToken).ConfigureAwait(false);
+
+            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+        }
+#endif
+
         /// <summary>
         /// Merge the options from configuration and override from caller.
         /// </summary>
@@ -370,7 +452,7 @@ namespace Microsoft.Identity.Web
                        effectiveOptions,
                        user,
                        cancellationToken).ConfigureAwait(false);
-                
+
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
             else
