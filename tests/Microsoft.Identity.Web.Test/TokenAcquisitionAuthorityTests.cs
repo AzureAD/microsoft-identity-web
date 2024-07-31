@@ -250,6 +250,22 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public void TestParseAuthorityIfNecessary_V2Authority()
+        {
+            MergedOptions mergedOptions = new()
+            {
+                Authority = TC.AuthorityWithTenantSpecifiedWithV2,
+                PreserveAuthority = false
+            };
+
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            Assert.Equal(TC.AuthorityWithTenantSpecifiedWithV2, mergedOptions.Authority);
+            Assert.Equal(TC.AadInstance, mergedOptions.Instance);
+            Assert.Equal(TC.TenantIdAsGuid, mergedOptions.TenantId);
+        }
+
+        [Fact]
         public void MergeExtraQueryParametersTest()
         {
             // Arrange
