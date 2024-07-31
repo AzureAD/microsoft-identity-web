@@ -302,7 +302,7 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
+        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo = null)
         {
             HttpContent? httpContent;
 
@@ -317,11 +317,17 @@ namespace Microsoft.Identity.Web
                 {
                     HttpContent content => content,
                     string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase) => new StringContent(str),
-                    string str => new StringContent(JsonSerializer.Serialize(str), Encoding.UTF8, "application/json"),
+                    string str => new StringContent(
+                        inputJsonTypeInfo == null ? JsonSerializer.Serialize(str) : JsonSerializer.Serialize(str, inputJsonTypeInfo),
+                        Encoding.UTF8,
+                        "application/json"),
                     byte[] bytes => new ByteArrayContent(bytes),
                     Stream stream => new StreamContent(stream),
                     null => null,
-                    _ => new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json"),
+                    _ => new StringContent(
+                        inputJsonTypeInfo == null ? JsonSerializer.Serialize(input) : JsonSerializer.Serialize(input, inputJsonTypeInfo),
+                        Encoding.UTF8,
+                        "application/json"),
                 };
             }
             return httpContent;
