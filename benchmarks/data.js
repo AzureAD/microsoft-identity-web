@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1722358765614,
+  "lastUpdate": 1722396337799,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5040,6 +5040,42 @@ window.BENCHMARK_DATA = {
             "value": 10631.752356167497,
             "unit": "ns",
             "range": "± 53.9007341683504"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "75868393+jackj-msft@users.noreply.github.com",
+            "name": "Jack Jiang",
+            "username": "jackj-msft"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0fdfc96216cb6828f462b85bca21842fc9664915",
+          "message": "Fix Instance/Tenant Parsing for V2 Authority (#2954)\n\n* Fix Tenant Parsing for V2 Authority\r\n\r\n* Consolidate line endings\r\n\r\n* Keep existing indexTenant check\r\n\r\n* Put back the comment\r\n\r\n* use 'is' syntax for null checking\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-07-30T20:22:18-07:00",
+          "tree_id": "4119eec4ea2904c653531f2ba0df9e2162f71a0e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/0fdfc96216cb6828f462b85bca21842fc9664915"
+        },
+        "date": 1722396337018,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9958.068553793019,
+            "unit": "ns",
+            "range": "± 128.42738612876775"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10681.252215853605,
+            "unit": "ns",
+            "range": "± 75.63756189813428"
           }
         ]
       }
