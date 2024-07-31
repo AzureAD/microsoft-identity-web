@@ -152,8 +152,13 @@ namespace Microsoft.Identity.Web
 
                 // Extract digits from first capturing group.
                 Match match = Regex.Match(userAgent, regex);
-                int version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
-                return version >= major;
+                if (!match.Success)
+                    return false;
+
+                if (int.TryParse(match.Groups[1].Value, out int version))
+                    return version >= major;
+
+                return false;
             }
 
             bool IsUcBrowser()
