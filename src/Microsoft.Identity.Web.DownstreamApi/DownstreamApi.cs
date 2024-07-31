@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -244,7 +245,7 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
+        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
              where TOutput : class
         {
             try
@@ -284,7 +285,14 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (outputJsonTypeInfo != null)
+                    {
+                        return JsonSerializer.Deserialize<TOutput>(stringContent, outputJsonTypeInfo);
+                    }
+                    else
+                    {
+                        return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    }
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
