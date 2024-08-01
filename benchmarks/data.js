@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1722396337799,
+  "lastUpdate": 1722541780047,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5076,6 +5076,42 @@ window.BENCHMARK_DATA = {
             "value": 10681.252215853605,
             "unit": "ns",
             "range": "± 75.63756189813428"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brentsch@microsoft.com",
+            "name": "BrentSchmaltz",
+            "username": "brentschmaltz"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a5969834f6b44acfa14db258d09409dd762e6733",
+          "message": "Check that regex succeeded and value is an integer. (#2958)\n\nCo-authored-by: id4s <user@contoso.com>",
+          "timestamp": "2024-08-01T12:46:15-07:00",
+          "tree_id": "c60db23ad03bf604696ddef53ac3154dcf3077aa",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a5969834f6b44acfa14db258d09409dd762e6733"
+        },
+        "date": 1722541778896,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9717.685411152086,
+            "unit": "ns",
+            "range": "± 86.23347315432741"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10560.352637699672,
+            "unit": "ns",
+            "range": "± 64.48530141794829"
           }
         ]
       }
