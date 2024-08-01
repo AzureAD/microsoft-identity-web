@@ -90,6 +90,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
+        [InlineData(false, "Dalvik / 2.1.0(Linux; U; Android 12; Chromecast Build / STTE.230319.008.H1)")]
         [InlineData(true, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
         [InlineData(true, "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1")]
         [InlineData(true, "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")]
