@@ -87,7 +87,8 @@
     <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
-    <MicrosoftIdentityAbstractions>6.0.0</MicrosoftIdentityAbstractions>
+    <!-- IdentityWeb v3.0.1 is not compatible with Abstractions v7; 6.0.0 ≤ version < 7.0.0 -->
+    <MicrosoftIdentityAbstractions>[6.0.0, 7.0.0)</MicrosoftIdentityAbstractions>
     <NetNineRuntimeVersion>9.0.0-preview.6.24327.7</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0-preview.6.24328.4</AspNetCoreNineRuntimeVersion>
     <!--CVE-2024-30105-->
