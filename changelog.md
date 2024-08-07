@@ -1,3 +1,11 @@
+========
+
+**See [rel/v2 branch changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.**
+
+**The changes listed in the rel/v2 changelog are also in the 3.x.x versions of Id Web but are not listed here.**
+
+========
+
 3.0.1
 =========
 - Updated to Microsoft.IdentityModel.* 8.0.1
@@ -37,13 +45,6 @@
 - Microsoft.Identity.Web can be conditionally built on `.net9.0-preview`, see issue [#2702](https://github.com/AzureAD/microsoft-identity-web/issues/2702) for details.
 - Microsoft.Identity.Web nows processes the `AcceptHeader` and `ContentType` if provided, see issue [#2806](https://github.com/AzureAD/microsoft-identity-web/issues/2806) for details.
 - Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
-
-========
-
-**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.**
-**The changes in the rel/v2 changelog are also in the 3.x.x versions of Id Web**
-  
-========
 
 2.18.1
 =========
