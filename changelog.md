@@ -40,43 +40,9 @@
 
 ========
 
-**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for full list of added features to 3.0.0**.
+**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.
   
 ========
-
-2.19.0
-=========
-- Updated to Microsoft.IdentityModel.* 7.6.0
-
-### New features
-- Id Web now provides a `.WithUser()` modifier to the Microsoft Graph queries (like `WithAppOnly()`). See issue [#2855](https://github.com/AzureAD/microsoft-identity-web/issues/2855) for details.
-- Id Web now provides a base class for implementing a custom `IAuthorizationHeaderProvider`. See issue [#2856](https://github.com/AzureAD/microsoft-identity-web/issues/2856) for details.
-
-### Bug Fixes
-- Id Web now processes the extra query parameters when included as part of the authority. See issue [#2697](https://github.com/AzureAD/microsoft-identity-web/issues/2697) for details.
-- If `Logging:LogLevel:Microsoft.Identity.Web` is assigned to `None`, no default logger is initialized and Microsoft.Identity.Web does not record any logs. See [#2816](https://github.com/AzureAD/microsoft-identity-web/pull/2816) for details. 
-- `GraphAuthenticationProvider` checks that the `RequestInformation.URI` is a Graph URI before appending the authorization header, resolving [#2710](https://github.com/AzureAD/microsoft-identity-web/issues/2710). See PR [#2818](https://github.com/AzureAD/microsoft-identity-web/pull/2818) for details.
-- `TokenAcquisition` processes the error code `AADSTS1000502 (The provided certificate is not within its specified validity window)`. See PR [#2840](https://github.com/AzureAD/microsoft-identity-web/pull/2840) for details.
-
-2.18.2
-=========
-### New feature
-- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details.
-
-### Bug fixes
-- Id Web now accepts an env var to disable interactive auth for `KeyVaultCertificateLoader`, see issue [#2647](https://github.com/AzureAD/microsoft-identity-web/issues/2647) for details.
-- Id Web token acquisition on ASP.NET Core 2.x on net472 or net48 implements `ITokenAquirerFactory`, see issue [#2849](https://github.com/AzureAD/microsoft-identity-web/issues/2849) for details.
-
-3.0.0-preview1
-=========
-### Breaking changes
-- Remove netcoreapp3.1 support, see issue [#2262](https://github.com/AzureAD/microsoft-identity-web/issues/2262) for details.
-- Remove net5.0 support from Microsoft.Identity.Web.UI, see issue [#2711](https://github.com/AzureAD/microsoft-identity-web/issues/2711) for details.
-
-### New features
-- Microsoft.Identity.Web can be conditionally built on `.net9.0-preview`, see issue [#2702](https://github.com/AzureAD/microsoft-identity-web/issues/2702) for details.
-- Microsoft.Identity.Web nows processes the `AcceptHeader` and `ContentType` if provided, see issue [#2806](https://github.com/AzureAD/microsoft-identity-web/issues/2806) for details.
-- Target Microsoft.IdentityModel 7x in OWIN targets, see issue [#2785](https://github.com/AzureAD/microsoft-identity-web/issues/2785) for details. 
 
 2.18.1
 =========
