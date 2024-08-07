@@ -40,7 +40,7 @@
 
 ========
 
-**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.
+**See [rel/v2 changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.**
   
 ========
 
