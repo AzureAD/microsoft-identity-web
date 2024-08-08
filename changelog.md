@@ -40,6 +40,7 @@
 
 ### Bug fixes
 - Id Web now processes the extra query parameters when included as part of the authority. See issue [#2697](https://github.com/AzureAD/microsoft-identity-web/issues/2697) for details.
+- `TokenAcquisition` processes the error code `AADSTS1000502 (The provided certificate is not within its specified validity window)`. See PR [#2840](https://github.com/AzureAD/microsoft-identity-web/pull/2840) for details.
 
 2.18.2
 =========
@@ -49,6 +50,12 @@
 ### Bug fixes
 - Id Web now accepts an env var to disable interactive auth for `KeyVaultCertificateLoader`, see issue [#2647](https://github.com/AzureAD/microsoft-identity-web/issues/2647) for details.
 - Id Web token acquisition on ASP.NET Core 2.x on net472 or net48 implements `ITokenAquirerFactory`, see issue [#2849](https://github.com/AzureAD/microsoft-identity-web/issues/2849) for details.
+
+========
+
+**All changes above this point are also included in the most recent 3.x version of the library**
+
+========
 
 2.18.1
 =========
