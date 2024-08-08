@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1722627544345,
+  "lastUpdate": 1723135706150,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5148,6 +5148,42 @@ window.BENCHMARK_DATA = {
             "value": 10677.298838516761,
             "unit": "ns",
             "range": "± 95.94779446287198"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "530c03bf031b2574aaa63465411459b6c0ed3bbe",
+          "message": "Removing 2.x versions post 3.0.0-preview1 (#2967)\n\n* Update changelog.md\r\n\r\n* Removing 2.x changes after the split to relv2\r\n\r\n* Update 3.0.0-preview2 bug fixes changelog.md",
+          "timestamp": "2024-08-08T09:45:13-07:00",
+          "tree_id": "7af511697aa1364a0234f5a29c7452894421ef20",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/530c03bf031b2574aaa63465411459b6c0ed3bbe"
+        },
+        "date": 1723135705001,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9772.935317993164,
+            "unit": "ns",
+            "range": "± 59.325602428413994"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10813.798549257475,
+            "unit": "ns",
+            "range": "± 72.49862630869366"
           }
         ]
       }
