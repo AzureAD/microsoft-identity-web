@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723135706150,
+  "lastUpdate": 1723135722407,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5184,6 +5184,42 @@ window.BENCHMARK_DATA = {
             "value": 10813.798549257475,
             "unit": "ns",
             "range": "± 72.49862630869366"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c7a38b35067ef9aae8b04a149ad9cc6b94bda583",
+          "message": "Lozensky/adding changelog content (#2970)\n\n* Update changelog.md",
+          "timestamp": "2024-08-08T09:45:31-07:00",
+          "tree_id": "3853159411a313454dbaf8daafd46f827f797daa",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/c7a38b35067ef9aae8b04a149ad9cc6b94bda583"
+        },
+        "date": 1723135721813,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9786.405733075058,
+            "unit": "ns",
+            "range": "± 85.13871920051878"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10605.000338061103,
+            "unit": "ns",
+            "range": "± 93.82854749575728"
           }
         ]
       }
