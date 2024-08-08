@@ -51,6 +51,12 @@
 - Id Web now accepts an env var to disable interactive auth for `KeyVaultCertificateLoader`, see issue [#2647](https://github.com/AzureAD/microsoft-identity-web/issues/2647) for details.
 - Id Web token acquisition on ASP.NET Core 2.x on net472 or net48 implements `ITokenAquirerFactory`, see issue [#2849](https://github.com/AzureAD/microsoft-identity-web/issues/2849) for details.
 
+========
+
+**All changes above this point are also included in the most recent 3.x version of the library**
+
+========
+
 2.18.1
 =========
 - Updated to Microsoft.IdentityModel.* 7.5.1
