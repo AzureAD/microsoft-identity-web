@@ -40,6 +40,7 @@
 
 ### Bug fixes
 - Id Web now processes the extra query parameters when included as part of the authority. See issue [#2697](https://github.com/AzureAD/microsoft-identity-web/issues/2697) for details.
+- `TokenAcquisition` processes the error code `AADSTS1000502 (The provided certificate is not within its specified validity window)`. See PR [#2840](https://github.com/AzureAD/microsoft-identity-web/pull/2840) for details.
 
 2.18.2
 =========
