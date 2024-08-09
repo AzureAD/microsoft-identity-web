@@ -13,13 +13,14 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
+        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+
         private readonly bool _ignoreInstanceDiscovery;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public MockHttpMessageHandler(bool ignoreInstanceDiscovery = true)
+        public MockHttpMessageHandler()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            _ignoreInstanceDiscovery = ignoreInstanceDiscovery;
         }
         public HttpResponseMessage ResponseMessage { get; set; }
 
@@ -48,6 +49,24 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.NotNull(uri);
 
+            //Intercept instance discovery requests and serve a response. 
+            //Also, requeue the current mock handler for MSAL's next request.
+#if NET6_0_OR_GREATER
+            if (uri.AbsoluteUri.Contains("/discovery/instance", StringComparison.OrdinalIgnoreCase))
+#else
+            if (uri.AbsoluteUri.Contains("/discovery/instance"))
+#endif
+            {
+                ReplaceMockHttpMessageHandler?.Invoke(this);
+
+                var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(TestConstants.DiscoveryJsonResponse),
+                };
+
+                return responseMessage;
+            }
+
             if (!string.IsNullOrEmpty(ExpectedUrl))
             {
                 Assert.Equal(
@@ -61,14 +80,10 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.Equal(ExpectedMethod, request.Method);
 
-
-
-
             if (request.Method != HttpMethod.Get && request.Content != null)
             {
                 string postData = await request.Content.ReadAsStringAsync();
                 ActualRequestPostData = QueryStringParser.ParseKeyValueList(postData, '&', true, false);
-
             }
 
             return ResponseMessage;

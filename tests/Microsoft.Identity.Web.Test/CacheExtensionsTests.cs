@@ -211,6 +211,9 @@ namespace Microsoft.Identity.Web.Test
             if (addTokenMock)
             {
                 mockHttp.AddMockHandler(tokenHandler);
+
+                //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
+                tokenHandler.ReplaceMockHttpMessageHandler = mockHttp.AddMockHandler;
             }
 
             var confidentialApp = ConfidentialClientApplicationBuilder
@@ -248,6 +251,7 @@ namespace Microsoft.Identity.Web.Test
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                 .ExecuteAsync().ConfigureAwait(false);
 
+            tokenHandler.ReplaceMockHttpMessageHandler = null!;
             return result;
         }
 
