@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723135722407,
+  "lastUpdate": 1723171227074,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5220,6 +5220,42 @@ window.BENCHMARK_DATA = {
             "value": 10605.000338061103,
             "unit": "ns",
             "range": "± 93.82854749575728"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ecd28dda8105c301580279745bd318de4d9e6790",
+          "message": "Revert some of the test changes introduces in #2950 (#2971)\n\nThe changes introduced test instability\r\n\r\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-08-08T19:36:42-07:00",
+          "tree_id": "b11e485818e455e0e377ad6082c7873f89edd397",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ecd28dda8105c301580279745bd318de4d9e6790"
+        },
+        "date": 1723171226576,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9787.690392511542,
+            "unit": "ns",
+            "range": "± 72.86342690960811"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10640.589410555565,
+            "unit": "ns",
+            "range": "± 43.67303554534486"
           }
         ]
       }
