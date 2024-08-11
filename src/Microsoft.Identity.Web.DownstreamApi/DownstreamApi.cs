@@ -550,13 +550,10 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                if (!effectiveOptions.AcquireTokenOptions.ExtraQueryParameters.ContainsKey("caller-sdk-id"))
-                {
-                    effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] =
-                        s_callerSDKDetails["caller-sdk-id"];
-                    effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
-                        s_callerSDKDetails["caller-sdk-ver"];
-                }
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] =
+                    s_callerSDKDetails["caller-sdk-id"];
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
+                    s_callerSDKDetails["caller-sdk-ver"];
             }
         }
     }
