@@ -7,6 +7,9 @@
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\Microsoft.Identity.Web.TokenAcquisition\IdHelper.cs" Link="IdHelper.cs" />
+	</ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
