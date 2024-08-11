@@ -144,7 +144,6 @@ namespace Microsoft.Identity.Web
 
         // Telemetry headers
         internal const string TelemetryHeaderKey = "x-client-brkrver";
-        internal const string IDWebSku = "IDWeb.";
 
         // Authorize for scopes attributes
         internal const string XReturnUrl = "x-ReturnUrl";

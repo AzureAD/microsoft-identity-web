@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -173,7 +174,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        internal /* for tests */ DownstreamApiOptions MergeOptions(
+        private /* for tests */ DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
             Action<DownstreamApiOptions>? calledApiOptionsOverride)
         {
@@ -199,7 +200,7 @@ namespace Microsoft.Identity.Web
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         /// <param name="httpMethod">Http method overriding the configuration options.</param>
-        internal /* for tests */ DownstreamApiOptions MergeOptions(
+        private DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
         {
@@ -295,7 +296,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal async Task<HttpResponseMessage> CallApiInternalAsync(
+        private async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
             DownstreamApiOptions effectiveOptions,
             bool appToken,
@@ -305,6 +306,7 @@ namespace Microsoft.Identity.Web
         {
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
+            AddCallerSDKTelemetry(effectiveOptions);
 
             // Create an HTTP request message
             using HttpRequestMessage httpRequestMessage = new(
@@ -362,7 +364,7 @@ namespace Microsoft.Identity.Web
                        effectiveOptions,
                        user,
                        cancellationToken).ConfigureAwait(false);
-                
+
                 httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
             }
             else
@@ -375,6 +377,31 @@ namespace Microsoft.Identity.Web
             }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+        }
+
+
+        private static readonly Dictionary<string, string> s_callerSDKDetails = new()
+          {
+              { "caller-sdk-id", "1" },  // 1 = Downstream API SDK ID
+              { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
+          };
+
+        private static void AddCallerSDKTelemetry(DownstreamApiOptions effectiveOptions)
+        {
+            if (effectiveOptions.AcquireTokenOptions.ExtraQueryParameters == null)
+            {
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters = s_callerSDKDetails;
+            }
+            else
+            {
+                if (!effectiveOptions.AcquireTokenOptions.ExtraQueryParameters.ContainsKey("caller-sdk-id"))
+                {
+                    effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] =
+                        s_callerSDKDetails["caller-sdk-id"];
+                    effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
+                        s_callerSDKDetails["caller-sdk-ver"];
+                }
+            }
         }
     }
 }
