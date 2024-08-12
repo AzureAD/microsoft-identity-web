@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723171227074,
+  "lastUpdate": 1723427001991,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5256,6 +5256,42 @@ window.BENCHMARK_DATA = {
             "value": 10640.589410555565,
             "unit": "ns",
             "range": "± 43.67303554534486"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ea9b0377b69cd6c6b45c3b6bc1765c554b3634f4",
+          "message": "Fix AT POP tests (#2972)\n\nUse existing pattern in cache extensions test in\r\nMsAuth10AtPopTests\r\n\r\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-08-11T18:39:56-07:00",
+          "tree_id": "8b7339930c248ff62333783f7c5f95df324ab8b0",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ea9b0377b69cd6c6b45c3b6bc1765c554b3634f4"
+        },
+        "date": 1723427001560,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9807.031446699662,
+            "unit": "ns",
+            "range": "± 76.04802877643228"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10678.63674721351,
+            "unit": "ns",
+            "range": "± 31.624539576353282"
           }
         ]
       }
