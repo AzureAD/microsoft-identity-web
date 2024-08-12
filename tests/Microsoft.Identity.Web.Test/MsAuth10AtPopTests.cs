@@ -26,6 +26,9 @@ namespace Microsoft.Identity.Web.Test
             //mockHttpClientFactory.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
             mockHttpClientFactory.AddMockHandler(httpTokenRequest);
 
+            //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
+            httpTokenRequest.ReplaceMockHttpMessageHandler = mockHttpClientFactory.AddMockHandler;
+
             var certificateDescription = CertificateDescription.FromBase64Encoded(
                 TestConstants.CertificateX5cWithPrivateKey,
                 TestConstants.CertificateX5cWithPrivateKeyPassword);
@@ -39,7 +42,6 @@ namespace Microsoft.Identity.Web.Test
                             .WithCertificate(certificateDescription.Certificate)
                             .WithHttpClientFactory(mockHttpClientFactory)
                             .Build();
-
 
             var popPublicKey = "pop_key";
             var jwkClaim = "jwk_claim";
