@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.Diagnostics
 {
     internal static class IdHelper
     {
@@ -37,13 +37,13 @@ namespace Microsoft.Identity.Web
            });
 
         public static string GetIdWebVersion()
-        {             
+        {
             return s_idWebVersion.Value;
         }
 
         public static string CreateTelemetryInfo()
         {
-            return string.Format(CultureInfo.InvariantCulture, IDWebSku + s_idWebVersion.Value);
+            return string.Format(CultureInfo.InvariantCulture, IDWebSku + GetIdWebVersion());
         }
     }
 }
