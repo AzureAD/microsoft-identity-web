@@ -17,4 +17,7 @@
     <BenchmarkDotNetDiagnosticsWindowsVersion>0.13.12</BenchmarkDotNetDiagnosticsWindowsVersion>
 	</PropertyGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\BannedSymbols.txt" />
+  </ItemGroup>
 </Project>

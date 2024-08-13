@@ -138,6 +138,9 @@ csharp_space_between_square_brackets = false
 
 # Id Web Rules
 
+# RS0030: Do not used banned APIs
+dotnet_diagnostic.RS0030.severity = error
+
 # CA1000: Do not declare static members on generic types
 dotnet_diagnostic.CA1000.severity = error
 
