@@ -175,7 +175,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
-        private /* for tests */ DownstreamApiOptions MergeOptions(
+        internal /* for tests */ DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
             Action<DownstreamApiOptions>? calledApiOptionsOverride)
         {
@@ -201,7 +201,7 @@ namespace Microsoft.Identity.Web
         /// <param name="optionsInstanceName">Named configuration.</param>
         /// <param name="calledApiOptionsOverride">Delegate to override the configuration.</param>
         /// <param name="httpMethod">Http method overriding the configuration options.</param>
-        private DownstreamApiOptions MergeOptions(
+        internal /* for tests */ DownstreamApiOptions MergeOptions(
             string? optionsInstanceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? calledApiOptionsOverride, HttpMethod httpMethod)
         {
@@ -297,7 +297,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<HttpResponseMessage> CallApiInternalAsync(
+        internal /* for tests */ async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
             DownstreamApiOptions effectiveOptions,
             bool appToken,
