@@ -430,6 +430,53 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result));
         }
 
+        //[OnlyOnAzureDevopsFact]
+        [Fact]
+        public async Task AcquireTokenWithManagedIdentity_UserAssigned_NoInstance()
+        {
+            // Arrange
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+            
+
+
+            //TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+
+            services
+                .AddTokenAcquisition(true)
+                .AddInMemoryTokenCaches()
+                .AddHttpClient();
+
+            services.AddDownstreamApi("test", configure =>
+            {
+                configure.BaseUrl = "https://myapi.com";
+                configure.RequestAppToken = true;
+                configure.AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions
+                    {
+                        UserAssignedClientId = null
+                    }
+                };
+                configure.Scopes = ["api://<guid>/.default"];
+            });
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+
+            var _downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();
+            var response = await _downstreamApi.CallApiForAppAsync("test", options => options.RelativePath = "api/v1/test");
+            // Act: Get the authorization header provider and add the options to tell it to use Managed Identity
+            IAuthorizationHeaderProvider? api = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.NotNull(api);
+            //string result = await api.CreateAuthorizationHeaderForAppAsync(scope, GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
+
+            // Assert: Make sure we got a token
+            //Assert.False(string.IsNullOrEmpty(result));
+
+            //result = await api.downstreamApi.CallApiForAppAsync([scope], GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
+            //Assert.False(string.IsNullOrEmpty(result));
+        }
+
         private static AuthorizationHeaderProviderOptions GetAuthHeaderOptions_ManagedId(string baseUrl, string? userAssignedClientId = null)
         {
             ManagedIdentityOptions managedIdentityOptions = new()
