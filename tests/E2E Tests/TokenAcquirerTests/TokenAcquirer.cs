@@ -20,7 +20,7 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
-//#if !FROM_GITHUB_ACTION
+#if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
@@ -494,5 +494,5 @@ namespace TokenAcquirerTests
             };
         }
     }
-//#endif //FROM_GITHUB_ACTION
+#endif //FROM_GITHUB_ACTION
 }
