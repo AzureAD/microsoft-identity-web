@@ -17,7 +17,7 @@ steps:
     command: 'custom'
     custom: 'build'
     projects: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
-    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
 # The previous task does the restore
@@ -28,7 +28,7 @@ steps:
     command: custom
     custom: msbuild
     project: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
-    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MsIdentityWebSemVer=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
+    arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MicrosoftIdentityWebVersion=${{ parameters.MsIdentityWebSemVer }} -p:SourceLinkCreate=true'
 
 # Run the dotnet daemon app
 # This requires that the build machine has a user assigned managed identity that can access the KeyVault.

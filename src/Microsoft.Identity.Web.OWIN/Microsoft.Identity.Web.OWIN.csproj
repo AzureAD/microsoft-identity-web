@@ -26,9 +26,9 @@
    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />
     <PackageReference Include="Microsoft.Graph" Version="$(MicrosoftGraphVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(MicrosoftIdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(MicrosoftIdentityModelVersion)" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
