@@ -46,7 +46,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
     }
 
-    [Theory]
+    [Theory(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2982")]
     [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
     [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
     [SupportedOSPlatform("windows")]
@@ -70,7 +70,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         Process? process = null;
         string TraceFileName = traceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = false });
         IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
