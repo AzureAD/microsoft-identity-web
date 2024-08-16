@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723675838331,
+  "lastUpdate": 1723766567125,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5328,6 +5328,42 @@ window.BENCHMARK_DATA = {
             "value": 10686.147139967534,
             "unit": "ns",
             "range": "± 62.96612047655717"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "785ccec84dcf55d4489837cbb5e1c67a80e83424",
+          "message": "Updating AzureKeyVault task to version 2 (#2981)",
+          "timestamp": "2024-08-15T16:59:30-07:00",
+          "tree_id": "e19aeedb7d455b4c0c87c6c3df40fb3f1f09973b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/785ccec84dcf55d4489837cbb5e1c67a80e83424"
+        },
+        "date": 1723766566401,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9694.52864074707,
+            "unit": "ns",
+            "range": "± 135.52631347971922"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10477.13516290838,
+            "unit": "ns",
+            "range": "± 60.78098488461005"
           }
         ]
       }
