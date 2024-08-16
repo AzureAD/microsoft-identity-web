@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723766567125,
+  "lastUpdate": 1723767266408,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5364,6 +5364,42 @@ window.BENCHMARK_DATA = {
             "value": 10477.13516290838,
             "unit": "ns",
             "range": "± 60.78098488461005"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fc42cec5913d7584ec15ed1dec33c10115ea1dbe",
+          "message": "[test] updates for one build (#2974)\n\n* updates for one build\r\n\r\n* Update NuGet.Config\r\n\r\n* use MicrosoftIdentityWebVersion",
+          "timestamp": "2024-08-15T17:11:12-07:00",
+          "tree_id": "1c77ad373be61e4839c438243facbc5e5112e95c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/fc42cec5913d7584ec15ed1dec33c10115ea1dbe"
+        },
+        "date": 1723767265691,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9642.033038330079,
+            "unit": "ns",
+            "range": "± 82.30659883497027"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10477.968244240501,
+            "unit": "ns",
+            "range": "± 68.95406376592483"
           }
         ]
       }
