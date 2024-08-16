@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723767266408,
+  "lastUpdate": 1723828066635,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5400,6 +5400,42 @@ window.BENCHMARK_DATA = {
             "value": 10477.968244240501,
             "unit": "ns",
             "range": "± 68.95406376592483"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "Keegan.Caruso@microsoft.com",
+            "name": "Keegan Caruso",
+            "username": "keegan-caruso"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "17f0078ceffa267fe3c282a8b83cb51127669c7b",
+          "message": "Disable ciam test (#2983)\n\nCo-authored-by: Keegan Caruso <keegancaruso@microsoft.com>",
+          "timestamp": "2024-08-16T10:03:58-07:00",
+          "tree_id": "4ef815d88a1610740c8412110c8e25f77d95efd4",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/17f0078ceffa267fe3c282a8b83cb51127669c7b"
+        },
+        "date": 1723828065924,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9890.05512224164,
+            "unit": "ns",
+            "range": "± 84.77241057393526"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10559.244304384503,
+            "unit": "ns",
+            "range": "± 70.61043693155459"
           }
         ]
       }
