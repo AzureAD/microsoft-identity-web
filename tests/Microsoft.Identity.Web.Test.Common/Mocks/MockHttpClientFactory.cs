@@ -17,26 +17,6 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     /// </summary>
     public class MockHttpClientFactory : IMsalHttpClientFactory, IDisposable
     {
-        // MSAL will statically cache instance discovery, so we need to add 
-        private static bool s_instanceDiscoveryAdded = false;
-        private static object s_instanceDiscoveryLock = new object();
-
-        public MockHttpClientFactory()
-        {
-            // Auto-add instance discovery call, but only once per process
-            if (!s_instanceDiscoveryAdded)
-            {
-                lock (s_instanceDiscoveryLock)
-                {
-                    if (!s_instanceDiscoveryAdded)
-                    {
-                        _httpMessageHandlerQueue.Enqueue(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
-                        s_instanceDiscoveryAdded = true;
-                    }
-                }
-            }
-        }
-
         /// <inheritdoc />
         public void Dispose()
         {
@@ -66,8 +46,6 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public HttpClient GetHttpClient()
         {
-          
-                
             HttpMessageHandler messageHandler;
 
             Assert.NotEmpty(_httpMessageHandlerQueue);
