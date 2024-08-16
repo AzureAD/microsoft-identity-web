@@ -414,19 +414,22 @@ namespace TokenAcquirerTests
             // Arrange
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
-            const string clientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+            const string userAssignedClientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.ServiceProvider ?? tokenAcquirerFactory.Build();
 
             // Act: Get the authorization header provider and add the options to tell it to use Managed Identity
             IAuthorizationHeaderProvider? api = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             Assert.NotNull(api);
-            string result = await api.CreateAuthorizationHeaderForAppAsync(scope, GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
+            string result = await api.CreateAuthorizationHeaderForAppAsync(
+                scope, GetAuthHeaderOptions_ManagedId(baseUrl, userAssignedClientId)
+                );
 
             // Assert: Make sure we got a token
             Assert.False(string.IsNullOrEmpty(result));
 
-            result = await api.CreateAuthorizationHeaderAsync([scope], GetAuthHeaderOptions_ManagedId(baseUrl, clientId));
+            result = await api.CreateAuthorizationHeaderAsync([scope], GetAuthHeaderOptions_ManagedId(baseUrl, userAssignedClientId));
             Assert.False(string.IsNullOrEmpty(result));
         }
 
@@ -435,12 +438,10 @@ namespace TokenAcquirerTests
         public async Task AcquireTokenWithManagedIdentity_UserAssigned_NoInstance()
         {
             // Arrange
+            const string userAssignedClientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
-            
-
-
-            //TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
 
             services
                 .AddTokenAcquisition(true)
@@ -455,7 +456,7 @@ namespace TokenAcquirerTests
                 {
                     ManagedIdentity = new ManagedIdentityOptions
                     {
-                        UserAssignedClientId = null
+                        UserAssignedClientId = userAssignedClientId
                     }
                 };
                 configure.Scopes = ["api://<guid>/.default"];
