@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724020287250,
+  "lastUpdate": 1724020905573,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5544,6 +5544,42 @@ window.BENCHMARK_DATA = {
             "value": 10454.495949223356,
             "unit": "ns",
             "range": "± 73.06244638071595"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7889d56e28cab9640fbdbf70492983095f098369",
+          "message": "Jennyf/fix slice (#2988)\n\n* fix CIAM bug and reenable tests\r\n\r\n* only enable one test",
+          "timestamp": "2024-08-18T15:38:32-07:00",
+          "tree_id": "0232ce864c2ea32d175debbda4f966fdbce0678a",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/7889d56e28cab9640fbdbf70492983095f098369"
+        },
+        "date": 1724020905013,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9673.679353821952,
+            "unit": "ns",
+            "range": "± 50.542476731945435"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10448.693394524711,
+            "unit": "ns",
+            "range": "± 44.58352597108328"
           }
         ]
       }
