@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1723828066635,
+  "lastUpdate": 1723948473293,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5436,6 +5436,42 @@ window.BENCHMARK_DATA = {
             "value": 10559.244304384503,
             "unit": "ns",
             "range": "± 70.61043693155459"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cbd131ddf57254ab26921b80e4d7e5b8a3043ba0",
+          "message": "Ensure that SimulateOidc is built before IntegrationTests (that use it) (#2984)",
+          "timestamp": "2024-08-17T19:31:15-07:00",
+          "tree_id": "e74e39ff711a97736efef0f72e0285b523556b9f",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/cbd131ddf57254ab26921b80e4d7e5b8a3043ba0"
+        },
+        "date": 1723948472106,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9668.697127186168,
+            "unit": "ns",
+            "range": "± 103.96805168664648"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10487.608755011308,
+            "unit": "ns",
+            "range": "± 75.66934374294458"
           }
         ]
       }
