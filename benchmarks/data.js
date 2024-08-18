@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724014781627,
+  "lastUpdate": 1724020287250,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5508,6 +5508,42 @@ window.BENCHMARK_DATA = {
             "value": 10568.830985768636,
             "unit": "ns",
             "range": "± 65.7036930243595"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "60b96dc6dbdbd3751e5dd7665872530c419b3dd2",
+          "message": "remove grpc in E2E test (#2986)",
+          "timestamp": "2024-08-18T15:28:10-07:00",
+          "tree_id": "90b789f0493994cfea0f00f2e8460f587dec9ce5",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/60b96dc6dbdbd3751e5dd7665872530c419b3dd2"
+        },
+        "date": 1724020286523,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9752.793489213424,
+            "unit": "ns",
+            "range": "± 88.07819336733967"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10454.495949223356,
+            "unit": "ns",
+            "range": "± 73.06244638071595"
           }
         ]
       }
