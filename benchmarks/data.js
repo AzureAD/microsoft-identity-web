@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724020905573,
+  "lastUpdate": 1724023657593,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5580,6 +5580,42 @@ window.BENCHMARK_DATA = {
             "value": 10448.693394524711,
             "unit": "ns",
             "range": "± 44.58352597108328"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "287c8e6afbc54b7beb361ddfab5ff1b008a1174c",
+          "message": "reenable other ciam test (#2989)\n\n* reenable other ciam test\r\n\r\n* remove commented theory data",
+          "timestamp": "2024-08-18T16:24:24-07:00",
+          "tree_id": "40d5b65eb3aab360b88bc4759801f63901fa498c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/287c8e6afbc54b7beb361ddfab5ff1b008a1174c"
+        },
+        "date": 1724023656793,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9593.237704524288,
+            "unit": "ns",
+            "range": "± 83.4425676564609"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10438.30414554051,
+            "unit": "ns",
+            "range": "± 56.96851656821194"
           }
         ]
       }
