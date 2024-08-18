@@ -1,6 +1,6 @@
-echo "Ensure ClientSemVer"
-if "%ClientSemVer%" == "" (
-set ClientSemVer=2.12.4
+echo "Ensure MicrosoftIdentityWebVersion"
+if "%MicrosoftIdentityWebVersion%" == "" (
+set MicrosoftIdentityWebVersion=2.12.4
 )
 
 REM: This is to test Microsoft.Identity.Web templates
@@ -8,7 +8,7 @@ Set TemplateNugetPackageName="Microsoft.Identity.Web.ProjectTemplates"
 Set templatePostFix=2
 
 REM: Uncomment the 3 following lines to test ASP.NET Core SDK templates
-REM ClientSemVer="5.0.5.0.0-ci"
+REM MicrosoftIdentityWebVersion="5.0.5.0.0-ci"
 REM TemplateNugetPackageName="Microsoft.DotNet.Web.ProjectTemplates"
 REM Set templatePostFix=
 
@@ -19,7 +19,7 @@ echo "Build and Install templates"
 cd bin
 cd Debug
 dotnet new -u %TemplateNugetPackageName%
-dotnet new -i %TemplateNugetPackageName%::%ClientSemVer%
+dotnet new -i %TemplateNugetPackageName%::%MicrosoftIdentityWebVersion%
 
 echo "Test templates"
 mkdir tests
