@@ -46,7 +46,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
     }
 
-    [Theory(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2982")]
+    // [Theory(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2982")]
+    [Theory]
     [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
     [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
     [SupportedOSPlatform("windows")]

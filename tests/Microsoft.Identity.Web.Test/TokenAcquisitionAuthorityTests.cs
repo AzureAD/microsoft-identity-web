@@ -238,15 +238,31 @@ namespace Microsoft.Identity.Web.Test
         {
             MergedOptions mergedOptions = new()
             {
-                Authority = TC.CIAMAuthority,
+                Authority = TC.CIAMAuthorityV2,
                 PreserveAuthority = true
             };
 
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
 
-            Assert.Equal(TC.CIAMAuthority, mergedOptions.Authority);
-            Assert.Equal(TC.CIAMAuthority, mergedOptions.Instance);
+            Assert.Equal(TC.CIAMAuthorityV2, mergedOptions.Authority);
+            Assert.Equal(TC.CIAMAuthorityV2, mergedOptions.Instance);
             Assert.Null(mergedOptions.TenantId);
+        }
+
+        [Fact]
+        public void TestParseAuthority_PreserveAuthorityFalse_CIAM()
+        {
+            MergedOptions mergedOptions = new()
+            {
+                Authority = TC.CIAMAuthority,
+                PreserveAuthority = false
+            };
+
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            Assert.Equal(TC.CIAMAuthority, mergedOptions.Authority);
+            Assert.Equal(TC.CIAMInstance, mergedOptions.Instance);
+            Assert.Equal(TC.CIAMTenant, mergedOptions.TenantId);
         }
 
         [Fact]

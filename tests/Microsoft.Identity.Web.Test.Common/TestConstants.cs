@@ -84,7 +84,8 @@ namespace Microsoft.Identity.Web.Test.Common
         // CIAM
         public const string CIAMInstance = "https://catsareawesome.ciamlogin.com";
         public const string CIAMTenant = "aaaaaa-43bb-4ff9-89af-30ed8fe31c6d";
-        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+        public const string CIAMAuthorityV2 = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant;
 
         // Claims
         public const string ClaimNameTid = "tid";
