@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724023657593,
+  "lastUpdate": 1724028245572,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5616,6 +5616,42 @@ window.BENCHMARK_DATA = {
             "value": 10438.30414554051,
             "unit": "ns",
             "range": "± 56.96851656821194"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "23f6d949e76f6acc08fd575ac6f35be8ac9b6f12",
+          "message": "Jennyf/client sem ver (#2990)\n\n* remove clientSemver for MicrosoftIdentityWebVersion\r\n\r\n* replace a few more with MicrosoftIdentityWebVersion",
+          "timestamp": "2024-08-18T17:40:48-07:00",
+          "tree_id": "5ad203af12b1e3f9496d7816cc5d2790753ca69b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/23f6d949e76f6acc08fd575ac6f35be8ac9b6f12"
+        },
+        "date": 1724028244980,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9886.640812266956,
+            "unit": "ns",
+            "range": "± 74.43007685828881"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10711.75810595921,
+            "unit": "ns",
+            "range": "± 65.34495690511899"
           }
         ]
       }
