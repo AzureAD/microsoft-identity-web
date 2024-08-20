@@ -3,7 +3,7 @@
 parameters:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'release'
-  MsIdentityWebSemVer: '1.0.0-internal$(Build.BuildNumber)'
+  MicrosoftIdentityWebVersion: '1.0.0-internal$(Build.BuildNumber)'
 
 steps:
  
@@ -15,7 +15,7 @@ steps:
   parameters:
     BuildPlatform: '$(BuildPlatform)'
     BuildConfiguration: '$(BuildConfiguration)'
-    MsIdentityWebSemVer: $(MsIdentityWebSemVer)
+    MicrosoftIdentityWebVersion: $(MicrosoftIdentityWebVersion)
  
 # Pack and sign all of the nuget packages
 - template: template-pack-and-sign-all-nugets.yaml

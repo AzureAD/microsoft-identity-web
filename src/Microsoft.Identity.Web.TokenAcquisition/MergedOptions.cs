@@ -438,8 +438,8 @@ namespace Microsoft.Identity.Web
                 int indexTenant = authoritySpan.Slice(StartingIndex).IndexOf('/') + StartingIndex;
                 if (indexTenant >= 0)
                 {
-                    int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/') + indexTenant + 1;
-                    int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion;
+                    int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/');
+                    int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion + indexTenant + 1;
 
                     // In CIAM and B2C, customers will use "authority", not Instance and TenantId
                     mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authoritySpan.Slice(0, indexTenant).ToString();

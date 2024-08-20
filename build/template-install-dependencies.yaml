@@ -37,7 +37,7 @@ steps:
 
 # Install all secrets needed from KeyVault onto the build machine.
 
-- task: AzureKeyVault@1
+- task: AzureKeyVault@2
   displayName: 'Azure Key Vault: msidlabs'
   inputs:
     azureSubscription: 'AuthSdkResourceManager'

@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <ClientSemVer Condition="'$(ClientSemVer)' == ''">2.12.4</ClientSemVer>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">2.12.4</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
-    <PackageVersion>$(ClientSemVer)</PackageVersion>
+    <PackageVersion>$(MicrosoftIdentityWebVersion)</PackageVersion>
 
     <PackageType>Template</PackageType>
     <PackageId>Microsoft.Identity.Web.ProjectTemplates</PackageId>

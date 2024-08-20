@@ -9,7 +9,7 @@
 
 In this article you will:
 
-- Configure the version of the templates to test by setting the ClientSemVer environment variable.
+- Configure the version of the templates to test by setting the MicrosoftIdentityWebVersion environment variable.
 - Run a script that will:
   - Generate C# projects corresponding to all the templates in various configurations (no auth, single-org, single-org calling graph, single-org calling web API, Individual B2C, Individual B2C calling web API (for the web API and the Blazorwasm hosted templates, as B2C does not support OBO)).
   - Configure the projects with existing Azure AD and B2C apps and client secrets. This is done by a configuration file named `configuration.json`. You will need to add the client secrets (see below).
@@ -34,7 +34,7 @@ In a Developer Command Prompt:
 
 3. Set the version of the templates to test.
 
-   `Set ClientSemVer=2.4.0`
+   `Set MicrosoftIdentityWebVersion=2.4.0`
 
 4. In ProjectTemplates open the Configuration.json file and add the client secrets (or your own config file) .
 
@@ -50,8 +50,8 @@ In a Developer Command Prompt:
 
 6. Copy the NuGet package containing the templates (Microsoft.Identity.Web.ProjectTemplates.version.nupkg) downloaded from the release build and paste it under the `ProjectTemplates\bin\Debug` folder of the repo.
 
-    The version should be the same as the value of `ClientSemVer` you set earlier. Also, if you downloaded the `Packages.zip` file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: 
-    `copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg" ProjectTemplates\bin\Debug`
+    The version should be the same as the value of `MicrosoftIdentityWebVersion` you set earlier. Also, if you downloaded the `Packages.zip` file from the  AzureDevOps build and saved it in your Downloads folder before unzipping it, you could run the following command: 
+    `copy "%UserProfile%\Downloads\Packages\Packages\Microsoft.Identity.Web.ProjectTemplates.%MicrosoftIdentityWebVersion%.nupkg" ProjectTemplates\bin\Debug`
 
 7. Go to the ProjectTemplates folder `cd ProjectTemplates`
 
@@ -59,7 +59,7 @@ In a Developer Command Prompt:
 
     `copy nuget.config.release-build nuget.config`
 
-9. From ProjectTemplates folder, run the `Test-templates.bat` script with an argument to tell the script to pick-up the existing `Microsoft.Identity.Web.ProjectTemplates.%ClientSemVer%.nupkg` file instead of regenerating it.
+9. From ProjectTemplates folder, run the `Test-templates.bat` script with an argument to tell the script to pick-up the existing `Microsoft.Identity.Web.ProjectTemplates.%MicrosoftIdentityWebVersion%.nupkg` file instead of regenerating it.
 
     `Test-templates.bat DontGenerate`
     
@@ -73,7 +73,7 @@ In a Developer Command Prompt:
 
 2. Set the version of the templates to test.
 
-   `Set ClientSemVer=2.4.0`
+   `Set MicrosoftIdentityWebVersion=2.4.0`
 
 3. Add client secrets to the `ProjectTemplates\Configuration.json` file
 
