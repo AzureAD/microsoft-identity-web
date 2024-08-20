@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -185,11 +186,24 @@ namespace Microsoft.Identity.Web
                 JsonWebToken jsonWebToken = new JsonWebToken(idToken);
                 bool isAadV1Token = jsonWebToken.Claims
                     .Any(c => c.Type == Constants.Version && c.Value == Constants.V1);
-                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
-                    jsonWebToken.Claims,
-                    idp,
-                    isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
-                    ClaimConstants.Roles));
+                if (AppContextSwitches.UseClaimsIdentityType)
+                {
+#pragma warning disable RS0030 // Do not use banned APIs
+                    claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+                        jsonWebToken.Claims,
+                        idp,
+                        isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
+                        ClaimConstants.Roles));
+#pragma warning restore RS0030 // Do not use banned APIs
+                }
+                else
+                {
+                    claimsPrincipal = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(
+                        jsonWebToken.Claims,
+                        idp,
+                        isAadV1Token ? Constants.NameClaim : Constants.PreferredUserName,
+                        ClaimConstants.Roles));
+                }
             }
             else
             {
