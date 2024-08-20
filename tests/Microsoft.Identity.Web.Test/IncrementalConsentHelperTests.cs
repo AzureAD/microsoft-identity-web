@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -44,7 +45,7 @@ namespace Microsoft.Identity.Web.Test
             AuthenticationProperties authProperties = IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                 null,
                 new MsalUiRequiredException(MsalError.UserNullError, MsalError.InvalidGrantError),
-                new ClaimsPrincipal(new ClaimsIdentity(
+                new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(
                     new Claim[]
                     {
                         new Claim(ClaimsIdentity.DefaultNameClaimType, "cat"),
@@ -70,7 +71,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Throws<ArgumentNullException>(() => IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(
                 null,
                 null!,
-                new ClaimsPrincipal(new ClaimsIdentity(null, "Basic")),
+                new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(null, "Basic")),
                 null));
         }
     }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
@@ -42,7 +43,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 withConfig);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(claimType, AppPermission) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, AppPermission) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -68,7 +69,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 withConfig);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(claimType, MultipleAppPermissions) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, MultipleAppPermissions) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -87,7 +88,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 null);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, "access_as_app2") }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, "access_as_app2") }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -106,7 +107,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 null);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -125,7 +126,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 null);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName)).ConfigureAwait(false);
@@ -142,7 +143,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 Scope);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission), new Claim(ClaimConstants.Scp, Scope) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission), new Claim(ClaimConstants.Scp, Scope) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
