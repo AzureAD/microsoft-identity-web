@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724028245572,
+  "lastUpdate": 1724207523410,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5652,6 +5652,42 @@ window.BENCHMARK_DATA = {
             "value": 10711.75810595921,
             "unit": "ns",
             "range": "± 65.34495690511899"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "38921563+FuPingFranco@users.noreply.github.com",
+            "name": "Franco Fung",
+            "username": "FuPingFranco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fcd715e8a48d993034958843e42d177695564e39",
+          "message": "Fix Id Web build (#2991)\n\nCo-authored-by: Franco Fung <francofung@microsoft.com>",
+          "timestamp": "2024-08-20T19:28:49-07:00",
+          "tree_id": "add73df23f195fb58bbce774e37508a823300a3d",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/fcd715e8a48d993034958843e42d177695564e39"
+        },
+        "date": 1724207522840,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9765.743903831199,
+            "unit": "ns",
+            "range": "± 97.29292473130928"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10464.936694178088,
+            "unit": "ns",
+            "range": "± 56.68928407026426"
           }
         ]
       }
