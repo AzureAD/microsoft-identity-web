@@ -1,3 +1,23 @@
+3.1.0
+=========
+- Updated to Microsoft.IdentityModel.* 8.0.2
+
+### Security improvement:
+- Id Web now uses `CaseSensitiveClaimsIdentity` by default and provides AppContextSwitches to fallback to using `ClaimsIdentity`. See PR [#2977](https://github.com/AzureAD/microsoft-identity-web/pull/2977) for details.
+
+### Bug fixes:
+- For SN/I scenarios, Id Web's `GetTokenAcquirer` now sets `SendX5C`. See issue [#2887](https://github.com/AzureAD/microsoft-identity-web/issues/2887) for details.
+- Fix for Instance/Tenant parsing for V2 authority. See PR [#2954](https://github.com/AzureAD/microsoft-identity-web/issues/2954) for details.
+- Fix a format exception: `The input string " was not in a correct format` due to incorrect regex. See issue [#2879](https://github.com/AzureAD/microsoft-identity-web/issues/2879) for details.
+- Id Web now has an upper bound set on its dependency on Microsoft.Identity.Abstractions to version 7x. See PR [#2962](https://github.com/AzureAD/microsoft-identity-web/pull/2962) for details.
+  
+
+### Fundamentals:
+- Fix flakey tests: [#2972](https://github.com/AzureAD/microsoft-identity-web/pull/2972), [#2984](https://github.com/AzureAD/microsoft-identity-web/pull/2984), [#2982](https://github.com/AzureAD/microsoft-identity-web/issues/2982), 
+- Update to `AzureKeyVault@2`, [#2981](https://github.com/AzureAD/microsoft-identity-web/pull/2981).
+- Update to .NET 9-preview7, [#2980](https://github.com/AzureAD/microsoft-identity-web/pull/2980) and [#2991](https://github.com/AzureAD/microsoft-identity-web/pull/2991).
+- Changes for a new release build: [#2974](https://github.com/AzureAD/microsoft-identity-web/pull/2974), [#2990](https://github.com/AzureAD/microsoft-identity-web/pull/2990)
+
 ========
 
 **See [rel/v2 branch changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.**
