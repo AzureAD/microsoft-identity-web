@@ -182,7 +182,7 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
-            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
 
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -222,7 +222,7 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
-            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           effectiveInput, null, cancellationToken).ConfigureAwait(false);
 

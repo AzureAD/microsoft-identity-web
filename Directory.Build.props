@@ -111,6 +111,7 @@
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftIdentityAbstractionsVersion>7.0.0</MicrosoftIdentityAbstractionsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
@@ -125,6 +126,7 @@
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftIdentityAbstractionsVersion>7.0.0</MicrosoftIdentityAbstractionsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">

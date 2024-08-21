@@ -14,8 +14,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -67,6 +67,10 @@ namespace Microsoft.Identity.Web.Test.Integration
         [InlineData(TestConstants.SecurePage2CallMicrosoftGraph, false)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApi, false)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric, false)]
+#if NET8_0_OR_GREATER
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGenericAotInternal)]
+        [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGenericAotInternal, false)]
+#endif
         public async Task GetTokenForUserWithDifferentAuthSchemeAsync(
                string webApiUrl,
                bool addInMemoryTokenCache = true)
@@ -132,7 +136,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
         }
 #endif
-      
+
 
         private static async Task<HttpResponseMessage> CreateHttpResponseMessage(string webApiUrl, HttpClient client, AuthenticationResult result)
         {
@@ -208,4 +212,4 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
     }
 #endif //FROM_GITHUB_ACTION
-    }
+}
