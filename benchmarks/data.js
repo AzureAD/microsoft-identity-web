@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724207523410,
+  "lastUpdate": 1724257127980,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5688,6 +5688,42 @@ window.BENCHMARK_DATA = {
             "value": 10464.936694178088,
             "unit": "ns",
             "range": "± 56.68928407026426"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "34331512+pmaytak@users.noreply.github.com",
+            "name": "Peter",
+            "username": "pmaytak"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "63bc10edb7052622c6d4aee0e32e68000dee94ae",
+          "message": "Add BannedApiAnalyzers to prevent use of ClaimsIdentity constructors and AppContextSwitches for fallback (#2977)\n\n* Add BannedApiAnalyzers to prevent use of ClaimsIdentity constructors\r\n\r\n* Add AppContextSwitches.\r\n\r\n* Update AccountExtensions to use CsClaimsIdentity.\r\n\r\n* Update ClaimsPrincipalFactory to use CsClaimsIdentity\r\n\r\n* Update AppServicesAuth to use CsClaimsIdentity.\r\n\r\n* Update tests to use CsClaimsIdentity.\r\n\r\n* Move const.\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-08-21T09:15:25-07:00",
+          "tree_id": "1e245e05546aeb715c5e02dcd1e96b4d443dbd5d",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/63bc10edb7052622c6d4aee0e32e68000dee94ae"
+        },
+        "date": 1724257126821,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9889.40408706665,
+            "unit": "ns",
+            "range": "± 68.17674884432836"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10689.661226908365,
+            "unit": "ns",
+            "range": "± 47.13384569511856"
           }
         ]
       }
