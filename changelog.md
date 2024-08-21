@@ -16,7 +16,7 @@
 - Fix flakey tests: [#2972](https://github.com/AzureAD/microsoft-identity-web/pull/2972), [#2984](https://github.com/AzureAD/microsoft-identity-web/pull/2984), [#2982](https://github.com/AzureAD/microsoft-identity-web/issues/2982), 
 - Update to `AzureKeyVault@2` in AzureDevOps, [#2981](https://github.com/AzureAD/microsoft-identity-web/pull/2981).
 - Update to .NET 9-preview7, [#2980](https://github.com/AzureAD/microsoft-identity-web/pull/2980) and [#2991](https://github.com/AzureAD/microsoft-identity-web/pull/2991).
-- Changes for a new release build: [#2974](https://github.com/AzureAD/microsoft-identity-web/pull/2974), [#2990](https://github.com/AzureAD/microsoft-identity-web/pull/2990)
+- It's now possible to build a specific version of Microsoft.Identity.Web based on specific versions of Microsoft.IdentityModel and Microsoft.Identity.Abstractions by specifying build variables on the dotnet pack command (MicrosoftIdentityModelVersion, MicrosoftIdentityAbstractionsVersions, and MicrosoftIdentityWebVersion): [#2974](https://github.com/AzureAD/microsoft-identity-web/pull/2974), [#2990](https://github.com/AzureAD/microsoft-identity-web/pull/2990)
 
 ========
 
