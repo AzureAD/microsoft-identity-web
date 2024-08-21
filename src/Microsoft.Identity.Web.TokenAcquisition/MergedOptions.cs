@@ -222,6 +222,8 @@ namespace Microsoft.Identity.Web
                     mergedOptions.AdditionalAuthorizationParameters.Add(parameter.Key, parameter.Value);
                 }
             }
+
+            mergedOptions.PushedAuthorizationBehavior = microsoftIdentityOptions.PushedAuthorizationBehavior;
 #endif
             mergedOptions.TokenValidationParameters = microsoftIdentityOptions.TokenValidationParameters.Clone();
             mergedOptions.UsePkce |= microsoftIdentityOptions.UsePkce;
