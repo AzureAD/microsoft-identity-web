@@ -14,6 +14,8 @@ namespace Microsoft.Identity.Web.Test
     [Collection("ClaimsIdentity_AppContextSwitch_Tests")]
     public class AppServicesAuthenticationInformationTests
     {
+        private const string IdToken = "ewogICJ0eXAiOiAiSldUIiwKICAiYWxnIjogIlJTMjU2IiwKICAia2lkIjogImsiCn0=.ewogICJuYW1lIjogIlVzZXIiCn0=.";
+
         public AppServicesAuthenticationInformationTests()
         {
             AppContextSwitches.ResetState();
@@ -53,7 +55,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var headersIdTokenOnly = new Dictionary<string, StringValues>
             {
-                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(TestConstants.IdToken) },
+                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(IdToken) },
             };
 
             var headersIdpOnly = new Dictionary<string, StringValues>
@@ -70,7 +72,7 @@ namespace Microsoft.Identity.Web.Test
         {
             var headers = new Dictionary<string, StringValues>
             {
-                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(TestConstants.IdToken) },
+                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(IdToken) },
                 { "X-MS-CLIENT-PRINCIPAL-IDP", new StringValues(TestConstants.AadInstance) },
             };
 
@@ -90,7 +92,7 @@ namespace Microsoft.Identity.Web.Test
 
             var headers = new Dictionary<string, StringValues>
             {
-                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(TestConstants.IdToken) },
+                { AppServicesAuthenticationInformation.AppServicesAuthIdTokenHeader, new StringValues(IdToken) },
                 { "X-MS-CLIENT-PRINCIPAL-IDP", new StringValues(TestConstants.AadInstance) },
             };
 

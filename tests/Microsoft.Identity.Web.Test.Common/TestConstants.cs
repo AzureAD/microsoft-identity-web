@@ -55,8 +55,6 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
         public const string GraphBaseUrl = "https://graph.microsoft.com/v1.0";
 
-        public const string IdToken = "ewogICJ0eXAiOiAiSldUIiwKICAiYWxnIjogIlJTMjU2IiwKICAia2lkIjogImsiCn0=.ewogICJuYW1lIjogIlVzZXIiCn0=.";
-
         // B2C
         public const string B2CSignUpSignInUserFlow = "b2c_1_susi";
         public const string B2CEditProfileUserFlow = "b2c_1_edit_profile";
