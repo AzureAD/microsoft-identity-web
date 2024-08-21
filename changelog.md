@@ -6,7 +6,7 @@
 - Id Web now uses `CaseSensitiveClaimsIdentity` by default and provides AppContextSwitches to fallback to using `ClaimsIdentity`. This means that when you loopup claims with FindFirst(), FindAll() and HasClaim(), you need to provide the right casing for the claim. See PR [#2977](https://github.com/AzureAD/microsoft-identity-web/pull/2977) for details.
 
 ### Bug fixes:
-- For SN/I scenarios, Id Web's `GetTokenAcquirer` now sets `SendX5C`. See issue [#2887](https://github.com/AzureAD/microsoft-identity-web/issues/2887) for details.
+- For SN/I scenarios, Id Web's `GetTokenAcquirer` now sets `SendX5C` in particular protocols. See issue [#2887](https://github.com/AzureAD/microsoft-identity-web/issues/2887) for details.
 - Fix for Instance/Tenant parsing for V2 authority. See PR [#2954](https://github.com/AzureAD/microsoft-identity-web/issues/2954) for details.
 - Fix a format exception: `The input string " was not in a correct format` due to incorrect regex. See issue [#2879](https://github.com/AzureAD/microsoft-identity-web/issues/2879) for details.
 - Id Web now has an upper bound set on its dependency on Microsoft.Identity.Abstractions to version 7x. See PR [#2962](https://github.com/AzureAD/microsoft-identity-web/pull/2962) for details.
