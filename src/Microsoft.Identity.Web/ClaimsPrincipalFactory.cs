@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -37,12 +38,26 @@ namespace Microsoft.Identity.Web
         /// </example>
         public static ClaimsPrincipal FromHomeTenantIdAndHomeObjectId(string homeTenantId, string homeObjectId)
         {
-            return new ClaimsPrincipal(
-                new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimConstants.UniqueTenantIdentifier, homeTenantId),
-                    new Claim(ClaimConstants.UniqueObjectIdentifier, homeObjectId),
-                }));
+            if (AppContextSwitches.UseClaimsIdentityType)
+            {
+#pragma warning disable RS0030 // Do not use banned APIs
+                return new ClaimsPrincipal(
+                    new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.UniqueTenantIdentifier, homeTenantId),
+                        new Claim(ClaimConstants.UniqueObjectIdentifier, homeObjectId),
+                    }));
+#pragma warning restore RS0030 // Do not use banned APIs
+            }
+            else
+            {
+                return new ClaimsPrincipal(
+                    new CaseSensitiveClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.UniqueTenantIdentifier, homeTenantId),
+                        new Claim(ClaimConstants.UniqueObjectIdentifier, homeObjectId),
+                    }));
+            }
         }
 
         /// <summary>
@@ -72,12 +87,25 @@ namespace Microsoft.Identity.Web
         /// </example>
         public static ClaimsPrincipal FromTenantIdAndObjectId(string tenantId, string objectId)
         {
-            return new ClaimsPrincipal(
-                new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimConstants.Tid, tenantId),
-                    new Claim(ClaimConstants.Oid, objectId),
-                }));
+            if (AppContextSwitches.UseClaimsIdentityType)
+            {
+#pragma warning disable RS0030 // Do not use banned APIs
+                return new ClaimsPrincipal(
+                    new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.Tid, tenantId),
+                        new Claim(ClaimConstants.Oid, objectId),
+                    }));
+#pragma warning restore RS0030 // Do not use banned APIs
+            } else
+            {
+                return new ClaimsPrincipal(
+                    new CaseSensitiveClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.Tid, tenantId),
+                        new Claim(ClaimConstants.Oid, objectId),
+                    }));
+            }
         }
     }
 }

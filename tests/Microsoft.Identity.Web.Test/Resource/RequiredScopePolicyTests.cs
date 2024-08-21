@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Resource
@@ -42,7 +43,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 withConfig);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(claimType, SingleScope) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, SingleScope) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, policyName).ConfigureAwait(false);
@@ -69,7 +70,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 withConfig);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(claimType, MultipleScopes) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, MultipleScopes) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, policyName).ConfigureAwait(false);
@@ -87,7 +88,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 SingleScope);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -105,7 +106,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 null);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
 
             // Act
             var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
@@ -123,7 +124,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 SingleScope);
 
             var user = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, SingleScope) }));
+                new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, SingleScope) }));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName)).ConfigureAwait(false);

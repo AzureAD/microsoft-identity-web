@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -42,7 +43,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             var securityToken = new JwtSecurityToken();
-            IPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "TestUser") })
+            IPrincipal claimsPrincipal = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "TestUser") })
             {
                 BootstrapContext = securityToken
             });
@@ -59,7 +60,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             const string jwtString = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-            IPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "TestUser") })
+            IPrincipal claimsPrincipal = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "TestUser") })
             {
                 BootstrapContext = jwtString
             });
