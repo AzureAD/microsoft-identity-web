@@ -3,7 +3,7 @@
 - Updated to Microsoft.IdentityModel.* 8.0.2
 
 ### Security improvement:
-- Id Web now uses `CaseSensitiveClaimsIdentity` by default and provides AppContextSwitches to fallback to using `ClaimsIdentity`. See PR [#2977](https://github.com/AzureAD/microsoft-identity-web/pull/2977) for details.
+- Id Web now uses `CaseSensitiveClaimsIdentity` by default and provides AppContextSwitches to fallback to using `ClaimsIdentity`. This means that when you loopup claims with FindFirst(), FindAll() and HasClaim(), you need to provide the right casing for the claim. See PR [#2977](https://github.com/AzureAD/microsoft-identity-web/pull/2977) for details.
 
 ### Bug fixes:
 - For SN/I scenarios, Id Web's `GetTokenAcquirer` now sets `SendX5C`. See issue [#2887](https://github.com/AzureAD/microsoft-identity-web/issues/2887) for details.
