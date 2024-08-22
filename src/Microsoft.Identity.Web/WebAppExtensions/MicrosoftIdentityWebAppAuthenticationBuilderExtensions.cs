@@ -16,6 +16,7 @@ using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Identity.Web.Diagnostics;
 
 namespace Microsoft.Identity.Web
 {

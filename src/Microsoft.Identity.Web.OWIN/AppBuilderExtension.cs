@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Validators;
 using Microsoft.Owin.Security.Jwt;
 using Microsoft.Owin.Security.OAuth;
 using Microsoft.Owin.Security.OpenIdConnect;
+using Microsoft.Identity.Web.Diagnostics;
 using Owin;
 
 namespace Microsoft.Identity.Web
