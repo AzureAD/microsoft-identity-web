@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724257127980,
+  "lastUpdate": 1724302936798,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5724,6 +5724,42 @@ window.BENCHMARK_DATA = {
             "value": 10689.661226908365,
             "unit": "ns",
             "range": "± 47.13384569511856"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "57c1a5ffd1ccd8178d33db065c1b4aed5a54c618",
+          "message": "3.1.0 changelog (#2993)\n\n* 3.1.0 changelog\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-08-21T21:59:07-07:00",
+          "tree_id": "01e134cdb1688c129a1056c5d81fd4f8ea2defc3",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/57c1a5ffd1ccd8178d33db065c1b4aed5a54c618"
+        },
+        "date": 1724302935766,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9737.965793401545,
+            "unit": "ns",
+            "range": "± 45.74521307569792"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10708.976028442383,
+            "unit": "ns",
+            "range": "± 62.566487011605645"
           }
         ]
       }
