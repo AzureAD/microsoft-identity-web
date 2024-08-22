@@ -91,9 +91,13 @@ namespace Microsoft.Identity.Web
 <# } #>
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.<#=httpMethod#>);
-<# if (hasInput){ #>
+<# if (hasInput) {
+   if (framework == "net8"){
+#>
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+<# } else { #>
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-<# } #>
+<# } } #>
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
