@@ -249,6 +249,17 @@ namespace Microsoft.Identity.Web
 
             return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
+
+        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo)
+        {
+            return SerializeInputImpl(input, effectiveOptions, inputJsonTypeInfo);
+        }
+
+        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
+             where TOutput : class
+        {
+            return await DeserializeOutputImpl<TOutput>(response, effectiveOptions, outputJsonTypeInfo);
+        }
 #endif
 
         /// <summary>
@@ -302,7 +313,12 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
-        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo = null)
+        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
+        {
+            return SerializeInputImpl(input, effectiveOptions, null);
+        }
+
+        private static HttpContent? SerializeInputImpl<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo = null)
         {
             HttpContent? httpContent;
 
@@ -333,7 +349,13 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
+        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
+             where TOutput : class
+        {
+            return await DeserializeOutputImpl<TOutput>(response, effectiveOptions, null);
+        }
+
+        private static async Task<TOutput?> DeserializeOutputImpl<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
              where TOutput : class
         {
             try

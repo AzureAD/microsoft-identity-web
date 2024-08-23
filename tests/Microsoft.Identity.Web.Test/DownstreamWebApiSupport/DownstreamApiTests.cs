@@ -133,20 +133,6 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public void SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
-        {
-            // Arrange
-            var input = new Person();
-            _options.Serializer = o => new StringContent("serialized");
-
-            // Act
-            var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
-
-            // Assert
-            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
-        }
-
-        [Fact]
         public void SerializeInput_WithStringAndContentType_ReturnsStringContent()
         {
             // Arrange
@@ -291,6 +277,21 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal(30, result?.Age);
         }
 
+#if NET8_0_OR_GREATER
+        [Fact]
+        public void SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
+        {
+            // Arrange
+            var input = new Person();
+            _options.Serializer = o => new StringContent("serialized");
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+
+            // Assert
+            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+        }
+
         [Fact]
         public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvided()
         {
@@ -310,6 +311,7 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal("John", result?.Name);
             Assert.Equal(30, result?.Age);
         }
+#endif
 
         [Fact]
         public async Task DeserializeOutput_ThrowsNotSupportedException_WhenContentTypeIsNotSupported()
