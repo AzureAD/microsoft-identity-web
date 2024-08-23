@@ -87,8 +87,7 @@
     <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
-    <!-- IdentityWeb v3.0.1 is not compatible with Abstractions v7; 6.0.0 ≤ version < 7.0.0 -->
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">[6.0.0, 7.0.0)</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityAbstractionsVersion>7.0.0</MicrosoftIdentityAbstractionsVersion>
     <NetNineRuntimeVersion>9.0.0-preview.7.24405.7</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0-preview.7.24406.2</AspNetCoreNineRuntimeVersion>
     <!--CVE-2024-30105-->
@@ -111,7 +110,6 @@
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftIdentityAbstractionsVersion>7.0.0</MicrosoftIdentityAbstractionsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
@@ -126,7 +124,6 @@
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftIdentityAbstractionsVersion>7.0.0</MicrosoftIdentityAbstractionsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
