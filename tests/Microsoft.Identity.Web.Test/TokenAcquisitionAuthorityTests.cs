@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -180,7 +181,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void VerifyCorrectBooleansAsync(
+        public void VerifyCorrectBooleans(
            bool sendx5c)
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
@@ -373,7 +374,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("https://localhost:1234")]
         [InlineData("")]
         [InlineData(null)]
-        public async void GetOrBuildManagedIdentity_TestAsync(string? clientId)
+        public async Task GetOrBuildManagedIdentity_TestAsync(string? clientId)
         {
             // Arrange
             ManagedIdentityOptions managedIdentityOptions = new()
@@ -397,7 +398,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("https://localhost:1234")]
         [InlineData(null)]
-        public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
+        public async Task GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
         {
             // Arrange
             ThreadPool.GetMaxThreads(out int maxThreads, out int _);
@@ -415,24 +416,25 @@ namespace Microsoft.Identity.Web.Test
             // Act
             for (int i = 0; i < maxThreads; i++)
             {
+#pragma warning disable VSTHRD101 // Avoid unsupported async delegates
                 Thread thread = new(async () =>
+                {
+                    try
                     {
-                        try
-                        {
-                            // Signal that the thread is ready to start and wait for the other threads to be ready.
-                            taskStartGate.Signal();
-                            taskStartGate.Wait();
+                        // Signal that the thread is ready to start and wait for the other threads to be ready.
+                        taskStartGate.Signal();
+                        taskStartGate.Wait();
 
-                            // Add the application to the bag
-                            appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions));
-                        }
-                        finally
-                        {
-                            // No matter what happens, signal that the thread is done so the test doesn't get stuck.
-                            threadsDone.Signal();
-                        }
+                        // Add the application to the bag
+                        appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions));
                     }
-                );
+                    finally
+                    {
+                        // No matter what happens, signal that the thread is done so the test doesn't get stuck.
+                        threadsDone.Signal();
+                    }
+                });
+#pragma warning restore VSTHRD101 // Avoid unsupported async delegates
                 thread.Start();
             }
             threadsDone.Wait();

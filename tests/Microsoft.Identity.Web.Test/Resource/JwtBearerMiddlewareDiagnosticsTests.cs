@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnAuthenticationFailed_CompletesSuccessfully()
+        public async Task Subscribe_OnAuthenticationFailed_CompletesSuccessfullyAsync()
         {
             _jwtEvents.OnAuthenticationFailed = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnMessageReceived_CompletesSuccessfully()
+        public async Task Subscribe_OnMessageReceived_CompletesSuccessfullyAsync()
         {
             _jwtEvents.OnMessageReceived = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnTokenValidated_CompletesSuccessfully()
+        public async Task Subscribe_OnTokenValidated_CompletesSuccessfullyAsync()
         {
             _jwtEvents.OnTokenValidated = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnChallenge_CompletesSuccessfully()
+        public async Task Subscribe_OnChallenge_CompletesSuccessfullyAsync()
         {
             _jwtEvents.OnChallenge = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnAuthenticationFailedDefault_CompletesSuccessfully()
+        public async Task Subscribe_OnAuthenticationFailedDefault_CompletesSuccessfullyAsync()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(null!);
             await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnMessageReceivedDefault_CompletesSuccessfully()
+        public async Task Subscribe_OnMessageReceivedDefault_CompletesSuccessfullyAsync()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
             await _jwtEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnTokenValidatedDefault_CompletesSuccessfully()
+        public async Task Subscribe_OnTokenValidatedDefault_CompletesSuccessfullyAsync()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
             await _jwtEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void Subscribe_OnChallengeDefault_CompletesSuccessfully()
+        public async Task Subscribe_OnChallengeDefault_CompletesSuccessfullyAsync()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
             await _jwtEvents.Challenge(new JwtBearerChallengeContext(_httpContext, _authScheme, _jwtOptions, new AuthenticationProperties())).ConfigureAwait(false);
