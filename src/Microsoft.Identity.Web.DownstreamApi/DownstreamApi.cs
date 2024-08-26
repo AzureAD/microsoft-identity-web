@@ -250,12 +250,12 @@ namespace Microsoft.Identity.Web
             return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
 
-        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo)
+        internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput> inputJsonTypeInfo)
         {
             return SerializeInputImpl(input, effectiveOptions, inputJsonTypeInfo);
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
+        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
              where TOutput : class
         {
             return await DeserializeOutputImpl<TOutput>(response, effectiveOptions, outputJsonTypeInfo);
