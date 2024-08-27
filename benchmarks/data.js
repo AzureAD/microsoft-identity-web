@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724340842680,
+  "lastUpdate": 1724749475462,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5796,6 +5796,42 @@ window.BENCHMARK_DATA = {
             "value": 10753.522820188287,
             "unit": "ns",
             "range": "± 68.97721123955212"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "murray.dualtagh@gmail.com",
+            "name": "dualtagh",
+            "username": "dualtagh"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c8ba0ce096f103baab417bac7fb2e9a40582a7af",
+          "message": "Implement IDownstreamApi overloads that take JsonTypeInfo<T> as a parameter to enable source generated Json deserialization for NativeAOT (#2959)\n\nAddresses #2930\r\n\r\nUpdate Microsoft.Identity.Abstractions to 7.0.0\r\nImplementation for new DownstreamApi interfaces in Microsoft.Identity.Abstractions for source gen Json serialization. Implementaitons are generated or copied as the existing with just the addition of jsonTypeInfo params",
+          "timestamp": "2024-08-27T10:01:13+01:00",
+          "tree_id": "34b79430b99596464b74d180751b60e296a227c7",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/c8ba0ce096f103baab417bac7fb2e9a40582a7af"
+        },
+        "date": 1724749474282,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9987.720795346979,
+            "unit": "ns",
+            "range": "± 149.00132804728213"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10781.418478670987,
+            "unit": "ns",
+            "range": "± 67.65452423394404"
           }
         ]
       }
