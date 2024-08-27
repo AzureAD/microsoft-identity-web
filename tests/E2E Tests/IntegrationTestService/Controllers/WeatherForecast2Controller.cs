@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace IntegrationTestService.Controllers
     [Authorize(AuthenticationSchemes = TestConstants.CustomJwtScheme2)]
     [Route("SecurePage2")]
     [RequiredScope("user_impersonation")]
-    public class WeatherForecast2Controller : ControllerBase
+    public partial class WeatherForecast2Controller : ControllerBase
     {
         private readonly IDownstreamApi _downstreamApi;
         private readonly ITokenAcquisition _tokenAcquisition;
@@ -61,6 +62,27 @@ namespace IntegrationTestService.Controllers
                 });
             return user?.DisplayName;
         }
+
+        [JsonSerializable(typeof(UserInfo))]
+        internal partial class UserInfoJsonContext : JsonSerializerContext
+        {
+        }
+
+#if NET8_0_OR_GREATER
+        [HttpGet(TestConstants.SecurePage2CallDownstreamWebApiGenericAotInternal)]
+        public async Task<string?> CallDownstreamWebApiGenericAsyncAotInternal()
+        {
+            var user = await _downstreamApi.GetForUserAsync<UserInfo>(
+                TestConstants.SectionNameCalledApi,
+                UserInfoJsonContext.Default.UserInfo,
+                options =>
+                {
+                    options.RelativePath = "me";
+                    options.AcquireTokenOptions.AuthenticationOptionsName = TestConstants.CustomJwtScheme2;
+                });
+            return user?.DisplayName;
+        }
+#endif
 
         [HttpGet(TestConstants.SecurePage2CallMicrosoftGraph)]
         public async Task<string> CallMicrosoftGraphAsync()
