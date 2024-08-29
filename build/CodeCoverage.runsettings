@@ -32,7 +32,17 @@ Included items must then not match any entries in the exclude list to remain inc
                                 <ModulePath>.*\microsoft.identity.web.tokencache.dll</ModulePath>
                             </Include>
                         </ModulePaths>
-
+                        <Attributes>
+                            <Exclude>
+                                <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+                                <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+                            </Exclude>
+                        </Attributes>
+                        <Sources>
+                            <Exclude>
+                                <Source>.*\.g\.cs$</Source>
+                            </Exclude>
+                        </Sources>
                     </CodeCoverage>
                 </Configuration>
             </DataCollector>
