@@ -198,7 +198,7 @@ namespace Microsoft.Identity.Web
 
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
-            return mergedOptions.Instance! + mergedOptions.ClientId + mergedOptions.AzureRegion;
+            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion);
         }
 
         /// <summary>
