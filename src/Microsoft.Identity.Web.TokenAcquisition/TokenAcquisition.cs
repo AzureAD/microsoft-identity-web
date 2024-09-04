@@ -196,6 +196,13 @@ namespace Microsoft.Identity.Web
             }
         }
 
+
+        /// <summary>
+        /// Allows creation of confidential client applications targeting regional and global authorities
+        /// when supporting managed identities.
+        /// </summary>
+        /// <param name="mergedOptions"></param>
+        /// <returns></returns>
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion);
