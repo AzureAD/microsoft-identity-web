@@ -157,6 +157,8 @@ namespace WebAppUiTests
                 await page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle2 })).Not.ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app delete todo flow successful.");
+
+                Assert.Fail("Failing on purpose for testing purposes");
             }
             catch (Exception ex)
             {

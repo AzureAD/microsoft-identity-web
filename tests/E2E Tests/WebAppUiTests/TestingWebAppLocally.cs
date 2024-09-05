@@ -109,6 +109,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
             await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
+
+            Assert.Fail("Failing on purpose for testing purposes");
         }
         catch (Exception ex)
         {
