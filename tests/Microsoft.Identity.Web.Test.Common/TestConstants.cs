@@ -155,6 +155,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePage2GetTokenForAppAsync = "/SecurePage2/GetTokenForAppAsync";
         public const string SecurePage2CallDownstreamWebApi = "/SecurePage2/CallDownstreamWebApiAsync";
         public const string SecurePage2CallDownstreamWebApiGeneric = "/SecurePage2/CallDownstreamWebApiGenericAsync";
+        public const string SecurePage2CallDownstreamWebApiGenericAotInternal = "/SecurePage2/CallDownstreamWebApiGenericAsyncAotInternal";
         public const string SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage2/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
         public const string SecurePage2CallMicrosoftGraph = "/SecurePage2/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";

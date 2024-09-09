@@ -177,6 +177,41 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
+        [Fact]
+        public async Task VerifyDifferentRegionsDifferentApp()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                RedirectUri = "http://localhost:1729/",
+                ClientSecret = TC.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            mergedOptions.AzureRegion = "UKEast";
+
+            IConfidentialClientApplication appEast = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+
+            mergedOptions.AzureRegion = "UKWest";
+
+            IConfidentialClientApplication appWest = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+
+            Assert.NotSame(appEast, appWest);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
