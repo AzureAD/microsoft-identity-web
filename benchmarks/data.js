@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1724749475462,
+  "lastUpdate": 1725872702057,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5832,6 +5832,42 @@ window.BENCHMARK_DATA = {
             "value": 10781.418478670987,
             "unit": "ns",
             "range": "± 67.65452423394404"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106561208+SaurabhMSFT@users.noreply.github.com",
+            "name": "Saurabh Gautam",
+            "username": "SaurabhMSFT"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "887df01440cafbac2a705101fdc484592819a546",
+          "message": "Use AzureRegion while calculating key (#3002)\n\n* Use Azure Region for key\r\n\r\n* Use getkey algorithm for factory class\r\n\r\n* Add comment\r\n\r\n* Added comments\r\n\r\n* Add a test case",
+          "timestamp": "2024-09-09T10:00:28+01:00",
+          "tree_id": "4e35ebdf516f13fef1b1f1a9f236bdd6f59d935c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/887df01440cafbac2a705101fdc484592819a546"
+        },
+        "date": 1725872701480,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9864.698948107267,
+            "unit": "ns",
+            "range": "± 88.19510145725208"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10676.111573300119,
+            "unit": "ns",
+            "range": "± 79.26289559843208"
           }
         ]
       }
