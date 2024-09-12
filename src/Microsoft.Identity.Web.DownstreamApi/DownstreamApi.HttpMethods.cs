@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -261,7 +261,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -331,7 +331,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -399,7 +399,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -471,7 +471,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -539,7 +539,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -611,7 +611,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -679,7 +679,7 @@ namespace Microsoft.Identity.Web
                     effectiveInput?.Dispose();
                 }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException

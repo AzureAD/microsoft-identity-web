@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         }
 
         [Benchmark]
-        public void GetAccessTokenForUserAsync()
+        public void GetAccessTokenForUser()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForUserAsync);
             HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();    
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         }
 
         [Benchmark]
-        public void GetAccessTokenForAppAsync()
+        public void GetAccessTokenForApp()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForAppAsync);
             HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();

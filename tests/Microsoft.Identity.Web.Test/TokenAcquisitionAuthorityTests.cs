@@ -387,9 +387,9 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             var app1 = 
-                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
             var app2 = 
-                await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+                await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
 
             // Assert
             Assert.Same(app1, app2);
@@ -426,7 +426,7 @@ namespace Microsoft.Identity.Web.Test
                         taskStartGate.Wait();
 
                         // Add the application to the bag
-                        appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions));
+                        appsBag.Add(await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions));
                     }
                     finally
                     {
@@ -438,7 +438,7 @@ namespace Microsoft.Identity.Web.Test
                 thread.Start();
             }
             threadsDone.Wait();
-            var testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplication(mergedOptions, managedIdentityOptions);
+            var testApp = await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
 
             // Assert
             Assert.True(appsBag.Count == maxThreads, "Not all threads put objects in the concurrent bag");

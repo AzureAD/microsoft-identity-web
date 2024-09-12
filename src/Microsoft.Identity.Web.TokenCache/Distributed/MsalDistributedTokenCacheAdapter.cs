@@ -167,7 +167,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         (cacheKey) => _distributedCache.GetAsync(cacheKey, cacheSerializerHints.CancellationToken),
                         cacheKey).ConfigureAwait(false);
 #pragma warning disable CA1062 // Validate arguments of public methods
-                }, cacheSerializerHints.CancellationToken).Measure().ConfigureAwait(false);
+                }, cacheSerializerHints.CancellationToken).MeasureAsync().ConfigureAwait(false);
 #pragma warning restore CA1062 // Validate arguments of public methods
 
                 if (result != null && telemetryData != null)
@@ -279,7 +279,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         distributedCacheEntryOptions,
                         cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                     cacheKey,
-                    bytes!).Measure().ConfigureAwait(false);
+                    bytes!).MeasureAsync().ConfigureAwait(false);
             }
             else
             {
@@ -292,7 +292,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                      distributedCacheEntryOptions,
                      cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                  cacheKey,
-                 bytes!).Measure().ConfigureAwait(false));
+                 bytes!).MeasureAsync().ConfigureAwait(false));
             }
         }
 
@@ -305,7 +305,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             try
             {
-                var measure = await cacheOperation(cacheKey).Measure().ConfigureAwait(false);
+                var measure = await cacheOperation(cacheKey).MeasureAsync().ConfigureAwait(false);
                 Logger.DistributedCacheStateWithTime(
                     _logger,
                     _distributedCacheType,

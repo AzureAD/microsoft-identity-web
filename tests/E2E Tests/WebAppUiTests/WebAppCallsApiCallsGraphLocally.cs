@@ -45,7 +45,7 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectly()
+        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_TodoAppFunctionsCorrectlyAsync()
         {
             // Setup web app and api environmental variables.
             var grpcEnvVars = new Dictionary<string, string>
@@ -97,13 +97,13 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
+                page = await NavigateToWebAppAsync(context, TodoListClientPort).ConfigureAwait(false);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = labResponse.User.Upn;
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
                 await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -111,13 +111,13 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
-                await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
                 var todoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
                 await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
@@ -126,14 +126,14 @@ namespace WebAppUiTests
                 _output.WriteLine("Starting web app create new todo flow.");
                 await todoLink.ClickAsync();
                 var titleEntryBox = page.GetByLabel("Title");
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle1);
+                await UiTestHelpers.FillEntryBoxAsync(titleEntryBox, TC.TodoTitle1);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle1 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app create new todo flow successful.");
 
                 // Edit todo item
                 _output.WriteLine("Starting web app edit todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle2);
+                await UiTestHelpers.FillEntryBoxAsync(titleEntryBox, TC.TodoTitle2);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle2 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app edit todo flow successful.");
 
@@ -184,7 +184,7 @@ namespace WebAppUiTests
         [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
         [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
         [SupportedOSPlatform("windows")]
-        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiam(string authority)
+        public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamAsync(string authority)
         {
             // Setup web app and api environmental variables.
             var serviceEnvVars = new Dictionary<string, string>
@@ -234,12 +234,12 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, WebAppCiamPort);
+                page = await NavigateToWebAppAsync(context, WebAppCiamPort);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = "idlab@msidlabciam6.onmicrosoft.com";
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -247,13 +247,13 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using sign in button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign in" }).ClickAsync();
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
@@ -332,7 +332,7 @@ namespace WebAppUiTests
 #endif
         }
 
-        private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)
+        private async Task<IPage> NavigateToWebAppAsync(IBrowserContext context, uint port)
         {
             // Navigate to web app
             IPage page = await context.NewPageAsync();

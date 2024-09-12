@@ -364,7 +364,7 @@ namespace Microsoft.Identity.Web
             {
                 try
                 {
-                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplication(
+                    IManagedIdentityApplication managedIdApp = await GetOrBuildManagedIdentityApplicationAsync(
                         mergedOptions,
                         tokenAcquisitionOptions.ManagedIdentity
                     );

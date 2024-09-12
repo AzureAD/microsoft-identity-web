@@ -34,7 +34,7 @@ namespace SimulateOidc.Controllers
         }
 
         [HttpGet("/v2.0/.well-known/keys.json")]
-        public async Task<IActionResult> Keys()
+        public async Task<IActionResult> KeysAsync()
         {
             HttpClient client = new HttpClient();
             string keysDocument = await client.GetStringAsync("https://login.microsoftonline.com/common/discovery/v2.0/keys").ConfigureAwait(false);

@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
 
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? _)
         {
-            credentialDescription.Certificate = await LoadFromKeyVault(
+            credentialDescription.Certificate = await LoadFromKeyVaultAsync(
                             credentialDescription.KeyVaultUrl!,
                             credentialDescription.KeyVaultCertificateName!,
                             credentialDescription.ManagedIdentityClientId ?? UserAssignedManagedIdentityClientId ?? Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"),
@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>This code is inspired by Heath Stewart's code in:
         /// https://github.com/heaths/azsdk-sample-getcert/blob/master/Program.cs#L46-L82.
         /// </remarks>
-        internal static Task<X509Certificate2?> LoadFromKeyVault(
+        internal static Task<X509Certificate2?> LoadFromKeyVaultAsync(
             string keyVaultUrl,
             string certificateName,
             string? managedIdentityClientId,

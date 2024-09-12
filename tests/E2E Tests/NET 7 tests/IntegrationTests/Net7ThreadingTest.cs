@@ -19,7 +19,7 @@ public class Net7ThreadingTest : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Get_EndpointsReturnUnauthorizedEveryTime()
+    public async Task Get_EndpointsReturnUnauthorizedEveryTimeAsync()
     {
         // Arrange
         var client = _factory.CreateClient();

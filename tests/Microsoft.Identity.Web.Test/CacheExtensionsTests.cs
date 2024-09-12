@@ -149,7 +149,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task SingletonMsal_ResultsInCorrectCacheEntries_Test()
+        public async Task SingletonMsal_ResultsInCorrectCacheEntries_TestAsync()
         {
             var tenantId1 = "tenant1";
             var tenantId2 = "tenant2";

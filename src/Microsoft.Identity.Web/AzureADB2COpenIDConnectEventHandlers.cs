@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web
 
         public MicrosoftIdentityOptions Options { get; }
 
-        public Task OnRedirectToIdentityProvider(RedirectContext context)
+        public Task OnRedirectToIdentityProviderAsync(RedirectContext context)
         {
             var defaultUserFlow = Options.DefaultUserFlow;
             if (context.Properties.Items.TryGetValue(OidcConstants.PolicyKey, out var userFlow) &&
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
             return Task.CompletedTask;
         }
 
-        public Task OnRemoteFailure(RemoteFailureContext context)
+        public Task OnRemoteFailureAsync(RemoteFailureContext context)
         {
             context.HandleResponse();
 

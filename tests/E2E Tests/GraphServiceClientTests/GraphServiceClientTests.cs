@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 #pragma warning disable IDE0051 // Remove unused private members
-        async Task Test()
+        async Task TestAsync()
 #pragma warning restore IDE0051 // Remove unused private members
         {
             GraphServiceClient graphServiceClient = new(new GraphAuthenticationProvider(_authorizationHeaderProvider, new GraphServiceClientOptions()));
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         }
 
         [Fact]
-        public async Task AuthenticateRequestAsync_NonGraphUri_DoesNotSetAuthZHeader()
+        public async Task AuthenticateRequestAsync_NonGraphUri_DoesNotSetAuthZHeaderAsync()
         {
             // arrange
             RequestInformation request = new()

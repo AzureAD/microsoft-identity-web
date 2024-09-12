@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -152,7 +152,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -165,7 +165,7 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
+        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
             try
