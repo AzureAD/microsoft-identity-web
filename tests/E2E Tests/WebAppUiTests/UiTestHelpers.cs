@@ -8,12 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
 using Xunit.Abstractions;
 
@@ -21,6 +21,32 @@ namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
+        /// <summary>
+        /// Navigates to a web page with retry logic to ensure establish a connection in case a web app needs more startup time.
+        /// </summary>
+        /// <param name="uri">The uri to navigate to</param>
+        /// <param name="page">A page in a playwright browser</param>
+        /// <returns></returns>
+        public static async Task NavigateToWebApp(string uri, IPage page)
+        {
+            uint InitialConnectionRetryCount = 5;
+            while (InitialConnectionRetryCount > 0)
+            {
+                try
+                {
+                    await page.GotoAsync(uri);
+                    break;
+                }
+                catch (PlaywrightException ex)
+                {
+                    await Task.Delay(1000);
+                    InitialConnectionRetryCount--;
+                    if (InitialConnectionRetryCount == 0)
+                    { throw ex; }
+                }
+            }
+        }
+
         /// <summary>
         /// Login flow for the first time in a given browsing session.
         /// </summary>
@@ -32,10 +58,9 @@ namespace WebAppUiTests
         public static async Task FirstLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
-            WriteLine(output, $"Logging in ... Entering and submitting user name: {email}.");
-            ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
-            await FillEntryBox(emailInputLocator, email);
-            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
+            await EnterEmailAsync(page, email, output);
+            await EnterPasswordAsync(page, password, output);
+            await StaySignedIn_MicrosoftIdFlow(page, staySignedInText, output);
         }
 
         /// <summary>
@@ -52,7 +77,15 @@ namespace WebAppUiTests
 
             WriteLine(output, $"Logging in again in this browsing session... selecting user via email: {email}.");
             await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
-            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
+            await EnterPasswordAsync(page, password, output);
+            await StaySignedIn_MicrosoftIdFlow(page, staySignedInText, output);
+        }
+
+        public static async Task EnterEmailAsync(IPage page, string email, ITestOutputHelper? output = null)
+        {
+            WriteLine(output, $"Logging in ... Entering and submitting user name: {email}.");
+            ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
+            await FillEntryBox(emailInputLocator, email);
         }
 
         /// <summary>
@@ -64,7 +97,7 @@ namespace WebAppUiTests
         public static async Task PerformSignOut_MicrosoftIdFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
         {
             WriteLine(output, "Signing out ...");
-            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
+            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email.ToLowerInvariant());
             await page.WaitForURLAsync(signOutPageUrl);
             WriteLine(output, "Sign out page successfully reached.");
         }
@@ -87,7 +120,7 @@ namespace WebAppUiTests
         /// <param name="password">The password for the account you're logging into.</param>
         /// <param name="staySignedInText">"Yes" or "No" to stay signed in for the given browsing session.</param>
         /// <param name="output">The writer for output to the test's console.</param>
-        public static async Task EnterPassword_MicrosoftIdFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
+        public static async Task EnterPasswordAsync(IPage page, string password, ITestOutputHelper? output = null)
         {
             // If using an account that has other non-password validation options, the below code should be uncommented
             /* WriteLine(output, "Selecting \"Password\" as authentication method"); 
@@ -96,7 +129,10 @@ namespace WebAppUiTests
             WriteLine(output, "Logging in ... entering and submitting password.");
             ILocator passwordInputLocator = page.GetByPlaceholder(TestConstants.PasswordText);
             await FillEntryBox(passwordInputLocator, password);
+        }
 
+        public static async Task StaySignedIn_MicrosoftIdFlow(IPage page, string staySignedInText, ITestOutputHelper? output = null)
+        {
             WriteLine(output, $"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in.");
             await page.GetByRole(AriaRole.Button, new() { Name = staySignedInText }).ClickAsync();
         }
@@ -219,13 +255,26 @@ namespace WebAppUiTests
             );
         }
 
+        public static void EndProcesses(Dictionary<string, Process>? processes)
+        {
+            Queue<Process> processQueue = new();
+            if (processes != null)
+            {
+                foreach (var process in processes)
+                {
+                    processQueue.Enqueue(process.Value);
+                }
+            }
+            KillProcessTrees(processQueue);
+        }
+
         /// <summary>
         /// Kills the processes in the queue and all of their children
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
-        [SupportedOSPlatform("windows")]
         public static void KillProcessTrees(Queue<Process> processQueue)
         {
+#if WINDOWS
             Process currentProcess;
             while (processQueue.Count > 0)
             {
@@ -240,6 +289,14 @@ namespace WebAppUiTests
                 currentProcess.Kill();
                 currentProcess.Close();
             }
+#else
+            while (processQueue.Count > 0)
+            {
+                Process p = processQueue.Dequeue();
+                p.Kill();
+                p.WaitForExit();
+            }
+#endif
         }
 
         /// <summary>
@@ -363,6 +420,20 @@ namespace WebAppUiTests
                     processes[processEntry.Key] = process;
                 }
             }
+        }
+        public static string GetRunningProcessAsString(Dictionary<string, Process>? processes)
+        {
+            StringBuilder runningProcesses = new StringBuilder();
+            if (processes != null)
+            {
+                foreach (var process in processes)
+                {
+#pragma warning disable CA1305 // Specify IFormatProvider
+                    runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
+#pragma warning restore CA1305 // Specify IFormatProvider
+                }
+            }
+            return runningProcesses.ToString();
         }
     }
 

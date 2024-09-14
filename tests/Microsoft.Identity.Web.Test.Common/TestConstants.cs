@@ -115,6 +115,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
         public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLAB4-IDLABS-APP-AzureADMyOrg-CC";
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
+        public const string OIDCUser = "fIDLAB@MSIDLAB3.com";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj
@@ -188,6 +189,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public static readonly string s_myWebAppPath = Path.DirectorySeparatorChar.ToString() + "myWebApp";
         public static readonly string s_myWebApiExe = Path.DirectorySeparatorChar.ToString() + "myWebApi.exe";
         public static readonly string s_myWebApiPath = Path.DirectorySeparatorChar.ToString() + "myWebApi";
+        public static readonly string s_oidcWebAppExe = Path.DirectorySeparatorChar.ToString() + "WebApp-OpenIDConnect-DotNet.exe";
+        public static readonly string s_oidcWebAppPath = Path.DirectorySeparatorChar.ToString() + "WebApp-OpenIDConnect";
 
 
         // TokenAcqusitionOptions and ManagedIdentityOptions
