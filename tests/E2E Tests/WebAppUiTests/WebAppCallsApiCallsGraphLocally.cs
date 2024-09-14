@@ -5,16 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
-using System.Linq;
-using System.Text;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
@@ -72,7 +70,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage? page = null;
+            IPage page = await context.NewPageAsync();
 
             try
             {
@@ -97,7 +95,7 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
+                await UiTestHelpers.NavigateToWebApp(TC.LocalhostUrl + TodoListClientPort, page).ConfigureAwait(false);
                 LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
                 // Initial sign in
@@ -160,14 +158,14 @@ namespace WebAppUiTests
                     _output.WriteLine("No Screenshot.");
                 }
 
-                string runningProcesses = GetRunningProcessAsString(processes);
+                string runningProcesses = UiTestHelpers.GetRunningProcessAsString(processes);
 
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                EndProcesses(processes);
+                UiTestHelpers.EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
@@ -211,7 +209,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage? page = null;
+            IPage page = await context.NewPageAsync();
 
             try
             {
@@ -234,7 +232,7 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, WebAppCiamPort);
+                await UiTestHelpers.NavigateToWebApp(TC.LocalhostUrl + WebAppCiamPort, page).ConfigureAwait(false);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
@@ -274,14 +272,14 @@ namespace WebAppUiTests
                     _output.WriteLine("No Screenshot.");
                 }
 
-                string runningProcesses = GetRunningProcessAsString(processes);
+                string runningProcesses = UiTestHelpers.GetRunningProcessAsString(processes);
 
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                EndProcesses(processes);
+                UiTestHelpers.EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
@@ -292,70 +290,6 @@ namespace WebAppUiTests
                 await browser.CloseAsync();
                 playwright.Dispose();
             }
-        }
-
-        private string GetRunningProcessAsString(Dictionary<string, Process>? processes)
-        {
-            StringBuilder runningProcesses = new StringBuilder();
-            if (processes != null)
-            {
-                foreach (var process in processes)
-                {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                    runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
-#pragma warning restore CA1305 // Specify IFormatProvider
-                }
-            }
-            return runningProcesses.ToString();
-        }
-
-        private void EndProcesses(Dictionary<string, Process>? processes)
-        {
-            Queue<Process> processQueue = new();
-            if (processes != null)
-            {
-                foreach (var process in processes)
-                {
-                    processQueue.Enqueue(process.Value);
-                }
-            }
-
-#if WINDOWS
-            UiTestHelpers.KillProcessTrees(processQueue);
-#else
-            while (processQueue.Count > 0)
-            {
-                Process p = processQueue.Dequeue();
-                p.Kill();
-                p.WaitForExit();
-            }
-#endif
-        }
-
-        private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)
-        {
-            // Navigate to web app
-            IPage page = await context.NewPageAsync();
-
-            // The retry logic ensures the web app has time to start up to establish a connection.
-            uint InitialConnectionRetryCount = 5;
-            while (InitialConnectionRetryCount > 0)
-            {
-                try
-                {
-                    await page.GotoAsync(TC.LocalhostUrl + port);
-                    break;
-                }
-                catch (PlaywrightException ex)
-                {
-                    await Task.Delay(1000);
-                    InitialConnectionRetryCount--;
-                    if (InitialConnectionRetryCount == 0)
-                    { throw ex; }
-                }
-            }
-
-            return page;
         }
     }
 }
