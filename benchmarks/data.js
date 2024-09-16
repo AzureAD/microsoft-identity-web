@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726509235722,
+  "lastUpdate": 1726509317415,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -5904,6 +5904,42 @@ window.BENCHMARK_DATA = {
             "value": 10626.894130312163,
             "unit": "ns",
             "range": "± 65.91432214867136"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "69b3555ffdaa491c4757ebd28568a45f1b0ccd68",
+          "message": "Bump Microsoft.Identity.Web.DownstreamApi, Microsoft.Extensions.Logging.Abstractions, System.Text.Encodings.Web, Microsoft.AspNetCore.DataProtection, System.Security.Cryptography.Xml, Microsoft.Extensions.Caching.Memory, Microsoft.Extensions.Logging, Microsoft.Extensions.DependencyInjection, System.Formats.Asn1, System.Security.Cryptography.Pkcs, Microsoft.Extensions.Configuration.Binder, Microsoft.Extensions.Configuration.EnvironmentVariables, Microsoft.Extensions.Configuration and Microsoft.Extensions.Options.ConfigurationExtensions (#3009)\n\nBumps [Microsoft.Identity.Web.DownstreamApi](https://github.com/AzureAD/microsoft-identity-web), [Microsoft.Extensions.Logging.Abstractions](https://github.com/dotnet/runtime), [System.Text.Encodings.Web](https://github.com/dotnet/runtime), [Microsoft.AspNetCore.DataProtection](https://github.com/dotnet/aspnetcore), [System.Security.Cryptography.Xml](https://github.com/dotnet/runtime), [Microsoft.Extensions.Caching.Memory](https://github.com/dotnet/runtime), [Microsoft.Extensions.Logging](https://github.com/dotnet/runtime), [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime), [System.Formats.Asn1](https://github.com/dotnet/runtime), [System.Security.Cryptography.Pkcs](https://github.com/dotnet/runtime), [Microsoft.Extensions.Configuration.Binder](https://github.com/dotnet/runtime), [Microsoft.Extensions.Configuration.EnvironmentVariables](https://github.com/dotnet/runtime), [Microsoft.Extensions.Configuration](https://github.com/dotnet/runtime) and [Microsoft.Extensions.Options.ConfigurationExtensions](https://github.com/dotnet/runtime). These dependencies needed to be updated together.\r\n\r\nUpdates `Microsoft.Identity.Web.DownstreamApi` from 2.15.3 to 3.1.0\r\n- [Release notes](https://github.com/AzureAD/microsoft-identity-web/releases)\r\n- [Changelog](https://github.com/AzureAD/microsoft-identity-web/blob/master/changelog.md)\r\n- [Commits](https://github.com/AzureAD/microsoft-identity-web/compare/2.15.3...3.1.0)\r\n\r\nUpdates `Microsoft.Extensions.Logging.Abstractions` from 2.1.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\nUpdates `System.Text.Encodings.Web` from 6.0.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/compare/v6.0.0...v8.0.0)\r\n\r\nUpdates `Microsoft.AspNetCore.DataProtection` from 2.1.0 to 8.0.1\r\n- [Release notes](https://github.com/dotnet/aspnetcore/releases)\r\n- [Changelog](https://github.com/dotnet/aspnetcore/blob/main/docs/ReleasePlanning.md)\r\n- [Commits](https://github.com/dotnet/aspnetcore/compare/2.1.0...v8.0.1)\r\n\r\nUpdates `System.Security.Cryptography.Xml` from 4.7.1 to 8.0.1\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.1)\r\n\r\nUpdates `Microsoft.Extensions.Caching.Memory` from 2.1.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\nUpdates `Microsoft.Extensions.Logging` from 2.1.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\nUpdates `Microsoft.Extensions.DependencyInjection` from 2.1.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\nUpdates `System.Formats.Asn1` from 6.0.1 to 8.0.1\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/compare/v6.0.1...v8.0.1)\r\n\r\nUpdates `System.Security.Cryptography.Pkcs` from 7.0.2 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/compare/v7.0.2...v8.0.0)\r\n\r\nUpdates `Microsoft.Extensions.Configuration.Binder` from 2.2.4 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\nUpdates `Microsoft.Extensions.Configuration.EnvironmentVariables` from 2.2.4 to 6.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v6.0.0)\r\n\r\nUpdates `Microsoft.Extensions.Configuration` from 3.1.24 to 6.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v6.0.0)\r\n\r\nUpdates `Microsoft.Extensions.Options.ConfigurationExtensions` from 2.1.0 to 8.0.0\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/commits/v8.0.0)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: Microsoft.Identity.Web.DownstreamApi\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Logging.Abstractions\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: System.Text.Encodings.Web\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.AspNetCore.DataProtection\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: System.Security.Cryptography.Xml\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Caching.Memory\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Logging\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.DependencyInjection\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: System.Formats.Asn1\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: System.Security.Cryptography.Pkcs\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Configuration.Binder\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Configuration.EnvironmentVariables\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Configuration\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n- dependency-name: Microsoft.Extensions.Options.ConfigurationExtensions\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-major\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-09-16T10:51:57-07:00",
+          "tree_id": "afecf91db5e50a9973c69cbfc043e0279bf1b20c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/69b3555ffdaa491c4757ebd28568a45f1b0ccd68"
+        },
+        "date": 1726509316183,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9840.997031035247,
+            "unit": "ns",
+            "range": "± 78.6981297592875"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10767.845181783041,
+            "unit": "ns",
+            "range": "± 72.94612316969976"
           }
         ]
       }
