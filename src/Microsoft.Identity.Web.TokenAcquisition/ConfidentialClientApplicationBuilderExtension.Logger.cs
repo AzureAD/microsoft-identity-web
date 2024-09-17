@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
@@ -39,6 +40,62 @@ namespace Microsoft.Identity.Web
                     LogLevel.Information,
                     LoggingEventId.UsingCertThumbprint,
                     "[MsIdWeb] Using certificate Thumbprint={certThumbprint} as client credentials. ");
+
+            private static readonly Action<ILogger, string, string, Exception?> s_credentialAttempt =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    LoggingEventId.CredentialLoadAttempt,
+                    "[MsIdWeb] Attempting to load the credential from the CredentialDescription with Id={Id} and Skip={Skip} . ");
+
+            private static readonly Action<ILogger, string, string, Exception?> s_credentialAttemptFailed =
+                LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                LoggingEventId.CredentialLoadAttemptFailed,
+                "[MsIdWeb] Loading the credential from CredentialDescription Id={Id} failed. Will the credential be re-attempted? - {Skip}.");
+
+            /// <summary>
+            /// Logger for attempting to use a CredentialDescription with MSAL
+            /// </summary>
+            /// <param name="logger"></param>
+            /// <param name="certificateDescription"></param>
+            /// <param name="ex"></param>
+            public static void AttemptToLoadCredentialsFailed(
+                ILogger logger,
+                CredentialDescription certificateDescription, 
+                Exception ex) =>
+                    s_credentialAttemptFailed(
+                        logger,
+                        certificateDescription.Id,
+                        certificateDescription.Skip.ToString(),
+                        ex);
+
+            /// <summary>
+            /// Logger for attempting to use a CredentialDescription with MSAL
+            /// </summary>
+            /// <param name="logger"></param>
+            /// <param name="certificateDescription"></param>
+            public static void AttemptToLoadCredentials(
+                ILogger logger,
+                CredentialDescription certificateDescription) => 
+                    s_credentialAttempt(
+                        logger, 
+                        certificateDescription.Id, 
+                        certificateDescription.Skip.ToString(), 
+                        default!);
+
+            /// <summary>
+            /// Logger for attempting to use a CredentialDescription with MSAL
+            /// </summary>
+            /// <param name="logger"></param>
+            /// <param name="certificateDescription"></param>
+            public static void FailedToLoadCredentials(
+                ILogger logger,
+                CredentialDescription certificateDescription) =>
+                    s_credentialAttemptFailed(
+                        logger,
+                        certificateDescription.Id,
+                        certificateDescription.Skip.ToString(),
+                        default!);
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
