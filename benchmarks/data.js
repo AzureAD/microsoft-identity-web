@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726761535750,
+  "lastUpdate": 1726767268516,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6048,6 +6048,42 @@ window.BENCHMARK_DATA = {
             "value": 10351.700896944318,
             "unit": "ns",
             "range": "± 65.3233217943072"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ea0e0a75220372de1fb28a25bb6a0f42a0363596",
+          "message": "Fix warnings (#3024)\n\n* Fix warnings\r\n\r\n* Update tests/Microsoft.Identity.Web.Test.Common/Mocks/QueryStringParser.cs\r\n\r\nCo-authored-by: Bogdan Gavril <bogavril@microsoft.com>\r\n\r\n---------\r\n\r\nCo-authored-by: Bogdan Gavril <bogavril@microsoft.com>",
+          "timestamp": "2024-09-19T10:31:04-07:00",
+          "tree_id": "d2d9bf5c41a6b6a658119ea79c4983d5014fae22",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ea0e0a75220372de1fb28a25bb6a0f42a0363596"
+        },
+        "date": 1726767267334,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9647.67251777649,
+            "unit": "ns",
+            "range": "± 67.42264745545634"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10267.763993671962,
+            "unit": "ns",
+            "range": "± 47.07042192260575"
           }
         ]
       }
