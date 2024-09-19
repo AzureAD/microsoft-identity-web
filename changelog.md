@@ -1,3 +1,12 @@
+3.2.0
+=========
+### Breaking change
+- IDownstreamApi overloads take a JsonTypeInfo<T> parameter to enable source generated JSON deserialization.[#3017]
+
+### Bug fixes:
+- Azure region is used while creating application keys for caching application objects [#3002]
+
+
 3.1.0
 =========
 - Updated to Microsoft.IdentityModel.* 8.0.2
