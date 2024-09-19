@@ -104,9 +104,6 @@ namespace Microsoft.Identity.Web
             {
                 await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
 
-                // TODO:  Exceptions which occur in trying various credentials are logged and ignored.
-                // is this really intended behavior? This is different from WithClientCredentialsAsync
-
                 if (!credentialDescription.Skip)
                 {
                     return credentialDescription;
