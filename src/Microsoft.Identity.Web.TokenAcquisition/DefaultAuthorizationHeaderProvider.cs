@@ -82,9 +82,9 @@ namespace Microsoft.Identity.Web
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                     scopes,
-                    downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                    downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                    downstreamApiOptions?.AcquireTokenOptions.UserFlow,
+                    downstreamApiOptions?.AcquireTokenOptions?.AuthenticationOptionsName,
+                    downstreamApiOptions?.AcquireTokenOptions?.Tenant,
+                    downstreamApiOptions?.AcquireTokenOptions?.UserFlow,
                     claimsPrincipal,
                     CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
                 return result.CreateAuthorizationHeader();
