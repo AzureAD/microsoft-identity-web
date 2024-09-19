@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 return message;
             }
 
-#if NET462 || NET472
+#if NETFRAMEWORK
             message = message.Replace("+", "%20");
 #else
             message = message.Replace("+", "%20", StringComparison.OrdinalIgnoreCase);
