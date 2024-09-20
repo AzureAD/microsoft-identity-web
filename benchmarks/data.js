@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726767268516,
+  "lastUpdate": 1726790401549,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6084,6 +6084,42 @@ window.BENCHMARK_DATA = {
             "value": 10267.763993671962,
             "unit": "ns",
             "range": "± 47.07042192260575"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "babee94dbec19a5fe9cbd185088732bcf0feabcb",
+          "message": "Update to 9.0.100-rc.1 (#3027)\n\n* bump to dotnet 9 rc1\r\n\r\n* bump net9 runtime version\r\n\r\n* bump additional preview versions",
+          "timestamp": "2024-09-19T16:56:45-07:00",
+          "tree_id": "495636c5830106485d9ce8690cbaa947b32a9b19",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/babee94dbec19a5fe9cbd185088732bcf0feabcb"
+        },
+        "date": 1726790400841,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9898.76498526114,
+            "unit": "ns",
+            "range": "± 99.66240553562623"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10551.115108420632,
+            "unit": "ns",
+            "range": "± 69.59395378046844"
           }
         ]
       }
