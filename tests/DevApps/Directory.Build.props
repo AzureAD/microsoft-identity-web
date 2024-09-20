@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <SystemDrawingCommon>9.0.0-preview.2.24128.3</SystemDrawingCommon>
+    <SystemDrawingCommon>9.0.0-rc.1.24451.1</SystemDrawingCommon>
   </PropertyGroup>
 
   <ItemGroup>
