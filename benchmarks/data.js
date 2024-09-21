@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726790401549,
+  "lastUpdate": 1726893909290,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6120,6 +6120,42 @@ window.BENCHMARK_DATA = {
             "value": 10551.115108420632,
             "unit": "ns",
             "range": "± 69.59395378046844"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5e8d23e3c4e41cfd5bbb4d64203da07b1daecdfd",
+          "message": "Add a test around TokenCache GetCacheKey customization (#3020)\n\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-09-20T21:41:55-07:00",
+          "tree_id": "c6e84d8e79f81cddf2ecd649d88aebcdc5f0a85e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/5e8d23e3c4e41cfd5bbb4d64203da07b1daecdfd"
+        },
+        "date": 1726893908272,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9814.07392992292,
+            "unit": "ns",
+            "range": "± 71.87241347934435"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10529.525305796478,
+            "unit": "ns",
+            "range": "± 63.70888049396327"
           }
         ]
       }
