@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726893932426,
+  "lastUpdate": 1726893962093,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6192,6 +6192,42 @@ window.BENCHMARK_DATA = {
             "value": 10102.884381739299,
             "unit": "ns",
             "range": "± 121.44270148098471"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cc01c6805c430a0b54daa77be08646196ff12737",
+          "message": "Bump bootstrap in /tests/DevApps/aspnet-mvc/OwinWebApi (#3015)\n\nBumps bootstrap from 4.3.1 to 5.0.0.\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: bootstrap\r\n  dependency-type: direct:production\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-09-20T21:42:50-07:00",
+          "tree_id": "02dc867e2192c213a0eefed7554c0a0a3e577323",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/cc01c6805c430a0b54daa77be08646196ff12737"
+        },
+        "date": 1726893961551,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9978.677359172276,
+            "unit": "ns",
+            "range": "± 103.902555734401"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10661.280131276448,
+            "unit": "ns",
+            "range": "± 96.59312738773565"
           }
         ]
       }
