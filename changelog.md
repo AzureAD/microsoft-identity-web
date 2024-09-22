@@ -8,7 +8,7 @@
 - In .NET 8 and above, `IDownstreamApi` overloads take a `JsonTypeInfo<T>` parameter to enable source generated JSON deserialization. See [#3017] for details.
 
 ### Bug fixes:
-- Azure region is used while creating application keys when the TokenAcquisition service caches application objects, and the TokenAcquirerFactory caches TokenAcquirer  [#3002]
+- Azure region is used while creating application keys when the TokenAcquisition service caches application objects, and the TokenAcquirerFactory caches TokenAcquirer. See  [#3002] for details.
 
 
 3.1.0
