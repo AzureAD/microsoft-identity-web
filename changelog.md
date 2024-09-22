@@ -1,6 +1,10 @@
 3.2.0
 =========
-### Breaking change
+- Updated to Microsoft.Identity.Abstractions 7.0.1
+- Updated to Microsoft.IdentityModel.* 8.1.0
+- Updated to Microsoft.Identity.Client 4.64.1
+ 
+### New features
 - .In .NET 8 and above, IDownstreamApi overloads take a JsonTypeInfo<T> parameter to enable source generated JSON deserialization.[#3017]
 
 ### Bug fixes:
