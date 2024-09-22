@@ -5,7 +5,7 @@
 - Updated to Microsoft.Identity.Client 4.64.1
  
 ### New features
-- In .NET 8 and above, `IDownstreamApi` overloads take a `JsonTypeInfo<T>` parameter to enable source generated JSON deserialization. See [#3017] for details.
+- In .NET 8 and above, `IDownstreamApi` overloads take a `JsonTypeInfo<T>` parameter to enable source generated JSON deserialization. See issue [#2930] for details.
 
 ### Bug fixes:
 - Azure region is used while creating application keys when the TokenAcquisition service caches application objects, and the TokenAcquirerFactory caches TokenAcquirer. See [#3002] for details.
