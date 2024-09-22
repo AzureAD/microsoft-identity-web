@@ -1,7 +1,7 @@
 3.2.0
 =========
 ### Breaking change
-- IDownstreamApi overloads take a JsonTypeInfo<T> parameter to enable source generated JSON deserialization.[#3017]
+- .In .NET 8 and above, IDownstreamApi overloads take a JsonTypeInfo<T> parameter to enable source generated JSON deserialization.[#3017]
 
 ### Bug fixes:
 - Azure region is used while creating application keys for caching application objects [#3002]
