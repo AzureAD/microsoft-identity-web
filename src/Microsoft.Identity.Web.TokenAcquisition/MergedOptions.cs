@@ -444,7 +444,7 @@ namespace Microsoft.Identity.Web
                     int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion + indexTenant + 1;
 
                     // In CIAM and B2C, customers will use "authority", not Instance and TenantId
-                    mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority : authoritySpan.Slice(0, indexTenant).ToString();
+                    mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority! : authoritySpan.Slice(0, indexTenant).ToString();
                     mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1).ToString();
                 }
             }
