@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public partial class DefaultCredentialsLoader : ICredentialsLoader
     {
-        private readonly ILogger<DefaultCredentialsLoader>? _logger;
+        private readonly ILogger<DefaultCredentialsLoader> _logger;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _loadingSemaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         /// <summary>
