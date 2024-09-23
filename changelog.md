@@ -1,3 +1,19 @@
+3.2.0
+=========
+- Updated to Microsoft.Identity.Abstractions 7.0.1
+- Updated to Microsoft.IdentityModel.* 8.1.0
+- Updated to Microsoft.Identity.Client 4.64.1
+ 
+### New features
+- In .NET 8 and above, `IDownstreamApi` overloads take a `JsonTypeInfo<T>` parameter to enable source generated JSON deserialization. See issue [#2930] for details.
+
+### Bug fixes:
+- Azure region is used while creating application keys when the TokenAcquisition service caches application objects, and the TokenAcquirerFactory caches TokenAcquirer. See [#3002] for details.
+
+### Fundamentals:
+- Improved test coverage for `GetCacheKey`. See PR [#3020](https://github.com/AzureAD/microsoft-identity-web/pull/3020) for details.
+- Update to .NET 9-RC1. See issue [#3025](https://github.com/AzureAD/microsoft-identity-web/issues/3025) for details.
+- Fix static analysis warnings. See PR [#3024](https://github.com/AzureAD/microsoft-identity-web/pull/3024) for details.
 3.1.0
 =========
 - Updated to Microsoft.IdentityModel.* 8.0.2
