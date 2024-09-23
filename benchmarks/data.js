@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726893962093,
+  "lastUpdate": 1727053637433,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6228,6 +6228,42 @@ window.BENCHMARK_DATA = {
             "value": 10661.280131276448,
             "unit": "ns",
             "range": "± 96.59312738773565"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106561208+SaurabhMSFT@users.noreply.github.com",
+            "name": "Saurabh Gautam",
+            "username": "SaurabhMSFT"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d20536fd41d288145e1ccd3957e40bcb8cbb8499",
+          "message": "Changelog updated for 3.2.0 release (#3023)\n\n* Changelog updated for 3.2.0 release\r\n\r\n* PR comment\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>\r\n\r\n* PR comment\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>\r\n\r\n* add package dependencies\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n* Update changelog.md\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-09-22T18:03:56-07:00",
+          "tree_id": "b48757872c38819812ff07c1446f465558ef6198",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/d20536fd41d288145e1ccd3957e40bcb8cbb8499"
+        },
+        "date": 1727053636760,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9775.26504746923,
+            "unit": "ns",
+            "range": "± 89.3895116286441"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10400.044574192592,
+            "unit": "ns",
+            "range": "± 64.27925236077736"
           }
         ]
       }
