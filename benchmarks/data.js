@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727198685824,
+  "lastUpdate": 1727218344409,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6552,6 +6552,42 @@ window.BENCHMARK_DATA = {
             "value": 10496.57314491272,
             "unit": "ns",
             "range": "± 41.95396190838946"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "94bafe64728fb2bf362a22849f39850b40d0adbe",
+          "message": "update net 9 version to rc 1 in build script (#3036)",
+          "timestamp": "2024-09-24T15:49:09-07:00",
+          "tree_id": "0373e19433f0785e6798c35e607de315e81a7869",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/94bafe64728fb2bf362a22849f39850b40d0adbe"
+        },
+        "date": 1727218343819,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9783.162695811345,
+            "unit": "ns",
+            "range": "± 54.93095892352872"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10429.918480191913,
+            "unit": "ns",
+            "range": "± 49.28353603526862"
           }
         ]
       }
