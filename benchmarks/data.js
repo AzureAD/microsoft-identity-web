@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727140007348,
+  "lastUpdate": 1727141065227,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6372,6 +6372,42 @@ window.BENCHMARK_DATA = {
             "value": 10548.955446146303,
             "unit": "ns",
             "range": "± 78.1261284414091"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a4031c8e719e10493c36d149c63f94aac0468e",
+          "message": "Upgrading vulnerable packages (#3031)\n\n* Upgrading vulnerable packages\r\n\r\n* Addressing PR feedback.\r\n\r\n* Fixing more CVEs",
+          "timestamp": "2024-09-23T18:21:11-07:00",
+          "tree_id": "3671e58d11f680bf65f4e13a14f893e242294fc5",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/39a4031c8e719e10493c36d149c63f94aac0468e"
+        },
+        "date": 1727141064632,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9918.953757957175,
+            "unit": "ns",
+            "range": "± 63.474669620433524"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10475.21190449343,
+            "unit": "ns",
+            "range": "± 50.24607946707164"
           }
         ]
       }
