@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727142337986,
+  "lastUpdate": 1727143904581,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6444,6 +6444,42 @@ window.BENCHMARK_DATA = {
             "value": 10605.3217720821,
             "unit": "ns",
             "range": "± 52.33972802310584"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "72280f88df46ffd82700b3162899d79c4b6a9b9d",
+          "message": "Addressing Brett's PR feedback (#3033)",
+          "timestamp": "2024-09-23T19:08:27-07:00",
+          "tree_id": "1edfea0fb894b6da7b16ec7a2976c711a43f0110",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/72280f88df46ffd82700b3162899d79c4b6a9b9d"
+        },
+        "date": 1727143903385,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9734.012276900443,
+            "unit": "ns",
+            "range": "± 101.87551187555148"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10477.064878463745,
+            "unit": "ns",
+            "range": "± 35.08013852550652"
           }
         ]
       }
