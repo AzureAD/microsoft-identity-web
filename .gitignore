@@ -355,3 +355,5 @@ MigrationBackup/
 /tests/E2E Tests/PlaywrightTraces
 /tests/IntegrationTests/PlaywrightTraces
 /.SharedData
+/out/
+objd/
