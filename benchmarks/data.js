@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727141065227,
+  "lastUpdate": 1727142337986,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6408,6 +6408,42 @@ window.BENCHMARK_DATA = {
             "value": 10475.21190449343,
             "unit": "ns",
             "range": "± 50.24607946707164"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jeferrie@microsoft.com",
+            "name": "jennyf19",
+            "username": "jennyf19"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "91f0206b5e1a590cdaada08ef6bf9a2d5d8ed0fb",
+          "message": "Update abstractions version in chnagelog (#3032)",
+          "timestamp": "2024-09-23T18:42:09-07:00",
+          "tree_id": "2db2b628b3fed3e6dffc0e7cf18e1c7c1aba560e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/91f0206b5e1a590cdaada08ef6bf9a2d5d8ed0fb"
+        },
+        "date": 1727142336772,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9954.826175622773,
+            "unit": "ns",
+            "range": "± 57.77388664700482"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10605.3217720821,
+            "unit": "ns",
+            "range": "± 52.33972802310584"
           }
         ]
       }
