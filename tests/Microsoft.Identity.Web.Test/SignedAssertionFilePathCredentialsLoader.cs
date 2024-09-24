@@ -74,10 +74,11 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             {
                 SourceType = CredentialSource.SignedAssertionFilePath,
             };
-            await _signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(credentialDescription, null);
 
             // Act & Assert
-            Assert.Null(credentialDescription.CachedValue);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _signedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(
+                credentialDescription, null));
         }
+        
     }
 }

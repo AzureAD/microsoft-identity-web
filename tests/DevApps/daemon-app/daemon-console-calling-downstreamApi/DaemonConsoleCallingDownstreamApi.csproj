@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\minimal-web-api\WeatherForecast.cs" Link="WeatherForecast.cs" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWip)' != 'true'">
