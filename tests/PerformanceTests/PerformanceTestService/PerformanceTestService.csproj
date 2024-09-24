@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="$(MicrosoftApplicationInsightsAspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="$(MicrosoftApplicationInsightsAspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(MicrosoftExtensionsCachingStackExchangeRedisVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommon)" />
