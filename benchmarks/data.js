@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727133196878,
+  "lastUpdate": 1727138834551,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6300,6 +6300,42 @@ window.BENCHMARK_DATA = {
             "value": 10333.106703396501,
             "unit": "ns",
             "range": "± 47.36671510834974"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bogavril@microsoft.com",
+            "name": "Bogdan Gavril",
+            "username": "bgavrilMS"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aed3c1675f05eef081fbbf69e5ca096a305dfb7e",
+          "message": "Fix for 3000 - improve error messages when credentials fail to load (#3003)\n\n* Fix for 3000 - logging for loading credentials into MSAL and minor for MSI+FIC\r\n\r\n* revert msal bump\r\n\r\n* Address comment\r\n\r\n* Fix a nullable warning\r\n\r\n* Updating a few files used to test\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-09-23T17:44:00-07:00",
+          "tree_id": "751ed2256365344167ed49e41b9c1f23a0d2178b",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/aed3c1675f05eef081fbbf69e5ca096a305dfb7e"
+        },
+        "date": 1727138833974,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9984.077019772287,
+            "unit": "ns",
+            "range": "± 67.39036723072286"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10542.56738503196,
+            "unit": "ns",
+            "range": "± 55.68514704247257"
           }
         ]
       }
