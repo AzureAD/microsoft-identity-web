@@ -25,7 +25,7 @@
     <SeleniumWebDriverVersion>4.8.0</SeleniumWebDriverVersion>
     <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
     <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
-    <MicrosoftApplicationInsightsAspNetCoreVersion>2.21.0</MicrosoftApplicationInsightsAspNetCoreVersion>
+    <MicrosoftApplicationInsightsAspNetCoreVersion>2.22.0</MicrosoftApplicationInsightsAspNetCoreVersion>
     <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.21.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
     <MicrosoftExtensionsCachingStackExchangeRedisVersion>6.0.12</MicrosoftExtensionsCachingStackExchangeRedisVersion>
     <MicrosoftPlaywrightVersion>1.36.0</MicrosoftPlaywrightVersion>
