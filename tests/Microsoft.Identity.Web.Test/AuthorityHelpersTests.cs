@@ -120,9 +120,9 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededTheoryData))]
-        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededExistingValuesTheoryData))]
-        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededOverlappingExistingValuesTheoryData))]
+        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededTheoryData), DisableDiscoveryEnumeration = true)]
+        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededExistingValuesTheoryData), DisableDiscoveryEnumeration = true)]
+        [MemberData(nameof(GetAuthorityWithoutQueryIfNeededOverlappingExistingValuesTheoryData), DisableDiscoveryEnumeration = true)]
         public void GetAuthorityWithoutQueryIfNeeded(AuthorityHelpersTheoryData theoryData)
         {
             // arrange
