@@ -14,7 +14,7 @@
   - 'Azure Key Vault: buildautomation'
   - 'Install Keyvault Secrets'
 
-- [template-restore-build-MSIdentityWeb.yaml](template-restore-build-MSIdentityWeb.yaml) `(BuildPlatform:'$(BuildPlatform)', BuildConfiguration: '$(BuildConfiguration)', MsIdentityWebSemVer: $(MsIdentityWebSemVer))`
+- [template-restore-build-MSIdentityWeb.yaml](template-restore-build-MSIdentityWeb.yaml) `(BuildPlatform:'$(BuildPlatform)', BuildConfiguration: '$(BuildConfiguration)', MicrosoftIdentityWebVersion: $(MicrosoftIdentityWebVersion))`
   - Build solution Microsoft.Identity.Web.sln and run tests' (.NET Core)
   - [Build](template-restore-build-MSIdentityWeb.yaml) solution Microsoft.Identity.Web.sln netcoreapp3.1 for Roslyn analyzers' (VSBuild@1)
   - 'Component Detection'

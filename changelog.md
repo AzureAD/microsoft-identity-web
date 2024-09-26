@@ -1,3 +1,41 @@
+3.2.0
+=========
+- Updated to Microsoft.Identity.Abstractions 7.1.0
+- Updated to Microsoft.IdentityModel.* 8.1.0
+- Updated to Microsoft.Identity.Client 4.64.1
+ 
+### New features
+- In .NET 8 and above, `IDownstreamApi` overloads take a `JsonTypeInfo<T>` parameter to enable source generated JSON deserialization. See issue [#2930](https://github.com/AzureAD/microsoft-identity-web/issues/2930) for details.
+
+### Bug fixes:
+- Azure region is used while creating application keys when the TokenAcquisition service caches application objects, and the TokenAcquirerFactory caches TokenAcquirer. See [#3002](https://github.com/AzureAD/microsoft-identity-web/pull/3002) for details.
+- Improved error messages for FIC. See issue [#3000](https://github.com/AzureAD/microsoft-identity-web/issues/3000) for details.
+
+### Fundamentals:
+- Improved test coverage for `GetCacheKey`. See PR [#3020](https://github.com/AzureAD/microsoft-identity-web/pull/3020) for details.
+- Update to .NET 9-RC1. See issue [#3025](https://github.com/AzureAD/microsoft-identity-web/issues/3025) for details.
+- Fix static analysis warnings. See PR [#3024](https://github.com/AzureAD/microsoft-identity-web/pull/3024) for details.
+
+3.1.0
+=========
+- Updated to Microsoft.IdentityModel.* 8.0.2
+
+### Security improvement:
+- Id Web now uses `CaseSensitiveClaimsIdentity` by default and provides AppContextSwitches to fallback to using `ClaimsIdentity`. This means that when you loopup claims with FindFirst(), FindAll() and HasClaim(), you need to provide the right casing for the claim. See PR [#2977](https://github.com/AzureAD/microsoft-identity-web/pull/2977) for details.
+
+### Bug fixes:
+- For SN/I scenarios, Id Web's `GetTokenAcquirer` now sets `SendX5C` in particular protocols. See issue [#2887](https://github.com/AzureAD/microsoft-identity-web/issues/2887) for details.
+- Fix for Instance/Tenant parsing for V2 authority (affected one Entra External IDs scenario). See PR [#2954](https://github.com/AzureAD/microsoft-identity-web/issues/2954) for details.
+- Fix regex that threw a format exception: `The input string " was not in a correct format` when enabling *same-site cookie compatibility* with userAgent: "Dalvik/2.1.0 (Linux; U; Android 12; Chromecast Build/STTE.230319.008.H1). See issue [#2879](https://github.com/AzureAD/microsoft-identity-web/issues/2879) for details.
+- Microsoft.Identity.Web 3.1.0 now has an upper bound set on its dependency on Microsoft.Identity.Abstractions to version 7x to avoid referencing Microsoft.Identity.Abstractions 8.0.0, which has an interface breaking change, not yet implemented in Microsoft.Identity.Web. See PR [#2962](https://github.com/AzureAD/microsoft-identity-web/pull/2962) for details.
+  
+
+### Fundamentals:
+- Fix flakey tests: [#2972](https://github.com/AzureAD/microsoft-identity-web/pull/2972), [#2984](https://github.com/AzureAD/microsoft-identity-web/pull/2984), [#2982](https://github.com/AzureAD/microsoft-identity-web/issues/2982), 
+- Update to `AzureKeyVault@2` in AzureDevOps, [#2981](https://github.com/AzureAD/microsoft-identity-web/pull/2981).
+- Update to .NET 9-preview7, [#2980](https://github.com/AzureAD/microsoft-identity-web/pull/2980) and [#2991](https://github.com/AzureAD/microsoft-identity-web/pull/2991).
+- It's now possible to build a specific version of Microsoft.Identity.Web based on specific versions of Microsoft.IdentityModel and Microsoft.Identity.Abstractions by specifying build variables on the dotnet pack command (MicrosoftIdentityModelVersion, MicrosoftIdentityAbstractionsVersions, and MicrosoftIdentityWebVersion): [#2974](https://github.com/AzureAD/microsoft-identity-web/pull/2974), [#2990](https://github.com/AzureAD/microsoft-identity-web/pull/2990)
+
 ========
 
 **See [rel/v2 branch changelog](https://github.com/AzureAD/microsoft-identity-web/blob/rel/v2/changelog.md#2200) for changes to all 2.x.x versions after 2.18.1.**

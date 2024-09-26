@@ -5,6 +5,9 @@
 # Code files
 [*.{cs,vb}]
 
+# RS0030: Do not used banned APIs
+dotnet_diagnostic.RS0030.severity = error
+
 # SA0001: XML comment analysis disabled
 dotnet_diagnostic.SA0001.severity = none
 

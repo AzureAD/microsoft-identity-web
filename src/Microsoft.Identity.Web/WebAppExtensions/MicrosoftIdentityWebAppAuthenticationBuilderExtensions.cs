@@ -544,6 +544,8 @@ namespace Microsoft.Identity.Web
                     options.AdditionalAuthorizationParameters.Add(parameter.Key, parameter.Value);
                 }
             }
+
+            options.PushedAuthorizationBehavior = mergedOptions.PushedAuthorizationBehavior;
 #endif
         }
     }

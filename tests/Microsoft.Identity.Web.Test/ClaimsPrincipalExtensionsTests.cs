@@ -3,6 +3,7 @@
 
 using System.Security.Claims;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -16,7 +17,7 @@ namespace Microsoft.Identity.Web.Test
         public void GetNameIdentifierId_WithUidClaim_ReturnsNameId()
         {
             var claimsPrincipalWithUid = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid),
                 }));
@@ -44,7 +45,7 @@ namespace Microsoft.Identity.Web.Test
         public void GetHomeTenantId_WithUtidClaim_ReturnsHomeTenantId()
         {
             var claimsPrincipalWithUtid = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid),
                 }));
@@ -56,17 +57,17 @@ namespace Microsoft.Identity.Web.Test
         public void GetUserFlowId_WithTfpOrUserFlowClaims_ReturnsUserFlowId()
         {
             var claimsPrincipalWithTfp = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tfp, TestConstants.ClaimNameTfp),
                 }));
             var claimsPrincipalWithUserFlow = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.UserFlow, TestConstants.B2CSignUpSignInUserFlow),
                 }));
             var claimsPrincipalWithTfpAndUserFlow = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tfp, TestConstants.ClaimNameTfp),
                     new Claim(ClaimConstants.UserFlow, TestConstants.B2CSignUpSignInUserFlow),
@@ -89,17 +90,17 @@ namespace Microsoft.Identity.Web.Test
         public void GetObjectId_WithOidOrObjectIdClaims_ReturnsObjectId()
         {
             var claimsPrincipalWithOid = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Oid, TestConstants.ObjectIdAsGuid),
                 }));
             var claimsPrincipalWithObjectId = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.ObjectId, TestConstants.Oid),
                 }));
             var claimsPrincipalWithOidAndObjectId = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Oid, TestConstants.ObjectIdAsGuid),
                     new Claim(ClaimConstants.ObjectId, TestConstants.Oid),
@@ -122,17 +123,17 @@ namespace Microsoft.Identity.Web.Test
         public void GetTenantId_WithTidOrTenantIdClaims_ReturnsTenantId()
         {
             var claimsPrincipalWithTid = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tid, TestConstants.TenantIdAsGuid),
                 }));
             var claimsPrincipalWithTenantId = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.TenantId, TestConstants.GuestTenantId),
                 }));
             var claimsPrincipalWithTidAndTenantId = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Tid, TestConstants.TenantIdAsGuid),
                     new Claim(ClaimConstants.TenantId, TestConstants.GuestTenantId),
@@ -155,28 +156,28 @@ namespace Microsoft.Identity.Web.Test
         public void GetDisplayName_WithSomeOrAllNameClaims_ReturnsName()
         {
             var claimsPrincipalWithPreferredUsername = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
                 }));
             var claimsPrincipalWithNameV1 = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1),
                 }));
             var claimsPrincipalWithName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                 }));
             var claimsPrincipalWithNameV1AndName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                     new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1),
                 }));
             var claimsPrincipalWithPreferredUsernameAndNameV1AndName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                     new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
@@ -202,13 +203,13 @@ namespace Microsoft.Identity.Web.Test
         public void GetDomainHint_WithTenantIdClaims_ReturnsDomainHint()
         {
             var claimsPrincipalWithMsaTenant = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.TenantId, Constants.MsaTenantId),
                 }));
 
             var claimsPrincipalWithNonMsaTenant = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.TenantId, TestConstants.TenantIdAsGuid),
                 }));
@@ -229,28 +230,28 @@ namespace Microsoft.Identity.Web.Test
         public void GetLoginHint_WithSomeOrAllNameClaims_ReturnsName()
         {
             var claimsPrincipalWithPreferredUsername = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
                 }));
             var claimsPrincipalWithNameV1 = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1),
                 }));
             var claimsPrincipalWithName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                 }));
             var claimsPrincipalWithNameV1AndName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                     new Claim(ClaimsIdentity.DefaultNameClaimType, NameV1),
                 }));
             var claimsPrincipalWithPreferredUsernameAndNameV1AndName = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.Name, Name),
                     new Claim(ClaimConstants.PreferredUserName, TestConstants.PreferredUsername),
@@ -279,14 +280,14 @@ namespace Microsoft.Identity.Web.Test
             var aadPattern = $"{TestConstants.Uid}.{TestConstants.Utid}";
 
             var claimsPrincipalForB2c = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid + "-" + TestConstants.B2CSignUpSignInUserFlow),
                     new Claim(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid),
                     new Claim(ClaimConstants.Tfp, TestConstants.B2CSignUpSignInUserFlow),
                 }));
             var claimsPrincipalForAad = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid),
                     new Claim(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid),

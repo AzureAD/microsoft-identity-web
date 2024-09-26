@@ -354,3 +354,6 @@ MigrationBackup/
 # Playwright e2e testing trace files
 /tests/E2E Tests/PlaywrightTraces
 /tests/IntegrationTests/PlaywrightTraces
+/.SharedData
+/out/
+objd/

@@ -82,7 +82,7 @@ namespace WebAppUiTests
                 var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
-                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { grpcProcessOptions, serviceProcessOptions, clientProcessOptions }, out processes);
+                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { /*grpcProcessOptions,*/ serviceProcessOptions, clientProcessOptions }, out processes);
 
                 if (!areProcessesRunning)
                 {

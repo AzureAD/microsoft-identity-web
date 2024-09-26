@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Security.Claims;
 using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -22,10 +22,23 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(account);
 
-            ClaimsIdentity identity = new ClaimsIdentity(new[]
+            ClaimsIdentity identity;
+
+            if (AppContextSwitches.UseClaimsIdentityType)
+            {
+#pragma warning disable RS0030 // Do not use banned APIs
+                identity = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Upn, account.Username),
                 });
+#pragma warning restore RS0030 // Do not use banned APIs
+            } else
+            {
+                identity = new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Upn, account.Username),
+                });
+            }
 
             if (!string.IsNullOrEmpty(account.HomeAccountId?.ObjectId))
             {

@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -261,6 +262,62 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
+        public async Task DeserializeOutput_ReturnsDeserializedContent()
+        {
+            // Arrange
+            var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = content
+            };
+            var options = new DownstreamApiOptions();
+
+            // Act
+            var result = await DownstreamApi.DeserializeOutput<Person>(response, options);
+
+            // Assert
+            Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal("John", result?.Name);
+            Assert.Equal(30, result?.Age);
+        }
+
+#if NET8_0_OR_GREATER
+        [Fact]
+        public void SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
+        {
+            // Arrange
+            var input = new Person();
+            _options.Serializer = o => new StringContent("serialized");
+
+            // Act
+            var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+
+            // Assert
+            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+        }
+
+        [Fact]
+        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvided()
+        {
+            // Arrange
+            var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = content
+            };
+            var options = new DownstreamApiOptions();
+
+            // Act
+            var result = await DownstreamApi.DeserializeOutput<Person>(response, options, CustomJsonContext.Default.Person);
+
+            // Assert
+            Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal("John", result?.Name);
+            Assert.Equal(30, result?.Age);
+        }
+#endif
+
+        [Fact]
         public async Task DeserializeOutput_ThrowsNotSupportedException_WhenContentTypeIsNotSupportedAsync()
         {
             // Arrange
@@ -280,6 +337,11 @@ namespace Microsoft.Identity.Web.Tests
     {
         public string? Name { get; set; }
         public int? Age { get; set; }
+    }
+
+    [JsonSerializable(typeof(Person))]
+    internal partial class CustomJsonContext : JsonSerializerContext
+    {
     }
 
     public class MyMonitor : IOptionsMonitor<DownstreamApiOptions>

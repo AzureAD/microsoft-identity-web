@@ -84,7 +84,8 @@ namespace Microsoft.Identity.Web.Test.Common
         // CIAM
         public const string CIAMInstance = "https://catsareawesome.ciamlogin.com";
         public const string CIAMTenant = "aaaaaa-43bb-4ff9-89af-30ed8fe31c6d";
-        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+        public const string CIAMAuthorityV2 = CIAMInstance + "/" + CIAMTenant + "/v2.0";
+        public const string CIAMAuthority = CIAMInstance + "/" + CIAMTenant;
 
         // Claims
         public const string ClaimNameTid = "tid";
@@ -154,6 +155,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string SecurePage2GetTokenForAppAsync = "/SecurePage2/GetTokenForAppAsync";
         public const string SecurePage2CallDownstreamWebApi = "/SecurePage2/CallDownstreamWebApiAsync";
         public const string SecurePage2CallDownstreamWebApiGeneric = "/SecurePage2/CallDownstreamWebApiGenericAsync";
+        public const string SecurePage2CallDownstreamWebApiGenericAotInternal = "/SecurePage2/CallDownstreamWebApiGenericAsyncAotInternal";
         public const string SecurePage2CallDownstreamWebApiGenericWithTokenAcquisitionOptions = "/SecurePage2/CallDownstreamWebApiGenericWithTokenAcquisitionOptionsAsync";
         public const string SecurePage2CallMicrosoftGraph = "/SecurePage2/CallMicrosoftGraph";
         public const string SectionNameCalledApi = "CalledApi";

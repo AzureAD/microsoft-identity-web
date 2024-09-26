@@ -15,6 +15,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 
+#if NET8_0_OR_GREATER
+using System.Text.Json.Serialization.Metadata;
+#endif
+
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
@@ -22,9 +26,19 @@ namespace Microsoft.Identity.Web
     {
 <#
   bool firstMethod = true;
+
+  foreach(string framework in new string[]{  "all", "net8" } )
+  {
+    if (framework == "net8")
+    {
+#>
+
+#if NET8_0_OR_GREATER
+<#
+    }
   foreach(string httpMethod in new string[]{  "Get", "Post", "Put", "Patch", "Delete"} )
   {
-   if (httpMethod == "Patch")
+   if (httpMethod == "Patch" && framework != "net8")
    {
 #>
 
@@ -61,6 +75,12 @@ namespace Microsoft.Identity.Web
 <# if (hasInput){ #>
             TInput input,
 <# } #>
+<# if (hasInput && framework == "net8"){ #>
+            JsonTypeInfo<TInput> inputJsonTypeInfo,
+<# } #>
+<# if (hasOutput && framework == "net8"){ #>
+            JsonTypeInfo<TOutput> outputJsonTypeInfo,
+<# } #>
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
 <# if (!hasApp){ #>
             ClaimsPrincipal? user = null,
@@ -71,9 +91,13 @@ namespace Microsoft.Identity.Web
 <# } #>
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.<#=httpMethod#>);
-<# if (hasInput){ #>
+<# if (hasInput) {
+   if (framework == "net8"){
+#>
+            HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+<# } else { #>
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
-<# } #>
+<# } } #>
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
@@ -86,9 +110,13 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
 <# }
-   if (hasOutput)
+   if (hasOutput && framework == "net8")
    { #>
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+<# } 
+   else if (hasOutput)
+   {#>
+                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
 <# } #>
             }
             catch(Exception ex) when (
@@ -108,7 +136,7 @@ namespace Microsoft.Identity.Web
    }
 #>
 <#
-     if (httpMethod == "Patch")
+     if (httpMethod == "Patch" && framework != "net8")
      {
 #>
 
@@ -116,5 +144,9 @@ namespace Microsoft.Identity.Web
 <#
     }
   }
-#>    }
+if (framework == "net8") {#>
+#endif // NET8_0_OR_GREATER
+<#}
+}
+#>   }
 }

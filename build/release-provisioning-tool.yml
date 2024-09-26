@@ -32,7 +32,7 @@ steps:
   inputs:
     command: test
     projects: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:ClientSemVer=$(ClientSemVer) -p:SourceLinkCreate=true'
+    arguments: '--configuration $(BuildConfiguration) -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=$(MicrosoftIdentityWebVersion) -p:SourceLinkCreate=true'
  
 # This task is needed so that the 1CS Rolsyn analyzers task works.
 # The previous task does the restore
@@ -41,7 +41,7 @@ steps:
   inputs:
     solution: '$(Build.SourcesDirectory)\tools\app-provisioning-tool\app-provisioning.sln'
     vsVersion: '16.0'
-    msbuildArgs: '/p:RunCodeAnalysis=false /p:ClientSemVer=$(ClientSemVer) /p:SourceLinkCreate=true'
+    msbuildArgs: '/p:RunCodeAnalysis=false /p:MicrosoftIdentityWebVersion=$(MicrosoftIdentityWebVersion) /p:SourceLinkCreate=true'
     platform: $(BuildPlatform)
     configuration: $(BuildConfiguration)
  

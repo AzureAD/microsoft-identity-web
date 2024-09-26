@@ -30,22 +30,60 @@ namespace Microsoft.Identity.Web
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
             ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters credentialSourceLoaderParameters)
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
         {
-            foreach (var credential in clientCredentials)
+            var credential = await LoadCredentialForMsalOrFailAsync(
+                    clientCredentials,
+                    logger,
+                    credentialsLoader,
+                    credentialSourceLoaderParameters)
+                .ConfigureAwait(false);
+
+            if (credential == null)
             {
+                return builder;
+            }
+
+            switch (credential.CredentialType)
+            {
+                case CredentialType.SignedAssertion:
+                    return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
+                case CredentialType.Certificate:
+                    return builder.WithCertificate(credential.Certificate);
+                case CredentialType.Secret:
+                    return builder.WithClientSecret(credential.ClientSecret);
+                default:
+                    throw new NotImplementedException();
+
+            }
+        }
+
+        internal /* for test */ async static Task<CredentialDescription?> LoadCredentialForMsalOrFailAsync(
+            IEnumerable<CredentialDescription> clientCredentials,
+            ILogger logger,
+            ICredentialsLoader credentialsLoader,
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
+        {
+            string errorMessage = "\n";
+
+            foreach (CredentialDescription credential in clientCredentials)
+            {
+                Logger.AttemptToLoadCredentials(logger, credential);
+
                 if (!credential.Skip)
                 {
-                    // Load the credentials
-                    string errorMessage = string.Empty;
+                    // Load the credentials and record error messages in case we need to fail at the end
                     try
                     {
+                        
                         await credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        errorMessage = ex.Message;
+                        Logger.AttemptToLoadCredentialsFailed(logger, credential, ex);
+                        errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
                     }
+
 
                     if (credential.CredentialType == CredentialType.SignedAssertion)
                     {
@@ -58,7 +96,7 @@ namespace Microsoft.Identity.Web
                             else
                             {
                                 Logger.UsingManagedIdentity(logger);
-                                return builder.WithClientAssertion((credential.CachedValue as ManagedIdentityClientAssertion)!.GetSignedAssertionAsync);
+                                return credential;
                             }
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
@@ -66,7 +104,7 @@ namespace Microsoft.Identity.Web
                             if (!credential.Skip)
                             {
                                 Logger.UsingPodIdentityFile(logger, credential.SignedAssertionFileDiskPath ?? "not found");
-                                return builder.WithClientAssertion((credential.CachedValue as AzureIdentityForKubernetesClientAssertion)!.GetSignedAssertionAsync);
+                                return credential;
                             }
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFromVault)
@@ -74,35 +112,38 @@ namespace Microsoft.Identity.Web
                             if (!credential.Skip)
                             {
                                 Logger.UsingSignedAssertionFromVault(logger, credential.KeyVaultUrl ?? "undefined");
-                                return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
+                                return credential;
                             }
                         }
                     }
 
                     if (credential.CredentialType == CredentialType.Certificate)
                     {
-                        if (credential.Certificate !=null)
+                        if (credential.Certificate != null)
                         {
                             Logger.UsingCertThumbprint(logger, credential.Certificate.Thumbprint);
-                            return builder.WithCertificate(credential.Certificate);
+                            return credential;
                         }
                     }
 
                     if (credential.CredentialType == CredentialType.Secret)
                     {
-                        return builder.WithClientSecret(credential.ClientSecret);
+                        return credential;
                     }
                 }
             }
 
-            if (clientCredentials.Any(c => c.CredentialType == CredentialType.Certificate))
+            if (clientCredentials.Any(c => c.CredentialType == CredentialType.Certificate || c.CredentialType == CredentialType.SignedAssertion))
             {
                 throw new ArgumentException(
-                    IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                    nameof(clientCredentials));
+                   IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded + errorMessage,
+                   nameof(clientCredentials));
             }
 
-            return builder;
+            logger.LogInformation($"No client credential could be used. Secret may have been defined elsewhere. " +
+                $"Count {(clientCredentials != null ? clientCredentials.Count() : 0)} ");
+
+            return null;
         }
     }
 }

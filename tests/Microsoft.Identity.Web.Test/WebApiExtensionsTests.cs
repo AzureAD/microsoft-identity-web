@@ -21,6 +21,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
+using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
 using NSubstitute.Extensions;
 using Xunit;
@@ -354,7 +355,7 @@ namespace Microsoft.Identity.Web.Test
                 SecurityToken = new JwtSecurityToken(),
             };
             tokenValidatedContext.Principal = new ClaimsPrincipal(
-                new ClaimsIdentity(new Claim[]
+                new CaseSensitiveClaimsIdentity(new Claim[]
                 {
                         new Claim(ClaimConstants.Scope, Constants.Scope),
                 }));
