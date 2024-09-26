@@ -262,7 +262,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDeserializedContent()
+        public async Task DeserializeOutput_ReturnsDeserializedContentAsync()
         {
             // Arrange
             var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
@@ -273,7 +273,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<Person>(response, options);
+            var result = await DownstreamApi.DeserializeOutputAsync<Person>(response, options);
 
             // Assert
             Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
