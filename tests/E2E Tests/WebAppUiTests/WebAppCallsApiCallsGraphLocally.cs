@@ -3,18 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
-using System.Linq;
-using System.Text;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
+using UITH = WebAppUiTests.UiTestHelpers;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
@@ -30,6 +30,7 @@ namespace WebAppUiTests
         private const uint WebAppCiamPort = 7096;
         private const uint WebApiCiamPort = 5299;
         private const string TraceFileClassName = "WebAppCallsApiCallsGraphLocally";
+        private const uint NumProcessRetries = 3;
         private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 25000 };
         private readonly string _devAppPath = "DevApps" + Path.DirectorySeparatorChar.ToString() + "WebAppCallsWebApiCallsGraph";
         private readonly string _devAppPathCiam = Path.Join("DevApps", "ciam");
@@ -72,7 +73,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage? page = null;
+            IPage page = await context.NewPageAsync();
 
             try
             {
@@ -82,28 +83,26 @@ namespace WebAppUiTests
                 var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
-                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { /*grpcProcessOptions,*/ serviceProcessOptions, clientProcessOptions }, out processes);
+                bool areProcessesRunning = UITH.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { /*grpcProcessOptions,*/ serviceProcessOptions, clientProcessOptions }, out processes, NumProcessRetries);
 
                 if (!areProcessesRunning)
                 {
-                    _output.WriteLine("Process not started after 3 attempts.");
+                    _output.WriteLine($"Process not started after {NumProcessRetries} attempts.");
                     StringBuilder runningProcesses = new StringBuilder();
                     foreach (var process in processes)
                     {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
-#pragma warning restore CA1305 // Specify IFormatProvider
+                        runningProcesses.AppendLine(CultureInfo.InvariantCulture, $"Is {process.Key} running: {UITH.ProcessIsAlive(process.Value)}");
                     }
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
-                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+                await UITH.NavigateToWebApp(TC.LocalhostUrl + TodoListClientPort, page);
+                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = labResponse.User.Upn;
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                await UITH.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
                 await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -111,14 +110,14 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
+                await UITH.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
-                await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                var todoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
+                await UITH.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                var todoLink = page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
                 await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
 
@@ -126,14 +125,14 @@ namespace WebAppUiTests
                 _output.WriteLine("Starting web app create new todo flow.");
                 await todoLink.ClickAsync();
                 var titleEntryBox = page.GetByLabel("Title");
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle1);
+                await UITH.FillEntryBox(titleEntryBox, TC.TodoTitle1);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle1 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app create new todo flow successful.");
 
                 // Edit todo item
                 _output.WriteLine("Starting web app edit todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Edit" }).ClickAsync();
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle2);
+                await UITH.FillEntryBox(titleEntryBox, TC.TodoTitle2);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle2 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app edit todo flow successful.");
 
@@ -160,17 +159,17 @@ namespace WebAppUiTests
                     _output.WriteLine("No Screenshot.");
                 }
 
-                string runningProcesses = GetRunningProcessAsString(processes);
+                string runningProcesses = UITH.GetRunningProcessAsString(processes);
 
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
-                // Add the following to make sure all processes and their children are stopped.
-                EndProcesses(processes);
+                // Make sure all application processes and their children are stopped.
+                UITH.EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
-                string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
+                string path = UITH.GetTracePath(_testAssemblyLocation, TraceFileName);
                 await context.Tracing.StopAsync(new() { Path = path });
                 _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
 
@@ -211,7 +210,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
-            IPage? page = null;
+            IPage page = await context.NewPageAsync();
 
             try
             {
@@ -219,27 +218,27 @@ namespace WebAppUiTests
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
                 var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
                 var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { serviceProcessOptions, clientProcessOptions }, out processes);
+                bool areProcessesRunning = UITH.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { serviceProcessOptions, clientProcessOptions }, out processes, NumProcessRetries);
 
                 if (!areProcessesRunning)
                 {
-                    _output.WriteLine("Process not started after 3 attempts.");
+                    _output.WriteLine($"Process not started after {NumProcessRetries} attempts.");
                     StringBuilder runningProcesses = new StringBuilder();
                     foreach (var process in processes)
                     {
 #pragma warning disable CA1305 // Specify IFormatProvider
-                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value )}");
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UITH.ProcessIsAlive(process.Value)}");
 #pragma warning restore CA1305 // Specify IFormatProvider
                     }
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, WebAppCiamPort);
+                await UITH.NavigateToWebApp(TC.LocalhostUrl + WebAppCiamPort, page);
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = "idlab@msidlabciam6.onmicrosoft.com";
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UITH.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -247,20 +246,20 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
+                await UITH.PerformSignOut_MicrosoftIdFlow(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using sign in button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign in" }).ClickAsync();
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UITH.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
             }
             catch (Exception ex)
             {
-                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
+                //Adding guid in case of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
@@ -274,17 +273,17 @@ namespace WebAppUiTests
                     _output.WriteLine("No Screenshot.");
                 }
 
-                string runningProcesses = GetRunningProcessAsString(processes);
+                string runningProcesses = UITH.GetRunningProcessAsString(processes);
 
                 Assert.Fail($"the UI automation failed: {ex} output: {ex.Message}.\n{runningProcesses}\nTest run: {guid}");
             }
             finally
             {
                 // Add the following to make sure all processes and their children are stopped.
-                EndProcesses(processes);
+                UITH.EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
-                string path = UiTestHelpers.GetTracePath(_testAssemblyLocation, TraceFileName);
+                string path = UITH.GetTracePath(_testAssemblyLocation, TraceFileName);
                 await context.Tracing.StopAsync(new() { Path = path });
                 _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
 
@@ -292,70 +291,6 @@ namespace WebAppUiTests
                 await browser.CloseAsync();
                 playwright.Dispose();
             }
-        }
-
-        private string GetRunningProcessAsString(Dictionary<string, Process>? processes)
-        {
-            StringBuilder runningProcesses = new StringBuilder();
-            if (processes != null)
-            {
-                foreach (var process in processes)
-                {
-#pragma warning disable CA1305 // Specify IFormatProvider
-                    runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
-#pragma warning restore CA1305 // Specify IFormatProvider
-                }
-            }
-            return runningProcesses.ToString();
-        }
-
-        private void EndProcesses(Dictionary<string, Process>? processes)
-        {
-            Queue<Process> processQueue = new();
-            if (processes != null)
-            {
-                foreach (var process in processes)
-                {
-                    processQueue.Enqueue(process.Value);
-                }
-            }
-
-#if WINDOWS
-            UiTestHelpers.KillProcessTrees(processQueue);
-#else
-            while (processQueue.Count > 0)
-            {
-                Process p = processQueue.Dequeue();
-                p.Kill();
-                p.WaitForExit();
-            }
-#endif
-        }
-
-        private async Task<IPage> NavigateToWebApp(IBrowserContext context, uint port)
-        {
-            // Navigate to web app
-            IPage page = await context.NewPageAsync();
-
-            // The retry logic ensures the web app has time to start up to establish a connection.
-            uint InitialConnectionRetryCount = 5;
-            while (InitialConnectionRetryCount > 0)
-            {
-                try
-                {
-                    await page.GotoAsync(TC.LocalhostUrl + port);
-                    break;
-                }
-                catch (PlaywrightException ex)
-                {
-                    await Task.Delay(1000);
-                    InitialConnectionRetryCount--;
-                    if (InitialConnectionRetryCount == 0)
-                    { throw ex; }
-                }
-            }
-
-            return page;
         }
     }
 }
