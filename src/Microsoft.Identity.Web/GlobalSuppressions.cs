@@ -9,3 +9,5 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Design", "CA1055:Uri return values should not be strings", Justification = "We want a string.", Scope = "member", Target = "~M:Microsoft.Identity.Web.CalledApiOptions.GetApiUrl~System.String")]
+[assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "This method has an async counterpart.", Scope = "member", Target = "~M:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)~Azure.Core.AccessToken")]
+[assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "This method has an async counterpart.", Scope = "member", Target = "~M:Microsoft.Identity.Web.TokenAcquisitionTokenCredential.GetToken(Azure.Core.TokenRequestContext,System.Threading.CancellationToken)~Azure.Core.AccessToken")]

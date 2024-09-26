@@ -109,7 +109,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
                 }
 
+#if NET8_0_OR_GREATER
+                await tokenSource.CancelAsync();
+#else
                 tokenSource.Cancel();
+#endif
                 Console.WriteLine("Processing stopped. Duration elapsed.");
             }, tokenSource.Token);
         }
@@ -139,7 +143,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                         ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                         if (keyInfo.Key == ConsoleKey.Escape)
                         {
+#if NET8_0_OR_GREATER
+                            await tokenSource.CancelAsync();
+#else
                             tokenSource.Cancel();
+#endif
                             Console.WriteLine("Processing stopped. User cancelled.");
                         }
                     }

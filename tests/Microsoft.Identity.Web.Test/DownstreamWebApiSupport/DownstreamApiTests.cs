@@ -118,60 +118,64 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public void SerializeInput_WithSerializer_ReturnsSerializedContent()
+        public async Task SerializeInput_WithSerializer_ReturnsSerializedContentAsync()
         {
             // Arrange
             var input = new Person();
             _options.Serializer = o => new StringContent("serialized");
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+            Assert.Equal("serialized", result);
         }
 
         [Fact]
-        public void SerializeInput_WithStringAndContentType_ReturnsStringContent()
+        public async Task SerializeInput_WithStringAndContentType_ReturnsStringContentAsync()
         {
             // Arrange
             var input = "test";
             _options.ContentType = "text/plain";
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.IsType<StringContent>(result);
-            Assert.Equal(input, result.ReadAsStringAsync().Result);
+            Assert.IsType<StringContent>(httpContent);
+            Assert.Equal(input, result);
         }
 
         [Fact]
-        public void SerializeInput_WithByteArray_ReturnsByteArrayContent()
+        public async Task SerializeInput_WithByteArray_ReturnsByteArrayContentAsync()
         {
             // Arrange
             var input = new byte[] { 1, 2, 3 };
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsByteArrayAsync()!;
 
             // Assert
-            Assert.IsType<ByteArrayContent>(result);
-            Assert.Equal(input, result.ReadAsByteArrayAsync().Result);
+            Assert.IsType<ByteArrayContent>(httpContent);
+            Assert.Equal(input, result);
         }
 
         [Fact]
-        public void SerializeInput_WithStream_ReturnsStreamContent()
+        public async Task SerializeInput_WithStream_ReturnsStreamContentAsync()
         {
             // Arrange
             var input = new MemoryStream(Encoding.UTF8.GetBytes("test"));
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStreamAsync()!;
 
             // Assert
-            Assert.IsType<StreamContent>(result);
-            Assert.Equal("test", new StreamReader(result.ReadAsStreamAsync().Result).ReadToEnd());
+            Assert.IsType<StreamContent>(httpContent);
+            Assert.Equal("test", await new StreamReader(result).ReadToEndAsync());
         }
 
         [Fact]
