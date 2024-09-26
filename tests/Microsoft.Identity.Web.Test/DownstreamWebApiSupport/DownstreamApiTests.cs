@@ -283,21 +283,22 @@ namespace Microsoft.Identity.Web.Tests
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
+        public async Task SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvidedAsync()
         {
             // Arrange
             var input = new Person();
             _options.Serializer = o => new StringContent("serialized");
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+            var httpContent = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+            string result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+            Assert.Equal("serialized", result);
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvided()
+        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvidedAsync()
         {
             // Arrange
             var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
@@ -308,7 +309,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<Person>(response, options, CustomJsonContext.Default.Person);
+            var result = await DownstreamApi.DeserializeOutputAsync<Person>(response, options, CustomJsonContext.Default.Person);
 
             // Assert
             Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);

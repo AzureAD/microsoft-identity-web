@@ -234,7 +234,7 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-        private async Task<AuthenticationResult> GetTokensAssociatedWithKey(string? cachePartition, bool expectCacheHit)
+        private async Task<AuthenticationResult> GetTokensAssociatedWithKeyAsync(string? cachePartition, bool expectCacheHit)
         {
             MockHttpMessageHandler? handler = null;
             MockHttpClientFactory? mockHttpClient = null;
@@ -287,15 +287,15 @@ namespace Microsoft.Identity.Web.Test
         #endregion
 
         [Fact]
-        public async Task CacheKeyExtensibility()
+        public async Task CacheKeyExtensibilityAsync()
         {
-            var result = await GetTokensAssociatedWithKey("foo", expectCacheHit: false).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKey("bar", expectCacheHit: false).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKey(null, expectCacheHit: false).ConfigureAwait(false);
+            var result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: false).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: false).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: false).ConfigureAwait(false);
 
-            result = await GetTokensAssociatedWithKey("foo", expectCacheHit: true).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKey("bar", expectCacheHit: true).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKey(null, expectCacheHit: true).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: true).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: true).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: true).ConfigureAwait(false);
         }
 
         private enum CacheType

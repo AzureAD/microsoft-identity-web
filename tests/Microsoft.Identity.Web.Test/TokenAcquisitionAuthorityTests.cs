@@ -179,7 +179,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task VerifyDifferentRegionsDifferentApp()
+        public async Task VerifyDifferentRegionsDifferentAppAsync()
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {

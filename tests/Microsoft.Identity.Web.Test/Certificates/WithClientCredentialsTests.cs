@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
     public class WithClientCredentialsTests
     {
         [Fact]
-        public async Task FicFails_CertificateFallback()
+        public async Task FicFails_CertificateFallbackAsync()
         {
             // Arrange
             ILogger logger = Substitute.For<ILogger>();
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
         #region Test around failure to load creds
         [Fact]
-        public async Task FailsForFic_ReturnsMeaningfulMessage()
+        public async Task FailsForFic_ReturnsMeaningfulMessageAsync()
         {
 
             var ficCredential = new CredentialDescription
@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task FailsForCerts_ReturnsMeaningfulMessage()
+        public async Task FailsForCerts_ReturnsMeaningfulMessageAsync()
         {
 
             var certCredential1 = new CredentialDescription
@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task FailsForFicAndCert_ReturnsMeaningfulMessage()
+        public async Task FailsForFicAndCert_ReturnsMeaningfulMessageAsync()
         {
             var ficCredential = new CredentialDescription
             {
@@ -126,7 +126,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task FailsForCertAndFic_ReturnsMeaningfulMessage()
+        public async Task FailsForCertAndFic_ReturnsMeaningfulMessageAsync()
         {
             var certCredential = new CredentialDescription
             {
@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task FailsForPodAndCert_ReturnsMeaningfulMessage()
+        public async Task FailsForPodAndCert_ReturnsMeaningfulMessageAsync()
         {
             var certCredential = new CredentialDescription
             {
