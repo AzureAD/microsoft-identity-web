@@ -4,9 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Identity.Lab.Api;
@@ -14,6 +15,7 @@ using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
+using UITH = WebAppUiTests.UiTestHelpers;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
@@ -26,6 +28,7 @@ namespace WebAppUiTests
         private const string KeyvaultPasswordName = "IdWeb-B2C-password";
         private const string KeyvaultClientSecretName = "IdWeb-B2C-Client-ClientSecret";
         private const string NameOfUser = "unknown";
+        private const uint NumProcessRetries = 3;
         private const uint TodoListClientPort = 5000;
         private const uint TodoListServicePort = 44332;
         private const string TraceClassName = "B2CWebAppCallsWebApiLocally";
@@ -46,7 +49,7 @@ namespace WebAppUiTests
         {
             // Web app and api environmental variable setup.
             DefaultAzureCredential azureCred = new();
-            string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName, azureCred);
+            string clientSecret = await UITH.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName, azureCred);
             var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development" },
@@ -60,8 +63,8 @@ namespace WebAppUiTests
             };
 
             // Get email and password from keyvault.
-            string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName, azureCred);
-            string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName, azureCred);
+            string email = await UITH.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName, azureCred);
+            string password = await UITH.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName, azureCred);
 
             // Playwright setup. To see browser UI, set 'Headless = false'.
             const string TraceFileName = TraceClassName + "_TodoAppFunctionsCorrectly";
@@ -70,20 +73,28 @@ namespace WebAppUiTests
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
-            Process? serviceProcess= null;
-            Process? clientProcess = null;
+
+            Dictionary<string, Process>? processes = null;
 
             try
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
-                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+                var serviceProcess = new ProcessStartOptions(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 await Task.Delay(3000);
-                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+                var clientProcess = new ProcessStartOptions(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
-                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                bool processesAreRunning = UITH.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions>() { serviceProcess, clientProcess }, out processes, NumProcessRetries);
+
+                if (!processesAreRunning)
                 {
-                    Assert.Fail(TC.WebAppCrashedString);
+                    _output.WriteLine($"Process not started after {NumProcessRetries} attempts.");
+                    StringBuilder runningProcesses = new StringBuilder();
+                    foreach (var process in processes)
+                    {
+                        runningProcesses.AppendLine(CultureInfo.InvariantCulture, $"Is {process.Key} running: {UITH.ProcessIsAlive(process.Value)}");
+                    }
+                    Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
                 // Navigate to web app the retry logic ensures the web app has time to start up to establish a connection.
@@ -103,7 +114,7 @@ namespace WebAppUiTests
                         if (InitialConnectionRetryCount == 0) { throw ex; }
                     }
                 }
-                LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync().ConfigureAwait(false);
+                LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync();
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
@@ -138,7 +149,7 @@ namespace WebAppUiTests
                 _output.WriteLine("Starting web app create new todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Create New" }).ClickAsync();
                 ILocator titleEntryBox = page.GetByLabel("Title");
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle1);
+                await UITH.FillEntryBox(titleEntryBox, TC.TodoTitle1);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle1 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app create new todo flow successful.");
 
@@ -164,14 +175,11 @@ namespace WebAppUiTests
             }
             finally
             {
-                // Add the following to make sure all processes and their children are stopped.
-                Queue<Process> processes = new Queue<Process>();
-                if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
-                if (clientProcess != null) { processes.Enqueue(clientProcess); }
-                UiTestHelpers.KillProcessTrees(processes);
+                // Make sure all application processes and their children are stopped.
+                UITH.EndProcesses(processes);
 
                 // Stop tracing and export it into a zip archive.
-                string path = UiTestHelpers.GetTracePath(_testAssemblyPath, TraceFileName);
+                string path = UITH.GetTracePath(_testAssemblyPath, TraceFileName);
                 await context.Tracing.StopAsync(new() { Path = path });
                 _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
 
