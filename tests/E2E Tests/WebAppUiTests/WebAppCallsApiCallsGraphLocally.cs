@@ -97,8 +97,8 @@ namespace WebAppUiTests
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());
                 }
 
-                page = await NavigateToWebApp(context, TodoListClientPort).ConfigureAwait(false);
-                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+                page = await NavigateToWebApp(context, TodoListClientPort);
+                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
