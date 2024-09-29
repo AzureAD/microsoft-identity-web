@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727393883618,
+  "lastUpdate": 1727651046752,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6624,6 +6624,42 @@ window.BENCHMARK_DATA = {
             "value": 10536.33709886339,
             "unit": "ns",
             "range": "± 44.20407216917809"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c7213de09badaf80eff95562de1ded20fd937dc6",
+          "message": "Bump Microsoft.Identity.Client from 4.64.1 to 4.65.0 (#3040)\n\n* Bump Microsoft.Identity.Client from 4.64.1 to 4.65.0\r\n\r\nBumps [Microsoft.Identity.Client](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) from 4.64.1 to 4.65.0.\r\n- [Release notes](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases)\r\n- [Changelog](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/main/CHANGELOG.md)\r\n- [Commits](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/compare/4.64.1...4.65.0)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: Microsoft.Identity.Client\r\n  dependency-type: direct:production\r\n  update-type: version-update:semver-minor\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\n* revert dependabot update\r\n\r\n---------\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-09-29T16:00:44-07:00",
+          "tree_id": "c15492534ead900ec8c51e08646c2eca2c694ba6",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/c7213de09badaf80eff95562de1ded20fd937dc6"
+        },
+        "date": 1727651046217,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 10068.773326249557,
+            "unit": "ns",
+            "range": "± 136.77251565846214"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10765.29109139278,
+            "unit": "ns",
+            "range": "± 46.93032605608461"
           }
         ]
       }
