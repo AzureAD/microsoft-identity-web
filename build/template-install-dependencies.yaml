@@ -26,7 +26,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use .Net Core SDK 9'
   inputs:
-    version: 9.0.100-preview.6.24328.19
+    version: 9.0.100-rc.1.24452.12
     includePreviewVersions: true
   condition: eq(variables['TargetNet9'], 'True')
 

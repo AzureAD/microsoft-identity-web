@@ -25,6 +25,9 @@ namespace Microsoft.Identity.Web
         public static readonly EventId UsingPodIdentityFile = new EventId(402, "UsingPodIdentityFile");
         public static readonly EventId UsingCertThumbprint = new EventId(403, "UsingCertThumbprint");
         public static readonly EventId UsingSignedAssertionFromVault = new EventId(404, "UsingSignedAssertionFromVault");
+        public static readonly EventId CredentialLoadAttempt = new EventId(405, "CredentialLoadAttempt");
+        public static readonly EventId CredentialLoadAttemptFailed = new EventId(406, "CredentialLoadAttemptFailed");
+
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

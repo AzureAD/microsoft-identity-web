@@ -57,7 +57,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 return message;
             }
 
+#if NETFRAMEWORK
             message = message.Replace("+", "%20");
+#else
+            message = message.Replace("+", "%20", StringComparison.OrdinalIgnoreCase);
+#endif
             message = Uri.UnescapeDataString(message);
 
             return message;
