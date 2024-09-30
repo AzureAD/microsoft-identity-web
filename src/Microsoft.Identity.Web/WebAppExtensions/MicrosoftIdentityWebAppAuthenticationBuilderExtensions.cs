@@ -413,7 +413,7 @@ namespace Microsoft.Identity.Web
                         {
                             // When a new Challenge is returned using any B2C user flow different than susi, we must change
                             // the ProtocolMessage.IssuerAddress to the desired user flow otherwise the redirect would use the susi user flow
-                            await b2cOidcHandlers.OnRedirectToIdentityProviderAsync(context).ConfigureAwait(false);
+                            await b2cOidcHandlers.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
                         }
 
                         await redirectToIdpHandler(context).ConfigureAwait(false);
@@ -427,7 +427,7 @@ namespace Microsoft.Identity.Web
                             // Handles the error when a user cancels an action on the Azure Active Directory B2C UI.
                             // Handle the error code that Azure Active Directory B2C throws when trying to reset a password from the login page
                             // because password reset is not supported by a "sign-up or sign-in user flow".
-                            await b2cOidcHandlers.OnRemoteFailureAsync(context).ConfigureAwait(false);
+                            await b2cOidcHandlers.OnRemoteFailure(context).ConfigureAwait(false);
 
                             await remoteFailureHandler(context).ConfigureAwait(false);
                         };

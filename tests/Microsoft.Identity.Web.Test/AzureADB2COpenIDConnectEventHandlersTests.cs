@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Test
                 },
             };
 
-            await handler.OnRedirectToIdentityProviderAsync(context).ConfigureAwait(false);
+            await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
             errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             Assert.Equal(TestConstants.Scopes, context.ProtocolMessage.Scope);
@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Web.Test
             authProperties.Items.Add(OidcConstants.PolicyKey, DefaultUserFlow);
             var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties) { ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer } };
 
-            await handler.OnRedirectToIdentityProviderAsync(context).ConfigureAwait(false);
+            await handler.OnRedirectToIdentityProvider(context).ConfigureAwait(false);
 
             errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             Assert.Null(context.ProtocolMessage.Scope);
@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Web.Test
 
             var passwordResetException = "'access_denied', error_description: 'AADB2C90118: The user has forgotten their password. Correlation ID: f99deff4-f43b-43cc-b4e7-36141dbaf0a0 Timestamp: 2018-03-05 02:49:35Z', error_uri: 'error_uri is null'";
 
-            await handler.OnRemoteFailureAsync(new RemoteFailureContext(httpContext, _authScheme, new OpenIdConnectOptions(), new OpenIdConnectProtocolException(passwordResetException))).ConfigureAwait(false);
+            await handler.OnRemoteFailure(new RemoteFailureContext(httpContext, _authScheme, new OpenIdConnectOptions(), new OpenIdConnectProtocolException(passwordResetException))).ConfigureAwait(false);
 
             errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
             httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/MicrosoftIdentity/Account/ResetPassword/{OpenIdConnectDefaults.AuthenticationScheme}");
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web.Test
 
             var cancelException = "'access_denied', error_description: 'AADB2C90091: The user has canceled entering self-asserted information. Correlation ID: d01c8878-0732-4eb2-beb8-da82a57432e0 Timestamp: 2018-03-05 02:56:49Z ', error_uri: 'error_uri is null'";
 
-            await handler.OnRemoteFailureAsync(
+            await handler.OnRemoteFailure(
                 new RemoteFailureContext(
                     httpContext,
                     _authScheme,
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Web.Test
 
             var otherException = "Generic exception.";
 
-            await handler.OnRemoteFailureAsync(
+            await handler.OnRemoteFailure(
                 new RemoteFailureContext(
                     httpContext,
                     _authScheme,
