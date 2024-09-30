@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
         public static async Task<X509Certificate2?> LoadFirstCertificateAsync(IEnumerable<CertificateDescription> certificateDescriptions)
         {
             DefaultCertificateLoader defaultCertificateLoader = new(null);
-            CertificateDescription? certDescription = new();
+            CertificateDescription? certDescription = null;
             foreach (var c in certificateDescriptions)
             {
                 await defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).ConfigureAwait(false);
