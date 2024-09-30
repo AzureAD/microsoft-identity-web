@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(tokenCacheProvider);
         }
 
-        [Theory, MemberData(nameof(CacheExpiryData))]
+        [Theory, MemberData(nameof(CacheExpiryData), DisableDiscoveryEnumeration = true)]
         public void CacheEntryExpiry_SetCorrectly_Test(TimeSpan? optionsCacheExpiry, DateTimeOffset? suggestedCacheExpiry, TimeSpan expectedCacheExpiry)
         {
             // Arrange
