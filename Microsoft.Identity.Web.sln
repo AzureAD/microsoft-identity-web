@@ -160,7 +160,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.AotCompatibility.TestApp", "tests\Microsoft.Identity.Web.AotCompatibility.TestApp\Microsoft.Identity.Web.AotCompatibility.TestApp.csproj", "{BCE63265-6D36-423A-9C3D-BF8E448C7EA0}"
 EndProject
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
