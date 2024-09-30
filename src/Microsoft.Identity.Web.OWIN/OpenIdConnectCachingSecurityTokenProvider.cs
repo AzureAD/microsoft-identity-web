@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
             _synclock.EnterWriteLock();
             try
             {
-                OpenIdConnectConfiguration config = await Task.Run(_configManager.GetConfigurationAsync);
+                OpenIdConnectConfiguration config = await _configManager.GetConfigurationAsync();
                 _issuer = config.Issuer;
                 _keys = config.SigningKeys;
             }
