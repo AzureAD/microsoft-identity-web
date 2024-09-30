@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 }
 
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tokenAcquisitionOptions: tokenAcquisitionOptions);
 
                 // Assert
                 Assert.NotNull(authResult);
@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             else
             {
                 string token =
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp);
 
                 // Assert
                 Assert.NotNull(token);
@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers);
 
                 // Assert
                 Assert.NotNull(authResult);
@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             else
             {
                 string token =
-                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers).ConfigureAwait(false);
+                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers);
 
                 // Assert
                 Assert.NotNull(token);
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             if (getAuthResult)
             {
                 AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: TestConstants.ConfidentialClientLabTenant);
 
                 // Assert
                 Assert.NotNull(authResult);
@@ -190,7 +190,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 string token =
                     await _tokenAcquisition.GetAccessTokenForAppAsync(
                         TestConstants.s_scopeForApp,
-                        tenant: TestConstants.ConfidentialClientLabTenant).ConfigureAwait(false);
+                        tenant: TestConstants.ConfidentialClientLabTenant);
 
                 // Assert
                 Assert.NotNull(token);
@@ -247,7 +247,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
             var tokenAcquisitionHost = services.GetRequiredService<ITokenAcquisitionHost>();
 
-            var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
+            var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default");
 
             Assert.NotNull(token);
         }

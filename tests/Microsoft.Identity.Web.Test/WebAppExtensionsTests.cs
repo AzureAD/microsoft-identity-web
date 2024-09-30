@@ -461,8 +461,8 @@ namespace Microsoft.Identity.Web.Test
                 },
             };
 
-            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
-            await oidcOptions.Events.RedirectToIdentityProviderForSignOut(redirectContext).ConfigureAwait(false);
+            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext);
+            await oidcOptions.Events.RedirectToIdentityProviderForSignOut(redirectContext);
 
             Assert.Equal(expectedUri, redirectContext.ProtocolMessage.RedirectUri);
         }
@@ -734,10 +734,10 @@ namespace Microsoft.Identity.Web.Test
             var redirectContext = new RedirectContext(httpContext, authScheme, oidcOptions, authProperties);
             redirectContext.ProtocolMessage = new OpenIdConnectMessage();
 
-            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
+            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext);
 
             // Assert properties set, events called
-            await redirectFunc.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>()).ConfigureAwait(false);
+            await redirectFunc.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>());
             Assert.NotNull(redirectContext.ProtocolMessage.LoginHint);
             Assert.NotNull(redirectContext.ProtocolMessage.DomainHint);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters[OidcConstants.AdditionalClaims]);
@@ -786,10 +786,10 @@ namespace Microsoft.Identity.Web.Test
 
             var remoteFailureContext = new RemoteFailureContext(httpContext, authScheme, new RemoteAuthenticationOptions(), new Exception());
 
-            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext).ConfigureAwait(false);
-            await oidcOptions.Events.RemoteFailure(remoteFailureContext).ConfigureAwait(false);
+            await oidcOptions.Events.RedirectToIdentityProvider(redirectContext);
+            await oidcOptions.Events.RemoteFailure(remoteFailureContext);
 
-            await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>()).ConfigureAwait(false);
+            await remoteFailureFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RemoteFailureContext>());
             // Assert issuer is updated to non-default user flow
             Assert.Contains(TestConstants.B2CEditProfileUserFlow, redirectContext.ProtocolMessage.IssuerAddress, System.StringComparison.OrdinalIgnoreCase);
             Assert.NotNull(redirectContext.ProtocolMessage.Parameters[ClaimConstants.ClientInfo]);
@@ -825,11 +825,11 @@ namespace Microsoft.Identity.Web.Test
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
-            await oidcOptions.Events.AuthorizationCodeReceived(new AuthorizationCodeReceivedContext(httpContext, authScheme, oidcOptions, authProperties)).ConfigureAwait(false);
+            await oidcOptions.Events.AuthorizationCodeReceived(new AuthorizationCodeReceivedContext(httpContext, authScheme, oidcOptions, authProperties));
 
             // Assert original AuthorizationCodeReceived event and TokenAcquisition method were called
-            await authCodeReceivedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<AuthorizationCodeReceivedContext>()).ConfigureAwait(false);
-            await tokenAcquisitionMock.ReceivedWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>()).ConfigureAwait(false);
+            await authCodeReceivedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<AuthorizationCodeReceivedContext>());
+            await tokenAcquisitionMock.ReceivedWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>());
         }
 
         private async Task AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(IServiceProvider provider, OpenIdConnectOptions oidcOptions, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
@@ -845,10 +845,10 @@ namespace Microsoft.Identity.Web.Test
                     }),
             };
 
-            await oidcOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
+            await oidcOptions.Events.TokenValidated(tokenValidatedContext);
 
             // Assert original TokenValidated event was called; properties were set
-            await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
+            await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>());
             Assert.True(tokenValidatedContext?.Principal?.HasClaim(c => c.Type == ClaimConstants.UniqueTenantIdentifier));
             Assert.True(tokenValidatedContext?.Principal?.HasClaim(c => c.Type == ClaimConstants.UniqueObjectIdentifier));
         }
@@ -861,11 +861,11 @@ namespace Microsoft.Identity.Web.Test
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
-            await oidcOptions.Events.RedirectToIdentityProviderForSignOut(new RedirectContext(httpContext, authScheme, oidcOptions, authProperties)).ConfigureAwait(false);
+            await oidcOptions.Events.RedirectToIdentityProviderForSignOut(new RedirectContext(httpContext, authScheme, oidcOptions, authProperties));
 
             // Assert original RedirectToIdentityProviderForSignOut event and TokenAcquisition method were called
-            await redirectFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>()).ConfigureAwait(false);
-            await tokenAcquisitionMock.ReceivedWithAnyArgs().RemoveAccountAsync(Arg.Any<ClaimsPrincipal>()).ConfigureAwait(false);
+            await redirectFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<RedirectContext>());
+            await tokenAcquisitionMock.ReceivedWithAnyArgs().RemoveAccountAsync(Arg.Any<ClaimsPrincipal>());
         }
 
         private (HttpContext, AuthenticationScheme, AuthenticationProperties) CreateContextParameters(IServiceProvider provider)

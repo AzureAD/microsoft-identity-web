@@ -37,11 +37,11 @@ namespace Microsoft.Identity.Web.Test
         {
             AuthenticationResult result;
             // new InMemory serializer and new cca
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.L1Cache);
 
@@ -49,11 +49,11 @@ namespace Microsoft.Identity.Web.Test
             TokenCacheExtensions.s_serviceProviderFromAction.Clear();
 
             // new DistributedInMemory and same cca
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.L1Cache);
         }
@@ -63,11 +63,11 @@ namespace Microsoft.Identity.Web.Test
         {
             AuthenticationResult result;
             // new DistributedInMemory serializer with L1 cache disabled
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, disableL1Cache: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, disableL1Cache: true);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false, disableL1Cache: true).ConfigureAwait(false);
+            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false, disableL1Cache: true);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.L2Cache);
         }
@@ -181,10 +181,10 @@ namespace Microsoft.Identity.Web.Test
                 // Different tenants used to created different cache entries
                 var result1 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                     .WithTenantId(tenantId1)
-                    .ExecuteAsync().ConfigureAwait(false);
+                    .ExecuteAsync();
                 var result2 = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                     .WithTenantId(tenantId2)
-                    .ExecuteAsync().ConfigureAwait(false);
+                    .ExecuteAsync();
 
                 Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
                 Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
@@ -261,12 +261,12 @@ namespace Microsoft.Identity.Web.Test
                                     .WithClientSecret(TestConstants.ClientSecret)
                                     .Build();
 
-                await msalMemoryTokenCacheProvider.InitializeAsync(confidentialApp.AppTokenCache).ConfigureAwait(false);
+                await msalMemoryTokenCacheProvider.InitializeAsync(confidentialApp.AppTokenCache);
 
                 AuthenticationResult result = await confidentialApp
                     .AcquireTokenForClient(["https://graph.microsoft.com/.default"])
                     .ExecuteAsync()
-                    .ConfigureAwait(false);
+                    ;
 
                 Assert.Equal(
                     expectCacheHit ?
@@ -353,7 +353,7 @@ namespace Microsoft.Identity.Web.Test
             }
 
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
-                .ExecuteAsync().ConfigureAwait(false);
+                .ExecuteAsync();
 
             tokenHandler.ReplaceMockHttpMessageHandler = null!;
             return result;

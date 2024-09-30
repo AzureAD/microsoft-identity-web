@@ -39,7 +39,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordAsync()
     {
-        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
 
         var clientEnvVars = new Dictionary<string, string>();
 

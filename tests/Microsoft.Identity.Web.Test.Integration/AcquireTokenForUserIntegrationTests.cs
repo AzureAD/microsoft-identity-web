@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Arrange
             HttpClient client = CreateHttpClient(addInMemoryTokenCache);
 
-            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+            var result = await AcquireTokenForLabUserAsync();
 
             // Act
             HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result).ConfigureAwait(false);
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Arrange
             HttpClient client = CreateHttpClient(addInMemoryTokenCache);
 
-            var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+            var result = await AcquireTokenForLabUserAsync();
 
             // Act
             HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 HttpResponseMessage response = await CreateHttpResponseMessageAsync(
                     TestConstants.SecurePage2GetTokenForUserAsync,
                     client,
-                    result).ConfigureAwait(false);
+                    result);
                 p.Kill();
 
                 // Assert
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                             Constants.Bearer,
                             result.AccessToken));
                 }
-                response = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                response = await client.SendAsync(httpRequestMessage);
             }
 
             return response;
@@ -194,7 +194,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
         {
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser).ConfigureAwait(false);
+            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(TestConstants.OBOClientSideClientId)
                .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
@@ -206,7 +206,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 TestConstants.OBOUser,
                 labResponse.User.GetOrFetchPassword())
                 .ExecuteAsync(CancellationToken.None)
-                .ConfigureAwait(false);
+                ;
 
             return authResult;
         }
