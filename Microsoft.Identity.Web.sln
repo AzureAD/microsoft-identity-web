@@ -160,7 +160,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.UI",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.AotCompatibility.TestApp", "tests\Microsoft.Identity.Web.AotCompatibility.TestApp\Microsoft.Identity.Web.AotCompatibility.TestApp.csproj", "{BCE63265-6D36-423A-9C3D-BF8E448C7EA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdtAddIn", "tests\CdtAddIn\CdtAddIn.csproj", "{A9592A72-8D33-47F8-A748-DEB4F204BC0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
