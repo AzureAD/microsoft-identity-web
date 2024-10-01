@@ -31,22 +31,22 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
 
         public async Task TestRemoveKeyAsync(string cacheKey)
         {
-            await RemoveKeyAsync(cacheKey).ConfigureAwait(false);
+            await RemoveKeyAsync(cacheKey);
         }
 
         public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints? cacheSerializerHints = null)
         {
-            await WriteCacheBytesAsync(cacheKey, bytes, cacheSerializerHints).ConfigureAwait(false);
+            await WriteCacheBytesAsync(cacheKey, bytes, cacheSerializerHints);
         }
 
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey)
         {
-            return await ReadCacheBytesAsync(cacheKey).ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey);
         }
 
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey, TelemetryData telemetryData)
         {
-            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints() { TelemetryData = telemetryData }).ConfigureAwait(false);
+            return await ReadCacheBytesAsync(cacheKey, new CacheSerializerHints() { TelemetryData = telemetryData });
         }
     }
 }
