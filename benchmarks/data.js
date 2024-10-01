@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727713122105,
+  "lastUpdate": 1727802292202,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6696,6 +6696,42 @@ window.BENCHMARK_DATA = {
             "value": 10404.940272961632,
             "unit": "ns",
             "range": "± 56.13269742232703"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0c7277be10f17080b244218324bc8866a95fdb75",
+          "message": "removed ConfigureAwait(false) from all tests (#3051)",
+          "timestamp": "2024-10-01T10:01:32-07:00",
+          "tree_id": "27d923403241386dca5be630e5146478b2b79793",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/0c7277be10f17080b244218324bc8866a95fdb75"
+        },
+        "date": 1727802291637,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9663.42817659198,
+            "unit": "ns",
+            "range": "± 75.43669926706615"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10406.766741888863,
+            "unit": "ns",
+            "range": "± 76.63992001746898"
           }
         ]
       }
