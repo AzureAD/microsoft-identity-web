@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _jwtEvents.OnAuthenticationFailed = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess();
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _jwtEvents.OnMessageReceived = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess();
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _jwtEvents.OnTokenValidated = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess();
         }
@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _jwtEvents.OnChallenge = _eventHandler;
             _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.Challenge(new JwtBearerChallengeContext(_httpContext, _authScheme, _jwtOptions, new AuthenticationProperties())).ConfigureAwait(false);
+            await _jwtEvents.Challenge(new JwtBearerChallengeContext(_httpContext, _authScheme, _jwtOptions, new AuthenticationProperties()));
 
             AssertSuccess();
         }
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         public async void Subscribe_OnAuthenticationFailedDefault_CompletesSuccessfully()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(null!);
-            await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess(false);
         }
@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         public async void Subscribe_OnMessageReceivedDefault_CompletesSuccessfully()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess(false);
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         public async void Subscribe_OnTokenValidatedDefault_CompletesSuccessfully()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _jwtOptions)).ConfigureAwait(false);
+            await _jwtEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _jwtOptions));
 
             AssertSuccess(false);
         }
@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         public async void Subscribe_OnChallengeDefault_CompletesSuccessfully()
         {
             _jwtEvents = _jwtDiagnostics.Subscribe(_jwtEvents);
-            await _jwtEvents.Challenge(new JwtBearerChallengeContext(_httpContext, _authScheme, _jwtOptions, new AuthenticationProperties())).ConfigureAwait(false);
+            await _jwtEvents.Challenge(new JwtBearerChallengeContext(_httpContext, _authScheme, _jwtOptions, new AuthenticationProperties()));
 
             AssertSuccess(false);
         }

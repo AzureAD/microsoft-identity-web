@@ -41,9 +41,9 @@ namespace Microsoft.Identity.Web.Test
             _testCacheAdapter.Initialize(tokenCache);
 
             // Act
-            await tokenCache._beforeAccess(args).ConfigureAwait(false);
+            await tokenCache._beforeAccess(args);
             tokenCache.cache = cache;
-            await tokenCache._afterAccess(args).ConfigureAwait(false);
+            await tokenCache._afterAccess(args);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
