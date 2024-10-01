@@ -31,15 +31,15 @@ namespace Microsoft.Identity.Web.Test
             TestClientAssertion clientAssertionDescription = new TestClientAssertion();
             AssertionRequestOptions options = new AssertionRequestOptions();
 
-            string assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
+            string assertion = await clientAssertionDescription.GetSignedAssertionAsync(options);
 
             Assert.Equal("1", assertion);
-            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
+            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options);
             Assert.Equal("1", assertion);
 
             Assert.NotNull(clientAssertionDescription.Expiry);
-            await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options).ConfigureAwait(false);
+            await Task.Delay(clientAssertionDescription.Expiry.Value - DateTimeOffset.Now + TimeSpan.FromMilliseconds(100));
+            assertion = await clientAssertionDescription.GetSignedAssertionAsync(options);
             Assert.Equal("2", assertion);
         }
 

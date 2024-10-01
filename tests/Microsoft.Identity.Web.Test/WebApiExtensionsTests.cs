@@ -293,7 +293,7 @@ namespace Microsoft.Identity.Web.Test
 
             configMock.Received(1).GetSection(ConfigSectionName);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
         }
 
 #if NET8_0
@@ -332,7 +332,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(configuredAppOptions, o => o.Action == _configureAppOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
         }
 
         private async Task AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(IServiceCollection services, ServiceProvider provider, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
@@ -359,10 +359,10 @@ namespace Microsoft.Identity.Web.Test
                 {
                         new Claim(ClaimConstants.Scope, Constants.Scope),
                 }));
-            await jwtOptions.Events.TokenValidated(tokenValidatedContext).ConfigureAwait(false);
+            await jwtOptions.Events.TokenValidated(tokenValidatedContext);
 
             // Assert events called
-            await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>()).ConfigureAwait(false);
+            await tokenValidatedFuncMock.ReceivedWithAnyArgs().Invoke(Arg.Any<TokenValidatedContext>());
             Assert.NotNull(httpContext.GetTokenUsedToCallWebAPI());
         }
     }

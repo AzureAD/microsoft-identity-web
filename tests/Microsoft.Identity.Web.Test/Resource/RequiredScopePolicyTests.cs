@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, SingleScope) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, policyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, policyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, MultipleScopes) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, policyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, policyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.False(allowed.Succeeded);
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, UserRead) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Scp, SingleScope) }));
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName)).ConfigureAwait(false);
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName));
             Assert.Equal("No policy found: foo.", exception.Message);
         }
 

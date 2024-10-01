@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, AppPermission) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(claimType, MultipleAppPermissions) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, "access_as_app2") }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.False(allowed.Succeeded);
@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission) }));
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName)).ConfigureAwait(false);
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => authorizationService.AuthorizeAsync(user, PolicyName));
             Assert.Equal("No policy found: foo.", exception.Message);
         }
 
@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Web.Test.Resource
                 new CaseSensitiveClaimsIdentity(new Claim[] { new Claim(ClaimConstants.Role, AppPermission), new Claim(ClaimConstants.Scp, Scope) }));
 
             // Act
-            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName).ConfigureAwait(false);
+            var allowed = await authorizationService.AuthorizeAsync(user, PolicyName);
 
             // Assert
             Assert.True(allowed.Succeeded);
