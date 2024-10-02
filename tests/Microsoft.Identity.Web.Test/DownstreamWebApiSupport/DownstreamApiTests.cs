@@ -290,7 +290,8 @@ namespace Microsoft.Identity.Web.Tests
             var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
 
             // Assert
-            Assert.Equal("serialized", await (result?.ReadAsStringAsync() ?? Task.FromResult(string.Empty)));
+            Assert.NotNull(result);
+            Assert.Equal("serialized", await (result?.ReadAsStringAsync()));
         }
 
         [Fact]
