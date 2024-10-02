@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public void SerializeInput_WithSerializer_ReturnsSerializedContent()
+        public async Task SerializeInput_WithSerializer_ReturnsSerializedContentAsync()
         {
             // Arrange
             var input = new Person();
@@ -129,11 +129,12 @@ namespace Microsoft.Identity.Web.Tests
             var result = DownstreamApi.SerializeInput(input, _options);
 
             // Assert
-            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+            Assert.NotNull(result);
+            Assert.Equal("serialized", await result.ReadAsStringAsync());
         }
 
         [Fact]
-        public void SerializeInput_WithStringAndContentType_ReturnsStringContent()
+        public async Task SerializeInput_WithStringAndContentType_ReturnsStringContent()
         {
             // Arrange
             var input = "test";
@@ -144,11 +145,11 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             Assert.IsType<StringContent>(result);
-            Assert.Equal(input, result.ReadAsStringAsync().Result);
+            Assert.Equal(input, await result.ReadAsStringAsync());
         }
 
         [Fact]
-        public void SerializeInput_WithByteArray_ReturnsByteArrayContent()
+        public async Task SerializeInput_WithByteArray_ReturnsByteArrayContentAsync()
         {
             // Arrange
             var input = new byte[] { 1, 2, 3 };
@@ -158,11 +159,11 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             Assert.IsType<ByteArrayContent>(result);
-            Assert.Equal(input, result.ReadAsByteArrayAsync().Result);
+            Assert.Equal(input, await result.ReadAsByteArrayAsync());
         }
 
         [Fact]
-        public void SerializeInput_WithStream_ReturnsStreamContent()
+        public async Task SerializeInput_WithStream_ReturnsStreamContentAsync()
         {
             // Arrange
             var input = new MemoryStream(Encoding.UTF8.GetBytes("test"));
@@ -172,7 +173,7 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             Assert.IsType<StreamContent>(result);
-            Assert.Equal("test", new StreamReader(result.ReadAsStreamAsync().Result).ReadToEnd());
+            Assert.Equal("test", new StreamReader(await result.ReadAsStreamAsync()).ReadToEnd());
         }
 
         [Fact]
@@ -279,7 +280,7 @@ namespace Microsoft.Identity.Web.Tests
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
+        public async Task SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
         {
             // Arrange
             var input = new Person();
@@ -289,7 +290,7 @@ namespace Microsoft.Identity.Web.Tests
             var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
 
             // Assert
-            Assert.Equal("serialized", result?.ReadAsStringAsync().Result);
+            Assert.Equal("serialized", await (result?.ReadAsStringAsync() ?? Task.FromResult(string.Empty)));
         }
 
         [Fact]

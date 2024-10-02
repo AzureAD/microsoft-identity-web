@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [InlineData(ClaimConstants.Roles)]
         [InlineData(ClaimConstants.Roles, true)]
         [RequiredScopeOrAppPermission(RequiredAppPermissionsConfigurationKey = "AzureAd:AppPermission")]
-        public async void VerifyAppHasAnyAcceptedAppPermission_TestAsync(
+        public async Task VerifyAppHasAnyAcceptedAppPermission_TestAsync(
             string claimType,
             bool withConfig = false)
         {
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [InlineData(ClaimConstants.Role, true)]
         [InlineData(ClaimConstants.Roles)]
         [InlineData(ClaimConstants.Roles, true)]
-        public async void VerifyAppHasAnyAcceptedAppPermission_OneAppPermissionMatches_TestAsync(
+        public async Task VerifyAppHasAnyAcceptedAppPermission_OneAppPermissionMatches_TestAsync(
             string claimType,
             bool withConfig = false)
         {
@@ -79,7 +80,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyAppHasAnyAcceptedAppPermission_WithMismatchAppPermissionTest_FailsAsync()
+        public async Task VerifyAppHasAnyAcceptedAppPermission_WithMismatchAppPermissionTest_FailsAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -98,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyAppHasAnyAcceptedAppPermission_RequiredAppPermissionMissingAsync()
+        public async Task VerifyAppHasAnyAcceptedAppPermission_RequiredAppPermissionMissingAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -117,7 +118,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void IncorrectPolicyName_FailsAsync()
+        public async Task IncorrectPolicyName_FailsAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -134,7 +135,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyAppHasAnyAcceptedScopeOrAppPermission_TestAsync()
+        public async Task VerifyAppHasAnyAcceptedScopeOrAppPermission_TestAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(

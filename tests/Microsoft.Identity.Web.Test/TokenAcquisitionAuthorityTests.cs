@@ -69,7 +69,9 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(JwtBearerDefaults.AuthenticationScheme)]
         [InlineData(OpenIdConnectDefaults.AuthenticationScheme)]
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(null)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         public void VerifyCorrectSchemeTests(string scheme)
         {
             BuildTheRequiredServices();
@@ -424,7 +426,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("https://localhost:1234")]
         [InlineData("")]
         [InlineData(null)]
-        public async void GetOrBuildManagedIdentity_TestAsync(string? clientId)
+        public async Task GetOrBuildManagedIdentity_TestAsync(string? clientId)
         {
             // Arrange
             ManagedIdentityOptions managedIdentityOptions = new()
@@ -448,7 +450,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("https://localhost:1234")]
         [InlineData(null)]
-        public async void GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
+        public async Task GetOrBuildManagedIdentity_TestConcurrencyAsync(string? clientId)
         {
             // Arrange
             ThreadPool.GetMaxThreads(out int maxThreads, out int _);

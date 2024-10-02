@@ -16,7 +16,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         // [InlineData(CertificateSource.Path, @"c:\temp\WebAppCallingWebApiCert.pfx", "")]
         // [InlineData(CertificateSource.StoreWithDistinguishedName, "CurrentUser/My", "CN=WebAppCallingWebApiCert")]
         // [InlineData(CertificateSource.StoreWithThumbprint, "CurrentUser/My", "962D129A859174EE8B5596985BD18EFEB6961684")]
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         [Theory]
         public void TestDefaultCertificateLoader(CertificateSource certificateSource, string container, string referenceOrValue)
         {
@@ -53,7 +55,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.NotNull(certificateDescription.Certificate);
         }
 
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         [Theory]
         public void TestLoadFirstCertificate(
             CertificateSource certificateSource,
@@ -75,12 +79,12 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [Theory]
         public void TestLoadAllCertificates(
            CertificateSource certificateSource,
-           string container,
+           string? container,
            string referenceOrValue)
         {
             List<CertificateDescription> certDescriptions = CreateCertificateDescriptions(
                 certificateSource,
-                container,
+                container ?? "",
                 referenceOrValue).ToList();
 
             certDescriptions.Add(new CertificateDescription
