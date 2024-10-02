@@ -75,16 +75,18 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal("CN=ACS2ClientCertificate", certificate.Issuer);
         }
 
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         [Theory]
         public void TestLoadAllCertificates(
            CertificateSource certificateSource,
-           string? container,
+           string container,
            string referenceOrValue)
         {
             List<CertificateDescription> certDescriptions = CreateCertificateDescriptions(
                 certificateSource,
-                container ?? "",
+                container,
                 referenceOrValue).ToList();
 
             certDescriptions.Add(new CertificateDescription
