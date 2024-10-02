@@ -11,22 +11,22 @@ namespace Microsoft.Identity.Web
     /// Signature for token acquisition extensions that act on the application builder.
     /// </summary>
     /// <param name="confidentialClientApplicationBuilder">Application builder.</param>
-    /// <param name="acquireTokenOptions">Token acquisition options.</param>
-    public delegate void BuildApplication(ConfidentialClientApplicationBuilder confidentialClientApplicationBuilder, AcquireTokenOptions acquireTokenOptions);
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    public delegate void BuildApplication(ConfidentialClientApplicationBuilder confidentialClientApplicationBuilder, AcquireTokenOptions? acquireTokenOptions);
 
     /// <summary>
     /// Signature for token acquisition extensions that act on the request builder, for an app token
     /// </summary>
     /// <param name="builder">Builder</param>
-    /// <param name="acquireTokenOptions">Token acquisition options for the request.</param>
-    public delegate void BeforeTokenAcquisitionForApp(AcquireTokenForClientParameterBuilder builder, AcquireTokenOptions acquireTokenOptions);
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    public delegate void BeforeTokenAcquisitionForApp(AcquireTokenForClientParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions);
 
     /// <summary>
     /// Signature for token acquisition extensions that act on the application builder.
     /// </summary>
     /// <param name="authResult">MSAL.NET authentication result</param>
-    /// <param name="acquireTokenOptions">Token acquisition options for the request.</param>
-    public delegate void AfterTokenAcquisition(AuthenticationResult authResult, AcquireTokenOptions acquireTokenOptions);
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    public delegate void AfterTokenAcquisition(AuthenticationResult authResult, AcquireTokenOptions? acquireTokenOptions);
 
     /// <summary>
     /// Options for TokenAcquisition add-ins. These options consist in a set of events, that can be subscribed to by add-ins
@@ -44,14 +44,16 @@ namespace Microsoft.Identity.Web
         /// </summary>        
         public event BeforeTokenAcquisitionForApp? OnBeforeTokenAcquisitionForApp;
 
-
         /// <summary>
         /// Event fired when an authentication result is available.
         /// </summary>
         public event AfterTokenAcquisition? OnAfterTokenAcquisition;
 
+        /// <summary>
+        /// Invoke the OnBuildConfidentialClientApplication event.
+        /// </summary>
         internal void InvokeOnBuildConfidentialClientApplication(ConfidentialClientApplicationBuilder builder,
-            AcquireTokenOptions acquireTokenOptions)
+            AcquireTokenOptions? acquireTokenOptions)
         {
             if (OnBuildConfidentialClientApplication != null)
             {
@@ -59,9 +61,11 @@ namespace Microsoft.Identity.Web
             }
         }
 
-
+        /// <summary>
+        /// Invoke the OnBeforeTokenAcquisitionForApp event.
+        /// </summary>
         internal void InvokeOnBeforeTokenAcquisitionForApp(AcquireTokenForClientParameterBuilder builder,
-    AcquireTokenOptions acquireTokenOptions)
+    AcquireTokenOptions? acquireTokenOptions)
         {
             if (OnBeforeTokenAcquisitionForApp != null)
             {
@@ -69,8 +73,11 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /// <summary>
+        /// Invoke the OnAfterTokenAcquisition event.
+        /// </summary>
         internal void InvokeOnAfterTokenAcquisition(AuthenticationResult result,
-    AcquireTokenOptions acquireTokenOptions)
+    AcquireTokenOptions? acquireTokenOptions)
         {
             if (OnAfterTokenAcquisition != null)
             {

@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
         protected readonly ICertificatesObserver? _certificatesObserver;
-        protected readonly IOptionsMonitor<TokenAcquisitionAddInOptions> tokenAcquisitionAddInOptionsMonitor;
+        protected readonly IOptionsMonitor<TokenAcquisitionAddInOptions>? tokenAcquisitionAddInOptionsMonitor;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
