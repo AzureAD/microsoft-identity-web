@@ -15,7 +15,7 @@
     <MicrosoftNetTestSdkVersion>17.4.0</MicrosoftNetTestSdkVersion>
 		<!--GHSA-5crp-9r3c-p9vr-->
 		<NewtonsoftJsonVersion>13.0.2</NewtonsoftJsonVersion>
-		<XunitVersion>2.9.0</XunitVersion>
+		<XunitVersion>2.9.2</XunitVersion>
 		<XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
     <XunitAssertVersion>2.9.0</XunitAssertVersion>
     <XunitExtensibilityCoreVersion>2.4.2</XunitExtensibilityCoreVersion>
