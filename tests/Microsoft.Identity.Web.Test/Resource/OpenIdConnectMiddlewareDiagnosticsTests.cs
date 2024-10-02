@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnRedirectToIdentityProvider = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.RedirectToIdentityProvider(new RedirectContext(_httpContext, _authScheme, _openIdOptions, _authProperties) { ProtocolMessage = new OpenIdConnectMessage() }).ConfigureAwait(false);
+            await _openIdEvents.RedirectToIdentityProvider(new RedirectContext(_httpContext, _authScheme, _openIdOptions, _authProperties) { ProtocolMessage = new OpenIdConnectMessage() });
 
             AssertSuccess();
         }
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnMessageReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _openIdOptions, _authProperties) { ProtocolMessage = new OpenIdConnectMessage() }).ConfigureAwait(false);
+            await _openIdEvents.MessageReceived(new MessageReceivedContext(_httpContext, _authScheme, _openIdOptions, _authProperties) { ProtocolMessage = new OpenIdConnectMessage() });
 
             AssertSuccess();
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnAuthorizationCodeReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.AuthorizationCodeReceived(new AuthorizationCodeReceivedContext(_httpContext, _authScheme, _openIdOptions, _authProperties)).ConfigureAwait(false);
+            await _openIdEvents.AuthorizationCodeReceived(new AuthorizationCodeReceivedContext(_httpContext, _authScheme, _openIdOptions, _authProperties));
 
             AssertSuccess();
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnTokenResponseReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.TokenResponseReceived(new TokenResponseReceivedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties)).ConfigureAwait(false);
+            await _openIdEvents.TokenResponseReceived(new TokenResponseReceivedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties));
 
             AssertSuccess();
         }
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnTokenValidated = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties)).ConfigureAwait(false);
+            await _openIdEvents.TokenValidated(new TokenValidatedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties));
 
             AssertSuccess();
         }
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnUserInformationReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.UserInformationReceived(new UserInformationReceivedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties)).ConfigureAwait(false);
+            await _openIdEvents.UserInformationReceived(new UserInformationReceivedContext(_httpContext, _authScheme, _openIdOptions, _httpContext.User, _authProperties));
 
             AssertSuccess();
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnAuthenticationFailed = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _openIdOptions)).ConfigureAwait(false);
+            await _openIdEvents.AuthenticationFailed(new AuthenticationFailedContext(_httpContext, _authScheme, _openIdOptions));
 
             AssertSuccess();
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnRemoteSignOut = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.RemoteSignOut(new RemoteSignOutContext(_httpContext, _authScheme, _openIdOptions, new OpenIdConnectMessage())).ConfigureAwait(false);
+            await _openIdEvents.RemoteSignOut(new RemoteSignOutContext(_httpContext, _authScheme, _openIdOptions, new OpenIdConnectMessage()));
 
             AssertSuccess();
         }
@@ -133,7 +133,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnRedirectToIdentityProviderForSignOut = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.RedirectToIdentityProviderForSignOut(new RedirectContext(_httpContext, _authScheme, _openIdOptions, _authProperties)).ConfigureAwait(false);
+            await _openIdEvents.RedirectToIdentityProviderForSignOut(new RedirectContext(_httpContext, _authScheme, _openIdOptions, _authProperties));
 
             AssertSuccess();
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         {
             _openIdEvents.OnSignedOutCallbackRedirect = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
-            await _openIdEvents.SignedOutCallbackRedirect(new RemoteSignOutContext(_httpContext, _authScheme, _openIdOptions, new OpenIdConnectMessage())).ConfigureAwait(false);
+            await _openIdEvents.SignedOutCallbackRedirect(new RemoteSignOutContext(_httpContext, _authScheme, _openIdOptions, new OpenIdConnectMessage()));
 
             AssertSuccess();
         }
