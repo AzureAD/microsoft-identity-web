@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727982420214,
+  "lastUpdate": 1727992838299,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6768,6 +6768,42 @@ window.BENCHMARK_DATA = {
             "value": 10732.253487928858,
             "unit": "ns",
             "range": "± 89.22669990982995"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d0953f47465f1536404fd01f80b2ba2f106a2c90",
+          "message": "update xunit versions (#3053)\n\n* Update XUnit versions\r\n\r\n* Fix Xunit warnings",
+          "timestamp": "2024-10-03T14:57:13-07:00",
+          "tree_id": "3fea33289cb4d95dfa72cc016f21bb0ce372f554",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/d0953f47465f1536404fd01f80b2ba2f106a2c90"
+        },
+        "date": 1727992837673,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9936.37586042616,
+            "unit": "ns",
+            "range": "± 85.3896194349586"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10598.675599986109,
+            "unit": "ns",
+            "range": "± 48.77624871914894"
           }
         ]
       }
