@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727802292202,
+  "lastUpdate": 1727982420214,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6732,6 +6732,42 @@ window.BENCHMARK_DATA = {
             "value": 10406.766741888863,
             "unit": "ns",
             "range": "± 76.63992001746898"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "69649063+kellyyangsong@users.noreply.github.com",
+            "name": "kellyyangsong",
+            "username": "kellyyangsong"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fcda0dcbeaa623bce4b78e69a5f32e766e4a3ee0",
+          "message": "3.2.1 Changelog (#3054)\n\n* add 3.2.1 to changelog\r\n\r\n* Update changelog.md\r\n\r\n---------\r\n\r\nCo-authored-by: jennyf19 <jeferrie@microsoft.com>",
+          "timestamp": "2024-10-03T12:03:31-07:00",
+          "tree_id": "7adb3910f1dcc583928bc6fedfbb8ee28cc39e5d",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/fcda0dcbeaa623bce4b78e69a5f32e766e4a3ee0"
+        },
+        "date": 1727982419188,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9901.433239124439,
+            "unit": "ns",
+            "range": "± 93.55888361657908"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10732.253487928858,
+            "unit": "ns",
+            "range": "± 89.22669990982995"
           }
         ]
       }
