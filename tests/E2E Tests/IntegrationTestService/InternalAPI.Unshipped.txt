@@ -1,0 +1,1 @@
+﻿IntegrationTestService.Controllers.WeatherForecast2Controller.UserInfoJsonContext

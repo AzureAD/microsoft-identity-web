@@ -1,0 +1,21 @@
+﻿const PerformanceTestService.MemoryCacheEventSource.CacheItemCounterName = "cache-item-count" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheReadCounterName = "cache-read-count" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheReadDurationCounterName = "cache-read-duration" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheReadMissCounterName = "cache-read-miss-count" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheRemoveCounterName = "cache-remove-count" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheSizeCounterName = "cache-size" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheWriteCounterName = "cache-write-count" -> string
+const PerformanceTestService.MemoryCacheEventSource.CacheWriteDurationCounterName = "cache-write-duration" -> string
+const PerformanceTestService.MemoryCacheEventSource.EventSourceName = "Microsoft.Identity.Web.Caching" -> string
+PerformanceTestService.MemoryCacheEventSource
+PerformanceTestService.MemoryCacheEventSource.AddReadDuration(double readDurationInMilliseconds) -> void
+PerformanceTestService.MemoryCacheEventSource.AddWriteDuration(double writeDurationInMilliseconds) -> void
+PerformanceTestService.MemoryCacheEventSource.DecrementSize(int sizeInBytes) -> void
+PerformanceTestService.MemoryCacheEventSource.IncrementReadCount() -> void
+PerformanceTestService.MemoryCacheEventSource.IncrementReadMissCount() -> void
+PerformanceTestService.MemoryCacheEventSource.IncrementRemoveCount() -> void
+PerformanceTestService.MemoryCacheEventSource.IncrementSize(int sizeInBytes) -> void
+PerformanceTestService.MemoryCacheEventSource.IncrementWriteCount() -> void
+PerformanceTestService.MemoryCacheEventSource.MemoryCacheEventSource() -> void
+PerformanceTestService.MemoryCacheEventSource.MemoryCacheEventSource(string eventSourceName) -> void
+static readonly PerformanceTestService.MemoryCacheEventSource.Log -> PerformanceTestService.MemoryCacheEventSource

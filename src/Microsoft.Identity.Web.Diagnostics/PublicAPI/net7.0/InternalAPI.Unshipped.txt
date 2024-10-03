@@ -1,0 +1,25 @@
+#nullable enable
+Microsoft.Identity.Web.Diagnostics.OsHelper
+Microsoft.Identity.Web.Diagnostics.OsHelper.OsHelper() -> void
+Microsoft.Identity.Web.Throws
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsLinuxPlatform() -> bool
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsMacPlatform() -> bool
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsWindowsPlatform() -> bool
+static Microsoft.Identity.Web.Throws.ArgumentException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentException(string! paramName, string? message, System.Exception? innerException) -> void
+static Microsoft.Identity.Web.Throws.ArgumentNullException(string! paramName) -> void
+static Microsoft.Identity.Web.Throws.ArgumentNullException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName, object? actualValue, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.IfBufferTooSmall(int bufferSize, int requiredSize, string! paramName = "") -> void
+static Microsoft.Identity.Web.Throws.IfMemberNull<TParameter, TMember>(TParameter argument, TMember member, string! paramName = "", string! memberName = "") -> TMember
+static Microsoft.Identity.Web.Throws.IfNull<T>(T argument, string! paramName = "") -> T
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty(string? argument, string! paramName = "") -> string!
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty<T>(System.Collections.Generic.ICollection<T>? argument, string! paramName = "") -> System.Collections.Generic.ICollection<T>!
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty<T>(System.Collections.Generic.IReadOnlyCollection<T>? argument, string! paramName = "") -> System.Collections.Generic.IReadOnlyCollection<T>!
+static Microsoft.Identity.Web.Throws.IfNullOrMemberNull<TParameter, TMember>(TParameter argument, TMember member, string! paramName = "", string! memberName = "") -> TMember
+static Microsoft.Identity.Web.Throws.IfNullOrWhitespace(string? argument, string! paramName = "") -> string!
+static Microsoft.Identity.Web.Throws.IfOutOfRange<T>(T argument, string! paramName = "") -> T
+static Microsoft.Identity.Web.Throws.InvalidOperationException(string! message) -> void
+static Microsoft.Identity.Web.Throws.InvalidOperationException(string! message, System.Exception? innerException) -> void

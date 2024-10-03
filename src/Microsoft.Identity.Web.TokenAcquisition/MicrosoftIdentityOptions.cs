@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
         public string? ResetPasswordPolicyId { get; set; }
 
         /// <summary>
-        /// Gets the default user flow (which is signUpsignIn).
+        /// Gets the default user flow (which is signUpSignIn).
         /// </summary>
         public string? DefaultUserFlow => SignUpSignInPolicyId;
 

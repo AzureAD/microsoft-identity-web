@@ -15,8 +15,6 @@ indent_style = space
 indent_size = 4
 dotnet_diagnostic.CA1308.severity=warning
 
-dotnet_diagnostic.RS0041.severity = none
-
 [project.json]
 indent_size = 2
 
@@ -142,6 +140,19 @@ csharp_space_between_square_brackets = false
 
 # RS0030: Do not used banned APIs
 dotnet_diagnostic.RS0030.severity = error
+
+# RS0037: Enable tracking of nullability of reference types in the declared API
+dotnet_diagnostic.RS0037.severity = silent
+
+# https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/Microsoft.CodeAnalysis.PublicApiAnalyzers.md
+dotnet_diagnostic.RS0051.severity = error
+dotnet_diagnostic.RS0052.severity = error
+dotnet_diagnostic.RS0053.severity = error
+dotnet_diagnostic.RS0054.severity = error
+dotnet_diagnostic.RS0055.severity = error
+dotnet_diagnostic.RS0057.severity = error
+dotnet_diagnostic.RS0058.severity = error
+dotnet_diagnostic.RS0061.severity = error
 
 # CA1000: Do not declare static members on generic types
 dotnet_diagnostic.CA1000.severity = error

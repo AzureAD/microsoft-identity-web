@@ -1,3 +1,4 @@
+#nullable enable
 const Microsoft.Identity.Web.ClaimConstants.Acr = "acr" -> string!
 const Microsoft.Identity.Web.ClaimConstants.ClientInfo = "client_info" -> string!
 const Microsoft.Identity.Web.ClaimConstants.Name = "name" -> string!

@@ -1,0 +1,2 @@
+﻿static Microsoft.Identity.Web.GraphBetaServiceCollectionExtensions.AddGraphBetaServiceClient(Microsoft.Extensions.DependencyInjection.IServiceCollection services) -> void
+static Microsoft.Identity.Web.GraphBetaServiceCollectionExtensions.AddGraphBetaServiceClientWithLifetime(Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime) -> void

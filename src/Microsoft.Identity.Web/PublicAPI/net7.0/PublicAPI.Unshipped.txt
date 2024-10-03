@@ -1,3 +1,4 @@
+#nullable enable
 const Microsoft.Identity.Web.AppServicesAuthenticationDefaults.AuthenticationScheme = "AppServicesAuthentication" -> string!
 Microsoft.Identity.Web.AadIssuerValidatorOptions
 Microsoft.Identity.Web.AadIssuerValidatorOptions.AadIssuerValidatorOptions() -> void
