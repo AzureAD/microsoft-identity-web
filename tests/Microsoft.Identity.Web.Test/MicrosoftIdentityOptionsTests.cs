@@ -48,6 +48,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.False(options.IsB2C);
         }
 
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [Theory]
         [InlineData(TestConstants.ClientId, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, AzureAd, null)]
         [InlineData(null, TestConstants.AadInstance, TestConstants.GuestTenantId, null, null, null, AzureAd, MissingParam.ClientId)]
@@ -61,6 +62,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData(TestConstants.ClientId, TestConstants.B2CInstance, null, null, TestConstants.B2CSignUpSignInUserFlow, "", AzureAdB2C, MissingParam.Domain)]
         [InlineData(TestConstants.ClientId, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd)]
         [InlineData(null, null, null, TestConstants.AuthorityWithTenantSpecified, null, null, AzureAd, MissingParam.ClientId)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         public void ValidateRequiredMicrosoftIdentityOptions(
            string clientId,
            string instance,

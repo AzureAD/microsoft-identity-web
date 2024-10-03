@@ -67,7 +67,9 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Theory]
         [InlineData(true, Constants.Bearer)]
         [InlineData(true, "PoP")]
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(false, null)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         public async Task GetAccessTokenOrAuthResultForApp_ReturnsAccessTokenOrAuthResultAsync(bool getAuthResult, string authHeaderPrefix)
         {
             // Arrange
