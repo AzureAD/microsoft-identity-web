@@ -425,6 +425,9 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
+
+                // Extra Parameters are not meant to be used by Token but by extensions
+
                 if (tokenAcquisitionOptions.CorrelationId != null)
                 {
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
