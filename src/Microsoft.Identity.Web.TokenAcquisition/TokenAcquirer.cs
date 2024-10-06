@@ -83,6 +83,7 @@ namespace Microsoft.Identity.Web
                 UserFlow = tokenAcquisitionOptions.UserFlow,
                 PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
                 PopClaim = tokenAcquisitionOptions.PopClaim,
+                ExtraParameters = tokenAcquisitionOptions.ExtraParameters,
             };
         }
     }
