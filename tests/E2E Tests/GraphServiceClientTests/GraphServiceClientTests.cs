@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             GraphAuthenticationProvider graphAuthenticationProvider = new(_authorizationHeaderProvider, new GraphServiceClientOptions());
 
             // act
-            await graphAuthenticationProvider.AuthenticateRequestAsync(request).ConfigureAwait(false);
+            await graphAuthenticationProvider.AuthenticateRequestAsync(request);
 
             // assert
             Assert.False(request.Headers.ContainsKey("Authorization"));

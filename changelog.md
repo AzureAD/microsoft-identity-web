@@ -1,3 +1,7 @@
+3.2.1
+=========
+- Updated to Microsoft.IdentityModel.* 8.1.1
+
 3.2.0
 =========
 - Updated to Microsoft.Identity.Abstractions 7.1.0

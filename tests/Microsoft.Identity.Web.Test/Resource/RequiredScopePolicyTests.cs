@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [InlineData(PolicyName, ClaimConstants.Scope)]
         [InlineData(PolicyName, ClaimConstants.Scope, true)]
         [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-        public async void VerifyUserHasAnyAcceptedScope_TestAsync(
+        public async Task VerifyUserHasAnyAcceptedScope_TestAsync(
             string policyName,
             string claimType,
             bool withConfig = false)
@@ -57,7 +58,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [InlineData(PolicyName, SingleScope, ClaimConstants.Scp, true)]
         [InlineData(PolicyName, SingleScope, ClaimConstants.Scope)]
         [InlineData(PolicyName, SingleScope, ClaimConstants.Scope, true)]
-        public async void VerifyUserHasAnyAcceptedScope_OneScopeMatches_TestAsync(
+        public async Task VerifyUserHasAnyAcceptedScope_OneScopeMatches_TestAsync(
             string policyName,
             string scopes,
             string claimType,
@@ -80,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyUserHasAnyAcceptedScope_WithMismatchScopeTest_FailsAsync()
+        public async Task VerifyUserHasAnyAcceptedScope_WithMismatchScopeTest_FailsAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -98,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void VerifyUserHasAnyAcceptedScope_RequiredScopesMissingAsync()
+        public async Task VerifyUserHasAnyAcceptedScope_RequiredScopesMissingAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
@@ -116,7 +117,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async void IncorrectPolicyName_FailsAsync()
+        public async Task IncorrectPolicyName_FailsAsync()
         {
             // Arrange
             var authorizationService = BuildAuthorizationService(
