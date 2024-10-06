@@ -15,16 +15,32 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions
     {
+        private const string ObseleteMessage = "This method which accepts a service name is deprecated. Use the overload that uses the HttpClient name as the service name instead.";
+
         /// <summary>
         /// Adds a named Microsoft Identity user authentication message handler related to a specific configuration section.
         /// </summary>
         /// <param name="builder">Builder.</param>
-        /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
 #endif
+        public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
+            this IHttpClientBuilder builder,
+            IConfiguration configuration)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.AddMicrosoftIdentityUserAuthenticationHandler(builder.Name, configuration);
+        }
+
+        /// <inheritdoc cref="AddMicrosoftIdentityUserAuthenticationHandler(IHttpClientBuilder, IConfiguration)" />
+        /// <param name="serviceName">Name of the configuration for the service.</param>
+        [Obsolete(ObseleteMessage)]
         public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
             this IHttpClientBuilder builder,
             string serviceName,
@@ -42,9 +58,23 @@ namespace Microsoft.Identity.Web
         /// Adds a named Microsoft Identity user authentication message handler initialized with delegates.
         /// </summary>
         /// <param name="builder">Builder.</param>
-        /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
         /// <returns>The builder for chaining.</returns>
+        public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
+            this IHttpClientBuilder builder,
+            Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.AddMicrosoftIdentityUserAuthenticationHandler(builder.Name, configureOptions);
+        }
+
+        /// <inheritdoc cref="AddMicrosoftIdentityUserAuthenticationHandler(IHttpClientBuilder, Action{MicrosoftIdentityAuthenticationMessageHandlerOptions})"/>
+        /// <param name="serviceName">Name of the configuration for the service.</param>
+        [Obsolete(ObseleteMessage)]
         public static IHttpClientBuilder AddMicrosoftIdentityUserAuthenticationHandler(
             this IHttpClientBuilder builder,
             string serviceName,
@@ -62,12 +92,26 @@ namespace Microsoft.Identity.Web
         /// Adds a named Microsoft Identity application authentication message handler related to a specific configuration section.
         /// </summary>
         /// <param name="builder">Builder.</param>
-        /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<TOutput>(IServiceCollection, String, IConfiguration).")]
 #endif
+        public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
+            this IHttpClientBuilder builder,
+            IConfiguration configuration)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.AddMicrosoftIdentityAppAuthenticationHandler(builder.Name, configuration);
+        }
+
+        /// <inheritdoc cref="AddMicrosoftIdentityAppAuthenticationHandler(IHttpClientBuilder, IConfiguration)"/>
+        /// <param name="serviceName">Name of the configuration for the service.</param>
+        [Obsolete(ObseleteMessage)]
         public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
             this IHttpClientBuilder builder,
             string serviceName,
@@ -85,9 +129,23 @@ namespace Microsoft.Identity.Web
         /// Adds a named Microsoft Identity application authentication message handler initialized with delegates.
         /// </summary>
         /// <param name="builder">Builder.</param>
-        /// <param name="serviceName">Name of the configuration for the service.</param>
         /// <param name="configureOptions">Action to configure the options.</param>
         /// <returns>The builder for chaining.</returns>
+        public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
+            this IHttpClientBuilder builder,
+            Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return builder.AddMicrosoftIdentityAppAuthenticationHandler(builder.Name, configureOptions);
+        }
+
+        /// <inheritdoc cref="AddMicrosoftIdentityAppAuthenticationHandler(IHttpClientBuilder, Action{MicrosoftIdentityAuthenticationMessageHandlerOptions})"/>
+        /// <param name="serviceName">Name of the configuration for the service.</param>
+        [Obsolete(ObseleteMessage)]
         public static IHttpClientBuilder AddMicrosoftIdentityAppAuthenticationHandler(
             this IHttpClientBuilder builder,
             string serviceName,
